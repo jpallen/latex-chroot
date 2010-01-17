@@ -1,0 +1,37 @@
+%
+% Washington Romanized Indic accent driver
+%
+% Macros to draw flat hachek accents 
+%
+
+cmchar "Hachek (check) accent";
+beginchar(oct"024",9u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+h':=vround min(asc_height,2x_height); % height of circumflex being inverted
+if serifs: italcorr h#*slant+.5hair#-1.75u#;
+ adjust_fit(0,0);
+ pickup crisp.nib; pos2'(.5[vair,curve],90); top y2'r=.825[x_height,h];
+ pos2(.5[vair,curve],90); x2=.5w;
+ x1=w-x3=good.x 2.25u; top y1=top y3=.825[x_height,h]; y1-y2=.5(y2'-x_height);
+ pos1(hair,angle(z2-z1)+90); pos3(hair,angle(z3-z2)+90);
+ filldraw stroke z1e--z2e--z3e;  % diagonals
+else: italcorr h#*slant-.5stem#+.5vair#-.75u#;
+ adjust_fit(0,0);
+ pickup fine.nib; pos1(vair,0); pos3(vair,0); x1=w-x3;
+ pos2(stem,0); bot y2=vround(1/12[x_height,h']+o); x2=.5w;
+ top y1=top y3=.825[x_height,h]; lft x1l=hround(rt x2r-3.25u-.5vair);
+ z0=whatever[z1r,z2r]=whatever[z2l,z3l];
+ y4l=y4r=y2; x4l=good.x .2[x2l,x2]; x4r=w-x4l;
+ filldraw z4l--z1l--z1r--z0--z3l--z3r--z4r--cycle; fi  % diagonals
+if monospace: currentpicture:=currentpicture shifted(0,1/2aspect_ratio*dot_size); fi
+makeACCENT(CaronPic);
+endgroup;
+
+extra_endchar:=
+  " czu ap(CaronPic);  ah; oechar; ";
+
+boolean dotson; dotson=false; % omit dots on i, j, and possibly etc.
+
+def cp = hach enddef;
+
+% end of file fhachact.mf
+

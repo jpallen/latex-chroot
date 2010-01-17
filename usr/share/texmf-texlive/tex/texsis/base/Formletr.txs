@@ -1,0 +1,247 @@
+%% file: Formletr.txs - TeXsis version 2.18
+%  @(#) $Id: Formletr.txs,v 18.0 2000/05/17 01:50:44 myers Exp $ 
+%======================================================================*
+% FORM LETTERS                                  E. Myers and F.E. Paige
+%
+%       Macros to type form letters with a common text to a list of 
+% people. The syntax is:
+%
+%       \formLetters{<letterhead-stuff>}{<text-file-name>}
+%       \BL     Prof. John Doe
+%               Physics Dept
+%               U. of Nowhere
+%               Nowhere, Somewhere 12345679
+%               \V\Whoever{Prof.~Doe}
+%               \EL
+%       \BL     Dr.\ William Barcode
+%               Department of Physics
+%               Ferbilab
+%               Batcave, IL 60510 USA 
+%               \V\Whoever{Dr.\ Barcode}
+%               \EL
+%       \BL ...
+%           ... \EL
+%       ...
+%       \bye
+%
+% where <letterhead-stuff> is stuff to be executed before the address is
+% printed and <text-file-name> is the name of a file containing the
+% generic text of the letter following the standard TeXsis letter format,
+% beginning with \body:
+%
+%       \body
+%       Dear \Whoever,
+%            ...
+%       \closing
+%       Sincerely yours,
+%       Joe User
+%       \endletter
+%
+%  The text file can use any other control sequences defined by 
+%  \V\name{...} between \BL and \EL.
+%         
+%  Replace \formLetters with \formLabels (no arguments) to print out
+%  your mailing list in a tabular form suitable for printing on mailing
+%  labels.  Or use \formEnvelopes to print directly on envelopes, if
+%  your printer can do so.  Set \theSignature and \ReturnAddress if you
+%  also want a return name and address on the envelope.
+%======================================================================*
+% (C) Copyright 1990,1992,1994,1997,2000 by Eric Myers and Frank E. Paige
+% This file is a part of TeXsis.  Distribution and/or modifications
+% are allowed under the terms of the LaTeX Project Public License (LPPL).
+% See the file COPYING or ftp://ftp.texsis.org/texsis/LPPL
+%======================================================================*
+\message{Form Letters.}
+
+%    \formLetters{<letterhead>}{<file>} sets things up to make a series of
+% form letters.  The commands in <letterhead> are executed before the
+% address, to make  a letterhead or print the sender's phone number.
+% The file named by <file> contains the text of the letter, which is 
+% printed below the address. This text can use any ``variable'' control
+% sequences defined by \V in the address list.  
+
+
+\def\formLetters#1#2{%         
+   \def\formLabels{\relax}%     % disable the others
+   \def\formEnvelopes{\relax}% 
+   \def\formLetterhead{#1}%     % save \letterhead definitions
+   \def\TXTfile{#2}%            % save file name for letter text
+   \auxswitchfalse              % no .AUX file
+   \refswitchfalse              % no references either
+   \texsis                      % initialize TeXsis
+   \def\BL{\BLletter}\def\FL{\BLletter}%   
+   \def\EL{\ELletter}\def\IL{\ILletter}%   
+   \def\endmode{\relax}%        % initially does nothing
+   \let\V=\gdef                 % \V\name  defines variable \name
+   \def\endletter{\endmode}%    % \endletter does not end job
+   \def\endmode{\relax}%        % start with null \endmode
+   \def\endform{\bye}%          % ending is just \bye
+   \LetterFormat                % and set up for letters
+}           
+
+\def\formletters{\formLetters}  % synonym from 2.16 and before
+
+         
+%  \BLletter is \BL for letters.  It begins a new formletter.
+         
+\long\def\BLletter{% do an individual form letter
+   \endmode                             % end any previous mode
+   \def\endmode{\relax}%                % but ending this mode is nothing
+   \pageno=1                            % start each letter on page 1
+   \formLetterhead                      % do the letterhead stuff first
+   \begingroup\obeylines                % to look for line endings in addresses
+   \GetFormAddress}                     % and go get address
+
+%  \GetFormAddress gets the address for form letters
+                                      
+{\obeylines\gdef\GetFormAddress#1
+  {\ifx\EL#1\relax\endgroup\else         %% if just \EL then end \obeylines
+    \gdef\addressee{#1}%                 %% addressee is first line of address
+    \global\advance \FLcount by 1        %% advance count of letters printed
+    \emsg{\the\FLcount.\space \addressee\space}% show letters printed
+    \def\BL{\emsg{> . Warning! \NX\BL found before \NX\EL}\ELBL}%
+    \def\IL{\emsg{> . Warning! \NX\IL found before \NX\EL}\ELIL}%
+    \global\setbox\theaddress=\vbox\bgroup %% start a vbox
+    \parindent=0pt                       %% no indent, since we are \obeylines
+    #1\relax                             
+   \fi}%                                
+}% end of \obeylines for definition     
+                                        
+%  \ELletter is \EL for letters.  It boxes up the address and prints
+%  it, then reads in the generic text of the letter from \TXTfile
+
+\def\ELletter{%  end of address, print the form letter
+   \vss\egroup                          % end the \vbox
+   \endgroup                            % end the \obeylines
+   \copy\theaddress                     % dump the address to the page
+   \message{\space\space}%              % some whitespace in log file
+   \input\TXTfile \relax                % read in text of letter from file
+   \vfill\eject}                        % end the page
+                                
+% \IL ignores a letter (use in place of \BL to keep from sending to a
+% particular name on the list).  You MUST end the entry in the list with \EL ! 
+                                
+\long\def\ILletter#1\EL{\relax}            
+\long\def\ILlabel#1\EL{\relax}            
+
+%----------------------------------------------------------------------
+\message{FormLabels.}
+
+%   \formLabels uses the same input file as \formLetters but prints
+% mailing labels. It is assumed that there are three columns of labels
+% on a page. Dimensions are for 8 labels per column and Barbara's printer.
+% These  dimensions are defined in TXSletr.tex.
+%
+% \newdimen\fullHsize     \fullHsize=8.5in      % hsize for label page
+% \newdimen\fullVsize     \fullVsize=11.50in    % vsize for label page
+% \newdimen\lblHsize      \lblHsize=2.833in     % width of standard label
+% \newdimen\lblVsize      \lblVsize=1.365in     % ht. of std. label - a bit
+% \newdimen\lblVoffset    \lblVoffset=-.900in   % vertical starting position
+% \newdimen\lblHoffset    \lblHoffset=-0.750in  % horizontal starting position
+
+\newcount\FLcount                               % count the number of letters
+
+\newbox\lblLcol                                 % box for left column
+\newbox\lblMcol                                 % box for middle column
+      
+\def\formLabels{%                       % form labels instead of letters
+   \texsis                              % initialize TeXsis
+   \def\formLetters##1##2{\relax}%      % disable \formLetters
+   \def\formEnvelopes{\relax}%          %
+   \hoffset=\lblHoffset                 % use full page, no left margin
+   \voffset=\lblVoffset                 % adjust for printer vertical offset
+   \hsize=\fullHsize                    % use full page width
+   \vsize=\fullVsize                    %     and full length
+   \auxswitchfalse                      % no .AUX file
+   \refswitchfalse                      % no references either
+   \tenpoint\singlespaced               % 10pt to fit long addresses
+   \nopagenumbers                       % suppress page numbering
+   \raggedbottom                        % ragged page bottom
+   \def\lblflag{L}%                     % set flag to start in left column
+   \def\BL{\BLlabel}\def\FL{\BLlabel}%   
+   \def\EL{\ELlabel}\def\IL{\ILlabel}% 
+   \def\endmode{\relax}%                % initially does nothing
+   \def\endform{\endFormLabels}%        % end form labels
+   \let\V=\gdef                         % \V\name  defines variable \name
+}
+\def\formlabels{\formLabels}            % synonym for 2.16 and before
+
+\def\BLlabel{\begingroup\obeylines      % pay attention to line endings
+   \hsize=\lblHsize                     % with width of label
+   \GetLabelAddress}%                   % get address in a box
+
+%  \GetLabelAddress gets the address for form labels
+                                      
+{\obeylines\gdef\GetLabelAddress#1
+  {\ifx\EL#1\relax\endgroup\else        %% if just \EL end \obeylines
+     \gdef\addressee{#1}%               %% addressee is first line of address
+     \global\advance \FLcount by 1      %% advance count of letters
+     \emsg{\the\FLcount.\space \addressee\space}% show letters printed
+     \def\BL{\emsg{> . . . . . . . Warning! \NX\BL found before \NX\EL}\ELBL}%
+     \def\IL{\emsg{> . . . . . . . Warning! \NX\IL found before \NX\EL}\ELIL}%
+     \global\setbox\theaddress=\vbox to \lblVsize\bgroup% start a vbox
+     \hsize=\lblHsize                   %% with width of label
+     \parindent=0pt                     %% no indent, since we are \obeylines
+     #1\relax
+   \fi}%                                
+}% end of \obeylines for definition     
+                                        
+%  \ELlabel ends the address label, with the address stored in box
+%  \theaddress.  If we are in the left or centre column we then 
+%  store the address in other boxes.  If we are in the right column
+%  then we print all three boxes across the line.
+        
+\def\ELlabel{\vss\egroup                % end the \vbox
+   \endgroup                            % done with \obeylines
+   \if L\lblflag                        % if in left column 
+     \global\setbox\lblLcol=\box\theaddress     % store in \lblLcol
+      \gdef\lblflag{M}%                 % next column is middle column
+   \else \if M\lblflag                  % else if middle column
+      \global\setbox\lblMcol=\box\theaddress    % store in \lblMcol
+      \gdef\lblflag{R}%                 % next column is right column
+   \else                                % else right column, so
+      \line{\box\lblLcol                % print all 3 boxes
+            \box\lblMcol                %    across the 
+            \box\theaddress\hss}%       %       page...
+      \gdef\lblflag{L}%                 % reset to left column
+   \fi\fi                               % end of if's
+}%
+
+%  \endform=\endFormLabels ends the form labels gracefully. \lblflag is
+%  set to the next column, so...
+
+\def\endFormLabels{% end \formLabels by balancing columns
+   \if M\lblflag%                       % last address in left
+      \line{\box\lblLcol\hss}%          % only left box
+   \else \if R\lblflag%                 % last address in middle
+      \line{\box\lblLcol\box\lblMcol\hss}% left and middle boxes
+   \fi\fi                               %
+   \bye}%                               % else printed by \EL
+
+%----------------------------------------------------------------------
+\message{FormEnvelopes.}
+
+\def\formEnvelopes{%        % print envelopes instead of letters
+   \def\formLetters##1##2{\relax}% disable \formLetters
+   \def\formLabels{\relax}%     % and disable \formLabels
+   \def\formLetterhead{\relax}% 
+   \auxswitchfalse              % no .AUX file
+   \refswitchfalse              % no references either
+   \texsis                      % initialize TeXsis
+   \nopagenumbers               % suppress page numbering
+   \singlespaced\parskip=0pt
+   \def\BL{\BLenvelope}\def\FL{\BLenvelope}%
+   \def\EL{\ELenvelope}\def\IL{\ILlabel}% 
+   \let\V=\gdef                 % \V\name  defines variable \name
+   \def\endmode{\relax}%        % initially does nothing
+   \def\endform{\bye}%          % end of envelopes
+}
+
+\def\formenvelopes{\formEnvelopes}% synonym
+
+
+\def\BLenvelope{\obeylines\@BLenv}
+\def\@BLenv#1\EL{\MakeEnvelope{#1}{\theSignature\n\ReturnAddress}%
+                 \newpage}
+
+%>>> EOF TXSform.tex <<<

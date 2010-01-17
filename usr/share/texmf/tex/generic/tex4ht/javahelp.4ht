@@ -1,0 +1,121 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% javahelp.4ht                          2006-02-22-11:12 %
+% Copyright (C) 2003--2006       Eitan M. Gurari         %
+%                                                        %
+% This work may be distributed and/or modified under the %
+% conditions of the LaTeX Project Public License, either %
+% version 1.3 of this license or (at your option) any    %
+% later version. The latest version of this license is   %
+% in                                                     %
+%   http://www.latex-project.org/lppl.txt                %
+% and version 1.3 or later is part of all distributions  %
+% of LaTeX version 2003/12/01 or later.                  %
+%                                                        %
+% This work has the LPPL maintenance status "maintained".%
+%                                                        %
+% This Current Maintainer of this work                   %
+% is Eitan M. Gurari.                                    %
+%                                                        %
+% If you modify this program your changing its signature %
+% with a directive of the following form will be         %
+% appreciated.                                           %
+%            \message{signature}                         %
+%                                                        %
+%                             gurari@cse.ohio-state.edu  %
+%                 http://www.cse.ohio-state.edu/~gurari  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\immediate\write-1{version 2006-02-22-11:12}
+
+\immediate\write-1{--------------- JavaHelp -----------------}
+\immediate\write-1{The entry (HelpSet) file for the java program
+                                         is at `\jobname.hs'}
+\immediate\write-1{Generate a search database
+                             with, for instance, the command}
+  \immediate\write-1{ java -jar
+    ...../jh1.1.3/javahelp/bin/jhindexer.jar
+    -db \jobname-jhs \jobname*.html}
+\immediate\write-1{Compile the java program with a command similar to}
+  \immediate\write-1{ javac -classpath
+    ...../jh1.1.3/javahelp/lib/jh.jar  program.java}
+\immediate\write-1{Run the java program with a command similar to}
+  \immediate\write-1{ java -classpath
+    ...../jh1.1.3/javahelp/lib/jh.jar;. program}
+\immediate\write-1{JavaHelp might require a compilation for HTML 3.2,
+     for instance,}
+\immediate\write-1{ htlatex \jobname\space "html,javahelp,3.2,3"}
+\immediate\write-1{------------------------------------------}
+
+\def\Write:File#1#2{%
+  \special{t4ht>#1}%
+  \special{t4ht=#2}%
+  \special{t4ht*>#1}%
+  \special{t4ht*>}%
+}
+\def\jhNote{%
+     Created for JavaHelp
+     (http://java.sun.com/products/javahelp/)\Hnewline
+     by TeX4ht (http://www.cse.ohio-state.edu/\string
+     ~gurari/TeX4ht/)\Hnewline from \jobname.tex at \:today \space
+  }
+\Configure{crosslinks}{}{}{}{}{}{}{}{}{}
+\def\dTdLaNg{\expandafter
+  \ifx \csname a:dtd-lang\endcsname\relax EN\else
+    \csname a:dtd-lang\endcsname
+  \fi   }
+\HAssign\mapEntry=0
+\AtBeginDocument{%
+  \let\jh:toc=\auto:toc
+  \expandafter\append:defI\csname tableofcontents*\endcsname{%
+     \global\let\jh:toc=\auto:toc }%
+}
+\HAssign\indexEntry=0
+\append:defI\@wrindex{%
+   \gHAdvance\mapEntry by 1
+\Write:File
+   {\jobname.jhm}%
+   {<mapID target="indexentry-\mapEntry"
+             url="\RefFileNumber\FileNumber
+       \#\title:chs {dx\last:haddr}{\cur:th\:currentlabel}%
+           " />\Hnewline}%
+%
+}
+\def\target:info#1#2#3#4#5#6//{%
+    \let\sectionType=\sectioningKey
+    \let\sectionId\TocCount
+    \Advance:\sectionId 1
+    \def\sectionName{#5}%
+  }
+\NewConfigure{mapIdTarget}{2}
+\Configure{mapIdTarget}
+   {\sectionType-\sectionId}
+   {}
+\:CheckOption{jh1.0} \if:Option
+   \def\dotVersion{1.0}
+   \def\subVersion{1\string_0}
+\else
+   \def\dotVersion{2.0}
+   \def\subVersion{2\string_0}
+\fi
+
+\Configure{Preamble}
+  {}
+  {\Write:File
+   {\jobname.jhm}
+   {<?xml version="1.0" encoding="ISO-8859-1" ?>\Hnewline
+<!DOCTYPE map PUBLIC\Hnewline
+     "-//Sun Microsystems Inc.//DTD
+                    JavaHelp Map Version \dotVersion//\dTdLaNg"\Hnewline
+     "http://java.sun.com/products/javahelp/map_\subVersion.dtd">  
+\Hnewline <!-- \jhNote
+ -->\Hnewline
+<map version="\dotVersion">\Hnewline
+<mapID target="\jobname" url="\jobname.html"/>\Hnewline
+}
+}
+\Configure{@/BODY}
+  {\relax
+   \ifnum \FileNumber=1
+        \input javahelp-a.4ht
+   \fi
+  }
+

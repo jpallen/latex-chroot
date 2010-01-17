@@ -1,0 +1,32 @@
+%%
+%%    FILE feasts.tex
+%%
+% Date of Easter for year \Year.
+% Value returned in \date
+\def\easter{{\count0=\Year\count1=\count0
+ \divide\count0 by19\multiply\count0 by19
+ \advance\count1 by-\count0
+ \advance\count1 by 1 %     Golden number
+ \count2=\count1\multiply\count2 by11
+ \advance\count2 by18\count0=\count2
+ \divide\count0 by30\multiply\count0 by30
+ \advance\count2 by-\count0 %       Epact
+ \ifnum\count2=25\ifnum\count1>11
+  \count2=26 \fi\fi
+ \ifnum\count2=24 \count2=25\fi
+ \advance\count2 by-44
+ \multiply\count2 by-1
+ \ifnum\count2<21 \advance\count2 by30\fi
+ \Month=3\Day=0\dayno\global\advance\date
+ by\count2}\snextday0}
+% (local)
+\def\includefeasts{%
+ \message{Including feasts}
+ \easter\evday[Easter Sunday]
+ {\advance\date by49\evday[Whitsun]}
+ {\advance\date by-7\evday[Palm Sunday]}
+ {\advance\date by-46\evday[Ash Wendsday]
+  \advance\date by-3\evday[Carnival]}
+ \Month=1\Day=1\dayno\snextday0
+  \evday[Epiphany]
+ \event 25/12[\holy Christmas]}

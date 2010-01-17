@@ -1,0 +1,197 @@
+%%% Stephen Moye
+%%% Stephen_Moye@brown.edu
+%%% Brown University
+%%% Graphic Services
+
+\newtoks\texfont
+\newtoks\symbolfont
+\newdimen\boxwd
+\newdimen\boxht
+\newdimen\thicklineht
+\newdimen\linewd
+\newdimen\nummove
+\newdimen\charmove
+\newdimen\kernchar
+\newdimen\dividerht
+\newcount\charcount \charcount=0
+\newcount\numcount  \numcount=0
+\newcount\loopcount
+
+\def\setfont#1{\texfont={#1}
+\font\text=\the\texfont\space at 10pt
+\font\note=\the\texfont\space at 8pt
+\font\name=\the\texfont\space at 18pt
+\font\numfont=Helvetica at 8pt}
+
+\def\setsymbolfont#1#2{\texfont={#2}
+\symbolfont={#1}
+\font\text=\the\symbolfont\space at 10pt
+\font\note=\the\texfont\space at 8pt
+\font\name=\the\texfont\space at 18pt
+\font\numfont=Helvetica at 8pt}
+
+\def\startnum#1{\charcount=#1 \numcount=#1}
+
+\def\nextchar{\text\char\charcount \global\advance\charcount1}
+
+\def\nextnum{\numfont\number\numcount \global\advance\numcount1}
+
+\def\charbox{%
+\vbox to\boxht{%
+\hsize\boxwd\kern\charmove\centerline{\kern\kernchar\strut\nextchar}\vss}}
+
+\def\numline{\centerline{\white\nextnum\black}}
+
+\def\numlinenc{\centerline{\nextnum}}
+
+\def\boxit{\vbox{\hsize\boxwd\hrule height\linewd\hbox{\vrule width\linewd%
+			\charbox\vrule width\linewd}%
+   \hrule height\dividerht}%
+   \kern-\linewd}
+
+%%% For the numbers, uses color or gray
+\def\nboxit{\dimen0\boxwd \advance\dimen0\linewd
+\dimen1\thicklineht \advance\dimen1\linewd
+\vbox{\hsize\boxwd
+\gray\hrule width\dimen0 height\dimen1\black
+\kern-\thicklineht
+\kern-2\linewd
+\hrule height\linewd \hbox{\vrule width\linewd%
+\vbox to \thicklineht{\hsize\boxwd
+ \kern\nummove\numline\vss}%
+ \vrule width\linewd}\hrule height\linewd}\kern-\linewd}
+ 
+%%% For the numbers, no color
+\def\nboxitnc{%
+\dimen0\thicklineht
+\advance\dimen0 2\linewd
+\vbox to\dimen0{\hsize\boxwd
+\hrule height\linewd \hbox{\vrule height\thicklineht width\linewd%
+			\vbox to\thicklineht{\kern\nummove\numlinenc}%
+			\vrule width\linewd}\vss\hrule height\linewd}\kern-\linewd}
+   																						
+\def\white{\special{color push}%
+		\special{color define white cmyk 0 0 0 0}%
+  \special{color white}}
+  
+\def\gray{\special{color push}%
+		\special{color gray .4}}
+  
+\def\black{\special{color pop}}
+
+\def\lineofchars#1{\loopcount=#1%
+\noindent\loop \boxit \ifnum\loopcount>1\advance\loopcount-1 \repeat\par
+\loopcount=#1%
+\nointerlineskip
+\kern-\linewd
+\nointerlineskip
+\noindent\loop\nboxit \ifnum\loopcount>1\advance\loopcount-1 \repeat\par
+\kern-\linewd}
+
+%%% For no color or gray, use this
+\def\lineofcharsnc#1{\loopcount=#1%
+\noindent\loop \boxit \ifnum\loopcount>1\advance\loopcount-1 \repeat\par
+\loopcount=#1%
+\nointerlineskip
+\kern-\linewd
+\noindent\loop\nboxitnc \ifnum\loopcount>1\advance\loopcount-1 \repeat\par
+\kern-\linewd}
+
+%%% Setup
+
+\boxwd=.25in
+\boxht=.3in
+\thicklineht=13pt
+\linewd=.25pt
+\dividerht=.75pt
+\parindent=0pt
+\nummove3pt
+\charmove5pt
+\kernchar-1pt
+
+\startnum{0}
+
+\setfont{ACaslon}
+
+%%% Draw the boxes
+
+\leftskip1in
+
+\name Adobe Caslon\par
+\smallskip
+\lineofchars{16}
+\smallskip
+\lineofchars{16}
+\smallskip
+\lineofchars{16}
+\smallskip
+\lineofchars{16}
+\smallskip
+\lineofchars{16}
+\smallskip
+\lineofchars{16}
+\smallskip
+\lineofchars{16}
+\smallskip
+\lineofchars{16}
+\note Carol Twombly
+
+\vfill\eject
+
+\startnum{0}
+
+\setfont{cmr12}
+
+%%% Draw the boxes
+
+\leftskip1in
+
+\name Computer Modern\par
+\smallskip
+\lineofcharsnc{16}
+\smallskip
+\lineofcharsnc{16}
+\smallskip
+\lineofcharsnc{16}
+\smallskip
+\lineofcharsnc{16}
+\smallskip
+\lineofcharsnc{16}
+\smallskip
+\lineofcharsnc{16}
+\smallskip
+\lineofcharsnc{16}
+\smallskip
+\lineofcharsnc{16}
+\note Donald E. Knuth
+
+\vfill\eject
+
+\startnum{32}
+
+\setsymbolfont{Dingbats}{Helvetica}
+
+%%% Draw the boxes
+
+\leftskip1in
+
+\name Zapf Dingbats\par
+\smallskip
+\lineofcharsnc{16}
+\smallskip
+\lineofcharsnc{16}
+\smallskip
+\lineofcharsnc{16}
+\smallskip
+\lineofcharsnc{16}
+\smallskip
+\lineofcharsnc{16}
+\smallskip
+\lineofcharsnc{16}
+\note Hermann Zapf
+
+
+   
+
+
+\bye

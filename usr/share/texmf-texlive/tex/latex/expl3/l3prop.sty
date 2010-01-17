@@ -1,0 +1,91 @@
+%%
+%% This is file `l3prop.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% l3prop.dtx  (with options: `package,trace')
+%% 
+%% 
+%% EXPERIMENTAL CODE
+%% 
+%% Do not distribute this file without also distributing the
+%% source files specified above.
+%% 
+%% Do not distribute a modified version of this file.
+%% 
+%% 
+%% File: l3prop.dtx Copyright (C) 1990-1998 LaTeX3 project
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{l3prop}
+          [1998/05/04 v1.0e L3 Experimental Property Lists]
+\RequirePackage{l3seq}\par
+\let_new:NN \prop_new:N \seq_new:N
+\let_new:NN \prop_new:O \seq_new:O
+\let_new:NN \prop_new:c \seq_new:c
+\let_new:NN \prop_clear:N \seq_clear:N
+\let_new:NN \prop_gclear:N \seq_gclear:N
+\def_long_new:Npn \prop_split_aux:NNn #1#2#3{
+  \def:Npn \tmp:w ##1#2##2##3\q_stop {#3{##1}{##2}{##3}}
+  \exp_after:NN\tmp:w #1#2\q_no_value \q_stop}
+\def_long_new:Npn \prop_get:NNN #1#2{\prop_split_aux:NNn
+                                    #1#2\prop_get_aux:w}
+\def_long_new:Npn \prop_get_aux:w #1#2#3#4{\tlp_set:Nn#4{#2}}
+\def_long_new:Npn \prop_gget:NNN #1#2{\prop_split_aux:NNn
+                                    #1#2\prop_gget_aux:w}
+\def_long_new:Npn \prop_gget_aux:w #1#2#3#4{\tlp_gset:Nn#4{#2}}
+\def_long_new:Npn \prop_get_gdel:NNN #1#2#3{\prop_split_aux:NNn
+            #1#2{\prop_get_del_aux:w #3{\tlp_gset:Nn #1}#2}}
+\def_long_new:Npn \prop_get_del_aux:w #1#2#3#4#5#6{
+  \tlp_set:Nn #1{#5}
+  \quark_if_no_value:NF#1
+    {\def:Npn \tmp:w ##1#3\q_no_value {#2{#4##1}}
+     \tmp:w #6}}
+\def_long_new:Npn \prop_put:NNn #1#2{\prop_split_aux:NNn
+                                #1#2{\prop_put_aux:w {\tlp_set:Nn #1}#2}}
+\def_long_new:Npn \prop_gput:NNn #1#2{\prop_split_aux:NNn
+                                #1#2{\prop_put_aux:w {\tlp_gset:Nn #1}#2}}
+\def_new:Npn \prop_gput:NNo {\exp_args:NNNo \prop_gput:NNn}
+\def_new:Npn \prop_gput:NOx {\exp_args:Nnox \prop_gput:NNn}
+\def_new:Npn \prop_gput:NNx {\exp_args:Nnnx \prop_gput:NNn}
+\def_new:Npn \prop_gput:NOo {\exp_args:NNOo \prop_gput:NNn}
+\def_new:Npn \prop_gput:OOo {\exp_args:NOOo \prop_gput:NNn}
+\def_new:Npn \prop_gput:ccn {\exp_args:Ncc \prop_gput:NNn}
+\def_new:Npn \prop_gput:ccx {\exp_args:Nccx \prop_gput:NNn}
+\def_long_new:Npn \prop_put_aux:w #1#2#3#4#5#6{
+  \quark_if_no_value:nTF {#4}
+    {#1{#2{#6}#3}}
+    {\def:Npn \tmp:w ##1#2\q_no_value {#1{#3#2{#6}##1}}
+     \tmp:w #5}}
+\def_long_new:Npn \prop_del:NN #1#2{\prop_split_aux:NNn
+                                #1#2{\prop_del_aux:w {\tlp_set:Nn #1}#2}}
+\def_long_new:Npn \prop_gdel:NN #1#2{\prop_split_aux:NNn
+                                #1#2{\prop_del_aux:w {\tlp_gset:Nn #1}#2}}
+\def_long_new:Npn \prop_del_aux:w #1#2#3#4#5{\quark_if_no_value:nF {#4}
+   {\def:Npn \tmp:w ##1#2\q_no_value {#1{#3##1}}\tmp:w #5}}
+\def_new:Npn \prop_if_in:NNTF #1#2{\prop_split_aux:NNn
+                                #1#2\prop_if_in_aux:w}
+\def_new:Npn \prop_if_in:NOTF {\exp_args:Nno \prop_if_in:NNTF}
+\def_new:Npn \prop_if_in_aux:w #1#2#3{\quark_if_no_value:nTF {#2}}
+\def_long_new:Npn \prop_gput_if_new:NNn #1#2{\prop_split_aux:NNn #1#2
+        {\prop_put_if_new_aux:w #1#2}}
+\def_long_new:Npn \prop_put_if_new_aux:w #1#2#3#4#5#6{
+  \quark_if_no_value:nT {#4}{#1{#2{#6}#3}}}
+\let_new:NN\prop_set_eq:NN\tlp_set_eq:NN
+\let_new:NN \prop_empty:NTF \tlp_empty:NTF
+\let_new:NN \prop_map_funct:Nn \use_none:nn
+\def_new:Npn \prop_map:NN #1#2{
+  \let:NN \prop_map_funct:Nn #2
+  \exp_after:NN\prop_map_aux:w #1\q_stop \q_stop}
+\def_new:Npn \prop_map_aux:w #1#2{
+  \if_meaning:NN#1\q_stop \else:
+    \prop_map_funct:Nn #1{#2}
+    \exp_after:NN\prop_map_aux:w
+  \fi:}
+\def_new:Npn \prop_map:cN { \exp_args:Nc \prop_map:NN }
+\let_new:NN \prop_map_inline:Nn \ERROR
+\let_new:NN \prop_map_inline:cn \ERROR
+
+%% 
+%%
+%% End of file `l3prop.sty'.

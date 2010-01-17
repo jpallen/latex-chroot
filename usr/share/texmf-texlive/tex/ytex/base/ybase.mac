@@ -1,0 +1,914 @@
+% Copyright (c) 1985, 1986 Daniel C. Brotsky.  All rights reserved.
+% Base macros for yTeX.  See the file YTEX.MAC for details.
+
+% CONTENTS
+
+% ^L-page       contents
+% ----------------------------------------------------------------------
+% 1             %% Helpful TeX82 macros built on Plain-AlmostCM TeX
+% 2             %% handy hacks
+% 3             %% more handy hacks
+% 4             %% date and time
+% 5             %% combinators
+% 6             %% special chars
+% 7             %% spacing
+% 8             %% runners
+% 9             %% glosses
+% 10            %% inserts
+% 11            %% output
+% 12            %% page glue
+% 13            %% paragraphs
+% 14            %% textual displays
+% 15            %% tables
+% 16            %% titles
+% 17            %% special pages
+% 18            %% auxiliary files
+% 19            %% initialization
+
+\message{handy hacks,}
+
+% some more scratch registers
+\dimendef\dimen@ii=2
+\skipdef\skip@i=1
+\skipdef\skip@ii=2
+\toksdef\toks@i=1
+\toksdef\toks@ii=2
+
+% quick names for character codes
+\chardef\@ctive=13
+\chardef\@ther=12
+\chardef\@scape=0
+
+% define variations on \vbox and \hbox
+\let\vbottom=\vbox
+\let\vopen=\relax
+\let\hopen=\relax
+
+% turn interlineskip off and on
+\def\offinterlineskip {%
+  \ifdim \lineskiplimit<\maxdimen
+    \edef\oninterlineskip{\baselineskip=\the\baselineskip
+      \lineskip=\the\lineskip \lineskiplimit=\the\lineskiplimit\relax}%
+  \fi
+  \baselineskip-1000\p@ \lineskip\z@ \lineskiplimit\maxdimen}
+\let\oninterlineskip=\relax
+\let\yesinterlineskip=\relax
+
+% write token lists to the terminal
+\def\toksmessage #{%
+  \afterassignment\t@ksmessage
+  \toks@=}
+\def\t@ksmessage {\message{\the\toks@}}
+
+% set/add to a token list or a macro
+\def\etoks #1{\let\et@ks=#1\afterassignment\eto@s\et@ks}
+\def\eto@s {\edef\next{\the\et@ks}\edef\next{\next}\et@ks=\expandafter{\next}}
+\def\addtotoks #1{%
+  \let\addtot@ks=#1%
+  \afterassignment\addt@toks \toks@}
+\def\addt@toks {%
+  \edef\next{\the\addtot@ks\the\toks@}%
+  \addtot@ks=\expandafter{\next}}
+\def\addtodef #1#2{%
+  \toks@=\expandafter{#1#2}\edef#1{\the\toks@}}
+\def\pushtodef #1#2{%
+  \toks@=\expandafter{#1}\toks@i={#2}\edef#1{\the\toks@i\the\toks@}}
+
+% strip the \ and letters from the front of a csname, leave result in \next
+{\catcode`\|=\@scape |catcode`\\=|@ther
+ |gdef|stripn@me #1#2{%
+   {|def|gobble \#1##1\{##1}%
+    |global|edef|next{|expandafter|gobble|string#2\}}}}
+
+% get the arg of a paired delimiter pair (arg is \endXXX)
+%  N.B. Use this only within a local group: it clobbers itself
+\def\get@rg #1{\def\get@rg ##1#1{\toks@={##1}#1}}
+
+% get confirmation
+\def\@yes{yes}
+\def\@no{no}
+\newif\ifyes
+\def\yesornop #1{%
+  \immediate\write\sixt@@n{}%
+  \loop
+    \message{#1 (yes or no) }%
+    {\catcode`\^^M=14\relax \global\read\m@ne to\next}
+    \ifx\next\@yes \global\yestrue
+    \else\ifx\next\@no \global\yesfalse
+    \else\let\next\yesornop \fi\fi
+  \ifx\next\yesornop \repeat}
+\def\askuser #1#2{%
+  \immediate\write\sixt@@n{}%
+  \message{#2}%
+  {\catcode`\^^M=14\relax \global\read\m@ne to#1}}
+\def\askuserline #1#2{%
+  \immediate\write\sixt@@n{}%
+  \immediate\write\sixt@@n{#2}%
+  {\catcode`\^^M=14\relax \global\read\m@ne to#1}}
+
+% \input manipulations
+\newwrite\tfil@
+\def\maybeinput #1 {%
+  \yesornop {Input file #1?}%
+  \ifyes \input #1 \fi}
+\def\@input #1#2{%
+  \openin\tfil@=#1 %
+  \ifeof\tfil@ #2\else \closein\tfil@ \input #1 \fi}
+\def\@input@ #1#2{%
+  \openin\tfil@=#1 %
+  \ifeof\tfil@
+    \closein\tfil@\openin\tfil@=\ytexlibrary #1 %
+    \ifeof\tfil@ #2\else \closein\tfil@ \input \ytexlibrary #1 \fi
+  \else \closein\tfil@ \input #1 \fi}
+
+% set a skip parameter with explicit dimen, glue, and factor
+\def\setskip {\afterassignment\setski@\let\next=}
+\def\setski@ \dimen{\afterassignment\setsk@p\dimen@}
+\def\setsk@p \glue{\afterassignment\s@tskip\skip@}
+\def\s@tskip \factor{\dimen@i=\skip@\advance\skip@ by-\dimen@i
+                     \afterassignment\s@tsk@p\multiply\skip@ by}
+\def\s@tsk@p {\divide\skip@ by\@m\advance\skip@ by\dimen@ \next=\skip@}
+
+% skip the stretch amount of glue but not the dimen amount
+\def\vstretch {\afterassignment\vstr@tch\skip@=}
+\def\vstr@tch {\dimen@=\skip@ \advance\skip@ by-\dimen@ \vskip\skip@}
+
+% manipulate special chars
+\def\addspecial #1{\addtodef\dospecials{\do#1}}
+\def\specials@ther {%
+  \relax\iffalse{\fi                    % gross hackery for tables
+  \def\do##1{\catcode`##1=\@ther}\dospecials
+  \iffalse}\fi\relax}
+
+% make active space and CR be the arg
+% get a token which is \ifx-equal to active space
+{\obeylines%
+ \gdef\activelines #1{\catcode`\^^M=\@ctive \let^^M=#1\relax}%
+} % end of def group
+{\obeyspaces
+ \gdef\activespaces#1{\obeyspaces\let =#1\relax\let\sp@ce= \relax}%
+} % end of def group
+
+\message{date and time,}
+
+\newcount\hour \newcount\minute
+
+\def\st@rttime {%
+  \hour=\the\time \minute=\the\time
+  \divide\hour by 60 \multiply\hour by 60%
+  \advance\minute by -\hour \divide\hour by 60%
+  \edef\daytime{\number\hour:\ifnum \minute<10 0\fi\number\minute}%
+  \edef\monthname {\ifcase\month \or
+    January\or February\or March\or April\or May\or June\or
+    July\or August\or September\or October\or November\or December\fi}%
+  \edef\monthshortname {\ifcase\month \or
+    Jan\or Feb\or Mar\or Apr\or May\or Jun\or
+    Jul\or Aug\or Sep\or Oct\or Nov\or Dec\fi}%
+  {\def\gobble ##1##2##3##4{##3##4}%
+   \global\edef\shortyear{\expandafter\gobble\number\year}}%
+  \edef\date{\monthname~\number\day,~\number\year}%
+  \edef\shortdate{\number\day~\monthshortname~\number\shortyear}%
+  \edef\slashdate{\number\month/\number\day/\number\shortyear}}
+
+\message{combinators,}
+
+% spreads
+{\let\newdimen=\relax                   % allow next def
+\gdef\newspread #1\setup #2\endnew{%
+  \stripn@me{}#1%
+  \expandafter\newdimen\csname \next width\endcsname
+  \toks@={\hbox to}\toks@i={\bgroup #2\spre@d}%
+  \edef#1##{\the\toks@\expandafter\noexpand\csname \next width\endcsname
+            \the\toks@i}}
+} % end of def group
+\def\spre@d #1{%
+  \setbox\z@=\hbox{#1\Hss}%
+  \futurelet\next\spr@ad}
+\def\spr@ad {%
+  \ifcat \bgroup\noexpand\next
+    \hbox to\z@{\hss\unhbox\z@\hss}\hfil
+    \let\next=\spr@@d
+  \else
+    \hbox to\z@{\hss\unhbox\z@}%
+    \let\next=\egroup
+  \fi \next}
+\def\spr@@d #1{%
+  \setbox\z@=\hbox{#1}%
+  \futurelet\next\spr@ad}
+
+% text wrappers
+\long
+\def\newtextwrap #1\box #2\setup #3%
+                   \before #4\after #5%
+                   \begin #6\end #7\endnew{%
+  \stripn@me{}#1%
+  \toks@={#4\begingroup #3\relax #2}%
+  \edef#1{%
+    \the\toks@ \expandafter\noexpand\csname read@\next\endcsname}%
+  \toks@={\bgroup #6}\toks@i={#7\egroup\endgroup #5}%
+  \long
+  \expandafter\edef\csname read@\next\endcsname ##1{%
+    \the\toks@ ##1\the\toks@i}}
+
+\message{special chars,}
+
+% ` needs can be directed backquote
+\addspecial\`
+\let\agr@ve=\`
+\def\bqm@cro {\char"12\relax}
+\def\makebbqaccent {\let\`=\agr@ve}
+\def\makebbqquote  {\let\`=\bqm@cro}
+{\catcode`\`=\@ctive\relax
+ \gdef\makebqspecial {\catcode"60=\active\relax \let`=\bqm@cro}
+ \gdef\makebqnormal  {\catcode"60=\@ther \chardef`="60\relax}
+} % end of def group
+
+
+% & and # need to be `ordinary' characters for lisp
+\def\makeandother {\catcode`\&=\@ther}
+\def\makeandalign {\catcode`\&=4\relax}
+\def\makesharpother {\catcode`\#=\@ther}
+\def\makesharpparam {\catcode`\#=6\relax}
+
+% < and > can be angle brackets in text
+\addspecial\<
+\addspecial\>
+\let\@@lt=< \let\@@gt=>
+{\catcode`\<=\@ctive \catcode`\>=\@ctive \relax
+ \gdef\makelgtbrackets{%
+   \catcode`\<=\@ctive \catcode`\>=\@ctive\relax
+   \def<{\ifmmode\@@lt\else$\m@th\langle$\fi}%
+   \def>{\ifmmode\@@gt\else$\m@th\rangle$\fi}%
+   \sl@shifylgt}}
+\def\sl@shifylgt {%
+  \def\<{\ifmmode\@@lt\else$\m@th\@@lt$\fi}%
+  \def\>{\ifmmode\@@gt\else$\m@th\@@gt$\fi}}
+\def\makelgtother {%
+  \catcode`\<=\@ther\catcode`\>=\@ther
+  \def\<{\relax \ifmmode \langle \else $\langle$\fi}
+  \def\>{\relax \ifmmode \rangle \else $\rangle$\fi}}
+
+\message{spacing,}
+
+% vertical glue
+\def\vgluefil {\vglue \z@ plus1fil\relax}
+\def\vgluefill {\vglue \z@ plus1fill\relax}
+\def\Vss {\vskip \z@ plus1fill minus1fill\relax}
+\def\VSS {\vskip \z@ plus1filll minus1filll\relax}
+
+% horizontal glue
+\def\hfilll {\hskip \z@ plus1filll\relax}
+\def\hfilllneg {\hskip \z@ plus-1filll\relax}
+\def\Hss {\hskip \z@ plus1fill minus1fill\relax}
+\def\HSS {\hskip \z@ plus1filll minus1filll\relax}
+
+% glue amounts
+\newskip\fillskip \fillskip=\z@ plus1fill
+\newskip\filskip  \filskip=\z@ plus1fil
+\newskip\zeroskip \zeroskip=\z@
+\newskip\emskip   \emskip=1em
+
+% page glue
+\def\filpage {\par\vfil\eject}
+\def\superfilpage {\par\vfil\supereject}
+
+% paragraph glue
+\def\linebreak {\ifhmode\nobreak\hskip\z@ plus1fil\break\fi}
+
+% require minimum vertical space
+\def\minskip {\afterassignment\m@nskip\skip@}
+\def\m@nskip {%
+  \ifdim \lastskip<\skip@
+    \nobreak \vskip-\lastskip \vskip\skip@ \fi}
+\def\minbreak {\afterassignment\m@nbreak\count@}
+\def\m@nbreak {\afterassignment\m@nbre@k\skip@}
+\def\m@nbre@k {%
+  \ifdim \lastskip<\skip@
+    \nobreak \vskip-\lastskip \penalty\count@ \vskip\skip@ \fi}
+\def\dobreak {\afterassignment\d@break\count@}
+\def\d@break {\afterassignment\d@bre@k\skip@}
+\def\d@bre@k {\penalty\count@ \vskip\skip@}
+
+\message{runners,}
+
+% control of runners
+\newif\ifheaders
+\newif\iffooters
+\let\res@theaders=\relax
+\let\res@tfooters=\relax
+\def\res@trunners {\res@theaders \res@tfooters}
+\def\noheaders {\global\headersfalse}
+\def\nofooters {\global\footersfalse}
+\def\norunners {\noheaders \nofooters}
+\def\yesheaders {\global\headerstrue}
+\def\yesfooters {\global\footerstrue}
+\def\yesrunners {\yesheaders \yesfooters}
+\def\offheaders {\noheaders \let\res@theaders=\noheaders}
+\def\offfooters {\nofooters \let\res@tfooters=\nofooters}
+\def\offrunners {\offheaders \offfooters}
+\def\onheaders {\yesheaders \let\res@theaders=\yesheaders}
+\def\onfooters {\yesfooters \let\res@tfooters=\yesfooters}
+\def\onrunners {\onheaders \onfooters}
+\res@trunners
+
+% preserve marks in a stable place
+\let\m@rk=\mark
+\let\firstm@rk=\firstmark
+\let\topm@rk=\topmark
+\let\botm@rk=\botmark
+
+% contents of headers and footers
+\newif\iftwosided
+
+\newtoks\rectoheader
+\newtoks\versoheader
+\newtoks\rectofooter
+\newtoks\versofooter
+
+\message{glosses,}
+
+% control of glosses
+\newif\iftopgloss
+\newif\ifbottomgloss
+\let\res@ttopgloss=\relax
+\let\res@tbottomgloss=\relax
+\def\res@tglosses {\res@ttopgloss \res@tbottomgloss}
+\def\notopgloss {\global\topglossfalse}
+\def\nobottomgloss {\global\bottomglossfalse}
+\def\noglosses {\notopgloss \nobottomgloss}
+\def\yestopgloss {\global\topglosstrue}
+\def\yesbottomgloss {\global\bottomglosstrue}
+\def\yesglosses {\yestopgloss \yesbottomgloss}
+\def\offtopgloss {\notopgloss \let\res@ttopgloss=\notopgloss}
+\def\offbottomgloss {\nobottomgloss \let\res@tbottomgloss=\nobottomgloss}
+\def\offglosses {\offtopgloss \offbottomgloss}
+\def\ontopgloss {\yestopgloss \let\res@ttopgloss=\yestopgloss}
+\def\onbottomgloss {\yesbottomgloss \let\res@tbottomgloss=\yesbottomgloss}
+\def\onglosses {\ontopgloss \onbottomgloss}
+\res@tglosses
+
+% contents of glosses
+\newtoks\topgloss
+\newtoks\bottomgloss
+
+\message{inserts,}
+
+% storage for the inserts
+\newinsert\topfloat
+\countdef\topmag=\topfloat \topmag=1000
+\dimendef\topmax=\topfloat \topmax=\maxdimen
+\newtoks\topsep            \topsep={}
+
+\newinsert\botfloat
+\countdef\botmag=\botfloat \botmag=1000
+\dimendef\botmax=\botfloat \botmax=\maxdimen
+\newtoks\botsep            \botsep={}
+
+% inserts which always float
+\long
+\def\newfloat #1\type #2\floatsetup #3\setup #4%
+                \floatabove #5\floatbelow #6%
+                \begin #7\end #8\endnew {%
+  \stripn@me{}#1%
+  \toks@={\insert#2\bgroup #3\relax #5\relax #4\relax #7}%
+  \expandafter\edef\csname begin\next\endcsname {%
+    \the\toks@}%
+  \toks@={#8\relax #6\egroup}%
+  \expandafter\edef\csname end\next\endcsname {%
+    \the\toks@}%
+  \long
+  \edef#1##1{\expandafter\noexpand\csname begin\next\endcsname
+             ##1\expandafter\noexpand\csname end\next\endcsname}}
+
+\long
+\def\newpagefloat #1\type #2\floatsetup #3\setup #4%
+                    \above #5\below #6%
+                    \begin #7\end #8\endnew {%
+  \stripn@me{}#1%
+  \toks@={#4\setbox\z@=\vbox\bgroup #7}%
+  \expandafter\edef\csname begin\next\endcsname {%
+    \begingroup \the\toks@}%
+  \toks@={#8\egroup
+    \insert#2{#3\relax
+      \dimen@=\dp\z@
+      \vbox to\vsize{#5\unvbox\z@#6\kern-\dimen@}}}%
+  \expandafter\edef\csname end\next\endcsname {%
+    \the\toks@ \endgroup}%
+  \long
+  \edef#1##1{\expandafter\noexpand\csname begin\next\endcsname
+             ##1\expandafter\noexpand\csname end\next\endcsname}}
+
+% inserts which sometimes float
+\long
+\def\newfitfloat #1\type {%
+  \stripn@me{}#1%
+  \edef#1##1{\expandafter\noexpand\csname begin\next\endcsname
+             ##1\expandafter\noexpand\csname end\next\endcsname}%
+  \newfitfl@at}
+\def\newfitfl@at #1\floatsetup #2\setup #3%
+                   \floatabove #4\floatbelow #5%
+                   \above #6\below #7%
+                   \begin #8\end #9\endnew {%
+  \toks@={\setbox\z@=\vbox\bgroup #3\relax #8}%
+  \expandafter\edef\csname begin\next\endcsname {%
+    \the\toks@}%
+  \toks@={#9\egroup
+    \dimen@=\ht\z@ \advance\dimen@\dp\z@
+    \advance\dimen@\baselineskip \advance\dimen@\pagetotal
+    \ifdim \dimen@>\pagegoal
+      \insert#1{#2\relax #4\unvbox\z@#5}%
+    \else
+      #6\unvbox\z@#7\relax
+    \fi}%
+  \expandafter\edef\csname end\next\endcsname {%
+    \the\toks@}}
+
+\message{output,}
+
+% output routine parameters
+\newif\iftrimpages
+\newdimen\topglossdrop
+\newdimen\bottomglossdrop
+\newdimen\footerdrop
+\newdimen\headerdrop
+
+% output routine
+\def\ytexoutput {%
+  \iftrimpages \trimp@ge\fi
+  \shipout\vbox to9truein{% center box on 8.5x11 page (DVI starts at 1,1)
+    \vss
+    \hbox to6.5truein{%
+      \hss
+      \vbox{%
+        \offinterlineskip
+        \iftopgloss
+          \vbox to\z@{\vss\line{\the\topgloss}\vskip\topglossdrop}\fi
+        \ifheaders\makeheadline\fi
+        \pagebody
+        \iffooters\makefootline\fi
+        \ifbottomgloss
+          \vbox to\z@{\vskip\bottomglossdrop\line{\the\bottomgloss}\vss}\fi
+        }% end of contents \vbox
+      \hss}% end of centering \hbox
+    \vss}% end of centering \vbox
+  \advancepageno
+  \res@trunners
+  \res@tglosses
+  \ifnum\outputpenalty>-\@MM \else\dosupereject\fi}
+
+\def\makeheadline {%
+  \vbox to\z@{%
+    \vss
+    \iftwosided
+      \ifodd\pageno \line{\the\rectoheader}%
+        \else \line{\the\versoheader}\fi
+      \else
+        \line{\the\rectoheader}\fi
+    \vskip \headerdrop}}
+
+\def\makefootline {%
+  \vbox to\z@{%
+    \vskip \footerdrop
+    \nointerlineskip
+    \iftwosided
+      \ifodd\pageno \line{\the\rectofooter}%
+        \else \line{\the\versofooter}\fi
+      \else
+        \line{\the\rectofooter}\fi
+    \vss}}
+
+\def\pagebody {%
+  \vbox to\vsize{\boxmaxdepth\maxdimen \pagecontents}}
+
+\def\pagecontents {%
+  \dimen@i=\ht\@cclv \advance\dimen@i\dp\@cclv
+  \ifvoid\topfloat\else
+    \dimen@=\ht\topfloat \advance\dimen@\dp\topfloat
+    \unvbox\topfloat
+    \ifdim \dimen@>\z@ \ifdim\dimen@i>\z@ \the\topsep\fi\fi
+  \fi
+  \dimen@ii=\dp\@cclv \unvbox\@cclv
+  \ifvoid\botfloat\else
+    \dimen@=\ht\botfloat \advance\dimen@\dp\botfloat
+    \ifdim \dimen@>\z@ \ifdim\dimen@i>\z@ \the\botsep\fi\fi
+    \unvbox\botfloat
+  \fi
+  \ifr@ggedbottom \kern-\dimen@ii \vfil \fi}
+
+\message{page glue,}
+
+\newif\ifts@
+
+{\catcode`\0=12\relax
+ \catcode`\.=12\relax
+ \catcode`\p=12\relax
+ \catcode`\t=12\relax
+ \gdef\nullgl@e{0.0pt}
+}   %end of catcode group
+
+\def\ifnullskip {%
+  \edef\next{\the\lastskip}%
+  \ifx\next\nullgl@e}
+
+\def\trimp@ge {%
+  \setbox0=\vbox{\unvbox\@cclv
+    \loop \ts@false
+      \ifnum\lastpenalty=\z@ \else\unpenalty \ts@true \fi
+      \ifnullskip \else\unskip \ts@true \fi
+      \ifts@ \repeat}
+  \setbox\@cclv=\box0}
+
+% hack to make \break, \allowbreak, and friends work
+\def\break {\penalty\z@\penalty-\@M}
+\def\allowbreak {\penalty-\@ne}
+\def\supereject {\par\penalty\z@\penalty-\@MM}
+
+\message{paragraphs,}
+
+% force no indent on next par
+\def\rem@veindent {\everypar={\setbox0=\lastbox\everypar={}}}
+
+% neutral paragraphing groups
+\def\beginpgroup {\begingroup \everypar={}}
+\def\endpgroup {\endgraf \endgroup}
+\def\bpgroup {\bgroup \everypar={}}
+\def\epgroup {\endgraf \egroup}
+
+\long
+\def\newpar #1\argtext #2\setup #3\vestindent #4\starter #5\endnew {%
+  \def\next{#4}%
+  \ifx\next\empty \def#1#2{#3\relax#5}
+  \else \def#1#2{#3\relax \hangindent #4\hangafter \@ne #5}\fi}
+
+% turn indentation off and on
+\def\offindent {%
+  \ifdim \parindent>\z@ \edef\onindent{\parindent=\the\parindent}\fi
+  \parindent=\z@}
+\let\onindent=\relax
+\let\yesindent=\indent
+
+% create new element with associated skips and penalties
+{\let\newskip=\relax \let\newcount=\relax       % allow next def
+\long
+\gdef\newelement #1\setup #2\above #3\below #4\begin #5\end #6\endnew{%
+  \stripn@me{}#1%
+  \expandafter\newskip\csname above\next skip\endcsname
+  \expandafter\newskip\csname below\next skip\endcsname
+  \expandafter\newcount\csname pre\next penalty\endcsname
+  \expandafter\newcount\csname post\next penalty\endcsname
+  \toks@={\endgraf #3\begingroup #2\relax #5}%
+  \expandafter\edef \csname begin\next \endcsname {%
+    \the\toks@}%
+  \toks@={#6\endgroup #4}%
+  \expandafter\edef \csname end\next \endcsname {%
+    \the\toks@}%
+  \long
+  \edef#1##1{\expandafter\noexpand\csname begin\next\endcsname
+             ##1\expandafter\noexpand\csname end\next\endcsname}}
+} % end of def group
+
+\message{textual displays,}
+
+% nofill
+\def\setupnofill {%
+  \parskip=\z@
+  \def\par{\endgraf}% empty lines not preserved
+  \obeylines
+  \activespaces\ }
+
+% textual displays
+{\obeylines                             % defs using ^^M
+\long%
+\gdef\newtext #1\display #2\setup #3\begin #4\end #5\endnew{%
+  \stripn@me{}#1%
+  \toks@={$$#2\halign\bgroup ##\cr \noalign\bpgroup #3%
+          \begingroup \obeylines}%
+  \expandafter\edef\csname begin\next \endcsname {%
+    \the\toks@ \expandafter\noexpand\csname re@d\next \endcsname}%
+  \toks@={\endgroup #4}%
+  \expandafter\edef\csname re@d\next \endcsname ##1^^M{%
+    \the\toks@##1}%
+  \toks@={#5\epgroup\egroup$$}%
+  \expandafter\edef\csname end\next \endcsname {%
+    \the\toks@}}%
+} % end of def group
+
+% verbatim material (mostly from TeXbook)
+\def\setupverbatim {%
+  \specials@ther
+  \setupnofill}
+
+\long
+\def\newverbatim #1\begincs #2\readcs #3\endcsname #4%
+                   \display #5\setup #6\begin #7\end #8\endnew{%
+  \toks@={$$#5\halign\bgroup ##\hfil\cr
+              \noalign\bpgroup \setupverbatim #6#3}%
+  \edef#2{\the\toks@}%
+  \makev@rbatim{#3}{#4}{#7}{#8}}
+{\obeylines \catcode`\|=\@scape \catcode`\\=\@ther %
+ |long%
+ |gdef|makev@rbatim#1#2#3#4{%
+   |toks@={#3}|toks@i={#4|epgroup|egroup$$}%
+   |edef#1##1^^M##2\#2{|the|toks@##1##2|the|toks@i}}}
+
+\message{tables,}
+
+% preamble specification analysis
+\newif\ifmoresp@c
+\def\esp@cl {\esp@cl}                   % null spec list marker
+\newtoks\sp@c
+\newtoks\sp@cl
+\newtoks\pre@mble
+\newtoks\pad@mble
+\newtoks\prep@rt
+\newtoks\padp@rt
+
+% table dimensions and tabskip glue
+\newtoks\tablespec
+\def\tablewidth {\afterassignment\t@blewidth\dimen@}
+\def\t@blewidth {%
+  \ifdim\dimen@>\z@ \edef\next{to\the\dimen@}\else
+  \ifdim\dimen@<\z@ \edef\next{expand\the\dimen@}\else
+                    \edef\next{}\fi\fi
+  \tablespec=\expandafter{\next}}
+\newskip\pretabskip
+\newskip\intabskip
+\newskip\posttabskip
+\newtoks\tablestyle
+\newdimen\padheight                     % height of padding around lines
+\newdimen\hbarheight                    % height of horizontal lines
+\newdimen\dhbarheight                   % height of "double" horizontal lines
+\newdimen\vbarwidth                     % width of normal vertical bars
+\newdimen\dvbarwidth                    % width of "double" vertical bars
+
+\def\makepre@mblepart #1{%
+  \padp@rt={\omit\vrule width\z@ height\padheight depth\z@ \relax#1}%
+  \if l\noexpand\sp@@ \prep@rt={##\hfil\strut#1}\else
+  \if L\noexpand\sp@@ \prep@rt={$\the\tablestyle ##$\hfil\strut#1}\else
+  \if c\noexpand\sp@@ \prep@rt={\hfil##\hfil\strut#1}\else
+  \if C\noexpand\sp@@ \prep@rt={\hfil$\the\tablestyle ##$\hfil\strut#1}\else
+  \if r\noexpand\sp@@ \prep@rt={\hfil##\strut#1}\else
+  \if R\noexpand\sp@@ \prep@rt={\hfil$\the\tablestyle ##$\strut#1}\else
+  \if |\noexpand\sp@@ \prep@rt={\vrule width\vbarwidth###1}%
+                      \padp@rt={height\padheight#1}\else
+  \if "\noexpand\sp@@ \prep@rt={\vrule width\dvbarwidth###1}%
+                      \padp@rt={height\padheight#1}\else
+  \if &\noexpand\sp@@ \prep@rt={&}\padp@rt={&}\else
+  \ifx \sp@@\tabskip  \prep@rt=\expandafter{\the\sp@c}\padp@rt={}%
+  \else               \prep@rt=\expandafter{\the\sp@c#1}%
+  \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi}
+
+\def\makepre@mble {%
+  \sp@cl=\expandafter{\the\sp@cl\esp@cl}% avoid {arg} at end of \sp@cl
+  \pre@mble={\tabskip\intabskip}\pad@mble={}%
+  \def\breaksp@c##1##2\@nd{\sp@c={##1}\sp@cl={##2}}%
+  \def\firstsp@c{\futurelet\sp@@\f@rstspec}\def\f@rstspec##1\@nd{}%
+  \loop
+    \expandafter\breaksp@c\the\sp@cl\@nd
+    \expandafter\firstsp@c\the\sp@c\@nd
+    \edef\next{\the\sp@cl}%
+    \ifx \next\esp@cl \moresp@cfalse \makepre@mblepart{}%
+    \else             \moresp@ctrue  \makepre@mblepart&\fi
+    \addtotoks\pre@mble\prep@rt
+    \addtotoks\pad@mble\padp@rt
+    \ifmoresp@c \repeat
+  \pre@mble=\expandafter{\the\pre@mble\tabskip\posttabskip\cr}%
+  \pad@mble=\expandafter{\the\pad@mble\cr}}
+
+\def\checkpre@mble {%
+  \edef\next{\the\sp@cl}%
+  \ifx\next\empty
+    \errhelp={Just continue and I'll use left-justified columns.}%
+    \errmessage{Empty table preamble.}%
+    \sp@cl={&l}\fi}
+
+\long
+\def\newtable #1\leftdelim #2\rightdelim #3%
+              \before #4\after #5%
+              \begin #6\end #7\endnew{%  create a table macro
+  \stripn@me{}#1%
+  \toks@={\begingroup}\toks@i={\checkpre@mble \setuph@lign
+          #4\offinterlineskip
+          \halign\the\tablespec \bgroup\span\the\pre@mble #6}%
+  \expandafter\edef\csname begin\next \endcsname #2##1#3{%
+    \the\toks@ \sp@cl={##1}\the\toks@i}%
+  \toks@={#7\crcr\egroup#5\endgroup}%
+  \expandafter\edef\csname end\next \endcsname {%
+    \the\toks@}%
+  \long
+  \edef#1#2##1#3##2{%
+    \expandafter\noexpand\csname begin\next\endcsname #2##1#3%
+    ##2\expandafter\noexpand\csname end\next\endcsname}}
+
+\def\setuph@lign {%
+  \makepre@mble
+  \let\explicitcr=\relax
+  \def\implicitcr{\let\par=\crcr\obeylines}%
+  \let\\=\crcr
+  \def\inline{\noalign{\hrule height\hbarheight}}%
+  \def\dinline{\noalign{\hrule height\dhbarheight}}%
+  \edef\topline{\noexpand\inline\the\pad@mble}%
+  \edef\midline{\the\pad@mble\noexpand\inline\the\pad@mble}%
+  \edef\botline{\the\pad@mble\noexpand\inline}%
+  \edef\dtopline{\noexpand\dinline\the\pad@mble}%
+  \edef\dmidline{\the\pad@mble\noexpand\dinline\the\pad@mble}%
+  \edef\dbotline{\the\pad@mble\noexpand\dinline}%
+  \def\padline {\noalign\bgroup\global\dimen@=\padheight
+                \afterassignment\padlin@\global\padheight=}%
+  \def\padlin@ {\global\edef\next{\the\pad@mble
+                \noalign{\global\padheight=\the\dimen@}}\egroup \next}%
+  \tabskip\pretabskip}
+
+\message{titles,}
+
+\def\ts@ttings {%
+  \spaceskip=.3333em \xspaceskip=.5em
+  \pretolerance=9999 \tolerance=9999 \hbadness=9999
+  \hyphenpenalty=10000 \exhyphenpenalty=10000
+  \def\linebreak{\ifhmode\break\fi}%
+  \let\cr=\linebreak \let\crcr=\linebreak \def\\{\linebreak\ignorespaces}%
+  \offindent}
+
+\def\titleleft #1#2{%
+  \leftskip=\z@ \rightskip=\z@ plus.25\hsize
+  \advance\leftskip by#1\advance\rightskip by#2%
+  \parfillskip=\z@ plus1fil
+  \ts@ttings}
+
+\def\titlecenter #1#2{%
+  \leftskip=\z@ plus.125\hsize \rightskip=\leftskip
+  \advance\leftskip by#1\advance\rightskip by#2%
+  \parfillskip=\z@
+  \ts@ttings}
+
+\def\titleright #1#2{%
+  \leftskip=\z@ plus.25\hsize \rightskip=\z@
+  \advance\leftskip by#1\advance\rightskip by#2%
+  \parfillskip=\z@
+  \ts@ttings}
+
+\long
+\def\newtitle #1\box #2\shape #3%
+                \font #4\setup #5\begin #6\end #7\endnew{%
+  \stripn@me{}#1%
+  \toks@={#2\bgroup #4\relax #3\relax #5\relax #6}%
+  \expandafter\edef\csname begin\next\endcsname {%
+    \the\toks@}%
+  \toks@={#7\endgraf\egroup}%
+  \expandafter\edef\csname end\next\endcsname {%
+    \the\toks@}%
+  \long
+  \edef#1##1{\expandafter\noexpand\csname begin\next\endcsname
+             ##1\expandafter\noexpand\csname end\next\endcsname}}
+
+\message{special pages,}
+
+% get to a recto page
+\def\rectoeject {\par
+  \filpage
+  \iftwosided
+    \ifodd\pageno
+      \else \ymessage{{Force recto}}\norunners\null\vfil\eject \fi\fi
+  \norunners}
+
+\def\rectosupereject {\par
+  \superfilpage
+  \iftwosided
+    \ifodd\pageno
+      \else \ymessage{{Force recto}}\norunners\null\vfil\eject \fi\fi
+  \norunners}
+
+% special pages
+\long
+\def\newpage #1\setup #2\glue #3\begin #4\end #5\endnew{%
+  \stripn@me{}#1%
+  \toks@={\rectoeject \beginpgroup #2\relax \hrule width\z@\relax #3 #4}%
+  \expandafter\edef\csname begin\next \endcsname {%
+    \the\toks@}%
+  \toks@={#5\relax #3\endpgroup\eject}%
+  \expandafter\edef\csname end\next \endcsname {%
+    \the\toks@}%
+  \long
+  \edef#1##1{\expandafter\noexpand\csname begin\next\endcsname
+             ##1\expandafter\noexpand\csname end\next\endcsname}}
+
+\long
+\def\newsuperpage #1\setup #2\glue #3\begin #4\end #5\endnew{%
+  \stripn@me{}#1%
+  \toks@={\rectosupereject \beginpgroup #2\relax \hrule width\z@\relax #3 #4}%
+  \expandafter\edef\csname begin\next \endcsname {%
+    \the\toks@}%
+  \toks@={#5\relax #3\endpgroup\eject}%
+  \expandafter\edef\csname end\next \endcsname {%
+    \the\toks@}%
+  \long
+  \edef#1##1{\expandafter\noexpand\csname begin\next\endcsname
+             ##1\expandafter\noexpand\csname end\next\endcsname}}
+
+\message {auxiliary files,}
+
+\newif\ifauxfiles
+
+\def\@uxfiles {}
+\def\add@uxfile #1{\addtodef\@uxfiles{\do@ux#1}}
+\def\map@uxfiles #1{\let\do@ux=#1\@uxfiles}
+
+\def\forgetauxfiles {\def\@uxfiles{}}
+
+\def\perjob {perjob}
+
+{\let\newwrite=\relax                   % allow next def
+\gdef\newaux #1\filename #2\extension #3\endnew{%
+  \stripn@me{}#1%
+  \edef#1{#3}%
+  \expandafter\newwrite\csname \next @ut\endcsname
+  \expandafter\let\csname write\next \endcsname=\bad@uxwrite
+  \expandafter\edef\csname begin\next \endcsname{%
+    \expandafter\noexpand\csname input\next \endcsname
+    \expandafter\noexpand\csname open\next \endcsname}%
+  \expandafter\edef\csname end\next \endcsname{%
+    \expandafter\noexpand\csname close\next \endcsname}%
+  \ifx #2\perjob
+    \add@uxfile #1%
+    \expandafter\def\csname input\next \endcsname{\input@ux#1\jobname}%
+    \expandafter\def\csname open\next \endcsname{\open@ux#1\jobname}%
+    \expandafter\def\csname close\next \endcsname{\close@ux#1}%
+  \else
+    \expandafter\def\csname input\next \endcsname{\input@ux#1{#2}}%
+    \expandafter\def\csname open\next \endcsname{\open@ux#1{#2}}%
+    \expandafter\def\csname close\next \endcsname{\close@ux#1}%
+  \fi}
+} % end of def group
+
+\def\bad@uxwrite #1{%
+  \ifauxfiles
+    \errhelp={I will write to your log file instead.}%
+    \errmessage{Writing on an unopened auxiliary file.}%
+    \write\m@ne{#1}%
+  \fi}
+
+\def\input@ux #1#2{%
+  \ifauxfiles \@input{#2.#1}{\ywarning{{No file #2.#1}}}\fi}
+
+\def\open@ux #1#2{%
+  \stripn@me{}#1%
+  \ifauxfiles
+    \immediate\expandafter\openout\csname \next @ut\endcsname=#2.#1 %
+    \expandafter\edef\csname write\next \endcsname {%
+      \write \expandafter\noexpand\csname \next @ut\endcsname}%
+    \immediate\csname write\next \endcsname{\relax}%
+  \else
+    \expandafter\edef\csname write\next \endcsname {%
+      \write\m@ne}%
+  \fi}
+
+\def\close@ux #1{%
+  \stripn@me{}#1%
+  \ifauxfiles \immediate\expandafter\closeout\csname \next @ut\endcsname \fi
+  \expandafter\let\csname write\next \endcsname=\bad@uxwrite}
+  
+\def\input@uxfile #1{\input@ux#1\jobname}
+\def\input@uxfiles {\map@uxfiles\input@uxfile}
+\def\open@uxfile #1{\open@ux#1\jobname}
+\def\open@uxfiles {\map@uxfiles\open@uxfile}
+\def\close@uxfiles {\map@uxfiles\close@ux}
+
+\def\beginjob {\input@uxfiles \open@uxfiles}
+\def\endjob {\superfilpage \close@uxfiles \end}
+
+\message{initialization,}
+
+% page layout
+\trimpagesfalse
+\offheaders
+\offfooters
+\twosidedfalse
+\topglossfalse
+\bottomglossfalse
+\topglossdrop=2.5pc
+\bottomglossdrop=2.5pc
+\headerdrop=1.25pc
+\footerdrop=1.25pc
+
+% tables
+\tablewidth=0pt
+\intabskip=\emskip
+\pretabskip=\filskip
+\posttabskip=\filskip
+\padheight=2pt
+\tablestyle={\displaystyle}
+\hbarheight=.4pt
+\dhbarheight=1pt
+\vbarwidth=.4pt
+\dvbarwidth=1pt
+
+% auxiliary files
+\auxfilestrue
+
+% special chars
+\makebqnormal
+\makebbqaccent
+\makeandalign
+\makesharpparam
+\makelgtother
+

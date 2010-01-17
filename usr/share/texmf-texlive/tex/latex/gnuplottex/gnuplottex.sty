@@ -1,0 +1,136 @@
+%%
+%% This is file `gnuplottex.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% gnuplottex.dtx  (with options: `package')
+%% 
+%% Copyright (c) 2006, Lars Kotthoff <metalhead@metalhead.ws>
+%% 
+%% Large portions copied from pdftex,
+%% Copyright (c) 2001-3, Radhakrishnan CV <cvr@river-valley.com>
+%%                       Rajagopal CV <cvr3@river-valley.com>
+%%                       http://www.river-valley.com
+%% 
+%% River Valley Technologies, Floor III, SJP Buildings, Cotton Hills
+%% Trivandrum, India 695014
+%% 
+%% Tel: +91 471 233 7501
+%% 
+%%                     Antoine Chambert-Loir
+%%                     <chambert@math.polytechnique.fr>
+%%                     http://www.math.polytechnique.fr/\protect \unhbox \voidb@x \penalty \@M \ {}chambert
+%% 
+%% Ecole polytechnique, Palaiseau Cedex, France
+%% 
+%% This program is free software; you can redistribute it and/or
+%% modify it under the terms of the GNU General Public License
+%% as published by the Free Software Foundation; either version 2
+%% of the License, or (at your option) any later version.
+%% 
+%% This program is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%% GNU General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License
+%% along with this program (gpl.txt); if not, write to the Free
+%% Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+%% MA  02111-1307, USA.
+%% 
+ \NeedsTeXFormat{LaTeX2e}[1999/12/01]
+ \ProvidesPackage{gnuplottex}
+    [2006/10/28 v0.2 gnuplot graphs in LaTeX]
+\RequirePackage{latexsym,graphicx,moreverb,keyval}
+\newif\ifShellEscape
+\newif\ifmiktex \miktexfalse
+
+\DeclareOption{shell}{\ShellEscapetrue}
+\DeclareOption{noshell}{\ShellEscapefalse}
+\DeclareOption{miktex}{\global\miktextrue}
+
+\ExecuteOptions{shell}
+\ProcessOptions\relax
+%% test if shell escape really works
+\ifShellEscape
+    \def\tmpfile{/tmp/w18-test-\the\year\the\month\the\day\the\time}
+    \ifmiktex
+        \immediate\write18{rem >"\tmpfile"}
+    \else
+        \immediate\write18{touch \tmpfile}
+    \fi
+    \ifmiktex
+        \IfFileExists{\tmpfile.}{\ShellEscapetrue}{\ShellEscapefalse}
+    \else
+        \IfFileExists{\tmpfile}{\ShellEscapetrue}{\ShellEscapefalse}
+    \fi
+\fi
+
+\ifShellEscape
+    \PackageInfo{gnuplottex}
+    {Automatically converting gnuplot files.}
+\else
+    \PackageWarningNoLine{gnuplottex}
+        {Shell escape not enabled.\MessageBreak
+        You'll need to convert the graphs yourself.}
+\fi
+\newcounter{fignum}
+\def\figname{\jobname-gnuplottex-fig\thefignum}
+
+\def\gnuplotverbatimwrite#1{%
+    \def\BeforeStream
+    {\message{Opening gnuplot stream #1}%
+        \immediate\write\verbatim@out{\string set terminal latex}
+\immediate\write\verbatim@out{\string set output '\figname.tex'}
+    }
+    \@bsphack
+    \immediate\openout \verbatim@out #1
+    \BeforeStream%
+    \let\do\@makeother\dospecials
+    \catcode`\^^M\active
+    \def\verbatim@processline{%
+        \immediate\write\verbatim@out
+        {\the\verbatim@line}}%
+    \verbatim@start}
+\def\endgnuplotverbatimwrite{%
+    \immediate\closeout\verbatim@out
+    \@esphack
+\catcode`\\0
+\catcode`\{1
+\catcode`\}2
+\catcode`\$3
+\catcode`\&4
+\catcode`\^^M5
+\catcode`\#6
+\catcode`\^7
+\catcode`\_8
+\catcode`\ 10
+\catcode`\%14}
+\define@key{pic}{scale}{\def\gnuplotscale{#1}}
+\newenvironment{gnuplot}[1][]{\stepcounter{fignum}%
+\def\gnuplotscale{1}
+\setkeys{pic}{#1}
+    \xdef\gnuplotCutFile{\figname.gnuplot}
+    \gnuplotverbatimwrite{\gnuplotCutFile}}
+    {\endgnuplotverbatimwrite%
+    \gnuplotgraphicsinclude}
+\long\gdef\gnuplotgraphicsprocess{%
+\ifShellEscape
+\IfFileExists{\figname.gnuplot}{%
+\immediate\write18{gnuplot \figname.gnuplot}
+\IfFileExists{\figname.tex}{%
+\PackageInfo{gnuplottex}
+{\figname.gnuplot converted}}
+{\PackageWarningNoLine{gnuplottex}
+{Conversion of \figname.gnuplot failed.}}}{}
+\fi}
+\long\gdef\gnuplotgraphicsinclude{\gnuplotgraphicsprocess%
+\IfFileExists{\figname.tex}{%
+\scalebox{\gnuplotscale}{\input{\figname}}}
+{\PackageWarningNoLine{gnuplottex}
+{Please convert \figname.gnuplot manually}}
+}
+\endinput
+%%
+%% End of file `gnuplottex.sty'.

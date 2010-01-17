@@ -1,0 +1,153 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%        File: manju.sty
+%      Author: Oliver Corff
+%        Date: April 1st, 2001
+%     Version: 0.2
+%   Copyright: Ulaanbaatar, Beijing, Berlin
+%
+% Description: The manju style file providing access to all
+%		commands necessary for writing Manju.
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------------     identification     -------------------
+%
+\ifx\VersionDate\undefined
+	\newcommand{\VersionDate}{2001/04/01}
+\fi
+%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{manju}[\VersionDate\ Manju for LaTeX2e]
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------------      initial code      -------------------
+%
+\let\orgv\v
+\let\orgd\=
+%
+{\gdef\@sv#1{\expandafter\ifx\csname #1\endcsname\s s'\else\orgv#1 \fi}}
+{\gdef\@sd#1{\expandafter\ifx\csname #1\endcsname\u v\else\orgd#1 \fi}}
+%
+%
+% One variable needed later:
+%
+\newif\ifRtoL
+%
+\ifx\SetDocumentEncodingNeutral\undefined
+	\newcommand{\SetDocumentEncodingNeutral}{%
+		\renewcommand{\encodingdefault}{T1}
+		\fontencoding{T1}\selectfont
+	%	\DeclareErrorFont{T1}{cmr}{m}{n}{10}
+		}
+\fi
+%
+\newcommand{\SetDocumentEncodingLigBithe}{%
+	\renewcommand{\encodingdefault}{LMA}
+	\fontencoding{LMA}
+	\fontfamily{\ifRtoL bthv\else bthh\fi}\selectfont
+	%\DeclareErrorFont{LMA}{bthhsm}{m}{n}{10}
+	}
+%
+%
+% Finally we define the captions:
+%
+%\input bithe.def	% Future provision!
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ------------------- declaration of options -------------------
+%
+\DeclareOption{english}{\captionsenglish\language0 }
+			%\renewcommand{\today}{\EnglishToday}}
+\DeclareOption{bithe}{%\SetBithe
+			%\captionsbithe
+			%\renewcommand{\today}{\BitheToday}
+			}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------------  execution of options  -------------------
+%
+\ProcessOptions
+%
+\RequirePackage[LMA,T1]{fontenc}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------------    package loading     -------------------
+%
+\RequirePackage{diagnose}
+%
+\ifx\c@PostScriptAvailable\undefined
+	\PackageDiagnostics{rotating.sty}
+		{PostScriptAvailable}
+		{PostScript Support Available!}
+		{No Vertical Text without PostScript Support!}
+\fi
+%
+\ifnum\thePostScriptAvailable=1
+	\RequirePackage{rotating}
+\fi
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------------       main code        -------------------
+%
+% \ManjuTeX creates the ManjuTeX logo
+%
+\newcommand{\ManjuTeX}{Manju\TeX}
+%
+%
+% Language switching commands; influence both
+% document conventions and document encoding
+%
+\renewcommand{\selectlanguage}[1]{%
+	\ifthenelse{\equal{#1}{bithe}}{%
+		\SetDocumentEncodingBithe
+		\captionsbithe}{}
+	\ifthenelse{\equal{#1}{english}}{%
+		\SetDocumentEncodingNeutral
+		\language0
+		\captionsenglish}{}
+}
+%
+\newcommand{\bthh}{
+	\fontencoding{LMA}\fontfamily{bthh}\selectfont
+	}
+\newcommand{\bthv}{
+	\fontencoding{LMA}\fontfamily{bthv}\selectfont
+	}
+%
+\newcommand{\bth}{%
+	 \let\v\@sv \let\=\@sd
+	 \ifRtoL \bthv \else \bthh \fi }
+%
+%
+% Some definitions for writing transliterated
+% texts, useful mainly in Latin enviroments:
+%
+\DeclareTextCommand{\UU}{T1}{\={U}}
+\DeclareTextCommand{\uu}{T1}{\={u}}
+\DeclareTextCommand{\sh}{T1}{\char"0B2 }
+\DeclareTextCommand{\Sh}{T1}{\char"092 }
+%
+%
+% PostScript detection; necessary for user-friendly
+% execution of vertical capsules
+%
+% \c@PostScriptAvailable=0 % Package testing
+\ifx\bosoo\undefined
+\ifthenelse{\value{PostScriptAvailable}=1}{%
+	\newcommand{\bosoo}[1]{%
+		\raisebox{2.25ex}{%
+		\begin{turn}{270}%
+			#1%
+		\end{turn}}}}
+		{\newcommand{\bosoo}[1]{#1}}
+\fi
+%
+\newcommand{\mabosoo}[1]{\bosoo{{\bth #1}}}
+%
+% In any case, start with a clean document environment!
+%
+\SetDocumentEncodingNeutral
+% \setlanguage=255
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The \packagename\ package ends here.

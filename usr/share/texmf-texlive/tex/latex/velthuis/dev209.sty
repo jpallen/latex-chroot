@@ -1,0 +1,110 @@
+%
+%    dev209.sty v2.0
+%
+%    LaTeX 2.09 style file for the Devanagari for TeX package
+%    Copyright (C) 1991-1999 University of Groningen, The Netherlands
+%
+%    Author    : Frans J. Velthuis <velthuis@rc.rug.nl>
+%    Co-author : Dominik Wujastyk <d.wujastyk@ucl.ac.uk>
+%
+%    This program is free software; you can redistribute it and/or modify
+%    it under the terms of the GNU General Public License as published by
+%    the Free Software Foundation.
+%
+%    This program is distributed in the hope that it will be useful,
+%    but without any warranty; without even the implied warranty of
+%    merchantability or fitness for a particular purpose. See the
+%    GNU General Public License for more details.
+%
+
+\newcount\chnum
+\newdimen\itdim
+\newdimen\dnblskip
+\newcount\chyph
+\chyph=-1
+%
+\def\@gdnfont#1#2{\@ifundefined{#1}{\global\expandafter%
+\font\csname #1\endcsname=#2%
+\global\expandafter%
+\hyphenchar\csname #1\endcsname=\chyph}{}\csname #1\endcsname}
+%
+\def\eightdev{\@gdnfont{dnviii}{dvng8}}
+\def\ninedev{\@gdnfont{dnix}{dvng9}}
+\def\tendev{\@gdnfont{dnx}{dvng10}}
+\def\elevendev{\@gdnfont{dnxi}{dvng10 scaled\magstephalf}}
+\def\twelvedev{\@gdnfont{dnxii}{dvng10 scaled\magstep1}}
+\def\fourteendev{\@gdnfont{dnxiv}{dvng10 scaled\magstep2}}
+\def\seventeendev{\@gdnfont{dnxvii}{dvng10 scaled\magstep3}}
+\def\subscr#1{\/\itdim=\lastkern
+\unkern\kern-\itdim \lower\dp0 \hbox to\itdim{#1\hfil}}
+%
+% For the usage of the following \@addfontinfo lines, see LFONTS.TEX
+%
+\def\dn{
+\chnum=0
+\loop\catcode\chnum=11
+\ifnum\chnum<12\advance\chnum by1
+\repeat
+\chnum=14
+\loop\catcode\chnum=11
+\ifnum\chnum<31\advance\chnum by1
+\repeat
+\catcode127=11
+\protect\pdn\baselineskip=\dnblskip
+\tolerance=10000\pretolerance=10000}
+%
+\@addfontinfo\@vpt{\def\pdn{\@prtct\@warning{No Devanagari available at this
+ font size. Substituting eight point font.}\@prtct\eightdev}\dnblskip=13pt}
+\@addfontinfo\@vipt{\def\pdn{\@prtct\@warning{No Devanagari available at this
+ font size. Substituting eight point font.}\@prtct\eightdev}\dnblskip=13pt}
+\@addfontinfo\@viipt{\def\pdn{\@prtct\@warning{No Devanagari available at this
+ font size. Substituting eight point font.}\@prtct\eightdev}\dnblskip=13pt}
+\@addfontinfo\@viiipt{\def\pdn{\eightdev}\dnblskip=13pt}
+\@addfontinfo\@ixpt{\def\pdn{\ninedev}\dnblskip=14pt}
+\@addfontinfo\@xpt{\def\pdn{\tendev}\dnblskip=16pt}
+\@addfontinfo\@xipt{\def\pdn{\elevendev}\dnblskip=17pt}
+\@addfontinfo\@xiipt{\def\pdn{\twelvedev}\dnblskip=19pt}
+\@addfontinfo\@xivpt{\def\pdn{\fourteendev}\dnblskip=23pt}
+\@addfontinfo\@xviipt{\def\pdn{\seventeendev}\dnblskip=28pt}
+\@addfontinfo\@xxpt{\def\pdn{\@prtct\@warning{No Devanagari available at this
+ font size. Substituting seventeen point font.}\@prtct\seventeendev}
+\dnblskip=28pt}
+\@addfontinfo\@xxvpt{\def\pdn{\@prtct\@warning{No Devanagari available at this
+ font size. Substituting seventeen point font.}\@prtct\seventeendev}
+\dnblskip=28pt}
+%
+\def\0{\llap{\char13}}
+\def\1{\llap{\char32}}
+\def\2{\llap{\char92}}
+\def\3#1w{{\char"#1}}
+\def\4{\llap{\char123}}
+\def\5{\llap{\char125}}
+\def\6#1{\setbox0=\hbox{#1}#1\subscr{\char126}}
+\def\7#1{\setbox0=\hbox{#1}#1\subscr{\char0}}
+\def\8#1{\setbox0=\hbox{#1}#1\subscr{\char1}}
+\def\9#1{\setbox0=\hbox{#1}#1\subscr{\char2}}
+\def\qa#1#2{\setbox0=\hbox{#1}#1\subscr{\char253\kern1.5ex\lower1.25ex
+  \hbox{\char#2}\kern-1.5ex}}
+\def\qb#1{\setbox0=\hbox{#1}#1\subscr{\char253}}
+\def\qc#1#2{\setbox0=\hbox{#1}#1\subscr{\char126\kern1.5ex\lower1.25ex
+  \hbox{\char#2}\kern-1.5ex}}
+\def\qq#1{\setbox0=\hbox{#1}#1\subscr{\char94}}
+\def\qx#1{\setbox0=\hbox{#1}#1\subscr{\char14}}
+\def\qy#1{\setbox0=\hbox{#1}#1\subscr{\char31}}
+\def\qz#1{\setbox0=\hbox{#1}#1\subscr{\char124}}
+\def\qva{\kern0.5ex\2\kern-0.5ex}
+\def\qvb{\kern1ex\0\kern-1ex}
+\def\qvc{\kern1ex\rdt\kern-1ex}
+\def\?{\llap{\char3}}
+\def\<{\llap{\char4}}
+\def\rs{\rm\thinspace}
+\let\re=\thinspace
+\def\rdt{\llap{\char19}}
+\def\dnnum{\let\nstyle=d}
+\def\cmnum{\let\nstyle=r}
+\cmnum
+\def\rn#1{\if\nstyle r{\rm #1}\else#1\fi}
+\def\dohyphen{\chyph=255
+  \def\-{\@@hyph}
+  \hfuzz=8pt} 
+

@@ -1,0 +1,271 @@
+% This is  UPPERST.MF
+% Version 1.1a 
+% Date 13-MAR-1992
+% 
+% (c) 1991, 1992 by J"org Knappen. See fc.rme for copying conditions
+% This file is part of the fc-package 
+% See fc.rme for more information
+%
+% J"org Knappen
+% Institut f"ur Kernphysik
+% Postfach 39 80
+% D-W 6500 Mainz
+% knappen@vkpmzd.kph.uni-mainz.de
+
+% Contents:
+%
+% The following characters are generated without condition:
+%
+% S, T
+%
+% And the following on demand, i. e. if their code is known:
+%
+% S_hachek, S_dotu, Esh, var_Esh, long_T, sami_T (crossed T), Thorn,
+% hooktop_T
+%
+% Higher versions of this file might include more characters.
+cmchar "The letter S";
+beginchar("S",10u#,cap_height#,0);
+italcorr cap_height#*slant-u#;
+adjust_fit(0,0);
+numeric theta; theta=90-angle(50u,h); slope:=-h/50u;  % angle at middle
+numeric s_slab; s_slab=if serifs:slab else:vround .2[slab,cap_stem] fi;
+numeric ess'; ess'=max(fine.breadth,cap_ess);
+pickup fine.nib; pos2(max(fine.breadth,s_slab-vround vair_corr),-90);
+pos0(ess',theta); pos7(s_slab,-90);
+x2+x7=2x0=w; x7-x2=if serifs: u else: 0 fi; top y2l=h+o; bot y7r=-o;
+y0=.52h; lft x3l=hround u; rt x6r=hround(w-u);
+x3r-x3l=x6r-x6l=hround .5[s_slab,ess']-fine;
+ellipse_set(2l,3l,4l,0l); ellipse_set(2r,3r,4r,0r); y3=y3r;
+ellipse_set(7l,6l,5l,0l); ellipse_set(7r,6r,5r,0r); y6=y6r;
+filldraw stroke super_arc.e(2,3) & z3e{down}
+ ..z4e---z5e..z6e{down} & super_arc.e(6,7);  % main stroke
+if serifs: pos1(hair,180); pos8(hair,180);
+ rt x1l=hround(w-1.5u); lft x8r=hround u;
+ bot y1=vround 2/3h+1; top y8=vround 1/3h-1;
+ filldraw stroke z1e{x2-x1,10(y2-y1)}....{left}z2e;  % upper arc
+ filldraw stroke z7e{left}....{up}z8e;  % lower arc
+ path upper_arc, lower_arc;
+ upper_arc=z1{x2-x1,10(y2-y1)}....{left}z2;
+ lower_arc=z7{left}....{up}z8;
+ pos10(.3[fine.breadth,cap_hair],0); pos9(.3[fine.breadth,cap_hair],0);
+ x10r=x1l; top y10=top y2l; x9l=x8r; bot y9=bot y7r;
+ x1l-x1'=x8'-x8r=1.6cap_curve-fine; y1'=y1; y8'=y8;
+ numeric t; t=xpart(upper_arc intersectiontimes(z10l--z1'));
+ filldraw z1l--z10r--z10l--subpath(t,0) of upper_arc--cycle;  % upper barb
+ t:=xpart(lower_arc intersectiontimes(z9r--z8'));
+ filldraw z8r--z9l--z9r--subpath(t,1) of lower_arc--cycle;  % lower barb
+else: pos1(1.2flare,-100); pos8(1.2flare,-100);
+ x1l=good.x(x1l+w-1.75u-rt x1); lft x8r=hround .8u;
+ top y1l=vround .93h+o; bot y8r=vround .1h-o;
+ filldraw stroke term.e(2,1,right,.9,4);  % upper arc and terminal
+ filldraw stroke term.e(7,8,left,1,4); fi  % lower arc and terminal
+picture savedpicture;
+savedpicture:=currentpicture;
+math_fit(0,.5ic#); penlabels(0,1,1',2,3,4,5,6,7,8,8',9,10); endchar;
+
+iff known S_dotu:
+cmchar "Capital letter S with dot below";
+beginchar(S_dotu,10u#,cap_height#,0.875desc_depth#);
+italcorr cap_height#*slant-u#;
+adjust_fit(0,0);
+numeric dot_diam#; dot_diam#=max(dot_size#,cap_curve#);
+define_whole_blacker_pixels(dot_diam);
+currentpicture:=savedpicture;
+pickup tiny.nib;
+pos88(dot_diam,0); pos99(dot_diam,90);
+x88=x99=good.x(.5w); bot y99l=-d-1; 
+if top y99r+oo>-slab: y99r:=max(y99l+eps,-oo-tiny-slab); fi
+y88=.5[y99r,y99l];
+dot(88,99); 
+penlabels(88,99); endchar;
+
+iff known S_hachek:
+cmchar "Capital letter S with hachek";
+beginchar(S_hachek,10u#,cap_height#+comma_depth#,0);
+italcorr cap_height#*slant-u#;
+adjust_fit(0,0);
+currentpicture:=savedpicture;
+h':=vround(cap_height+comma_depth); % height of circumflex being inverted
+if serifs:  pickup crisp.nib; pos2'(.5[vair,curve],90); top y2'r=h;
+ pos2(.5[vair,curve],90); x2=.5w;
+ x1=good.x(.5w-2.25u); x3=good.x(.5w+2.25u);
+ top y1=top y3=h; y1-y2=.5(y2'-cap_height);
+ pos1(hair,angle(z2-z1)+90); pos3(hair,angle(z3-z2)+90);
+ filldraw stroke z1e--z2e--z3e;  % diagonals
+else: 
+ pickup fine.nib; pos1(vair,0); pos3(vair,0); 
+ pos2(stem,0); bot y2=vround(1/12[cap_height,h']+o); x2=.5w;
+ top y1=top y3=h+o; lft x1l=hround(rt x2r-3.25u-.5vair);
+ rt x3r=hround(lft x2l+3.25u+.5vair);
+ z0=whatever[z1r,z2r]=whatever[z2l,z3l];
+ y4l=y4r=y2; x4l=good.x(.2[x2l,x2]); x4r=good.x(.2[x2r,x2]);
+ filldraw z4l--z1l--z1r--z0--z3l--z3r--z4r--cycle; fi  % diagonals
+penlabels(0,1,2,3,4); endchar;
+
+savedpicture:=nullpicture;
+
+iff known Esh:
+cmchar "Capital letter ESH";       % jk
+beginchar(Esh,3u#+max(1.5u#,cap_stem#)+max(3.5u#,2flare#),
+  cap_height#,0);
+italcorr asc_height#*slant+.75u#;
+adjust_fit(if monospace:u#,u# else: 0,0 fi); pickup fine.nib;
+pos0(flare+(cap_stem-stem),0); pos1(cap_hair,0); pos2(cap_band,90);
+pos4(cap_stem,180);  
+pos5(cap_stem,0);  
+pos7(cap_band,-90); pos8(cap_hair,-180); pos9(flare+(cap_stem-stem),-180);
+rt x1r=hround(w+.25u); lft x8r=hround-.35u; x2=.6[x1,x4]; x7=.6[x8,x5];
+y9-.5flare=vround -.85d; y2-y0=y9-y7; top y2r=h+oo; bot y7r=-d-oo;
+y4=.25[x_height,h]; y5=.75[-d,y4];
+x4=x5=.5w; 
+bulb(2,1,0); bulb(7,8,9);  % bulbs
+filldraw stroke z2e{left}...{down}z4e;            % upper arc
+filldraw z4r--z5l--z5r--z4l--cycle;	% stem
+filldraw stroke z5e{down}...{left}z7e; % lower arc
+penlabels(0,1,2,4,5,7,8,9); endchar;
+
+
+iff known var_Esh:
+cmchar "Capital letter variant ESH";   % jk
+beginchar(var_Esh,3u#+max(1.5u#,cap_stem#)+max(3.5u#,2flare#),
+  cap_height#,desc_depth#);
+italcorr asc_height#*slant+.75u#;
+adjust_fit(if monospace:u#,u# else: 0,0 fi); pickup fine.nib;
+pos0(flare+(cap_stem-stem),0); pos1(cap_hair,0); pos2(cap_band,90);
+pos4(cap_stem,180);
+pos5(cap_stem,0);
+pos7(cap_band,-90); pos8(cap_hair,-180); pos9(flare+(cap_stem-stem),-180);
+rt x1r=hround(w+.25u); lft x8r=hround-.35u; x2=.6[x1,x4]; x7=.6[x8,x5];
+y9-.5flare=vround -.85d; y2-y0=y9-y7; top y2r=h+oo; bot y7r=-d-oo;
+y4=.25[x_height,h]; y5=.75[-d,y4];
+x4=x5=.5w; 
+bulb(2,1,0); bulb(7,8,9);  % bulbs
+filldraw stroke z2e{left}...{down}z4e;            % upper arc
+filldraw z4r--z5l--z5r--z4l--cycle;	% stem
+filldraw stroke z5e{down}...{left}z7e; % lower arc
+penlabels(0,1,2,4,5,7,8,9); endchar;
+
+cmchar "The letter T";
+beginchar("T",13u#-width_adj#,cap_height#,0);
+italcorr cap_height#*slant-beak_jut#-.25u#;
+adjust_fit(0,0);
+h:=vround(h-2stem_corr);
+pickup tiny.nib; pos1(cap_stem,0); pos2(cap_stem,0);
+lft x1l=lft x2l=hround(.5w-.5cap_stem); top y1=h; bot y2=0;
+filldraw stroke z1e--z2e; % stem
+pickup crisp.nib; pos3(slab,90); pos4(hair,0);
+top y3r=h; x3=x1; rt x4r=hround(w-.65u); y4=good.y(y3l-beak)-eps;
+arm(3,4,e,beak_darkness,.7beak_jut);  % right arm and beak
+pos5(hair,180); x5=w-x4; y5=y4;
+arm(3,5,f,beak_darkness,-.7beak_jut);  % left arm and beak
+if serifs: dish_serif(2,1,c,1/3,1.414cap_jut,d,1/3,1.414cap_jut);  % lower serif
+ nodish_serif(1,2,a,1/3,.5cap_jut,b,1/3,.5cap_jut); fi  % upper bracketing
+math_fit(-.75cap_height#*slant,ic#-2.5u#); penlabels(1,2,3,4,5,6); endchar;
+
+iff known Thorn:
+%cmchar "Icelandic big thorn";   % from im
+cmchar"Capital letter THORN";
+beginchar(Thorn,12u#,cap_height#,0);
+italcorr .75cap_height#*slant-.5u#;
+adjust_fit(cap_serif_fit#,0);
+pickup tiny.nib; penpos1(cap_stem'-tiny,0); penpos2(cap_stem-tiny,0);
+pos0(cap_stem',0); pos0'(cap_stem,0);
+lft x1l=hround max(2u,3u-.5cap_stem'); top y1=h; bot y2=0;
+x1l=x2l=x0l=x0'l; y0=y0'=y7;
+penpos3(cap_band,90); penpos4(cap_band,90);
+penpos5(cap_curve if hefty:-3stem_corr fi,0);
+penpos6(.5[vair,cap_band],-90); penpos7(.5[vair,cap_band],-90);
+% z3r=top z1; y4=y3; y5=.5[y4l,y6l]; y6=y7;
+% x7=x2; y7l=vround .5h; x4=x6=.5w+.75u; x5r=hround(w-u);
+   x3=x1; 
+   y3r=vround .8h;
+   y4=y3; 
+   y5=.5[y4,y6]; 
+   y6=y7;
+   x7=x2; 
+   y7l=vround .3h; 
+   x4=x6=.5w+.75u; x5r=hround(w-u);
+x4l:=x6l:=x4-.25cap_curve;
+filldraw stroke z1e--z0e--z0'e--z2e; % stem
+fill stroke z3e..pulled_arc.e(4,5) & pulled_arc.e(5,6)..z7e;  % lobe
+if serifs: dish_serif(1,2,a,1/3,1.05cap_jut,b,1/3,1.05cap_jut);  % upper serif
+ dish_serif(2,1,c,1/3,1.05cap_jut,d,1/3,1.05cap_jut);  fi % lower serif
+math_fit(0,ic#-2.5u#); penlabels(0,1,2,3,4,5,6,7); endchar;
+
+iff known sami_T:
+cmchar "Capital letter crossed T";    % based on cm
+beginchar(sami_T,13u#-width_adj#,cap_height#,0);
+italcorr cap_height#*slant-beak_jut#-.25u#;
+adjust_fit(0,0);
+h:=vround(h-2stem_corr);
+pickup tiny.nib; pos1(cap_stem,0); pos2(cap_stem,0);
+lft x1l=lft x2l=hround(.5w-.5cap_stem); top y1=h; bot y2=0;
+filldraw stroke z1e--z2e; % stem
+pickup crisp.nib; pos3(slab,90); pos4(hair,0);
+top y3r=h; x3=x1; rt x4r=hround(w-.65u); y4=good.y(y3l-beak)-eps;
+arm(3,4,e,beak_darkness,.7beak_jut);  % right arm and beak
+pos5(hair,180); x5=w-x4; y5=y4;
+arm(3,5,f,beak_darkness,-.7beak_jut);  % left arm and beak
+if serifs: dish_serif(2,1,c,1/3,1.414cap_jut,d,1/3,1.414cap_jut);  % lower serif
+ nodish_serif(1,2,a,1/3,.5cap_jut,b,1/3,.5cap_jut); fi  % upper bracketing
+pickup crisp.nib; y7-.5bar=.2[bar_height,x_height];
+y8+.5bar=.8[bar_height,x_height]; x7=.5w-2.5u; x8=.5w+2.5u;
+numeric theta; theta=angle(z8-z7)+90; pos7(bar,theta); pos8(bar,theta);
+filldraw stroke z7e--z8e; % cross piece (from "Cross for polish l and L")
+math_fit(-.75cap_height#*slant,ic#-2.5u#); penlabels(1,2,3,4,5,6,7,8); endchar;
+
+iff known long_T:
+cmchar "The letter long T";  % jk
+beginchar(long_T,13u#-width_adj#,cap_height#,0);
+italcorr cap_height#*slant-beak_jut#;
+adjust_fit(0,0);
+h:=vround(h-2stem_corr);
+slantswitch;    % mirror will reswitch slant
+pickup tiny.nib; pos1(cap_stem,0); pos2(cap_stem,0);
+lft x1l=lft x2l=hround(.5w-.5cap_stem); top y1=h; y2=.21h;
+filldraw stroke z1e--z2e; % stem
+if serifs:
+  pos13(vair,-90); pos14(cap_hair,-180); pos15(flare+(cap_stem-stem),-180);  
+  bot y13r=-o; x13=.5[x14,x2]; 
+  y15=1/6h; rt x15l=2.75u; z15r=z14r;
+  filldraw stroke super_arc.e(2,13); % arc
+  bulb(13,14,15);                    % bulb
+else:
+  pickup fine.nib; pos13(cap_stem',0); z13=z2; pos14(flare, angle(6.5u,-h)); 
+  pos15(1.1flare,-100);
+  bot y14r=-o; x14r=.5[x13r,x15r]; lft x15r=hround .75u; bot y15r=vround .06h-o;
+  filldraw stroke z13e{down}...term.e(14,15,left,1,4); % arc & terminal
+fi
+pickup crisp.nib; pos3(slab,90); pos4(hair,0);
+top y3r=h; x3=x1; rt x4r=hround(w-.65u); y4=good.y(y3l-beak)-eps;
+arm(3,4,e,beak_darkness,.7beak_jut);  % right arm and beak
+pos5(hair,180); x5=w-x4; y5=y4;
+arm(3,5,f,beak_darkness,-.7beak_jut);  % left arm and beak
+if serifs:  
+  nodish_serif(1,2,a,1/3,.5cap_jut,b,1/3,.5cap_jut); fi  % upper bracketing
+mirror(.5w);
+math_fit(-.75cap_height#*slant,ic#-2.5u#); penlabels(1,2,3,4,5,6,13,14,15); 
+endchar;
+
+iff known hooktop_T:
+cmchar "Capital letter hooktop T";   % jk, based on cm Gamma
+beginchar(hooktop_T,9u#-width_adj#,cap_height#,0);
+italcorr cap_height#*slant-beak_jut#-.25u#;
+adjust_fit(4u#,0);
+h:=vround(h-stem_corr);
+pickup tiny.nib; pos1(cap_stem,0); pos2(cap_stem,0);
+lft x1l=lft x2l=hround max(2u,3u-.5cap_stem); top y1=h; bot y2=0;
+filldraw stroke z1e--z2e; % stem
+pickup crisp.nib; pos3(slab,90); pos4(hair,0);
+top y3r=h; x3=x1; rt x4r=hround(w-.75u); y4=good.y(y3l-beak)-eps;
+arm(3,4,e,beak_darkness,beak_jut);  % arm and beak
+if serifs: 
+% nodish_serif(1,2,a,1/3,cap_jut,b,1/3,.5cap_jut);  % upper serif
+ dish_serif(2,1,c,1/3,cap_jut,d,1/3,1.25cap_jut); fi  % lower serif
+pickup crisp.nib;
+left_hook(1,1',21,22,23,24);                          % left hook
+math_fit(0,ic#-2.5u#); penlabels(1,2,3,4,21,22,23,24); endchar;
+
+
+endinput;

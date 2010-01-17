@@ -1,0 +1,131 @@
+%%
+%% This is file `universal.mf',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% universal.dtx  (with options: `main')
+%% 
+%% Copyright (C) 1997 Christian Holm.
+%% 
+%% This file is NOT the source for universal, because almost all
+%% comments have been stripped from it.  It is NOT the preferred
+%% form of universal for making modifications to it.
+%% 
+%% Therefore you can NOT redistribute and/or modify THIS file.
+%% You can however redistribute the complete source (universal.dtx
+%% and universal.ins) and/or modify it under the terms of the GNU
+%% General Public License as published by the Free Software
+%% Foundation; either version 2, or (at your option) any later
+%% version.
+%% 
+%% The universal font and package is distributed in the hope that
+%% it will be useful, but WITHOUT ANY WARRANTY; without even the
+%% implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+%% PURPOSE.  See the GNU General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public
+%% License along with this program; if not, write to the
+%%   Free Software Foundation, Inc.,
+%%   675 Mass Ave, Cambridge,
+%%   MA 02139, USA.
+%% 
+%% See the file universal.dtx for further comments and documentation.
+%% 
+x_height# = 8u#;                % height of lowercase without ascenders
+m_width#  = 7/5x_height# ;      % width of widest lowercase (1em)
+x_width#  = x_height#+f_space#; % width of normal lowercase
+p_depth#  = 3/5x_height# ;      % depth of charactes accending baseline
+l_height# = 8/5x_height# ;      % height of heighest characters
+p_thick#  = 1/36x_height# ;     % pen thickness
+f_space#  = 2u#;                % space added after fonts
+c_width#  = 1x_width#-0.5x_width#*(1-cosd(35));   % width of "c"
+C_width#  = l_height#-0.5l_height#*(1-cosd(35));  % width of "C"
+f_width#  = 3/8l_height#+f_space#;      % width of "f"
+A_width#  = m_width# ;          % width of normal upper case characters
+M_width#  = 7/5A_width# ;       % width of "M"
+define_pixels(u,m_width,x_width,x_height,p_depth,l_height,p_thick) ;
+define_pixels(f_space,A_width,C_width,M_width) ;
+define_corrected_pixels(p_depth) ;
+
+ligs:=2;
+font_coding_scheme:="TeX text";
+spanish_shriek:=oct"074";
+spanish_query:=oct"076";
+
+mode_setup;
+
+font_x_height 8u#;
+font_quad m_width#;
+font_normal_space 6u#+f_space#;
+font_normal_stretch 3u#;
+font_normal_shrink 2u#;
+font_quad 18u#+4f_space#;
+font_extra_space 2u#;
+
+def makebox(text rule) =        % macro for hardcopy proofs
+  rule((0,0)t_,(w,0)t_);
+  rule((0,0.01)t_,(w,0.01)t_);
+  for y=-d step u until h+u:    % making addtional grid lines
+      rule((0,y)t_,(w,y)t_);
+  endfor                        % horizontals
+  for x=0 step u until w+u:
+    rule((x,-d)t_,(x,h)t_);
+  endfor                        % verticals
+enddef;
+
+def bauhauschar (expr name, width, height, depth, extra_width) =
+  beginchar(name,width,height,depth);
+    "The letter "&name;
+    pickup pencircle scaled p_thick ;
+    wi#:=width-f_space#+extra_width;
+    define_pixels(wi);
+  enddef;
+
+def bauhausnumb (expr name, width, height, depth, extra_width) =
+  beginchar(name,width,height,depth);
+    "The number "&name;
+    pickup pencircle scaled p_thick ;
+    wi#:=width-f_space#+extra_width;
+    define_pixels(wi);
+  enddef;
+
+def bauhaussymb (expr name, width, height, depth, extra_width) =
+  beginchar(name,width,height,depth);
+    pickup pencircle scaled p_thick ;
+    wi#:=width-f_space#+extra_width;
+    define_pixels(wi);
+  enddef;
+
+def bauhausextra (expr number, name) =
+  beginchar(number,l_height#+f_space#,l_height#,p_depth#);
+    "The bauhaus symbol "&name;
+    pickup pencircle scaled 1/10p_thick ;
+    wi#:=l_height#;
+    define_pixels(wi);
+  enddef;
+
+picture e_pic, a_pic, o_pic, O_pic;    %  any where
+
+input universal-uppers;                   % upper case (majuscules)
+input universal-lowers;                   % lower case (minuscules)
+input universal-digits;                   % numerals
+input universal-specials ;                % special symbols
+input universal-ligatures;                % ligaturres
+input universal-punctuations;             % punctuation symbols
+input universal-accents;                  % accents
+input universal-extras;                   % bauhaus extras
+
+ligtable "u": "h" kern u#;
+ligtable "f": "f" kern 0 , "l" kern 0 , "i" kern 0;
+ligtable "o": "l" kern u#;
+ligtable "?": "`" =: spanish_query;
+ligtable "!": "`" =: spanish_shriek;
+ligtable "-": "-"=:oct"173";
+ligtable oct"173": "-"=:oct"174";
+
+bye.
+
+\endinput
+%%
+%% End of file `universal.mf'.

@@ -1,0 +1,132 @@
+% ---------------------------------------------------------------------------
+% This is POLKUR.MF ({\bif{}polska kursywa}, i.e., text italic)
+% in text format.
+% The program is a modification of the TEXTIT.MF file.
+% ---------------------------------------------------------------------------
+% PL VERSION 1.09, April 13th, 2001 -- released for BachoTeX 2001
+% ---------------------------------------------------------------------------
+% AUTHORS OF MODIFICATION: {\bif{}Bogus\l{}aw Jackowski \& Marek Ry\'cko}
+% ---------------------------------------------------------------------------
+% This file belongs to the public domain under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% 
+% For details see either the file MEXINFO.POL or MEXINFO.ENG.
+% ---------------------------------------------------------------------------
+
+
+% ---------------------------------------------------------------------------
+mode_setup; font_setup;
+
+input pl_dod; % Polish additional definitions
+input pl_mlk; % Polish italic minuscules
+input itall;  % lower case (minuscules)
+input italsp; % lowercase specials (dotless \i, ligature \ae, etc.)
+
+if ligs>1: font_coding_scheme:="TeX text";
+ spanish_shriek=oct"074"; spanish_query=oct"076";
+ input italig;  % letter ligatures
+else: font_coding_scheme:=if ligs=0: "TeX typewriter text"
+  else: "TeX text without f-ligatures" fi;
+ spanish_shriek=oct"016"; spanish_query=oct"017";
+fi
+
+font_slant slant; font_x_height x_height#;
+if monospace: font_normal_space 9u#; % no stretching or shrinking
+ font_quad 18u#;
+ font_extra_space 9u#;
+ letter_fit#:=letter_fit:=0; % caps are wider
+else: font_normal_space 6u#+2letter_fit#;
+ font_normal_stretch 3u#; font_normal_shrink 2u#;
+ font_quad 18u#+4letter_fit#;
+ font_extra_space 2u#;
+fi
+
+input pl_cud; % Polish and French quotation marks
+input pl_dl; % Polish majuscules
+
+input romanu; % upper case (majuscules)
+input greeku; % upper case greek letters
+input itald; % numerals
+input italp; % ampersand, question marks, currency sign
+input romspu; % uppercase specials (\AE, \OE, \O)
+input punct; % punctuation symbols common to roman and italic text
+input accent; % accents common to roman and italic text
+
+if ligs>0: input comlig; fi % ligatures common with roman text
+if ligs<=1: input romsub; fi % substitutes for ligatures
+
+ligtable "!": "`" =: spanish_shriek;
+ligtable "?": "`" =: spanish_query;
+
+if not monospace:
+% IMPLICIT KERNS:
+
+% three degrees of kerning (more precisely, |-u#| is fourth):
+k#:=-.5u#; kk#:=-1.5u#; kkk#:=-2u#;
+
+% Usually a kern for a latin letter is repeated for the corresponding
+% diacritical one, except that the kern between accented |"n"| and |"'"|
+% is not been inserted, also some kerns after crossed |"l"| are not inserted;
+% the following kerns have been added:
+%  - between Polish crossed |"l"| and |"'"|
+%  - between Polish opening quotes and some letters
+% the following kerns should have been added:
+%  - between |"."| and |"."| (...)
+%  - between |"A"| and |"v"| (Average)
+%  - between |"A"| and |"w"| (Awkward or Lem's Awruk)
+%  - between |"F"|, |"P"|, |"T"|, |"V"|, |"W"|, |"Y"| and |"."|, |","|
+% but for the sake of compatibility with CM's they would have been
+% inserted only if |improve_kerns=true| (by default |improve_kerns=false|).
+
+if improve_kerns: ligtable ".": "." kern -kkk#; fi
+ligtable "d": "w": "l": "l" kern u#;
+ligtable crossed_l: "'" kern -k#;
+ligtable "F": "V":
+ if improve_kerns: "." kern -u#, "," kern -u#, fi
+ "o" kern kk#, accented_o kern kk#,
+ "e" kern kk#, ogonked_e kern kk#, "u" kern kk#, "r" kern kk#,
+ "a" kern kk#, ogonked_a kern kk#, "A" kern kkk#, ogonked_A kern kkk#,
+ "K": "X": "O" kern k#, accented_O kern k#,
+ "C" kern k#, accented_C kern k#, "G" kern k#, "Q" kern k#;
+ligtable "T": "y" kern kk#,
+ "Y": "e" kern kk#, ogonked_e kern kk#,
+ "o" kern kk#, accented_o kern kk#, "r" kern kk#,
+ "a" kern kk#, ogonked_a kern kk#, "u" kern kk#,
+ "P": "W": "A" kern kk#, ogonked_A kern kk#
+  if improve_kerns: , "." kern k#, "," kern k# fi;
+ligtable "O": accented_O: "D":
+ "X" kern k#, "W" kern k#, "A" kern k#, ogonked_A kern k#,
+ "V" kern k#, "Y" kern k#;
+ligtable "A":
+ if improve_kerns: "v" kern kk#, "w" kern kk#, fi
+ ogonked_A: "R": "n" kern k#, accented_n kern k#,
+ "l" kern k#, crossed_l kern k#, "r" kern k#, "u" kern k#,
+ "m" kern k#, "t" kern k#, "i" kern k#, "C" kern k#, accented_C kern k#,
+ "O" kern k#, accented_O kern k#, "G" kern k#,
+ "h" kern k#, "b" kern k#, "U" kern k#, "k" kern k#, "v" kern k#,
+ "w" kern k#, "Q" kern k#, "L": crossed_L: "T" kern kk#, "Y" kern kk#,
+ "V" kern kkk#, "W" kern kkk#,
+ "b": "c": accented_c: "e": ogonked_e: "o": accented_o: "p": "r":
+ "e" kern -u#, ogonked_e kern -u#, "a" kern -u#, ogonked_a kern -u#,
+ "o" kern -u#, accented_o kern -u#, "d" kern -u#,
+ "c" kern -u#, accented_c kern -u#, "g" kern -u#, "q" kern -u#;
+ligtable "n": "'" kern kkk#;
+ligtable polish_opening_quotes:
+  "f" kern u#, "g" kern -k#, "j" kern u#,
+  "p" kern -k#, "y" kern -k#, "v" kern k#, "w" kern k#,
+  "A" kern -k#, ogonked_A kern -k#, "C" kern -k#, accented_C kern -k#,
+  "D" kern -k#, "E" kern -k#, ogonked_E kern -k#, "F" kern -k#, "H" kern -k#,
+  "I" kern -k#, "J" kern -k#, "K" kern -k#, "L" kern -k#, crossed_L kern -k#,
+  "M" kern -k#, "N" kern -k#, accented_N kern -k#, "P" kern -k#,
+  "R" kern -k#, "S" kern -k#, accented_S kern -k#, "T" kern kk#,
+  "X" kern -k#, "Y" kern kk#,
+  "Z" kern -k#, dotted_Z kern -k#, accented_Z kern -k#,
+  "V" kern kkk#, "W" kern kk#;
+fi
+
+% There are also ligature/kern programs for |"f"| in the ITALIG file,
+% for |"-"|, |"`"|, and |"'"| in the COMLIG file,
+% and for  |"<"|,|">"|,|","| in the PL_CUD file
+
+bye.
+%%\end

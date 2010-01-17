@@ -1,0 +1,460 @@
+% Copyright 2000-2006 Werner Lemberg <wl@gnu.org> and
+%                     Vladimir Volovich <vvv@vsu.ru>.
+% This file is part of vntex.  License: LPPL, version 1.3 or newer,
+% according to http://www.latex-project.org/lppl.txt
+%
+%
+% This is the file t5enc.def which provides T5 encoding for Vietnamese.
+%
+% written by Werner Lemberg <wl@gnu.org> and
+%            Vladimir Volovich <vvv@vsu.ru>
+%
+% History
+%
+%   1.0  2000/01/27
+%
+%     Initial release.
+%
+%   1.1  2001/09/21
+%
+%     Add compatibility support for the old ET5 encoding.
+%     Add font substitution declaration.
+%
+%   post 1.1  ?
+%
+%     Add support for the unicode package.
+%     Add accent aliases using `\i' instead of `i'.
+%     Add support for TCX.
+%     Provide dummy for \DeclareTextDoubleComposite if dblaccnt.sty isn't
+%       loaded.
+%
+%   1.2  2004/03/17
+%
+%     Add history.
+%     Some clean-up.
+%
+%   1.3  2005/04/21
+%
+%     Add copyright.
+%
+%   1.4  2006/11/21
+%
+%     Fix definition of \d.  Update definitions of \b and \c.
+
+\ProvidesFile{t5enc.def}[2006/11/21 v1.4 Vietnamese T5 encoding]
+
+
+% This temporary definition will vanish as soon as t5enc.def
+% will become part of the LaTeX kernel.
+%\@ifundefined{ltx@sh@ft}{%
+  \def\ltx@sh@ft#1{%
+    \dimen@ #1%
+    \kern \strip@pt
+      \fontdimen1\font \dimen@
+  }%
+%}{}
+
+
+\DeclareFontEncoding{T5}{%
+  % this (taken from t5code.tex) is needed for use with TCX instead of
+  % inputenc
+  \ifx \@inpenc@undefined@ \@undefined
+    \catcode31=11  \lccode31=31   \uccode31=30      % dcroat
+    \catcode30=11  \lccode30=31   \uccode30=30      % Dcroat
+    \catcode189=11 \lccode189=189 \uccode189=157    % iacute
+    \catcode157=11 \lccode157=189 \uccode157=157    % Iacute
+    \catcode191=11 \lccode191=191 \uccode191=159    % ihookabove
+    \catcode159=11 \lccode159=191 \uccode159=159    % Ihookabove
+    \catcode190=11 \lccode190=190 \uccode190=158    % itilde
+    \catcode158=11 \lccode158=190 \uccode158=158    % Itilde
+    \catcode29=11  \lccode29=29   \uccode29=28      % ydotbelow
+    \catcode28=11  \lccode28=29   \uccode28=28      % Ydotbelow
+    \catcode27=11  \lccode27=27   \uccode27=26      % yhookabove
+    \catcode26=11  \lccode26=27   \uccode26=26      % Yhookabove
+  \fi
+}{}
+
+\DeclareFontSubstitution{T5}{cmr}{m}{n}
+
+\DeclareTextAccent{\`}{T5}{0}                       % grave
+\DeclareTextAccent{\'}{T5}{1}                       % acute
+\DeclareTextAccent{\^}{T5}{2}                       % circumflex
+\DeclareTextAccent{\~}{T5}{3}                       % tilde
+\DeclareTextAccent{\"}{T5}{4}                       % dieresis
+\DeclareTextAccent{\r}{T5}{6}                       % ring
+\DeclareTextAccent{\v}{T5}{7}                       % caron
+\DeclareTextAccent{\u}{T5}{8}                       % breve
+\DeclareTextAccent{\=}{T5}{9}                       % macron
+\DeclareTextAccent{\.}{T5}{10}                      % dotaccent
+
+\DeclareTextCommand{\b}{T5}[1]
+  {\hmode@bgroup\o@lign{\relax#1\crcr\hidewidth\ltx@sh@ft{-3ex}%
+    \vbox to.2ex{\hbox{\char9}\vss}\hidewidth}\egroup}
+
+\DeclareTextCommand{\c}{T5}[1]
+  {\leavevmode\setbox\z@\hbox{#1}\ifdim\ht\z@=1ex\accent11 #1%
+    \else{\ooalign{\unhbox\z@\crcr\hidewidth\char11\hidewidth}}\fi}
+
+\DeclareTextCommand{\d}{T5}[1]
+   {\hmode@bgroup\o@lign{\relax#1\crcr\hidewidth\ltx@sh@ft{-1ex}.%
+     \hidewidth}\egroup}
+
+% Vietnamese hook accent
+\DeclareTextAccent{\h}{T5}{12}
+
+\DeclareTextSymbol{\quotesinglbase}{T5}{13}
+\DeclareTextSymbol{\guilsinglleft}{T5}{14}
+\DeclareTextSymbol{\guilsinglright}{T5}{15}
+\DeclareTextSymbol{\textquotedblleft}{T5}{16}
+\DeclareTextSymbol{\textquotedblright}{T5}{17}
+\DeclareTextSymbol{\quotedblbase}{T5}{18}
+\DeclareTextSymbol{\guillemotleft}{T5}{19}
+\DeclareTextSymbol{\guillemotright}{T5}{20}
+\DeclareTextSymbol{\textendash}{T5}{21}
+\DeclareTextSymbol{\textemdash}{T5}{22}
+\DeclareTextSymbol{\textcompwordmark}{T5}{23}
+
+\DeclareTextCommand{\textperthousand}{T5}{\%\char 24 }
+\DeclareTextCommand{\textpertenthousand}{T5}{\%\char 24\char 24 }
+\DeclareTextSymbol{\i}{T5}{25}                      % dotlessi
+
+\DeclareTextSymbol{\textvisiblespace}{T5}{32}
+\DeclareTextSymbol{\textquotedbl}{T5}{`\"}
+\DeclareTextSymbol{\textdollar}{T5}{`\$}
+\DeclareTextSymbol{\textquoteright}{T5}{`\'}
+\DeclareTextSymbol{\textless}{T5}{`\<}
+\DeclareTextSymbol{\textgreater}{T5}{`\>}
+\DeclareTextSymbol{\textbackslash}{T5}{`\\}
+\DeclareTextSymbol{\textasciicircum}{T5}{`\^}
+\DeclareTextSymbol{\textunderscore}{T5}{95}
+\DeclareTextSymbol{\textquoteleft}{T5}{`\`}
+\DeclareTextSymbol{\textbraceleft}{T5}{`\{}
+\DeclareTextSymbol{\textbar}{T5}{`\|}
+\DeclareTextSymbol{\textbraceright}{T5}{`\}}
+\DeclareTextSymbol{\textasciitilde}{T5}{`\~}
+
+% A fake accent for the horn.
+\DeclareTextCommand{\horn}{T5}[1]{\TextSymbolUnavailable{\horn{#1}}#1}
+
+% if dblaccnt is not loaded, make a dummy \DeclareTextDoubleComposite
+\ifx \DeclareTextDoubleComposite \undefined
+  \def\DeclareTextDoubleComposite#1#2#3#4#5{}
+\fi
+
+\DeclareTextComposite{\`}{T5}{A}{128}               % Agrave
+\DeclareTextComposite{\'}{T5}{A}{129}               % Aacute
+\DeclareTextComposite{\~}{T5}{A}{130}               % Atilde
+\DeclareTextComposite{\h}{T5}{A}{131}               % Ahookabove
+\DeclareTextComposite{\d}{T5}{A}{132}               % Adotbelow
+
+\DeclareTextComposite{\^}{T5}{A}{133}               % Acircumflex
+\DeclareTextDoubleComposite{\`}{T5}{\^}{A}{134}     % Acircumflexgrave
+\DeclareTextDoubleComposite{\'}{T5}{\^}{A}{135}     % Acircumflexacute
+\DeclareTextDoubleComposite{\~}{T5}{\^}{A}{136}     % Acircumflextilde
+\DeclareTextDoubleComposite{\h}{T5}{\^}{A}{137}     % Acircumflexhookabove
+\DeclareTextDoubleComposite{\d}{T5}{\^}{A}{138}     % Acircumflexdotbelow
+
+\DeclareTextComposite{\u}{T5}{A}{139}               % Abreve
+\DeclareTextDoubleComposite{\`}{T5}{\u}{A}{140}     % Abrevegrave
+\DeclareTextDoubleComposite{\'}{T5}{\u}{A}{141}     % Abreveacute
+\DeclareTextDoubleComposite{\~}{T5}{\u}{A}{142}     % Abrevetilde
+\DeclareTextDoubleComposite{\h}{T5}{\u}{A}{143}     % Abrevehookabove
+\DeclareTextDoubleComposite{\d}{T5}{\u}{A}{144}     % Abrevedotbelow
+
+\DeclareTextComposite{\`}{T5}{E}{145}               % Egrave
+\DeclareTextComposite{\'}{T5}{E}{146}               % Eacute
+\DeclareTextComposite{\~}{T5}{E}{147}               % Etilde
+\DeclareTextComposite{\h}{T5}{E}{148}               % Ehookabove
+\DeclareTextComposite{\d}{T5}{E}{149}               % Edotbelow
+
+\DeclareTextComposite{\^}{T5}{E}{150}               % Ecircumflex
+\DeclareTextDoubleComposite{\`}{T5}{\^}{E}{151}     % Ecircumflexgrave
+\DeclareTextDoubleComposite{\'}{T5}{\^}{E}{152}     % Ecircumflexacute
+\DeclareTextDoubleComposite{\~}{T5}{\^}{E}{153}     % Ecircumflextilde
+\DeclareTextDoubleComposite{\h}{T5}{\^}{E}{154}     % Ecircumflexhookabove
+\DeclareTextDoubleComposite{\d}{T5}{\^}{E}{155}     % Ecircumflexdotbelow
+
+\DeclareTextComposite{\`}{T5}{I}{156}               % Igrave
+\DeclareTextComposite{\'}{T5}{I}{157}               % Iacute
+\DeclareTextComposite{\~}{T5}{I}{158}               % Itilde
+\DeclareTextComposite{\h}{T5}{I}{159}               % Ihookabove
+\DeclareTextComposite{\d}{T5}{I}{192}               % Idotbelow
+
+\DeclareTextComposite{\`}{T5}{O}{193}               % Ograve
+\DeclareTextComposite{\'}{T5}{O}{194}               % Oacute
+\DeclareTextComposite{\~}{T5}{O}{195}               % Otilde
+\DeclareTextComposite{\h}{T5}{O}{196}               % Ohookabove
+\DeclareTextComposite{\d}{T5}{O}{197}               % Odotbelow
+
+\DeclareTextComposite{\^}{T5}{O}{198}               % Ocircumflex
+\DeclareTextDoubleComposite{\`}{T5}{\^}{O}{199}     % Ocircumflexgrave
+\DeclareTextDoubleComposite{\'}{T5}{\^}{O}{200}     % Ocircumflexacute
+\DeclareTextDoubleComposite{\~}{T5}{\^}{O}{201}     % Ocircumflextilde
+\DeclareTextDoubleComposite{\h}{T5}{\^}{O}{202}     % Ocircumflexhookabove
+\DeclareTextDoubleComposite{\d}{T5}{\^}{O}{203}     % Ocircumflexdotbelow
+
+\DeclareTextComposite{\horn}{T5}{O}{204}            % Ohorn
+\DeclareTextDoubleComposite{\`}{T5}{\horn}{O}{205}  % Ohorngrave
+\DeclareTextDoubleComposite{\'}{T5}{\horn}{O}{206}  % Ohornacute
+\DeclareTextDoubleComposite{\~}{T5}{\horn}{O}{207}  % Ohorntilde
+\DeclareTextDoubleComposite{\h}{T5}{\horn}{O}{208}  % Ohornhookabove
+\DeclareTextDoubleComposite{\d}{T5}{\horn}{O}{209}  % Ohorndotbelow
+
+\DeclareTextComposite{\`}{T5}{U}{210}               % Ugrave
+\DeclareTextComposite{\'}{T5}{U}{211}               % Uacute
+\DeclareTextComposite{\~}{T5}{U}{212}               % Utilde
+\DeclareTextComposite{\h}{T5}{U}{213}               % Uhookabove
+\DeclareTextComposite{\d}{T5}{U}{214}               % Udotbelow
+
+\DeclareTextComposite{\horn}{T5}{U}{215}            % Uhorn
+\DeclareTextDoubleComposite{\`}{T5}{\horn}{U}{216}  % Uhorngrave
+\DeclareTextDoubleComposite{\'}{T5}{\horn}{U}{217}  % Uhornacute
+\DeclareTextDoubleComposite{\~}{T5}{\horn}{U}{218}  % Uhorntilde
+\DeclareTextDoubleComposite{\h}{T5}{\horn}{U}{219}  % Uhornhookabove
+\DeclareTextDoubleComposite{\d}{T5}{\horn}{U}{220}  % Uhorndotbelow
+
+\DeclareTextComposite{\`}{T5}{Y}{221}               % Ygrave
+\DeclareTextComposite{\'}{T5}{Y}{222}               % Yacute
+\DeclareTextComposite{\~}{T5}{Y}{223}               % Ytilde
+\DeclareTextComposite{\h}{T5}{Y}{26}                % Yhookabove
+\DeclareTextComposite{\d}{T5}{Y}{28}                % Ydotbelow
+
+\DeclareTextComposite{\`}{T5}{a}{160}               % agrave
+\DeclareTextComposite{\'}{T5}{a}{161}               % aacute
+\DeclareTextComposite{\~}{T5}{a}{162}               % atilde
+\DeclareTextComposite{\h}{T5}{a}{163}               % ahookabove
+\DeclareTextComposite{\d}{T5}{a}{164}               % adotbelow
+
+\DeclareTextComposite{\^}{T5}{a}{165}               % acircumflex
+\DeclareTextDoubleComposite{\`}{T5}{\^}{a}{166}     % acircumflexgrave
+\DeclareTextDoubleComposite{\'}{T5}{\^}{a}{167}     % acircumflexacute
+\DeclareTextDoubleComposite{\~}{T5}{\^}{a}{168}     % acircumflextilde
+\DeclareTextDoubleComposite{\h}{T5}{\^}{a}{169}     % acircumflexhookabove
+\DeclareTextDoubleComposite{\d}{T5}{\^}{a}{170}     % acircumflexdotbelow
+
+\DeclareTextComposite{\u}{T5}{a}{171}               % abreve
+\DeclareTextDoubleComposite{\`}{T5}{\u}{a}{172}     % abrevegrave
+\DeclareTextDoubleComposite{\'}{T5}{\u}{a}{173}     % abreveacute
+\DeclareTextDoubleComposite{\~}{T5}{\u}{a}{174}     % abrevetilde
+\DeclareTextDoubleComposite{\h}{T5}{\u}{a}{175}     % abrevehookabove
+\DeclareTextDoubleComposite{\d}{T5}{\u}{a}{176}     % abrevedotbelow
+
+\DeclareTextComposite{\`}{T5}{e}{177}               % egrave
+\DeclareTextComposite{\'}{T5}{e}{178}               % eacute
+\DeclareTextComposite{\~}{T5}{e}{179}               % etilde
+\DeclareTextComposite{\h}{T5}{e}{180}               % ehookabove
+\DeclareTextComposite{\d}{T5}{e}{181}               % edotbelow
+
+\DeclareTextComposite{\^}{T5}{e}{182}               % ecircumflex
+\DeclareTextDoubleComposite{\`}{T5}{\^}{e}{183}     % ecircumflexgrave
+\DeclareTextDoubleComposite{\'}{T5}{\^}{e}{184}     % ecircumflexacute
+\DeclareTextDoubleComposite{\~}{T5}{\^}{e}{185}     % ecircumflextilde
+\DeclareTextDoubleComposite{\h}{T5}{\^}{e}{186}     % ecircumflexhookabove
+\DeclareTextDoubleComposite{\d}{T5}{\^}{e}{187}     % ecircumflexdotbelow
+
+\DeclareTextComposite{\`}{T5}{i}{188}               % igrave
+\DeclareTextComposite{\'}{T5}{i}{189}               % iacute
+\DeclareTextComposite{\~}{T5}{i}{190}               % itilde
+\DeclareTextComposite{\h}{T5}{i}{191}               % ihookabove
+\DeclareTextComposite{\d}{T5}{i}{224}               % idotbelow
+
+\DeclareTextComposite{\`}{T5}{\i}{188}              % igrave
+\DeclareTextComposite{\'}{T5}{\i}{189}              % iacute
+\DeclareTextComposite{\~}{T5}{\i}{190}              % itilde
+\DeclareTextComposite{\h}{T5}{\i}{191}              % ihookabove
+\DeclareTextComposite{\d}{T5}{\i}{224}              % idotbelow
+
+\DeclareTextComposite{\`}{T5}{o}{225}               % ograve
+\DeclareTextComposite{\'}{T5}{o}{226}               % oacute
+\DeclareTextComposite{\~}{T5}{o}{227}               % otilde
+\DeclareTextComposite{\h}{T5}{o}{228}               % ohookabove
+\DeclareTextComposite{\d}{T5}{o}{229}               % odotbelow
+
+\DeclareTextComposite{\^}{T5}{o}{230}               % ocircumflex
+\DeclareTextDoubleComposite{\`}{T5}{\^}{o}{231}     % ocircumflexgrave
+\DeclareTextDoubleComposite{\'}{T5}{\^}{o}{232}     % ocircumflexacute
+\DeclareTextDoubleComposite{\~}{T5}{\^}{o}{233}     % ocircumflextilde
+\DeclareTextDoubleComposite{\h}{T5}{\^}{o}{234}     % ocircumflexhookabove
+\DeclareTextDoubleComposite{\d}{T5}{\^}{o}{235}     % ocircumflexdotbelow
+
+\DeclareTextComposite{\horn}{T5}{o}{236}  % ohorn
+\DeclareTextDoubleComposite{\`}{T5}{\horn}{o}{237}  % ohorngrave
+\DeclareTextDoubleComposite{\'}{T5}{\horn}{o}{238}  % ohornacute
+\DeclareTextDoubleComposite{\~}{T5}{\horn}{o}{239}  % ohorntilde
+\DeclareTextDoubleComposite{\h}{T5}{\horn}{o}{240}  % ohornhookabove
+\DeclareTextDoubleComposite{\d}{T5}{\horn}{o}{241}  % ohorndotbelow
+
+\DeclareTextComposite{\`}{T5}{u}{242}               % ugrave
+\DeclareTextComposite{\'}{T5}{u}{243}               % uacute
+\DeclareTextComposite{\~}{T5}{u}{244}               % utilde
+\DeclareTextComposite{\h}{T5}{u}{245}               % uhookabove
+\DeclareTextComposite{\d}{T5}{u}{246}               % udotbelow
+
+\DeclareTextComposite{\horn}{T5}{u}{247}            % uhorn
+\DeclareTextDoubleComposite{\`}{T5}{\horn}{u}{248}  % uhorngrave
+\DeclareTextDoubleComposite{\'}{T5}{\horn}{u}{249}  % uhornacute
+\DeclareTextDoubleComposite{\~}{T5}{\horn}{u}{250}  % uhorntilde
+\DeclareTextDoubleComposite{\h}{T5}{\horn}{u}{251}  % uhornhookabove
+\DeclareTextDoubleComposite{\d}{T5}{\horn}{u}{252}  % uhorndotbelow
+
+\DeclareTextComposite{\`}{T5}{y}{253}               % ygrave
+\DeclareTextComposite{\'}{T5}{y}{254}               % yacute
+\DeclareTextComposite{\~}{T5}{y}{255}               % ytilde
+\DeclareTextComposite{\h}{T5}{y}{27}                % yhookabove
+\DeclareTextComposite{\d}{T5}{y}{29}                % ydotbelow
+
+\DeclareTextSymbol{\DJ}{T5}{30}                     % Dcroat
+\DeclareTextSymbol{\dj}{T5}{31}                     % dcroat
+
+
+% For compatibility with ET5.
+
+\DeclareTextSymbol{\Acircumflex}{T5}{133}           % Acircumflex
+\DeclareTextComposite{\`}{T5}{\Acircumflex}{134}    % Acircumflexgrave
+\DeclareTextComposite{\'}{T5}{\Acircumflex}{135}    % Acircumflexacute
+\DeclareTextComposite{\~}{T5}{\Acircumflex}{136}    % Acircumflextilde
+\DeclareTextComposite{\h}{T5}{\Acircumflex}{137}    % Acircumflexhookabove
+\DeclareTextComposite{\d}{T5}{\Acircumflex}{138}    % Acircumflexdotbelow
+
+\DeclareTextSymbol{\Abreve}{T5}{139}                % Abreve
+\DeclareTextComposite{\`}{T5}{\Abreve}{140}         % Abrevegrave
+\DeclareTextComposite{\'}{T5}{\Abreve}{141}         % Abreveacute
+\DeclareTextComposite{\~}{T5}{\Abreve}{142}         % Abrevetilde
+\DeclareTextComposite{\h}{T5}{\Abreve}{143}         % Abrevehookabove
+\DeclareTextComposite{\d}{T5}{\Abreve}{144}         % Abrevedotbelow
+
+\DeclareTextSymbol{\Ecircumflex}{T5}{150}           % Ecircumflex
+\DeclareTextComposite{\`}{T5}{\Ecircumflex}{151}    % Ecircumflexgrave
+\DeclareTextComposite{\'}{T5}{\Ecircumflex}{152}    % Ecircumflexacute
+\DeclareTextComposite{\~}{T5}{\Ecircumflex}{153}    % Ecircumflextilde
+\DeclareTextComposite{\h}{T5}{\Ecircumflex}{154}    % Ecircumflexhookabove
+\DeclareTextComposite{\d}{T5}{\Ecircumflex}{155}    % Ecircumflexdotbelow
+
+\DeclareTextSymbol{\Ocircumflex}{T5}{198}           % Ocircumflex
+\DeclareTextComposite{\`}{T5}{\Ocircumflex}{199}    % Ocircumflexgrave
+\DeclareTextComposite{\'}{T5}{\Ocircumflex}{200}    % Ocircumflexacute
+\DeclareTextComposite{\~}{T5}{\Ocircumflex}{201}    % Ocircumflextilde
+\DeclareTextComposite{\h}{T5}{\Ocircumflex}{202}    % Ocircumflexhookabove
+\DeclareTextComposite{\d}{T5}{\Ocircumflex}{203}    % Ocircumflexdotbelow
+
+\DeclareTextSymbol{\Ohorn}{T5}{204}                 % Ohorn
+\DeclareTextComposite{\`}{T5}{\Ohorn}{205}          % Ohorngrave
+\DeclareTextComposite{\'}{T5}{\Ohorn}{206}          % Ohornacute
+\DeclareTextComposite{\~}{T5}{\Ohorn}{207}          % Ohorntilde
+\DeclareTextComposite{\h}{T5}{\Ohorn}{208}          % Ohornhookabove
+\DeclareTextComposite{\d}{T5}{\Ohorn}{209}          % Ohorndotbelow
+
+\DeclareTextSymbol{\Uhorn}{T5}{215}                 % Uhorn
+\DeclareTextComposite{\`}{T5}{\Uhorn}{216}          % Uhorngrave
+\DeclareTextComposite{\'}{T5}{\Uhorn}{217}          % Uhornacute
+\DeclareTextComposite{\~}{T5}{\Uhorn}{218}          % Uhorntilde
+\DeclareTextComposite{\h}{T5}{\Uhorn}{219}          % Uhornhookabove
+\DeclareTextComposite{\d}{T5}{\Uhorn}{220}          % Uhorndotbelow
+
+\DeclareTextSymbol{\acircumflex}{T5}{165}           % acircumflex
+\DeclareTextComposite{\`}{T5}{\acircumflex}{166}    % acircumflexgrave
+\DeclareTextComposite{\'}{T5}{\acircumflex}{167}    % acircumflexacute
+\DeclareTextComposite{\~}{T5}{\acircumflex}{168}    % acircumflextilde
+\DeclareTextComposite{\h}{T5}{\acircumflex}{169}    % acircumflexhookabove
+\DeclareTextComposite{\d}{T5}{\acircumflex}{170}    % acircumflexdotbelow
+
+\DeclareTextSymbol{\abreve}{T5}{171}                % abreve
+\DeclareTextComposite{\`}{T5}{\abreve}{172}         % abrevegrave
+\DeclareTextComposite{\'}{T5}{\abreve}{173}         % abreveacute
+\DeclareTextComposite{\~}{T5}{\abreve}{174}         % abrevetilde
+\DeclareTextComposite{\h}{T5}{\abreve}{175}         % abrevehookabove
+\DeclareTextComposite{\d}{T5}{\abreve}{176}         % abrevedotbelow
+
+\DeclareTextSymbol{\ecircumflex}{T5}{182}           % ecircumflex
+\DeclareTextComposite{\`}{T5}{\ecircumflex}{183}    % ecircumflexgrave
+\DeclareTextComposite{\'}{T5}{\ecircumflex}{184}    % ecircumflexacute
+\DeclareTextComposite{\~}{T5}{\ecircumflex}{185}    % ecircumflextilde
+\DeclareTextComposite{\h}{T5}{\ecircumflex}{186}    % ecircumflexhookabove
+\DeclareTextComposite{\d}{T5}{\ecircumflex}{187}    % ecircumflexdotbelow
+
+\DeclareTextSymbol{\ocircumflex}{T5}{230}           % ocircumflex
+\DeclareTextComposite{\`}{T5}{\ocircumflex}{231}    % ocircumflexgrave
+\DeclareTextComposite{\'}{T5}{\ocircumflex}{232}    % ocircumflexacute
+\DeclareTextComposite{\~}{T5}{\ocircumflex}{233}    % ocircumflextilde
+\DeclareTextComposite{\h}{T5}{\ocircumflex}{234}    % ocircumflexhookabove
+\DeclareTextComposite{\d}{T5}{\ocircumflex}{235}    % ocircumflexdotbelow
+
+\DeclareTextSymbol{\ohorn}{T5}{236}                 % ohorn
+\DeclareTextComposite{\`}{T5}{\ohorn}{237}          % ohorngrave
+\DeclareTextComposite{\'}{T5}{\ohorn}{238}          % ohornacute
+\DeclareTextComposite{\~}{T5}{\ohorn}{239}          % ohorntilde
+\DeclareTextComposite{\h}{T5}{\ohorn}{240}          % ohornhookabove
+\DeclareTextComposite{\d}{T5}{\ohorn}{241}          % ohorndotbelow
+
+\DeclareTextSymbol{\uhorn}{T5}{247}                 % uhorn
+\DeclareTextComposite{\`}{T5}{\uhorn}{248}          % uhorngrave
+\DeclareTextComposite{\'}{T5}{\uhorn}{249}          % uhornacute
+\DeclareTextComposite{\~}{T5}{\uhorn}{250}          % uhorntilde
+\DeclareTextComposite{\h}{T5}{\uhorn}{251}          % uhornhookabove
+\DeclareTextComposite{\d}{T5}{\uhorn}{252}          % uhorndotbelow
+
+% make these ugly names still valid (needed for use with utf8)
+\DeclareTextSymbol{\ACIRCUMFLEX}{T5}{133}           % Acircumflex
+\DeclareTextComposite{\`}{T5}{\ACIRCUMFLEX}{134}    % Acircumflexgrave
+\DeclareTextComposite{\'}{T5}{\ACIRCUMFLEX}{135}    % Acircumflexacute
+\DeclareTextComposite{\~}{T5}{\ACIRCUMFLEX}{136}    % Acircumflextilde
+\DeclareTextComposite{\h}{T5}{\ACIRCUMFLEX}{137}    % Acircumflexhookabove
+\DeclareTextComposite{\d}{T5}{\ACIRCUMFLEX}{138}    % Acircumflexdotbelow
+
+\DeclareTextSymbol{\ABREVE}{T5}{139}                % Abreve
+\DeclareTextComposite{\`}{T5}{\ABREVE}{140}         % Abrevegrave
+\DeclareTextComposite{\'}{T5}{\ABREVE}{141}         % Abreveacute
+\DeclareTextComposite{\~}{T5}{\ABREVE}{142}         % Abrevetilde
+\DeclareTextComposite{\h}{T5}{\ABREVE}{143}         % Abrevehookabove
+\DeclareTextComposite{\d}{T5}{\ABREVE}{144}         % Abrevedotbelow
+
+\DeclareTextSymbol{\ECIRCUMFLEX}{T5}{150}           % Ecircumflex
+\DeclareTextComposite{\`}{T5}{\ECIRCUMFLEX}{151}    % Ecircumflexgrave
+\DeclareTextComposite{\'}{T5}{\ECIRCUMFLEX}{152}    % Ecircumflexacute
+\DeclareTextComposite{\~}{T5}{\ECIRCUMFLEX}{153}    % Ecircumflextilde
+\DeclareTextComposite{\h}{T5}{\ECIRCUMFLEX}{154}    % Ecircumflexhookabove
+\DeclareTextComposite{\d}{T5}{\ECIRCUMFLEX}{155}    % Ecircumflexdotbelow
+
+\DeclareTextSymbol{\OCIRCUMFLEX}{T5}{198}           % Ocircumflex
+\DeclareTextComposite{\`}{T5}{\OCIRCUMFLEX}{199}    % Ocircumflexgrave
+\DeclareTextComposite{\'}{T5}{\OCIRCUMFLEX}{200}    % Ocircumflexacute
+\DeclareTextComposite{\~}{T5}{\OCIRCUMFLEX}{201}    % Ocircumflextilde
+\DeclareTextComposite{\h}{T5}{\OCIRCUMFLEX}{202}    % Ocircumflexhookabove
+\DeclareTextComposite{\d}{T5}{\OCIRCUMFLEX}{203}    % Ocircumflexdotbelow
+
+\DeclareTextSymbol{\OHORN}{T5}{204}                 % Ohorn
+\DeclareTextComposite{\`}{T5}{\OHORN}{205}          % Ohorngrave
+\DeclareTextComposite{\'}{T5}{\OHORN}{206}          % Ohornacute
+\DeclareTextComposite{\~}{T5}{\OHORN}{207}          % Ohorntilde
+\DeclareTextComposite{\h}{T5}{\OHORN}{208}          % Ohornhookabove
+\DeclareTextComposite{\d}{T5}{\OHORN}{209}          % Ohorndotbelow
+
+\DeclareTextSymbol{\UHORN}{T5}{215}                 % Uhorn
+\DeclareTextComposite{\`}{T5}{\UHORN}{216}          % Uhorngrave
+\DeclareTextComposite{\'}{T5}{\UHORN}{217}          % Uhornacute
+\DeclareTextComposite{\~}{T5}{\UHORN}{218}          % Uhorntilde
+\DeclareTextComposite{\h}{T5}{\UHORN}{219}          % Uhornhookabove
+\DeclareTextComposite{\d}{T5}{\UHORN}{220}          % Uhorndotbelow
+
+
+% Extend \@uclclist to make \MakeUppercase and \MakeLowercase work correctly.
+
+\expandafter\def\expandafter\@uclclist\expandafter{%
+  \@uclclist
+  \abreve\Abreve
+  \acircumflex\Acircumflex
+  \dj\DJ
+  \ecircumflex\Ecircumflex
+  \ocircumflex\Ocircumflex
+  \ohorn\Ohorn
+  \uhorn\Uhorn
+  \abreve\ABREVE
+  \acircumflex\ACIRCUMFLEX
+  \ecircumflex\ECIRCUMFLEX
+  \ocircumflex\OCIRCUMFLEX
+  \ohorn\OHORN
+  \uhorn\UHORN}
+
+\endinput
+
+% end of t5enc.def

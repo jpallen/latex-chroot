@@ -1,0 +1,838 @@
+%
+% lgrusi.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Italic Russian letters from a to ya and yo
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% (there are some letters with common witdh
+% they have comments as: v_width (the witdh of russian letter v)
+% and n_width (russian letter n) at the end of `cyrchar...' line)
+%
+
+LHver_check(3,5); % like |version_check| in ec
+
+lhchar "Italic Russian letter a";
+cyrchar(a,9u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(if monospace:0 else:-.35u#fi,0); % !cadj
+% ital_a;
+pickup fine.nib;
+pos0(hair,0); pos1(vair,90); pos2(curve,180); pos3(vair,270);
+pos4(stem,0); x4=x0; y4+.5stem=vround .98h;
+x1=x3=.5[x0,x2]; lft x2r=hround(1.5u-.5curve);
+rt x4r=hround(w-2.5u+.5stem);
+top y1r=h+oo; bot y3r=-oo; y0=y2=.5[y1,y3];
+filldraw stroke super_arc.e(0,1) & pulled_arc.e(1,2)
+ & pulled_arc.e(2,3) & super_arc.e(3,0);  % bowl
+x5=x4; x7=w; hook_out(5,6,7);  % closing hook
+filldraw circ_stroke z4e--z5e;  % stem
+penlabels(0,1,2,3,4,5,6,7); endchar;
+
+lhchar "Italic Russian letter b";
+cyrchar(b,9u#,asc_height#,0);
+italcorr asc_height#*slant+.5stem#-u#; %y->asc_height
+adjust_fit(if monospace: 0,0 else: -.35u#,-.35u# fi);
+numeric stem[]; stem1=.5[vair,curve];
+stem2= max(fine.breadth,if serifs: hair else: vair fi);
+penpos1(vair,90); penpos3(vair',-90); penpos2(curve,180); penpos4(curve,0);
+x1=x3=.5w; y1r=x_height+oo; y3r=-oo;
+x2r=hround(1.5u-.5curve); x4r=w-x2r;
+y2=y4=.5x_height-vair_corr; y2l:=y4l:=.52x_height;
+penstroke pulled_arc.e(1,2) & pulled_arc.e(2,3)
+ & pulled_arc.e(3,4) & pulled_arc.e(4,1) & cycle; % o bowl
+pickup fine.nib;
+pos7(stem2,180); rt x7l=min(w-u,rt 4r-.1u); top y7=h;
+pos2'(stem2,180); lft x2'r=x2r; y2'=y2;
+if hefty:
+ pos5(stem1,90); pos6(stem1,90);
+ x5=max(x1l,lft x1); x6=x4+if monospace:-.5 else:+.5 fi fine;
+ x6'=x6-.5stem1;
+ top y6r=h; y5=y6 if 1/18(h-x_height)>=2:-1/18(h-x_height) fi; y6'=y6l;
+ filldraw z6r---z6...z6'---z5l....{down}z2'l--z2'r{up}....z5r---cycle; % upper tail
+else:
+ pos5(max(stem2,.7[fudged.hair,fudged.stem]),135);
+ pos6(max(stem2,.9[fudged.hair,fudged.stem]),120);
+ x5=max(.55[x2r,x1],x2l+.1u);
+ forsuffixes $=l,r:
+  z5'$=((x5,0)..(x5,h)) intersectionpoint (z2${up}...{right}z1$); endfor
+ y5=max(y5'r+.7(y5'r-y5'l),h-.45(asc_height-x_height));
+ z6r=whatever[z5r,z7r];  x6=x7-1.2max(u,stem2);
+ filldraw stroke z7e..z6e{z5-z6}..z5e....{down}z2'e; fi
+penlabels(0,1,2,3,4,5,6,7); endchar;
+
+lhchar "Italic Russian letter v (looks like B)";
+cyrchar(v,9u#,x_height#,0);
+italcorr max(1/3x_height#*slant,x_height#*slant+.5(.2[hair#,stem#])-u#); %e
+adjust_fit(if monospace:0 else:-.35u# fi,0); pickup fine.nib;
+%numeric heavy_hair; heavy_hair=hround .2[hair,stem];%defined in lxpseudo
+pos0(vair,-90); pos0'(vair,90); pos6(vair,90);
+pos1(heavy_hair,0); pos2(vair,90);
+pos3(curve,180); pos4(vair,270); pos5(curve,0);
+x0=x6=rt x3l; rt x1r=hround(w-1.5u+.5heavy_hair); x0'=x2=x4=.5(w+u);
+lft x3r=hround(1.5u-.5curve); x5l=x1l; y5=.5[y4,y0];
+y0=y0'=y3=y6=bar_height; y1=.5[y0,y2]; top y2r=h+oo; bot y4r=-oo;
+filldraw stroke z0e{right}...z1e{up}...pulled_arc.e(2,3)
+ & pulled_arc.e(3,4) & pulled_arc.e(4,5)
+ & pulled_arc.e(5,0')...z6{left}; % main bowl
+penlabels(0,0',1,2,3,4,5,6); endchar;
+
+lhchar "Italic Russian letter g";
+cyrchar(g,6.25u#,x_height#,0);
+italcorr max(1/3x_height#*slant,x_height#*slant+.5(.2[hair#,stem#])-u#); %e
+adjust_fit(if monospace:u#,u# else: 0.5u#,0.5u# fi);
+% ital_g;
+pickup fine.nib; x0l=hround eps; x0'=x0; x5r=good.x(w-eps); x6=x5;
+x2=.5w+2u; x3=.5w-2u; x1=x4=x7=.5[x3l,x2r]; y7=.5[y2,y3];
+h-y0=y5; top y5l=vround .5bar_height; y6=bar_height; y0'=h-bar_height;
+h-y2=y3=1/4x_height; h-y1=y4; bot y4r=-oo;
+pos0(hair,320); pos1(vair,270); pos2(stem,180);
+pos3(stem,180); pos4(vair,270); pos5(hair,320); pos7(stem,135);
+path p.l,p.r; p.l=z0'..z0..z1{right}; p.r=z4{right}..z5..z6;
+filldraw stroke z0e{direction 1 of p.l}
+ ...z1e{right}...{down}z2e...z7e...z3e{down}...z4e{right}
+ ...{direction 1 of p.r}z5e; % main stroke
+%%%
+penlabels(0,1,2,3,4,5); endchar;
+
+lhchar "Italic Russian letter d";
+cyrchar(d,9u#,asc_height#,0);
+italcorr .7asc_height#*slant-.15u#; % O+.35u
+adjust_fit(if monospace:0,0 else:-.35u#,-.35u#fi);
+numeric top_thickness,bot_thickness,side_thickness,pull;
+top_thickness=max(fine.breadth,vround(slab-2vair_corr));
+bot_thickness=max(fine.breadth,vround(slab-vair_corr));
+side_thickness=max(fine.breadth,hround 1/4[curve,cap_curve]);
+pull=min(.25,1.5superpull);
+pickup fine.nib; pos1(hair,140); pos2(vair,90);
+pos3(side_thickness,0); pos4(bot_thickness,-90);
+pos5(side_thickness,-180); pos6(vair,-270);
+lft x5r=lft x1r=w-rt x3r=hround max(.75u,1.5u-.5side_thickness);
+x4=x2+u=x6+.1u=.5w; y1=h-.35bar_height;
+top y2r=h+oo; y3=.5[y2,y4]; bot y4r=-oo;
+y5=.5[y4,y6]; top y6=x_height+oo;
+forsuffixes e=l,r: path p.e; p.e=z1e...{right}z2e; endfor
+path p; p=pulled_super_arc.l(3,4)(pull);
+numeric t; t=xpart(p intersectiontimes((x3r,y5)--(x4,y5)));
+pos7(thin_join,0); z7l=point t of p;
+(x,y6r)=whatever[z7l,z6l]; x6r:=max(x,.5[x5r,x6]);
+filldraw stroke subpath (.5,1) of p.e
+ & pulled_super_arc.e(2,3)(superpull)
+ & {{interim superness:=more_super; pulled_super_arc.e(3,4)(pull)}}
+ & {{less_tense; pulled_super_arc.e(4,5)(pull)
+ & pulled_super_arc.e(5,6)(pull)}}
+ & z6e{right}...{direction t of p}z7e;  % arc and bowl
+penlabels(1,2,3,4,5,6,7); endchar;
+
+lhchar "Italic Russian letter e";
+cyrchar(e,8u#,x_height#,0);
+italcorr max(1/3x_height#*slant,x_height#*slant+.5(.2[hair#,stem#])-u#); %e
+adjust_fit(if monospace:0 else:-.35u#fi,0);
+% ital_e;
+pickup fine.nib;
+%numeric heavy_hair; heavy_hair=hround .2[hair,stem];%defined in lxpseudo
+pos0(vair,-90); pos1(heavy_hair,0); pos2(vair,90);
+pos3(curve,180); pos4(vair,270); pos5(hair,320);
+x0=rt x3l; rt x1r=hround(w-1.5u+.5heavy_hair); x2=x4=.5(w+u);
+lft x3r=hround(1.5u-.5curve); x5r=good.x(w-eps); x6=x5;
+y0=y3=y6=bar_height; y1=.5[y0,y2]; top y2r=h+oo; bot y4r=-oo;
+top y5l=vround .5bar_height; path p; p=z4{right}..z5..z6;
+filldraw stroke z0e{right}...z1e{up}...pulled_arc.e(2,3)
+ & pulled_arc.e(3,4)...{direction 1 of p}z5e;  % arc
+penlabels(0,1,2,3,4,5,6); endchar;
+
+lhchar "Italic Russian letter zh";
+cyrchar(zh,20u#,x_height#,0);
+italcorr if math_fitting:1/3x_height#*slant else:x_height#*slant-u# fi; %c
+adjust_fit(-.5u#,0 if monospace:-.5u# fi); %zh_adj
+% ital_zh;
+if odd(fudged.stem-w): change_width; fi % symmetric & all three equal - AS
+pickup fine.nib; pos1(flare,0); pos2(hair,0); pos3(vair,90);
+pos4(curve,180); pos5(vair,270); pos6(hair,320);
+if monospace: x3=x5=.5[lft x4r,rt x2r]-eps; rt x2r=good.x (w+eps);
+else: x3=x5=good.x(w-3.5u); rt x2r=hround max(rt x3,w-u)+eps; fi
+lft x4r=hround max(.5w+.5stem+.5,w-6.5u-.5curve+eps); x6r=good.x(w+eps); x0=x6;
+y2=.5[bar_height,h]; top y3r=h+oo; bulb(3,2,1);  % bulb
+bot y5r=-oo; y4=.5[y3,y5]; top y6l=vround .5bar_height; y0=bar_height;
+path p; p=z5{right}..z6..z0;
+filldraw stroke pulled_arc.e(3,4)
+ & pulled_arc.e(4,5)...{direction 1 of p}z6e;  % right arc
+pos12(flare,180); pos11(hair,180); pos10(vair,270);
+pos9(curve,360); pos8(vair,450); pos7(hair,500);
+if monospace: lft x11r=good.x (-eps); x10=x8=.5[lft x11r,rt x9r]+eps;
+else: x10=x8=3.5u; lft x11r=hround min(lft x10,u)-eps; fi
+rt x9r=hround min(.5w-.5stem-.5,6.5u+.5curve-eps);
+x7r=good.x (if not monospace:rt x11r-.67u fi-eps); x0'=x7;
+y11=h-.5[bar_height,h]; bot y10r=-oo; bulb(10,11,12);  % bulb
+top y8r=h+oo; y9=.5[y10,y8]; bot y7l=vround (h-.65bar_height); y0'=bar_height;
+path p_; p_=z8{left}..z7..z0;
+filldraw stroke pulled_arc.e(10,9)
+ & pulled_arc.e(9,8)...{direction 1 of p_}z7e;  % left arc
+y13=bar_height; x13=x4; y14=y13; x14=w-x4;  x15=x16=.5w;
+y15+.5stem=h+oo; bot y16=0;
+pos13(vair,90); pos14(vair,90);  pos15(fudged.stem,0); pos16(fudged.stem,0);
+filldraw stroke z13e--z14e; filldraw circ_stroke z15e--z16e; % stem & cross
+%%%
+penlabels(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16); endchar;
+
+lhchar "Italic Russian letter z";
+cyrchar(z,8u#,x_height#,0);
+italcorr if math_fitting:1/3x_height#*slant else:x_height#*slant-u# fi; %e
+adjust_fit(0,0);
+% ital_z;
+pickup fine.nib; pos0(flare,180); pos1(hair,180); pos2(vair,-90);
+pos7(curve,0); pos8(curve,0); pos4(vair,90); pos5(hair,160);
+pos3(vair,90); pos3'(vair,-90); pos9(vair,90); pos9'(vair,-90);
+x2=x4=.5(w-u); lft x1r=min(lft x2,hround(.25u))-eps;
+lft x5r=good.x x1r+.15u+eps; x6=x5;
+y1=.5bar_height; bot y2r=-oo; bulb(2,1,0);  % bulb
+rt x7r=w-hround(1.5u-.5curve); rt x8r=w-hround(2u-.5curve);
+top y4r=h+oo; y7=.5[y2,y3]; y5r=y8=.5[y3,y4]; y6=bar_height;
+x3=x2; lft x9=hround min(lft x2-1-eps,rt x0l+1+eps);
+y3=y9=bar_height; z9'=z9; z3'=z3;
+path p; p=z4{left}..(x5,h-.52bar_height)..z6;
+filldraw stroke z9e{right}...pulled_arc.e(3,7) & pulled_arc.e(7,2); % lower arc
+filldraw stroke z9'e{right}...pulled_arc.e(3',8) & pulled_arc.e(8,4)
+  ...{direction 1 of p}z5e;  % upper arc
+%%%
+penlabels(0,1,2,3,4,5,7,8,9); endchar;
+
+
+lhchar "Italic Russian letter i (looks like u)";
+cyrchar(i,10u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#; %u
+adjust_fit(0,0);
+% ital_i;
+pickup fine.nib; interim superness:=more_super;
+x2=x3+.25u; pos3(stem,-180); lft x3r=hround(2.5u-.5stem);
+% left shstem;
+if monospace: pos0(vair,90); x0=good.x .5[0,x2]; top y0l=h; y2=2/3h;
+ pos2(stem,0); filldraw stroke z2e{u,x_height}...{left}z0e; % terminal
+else: x0=0;  hook_in(0,1,2)(skewed); fi % opening hook
+pos2'(stem,-180); z2'=z2; pos4(vair,-90); pos5(hair,0); x4=.5[x3,x5];
+pos6(stem,0); rt x6r=hround(w-2.5u+.5stem);
+x5=x6=x7; x9=w; hook_out(7,8,9);  % closing hook
+y3=.7[y4,y5]; bot y4r=-oo; y5=.57h; y6+.5stem=h;
+filldraw stroke z2'e{-u,-x_height}
+ ...super_arc.e(3,4)...{up}z5e; % left stem and arc
+filldraw circ_stroke z6e--z7e;  % right stem
+penlabels(0,1,2,3,4,5,6,7,8,9); endchar;
+
+lhchar "Italic Russian letter i_shrt - short i (looks like breve u)";
+cyrchar(i_shrt,10u#,x_height#+acc_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#; %u
+adjust_fit(0,0); full_h:=h; h:=x_height;
+% ital_i;
+pickup fine.nib; interim superness:=more_super;
+x2=x3+.25u; pos3(stem,-180); lft x3r=hround(2.5u-.5stem);
+% left shstem;
+if monospace: pos0(vair,90); x0=good.x .5[0,x2]; top y0l=h; y2=2/3h;
+ pos2(stem,0); filldraw stroke z2e{u,x_height}...{left}z0e; % terminal
+else: x0=0;  hook_in(0,1,2)(skewed); fi % opening hook
+pos2'(stem,-180); z2'=z2;
+pos4(vair,-90); pos5(hair,0); x4=.5[x3,x5];
+pos6(stem,0); rt x6r=hround(w-2.5u+.5stem);
+x5=x6=x7; x9=w; hook_out(7,8,9);  % closing hook
+y3=.7[y4,y5]; bot y4r=-oo; y5=.57h; y6+.5stem=h;
+filldraw stroke z2'e{-u,-x_height}
+ ...super_arc.e(3,4)...{up}z5e; % left stem and arc
+filldraw circ_stroke z6e--z7e;  % right stem
+% the accent
+h:=x_height+acc_height; cbreve(.5w,0, 10,11,12,13,14,15,16);
+penlabels(0,1,2,3,4,5,6,7,8,9, 10,11,12,13,14,15,16); endchar;
+
+lhchar "Italic Russian letter k";
+cyrchar(k,9u#,x_height#,0);
+italcorr x_height#*slant;
+adjust_fit(0,0);
+% ital_k;
+pickup fine.nib; x2-.5stem=hround(2.5u-.5stem);
+%ihalfstem;
+if monospace: pos2(stem,0); top y2=h;
+else: x0=0; hook_in(0,1,2); fi % opening hook
+pos2'(stem,0); pos11(stem,0); z2'=z2; x11=x2'; y11-.5stem=-oo;
+filldraw circ_stroke z11e--z2'e;  % left stem
+pos3(vair,90); x3=x11; y3=bar_height;
+pos4(vair,90); x4=w-2u; top y4r=x_height+oo;
+filldraw stroke z3e{right}..{right}z4e;  % upper diagonal
+pos5(hair,0); pos6(flare,0);
+rt x5r=hround(w-.5u); y5+.5flare=vround(bot y4l-.03x_height);
+bulb(4,5,6);  % bulb
+pos7(stem,0); pos8(vair,90); pos9(hair,180);
+x9+.5hair=hround(w+.5hair-eps); y9=1/3x_height;
+lft x7l=hround(w-2.75u-.5stem); y7=1/2y3; x8=w-1.2u; bot y8l=-oo;
+filldraw stroke z3e{right}...z7e{down}
+ ...z8e{right}...{up}z9e;  % lower diagonal
+%%%
+penlabels(1,2,3,4,5,6,7,8,9); endchar;
+
+lhchar "Italic Russian letter l";
+cyrchar(l,9u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#; %n
+adjust_fit(.5u#,0);
+% ital_l;
+pickup fine.nib;
+pos1(vair,-90); pos2(stem,180); pos3(hair,0); pos10(stem,0);
+pos4(vair,-90); pos5(hair,-180); pos6(flare,-180);
+top y1l=h+oo; x1=.5[x3,x2];
+x3=3u; y3=.35h;
+y6-.5flare=.1h; lft x6r=-.25u; z5r=z6r;
+bot y4r=-oo; x4=max(.4[lft x6r,rt x3r],lft x6r+.5flare-eps);
+y10=.8h; lft x10l=lft x7l=hround(w-2.5u-.5stem); z10=z2;
+bulb(4,5,6); % bulb
+filldraw stroke pulled_arc.e(4,3)
+ & super_arc.e(3,1) & super_arc.e(1,2); % left stem
+x9=w; hook_out(7,8,9);  % hook
+filldraw stroke z10e--z7e;  % right stem
+%%%
+penlabels(1,2,3,4,5,6,7,8,9,10); endchar;
+
+lhchar "Italic Russian letter m";
+cyrchar(m,13u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#; %u
+adjust_fit(if monospace:-.5u#,-1.5u# else:.5u#,0 fi); %wbulb_adj&rstem_adj
+%ital_m;
+pickup fine.nib;
+pos1(hair,0); pos6(stem,0);
+pos2(hair,0); pos3(vair,-90); pos4(hair,-180); pos5(flare,-180);
+x1=x2=3u; y2=.35h; top y1=h; bot y3r=-oo; lft x5r=-.25u; z4r=z5r;
+x3=min(lft x5r+flare,lft x2l-eps); y5-.5flare=.1h;
+bulb(3,4,5); % bulb
+filldraw stroke pulled_arc.e(3,2) & z2e--z1e; % left stem
+rt x7r=hround(w-2.5u+.5stem); x6=x7; top y6=h;
+% right_stem;
+_one:=7; _two:=8; _three:=9;
+if monospace: pos[_three](vair,90); pos[_one](stem,0);
+ x[_three]=good.x .5[x[_one],w]; bot y[_three]l=0; y[_one]=1/3h;
+ filldraw stroke z[_one]e{down}...{right}z[_three]e; % terminal
+else: x[_three]=w; hook_out([_one],[_two],[_three]); fi % opening hook
+%
+filldraw stroke z6e--z7e; % right stem
+% diagonals;m
+numeric stem[]; % thicknesses of the strokes
+stem1=hround(fudged.stem-stem_corr);
+stem2=min(stem1,hround(fudged.hair-stem_corr));
+penpos10(stem1,0); penpos11(stem1,0); penpos12(stem2,0); penpos13(stem2,0);
+x10l=lft x1l; x11l=x12l; x13l=lft x7l; x11-x10=x13-x12;
+y10=y13=top y6; y11=y12;
+if hefty:
+ y11=if monospace: vround 1/3h-.5stem1 else: oo fi;
+ numeric upper_notch,lower_notch;
+ upper_notch=h-notch_cut; lower_notch=y11+notch_cut;
+ x1'=rt x1r; z1'=whatever[z10l,z11l];
+ x6'=lft x6l; z6'=whatever[z12r,z13r];
+ z0=whatever[z10r,z11r]=whatever[z12l,z13l];
+ fill z10l..
+  if y1'<upper_notch: {right}(x1'+1,upper_notch){down}... fi
+  {z11-z10}diag_in(10l,11l,1,11r)..diag_out(12l,1,12r,13r){z13-z12}
+  if y6'<upper_notch: ...{up}(x6'-1,upper_notch){right} fi
+  ..z13r--diag_out(13r,1,13l,12l){z12-z13}
+  if y0<=lower_notch: ..{z12-z13}z0{z10-z11}..
+   else: ...{down}(x0+.5,lower_notch)--(x0-.5,lower_notch){up}... fi
+  {z10-z11}diag_in(11r,10r,1,10l)--cycle;  % diagonals
+else:
+ y11=0; z0=whatever[z10r,z11r]=whatever[z12l,z13l];
+ fill z10l..{z11-z10}diag_in(10l,11l,1,11r)..diag_out(12l,1,12r,13r){z13-z12}
+  ..z13r--diag_out(13r,1,13l,12l){z12-z13}..{z12-z13}z0{z10-z11}
+  ..{z10-z11}diag_in(11r,10r,1,10l)--cycle; fi  % diagonals
+penlabels(1,2,3,4,5,6,7,8,9,10,11,12,13);
+endchar;
+
+lhchar "Italic Russian letter n (looks like H)";
+cyrchar(n,10u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#; %u
+adjust_fit(0,0);
+% ital_n;
+pickup fine.nib; x2=x3; pos3(stem,0); lft x3l=hround(2.5u-.5stem);
+%ihalfstem;
+if monospace:
+ pos2(stem,0); top y2=h;
+else:
+ x0=0; hook_in(0,1,2); fi % opening hook
+y3-.5stem=-oo;
+filldraw circ_stroke z3e--z2e; % left stem
+x10=x3l; y10=y11=bar_height; pos10(vair,90); pos11(vair,90);
+pos6(stem,0); rt x6r=hround(w-2.5u+.5stem); y6+.5stem=h;
+x7=x6; x9=w; hook_out(7,8,9); % closing hook
+z7'=z7; pos7'(stem,0); x11=x6l;
+filldraw circ_stroke z6e--z7'e; % right stem
+filldraw stroke z10e--z11e; % bar
+%%%
+penlabels(0,1,2,3,4,5,6,7,8,9,10,11); endchar;
+
+lhchar "Italic Russian letter o";
+cyrchar(o,9u#,x_height#,0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi; %o
+adjust_fit(if monospace:0,0 else:-.35u#,-.35u#fi); pickup fine.nib;
+pos1(vair,90); pos2(curve,180); pos3(vair,270); pos4(curve,360);
+x1=x3=.5w; lft x2r=hround(1.5u-.5curve); x4=w-x2;
+top y1r=h+oo; y2=y4=.5[y1,y3]; bot y3r=-oo;
+filldraw stroke pulled_arc.e(1,2) & pulled_arc.e(2,3)
+ & pulled_arc.e(3,4) & pulled_arc.e(4,1); % bowl
+penlabels(1,2,3,4); endchar;
+
+lhchar "Italic Russian letter p (looks like n)";
+cyrchar(p,10u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#; %n
+adjust_fit(0,0); pickup fine.nib;
+x1=x2; pos2(stem,0); lft x2l=hround(2.5u-.5stem); y2-.5stem=-oo;
+%ihalfstem;
+if monospace:
+ pos1(stem,0); top y1=h;
+else:
+ x0=0; hook_in(0,a,1); fi % opening hook
+filldraw circ_stroke z2e--z1e;  % left stem
+x4+.5stem=hround(w-2.5u+.5stem); x5=x4-.25u; ital_arch(2,3,4);  % arch
+x7=w; hook_out(5,6,7)(skewed);  % closing hook
+filldraw stroke z4e{down}..{-u,-x_height}z5e;  % right stem
+penlabels(0,a,1,2,3,4,5,6,7); endchar;
+
+lhchar "Italic Russian letter r (looks like p)";
+cyrchar(r,if monospace:9u# else:9.25u# fi,x_height#,desc_depth#); % !rusw
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi; %p
+adjust_fit(0,if monospace:0 else:-.35u#fi);
+% ital_r;
+pickup fine.nib;
+x0=0; x2-.5stem=hround(2.5u-.5stem); hook_in(0,1,2);  % opening hook
+pos4(hair,-180); pos5(vair,-90); pos6(curve,0); pos7(vair,90);
+x4=x2; rt x6r=hround(w-1.5u+.5curve); x5=x7=.5[x4,x6];
+bot y5r=-oo; top y7r=h+oo; y4=y6=.5[y5,y7];
+filldraw stroke super_arc.e(4,5) & pulled_arc.e(5,6)
+ & pulled_arc.e(6,7) & super_arc.e(7,4);  % bowl
+pickup tiny.nib; pos2'(stem,0); pos3(stem,0);
+z2=z2'; x3=x2; bot y3=-d;
+filldraw stroke z2'e--z3e;  % stem
+dish_serif(3,2',a,1/3,.75jut,b,1/3,jut);  % serif
+%%%
+penlabels(0,1,2,3,4,5,6,7); endchar;
+
+lhchar "Italic Russian letter s (looks like c)";
+cyrchar(s,8u#,x_height#,0);
+italcorr if math_fitting:1/3x_height#*slant else:x_height#*slant-u# fi; %c
+adjust_fit(if monospace:0 else:-.35u#fi,0);
+% ital_s;
+pickup fine.nib; pos0(flare,0); pos1(hair,0); pos2(vair,90);
+pos3(curve,180); pos4(vair,270); pos5(hair,320);
+x2=x4=.5(w+u); rt x1r=max(rt x2,hround(w-u))+eps;
+lft x3r=hround(1.5u-.5curve); x5r=good.x(w-eps); x6=x5;
+y1=.5[bar_height,h]; top y2r=h+oo; bulb(2,1,0);  % bulb
+bot y4r=-oo; y3=.5[y2,y4]; top y5l=vround .5bar_height; y6=bar_height;
+path p; p=z4{right}..z5..z6;
+filldraw stroke pulled_arc.e(2,3)
+ & pulled_arc.e(3,4)...{direction 1 of p}z5e;  % arc
+penlabels(0,1,2,3,4,5,6); endchar;
+
+lhchar "Italic Russian letter t (looks like m)";
+cyrchar(t,15u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#; %m
+adjust_fit(if monospace:-1.5u#,-2u# else: 0,0 fi);
+% ital_t;
+pickup fine.nib; numeric shaved_stem; shaved_stem=mfudged.stem;
+save stem; stem=shaved_stem; pos2(stem,0); x1=x2;
+if monospace:
+ pos1(stem,0); lft x1l=hround(2.5u-.5stem); top y1=h;
+else:
+ x0=0; lft x2l=hround(2.5u-.5stem); hook_in(0,a,1); fi  % opening hook
+y2-.5stem=-oo; filldraw circ_stroke z2e--z1e;  % left stem
+x4+.5stem=hround(.5w+.5stem); ital_arch(2,3,4);  % left arch
+pos5(stem,0); y5=y2; x5=x4;
+filldraw circ_stroke z5e--z4e;  % middle stem
+x7+.5stem=hround(w-2.5u+.5stem);
+x8=x7-.25u; ital_arch(5,6,7);  % right arch
+if monospace:
+ pos9(vair,90); x9=good.x .5[x8,w]; bot y9l=0; y8=1/3h; pos8(stem,0);
+ filldraw stroke z8e{-u,-x_height}...{right}z9e; % terminal
+else:
+ x9=w; hook_out(8,b,9)(skewed); fi  % closing hook
+filldraw stroke z7e{down}..{-u,-x_height}z8e;  % right stem
+penlabels(0,a,1,2,3,4,5,6,7,8,9); endchar;
+
+lhchar "Italic Russian letter u (looks like y)";
+cyrchar(u,if monospace:8.5u# else:9u# fi,x_height#,desc_depth#); % !rusw
+italcorr x_height#*slant+.5stem#-u#; %y
+adjust_fit(0,0);
+% ital_u;
+pickup fine.nib; interim superness:=more_super;
+x2=x3+.25u; pos3(stem,-180); lft x3r=hround(2.5u-.5stem);
+% left shstem;
+if monospace: pos0(vair,90); x0=good.x .5[0,x2]; top y0l=h; y2=2/3h;
+ pos2(stem,0); filldraw stroke z2e{u,x_height}...{left}z0e; % terminal
+else: x0=0;  hook_in(0,1,2)(skewed); fi % opening hook
+pos2'(stem,-180); z2'=z2;
+pos4(vair,-90); pos5(hair,0); x4=.5[x3,x5];
+pos6(stem,0); rt x6r=hround(w-1.5u+.5stem);
+pos7(stem,0); pos8(vair,-90);
+y3=.7[y4,y5]; bot y4r=-oo; y5=.57h; y6+.5stem=h;
+y7=0; bot y8r=-d-oo; x5=x6=x7; x8=.5w;
+pos9(hair,-180); pos10(flare,-180); y9=-.5d;
+lft x9r=hround(2.75u-.5flare); bulb(8,9,10);  % bulb
+filldraw stroke z2'e{-u,-x_height}
+ ...super_arc.e(3,4)...{up}z5e; % left stem and arc
+filldraw circ_stroke z6e---z7e...{left}z8e;  % right stem and link
+penlabels(0,1,2,3,4,5,6,7,8,9,10); endchar;
+
+lhchar "Italic Russian letter f";
+cyrchar(f,max(2u#,stem#)+max(4u#,2flare#),asc_height#,desc_depth#);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi; %p
+adjust_fit(3.15u#,3.15u#); pickup fine.nib;
+pickup fine.nib;
+numeric theta; theta=angle(-u,d+h);
+pos0(flare,0); pos1(hair,0); pos2(vair,90);
+pos3(.5[hair,stem],180); pos4(stem,theta+90);
+pos5(stem,theta-90); pos6(.5[hair,stem],0);
+pos7(vair,-90); pos8(hair,-180); pos9(flare,-180);
+crisp.top y15r=x_height+oo; crisp.bot y17r=-oo;
+x14=.5w; y14=y16=y19=.5[y15r,y17r];
+rt x1r=hround(w+.25u); lft x8r=hround-.35u; x2=.6[x1,x4]; x7=.6[x8,x5];
+y9-.5flare=vround -.85d; y2-y0=y9-y7; top y2r=h+oo; bot y7r=-d-oo;
+y4=.25[x_height,h]; z4=whatever[z14,z14+dir theta];
+y5=.5[-d,y4]; z5=whatever[z14,z14+dir theta];
+y12=h; z12=whatever[z14,z14+dir theta];
+y13=-d; z13=whatever[z14,z14+dir theta];
+x3=.8[x2+x4-x12,x12]; x6=.8[x7+x5-x13,x13]; y3=.8[y4,y2]; y6=.8[y5,y7];
+bulb(2,1,0); bulb(7,8,9);  % bulbs
+filldraw stroke z2e{left}...z3e...{z13-z12}z4e;  % upper arc
+filldraw z4r--z5l--z5r--z4l--cycle;  % stem
+filldraw stroke z5e{z13-z12}...z6e...{left}z7e;  % lower arc
+pickup crisp.nib;
+pos14(hair,0); pos15(vair,90); pos16(curve,180); pos17(vair,270);
+pos14'(hair,180); z14'=z14;
+pos18(vair,90); pos19(curve,0); pos20(vair,-90);
+x15=x17=.5[x16,x14];
+lft x16r=l+letter_fit+hround(1.5u-.5curve) if monospace:-.75u else:-.35u fi;
+y18=y15; y20=y17; x18=w-x15; x19=w-x16; x20=w-x17;
+filldraw stroke super_arc.e(14,15) & pulled_arc.e(15,16)
+ & pulled_arc.e(16,17) & super_arc.e(17,14); % left bowl
+filldraw stroke super_arc.e(14',18) & pulled_arc.e(18,19)
+ & pulled_arc.e(19,20) & super_arc.e(20,14'); % right bowl
+math_fit(desc_depth#*slant+u#,x_height#*slant);
+penlabels(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20);
+endchar;
+
+lhchar "Italic Russian letter h - kha (looks like x)";
+cyrchar(h,if monospace:6.5u# else:7.5u# fi+max(1.5u#,flare#), % !rusw
+ x_height#,0);
+italcorr max(1/3x_height#*slant+.5hair#+.5u#,x_height#*slant+.25u#); %x
+adjust_fit(if monospace: 0,0 else: 0.25u#,0.25u# fi);
+% ital_h;
+pickup fine.nib; pos0(hair,180); pos1(vair,90); pos2(stem,0);
+pos3(stem,-180); pos4(vair,-90); pos5(hair,0);
+y0=y2=2/3h; y3=y5=1/3h; top y1r=h+oo; bot y4r=-oo;
+rt x2r=hround(.5w+.5stem-eps); x2=x3;
+x0-.5hair=hround-.5hair; x5+.5hair=hround(w+.5hair-eps);
+x1=.5[x0,x2]; x4=.5[x3,x5];
+filldraw stroke z0e{up}...pulled_arc.e(1,2); % opening hook
+filldraw z2l--z3r--z3l--z2r--cycle;  % stem
+filldraw stroke pulled_arc.e(3,4)...{up}z5e;  % closing hook
+pos3'(hair,180); pos6(hair,180); pos7(vair,90); pos8(hair,0); pos9(flare,0);
+x3'l=x6l=x3l; y3'=y3; y6=3/4h; x7=.5[x8,x2]; top y7r=h+oo;
+rt x8r=hround(w-.25u); y8+.5flare=vround(bot y7l-.03x_height);
+filldraw stroke z3'e---z6e...{right}z7e; bulb(7,8,9);  % upper link and bulb
+pos2'(hair,0); pos16(hair,0); pos17(vair,-90);
+pos18(hair,-180); pos19(flare,-180);
+x2'l=x16l=x2l; y2'=y2; y16=1/4h; x17=.5[x18,x3]; bot y17r=-oo;
+lft x18r=hround.25u; y18-.5flare=vround(top y17l+.03x_height);
+filldraw stroke z2'e---z16e...{left}z17e; bulb(17,18,19); % lower link and bulb
+penlabels(0,1,2,3,4,5,6,7,8,9,16,17,18,19); endchar;
+
+lhchar "Italic Russian letter c - tse";
+cyrchar(c,10u#,x_height#,desc_depth#);
+italcorr 1/3x_height#*slant+.5hair#+.5u#; %a
+adjust_fit(0,.1u#); %iserif_adj
+% ital_c;
+pickup fine.nib; interim superness:=more_super;
+x2=x3+.25u; pos3(stem,-180); lft x3r=hround(2.5u-.5stem);
+% left shstem;
+if monospace:
+ pos0(vair,90); x0=good.x .5[0,x2]; top y0l=h; y2=2/3h;
+ pos2(stem,0); filldraw stroke z2e{u,x_height}...{left}z0e; % terminal
+else:
+ x0=0; hook_in(0,1,2)(skewed); fi % opening hook
+pos2'(stem,-180); z2'=z2;
+pos4(vair,-90); pos5(hair,0); x4=.5[x3,x5];
+pos6(stem,0); rt x6r=hround(w-2.5u+.5stem);
+x5=x6=x7; y3=.7[y4,y5]; bot y4r=-oo; y5=.57h; y6+.5stem=h;
+filldraw stroke z2'e{-u,-x_height}
+ ...super_arc.e(3,4)...{up}z5e; % left stem and arc
+x9=w; y9=y7=.4bar_height; x8=.5[x7,x9]; bot y8l=-oo;
+pos8(vair,90); pos9(vair,180); pos7(stem,0);
+filldraw circ_stroke z6e--z7e;  % right stem
+filldraw circ_stroke z7e{-.5u,-x_height}...z8e{right}...{up}z9e; % closing hook
+% italic descender
+i_serif(9,x);
+penlabels(0,1,2,3,4,5,6,7,8,9); endchar;
+
+lhchar "Italic Russian letter ch";
+cyrchar(ch,9.5u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#; %u
+adjust_fit(0,0);
+% ital_ch;
+pickup fine.nib; interim superness:=more_super;
+x2=x3; pos3(stem,-180); lft x3r=hround(2.5u-.5stem);
+% left shstem;
+if monospace:
+ pos0(vair,90); x0=good.x .5[0,x2]; top y0l=h; y2=2/3h; pos2(stem,0);
+ filldraw stroke z2e{u,x_height}...{left}z0e; % terminal
+else:
+ x0=0;  hook_in(0,1,2)(skewed); fi % opening hook
+pos2'(stem,-180); z2'=z2;
+pos4(vair,-90); pos5(hair,0); x4=.5[x3,x5];
+pos6(stem,0); rt x6r=hround(w-2.5u+.5stem);
+x5=x6=x7; x9=w; hook_out(7,8,9);  % closing hook
+bot y4r=.75bar_height; y5=.75h; y3=min(y2-eps,.7[y4,y5]); y6+.5stem=h;
+filldraw stroke z2'e...super_arc.e(3,4)...{up}z5e; % left stem and arc
+filldraw circ_stroke z6e--z7e;  % right stem
+%%%
+penlabels(0,1,2,3,4,5,6,7,8,9); endchar;
+
+lhchar "Italic Russian letter sh";
+cyrchar(sh,15u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#; %u
+adjust_fit(if monospace:-2u#,-1.5u# else: 0,0 fi); %rshstem_adj&rstem_adj
+% ital_sh;
+pickup fine.nib; interim superness:=more_super;
+numeric shaved_stem; shaved_stem=mfudged.stem; save stem; stem=shaved_stem;
+x2=x3+.25u; pos3(stem,-180); lft x3r=hround(2.5u-.5stem);
+% left shstem
+if monospace:
+ pos0(vair,90); x0=good.x .5[0,x2]; top y0l=h; y2=2/3h; pos2(stem,0);
+ filldraw stroke z2e{u,x_height}...{left}z0e; % terminal
+else:
+ x0=0; hook_in(0,1,2)(skewed); fi % opening hook
+pos2'(stem,-180); z2'=z2; pos4(vair,-90); pos5(min(stem,hair),0); x4=.5[x3,x5]; x5=x7';
+pos5'(min(stem,hair),0); pos6'(vair,-90); pos7'(stem,-180); x5'=x7; y5'=y5;
+pos8'(stem,-180); x8'=x7'; y8'+.5stem=h;
+pos6(stem,0); rt x7r=hround(w-2.5u+.5stem);
+x6=x7; y3=.7[y4,y5]; bot y4r=-oo; y5=.57h; y6+.5stem=h;
+x7'+.5stem=hround(.5w+.5stem);
+% right_stem;
+_one:=7; _two:=8; _three:=9;
+if monospace:
+ pos[_three](vair,90); pos[_one](stem,0);
+ x[_three]=good.x .5[x[_one],w]; bot y[_three]l=0; y[_one]=1/3h;
+ filldraw stroke z[_one]e{down}...{right}z[_three]e; % terminal
+else:
+ x[_three]=w; hook_out([_one],[_two],[_three]); fi % opening hook
+x6'=.6[x5',x7']; bot y6'r=bot y4r; y7'=.35x_height;
+filldraw stroke super_arc.e(7',6')...{up}z5'e; % middle stroke
+filldraw circ_stroke z8'e--z7'e; % middle stem
+filldraw stroke z2'e{-u,-x_height}
+ ...super_arc.e(3,4)...{up}z5e; % left stem and arc
+filldraw circ_stroke z6e--z7e;  % right stem
+penlabels(0,1,2,3,4,5,6,7,8,9,10,11); endchar;
+
+lhchar "Italic Russian letter shch";
+cyrchar(shch,15u#,x_height#,desc_depth#);
+italcorr 1/3x_height#*slant+.5hair#+.5u#; %u
+adjust_fit(if monospace:-2u# else:0 fi,.1u#); %rshstem_adj&iserif_adj
+% ital_sh;
+pickup fine.nib; interim superness:=more_super;
+numeric shaved_stem; shaved_stem=mfudged.stem; save stem; stem=shaved_stem;
+x2=x3+.25u; pos3(stem,-180); lft x3r=hround(2.5u-.5stem);
+% left skewstem;
+if monospace:
+ pos0(vair,90); x0=good.x .5[0,x2]; top y0l=h; y2=2/3h; pos2(stem,0);
+ filldraw stroke z2e{u,x_height}...{left}z0e; % terminal
+else:
+ x0=0;  hook_in(0,1,2)(skewed); fi % opening hook
+pos2'(stem,-180); z2'=z2; pos4(vair,-90); pos5(min(stem,hair),0); x4=.5[x3,x5];
+x7'+.5stem=hround(.5w+.5stem); x5=x7';
+pos5'(min(stem,hair),0); pos6'(vair,-90); pos7'(stem,-180); x5'=x7; y5'=y5;
+pos8'(stem,-180); x8'=x7'; y8'+.5stem=h;
+pos6(stem,0); rt x6r=hround(w-2.5u+.5stem);
+x6=x7; y3=.7[y4,y5]; bot y4r=-oo; y5=.57h; y6+.5stem=h;
+x9=w; y9=y7=.4bar_height; x8=.5[x7,x9]; bot y8l=-oo;
+x6'=.6[x5',x7']; bot y6'r=-oo; y7'=.35x_height;
+filldraw stroke super_arc.e(7',6')...{up}z5'e; % middle stroke
+filldraw circ_stroke z8'e--z7'e; % middle stem
+filldraw stroke z2'e{-u,-x_height}
+ ...super_arc.e(3,4)...{up}z5e; % left stem and arc
+pos8(vair,90); pos9(vair,180); pos7(stem,0);
+filldraw circ_stroke z6e--z7e;  % right stem
+filldraw circ_stroke z7e{-.5u,-x_height}...z8e{right}...{up}z9e; % closing hook
+% italic descender
+i_serif(9,x);
+penlabels(0,1,2,3,4,5,6,7,8,9,5',6',7',8'); endchar;
+
+lhchar "Italic Russian letter hrdsn - hard sign";
+cyrchar(hrdsn,if monospace: 6u# else:7.5u#fi,x_height#,0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi; %"Weierstrass p"
+adjust_fit(u#,0);
+% ital_hrdsn;
+pickup tiny.nib;
+pos1(hair,0); pos1'(hair,-45); pos2(hair,0);
+rt x1r=hround(w-2u-eps); top y1=h;
+lft x2l=hround(u-.5stem); y2=.6bar_height;
+z1'=(.35[x1,x2],.65[y1,1.2bar_height+oo]);
+filldraw stroke z2e{up}....{2(x1-x2),(y1-1.2bar_height)}z1'e..{up}z1e;  % stem
+% hrdsn_beak;
+pos6(hair,180); pos7(.6[hair,curve],60); pos8(hair,90);
+z8r=z1r; x6=-u; y6=3/4x_height; x7=.5[x6,x8];
+top y7r=top y8r;
+filldraw stroke z6e{up}...{3,-1}z7e...{2,1}z8e; % fillip
+pickup fine.nib; pos2'(stem,-180); pos3(vair,-90);
+pos4(curve,0); pos5(vair,90);
+lft x2'r=tiny.lft x2l;
+y2'=y2;  x3=x5=.5[x2,x4]; rt x4r=hround(w-u+.5curve);
+bot y3r=-oo; top y5r=1.2bar_height+oo; y4=y2;
+filldraw stroke pulled_arc.e(2',3) & pulled_arc.e(3,4)
+ & pulled_arc.e(4,5) & pulled_arc.e(5,2');  % bowl
+%%%
+penlabels(1,1',2,2',3,4,5,6,7,8); endchar;
+
+lhchar "Italic Russian letter ery";
+cyrchar(ery,8u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#; %u
+adjust_fit(if monospace:-2u#,2.5u# else:0,4u# fi);
+% ital_ery;
+pickup tiny.nib; pos2(stem,0); y2=.6bar_height;
+% left skewstem;
+if monospace:
+ x1=x2; pos1(stem,0); lft x1l=hround(2.5u-.5stem); top y1=h;
+else:
+ x1=x2+.25u; x0'=0; lft x2l=hround(2.5u-.5stem);
+ hook_in(0',a,1)(skewed); fi  % opening hook
+pickup fine.nib; pos1'(stem,-180); pos2'(stem,-180); pos3(vair,-90);
+pos4(curve,0); pos5(vair,90); pos0(hair,180);
+z1'=z1; z0=z2=z2'; x3=x5=.5[x2,x4]; rt x4r=hround(w-u+.5curve);
+bot y3r=-oo; top y5r=1.2bar_height+oo; y4=y2;
+filldraw stroke z1'e{-u,-x_height}...pulled_arc.e(2',3) & pulled_arc.e(3,4)
+ & pulled_arc.e(4,5) & super_arc.e(5,0);  % bowl
+% I
+w:=w+4u;
+pos6(stem,0); y6+.5stem=h; rt x7r=hround(w-2.5u+.5stem); x7=x6;
+% right_stem;
+_one:=7; _two:=8; _three:=9;
+if monospace:
+ pos[_three](vair,90); pos[_one](stem,0);
+ x[_three]=good.x .5[x[_one],w]; bot y[_three]l=0; y[_one]=1/3h;
+ filldraw stroke z[_one]e{down}...{right}z[_three]e; % terminal
+else:
+ x[_three]=w; hook_out([_one],[_two],[_three]); fi % opening hook
+filldraw circ_stroke z6e--z7e; % stem
+penlabels(0,1,1',2,3,4,5,6,7,8,9,10); endchar;
+
+lhchar "Italic Russian letter sftsn - soft sign";
+cyrchar(sftsn,if monospace: 9u# else: 9u# fi,x_height#,0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi; %"Weierstrass p"
+adjust_fit(if monospace:.5u#,.5u# else:0,0 fi); pickup tiny.nib;
+pos2(stem,0); y2=.6bar_height;
+% left skewstem;
+if monospace:
+ x1=x2; pos1(stem,0); lft x1l=hround(2.5u-.5stem); top y1=h;
+else:
+ x1=x2+.25u; x0'=0; lft x2l=hround(2.5u-.5stem);
+ hook_in(0',a,1)(skewed); fi  % opening hook
+pickup fine.nib; pos1'(stem,-180); pos2'(stem,-180); pos3(vair,-90);
+pos4(curve,0); pos5(vair,90); pos0(hair,180);
+z1'=z1; z0=z2=z2'; x3=x5=.5[x2,x4]; rt x4r=hround(w-u+.5curve);
+bot y3r=-oo; top y5r=1.2bar_height+oo; y4=y2;
+filldraw stroke z1'e{-u,-x_height}...pulled_arc.e(2',3) & pulled_arc.e(3,4)
+ & pulled_arc.e(4,5) & super_arc.e(5,0);  % bowl
+penlabels(0,1,a,1',2,3,4,5,6); endchar;
+
+lhchar "Italic Russian letter erev - reverse e";
+cyrchar(erev,8u#,x_height#,0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi; %o
+adjust_fit(0,if monospace:0 else:-.35u# fi); %o
+% ital_erev;
+pickup fine.nib;
+pos0(flare,180); pos1(hair,-180); pos2(vair,-90);
+pos3(curve,0); pos4(vair,90); pos5(hair,140);
+x2+.5u=x4=.5(w-u); lft x1r=min(lft x2,hround(.25u))-eps;
+rt x3r=w-hround(1.5u-.5curve); lft x5r=good.x (lft x1r-eps); x6=x5;
+y1-.5flare=.1h; bot y2r=-oo; bulb(2,1,0);  % bulb
+top y4r=h+oo; y3=.5[y2,y4]; top y5r=vround .5[bar_height,h];
+y6=bar_height; path p; p=z4{left}....z5..z6;
+filldraw stroke pulled_arc.e(2,3)
+ & pulled_arc.e(3,4)...{direction 1 of p}z5e;  % arc
+x7=x3; y7=bar_height; y8=y7; lft x8=hround min(lft x2-1-eps,rt x0l+eps);
+pos7(vair,90); pos8(vair,90);
+filldraw stroke z7e--z8e;
+%%%
+penlabels(0,1,2,3,4,5,6,8); endchar;
+
+lhchar "Italic Russian letter yu (looks like io)";
+cyrchar(yu,9u#,x_height#,0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi; %o
+adjust_fit(if monospace:3u# else:4.5u# fi,
+ if monospace:-.75u# else:-.35u# fi);
+% ital_yu;
+pickup fine.nib;
+pos1(vair,90); pos2(curve,180); pos3(vair,270); pos4(curve,360);
+x1=x3=.5w; lft x2r=hround(1.5u-.5curve); x4=w-x2;
+top y1r=h+oo; y2=y4=.5[y1,y3]; bot y3r=-oo;
+filldraw stroke pulled_arc.e(1,2) & pulled_arc.e(2,3)
+ & pulled_arc.e(3,4) & pulled_arc.e(4,1); % bowl
+% i half
+_one:=5; _two:=6; _three:=7; _four:=8; _five:=9; _six:=10;
+%
+pos[_four](stem,0);
+lft x[_four]l=l+letter_fit if not monospace: +hround(2.5u-.5stem) fi;
+y[_four]-.5stem=-oo; x[_three]=x[_four];
+if monospace:
+ pos[_three](stem,0); top y[_three]=h;
+else:
+ x[_one]=l+letter_fit; hook_in([_one],[_two],[_three]); fi % opening hook
+filldraw circ_stroke z[_four]e--z[_three]e; % stem
+pos[_five](vair,90); pos[_six](vair,90); %!!!
+x[_five]=x[_four]; x[_six]=x2; y[_five]=y[_six]=bar_height; %!!!
+filldraw stroke z[_five]e--z[_six]e; % bar %!!!
+%%%
+penlabels(0,1,2,3,4,5,6,7,8,9,10); endchar;
+
+lhchar "Italic Russian letter ya (looks like backward R)";
+cyrchar(ya,9u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#; %u
+adjust_fit(.5u#,0);
+% ital_ya;
+pickup fine.nib;
+rt x1r=rt x2r=hround(w-2.5u+.5stem); top y1=h; x4=w;
+hook_out(2,3,4);  % closing hook
+pos1(stem,0); filldraw stroke z1e--z2e;  % stem
+pos5(vair,90); pos6(vair,90); pos7(curve,180); pos8(vair,270); pos9(vair,270);
+x5=x9=x1; top y5r=top y6r=h; x6=x8=.5[x5,x7];
+lft x7l=hround(1.5u if not monospace:+.5curve fi);
+y7=.5[y5,y9]; y8=y9=bar_height;
+filldraw stroke z5e...pulled_arc.e(6,7) & pulled_arc.e(7,8)...z9e; % bowl
+pos10(stem,0); pos11(vair,-90);
+x10=.3[x11,x9]; y10=1/2y9; x11-flare=-.25u; bot y11r=-oo;
+filldraw stroke z11e{right}...z10e{up}...{right}z9e;  % lower diagonal
+pos12(hair,180); pos13(flare,180);
+lft x13r=-.25u; y13-.5flare=.1h; bulb(11,12,13); % bulb
+%%%
+penlabels(1,2,3,4,5,6,4,5,6,7,8,9,10,11,12,13); endchar;
+
+lhchar "Italic Russian letter yo (looks like e umlaut)";
+cyrchar(yo,8u#,lc_trema_height#,0);
+italcorr max(1/3x_height#*slant,x_height#*slant+.5(.2[hair#,stem#])-u#); %e
+adjust_fit(if monospace:0 else:-.35u# fi,0); full_h:=h; h:=x_height;
+% ital_e;
+pickup fine.nib; %numeric heavy_hair; heavy_hair=hround .2[hair,stem];%defined in lxpseudo
+pos0(vair,-90); pos1(heavy_hair,0); pos2(vair,90);
+pos3(curve,180); pos4(vair,270); pos5(hair,320);
+x0=rt x3l; rt x1r=hround(w-1.5u+.5heavy_hair); x2=x4=.5(w+u);
+lft x3r=hround(1.5u-.35curve); x5r=good.x(w-eps); x6=x5;
+y0=y3=y6=bar_height; y1=.5[y0,y2]; top y2r=h+oo; bot y4r=-oo;
+top y5l=vround .5bar_height; path p; p=z4{right}..z5..z6;
+filldraw stroke z0e{right}...z1e{up}...pulled_arc.e(2,3)
+ & pulled_arc.e(3,4)...{direction 1 of p}z5e;  % arc
+%the accent
+h:=x_height+acc_height; lowercase_umlaut(0,0,71,72,73,74); %2
+penlabels(0,1,2,3,4,5,6); endchar;
+
+endinput;
+%end of file

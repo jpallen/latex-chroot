@@ -1,0 +1,86 @@
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{usbib}[2006/09/14 0.2 (DNJ Els)]
+\RequirePackageWithOptions{natbib}
+
+\@ifundefined{AorE}{
+   \edef\AFRstr{\string afrikaans}
+   \DeclareRobustCommand{\AorE}[2]{%
+      \ifx\AFRstr\languagename #1\else #2\fi}
+  }{}
+
+
+\newcommand\BIBand{\textit{\&}}
+
+\@namedef{bibstyle@usmeg-a}{%
+   \bibpunct{(}{)}{;}{a}{,}{,}%
+   \gdef\BIBand{%
+      \ifinbibliography
+         \AorE{en}{and}%
+      \else
+         \ifNAT@swa
+           \AorE{en}{and}%
+         \else
+           \AorE{en}{and}%\textit{\&}%
+         \fi
+      \fi}}
+
+\@namedef{bibstyle@usmeg-n}{%
+   \bibpunct{[}{]}{;}{n}{,}{,}%
+   \gdef\BIBand{%
+      \ifinbibliography
+         \AorE{en}{and}%
+      \else
+         \AorE{en}{and}%\textit{\&}%
+      \fi}}
+
+\newcommand\bibstyle@ussagus{%
+   \bibpunct[:]{(}{)}{;}{a}{,}{,}%
+   \gdef\BIBand{\textit{\&}}}
+
+
+\setlength{\bibhang}{1em}
+
+{\@listi
+ \global\bibsep\itemsep
+ \global\advance\bibsep by\parsep}
+
+\newcommand{\citenamefont}[1]{#1}
+\newcommand{\bibnamefont}[1]{#1}
+\newcommand{\bibfnamefont}[1]{#1}
+
+
+\renewcommand\bibstyle[1]{%
+   \lowercase{\edef\tempa{#1}}%
+   \@ifundefined{bibstyle@\tempa}{\relax}
+   {\csname bibstyle@\tempa\endcsname}}
+\AtBeginDocument{\global\let\bibstyle=\@gobble}
+
+
+
+\newif\ifinbibliography
+\inbibliographyfalse
+
+\renewenvironment{thebibliography}[1]{%
+   \inbibliographytrue%
+   \bibsection%
+   \parindent\z@%
+   \bibpreamble\bibfont%
+   \list{\@biblabel{\arabic{NAT@ctr}}}{%
+      \@bibsetup{#1}%
+      \setcounter{NAT@ctr}{0}}%
+   \ifNAT@openbib
+      \renewcommand\newblock{\par}
+   \else
+      \renewcommand\newblock{\hskip .11em \@plus.33em \@minus.07em}%
+   \fi
+   \sloppy\clubpenalty4000\widowpenalty4000
+   \sfcode`\.=1000\relax
+   \let\citeN\cite \let\shortcite\cite
+   \let\citeasnoun\cite
+   }{%
+   \def\@noitemerr{%
+      \PackageWarning{natbib}
+                     {Empty `thebibliography' environment}}%
+   \endlist\vskip-\lastskip}
+
+\endinput

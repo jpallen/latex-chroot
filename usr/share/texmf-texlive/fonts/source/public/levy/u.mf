@@ -1,0 +1,105 @@
+if unknown gen_acc : readfrom("gen_acc") fi
+if unknown gen_sigma : readfrom("gen_sigma") fi
+     
+def width = 9u enddef;
+def dims = width#,x_height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+     
+def gen_letter=
+  pickup fine.nib;
+  y2+.5stem=x_height+o; x2-.5stem=hround.75u;                   %left tip
+  lft x4r=hround(x2-.5stem+.75u); y4r=.5x_height;               %left middle
+  y8r=y4r; rt x8r=hround(w-.75u);                               %right bulge
+  x6r=.5[x4r,x8r]; bot y6r=-oo;                                 %bottom
+  numeric tilt;
+  tilt:=min(2*otilt,.5);
+  filldraw stroke
+    gr_arc.e(6,7,8)(vair,stem,tilt) ;
+  filldraw stroke
+    gr_arc.e(4,5,6)(vair,.4[vair,stem],tilt) ;
+  y9+.5hair=x_height+o; x9=x8-u; pos9(hair,angle ((z8-z9) xscaled 2)+90);
+  filldraw circ_stroke z9e...{-z8'e}z8e;
+  pos2(stem,angle((z4-z2) xscaled 2)-90);
+  filldraw circ_stroke z2e...{z4'e}z4e;
+  numeric x_baryctr; x_baryctr=.5w;
+enddef;
+     
+cmchar "Lowercase upsilon";
+beginchar("u",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8,9); endchar;
+     
+if boolean barebones: picture savedpicture; endinput; fi
+     
+cmchar "Lowercase upsilon with grave";
+beginchar(oct"314",width#,acc_ht#,0);
+this_letter; grave(x_baryctr); endchar;
+     
+cmchar "Lowercase upsilon with rough breathing";
+beginchar(oct"315",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)<; endchar;
+     
+cmchar "Lowercase upsilon with smooth breathing";
+beginchar(oct"316",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)>; endchar;
+     
+cmchar "Lowercase sigma followed by upsilon with grave";
+begindoublechar(oct"317",dim_sigma);
+mid_sigma; middoublechar(width#,acc_ht#,0);
+this_letter; grave(x_baryctr); endchar;
+     
+cmchar "Lowercase upsilon with acute";
+beginchar(oct"324",width#,acc_ht#,0);
+this_letter; acute(x_baryctr); endchar;
+     
+cmchar "Lowercase upsilon with rough breathing and acute";
+beginchar(oct"325",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)<; endchar;
+     
+cmchar "Lowercase upsilon with smooth breathing and acute";
+beginchar(oct"326",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)>; endchar;
+     
+cmchar "Lowercase sigma followed by upsilon with acute";
+begindoublechar(oct"327",dim_sigma);
+mid_sigma; middoublechar(width#,acc_ht#,0);
+this_letter; acute(x_baryctr); endchar;
+     
+cmchar "Lowercase upsilon with circumflex";
+beginchar(oct"334",width#,circ_ht#,0);
+this_letter; circumflex(x_baryctr); endchar;
+     
+cmchar "Lowercase upsilon with rough breathing and circumflex";
+beginchar(oct"335",width#,Circ_ht#,0);
+this_letter; spirit_circumflex(x_baryctr)<; endchar;
+     
+cmchar "Lowercase upsilon with smooth breathing and circumflex";
+beginchar(oct"336",width#,Circ_ht#,0);
+this_letter; spirit_circumflex(x_baryctr)>; endchar;
+     
+cmchar "Lowercase sigma followed by upsilon with circumflex";
+begindoublechar(oct"337",dim_sigma);
+mid_sigma; middoublechar(width#,acc_ht#,0);
+this_letter; circumflex(x_baryctr); endchar;
+     
+cmchar "Lowercase upsilon with diaeresis";
+beginchar(oct"364",width#,circ_ht#,0);
+this_letter; diaeresis(x_baryctr); endchar;
+     
+cmchar "Lowercase upsilon with diaeresis and grave";
+beginchar(oct"365",width#,acc_ht#,0);
+this_letter; diaeresis_grave(x_baryctr); endchar;
+     
+cmchar "Lowercase upsilon with diaeresis and acute";
+beginchar(oct"366",width#,acc_ht#,0);
+this_letter; diaeresis_acute(x_baryctr); endchar;
+     
+cmchar "Lowercase upsilon with diaeresis and circumflex";
+beginchar(oct"367",width#,Circ_ht#,0);
+this_letter; diaeresis_circumflex(x_baryctr); endchar;
+     
+cmchar "Lowercase sigma followed by upsilon";
+begindoublechar(oct"025",dim_sigma);
+mid_sigma; middoublechar(dims); this_letter; endchar;
+     
+picture savedpicture;

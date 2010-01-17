@@ -1,0 +1,161 @@
+%% This file is part of the ANTOMEGA project version 0.7
+%% -----------------------------------------------------
+%% 
+%% It may be distributed under the terms of the LaTeX Project Public
+%% License, as described in lppl.txt in the base LaTeX distribution.
+%% Either version 1.0 or, at your option, any later version.
+%% Copyright (C) 2001 -- 2003 by Alexej Kryukov
+%% Information provided by Dmitry Ivanov <dimss@solutions.lv>
+%%
+%% Please report errors to: A.M. Kryukov <basileia@yandex.ru>
+
+\makeatletter
+
+\LoadOCPByName{\BalticIsoUni}{isobaltic2uni}
+\LoadOCPByName{\BalticWinUni}{winbaltic2uni}
+
+\ocplist\BalticIsoOCP=
+   \addbeforeocplist 500 \BalticIsoUni
+\nullocplist
+
+\ocplist\BalticWinOCP=
+   \addbeforeocplist 500 \BalticWinUni
+\nullocplist
+
+\ifx\l@latvian\@undefined
+   \ant@nopatterns{Latvian}
+   \adddialect\l@latvian0
+\fi
+
+% Test if Latin Extended-A lccodes/uccodes were loaded and
+% load them if necessary.
+\ifx\equal{\lccode"0100}{"0100}\else%
+   \InputIfFileExists{uni0100.def}{}%
+      {\ant@nocodes{Latvian}{Unicode}{0100--01ff}}\fi
+
+\ifx\balticrm\undefined\let\balticrm=\rmdefault\fi
+\ifx\balticsf\undefined\let\balticsf=\sfdefault\fi
+\ifx\baltictt\undefined\let\baltictt=\ttdefault\fi
+
+\ifx\balticencoding\undefined\let\balticencoding=\uniencoding\fi
+
+\def\latvian@font{\fontfamily{\balticrm}%
+   \fontencoding{\balticencoding}%
+   \selectfont%
+   \let\rmdefault=\balticrm%
+   \let\sfdefault=\balticsf%
+   \let\ttdefault=\baltictt%
+   \let\encodingdefault=\balticencoding}
+
+\def\tmp@uni{unicode}
+\def\tmp@omega{omega}
+\def\tmp@tex{tex}
+
+\def\tmp@ucs{ucs-2}
+\def\tmp@utf{utf-8}
+\def\tmp@iso{iso-8859-4}
+\def\tmp@win{cp1257}
+
+\def\eventualLvPunct{\protect\pushocplist\BasicTexOCP}
+\def\eventualLvShorthands{\protect\pushocplist\BasicBabelOCP}
+\def\eventualLvInput{\protect\pushocplist\BasicInputOCP}
+\def\eventualLvAccents{\protect\pushocplist\BasicAccentsOCP}
+
+\ifx\eventualEuOutput\undefined
+   \def\eventualEuOutput{\protect\pushocplist\LatinUniOutOCP%
+   }
+\fi
+
+\def\latvian@OCP{\protect\clearocplists%
+   \eventualLvInput%
+   \eventualLvPunct%
+   \eventualLvShorthands%
+   \eventualLvAccents%
+   \eventualEuOutput}
+
+\define@key{latvian}{input}[ucs-2]{%
+   \def\@tmpa{#1}
+   \ifx\@tmpa\tmp@utf\def\eventualLvInput{%
+      \protect\pushocplist\BasicInputUtfOCP}
+      \typeout{Option: Latvian input encoding=utf-8}
+   \else\ifx\@tmpa\tmp@iso\def\eventualLvInput{%
+      \protect\pushocplist\BalticIsoOCP}
+      \typeout{Option: Latvian input encoding=iso-8859-4}
+   \else\ifx\@tmpa\tmp@win\def\eventualLvInput{%
+      \protect\pushocplist\BalticWinOCP}
+      \typeout{Option: Latvian input encoding=windows-1257}
+   \else\def\eventualLvInput{%
+      \protect\pushocplist\BasicInputUcsOCP}
+      \typeout{Option: Latvian input encoding=ucs-2}
+   \fi\fi\fi}
+
+\define@key{latvian}{shorthands}[on]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\opt@enabled\def\eventualLvShorthands{%
+      \protect\pushocplist\BasicBabelOCP}%
+      \typeout{Option: Shorthands for Latvian text enabled}%
+   \else\def\eventualLvShorthands{}%
+      \typeout{Option: Shorthands for Latvian text disabled}%
+   \fi}
+
+\define@key{latvian}{output}[unicode]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@tex\def\eventualEuOutput{%
+      \protect\pushocplist\LatinTexOutOCP}%
+      \def\balticencoding{T1}%
+   \else\ifx\@tmpa\tmp@omega\def\eventualEuOutput{%
+      \protect\pushocplist\LatinOmegaOutOCP}%
+      \def\balticencoding{UT1}%
+   \else\def\eventualEuOutput{%
+      \protect\pushocplist\LatinUniOutOCP}%
+      \def\balticencoding{UT1}%
+   \fi\fi}
+
+\def\latviancaptions{%
+   \def\prefacename{\locallatvian{Priek^^^^0161v^^^^0101rds}}%
+   \def\refname{\locallatvian{Literat^^^^016bras saraksts}}%
+   \def\abstractname{\locallatvian{Anot^^^^0101cija}}%
+   \def\bibname{\locallatvian{Literat^^^^016bra}}%
+   \def\chaptername{\locallatvian{Noda^^^^013ca}}%
+   \def\appendixname{\locallatvian{Pielikums}}%
+   \def\contentsname{\locallatvian{Saturs}}%
+   \def\listfigurename{\locallatvian{Att^^^^0113lu saraksts}}%
+   \def\listtablename{\locallatvian{Tabulu saraksts}}%
+   \def\indexname{\locallatvian{Index}}%
+   \def\figurename{\locallatvian{Att.}}%
+   \def\tablename{\locallatvian{Tabula}}%
+   \def\partname{\locallatvian{Da^^^^013ca}}%
+   \def\enclname{\locallatvian{encl}}%
+   \def\ccname{\locallatvian{cc}}%
+   \def\headtoname{\locallatvian{To}}%
+   \def\pagename{\locallatvian{lpp.}}%
+   \def\seename{\locallatvian{sk.}}%
+   \def\alsoname{\locallatvian{sk. ar^^^^012b}}%
+   \def\proofname{\locallatvian{Pier^^^^0101d^^^^012bjums}}%
+   \def\today{\locallatvian{\number\year.\thinspace gada%
+      \space\number\day.\thinspace%
+      \ifcase\month\or%
+      janv^^^^0101r^^^^012b\or febru^^^^0101r^^^^012b\or mart^^^^0101\or%
+      apr^^^^012bl^^^^012b\or maij^^^^0101\or j^^^^016bnij^^^^0101\or%
+      j^^^^016blij^^^^0101\or august^^^^0101\or septembr^^^^012b\or%
+      oktobr^^^^012b\or novembr^^^^012b\or decembr^^^^012b\fi}}}
+
+\def\latvian@language{\protect\language=\l@latvian}
+
+\def\noextras@latvian{}
+
+\def\blockextras@latvian{%
+   \latvian@language%
+   \local@hyphenmins{latvian}{2}{2}%
+   \latviancaptions%
+   \local@marks{latvian}%
+   \latvian@OCP%
+   \latvian@font}
+
+\def\inlineextras@latvian{%
+   \latvian@language%
+   \local@hyphenmins{latvian}{2}{2}%
+   \latvian@OCP%
+   \latvian@font}
+
+\endinput

@@ -1,0 +1,137 @@
+% Mwrite -- a mechanism to write to arbitrarily many files
+%
+% This file has been written by Christopher Creutzig (ccr@mupad.de)
+% for the MuPAD documentation.  The MuPAD group and SciFace are permitted
+% to alter the contents of this file, all others may use it but must
+% rename the file to something clearly different before making any changes.
+%
+% Purpose: Write information to arbitrarily many files with names 
+%  \jobname.ext. To this end, the command \Mwrite{ext}{content} is defined.
+%  The style writes to \jobname.col, you should *not* attempt to write
+%  to one of the extensions col, dvi, tex, aux, log, ind, idx, bbl, bib
+%  or any other one your LaTeX installation uses already.  (Redefining
+%  \index to use \Mwrite{idx}{...} appears to work fine, however.)
+
+\def\filename{Mwrite}
+\def\fileversion{2.2}
+\def\filedate{1999/07/01}
+%
+\ProvidesPackage{\filename}[\filedate]
+\immediate\typeout{Package: `\filename'
+    \fileversion \space \filedate \space (ccr)}
+\RequirePackage{afterpage}
+% Sammeldatei, wird von \Mwrite beschrieben:
+\newwrite\iM@colout
+\newwrite\iM@splitout
+
+\immediate\openout\iM@colout=\jobname.col\relax%
+
+\newif\ifiM@colopen
+\iM@colopentrue
+
+%
+% Eine allgemeine Routine zum Schreiben von Text in eine Sammeldatei,
+% die anschließend wieder gesplittet wird. Aufruf: \Mwrite{ext}{Text}.
+% ext ist die Extension, die die Datei nach dem Splitten bekommen soll,
+% Text ist der in diese Datei zu schreibende Text. ext darf keinen 
+% Doppelpunkt und keinen Zeilenwechsel enthalten. Gesplittet wird am
+% Ende des LaTeX-Durchlaufs.
+\newcommand{\Mwrite}[2] {%
+% Nur, falls \iM@colout noch geoeffnet ist:
+ \ifiM@colopen
+% Zeilenenden escapen:
+        \iMescapeChar{^^J}{^^J#1:}{#1:#2}%
+        \immediate\write\iM@colout{\iMescaped}%
+ \fi
+% Sonst auch keine Warnungen. Nicht unbedingt immer richtig,
+% aber sonst kommen sehr viele Warnungen bzgl. hyp/lab
+% Vielleicht besser: Nur keine Warnungen, falls hyp/lab?
+}
+
+\newcommand{\iM@protected@Mwrite}[2] {%
+ \ifiM@colopen
+        \iMescapeChar{^^J}{^^J#1:}{#1:#2}%
+        \protected@write\iM@colout{\let\iM@therealpage\relax}{\iMescaped}%
+ \fi
+}
+
+%%
+%% Jetzt kommt ein haariger Teil.  Die unterwegs geschriebene Datei
+%% \jobname.col muß wieder zerlegt werden.  Dazu braucht die folgende Routine
+%% zum Zerlegen in n Dateien n+1 Durchläufe durch \jobname.col.  Sie liest in
+%% jedem Durchgang \jobname.sol zeilenweise ein, und sobald sie eine Zeile
+%% findet, die in eine Datei geschrieben werden soll, die noch nicht gefunden
+%% wurde, wird diese Datei geöffnet und in diesem Durchgang wird nur diese
+%% Datei geschrieben. Im letzten Durchlauf stellt sie lediglich fest, daß
+%% keine weitere Datei zu schreiben ist.
+
+% Analog zur Definition von \loop..\repeat:
+% Ja, die Syntax ist etwas quer, aber Schleifenkonstrukte aus anderen
+% Sprachelementen zusammenzubasteln, ist auch krank. ccr.
+\def\iM@repeat#1\iM@break{\def\body{#1}\iM@iterate}
+\def\iM@iterate{\body\let\next=\relax\else\let\next=\iM@iterate\fi\next}
+\let\iM@break=\fi
+
+% Aus dem \TeX-Buch:
+\newif\if@iM@member
+\def\iM@ismember#1\of#2\relax{\@iM@memberfalse\def\given{#1}%
+  \def\\##1{\def\next{##1}\ifx\next\given\@iM@membertrue\fi}#2}
+
+
+\def\iM@splitcolline#1{%
+  % Am ":" trennen, wobei wir hier im Verbatim-Modus aufgerufen werden:
+  \def\iM@split@colline##1:##2\to##3##4{%
+    \def##3{##1}%
+    \def##4{##2}%
+    }%
+  \expandafter\iM@split@colline#1\to\temp@a\temp@b%
+  % erster Fall:  Noch keine Datei geöffnet
+  \ifx\iM@curout\relax
+  % Haben wir diesen Dateityp schon beschrieben?
+    \expandafter\expandafter\expandafter\iM@ismember\expandafter\temp@a%
+      \expandafter\of\the\iM@tok\relax%
+    \relax
+    \if@iM@member\else
+      \xdef\iM@curout{\temp@a}%
+      \global\iM@tok\expandafter\expandafter\expandafter{\expandafter\the%
+        \expandafter\iM@tok\expandafter\\\expandafter{\temp@a}}%
+      \message{\jobname.\temp@a }
+      \immediate\openout\iM@splitout=\jobname.\temp@a
+      \immediate\write\iM@splitout{\temp@b}%
+    \fi
+  % zweiter Fall: Datei geöffnet
+  \else
+    \ifx\iM@curout\temp@a
+      \immediate\write\iM@splitout{\temp@b}%
+    \fi
+  \fi
+}
+
+\def\iM@splitcol{%
+  {
+    \clearpage\relax%
+    \global\iM@tok{}%
+    \let\\=\relax%
+    \def\verbatim@processline{%
+      \iM@splitcolline{\the\verbatim@line}%
+      }%
+    \def\verbatim@startline{%
+      \verbatim@line{}%
+      \catcode`\ =12%
+      }%
+    \let\verbatim@finish\relax%
+    \immediate\write16{}% neue Zeile...
+    \message{Mhelp.sty: Splitting \jobname.col: }%
+    \def\verbatim@font{}% Do not make <, > etc. special
+    \iM@repeat%
+    \global\let\iM@curout=\relax%
+    \verbatiminput{\jobname.col}%
+    \ifx\iM@curout\relax\iM@break%
+    \immediate\write16{done splitting.}%
+    }}
+
+\AtEndDocument{%
+ \afterpage{\closeout\iM@colout%
+ \iM@colopenfalse%
+ \iM@splitcol}% \afterpage, damit \iM@colout geschrieben ist.
+}

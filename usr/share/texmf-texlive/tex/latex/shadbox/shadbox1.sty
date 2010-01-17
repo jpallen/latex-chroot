@@ -1,0 +1,71 @@
+%  shadbox1.sty
+%
+%    17 Mar 1996
+%    Glazkov D.A.
+%    e-mail: glazkov@sci.lpi.msk.su
+%
+%    117924 Moscow, Leninsky Prosp. 53
+%    P.N.Lebedev Physical Institute of
+%    Russian Academy of Sciences
+%             RUSSIA
+%
+%
+%
+%     The goal of this command is to darken the background of any box -
+%     text, figure, table etc. In the contrast to PostScript drivers,
+%     DVIWIN etc. there is not used any driver-specific properties, but
+%     standard Plain(La) TeX. Small black squares is places in the area
+%     of the box. The dimension of black square (length \deltablack) may be
+%     set by any means (\setlength). But it's reasonable to choose 
+%     this dimension little greater than dimension of point of the
+%     output printer. By default it is equal to 0.3pt, that is suitable
+%     for the printer of 300 dpi.
+%
+%     The degree of darkness is regulated by means of change the distance
+%     between small black squares. In this style squares are placed in the
+%     "chess" order - the result is better than those in the style 
+%     "shadbox.sty".
+%
+%     The retribution for driver-independence is: the less squares and
+%     nearer to each other, the greater the size of output DVI-file (and
+%     grows quickly). One must experiment to find balance between quality
+%     of shadow and size of output file.
+%
+%
+%
+%       You may change this code freely. But please inform me if you use
+%       or improve these commands.
+%
+%
+%
+%     Usage:
+%
+%	\shadbox{x}{abc}
+%
+%            x   - ratio showing how many times the distance between squares
+%                  greater than their size (may be only >1). 1 corresponds
+%                  to black darkness, 2 corresponds to 50% darkness.
+%
+%            abc - the box, which must be darken
+%
+%
+\newdimen\deltablack
+\deltablack=0.3pt
+\def\shadbox#1#2{%
+\newdimen\delt \delt=#1\deltablack
+\setbox2=\hbox{#2}
+%
+\setbox3=\hbox{\vrule width\deltablack height\deltablack depth0pt}
+\wd3=\delt \ht3=2\delt
+\setbox4=\vbox to\ht2{\leaders\copy3\vfil\hrule width 0pt
+  height-\dp2 depth\dp2}
+\setbox3=\hbox{\hbox{}\raise\delt\hbox{\vrule width\deltablack
+	      height\deltablack depth0pt}}
+\wd3=\delt \ht3=2\delt \dp3=0pt
+\setbox6=\vbox to\ht2{\leaders\copy3\vfil\hrule width 0pt
+  height-\dp2 depth\dp2}
+\setbox7=\hbox{\box4\box6}
+\setbox5=\hbox to\wd2{\leaders\copy7\hfil}
+\wd5=0pt \ht5=0pt \dp5=0pt
+\leavevmode\box5\box2%
+}

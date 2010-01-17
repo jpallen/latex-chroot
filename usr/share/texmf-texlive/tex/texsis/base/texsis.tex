@@ -1,0 +1,110 @@
+%% file: texsis.tex - TeX macros for Physicists - TeXsis version 2.18
+%% @(#) $Id: texsis.tex,v 18.1 2001/04/06 22:52:02 myers Exp $
+%======================================================================*
+% TeXsis - TeX Macros for Physicists   -- by Eric Myers and Frank E. Paige
+%
+%     This is version 2.18 of TeXsis, a collection of TeX macros
+%  for physicists (and anyone else who finds them useful).
+%
+%     The source code for this format is contained in this file and
+% in the files TXS*.tex read by it.  The documentation is contained
+% in the files TXS*.doc.  To produce a printed version of the
+% documentation, run TeXsis on TXSdoc.doc (or run Manual.tex through
+% plain tex).
+%
+% You can always get the latest version of TeXsis from
+%               ftp://ftp.texsis.org/texsis
+%
+% Eric Myers,  Department of Physics, University of Michigan, Ann Arbor
+% Frank Paige, Physics Department, Brookhaven National Laboratory
+% ----------
+% (C) Copyright 1988-2001 by Eric Myers and Frank E. Paige.
+% This file is a part of TeXsis.  Distribution and/or modifications
+% are allowed under the terms of the LaTeX Project Public License (LPPL).
+% See the file COPYING or ftp://ftp.texsis.org/texsis/LPPL
+% THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+% IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+% WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+%======================================================================*
+%  This is the master file, which brings together all of the components
+%  of TeXsis.  They should all be in the same directory.  This master file
+%  can be used to generate TeXsis as a pre-loaded format using initex:
+%       initex texsis              (or initex &plain texsis)
+%  followed by "\dump".  See The TeXbook for more on INITEX and \dump.
+%
+%  First check to see if the PLAIN format is pre-loaded.  
+%  If \plainoutput is undefined then it is not, so read in plain.tex.
+%
+\ifx\plainoutput\undefined\input plain.tex\fi
+
+%---------------------------------*
+\def\Input #1 {\def\filename{#1}\input #1}      % \Input someday...?
+\def\TeXsis{\TeX sis}%                          % the TeXsis logo
+
+%---------------------------------*
+%  Fonts: TXSfonts contains the fonts which (almost) all TeX
+%  installations should have, but there may be some changes necessary
+%  for your own instalation.  It's not a good idea to just replace these
+%  though, because there is other info there too.  Read the comments in
+%  the file TXSfonts for further info. 
+%
+\input TXSfonts         % 12, 10, 7, 5, 14, 16 pt fonts, etc...
+
+%---------------------------------*
+% Macros: different "packages" are kept in separate files
+% 
+\input TXSmacs          % main macros common to all components
+\input TXSinit          % initialization stuff and some basic macros
+\input TXShead          % running headlines and footlines
+\input TXSeqns          % equation numbering 
+\input TXSprns          % automatic parentheses sizing and balancing
+\input TXSrefs          % references and citations
+\input TXSsects         % chapter and section divisions
+\input TXStags          % tags for ref and eqn numbers, \label-ing
+\input TXStitle         % title page macros for physics papers
+\input TXSenvmt         % center and flush environments, etc..
+\input TXSfmts          % document layouts, \paper, \preprint, etc
+\input TXSfigs          % figure, tables, lists of figures
+\input TXSruled         % ruled tables
+\input TXSdcol          % double column format
+\input TXSletr          % letter format
+\input TXSmemo          % memos and referee reports
+\input TXSconts         % table of contents macros
+\input TXSsymb          % extended math symbols for physics
+
+%---------------------------------*
+%       Patches and Changes: The two files named below will be read 
+% AT RUN TIME by \texsis, if they exist.  See the file TXSinit.tex 
+% for more info.
+%
+\def\TeXsisLib{}% use this to specify an alternate path to where code is kept
+\def\TXSpatches{\TeXsisLib TXSpatch}%       % global run-time patches
+\def\TXSmods{TXSmods}%                      % local or personal modifications
+
+%---------------------------------*
+%       Site dependent info:  See if there is a site info file out
+% there called TXSsite.tex.  If so, read it in.  This happens only once 
+% when running INITEX to create the format file texsis.fmt.
+
+\LoadSiteFile
+
+%---------------------------------*
+\pageno = 1                             % start on page 1
+\tenpoint                               % as in Plain TeX
+\singlespaced                           % default until \texsis
+
+\def\fmtname{TeXsis}\def\fmtversion{2.18}% 
+\def\revdate{21 April 2001}%   
+
+\everyjob={% This stuff is done every job...
+  \emsg{\fmtname\space version \fmtversion\space (\revdate) format preloaded.}%
+  \SetDate                              % set \adate and \edate
+  \ReadPatches                          % read patch file, if it exists
+  \ReadAUX                              % read .aux file, if it exists
+  \let\filename=\jobname                % for \Input, for starters
+  \colwidth=\hsize                      % default column width
+  }
+\ATlock                                 % lock @ macros
+\emsg{\fmtname\space version \fmtversion\space (\revdate) loaded.}%
+
+%%>>> EOF texsis.tex <<<

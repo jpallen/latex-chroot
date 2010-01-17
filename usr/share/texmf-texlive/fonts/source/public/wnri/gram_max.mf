@@ -1,0 +1,552 @@
+%
+% Washington Romanized Indic accent driver
+%
+
+% grmax
+grmax:=1; % when |grmax| is known, this file has been input
+
+numeric xxxpr; xxxpr:=0;
+
+pen penpixel; penpixel = pensquare;
+
+% Grave_accent is called with suffix, dummy_suffix e.g.
+%               Grave_accent(2,q)
+% the accent is centered above 'suffix' 1 to 1.5 dot_sizes higher
+def Grave_accent (suffix $,@) =
+if serifs: pickup crisp.nib; 
+ x@_1+1.5curve=x$; x@_2=x$+1.5curve;
+ if y$ < .9cap_height: y@_1=y$+if hefty: 1.5 fi dot_size+.5bar_height; y@_2=y$+if hefty: 1.5 fi dot_size;
+ else: y@_1=y$+if hefty: 1.2 else: .8 fi dot_size+.4bar_height; y@_2=y$+if hefty: 1.2 else: .8 fi dot_size; fi
+ numeric theta; theta=angle(z@_2-z@_1)+90;
+ pos@_1(stem,theta); pos@_2(hair,theta);
+ filldraw circ_stroke z@_1e--z@_2e;  % diagonal
+else: pickup fine.nib; pos@_1(stem,0); pos@_2(vair,0);
+ x@_1l=x$-1.5u; x@_2r=x$+1.5u;
+ y@_1=y$+1.5dot_size+2.5u; y@_2=y$+1.5dot_size;
+ filldraw stroke z@_1e--z@_2e; fi  % diagonal
+penlabels(@_1,@_2); enddef;
+
+% Acute_accent is called with suffix, and dummy_suffix
+% as in the Grave_accent call
+def Acute_accent (suffix $,@) =
+if serifs: pickup crisp.nib; x@_1=x$+1.5curve; x@_2=x$-1.5curve;
+ if y$ < .9cap_height: y@_1=y$+ if hefty: 1.5 fi dot_size+.5bar_height;  y@_2=y$+ if hefty: 1.5 fi dot_size;
+ else: y@_1=y$+if hefty: 1.2 else: .8 fi dot_size+.4bar_height;  y@_2=y$+if hefty: 1.2 else: .8 fi dot_size; fi
+% y@_2=y$+dot_size;
+ numeric theta; theta=angle(z@_2-z@_1)+90;
+ pos@_1(stem,theta); pos@_2(hair,theta);
+ filldraw circ_stroke z@_1e--z@_2e;  % diagonal
+else: pickup fine.nib; pos@_1(stem,0); pos@_2(vair,0);
+ x@_1r=x$+1.5u; x@_2l=x$-1.5u;
+ y@_1=y$+1.5dot_size+2.5u; y@_2=y$+1.5dot_size;
+ filldraw stroke z@_1e--z@_2e; fi  % diagonal
+penlabels(@_1,@_2); enddef;
+
+numeric barwidth; barwidth=vround .2[vair,stem];
+
+def baracute (suffix $,@) =
+if serifs: pickup crisp.nib; x@_1=x$+1.5curve; x@_2=x$-1.5curve;
+ if y$ < .9cap_height: y@_1=2curve+y$+ if hefty: 1.5 fi dot_size+.5bar_height;  y@_2=2curve+y$+ if hefty: 1.5 fi dot_size;
+ else: y@_1=2curve+y$+ if hefty: 1.5 fi dot_size+.4bar_height;  y@_2=2curve+y$+ if hefty: 1.5 fi dot_size; fi
+ numeric theta; theta=angle(z@_2-z@_1)+90;
+ pos@_1(stem,theta); pos@_2(hair,theta);
+ filldraw circ_stroke z@_1e--z@_2e;  % diagonal
+else: pickup fine.nib; pos@_1(stem,0); pos@_2(vair,0);
+ x@_1r=x$+1.5u; x@_2l=x$-1.5u;
+ y@_1=2curve+y$+1.5dot_size+2.5u; y@_2=2curve+y$+1.5dot_size;
+ filldraw stroke z@_1e--z@_2e; fi  % diagonal
+pos@_99(barwidth,90); pos@_100(barwidth,90);
+bot y@_99l=bot y@_100l=y$+dot_size; x@_99=x$-.21body_height; x@_100=x$+.21body_height;
+filldraw stroke z@_99e--z@_100e;
+penlabels(@_1,@_2,@_99,@_100); enddef;
+
+% bar_accent
+% called with left-coord,right coord, dummy coord,accent_bar_height
+% e.g. bar_accent(3,6,q,.5(asc_height-bar_height))
+% bar extends from x_left to x_right at height_h
+def bar_accent (suffix $,$$,@)(expr bH) =
+numeric macron_breadth#; macron_breadth#=.2[vair#,stem#];
+numeric macron_breadth; macron_breadth:=Vround .2[vair,stem];
+pickup if serifs: crisp.nib else: fine.nib fi;
+pos@1(macron_breadth,90); pos@2(macron_breadth,90);
+top y@1r=top y@2r=bH+o; lft x@1=x$; rt x@2=x$$;
+filldraw stroke z@1e--z@2e;  % bar
+penlabels(@1,@2); enddef;
+
+% macron, fixed width macron, centered over $ and .4[x_height,asc_height] above
+% suffix passed should be a point at top center of main portion of char
+def Macron (suffix $,@) =
+numeric macron_breadth#; macron_breadth#=.2[vair#,stem#];
+numeric macron_breadth; macron_breadth:=Vround .2[vair,stem];
+pickup if serifs: crisp.nib else: fine.nib fi;
+pos@1(macron_breadth,90); pos@2(macron_breadth,90);
+y@1=y@2=y$+.4[x_height,asc_height]-x_height;
+if hefty: lft x@1=x$-.35w ; rt x@2=x$+.35w ;
+  else:  lft x@1=x$-3.25u; rt x@2=x$+3.25u; fi
+filldraw stroke z@1e--z@2e;  % bar
+penlabels(@1,@2); enddef;
+
+% cross for l     call with suffix of crossing point on stem
+def cross_for_l (suffix $,@) =
+pickup crisp.nib; x@_2-x@_1=max(4u,2.8u+stem); .5[x@_1,x@_2]=x$;
+y@_1-.75bar=y$-.75dot_size; y@_2+.75bar=y$+.75dot_size;
+numeric theta; theta=angle(z@_2-z@_1)+90;
+pos@_1(1.5bar,theta); pos@_2(1.5bar,theta);
+filldraw stroke z@_1e--z@_2e;  % diagonal
+penlabels(1,2); enddef;
+
+% longer cross for l
+def cross_for_lz (suffix $,@) =
+pickup crisp.nib; x@_2-x@_1=max(6u,4.2u+stem); .5[x@_1,x@_2]=x$;
+y@_1-.75bar=y$-.75dot_size; y@_2+.75bar=y$+.75dot_size;
+numeric theta; theta=angle(z@_2-z@_1)+90;
+pos@_1(1.5bar,theta); pos@_2(1.5bar,theta);
+filldraw stroke z@_1e--z@_2e;  % diagonal
+penlabels(1,2); enddef;
+
+% dot_sharp_values used by underdot
+def dot_sharp_values =
+numeric dot_diam#; dot_diam#=max(dot_size#,cap_curve#);
+numeric dot_top#; dot_top#=min(asc_height#,10/7x_height#+.5dot_diam#);
+enddef;
+
+% underdot draws a dot one dot-diameter below the baseline of an x-coordinate
+% specified in the call to underdot; the x-coordinate will ordinarily be
+% the low-center point of the character shape.  The suffix only of the
+% x-coordinate is passed, along with a dummy suffix to use for point
+% plotting, e.g.
+%               underdot(6,q); 
+def underdot (suffix $,@) =
+dot_sharp_values;
+define_whole_blacker_pixels(dot_diam);
+pickup tiny.nib; pos@_1(dot_diam,0); pos@_2(dot_diam,90);
+x@_1=x@_2=x$; top y@_2r=-dot_diam;
+y@_1=.5[y@_2l,y@_2r];  
+dot(@_1,@_2);  % dot
+penlabels(@_1,@_2); enddef;
+
+%    overdot
+% calling specification is as in underdot
+def overdot (suffix $,@) =
+dot_sharp_values;
+define_whole_blacker_pixels(dot_diam);
+pickup tiny.nib; pos@_1(dot_diam,0); pos@_2(dot_diam,90);
+x@_1=x@_2=x$; top y@_2r=2dot_diam+y$;
+y@_1=.5[y@_2l,y@_2r];  
+dot(@_1,@_2);  % dot
+penlabels(@_1,@_2); enddef;
+
+% umlaut
+% calling specification is as in underdot
+def umlaut (suffix $,@) =
+dot_sharp_values;
+define_whole_blacker_pixels(dot_diam);
+pickup tiny.nib; pos@_1(dot_diam,0); pos@_2(dot_diam,90);
+x@_1=x@_2=x$-1.25dot_diam; top y@_2r=2dot_diam+y$;
+y@_1=.5[y@_2l,y@_2r];  
+dot(@_1,@_2);  % dot
+pos@_3(dot_diam,0); pos@_4(dot_diam,90);
+x@_3=x@_4=x$+1.25dot_diam; top y@_4r=2dot_diam+y$;
+y@_3=.5[y@_4l,y@_4r];  
+dot(@_3,@_4);  % dot
+enddef;
+% calling specification is as in underdot
+def underumlaut (suffix $,@) =
+dot_sharp_values;
+define_whole_blacker_pixels(dot_diam);
+pickup tiny.nib; pos@_1(dot_diam,0); pos@_2(dot_diam,90);
+x@_1=x@_2=x$-1.75u; top y@_2r=y$-dot_diam;
+y@_1=.5[y@_2l,y@_2r];  
+dot(@_1,@_2);  % dot
+pos@_3(dot_diam,0); pos@_4(dot_diam,90);
+x@_3=x@_4=x$+1.75u; top y@_4r=y$-dot_diam;
+y@_3=.5[y@_4l,y@_4r];  
+dot(@_3,@_4);  % dot
+enddef;
+
+% glottal puts a comma/apostrophe with dot at specified location
+% called with suffix above spot to place glottal
+%               glottal(2);
+def glottal(suffix $)=
+x95=x$;
+if hefty: y95=y$+2dot_size+comma_depth else: y95=y$+1.25dot_size+.75comma_depth fi;
+if hefty: comma(95,hacc,dot_size,.28u,comma_depth);  % large comma
+else: comma(95,hacc,.75dot_size,.25u,.75comma_depth); fi  % comma with increased jut
+enddef;
+
+% glotchek draws glottal and hachek above the specified x coordinate supplied
+% as a suffix
+def glotchek (suffix @) =
+if serifs:
+ pickup crisp.nib; pos@_2'(.5[vair,curve],90); top y@_2'r=h;
+ pos@_2(.5[vair,curve],90); x@_2=.5w;
+ x@_1=w-x@_3=good.x 2.25u; top y@_1=top y@_3=h-.25dot_size; y@_1-y@_2=.5(y@_2'-x_height-.25dot_size);
+ pos@_1(hair,angle(z@_2-z@_1)+90); pos@_3(hair,angle(z@_3-z@_2)+90);
+ filldraw stroke z@_1e--z@_2e--z@_3e;  % diagonals
+else: 
+ pickup fine.nib; pos@_1(vair,0); pos@_3(vair,0); x@_1=w-x@_3;
+ pos@_2(stem,0); bot y@_2=vround(1/12[x_height,vround min(asc_height,2x_height)]+o)-.25dot_size; x@_2=.5w;
+ top y@_1=top y@_3=h+o-.25dot_size; lft x@_1l=hround(rt x@_2r-3.25u-.5vair);
+ z@_0=whatever[z@_1r,z@_2r]=whatever[z@_2l,z@_3l];
+ y@_4l=y@_4r=y@_2; x@_4l=good.x .2[x@_2l,x@_2]; x@_4r=w-x@_4l;
+ filldraw z@_4l--z@_1l--z@_1r--z@_0--z@_3l--z@_3r--z@_4r--cycle; fi  % diagonals
+x95-.5dot_size=hround(x@_2-.5dot_size); % y95=y@_2+.75comma_depth+.5dot_size;
+y95=body_height+dot_size;
+if hefty: comma(95,hacc,dot_size,.28u,.85comma_depth);  % large comma
+else: comma(95,hacc,.75dot_size,.25u,.75comma_depth); fi  % comma with increased jut
+penlabels(0,1,2,3,4); enddef;
+
+%   hachek accent macro, give suffix of point above which to center it
+def hachekit (suffix $,@) =
+if serifs:
+ pickup crisp.nib; pos@_2'(.5[vair,curve],90); bot y@_2'=y$+dot_size;
+ pos@_2(.5[vair,curve],90); x@_2=x$; y@_2=y@_2';
+x@_1+.21body_height=x@_2=x@_3-.21body_height;
+y@_1=y@_3=y@_2+.21body_height;
+%  x@_1=w-x@_3=good.x 2.25u; top y@_1=top y@_3=h; y@_1-y@_2=.5(y@_2'-x_height);
+ pos@_1(hair,angle(z@_2-z@_1)+90); pos@_3(hair,angle(z@_3-z@_2)+90);
+ filldraw stroke z@_1e--z@_2e--z@_3e;  % diagonals
+% show z@_1,z@_2,z@_3,z@_1r,z@_2r,z@_3r,z@_1l,z@_2l,z@_3l;
+else: 
+ pickup fine.nib; pos@_1(vair,0); pos@_3(vair,0); x@_1+.21body_height=x$=x@_2=x@_3-.21body_height;
+ pos@_2(stem,0); bot y@_2=y$+dot_size;
+ top y@_1=top y@_3=top y@_2+.21body_height; % lft x@_1l=hround(rt x@_2r-3.25u-.5vair);
+ z@_0=whatever[z@_1r,z@_2r]=whatever[z@_2l,z@_3l];
+ y@_4l=y@_4r=y@_2; x@_4l=good.x .2[x@_2l,x@_2]; x@_4r=2x$-x@_4l;
+ filldraw z@_4l--z@_1l--z@_1r--z@_0--z@_3l--z@_3r--z@_4r--cycle; fi  % diagonals
+%  show z@_0,z@_1,z@_2,z@_3,z@_1r,z@_2r,z@_3r,z@_1l,z@_2l,z@_3l;
+penlabels(0,1,2,3,4); enddef;
+
+def hatme (suffix $,@) =
+if serifs:
+ pickup crisp.nib; pos@_2'(.5[vair,curve],90); top y@_2'=y$+ if hefty: 2 else: 1.5 fi dot_size+.21body_height;
+ pos@_2(.5[vair,curve],90); x@_2=x$; y@_2=y@_2';
+ x@_1+.21body_height=x@_2=x@_3-.21body_height;
+ y@_1=y@_3=y@_2-.21body_height;
+ pos@_1(hair,angle(z@_2-z@_1)+90); pos@_3(hair,angle(z@_3-z@_2)+90);
+ filldraw stroke z@_1e--z@_2e--z@_3e;  % diagonals
+else: 
+ pickup fine.nib; pos@_1(vair,0); pos@_3(vair,0); x@_1+.21body_height=x$=x@_2=x@_3-.21body_height;
+ pos@_2(stem,0); top y@_2=y$+dot_size+.21body_height;
+ y@_1=y@_3=y@_2-.21body_height; 
+ z@_0=whatever[z@_1r,z@_2r]=whatever[z@_2l,z@_3l];
+ y@_4l=y@_4r=y@_2; x@_4l=good.x .2[x@_2l,x@_2]; x@_4r=2x$-x@_4l;
+ filldraw z@_4l--z@_1l--z@_1r--z@_0--z@_3l--z@_3r--z@_4r--cycle; fi  % diagonals
+penlabels(0,1,2,3,4); enddef;
+
+%  glotchek     a hachek with glottal accent
+def glotchekit (suffix $,@) =
+if serifs:
+ pickup crisp.nib; pos@_2'(.5[vair,curve],90); bot y@_2'=y$+.75dot_size;
+ pos@_2(.5[vair,curve],90); x@_2=x$; y@_2=y@_2';
+x@_1+3u=x@_2=x@_3-3u;
+y@_1=y@_3=y@_2+3u;
+ pos@_1(hair,angle(z@_2-z@_1)+90); pos@_3(hair,angle(z@_3-z@_2)+90);
+ filldraw stroke z@_1e--z@_2e--z@_3e;  % diagonals
+else: 
+ pickup fine.nib; pos@_1(vair,0); pos@_3(vair,0); x@_1+3u=x$=x@_2=x@_3-3u;
+ pos@_2(stem,0); bot y@_2=y$+.75dot_size;
+ top y@_1=top y@_3=top y@_2+3u; % lft x@_1l=hround(rt x@_2r-3.25u-.5vair);
+ z@_0=whatever[z@_1r,z@_2r]=whatever[z@_2l,z@_3l];
+ y@_4l=y@_4r=y@_2; x@_4l=good.x .2[x@_2l,x@_2]; x@_4r=2x$-x@_4l;
+ filldraw z@_4l--z@_1l--z@_1r--z@_0--z@_3l--z@_3r--z@_4r--cycle; fi  % diagonals
+x95-.5dot_size=hround(x@_2-.5dot_size);  y95=y@_2+.75comma_depth+dot_size;
+% y95=top y@_2 + dot_size;
+if hefty: comma(95,hacc,dot_size,.28u,.85comma_depth);  % large comma
+else: comma(95,hacc,.75dot_size,.25u,.75comma_depth); fi  % comma with increased jut
+enddef;
+
+
+def cedilla (suffix $,@)(expr cD_shift) =
+save @;
+forsuffixes $$=@,@_: transform $$; endfor
+if serifs: pickup crisp.nib; pos@_1(stem,0); pos@_2(stem,0);
+ pos@_3(vair,90); pos@_4(stem,0); pos@_5(1.1vair,-90); pos@_6(vair,-180);
+ x@_1=x@_2=x$; z@_3l=z@_2l; x@_4=x@_2+1.5u; x@_5=x@_3-1.5u;
+% bot y@_1=-o;
+ top y@_1=0;
+ bot y@_2=-vround 2/7(.875desc_depth)-o; 
+ y@_4=.5[y@_3,y@_5]; bot y@_5=-.875desc_depth-o;
+ @ = identity shifted(0,cD_shift);
+ for n = 1,2,3,4,5: forsuffixes e = l,,r: 
+  z@[n]e = z@_[n]e transformed @; endfor endfor
+ filldraw stroke z@1e--z@2e;  % stem
+ filldraw stroke z@3e{right}...z@4e{down}...{left}z@5e;  % hook
+else: pickup fine.nib; pos@_1(vair,0); top y@_1=-o-2;
+ pos@_2(.5[vair,stem],0); bot y@_2=-.875desc_depth-o; x@_1=x$; x@_2=x@_1-1.25u;
+ @ = identity shifted(0,cD_shift);
+ for n = 1,2: forsuffixes e = l,,r: 
+  z@[n]e = z@_[n]e transformed @; endfor endfor
+ filldraw stroke z@1e--z@2e; fi  % diagonal
+% filldraw stroke z$e--z@1e;   % fill gap
+penlabels(@1,@2,@3,@4,@5); enddef;
+
+def polhook (suffix $,@)(expr cD_shift) =
+save @;
+forsuffixes $$=@,@_: transform $$; endfor
+if serifs: pickup crisp.nib; pos@_1(stem,0); pos@_2(stem,0);
+ pos@_3(vair,-90); pos@_4(stem,0); pos@_5(vair,90);
+ x@_1=x@_2=x$; z@_3r=z@_2r; x@_4=x@_2-1.5u; x@_5=x@_3+.5u;
+ top y@_1=0; bot y@_2=-vround 2/7(.875desc_depth)-o;  % bot y@_1=-o;
+ y@_4=.5[y@_3,y@_5]; bot y@_5=-.875desc_depth-o;
+ @ = identity shifted(0,cD_shift);
+ for n = 1,2,3,4,5: forsuffixes e = l,,r: 
+  z@[n]e = z@_[n]e transformed @; endfor endfor
+x@6=x@5+u+.25dot_size; y@6=y@5+.25dot_size;
+pos@6(hair,180);
+ filldraw stroke z@1e--z@2e;  % stem
+ filldraw stroke z@3e{left}...z@4e{down}...{right}z@5e...z@6e;  % hook
+else: pickup fine.nib; pos@_1(vair,0); top y@_1=-o-2;
+ pos@_2(.5[vair,stem],0); bot y@_2=-.875desc_depth-o; x@_1=x$; x@_2=x@_1+1.25u;
+ @ = identity shifted(0,cD_shift);
+ for n = 1,2: forsuffixes e = l,,r: 
+  z@[n]e = z@_[n]e transformed @; endfor endfor
+ filldraw stroke z@1e--z@2e; fi  % diagonal
+% filldraw stroke z$e--z@1e;   % fill gap
+penlabels(@1,@2,@3,@4,@5); enddef;
+
+% controls for font size changing
+
+%%% the following have to be put, suitably modified into parameter files
+%%% string myfontstyle, mynormalsize, mysmallsize;
+%%%
+%%% myfontstyle := "CMR";
+%%% mynormalsize := "10";
+%%% mysmallsize := "8";
+
+def generate suffix t=enddef; %ignore generate on subsequent read-ins
+			      %of parameter files
+
+def shrinksize = scantokens ("input " & myfontstyle & mysmallsize ); 
+     mode_setup; font_setup; enddef;
+
+def resumesize = scantokens ("input " & myfontstyle & mynormalsize ); 
+      mode_setup; font_setup; enddef;
+
+%   resumesize;
+
+normala_ht# := asc_height#;
+
+
+% define reverse adjust fit for use with rotated characters
+def r_adjust_fit(expr adjr,adjl) =
+ adjust_fit(adjl,adjr);
+enddef;
+
+def tilde_accent (suffix $,@)(expr tY_shift) =
+save @;
+forsuffixes $$=@,@_: transform $$; endfor
+if serifs: numeric theta; theta=angle(1/6(6u-vair),1/4(asc_height-x_height));
+ pickup crisp.nib; numeric mid_width; mid_width=.4[vair,stem];
+ pos@_1(vair,theta+90); pos@_2(vair,theta+90);
+ pos@_3(vair,theta+90); pos@_4(vair,theta+90);
+ z@_2-z@_1=z@_4-z@_3=(mid_width-crisp)*dir theta;
+ rt x@_4l-x$=x$-lft x@_1r=3u; top y@_4r=asc_height;
+ bot y@_1l=vround(bot y@_1l+min(2/3[x_height,asc_height],y@_3l-.25vair)-top y@_1r);
+ pair delta; ypart delta=3(y@_3l-y@_1l); delta=whatever*dir theta;
+ @ = identity shifted(0,tY_shift);
+ for n = 1,2,3,4: forsuffixes e = l,,r: 
+  z@[n]e = z@_[n]e transformed @; endfor endfor
+ filldraw z@1l..controls(z@1l+delta)and(z@3l-delta)..z@3l..z@4l
+  --z@4r..controls(z@4r-delta)and(z@2r+delta)..z@2r..z@1r--cycle;  % stroke
+else: pickup fine.nib; pos@_1(vair,180); pos@_2(vair,90);
+ pos@_3(.5[vair,slab],90); pos@_4(vair,90); pos@_5(vair,180);
+ rt x@_5l-x$=x$-lft x@_1r=3u; x@_2-x@_1=x@_3-x@_2=x@_4-x@_3=x@_5-x@_4;
+ bot y@_1=bot y@_4l=vround(.75[x_height,asc_height]-vair);
+ top y@_2r=top y@_5=asc_height; y@_3=.5[y@_2,y@_4];
+ @ = identity shifted(0,tY_shift);
+ for n = 1,2,3,4,5: forsuffixes e = l,,r: 
+  z@[n]e = z@_[n]e transformed @; endfor endfor
+ filldraw stroke z@1e{up}...z@2e{right}..z@3e..{right}z@4e...{up}z@5e; fi % stroke
+penlabels(@1,@2,@3,@4,@5); enddef;
+
+def humlaut (suffix $,@) =
+x@_3-x@_1=x@_4-x@_2=hround 3u; y@_3=y@_1;  y@_4=y@_2;
+if serifs: pickup crisp.nib; x@_3=hround(x$+2.5u); 
+ x@_2=hround(x$-2u);
+ y@_1+.5stem=h+asc_height-x_height; 
+ y@_2=max(2/3[h+asc_height-x_height,h],h+o+hair);
+% if h > .9cap_height: y@_2:=.67[y@_1,y@_2]; fi
+% above line shortens & flattens humlaut marks
+ numeric theta; theta=angle(z@_2-z@_1)+90;
+ pos@_1(stem,theta); pos@_2(hair,theta);
+ pos@_3(stem,theta); pos@_4(hair,theta);
+ filldraw circ_stroke z@_1e--z@_2e;  % left diagonal
+ filldraw circ_stroke z@_3e--z@_4e;  % right diagonal
+else: pickup fine.nib; pos@_1(stem,0); pos@_2(vair,0);
+ pos@_3(stem,0); pos@_4(vair,0);
+ % rt x@_3r=hround(w-1.5u); lft x@_4l=hround(.5w+u-.5vair);
+ x@_3=x@_4+u; x@_4=x$+1.5u;
+ top y@_1=h+asc_height-x_height;
+ bot y@_2=vround 2/3[h+asc_height-x_height,h];
+ filldraw stroke z@_1e--z@_2e;  % left diagonal
+ filldraw stroke z@_3e--z@_4e; fi  % right diagonal
+% penlabels(1,2,3,4); 
+enddef;
+
+% set output character height after a beginchar has been issued
+def sethtto(expr newht) =
+charht:=newht / hppp;
+enddef;
+
+def setwdto(expr newwd) =
+charwd:=newwd / hppp;
+enddef;
+
+def addht(expr inc_ht) =
+charht:= charht + (inc_ht / hppp);
+enddef;
+
+def addwd(expr inc_wd) =
+charwd:= charwd + (inc_wd / hppp);
+enddef;
+
+% flip rotates 180 degrees about the centerpoint whose suffix is passed
+def flip (suffix $) =
+picture V; transform t;
+y$:=y$*aspect_ratio;
+t=identity rotatedaround(z$,180) shifted(2y$*slant,0);
+V=currentpicture transformed t; currentpicture:=V;
+enddef;
+
+def invbreve (suffix $,@) =
+pickup crisp.nib; pos@_1(vair,-180); pos@_3(vair,0);
+bot y@_1=bot y@_3=y$+dot_size; lft x@_1r=hround(x$-2curve-.5vair); rt x@_3r=hround(x$+2curve+.5vair);
+numeric mid_thickness; mid_thickness=vround 1/3[vair,stem];
+pos@_2(mid_thickness,-90); x@_2=x$;
+y@_2r= y@_1+2curve;
+filldraw stroke z@_1e{up}...z@_2e{right}...{down}z@_3e;  % stroke
+penlabels(@_1,@_2,@_3); enddef;
+
+def ringdot (suffix $,@) =
+numeric rdcirc_hair,rdcirc_vair;
+rdcirc_hair=hround min(hair,u+.5); rdcirc_vair=vround min(vair,(asc_height-x_height)/6+.5);
+penpos@_1(rdcirc_vair,90); penpos@_3(rdcirc_vair,-90);
+penpos@_2(rdcirc_hair,180); penpos@_4(rdcirc_hair,0);
+x@_2r=hround(x$-.105body_height-.5rdcirc_hair);
+x@_4r=hround(x$+.105body_height+.5rdcirc_hair); x@_1=x@_3=x$; 
+if y$ > bar_height: y@_1r=y$+dot_size+2rdcirc_vair+.105body_height; y@_2=y@_4=.5[y@_1,y@_3]; y@_3=y$+dot_size+rdcirc_vair;
+else: y@_1r=y$-dot_size; y@_2=y@_4=.5[y@_1,y@_3];
+  y@_3r=-d; fi
+penstroke pulled_arc.e(@_1,@_2) & pulled_arc.e(@_2,@_3)
+ & pulled_arc.e(@_3,@_4) & pulled_arc.e(@_4,@_1) & cycle;  % bowl
+enddef;
+numeric shrinkfactor; shrinkfactor=1;
+
+def slantswitch =
+slant:=-slant;
+currenttransform:= identity slanted slant yscaled aspect_ratio scaled granularity;
+enddef; %reverse slant so that mirror() will work
+
+def mirror (expr axis) =
+x._qa=x._qb=axis; y._qa=h; y._qb=0; picture V; transform MIRROR;
+MIRROR=identity reflectedabout(z._qa,z._qb); 
+V=currentpicture transformed MIRROR; currentpicture:=V;
+slantswitch; %restore original slant
+enddef;
+
+
+def l_tail(suffix $,@) =
+x@_22=x$; x@_22r=x$r; x@_22l=x$l; bot y@_22=-1/3d; y@_22r=y@_22l=y@_22;
+filldraw stroke z$e--z@_22e;
+if serifs:  pickup tiny.nib; pos@_55(vair,-90); pos@_66(hair,-180); pos@_77(flare,-180);
+ x@_55=.5[x@_22,x@_66r]; bot y@_55r=-d-oo; y@_66-.5flare=-.88d;
+ if monospace: lft x@_66r=x$-3.5u else: z@_66r=z@_77r; rt x@_77l=floor x$-2.5u fi;
+ (x@_,y@_55r)=whatever[z@_55l,z@_22l]; x@_55r:=max(x@_,.5[x@_66r,x@_55]);
+ filldraw stroke z@_22e{down}...z@_55e{left};  bulb(@_55,@_66,@_77); % arc and bulb
+else: pickup fine.nib; pos@_22'(stem',0); z@_22'=z@_22;
+ pos@_66(.2[vair,stem'],-90); pos@_77(vair,-90);
+ lft x@_77r=hround x$-2.5u; bot y@_77r=vround 5/6(-d-oo);
+ (x@_,y@_77l)=whatever[z@_77r,(x$,h)]; x@_77l:=x@_;
+ z@_55r=z@_22'r; (x@_22'l,y@_55l)=whatever[z@_77l,z@_55r]; x@_55l=x@_22'l; y@_55=y@_55r;
+ x@_66r=.5[x@_77r,x@_55r]; x@_66l:=.5[x@_77l,x@_55l]; bot y@_66r=-d-oo;
+ filldraw stroke z@_22'e..{down}z@_55e & super_arc.e(@_55,@_66)
+  & z@_66e{left}..z@_77e; fi  % arc and terminal
+enddef;
+
+def r_tail(suffix $,@) =
+ pickup if serifs: tiny.nib else: fine.nib fi ;
+x@_22=x$; x@_22r=x$r; x@_22l=x$l; bot y@_22=-1/3d; y@_22r=y@_22l=y@_22;
+filldraw stroke z$e--z@_22e;
+if serifs:  pickup tiny.nib; pos@_55(vair,90); pos@_66(hair,0); pos@_77(flare,0);
+ x@_55=.5[x@_22,x@_66l]; bot y@_55l=-d-oo; y@_66-.5flare=-.88d;
+ if monospace: rt x@_66r=x$+3.5u else: z@_66r=z@_77r; lft x@_77l=floor x$+2.5u fi;
+% (x@_,y@_55l)=whatever[z@_55r,z@_22l]; x@_55l:=max(x@_,.5[x@_66l,x@_55]);
+ filldraw stroke z@_22e{down}...z@_55e{right};  
+z@_55'=z@_55; pos@_55'(vair,-90);
+bulb(@_55',@_66,@_77); % arc and bulb
+else: pickup fine.nib; pos@_22'(stem',0); z@_22'=z@_22;
+ pos@_66(.2[vair,stem'],90); pos@_77(vair,90);
+ rt x@_77r=hround x$+2.5u; bot y@_77l=vround 5/6(-d-oo);
+ (x@_,y@_77r)=whatever[z@_77l,(x$,h)]; x@_77r:=x@_;
+ z@_55l=z@_22'l; (x@_22'r,y@_55r)=whatever[z@_77r,z@_55l]; x@_55r=x@_22'r; y@_55=y@_55l;
+ x@_66l=.5[x@_77l,x@_55l]; x@_66r:=.5[x@_77r,x@_55r]; bot y@_66l=-d-oo;
+ filldraw stroke z@_77e..{left}z@_66e & super_arc.e(@_66,@_55)
+  & z@_55e{up}..z@_22'e; fi
+% filldraw stroke z@_22'e..{down}z@_55e & super_arc.e(@_55,@_66)
+%  & z@_66e{right}..z@_77e; fi  % arc and terminal
+penlabels(@_22,@_55,@_66,@_77);
+enddef;
+
+def oef_stroke(suffix $,$$,@,left_serif,right_serif)(expr left_jut,right_jut)=
+% pickup tiny.nib; bot y$l=-d; 
+ pickup fine.nib; bot y$l=-d; 
+ if spike: y$r:=y$l+1.5stem; y$:=.5[y$l,y$r]; fi
+ penpos@0(x$r-x$l,0); x@0l=x$l; top y@0=x_height;
+ filldraw stroke z$e--z@0e;  % stem
+% pickup fine.nib; pos@0'(x$r-x$l-(hround stem_corr)+tiny,180);
+ pos@0'(x$r-x$l,180); z@0'=z@0;
+% y@0'=y@0; lft x@0'r=tiny.lft x$l;
+ penpos@1(x@0'l-x@0'r,180); x@1=x@0'; y@1+.5vair=.5[x_height,h];
+ pos@2(vair,90); top y@2r=h+oo;
+ if serifs: x@2=.6[x@1,x$$r]; (x@,y@2r)=whatever[z@2l,z@1l];
+    x@2r:=min(x@,.5[x@2,x$$r]); pos@3(hair,0); bulb(@2,@3,$$);  % bulb
+    filldraw stroke z@0'e--z@1e & super_arc.e(@1,@2);  % arc
+    if not spike: dish_serif($,@0,left_serif,1/3,left_jut,right_serif,1/3,right_jut); fi
+  else: x@2=.6[x@1,x$$]; y@1l:=1/3[y@1l,y@2l];
+    filldraw stroke z@0'e--z@1e & super_arc.e(@1,@2)
+    & term.e(@2,$$,right,.9,4);   % arc and terminal
+  fi
+ penlabels(@0,@1,@2); enddef;
+
+def oeh_stroke(suffix $,@,@@,$$) =
+ penpos$$(x@@r-x@@l,0); x$$=x@@-u;  bot y$$=0; 
+% y@@=1/3[bar_height,x_height];
+ y@@=bar_height;
+ penpos$''(x$r-x$l,0); x$''=x$; y$''=1/8[bar_height,x_height];
+ filldraw stroke z$''e--z$e;  % thicken the lower left stem
+ penpos@0(min(rt x$r-lft x$l,thin_join)-fine,180); pickup fine.nib;
+ rt x@0l=tiny.rt x$r; y@0=y$'';
+ pos@1(vair,90); pos@@'(x@@r-x@@l+tiny,0); z@@'=z@@;
+ x@1=.5[rt x@0l,rt x@@'r]; top y@1r=x_height+oo;
+ (x@,y@1l)=whatever[z@1r,z@0l]; x@1l:=x@;
+%  filldraw stroke z@0e{up}...{right}z@1e
+%  &{{interim superness:=hein_super; super_arc.e(@1,@@')}};  % arch and right stem
+% pickup tiny.nib; filldraw stroke z@@e{down}...{-2,-1}z$$e;  % right stem
+ filldraw stroke z@0e{up}...{right}z@1e
+   & pulled_super_arc.e(@1,@@)(.5superpull) & pulled_super_arc.e(@@,$$)(.5superpull); %arch and curved left stem
+ labels(@0); penlabels(@1); enddef;
+
+def circ_coord(suffix $,$$) (expr len, ang) =
+  x$ := x$$ + (len * cosd ang);
+  y$ := y$$ - (len * aspect_ratio * cosd (ang + 90));
+enddef;
+
+let cmbulb=bulb;
+% if a cmbase bulb is very close to its takeoff point (vertically) 
+% path_l will be relatively flat at its intersection with path_r and
+% subpath(0,xpart(path_.r intersectiontimes path_.l)) of path_.r--z$$r
+% may not lie entirely within  the link contour (path_.l--z$$r{0,y$r-y$$r}...{x$r-x$$r,0}z$r--cycle)
+% this will result in a wedge from the intersectionpoint to z$$r not being filled.
+%
+% therefore we redefine
+def bulb(suffix $,$$,$$$) =
+ z$$$r=z$$r;
+ path_.l:=z$l{x$$r-x$r,0}...{0,y$$r-y$r}z$$l;
+ filldraw path_.l--z$$r{0,y$r-y$$r}...{x$r-x$$r,0}z$r--cycle; % link
+ path_.r:=z$$$l{0,y$r-y$$r}..z$$$r{0,y$$r-y$r}; % near-circle
+ filldraw path_.r{0,y$$r-y$r}..{0,y$r-y$$r}cycle; % bulb in filleverything mode
+enddef;
+
+% end of file gram_max.mf
+

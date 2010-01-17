@@ -1,0 +1,284 @@
+%% file: TXStitle.tex - Title Page Macros - TeXsis version 2.18
+%% @(#) $Id: TXStitle.tex,v 18.0 1999/07/09 17:24:29 myers Exp $
+%======================================================================*
+% Title Page Macros:                    (C) copyright 1986 by Eric Myers.
+%
+% These macros are used for creating for a document a title page which
+% includes a document code and date, title, name and address of author(s),
+% abstract, and other information.  An outline of how to make a typical
+% title page is:
+%
+%       \pubdate{May, 1986}
+%       \pubcode{11973}
+%       \titlepage
+%       \title
+%       TITLE OF PAPER, (which will be in \Tbf type)
+%       on several lines, if you want.
+%       \endtitle
+%       \author
+%       Name of Author
+%       Address of author
+%       on several lines, if you want.
+%       \endauthor
+%       \abstract
+%       text of abstract.
+%       \endabstract
+%       \endtitlepage
+%
+%  For papers with many authors it is more appropriate to use
+%
+%      \authors
+%      A.~Able,\note{a} B.~Baker,\note{b}, C.~Charlie,\note{a}
+%      ...
+%      \institution{a}{University A}
+%      \institution{b}{University B}
+%      ...
+%      \endauthors
+%
+%  Special document layouts in TXSfmts.tex may change the behaviour
+%  of some of these control words, but the general idea should always
+%  be the same, so that you can change document layout with one command.
+%
+%       \title, \author, \abstract, etc. automatically set up an \endmode
+% command which when used by a following command closes the appropriate
+% group. These definitions are kept local with \bgroup ... \egroup.
+%
+% Dependencies: TXSmacs.TeX and TXSenvmnt.TeX (for \center)
+%======================================================================*
+\message{Title Page macros.}
+\catcode`@=11                                   % @ is a letter here
+
+% \pubdate and \pubcode provide information used by \banner when
+% it creates the header for the title page
+
+\def\pubcode#1{\gdef\@DOCcode{#1}}
+\def\PUBcode#1{\gdef\@DOCcode{#1}}              % synonym
+\def\DOCcode#1{\PUBcode{#1}}                    % synonym
+\def\BNLcode#1{\PUBcode{#1}\banner}             % backward compatibility
+
+
+% \@DOCcode starts out at the default value, and is changed by \pubcode
+
+\def\@DOCcode{\TeXsis~\fmtversion}              % default
+
+% macros to set these things
+
+\def\pubdate#1{\gdef\@PUBdate{#1}}
+\def\PUBdate#1{\gdef\@PUBdate{#1}}              %synonum
+
+\def\@PUBdate{\monthname{\month},~\number\year}% default is today
+
+
+% \ORGANIZATION is the name of the issuing organization, and you
+% can change it before you call \banner, or change the default in
+% the site dependent info file TXSsite.TEX.
+
+\def\ORGANIZATION{}     % default is nothing
+
+
+% \banner prints a header using \ORGANIZATION, \pubdate, and \pubcode
+% at the top of the document.  Change this for your institution in
+% the TXSsite file if you don't like this one.
+
+\def\banner{%
+   \line{\hfil                                  %
+      \vbox to 0pt{\vss \hbox{\twelvess \ORGANIZATION}}%
+      \hfil}%                                   % name of org, centered
+   \vskip 12pt                                  % skip down to rule
+   \hrule height 0.6pt \vskip 1pt \hrule height 0.6pt % double rule
+   \vskip 4pt \relax                            % white space
+   \line{\twelvepoint\rm\@PUBdate \hfil \@DOCcode}% date and doc code
+   \vskip 3pt                                   % white space
+   \hrule height 0.6pt \vskip 1pt \hrule height 0.6pt % double rule
+   \vskip 0pt plus 1fil                         % stretch below
+   \vskip 1.0cm minus 1.0cm                     % skip down a bit
+   \relax}
+
+
+% Use \titlepage to begin the ``title'' material, which is the
+% title, authors, abstract, etc..  This is a block of text which
+% may appear on a separate page or may just appear at the top
+% of the first page.  End with \endtitlepage
+
+\def\titlepage{% begin title page material                             
+   \bgroup                                      % open \titlepage group
+   \pageno=1                                    % force start at page 1.
+   \hbox{\space}%                               % anchor to the top of the page
+   \let\title=\Title                            % \title inside \titlepage
+   \let\endmode=\relax                          % \endmode will end a field
+   }
+
+\def\endtitlepage{% end the title page material
+   \endmode                                     % end any open field
+   \vfil\eject                                  % eject the page (default)
+   \egroup}                                     % close \titlepage group
+
+%--------------------------------------------------*
+% \title ... <text of title> ... \endtitle prints the title of the
+% paper in 14pt bold, centered.  Line endings are observed, and you
+% should begin the title on the line after \title.
+
+\def\title{% begin the Title of a paper or book
+   \endmode                             % end any previous field
+   \vskip 0pt                           % vertial mode before \mark
+   \mark{Title Page\NX\else Title Page}%% mark page so no \HeadLine
+   \bgroup                              % open \title group
+   \let\endmode=\endTitle               % will end \title
+   \center\Tbf}                         % centered, title boldface
+
+\let\Title=\title               % in case this is forgotten!
+
+\def\endtitle{% end the Title for a paper or book
+   \endcenter                           % end centering
+   \bigskip                             % some space below
+   \gdef\title{%        re-define \title for references use
+      \emsg{> Please use \NX\booktitle instead of \NX\title.}%
+      \@errmark{OLD!}%          
+      \booktitle}%                      % make \title = \booktitle
+   \egroup}%                            % close \title group
+
+\def\endTitle{\endtitle}                % synonym
+
+\def\Tbf{\sixteenpoint\bf}              % default title typestyle
+
+
+%----------------------------------------*
+%  \author gets the author's name and affiliation.  The first line after
+%  \author is the name, and following lines up to \endauthor are the address.
+
+\def\author{% first line after as author's name, following lines are address
+  \endmode                              % end any previous mode
+  \bgroup                               %
+   \let\endmode=\endauthor              % will end \author
+   \singlespaced\parskip=0pt            % default single spaced
+   \obeylines\def\\{\par}%              % break at line breaks, or at \\
+   \@getauthor}                         % next line = author's name
+
+{\obeylines\gdef\@getauthor#1
+  #2
+  {#1\bigskip\def\n{\egroup\centerline\bgroup\bf}%        % how to break names
+   \centerline{\bf #2}%                 % first line is author's name,
+   \medskip\center}%                    % next lines are affiliation/address
+}
+
+\def\endauthor{\endcenter\egroup\bigskip}
+
+%-----------------------------------------*
+% \authors ... \endauthors is for multi-author papers. The authors are
+% listed in Roman type in \raggedcenter format with a \bigskip above and
+% below. Footnotes to author names can be added with \note.
+
+\def\authors{% list of authors for multi-author papers.
+   \endmode                                     % end any previous field
+   \bigskip                                     % some space above
+   \bgroup                                      % begin \authors group
+    \let\endmode=\endauthors                    % \endmode ends the field
+    \let\@uthorskip=\medskip                    % set up skip
+    \raggedcenter\singlespaced}                 % ragged centering
+
+\def\endauthors{% ends multi-author list
+   \endraggedcenter                             % end ragged centering
+   \egroup                                      % end \authors group
+   \bigskip}                                    % some space below
+
+
+% \note#1#2 prints a superscript on an author name in \authors. 
+% (#2 is a lookahead, used with \space@head for spacing)
+
+\def\note#1#2{% prints superscript for author's name
+  ${}^{\hbox{#1}}\ $                               % write superscript w/ space
+  \space@head#2                                 % insert possible more space
+  #2}%                                          % put #2 back
+
+
+% \institution prints the label #1 and the institution #2 centered on
+% a line. 
+
+\def\institution#1#2{% labels institution for multi-author list
+   \@uthorskip\let\@uthorskip=\relax            % space and disable it
+   \raggedcenter                                % center 
+      ${}^{\rm #1}$\space #2%%                  % the institution
+   \endraggedcenter                             % possibly >1 line
+   }
+
+\let\@uthorskip=\medskip                        % outside default
+
+%-----------------------------------*
+% \titlenote#1#2 makes a footnote for \title or \author. #1 is the mark,
+% and #2 is the text, just like \footnote. Use \note to print #1 in the title,
+% and place \titlenote after \endtitle.
+
+\long\def\titlenote#1#2{% footnotes for \title and \author
+   \footnote{}{%                                % basically footnote
+   \llap{\hbox to \parindent{\hfil              % lap label to left
+   ${}^{\rm #1}$\space}}#2}}%                   % print label and text.
+
+%-----------------------------------
+%  \and is "and" with a skip after.  Use between authors or addresses.
+
+\def\and{\centerline{and}\medskip}
+
+%-----------------------------------*
+%  everyting between \abstract and \endabstract is indented,
+%  with "ABSTRACT" written above it.  Different document layouts may
+%  change the definition of \abstract, but should follow the same basic 
+%  structure.
+
+\def\AbstractName{ABSTRACT}             % `name' of abstract
+
+\def\abstract{% begin abstract of a paper or treatise
+   \endmode                             % end any previous field
+   \bigskip\bigskip                     % some space above
+    \centerline{\AbstractName}%         % ``ABSTRACT''
+    \medskip                            % space below that
+    \bgroup                             % begin \abstract group
+    \let\endmode=\endabstract           % \endmode ends \abstract
+    \narrower\narrower                  % bring in margins
+    \singlespaced                       % default single spaced
+    \everyabstract}                     % customizable
+
+\def\everyabstract{}                    % user or format can customize
+
+\def\endabstract{\smallskip\egroup}
+
+
+% -- \pacs{codes} prints the PACS codes on the title page
+
+\def\pacs#1{\medskip\centerline{PACS numbers: #1}\smallskip}
+
+
+% -- \submit{<journal name>} prints the message "Submitted to <journal name>"
+
+\def\submit#1{\bigskip\centerline{Submitted to {\sl #1}}}
+\def\submitted#1{\submit{#1}}           % synonym
+
+
+% -- \toappear prints the message "To appear in \sl <journal name>"
+
+\def\toappear#1{\bigskip\raggedcenter
+     To appear in {\sl #1}
+     \endraggedcenter}
+
+
+% -- \disclaimer{<contract number>} prints the usual DOE disclaimer
+%  as a footnote at the bottom of the page, using the given contract number.
+
+\def\disclaimer#1{\footnote{}\bgroup\tenrm\singlespaced
+   This manuscript has been authored under contract number #1
+   \@disclaimer\par}
+
+% --  \disclaimers{<list of contract numbers>} is the same as \disclaimer,
+%  but for more than one contract number.
+
+\def\disclaimers#1{\footnote{}\bgroup\tenrm\singlespaced
+   This manuscript has been authored under contract numbers #1
+   \@disclaimer\par}
+
+\def\@disclaimer{%              % generic part of disclaimer
+with the U.S. Department of Energy.  Accordingly, the U.S.
+Government retains a non-exclusive, royalty-free license to publish
+or reproduce the published form of this contribution,
+or allow others to do so, for U.S. Government purposes.
+\egroup}
+
+%>>> EOF TXStitles.tex <<<

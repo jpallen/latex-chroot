@@ -1,0 +1,63 @@
+% SPLIT.TEX
+
+% Marek Ry\'cko
+
+% Macro \split (and auxiliary macros)
+% for splitting token sequences
+% Macro \hdtl
+
+% version 0.0 24.07.1993
+% version 0.1 31.12.94
+% version 0.2 1.5.1996
+%   -- english description
+
+\def\hdtl
+    #1% inp. t.s. (nonempty, poss blanks)
+    #2% outp. -- head
+    #3% outp. -- tail
+    {\let\reshead=#2% synonims for token-register names
+    \let\restail=#3%
+    \expandafter\gethead\the#1\endoftokens}
+\def\gethead
+    {\futurelet\thehead\analysehead}
+\def\analysehead
+    {\ifcat \noexpand\thehead \space
+        \let\followby=\followbyspace
+    \else
+        \let\followby=\followbynospace
+    \fi
+    \followby}
+\def\followbyspace
+    {\reshead={ }% space token
+    \afterassignment\gettail
+    \let\swallow= }% swallowing the head-space
+\def\gettail
+     #1\endoftokens
+     {\restail={#1}}
+\def\followbynospace
+     #1#2\endoftokens
+     {\reshead={#1}%
+     \restail={#2}}
+\def\split
+    #1% input macro name (should expand to nonemty token sequence)
+    #2% macro head (name)
+    #3% macro tail (name)
+    {%
+    % define
+    %   #2 as the first token (with nested braces) of #1
+    %   #3 as the tail        (with nested braces) of #1
+    \expandafter\splithdtl\expandafter{#1}%
+    \expandafter\def\expandafter\splittest\expandafter{\the\splithdtl}%
+    \ifx\splittest\empty
+        \gdef#2{}%
+        \gdef#3{}%
+    \else
+        \hdtl\splithdtl\splithd\splittl
+        \expandafter\gdef\expandafter#2\expandafter{\the\splithd}%
+        \expandafter\gdef\expandafter#3\expandafter{\the\splittl}%
+    \fi
+    }
+\newtoks\splithdtl
+\newtoks\splithd
+\newtoks\splittl
+

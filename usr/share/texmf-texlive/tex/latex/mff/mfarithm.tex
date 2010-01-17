@@ -1,0 +1,165 @@
+%
+% Base arithmetic functions
+%
+
+\newdimen\MFF@dimenA
+\newdimen\MFF@dimenB
+\newdimen\MFF@dimenC
+\newdimen\MFF@dimenD
+
+%
+%  this code convert dimen (pt) into real value assigned to \@tempa
+%
+\def\MFF@convert#1{\@ovxx=#1\relax \@negargfalse
+    \ifdim \@ovxx<0pt \@ovxx=-\@ovxx \@negargtrue \fi
+    \@xarg=\@ovxx \@yarg=\@xarg
+    \divide\@xarg by 65536\relax
+    \@yyarg=\@xarg \multiply\@yyarg by 65536\relax
+    \advance\@yarg by -\@yyarg
+    \multiply\@yarg by 3125 \divide\@yarg by 2048
+    \ifnum \@yarg > 9999 \def\@tempa{}%
+       \else \ifnum \@yarg > 999 \def\@tempa{0}%
+          \else \ifnum \@yarg > 99 \def\@tempa{00}%
+             \else \ifnum \@yarg > 99 \def\@tempa{000}%
+                \else \def\@tempa{0000}%
+    \fi\fi\fi\fi
+    \edef\@tempa{\if@negarg -\fi \the\@xarg.\@tempa\the\@yarg}%
+}
+
+% ************************************************************
+% *** The following macros are partially taken from PiCTeX ***
+% ************************************************************
+
+% DIVISION  (Does long division of dimension registers)
+% **   \MFF@divide{DIVIDEND}{DIVISOR}{RESULT}
+
+% **  \MFF@divide DIVIDEND [by] DIVISOR [to get] ANSWER
+% **  Divides the dimension DIVIDEND by the dimension DIVISOR, placing the
+% **  quotient in the dimension register ANSWER.  Values are understood to
+% **  be in points.  E.g.  12.5pt/1.4pt=8.92857pt.
+% **  Quotient is accurate to 1/65536pt=2**[-16]pt
+% **  |DIVISOR| should be < 8192pt = 113.36in
+% **      --- otherwise acciracy is decreased in 2 times
+\def\MFF@divide#1#2#3{%
+\ifdim #2=\z@ #3=\z@\relax
+\else
+  \MFF@dimenB=#1\relax%             **  dimB  holds current remainder (r)
+  \MFF@dimenC=#2\relax%             **  dimC  holds divisor (d)
+  \ifdim\MFF@dimenC<\z@
+        \MFF@dimenB=-\MFF@dimenB \MFF@dimenC=-\MFF@dimenC
+  \fi
+  \@negargfalse
+  \ifdim \MFF@dimenB<\z@ \MFF@dimenB=-\MFF@dimenB \@negargtrue \fi
+  \ifdim \MFF@dimenC<8192pt\relax
+  \else
+         \MFF@dimenB=0.5\MFF@dimenB
+         \MFF@dimenC=0.5\MFF@dimenC
+  \fi
+  \MFF@dimenD=\MFF@dimenB%          **  dimD  holds quotient q=r/d for this
+  \divide \MFF@dimenD \MFF@dimenC%  **    step, in units of scaled pts
+  \MFF@dimenA=\MFF@dimenD%          **  dimA  eventually holds answer (a)
+  \multiply\MFF@dimenD \MFF@dimenC% **  r <-- r - dq
+  \advance\MFF@dimenB -\MFF@dimenD% **  First step complete. Have integer part
+%                                   **  of a, and corresponding remainder.
+  \MFF@dimenD=\MFF@dimenC%          **  Temporarily use dimD to hold |d|
+  \ifdim\MFF@dimenD<64pt%           **  Branch on the magnitude of |d|
+    \MFF@divstep[256]\MFF@divstep[256]%
+  \else
+% **  The following code handles divisors  d  with
+% **    (1)  .88in  =  64pt  <= d <  256pt =  3.54in
+% **    (2) 3.54in  = 256pt  <= d < 2048pt = 28.34in
+% **    (3) 28.34in = 2048pt <= d < 8192pt = 113.36in
+% **  Anything bigger than that may result in an overflow condition.
+% **  For our purposes, we should never even see case (2) or (3).
+     \ifdim\MFF@dimenD<256pt
+       \MFF@divstep[64]\MFF@divstep[32]\MFF@divstep[32]%
+     \else
+       \ifdim\MFF@dimenD<2048pt
+          \MFF@divstep[8]\MFF@divstep[8]\MFF@divstep[8]%
+          \MFF@divstep[8]\MFF@divstep[4]\MFF@divstep[4]%
+       \else
+          \MFF@divstep[2]\MFF@divstep[2]\MFF@divstep[2]\MFF@divstep[2]%
+          \MFF@divstep[2]\MFF@divstep[2]\MFF@divstep[2]\MFF@divstep[2]%
+          \MFF@divstep[2]\MFF@divstep[2]\MFF@divstep[2]\MFF@divstep[2]%
+          \MFF@divstep[2]\MFF@divstep[2]\MFF@divstep[2]\MFF@divstep[2]%
+       \fi
+     \fi
+  \fi
+  \if@negarg \MFF@dimenA=-\MFF@dimenA \fi
+  #3=\MFF@dimenA
+\fi\ignorespaces}
+
+% **  The following macro does the real long division work.
+\def\MFF@divstep[#1]{%                  **  #1 = "B"
+  \MFF@dimenB=#1\MFF@dimenB%            **  r <-- B*r
+  \MFF@dimenD=\MFF@dimenB%              **  dimD  holds quotient q=r/d for this
+    \divide \MFF@dimenD by \MFF@dimenC% **    step, in units of scaled pts
+  \MFF@dimenA=#1\MFF@dimenA%            **  a <-- B*a + q
+    \advance\MFF@dimenA by \MFF@dimenD%
+  \multiply\MFF@dimenD by \MFF@dimenC%  **  r <-- r - dq
+    \advance\MFF@dimenB by -\MFF@dimenD}
+
+
+% MULTIPLICATION  (Does long multiplication of dimension registers)
+% **   \MFF@multiply{FACTOR1}{FACTOR2}{RESULT}
+% **  Result is accurate to 1/65536pt=2**[-16]pt
+% **  |FACTOR2| should be < 8192pt = 113.36in
+% **      --- otherwise acciracy is decreased in 2 times
+
+\def\MFF@multiply#1#2#3{%
+  \MFF@dimenB=#1\relax \MFF@dimenC=#2\relax
+  \ifdim\MFF@dimenC<\z@
+        \MFF@dimenB=-\MFF@dimenB \MFF@dimenC=-\MFF@dimenC
+  \fi
+  \@negargfalse
+  \ifdim \MFF@dimenB<\z@ \MFF@dimenB=-\MFF@dimenB \@negargtrue \fi
+  \ifdim \MFF@dimenC<8192pt\relax
+  \else
+         \MFF@dimenB=2\MFF@dimenB
+         \MFF@dimenC=0.5\MFF@dimenC
+  \fi
+  % calculate integer part
+  \@yarg=\MFF@dimenC \@xarg=65536
+  \@yyarg=\@yarg \divide\@yyarg by \@xarg
+  % multiplication by integer part
+  \MFF@dimenA=\MFF@dimenB \multiply\MFF@dimenA by \@yyarg
+  % prepare fraction part
+  \multiply\@yyarg by \@xarg \advance\@yarg by -\@yyarg
+  % multiplication cycle
+  \ifdim\MFF@dimenB<64pt%
+    \MFF@mulstep[256]\MFF@mulstep[256]%
+  \else
+     \ifdim\MFF@dimenB<256pt
+       \MFF@mulstep[64]\MFF@mulstep[32]\MFF@mulstep[32]%
+     \else
+       \ifdim\MFF@dimenB<2048pt
+          \MFF@mulstep[8]\MFF@mulstep[8]\MFF@mulstep[8]%
+          \MFF@mulstep[8]\MFF@mulstep[4]\MFF@mulstep[4]%
+       \else
+          \MFF@mulstep[2]\MFF@mulstep[2]\MFF@mulstep[2]\MFF@mulstep[2]%
+          \MFF@mulstep[2]\MFF@mulstep[2]\MFF@mulstep[2]\MFF@mulstep[2]%
+          \MFF@mulstep[2]\MFF@mulstep[2]\MFF@mulstep[2]\MFF@mulstep[2]%
+          \MFF@mulstep[2]\MFF@mulstep[2]\MFF@mulstep[2]\MFF@mulstep[2]%
+       \fi
+     \fi
+  \fi
+  % assign result
+  \if@negarg \MFF@dimenA=-\MFF@dimenA \fi
+  #3=\MFF@dimenA
+\ignorespaces}
+
+% perform partial multiplication
+\def\MFF@mulstep[#1]{\divide\@xarg by #1
+  \@yyarg=\@yarg \divide\@yyarg by \@xarg
+  % calculate new additive component
+  \MFF@dimenC=\MFF@dimenB \multiply\MFF@dimenC by \@yyarg
+  \divide\MFF@dimenC by #1 \advance\MFF@dimenA by \MFF@dimenC
+  % update fraction data
+  \multiply\@yyarg by \@xarg \advance\@yarg by -\@yyarg
+  \divide\MFF@dimenB by #1
+}
+
+% *********************************************
+% ******** End of PiCTeX arith macros *********
+% *********************************************
+

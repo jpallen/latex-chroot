@@ -1,0 +1,482 @@
+%
+% lgcyracc.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Accents
+%  - borrowed from ec fonts: "00--"0c
+%  + additional Cyrilic accents
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% List of accents
+%
+% Agrave              "00 `  accent grave
+% Aacute              "01 '  accent acute
+% Ahat                "02 ^  accent circumflex
+% Atilde              "03 ~  accent tilde
+% Aumlaut             "04    accent umlaut
+% Aacute_dbl          "05 '' accent hungarian umlaut
+% Aring               "06    Scandinavian circle
+% Ahachek             "07    accent hacheck
+% Abreve              "08    accent breve
+% Abar                "09    accent macron (bar)
+% Adot                "0a    accent dot
+% Acedilla            "0b    cedilla
+% Aogonek             "0c    ogonek
+%
+% Afrown              "12    accent reversed breve
+% Agrave_dbl          "13 `` accent reversed hungaran umlaut
+% Acyrbreve           "14    Cyrilllic breve
+% Ahcross             "17    accent hor cross
+% Agrave_cross        "19    accent grave_cross
+% Aacute_cross        "1a    accent acute_cross
+%
+% T2-outsiders
+%
+% Avcross             -      accent vert cross
+% Abar_long           -      accent macron (bar) long
+% Abreve_long         -      accent breve long
+% Atilde_long         -      accent tilde long
+% Adesc_lo            -      lowercase descender ? italic
+% Adesc_up            -      uppercase descender
+% Alcomma	      -	     comma below letter
+% Atie                -      tie accent (like Afrown)
+% Acomma	      -      comma above letter
+%
+
+LHver_check(3,5); % like |version_check| in ec
+
+%accents
+%
+lhchar "Grave accent";
+cyrchar_twice(Agrave,9u#,x_height#,0); % |put_gravis| changes the height
+adjust_fit(0,0);
+put_gravis;
+repeat_once;
+endchar;
+
+lhchar "Acute accent"; % using acute from plfonts
+cyrchar_twice(Aacute,9u#,x_height#,0); % |put_accent| changes the height
+italcorr h#*slant-if serifs: 1.5 fi u#;
+adjust_fit(0,0);
+put_accent;
+repeat_once;
+endchar;
+
+lhchar "Circumflex (hat) accent";
+cyrchar(Ahat,9u#,x_height#+acc_height#,0);
+lowercase_hat(.5w,oo,0,1,2,3,4);
+penlabels(0,1,2,3,4); endchar;
+
+lhchar "Tilde (squiggle) accent";
+cyrchar(Atilde,9u#,x_height#+acc_height#,0);
+italcorr h#*slant-u#;
+adjust_fit(0,0);
+lowercase_tilde(0,0 if variant_g: -1/6acc_height fi,1,2,3,4,5);
+penlabels(1,2,3,4,5); endchar;
+
+lhchar "Umlaut (double dot) accent";
+cyrchar(Aumlaut,9u#,lc_trema_height#,0);
+italcorr h#*slant+.5udot_diam#-2.25u#;
+adjust_fit(0,0);
+lowercase_umlaut(0,0,1,2,3,4); penlabels(1,2,3,4); endchar;
+
+lhchar "Double acute accent (Long Hungarian umlaut accent)";
+cyrchar_twice(Aacute_dbl,9u#,x_height#+acc_height#,0);
+italcorr h#*slant-u#;
+adjust_fit(0,0);
+if monospace: hpos_corr=-2u; put_accent; hpos_corr=2u; put_accent;
+else: hpos_corr=-1.5u; put_accent; hpos_corr=1.5u; put_accent; fi
+repeat_once;
+endchar;
+
+lhchar "Scandinavian circle accent";
+cyrchar(Aring,13u#+4/3acc_height#*slant,x_height#+acc_height#,0);
+adjust_fit(cap_serif_fit#,cap_serif_fit#);
+lowercase_circle(.5w,vround(1/3[x_height,h]+apex_o),1,2,3,4);
+penlabels(1,2,3,4); endchar;
+
+lhchar "Hachek (check) accent";
+cyrchar(Ahachek,9u#,x_height#+acc_height#,0);
+adjust_fit(0,0);
+lc_hachek_accent(.5w);
+endchar;
+
+lhchar "Breve accent";
+cyrchar(Abreve,9u#,x_height#+acc_height#,0);
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+lowercase_breve(.5w,0,1,2,3);
+penlabels(1,2,3); endchar;
+
+lhchar "Macron (bar) accent";
+cyrchar(Abar,9u#,lc_trema_height#,0);
+italcorr h#*slant-.75u#;
+adjust_fit(0,0);
+numeric macron_breadth; macron_breadth:=Vround .2[vair,stem];
+pickup if serifs: crisp.nib else: fine.nib fi;
+pos1(macron_breadth,90); pos2(macron_breadth,90);
+top y1r=top y2r=h+o; lft x1=w-rt x2=hround 1.25u;
+filldraw stroke z1e--z2e;  % bar
+penlabels(1,2); endchar;
+
+lhchar "Dot accent";
+cyrchar_twice(Adot,5u#,x_height#+acc_height#,0);
+italcorr h#*slant+.5idot_diam#-2u#;
+adjust_fit(0,0);
+put_dot(tiny,max(dot_size#,cap_curve#));
+repeat_once;
+penlabels(1,2); endchar;
+
+lhchar "Cedilla accent";
+cyrchar(Acedilla,8u#,0,.875desc_depth#);
+adjust_fit(0,0);
+lowercase_cedilla(.5w,0,1,2,3,4,5);
+penlabels(1,2,3,4,5); endchar;
+
+lhchar "Ogonek accent";
+cyrchar(Aogonek,5u#,0,desc_depth#);
+italcorr 0;
+adjust_fit(0,0);
+%the_ogonek(.5w,0, 1,2,3);
+% polish-like "easy_ogonek" instead of Computer Modern "the_ogonek"
+def the_pen=if known ogonek_pen: ogonek_pen
+    elseif serifs: tiny elseif is_bold: fisp else: fine fi
+enddef;
+% |diag_end| refers to |tiny| pen, hence |tiny| in the following equation:
+ogonek_pos=(.5w if not serifs: +.5stem if is_bold: +.75tiny fi\\ fi,.5the_pen)
+   if serifs and not is_egyptian: +(.5xvair,0) fi;
+easy_ogonek(the_pen, 1,2,3); % ogonek
+penlabels(1,2,3); endchar;
+
+lhchar "Cyrillic accent hcross - horisontal cross";
+cyrchar(Ahcross,5u#,x_height#,0);
+italcorr asc_height#*slant+.5dot_size#-2u#;
+adjust_fit(0,0);
+% hstroke
+numeric outer_jut;
+% some funny fonts have an extremally small |jut|:
+outer_jut=.5stem+if serifs: max(limit_dist,if hefty: .8 fi\\ jut) else: 1.7u fi;
+bar_stroke(.5w-outer_jut,.5w+outer_jut); % bar
+endchar;
+
+lhchar "Cyrillic accent vcross - vertical cross";
+cyrchar(Avcross,5u#,x_height#,0);
+italcorr asc_height#*slant+.5dot_size#-2u#;
+adjust_fit(0,0);
+% vcross
+if serifs: pickup crisp.nib; else: pickup fine.nib; fi
+numeric middle_weight;
+middle_weight=max(currentbreadth+eps,.6[thin_join,vair]);
+pos1(middle_weight,0); pos2(middle_weight,0);
+lft x1l=lft x2l=hround(.5w-.5middle_weight);
+top y2-bot y1=.55x_height; .5[y1,y2]=bar_height;
+filldraw stroke z1e--z2e;
+endchar;
+
+lhchar "Cyrillic accent acute_cross - diagonal cross"; % cross from pl_ml (plfonts)
+cyrchar_twice(Aacute_cross,5u#,x_height#,0);
+italcorr asc_height#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(serif_fit#,serif_fit#);
+numeric unbalance,outer_jut;
+unbalance=if monospace: 1 else: 1.1 fi;
+% some funny fonts have an extremally small |jut|:
+outer_jut=.5stem+if serifs: max(limit_dist,if hefty: .8 fi\\ jut) else: 1.7u fi;
+put_cyrcross(.5w,0,outer_jut,unbalance*outer_jut);
+repeat_once;
+endchar;
+
+lhchar "Cyrillic accent grave_cross - diagonal cross"; % cross from pl_ml (plfonts)
+cyrchar_twice(Agrave_cross,5u#,x_height#,0);
+italcorr asc_height#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(serif_fit#,serif_fit#);
+numeric unbalance,outer_jut;
+unbalance=if monospace: 1 else: 1.1 fi;
+% some funny fonts have an extremally small |jut|:
+outer_jut=.5stem+if serifs: max(limit_dist,if hefty: .8 fi\\ jut) else: 1.7u fi;
+put_cyrcross(.5w,0,-outer_jut,-unbalance*outer_jut);
+repeat_once;
+endchar;
+
+lhchar "Cyrillic accent Agrave_dbl - double grave";
+cyrchar_twice(Agrave_dbl,9u#,x_height#+acc_height#,0);
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+if monospace: hpos_corr=-2u; put_gravis; hpos_corr=2u; put_gravis;
+else: hpos_corr=-1.5u; put_gravis; hpos_corr=1.5u; put_gravis; fi
+repeat_once;
+endchar;
+
+lhchar "Cyrillic accent cyrillic breve";
+cyrchar(Acyrbreve,9u#,x_height#+acc_height#,0);
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+cbreve(.5w,0, 1,2,3,4,5,6,7);
+endchar;
+
+lhchar "Cyrillic frown accent";
+cyrchar(Afrown,9u#,x_height#+acc_height#,0);
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+%!!! lowercase_breve flipped
+x_center:=.5w; y_move:=0; _one:=1; _two:=2; _three:=3;
+%
+pickup crisp.nib; pos[_one](vair,180);
+pos[_three](vair,0);
+top y[_two]r=h+oo+eps; %!!!v
+x[_two]=x_center;
+lft x[_one]r=hround(x[_two]-2.5u
+   if monospace: /expansion_factor fi -0.5vair);
+rt x[_three]r=hround(x[_two]+2.5u
+   if monospace: /expansion_factor fi +0.5vair);
+numeric mid_thickness; mid_thickness=max(crisp.breadth,vround 1/3[vair,stem]);%!!!
+bot y[_one]=bot y[_three]= %!!!
+   if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)-.5crisp
+      else:   vround 2/3[x_height+acc_height,x_height] fi;
+if y[_two]r<(y[_one]+.5crisp+eps): %!!!
+   y[_two]r:=y[_one]+.5crisp+eps; fi %!!!
+pos[_two](mid_thickness,90); %!!! moved here after if
+filldraw stroke z[_one]e{up}...
+         z[_two]e{right}...{down}z[_three]e;  % stroke
+%
+penlabels(1,2,3); endchar;
+
+if not more_letters: endinput \\; fi
+%
+% T2-outsiders
+%
+lhchar"Cyrillic tie accent"; % centered
+cyrchar(Atie,9u#,asc_height#,0);
+italcorr 4/9[x_height#,asc_height#]*slant+4.5u#+2letter_fit#+.5hair#;
+adjust_fit(if monospace:2u#,2u# else:serif_fit#,serif_fit# fi);
+pickup fine.nib; pos1(hair,180); pos2(vround 1/5[vair,stem],90);
+pos3(hair,0);
+lft x1r=w-rt x3r=hround(2u-.5vair); x2=.5w;
+y1=y3=4/9[x_height,asc_height]; top y2r=vround 8/9[x_height,asc_height];
+filldraw stroke super_arc.e(1,2) & super_arc.e(2,3);  % arc
+penlabels(1,2,3); endchar;
+
+lhchar "Cyrillic accent Abreve_long - long breve"; %accent width enlarged by 3u
+cyrchar(Abreve_long,12u#,x_height#+acc_height#,0);
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+x_center:=.5w; y_move:=0;
+_one:=1; _two:=2; _three:=3;
+pickup crisp.nib; pos[_one](vair,-180);
+pos[_three](vair,0);
+top y[_one]=top y[_three]=h;
+x[_two]=x_center;
+lft x[_one]r=hround(x[_two]-4.75u%!2.5u
+   if monospace: /expansion_factor fi -0.5vair);
+rt x[_three]r=hround(x[_two]+4.75u%!2.5u
+   if monospace: /expansion_factor fi +0.5vair);
+numeric mid_thickness; mid_thickness=vround 1/3[vair,stem];
+pos[_two](mid_thickness,-90);
+bot y[_two]r=
+   vround max(x_height+o+tiny,1/3[x_height,h]+o-.5mid_thickness);
+filldraw stroke z[_one]e{down}...
+         z[_two]e{right}...{up}z[_three]e;  % stroke
+endchar;
+
+lhchar "Cyrillic accent Abar_long - long bar"; %accent width enlarged by 3u
+cyrchar(Abar_long,12u#,lc_trema_height#,0);
+italcorr h#*slant-.75u#;
+adjust_fit(0,0);
+numeric macron_breadth; macron_breadth:=Vround .2[vair,stem];
+pickup if serifs: crisp.nib else: fine.nib fi;
+pos1(macron_breadth,90); pos2(macron_breadth,90);
+top y1r=top y2r=h+o; lft x1=w-rt x2=hround .5u;%!1.25u
+filldraw stroke z1e--z2e;  % bar
+penlabels(1,2); endchar;
+
+lhchar "Cyrillic accent Adesc_up - uppercase descender";
+cyrchar(Adesc_up,5u#,pdot_diam#,cap_sbeak#);
+adjust_fit(0,cap_serif_fit#);
+pickup tiny.nib;
+pos1(cap_stem,0); pos2(cap_stem,0);
+rt x1r=rt x2r=w-hround max(2u,3u-.5cap_stem);
+top y1=h; bot y2=0;
+inner_jut:=.5cap_stem+eps;
+numeric arm_thickness; arm_thickness=slab+vair_corr;
+save slab,bracket;
+bracket:=0; slab:=arm_thickness; % bottom.slab
+numeric left_jut;
+left_jut=
+   if serifs: max(limit_dist,if monospace: 1.414cap_jut else: 1.1cap_jut fi)
+   else:      hround (r-rt x2r-.65u) fi;
+cyr_serif(2,1,a,1/3,beak_darkness,left_jut,beak_jut); % right descender
+endchar;
+
+lhchar "Cyrillic accent Adesc_lo - lowercase descender";
+cyrchar(Adesc_lo,5u#,pdot_diam#,sbeak#);
+adjust_fit(0,serif_fit#);
+pickup tiny.nib;
+pos1(fudged.stem,0); pos2(fudged.stem,0);
+lft x1l=lft x2l=hround (2.5u-.5fudged.stem-eps);
+top y1=h; bot y2=0;
+save slab,bracket;
+bracket:=0; slab:=vair; % lower.slab
+numeric left_jut;
+left_jut=if serifs:
+	    max(limit_dist,if monospace: 1.414jut else: 1.1jut fi)
+	 else: hround (r-rt x2r-.5u) fi;
+cyr_serif(2,1,a,1/3,beak_darkness,left_jut,.6beak_jut); % right descender
+endchar;
+
+lhchar "Cyrillic accent Adesc_it - italic descender";
+cyrchar(Adesc_it,5u#,pdot_diam#,desc_depth#);
+adjust_fit(0,.1u#);
+pickup fine.nib;
+pos1(vair,180); x1=.5w; y1=.4bar_height;
+i_serif(1,x);
+endchar;
+
+lhchar "Cyrillic accent Atilde_long - long tilde"; %accent width enlarged by 3u
+cyrchar(Atilde_long,12u#,x_height#+acc_height#,0);
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+x_move:=0; y_move:=0;
+_one:=1; _two:=2; _three:=3; _four:=4; _five:=5;
+h':=min(asc_height,10/7x_height+.5dot_size);
+if serifs: numeric theta;
+ theta=angle(1/6(
+    8.5u if monospace: /expansion_factor fi-vair),%!6u
+      1/4(h'-x_height));
+ pickup crisp.nib;
+ numeric mid_width; mid_width=.4[vair,stem];
+ pos[_one](vair,theta+90);
+ pos[_two](vair,theta+90);
+ pos[_three](vair,theta+90);
+ pos[_four](vair,theta+90);
+ z[_two]-z[_one]=
+    z[_four]-z[_three]=(mid_width-crisp)*dir theta;
+ lft x[_one]r=hround(x_move+0.5w-5.25u if monospace: /expansion_factor fi);%!3u
+ rt x[_four]l=hround(x_move+0.5w+5.25u if monospace: /expansion_factor fi);%!3u
+ top y[_four]r=h';
+ bot y[_one]l=vround(bot y[_one]l+
+    min(2/3[x_height,h'],y[_three]l-.25vair)-top y[_one]r);
+ pair delta;
+ ypart delta=3(y[_three]l-y[_one]l);
+ delta=whatever*dir theta;
+ filldraw z[_one]l..
+   controls(z[_one]l+
+    delta)and(z[_three]l-delta)..z[_three]l..z[_four]l
+  --z[_four]r..
+     controls(z[_four]r-delta)and(z[_two]r+delta)..
+     z[_two]r..z[_one]r--cycle;  % stroke
+else:
+ pickup fine.nib;
+ pos[_one](vair,180);
+ pos[_two](vair,90);
+ pos[_three](.5[vair,slab],90);
+ pos[_four](vair,90);
+ pos[_five](vair,180);
+ lft x[_one]r=hround (x_move + 0.5w-5.25u);%!3u
+ rt x[_five]l=hround (x_move + 0.5w+5.25u);%!3u
+ x[_two]-x[_one]=
+    x[_three]-x[_two]=
+    x[_four]-x[_three]=x[_five]-x[_four];
+ bot y[_one]=bot y[_four]l=y_move+vround(.75[x_height,h]-vair);
+ top y[_two]r=top y[_five]=h+y_move;
+ y[_three]=.5[y[_two],y[_four]];
+ filldraw stroke
+   z[_one]e{up}...
+     z[_two]e{right}..
+     z[_three]e..
+     {right}z[_four]e...{up}z[_five]e; fi % stroke
+endchar;
+
+lhchar "Cyrillic accent Acomma - comma above letter";
+cyrchar(Acomma,5u#,x_height#+1.25acc_height#,0);
+italcorr asc_height#*slant+.5dot_size#-2u#;
+adjust_fit(0,0);
+%ac_comma(0,0,1.25acc_height, 1,2,3,4,5)(above);
+x_move:=0; y_move:=0;
+depth:=1.25acc_height;
+_zero:=1; _one:=2; _two:=3; _three:=4; _four:=5;
+numeric height,bulb_diam;
+height=if serifs: depth+.5fine-max(.27depth,o+hair)
+       else:      vround(2/3depth)
+       fi;
+bulb_diam=hround max(fine.breadth,min(dot_size,.55height));
+if square_dots:
+   % vertical above letter
+   pickup fine.nib;
+   pos[_one](vair,0);
+   pos[_two](.5[vair,stem],0);
+   top y[_two]=h+y_move;
+   bot y[_one]=vround(y[_two]-height);
+   x[_two]=x[_one]=.5w+x_move;
+   filldraw stroke z[_one]e--z[_two]e;   % diagonal
+else:
+   % comma above letter
+   pickup fine.nib;
+   x[_four]-.5bulb_diam=hround(.5w+x_move-.5bulb_diam);
+   y[_four]+.5bulb_diam=h+y_move;
+   pos[_four](bulb_diam,90);
+   pos[_one](vair,90); pos[_two](vair,0); pos[_three](vair,-45);
+   z[_one]r=z[_four]r; rt x[_two]r=hround(x[_four]+.5bulb_diam
+            +if monospace:.28u / expansion_factor else:.25u fi)+2eps;
+   x[_three]=x[_four]-.5u if monospace: /expansion_factor fi;
+   y[_two]=1/3[y[_one],y[_three]];
+   bot y[_three]r=vround(y[_four]-(height-.5bulb_diam));
+   y_:=ypart((z[_one]{right}...z[_two]{down}...z[_three])
+       intersectiontimes (z[_four]l{right}..{left}z[_four]r));
+   if y_<0: y_:=1; fi
+   filldraw z[_four]r{left}..subpath (0,y_)
+       of (z[_four]l{right}..{left}z[_four]r)--cycle; % dot
+   filldraw stroke z[_one]e{right}...z[_two]e{down}...z[_three]e;  % tail
+fi
+penlabels([_zero],[_one],[_two],[_three],[_four]);
+endchar;
+
+lhchar "Cyrillic accent Alcomma - comma below letter";
+cyrchar(Alcomma,9u#,x_height#+1.25acc_height#,desc_depth#);
+italcorr asc_height#*slant+.5dot_size#-2u#;
+adjust_fit(0,0);
+%ac_comma(0,0,1.25desc_depth,1,2,3,4,5);
+ x_move:=0; y_move:=0; depth:=1.25desc_depth;
+  _zero:=1; _one:=2; _two:=3; _three:=4; _four:=5;
+ numeric height,bulb_diam;
+ height=if serifs: depth+.5fine-max(.27depth,o+hair) else:.68depth fi;
+ bulb_diam=max(fine.breadth,min(dot_size,floor(.56height)));
+ if square_dots: pickup fine.nib; pos[_one](vair,0);
+  pos[_two](.5[vair,stem],0);
+  % comma below letter as sans serif cedilla
+   top y[_one]=-o-2; bot y[_two]=-d-o;
+   x[_two]=x[_one]-1.25u=.5w+x_move;
+  filldraw stroke z[_one]e--z[_two]e;   % diagonal
+ else: pickup fine.nib;
+  x[_four]-.5bulb_diam=hround(.5w+x_move-.5bulb_diam);
+  y[_four]+.5bulb_diam=-d+y_move+height;
+  pos[_four](bulb_diam,90);
+  pos[_one](vair,90); pos[_two](vair,0); pos[_three](vair,-45);
+  z[_one]r=z[_four]r;
+  rt x[_two]r=hround max(rt x[_one]+eps,x[_four]+.5bulb_diam
+   +if monospace:.28u / expansion_factor else:.25u fi)+2eps;
+  x[_three]=x[_four]-.5u if monospace: /expansion_factor fi;
+  y[_two]=1/3[y[_one],y[_three]]+eps;
+  bot y[_three]r=vround min(bot y[_four]-.5,y[_four]-(height-.5bulb_diam))-eps;
+  y_:=ypart((z[_one]{right}...z[_two]{down}...z[_three])
+   intersectiontimes (z[_four]l{right}..{left}z[_four]r));
+  if y_<0: y_:=1; fi
+  filldraw z[_four]r{left}..subpath (0,y_)
+   of (z[_four]l{right}..{left}z[_four]r)--cycle; % dot
+  filldraw stroke z[_one]e{right}...z[_two]e{down}...z[_three]e; fi  % tail
+ penlabels([_zero],[_one],[_two],[_three],[_four]);
+endchar;
+
+endinput;
+%end of file

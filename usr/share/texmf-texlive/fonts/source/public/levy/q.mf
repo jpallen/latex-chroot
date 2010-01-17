@@ -1,0 +1,32 @@
+if unknown gen_sigma : readfrom("gen_sigma") fi
+     
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+def dims = 10u#,x_height#,desc_depth# enddef;
+     
+def gen_letter=
+  pickup fine.nib;
+  x1-.5stem=hround .75u; y1+.5stem=h+oo;                %top left
+  z1'=(1,.2); pos1(stem,angle z1'+90);                  %direction at z1
+  x3+x1=w; y3-.5stem=-d-oo; pos3(stem,angle z1'+90);    %bottom right
+  z2=.5[z1,z3];                                         %attachment
+  z2'=(z3-z1)yscaled 2; pos2(hair,angle z2'+90);        %direction at z4
+  filldraw double_circ_stroke z1e{z1'}... z2e{(z3-z1)yscaled 2}...{z1'}z3e;
+  lft x7l=hround .75u; bot y7l=-d-oo; z2=.5[z7l,z8r]=.5[z7r,z8l];
+  numeric stem'; stem'=stem-currentbreadth;
+  numeric theta; theta=angle(z8r-z7l)+angle((x8r-x7l)++(y8r-y7l)+-+stem',stem');
+  x7r=x7l+(stem'/sind theta); y7r=y7l;
+  filldraw stroke z7e..z8e;
+enddef;
+     
+cmchar "Lowercase chi";
+beginchar("q",dims);
+this_letter; penlabels(1,2,3,7,8); endchar;
+     
+if boolean barebones: picture savedpicture; endinput; fi
+     
+cmchar "Lowercase sigma followed by chi";
+begindoublechar(oct"021",dim_sigma);
+mid_sigma; middoublechar(dims); this_letter; endchar;
+     
+picture savedpicture;

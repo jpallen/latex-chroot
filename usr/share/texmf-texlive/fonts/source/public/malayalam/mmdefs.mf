@@ -1,0 +1,633 @@
+% mmdefs.mf -- definitions for malayalam font
+% copyright 1992 Jeroen Hellingman
+% last edit: 09-JAN-1993
+
+%%%%%% dimensions
+
+uw# := 	0.1u#;      % unit of width
+uh# := 	0.05ht#;    % unit of height
+
+define_pixels(rm,u,uw,uh);
+define_whole_pixels(ht);
+
+currenttransform := currenttransform shifted (.5rm, 0);
+
+%%%%%% set the remaining font parameters
+
+font_slant			:= slant;
+font_quad 			:= 20uw#;
+font_x_height       := 20uh#;
+font_normal_space 	:= 14uw#;
+font_normal_stretch := 8uw#;
+font_normal_shrink 	:= 2uw#;
+
+currenttransform := currenttransform slanted slant;
+
+%%%%%% pen definitions
+
+penwd# :=thick# * cosd(rot-90);
+usthick# := thick#;
+mb# := .2ht#;
+define_pixels(penwd,usthick,mb);
+define_blacker_pixels(thin,thick,subthick);
+thin := max(thin,1); subthick := max(subthick,1);
+smoothing := 0;
+pickup pencircle xscaled thick yscaled thin rotated rot;
+scpenwd := pen_rt - pen_lft;
+frame_pen := savepen;
+pickup pencircle xscaled subthick yscaled thin rotated rot;
+sub_pen := savepen;
+
+%%%%%% character part definitions
+
+def eye(suffix a,b,c,d) (expr w, h) =
+% define points of ellipse relative to z.a
+% z.a = left point, clockwise direction
+% w = width of ellipse
+% h = height of ellipse
+    z.b = (x.a + .5w, y.a + .5h);
+    z.c = (x.a + w,   y.a);
+    z.d = (x.a + .5w, y.a - .5h);
+enddef;
+
+def draw_eye(suffix a,b,c,d) =
+% draw eye through four points defined by eye
+    draw z.a{up}..z.b{right}..z.c{down}..z.d{left}..cycle;
+enddef;
+
+def large_bow(suffix a,b,c,d,e) =
+% define points of full height bow in "rra", "va", "ha"
+% x values relative to x.b
+% y values absolute.
+    z.a=(x.b + 4uw, 0);
+    z.b=(x.b, 10uh);
+    z.c=(x.b + 10uw, 20uh);
+    z.d=(x.b + 20uw, 10uh);
+    z.e=(x.d - 4uw, 0);
+enddef;
+
+def small_bow(suffix a,b,c,d,e) =
+% define points of "half" height bow in "e", "ee", "pa", "pha", "ssa", "ha"
+% x values relative to x.a
+% y values relative to y.a
+    z.b=(x.a - 4uw,  y.a + 7uh);
+    z.c=(x.b + 7uw,  y.a + 14uh);
+    z.d=(x.b + 14uw, y.b);
+    z.e=(x.d - 4uw,  y.a);
+enddef;
+
+def draw_bow (suffix a,b,c,d,e) =
+% draw bow through five points
+    draw z.a..z.b{up}..z.c{right}..z.d{down}..z.e;
+enddef;
+
+def end_loop(suffix a,b,c,d) =
+% define points of end loop of "a", "vocalic l", "ra", etc.
+% x values relative to x.a
+% y values absolute.
+    z.b = (x.a-5uw, 0);
+    z.c = (x.a-8uw, 5uh);
+    z.d = (x.a-2uw, 16uh);
+enddef;
+
+def upside_down_end_loop(suffix a,b,c,d) =
+% define points of upside down end loop of "ddha"
+% x values relative to x.a
+% y values absolute.
+    z.b = (x.a-5uw, 20uh - 0);
+    z.c = (x.a-8uw, 20uh - 5uh);
+    z.d = (x.a-2uw, 20uh - 16uh);
+enddef;
+
+def end_loop_tail(suffix a,b,c,d,e,f,g) =
+% define points of end loop and tail of "aa", "vocalic ll", etc.
+% x values relative to x.a
+% y values absolute.
+% adds 7uw to character width
+% character depth will be at least 6uh
+    z.b = (x.a-5uw, 0);     % was z.b = (x.a-5uw, 0);
+    z.c = (x.a-9uw, 5uh);   % was z.c = (x.a-8uw, 5uh)
+    z.d = (x.a-1uw, 15uh);
+    z.e = (x.a+7uw, 5uh);
+    z.f = (x.a-1uw, -6uh);
+    z.g = (x.a-7uw, -4uh);
+enddef;
+
+def loop_u(suffix a,b,c,d,e,f,g,h,i,j) =
+% define points of "vowel sign u" in chu and shu
+% x coordinates relative to x.a and x.h
+% y coordinates absolute
+    z.b=(x.a-6uw, 0);
+    z.c=(x.a-10uw, 6uh);
+    z.d=(x.a-1uw, 16uh);
+    z.e=(x.a+8uw, 6uh);
+    vowel_sign_u(e,f,g,h,i,j);
+enddef;
+
+def loop_uu(suffix a,b,c,d,e,f,g,h,i,j,k,l) =
+% define points of "vowel sign uu" in chu and shu
+% x coordinates relative to x.a and x.j
+% y coordinates absolute
+    z.b=(x.a-6uw, 0);
+    z.c=(x.a-10uw, 6uh);
+    z.d=(x.a, 16uh);
+    z.e=(x.a+8uw, 10uh);
+    z.f=(x.a+5uw, 6uh);
+    z.g=(x.a+9uw, 1uh);
+    vowel_sign_u(g,h,i,j,k,l);
+enddef;
+
+def vowel_sign_u(suffix a,b,c,d,e,f) =
+% define points of "vowel sign u" in gu, tu, etc.
+% x coordinates relative to x.a and x.d
+% y coordinates absolute
+    z.b=(x.a-9uw, -4uh);
+    z.c=(x.d+3uw, y.b);
+    z.d=(x.d, -7uh);
+    z.e=(x.c, -10uh);
+    z.f=(x.a, y.e);
+enddef;
+
+def vowel_sign_uu(suffix a,b,c,d,e,f,g,h,i) =
+% define points of vowel sign uu as applied in tuu
+% x coordinates relative to x.a and x.g
+% y coordinates absolute
+	z.b=(x.a + 9uw, 13.5uh);
+	z.c=(x.a + 4uw, 9uh);
+	z.d=(x.a + 11uw, .5[y.c, y.e]);
+	vowel_sign_u(d,e,f,g,h,i);
+enddef;
+
+def vowel_sign_ra_u(suffix a,b,c,d,e,f) =
+% define points of "vowel sign u" in ru, etc.
+% x coordinates relative to x.a
+% y coordinates absolute
+	z.b = (x.a+9uw, 14uh);
+	z.c = (x.a+4uw, 10.5uh);
+	z.d = (x.a+11uw, 5.25uh);
+	z.e = (x.a+5uw, 0uh);
+	z.f = (x.a+3uw, .5uh);
+enddef;
+
+def make_sub_triangle(suffix a,b,c,d) =
+% define and draw subscribed triangle for double letters
+% x coordinates relative to z.a
+	z.a=(x.a, 10uh);
+	z.b=(x.a, -10uh);
+	z.c=(x.a-26uw, y.b);
+	z.d=(x.c+18uw, 0.5uh);
+	draw z.a--z.b--z.c--z.d;
+	penlabels(a,b,c,d);
+enddef;
+
+def front_eye(suffix a,b,c,d,e) =
+% defines points of the eye at the start of "i", "u", "kha", "nga", etc.
+% x values relative to x.e
+% y values absolute.
+% note that the eye is not even elliptical here!
+    z.a = (x.e + 1uw, 6uh);
+    z.b = (x.e + 6uw, 12uh);
+    z.c = (x.e + 11uw, y.a);
+    z.d = (x.b, 0);
+enddef;
+
+def end_tha_bow(suffix a,b,c,d,e) =
+% define points of the bow end of "tha", "pha", etc.
+% x values relative to x.a
+% y values relative to y.a
+    z.b=(x.a,       y.a + 9.5uh);
+    z.c=(x.a-8uw,   y.a + 19.5uh);
+    z.d=(x.a-16uw,  y.a + 9.5uh);
+    z.e=(x.d,       y.a);
+enddef;
+
+def draw_end_tha_bow(suffix a,b,c,d,e) =
+    draw z.a---z.b{up}..z.c{left}..{down}z.d---z.e;
+enddef;
+
+def end_ssa(suffix a,b,c,d,e,f,g) =
+% define points of the end of "ssa".
+% x values relative to x.a
+% y values relative to y.a
+    z.b=(x.a,       y.a + 19.5uh);
+    eye(d,e,f,c)(7uw,7uh);
+    z.f=(x.a-14uw,  y.b - 3.5uh);
+    z.g=(x.f,       y.a);
+enddef;
+
+def draw_end_ssa(suffix a,b,c,d,e,f,g) =
+    draw z.a--z.b;
+    draw z.b..z.c{left}..z.d{up}..z.e{right}..z.f{down}---z.g;
+enddef;
+
+def vowel_sign_vocalic_r(suffix a,b,c,d,e) =
+% define points of a "vowel sign vocalic r"
+% x values relative to x.a
+% y values absolute
+    z.b=(x.a-12uw, -11uh);
+    z.c=(x.a-20uw, -8uh);
+    z.d=(x.b,      -5uh);
+    z.e=(x.a-4.25uw,  -7uh);
+enddef;
+
+def subscribed_ra(suffix a,b,c,d,e)(expr depth) =
+% define points of subscribed ra
+% (some) x coordinates relative to x.a
+% y coordinates absolute or relative to d
+	numeric sub_ra_tmp;
+	sub_ra_tmp := 2.1*(uw/uh)*depth;
+	if sub_ra_tmp > .45x.a : sub_ra_tmp := .45x.a; fi;
+	z.b = (x.a - sub_ra_tmp, -depth);
+	z.c = (sub_ra_tmp, -depth);
+	z.d = (0, 10uh);
+	z.e = (3.5uw, 20uh);
+enddef;
+
+def virama_tail(suffix a,b,c,d,e,f,g) =
+% define points of the tail for virama in "n", "nn", "r", and "ll"
+% x values relative to x.a
+% y values absolute
+    z.b = (x.a-4.5uw, 0);
+    z.c = (x.a-9uw, 6uh);
+    z.d = (x.a-7uw, 15uh);
+    z.e = (x.a-4uw, 24uh);
+    z.f = (x.a-8uw, 28uh);
+    z.g = (x.a-13uw, 25uh);
+enddef;
+
+def letter_ka(suffix a,b,c,d,l,e,f,g,h,i,j,k) =
+% define points of "malayalam letter ka",
+% y coordinates relative to y.f
+% x coordinates absolute
+    % middle loop
+    z.a=(x.f + 10uw, 11uh);
+    z.l=(x.f + 11uw, 4uh);
+    z.b=(x.f + 16uw, 20uh);
+    z.c=(x.f + 22uw, y.a);
+    z.d=(x.b, 0);
+    % first loop
+    z.e=(x.f + 5uw, 0);
+    z.f=(x.f, 5.5uh);
+    z.g=(x.f + 6uw, y.a);
+    % tail
+    z.h=(x.f + 26uw, y.a);
+    z.i=(x.f + 32uw, y.f);
+    z.j=(x.f + 27uw, 0);
+    z.k=(x.f + 25uw, 1uh);
+enddef;
+
+def letter_k_ka(suffix a,b,c,d,e,f,g,h,i,j,k,l,m,n,o) = 
+% define points of "malayalam letter k+ka"
+% x coordinates relative to x.g
+% y coordinates absolute;
+    letter_ka(a,b,c,d,e,f,g,h,i.tmp,j.tmp,k.tmp,l.tmp);
+    z.i=(x.g + 31.5uw, 11uh);
+    z.j=(x.g + 37uw, 5.5uh);
+    z.k = (.45[x.j, x.l], 0);
+    z.l = (x.g + 27uw, 10uh);
+    z.m = (x.l + 10uw, 20uh);
+    z.n = (x.l + 20uw, y.l);
+    z.o = (x.n - 4uw, 0);
+enddef;
+
+def letter_ga(suffix a,b,c,d,e,f,g) = 
+% define points of "malayalam letter ga"
+% x coordinates relative to x.b
+% y coordinates absolute;
+    % first curl
+    z.a=(x.b+8uw, 20uh);
+    z.b=(x.b, 10uh);
+    z.c=(x.b+8uw, 0);
+    % middle point
+    z.d=(x.b+16uw, 10uh);
+    % second curl
+    z.e=(x.b+24uw, 20uh);
+    z.f=(x.b+32uw, 10uh);
+    z.g=(x.b+24uw, 0);
+enddef;
+
+def letter_ca(suffix a,b,c,d,e,f,g,h) =
+% define points of "malayalam letter ca"
+% x coordinates relative to x.f
+% y coordinates absolute;
+    % first bow, (height = 14)
+    z.a=(x.f+4uw, 6uh);
+    z.b=(x.f+4uw, 7uh);
+    z.c=(x.f+11uw, 14uh);
+    z.d=(x.f+18uw, y.b);
+    z.e=(x.f+9uw, .5uh);
+    % hook
+    z.f=(x.f, y.e);
+    z.g=(x.f+36uw, y.e);
+    z.h=(x.f+36uw, 19.5uh);
+enddef;
+
+def letter_cha(suffix a,b,c,d,e,f,g,h,i,j,k,l,m,n) =
+% define points of "malayalam letter cha"
+% x coordinates relative to x.f
+% y coordinates absolute;
+    letter_ca(a,b,c,d,e,f,g.tmp,h.tmp);
+    z.g=(x.h-3uw, y.e);
+    z.h=(x.f+30uw, 0);
+    letter_ra(h,i,j,k,l,m,n);
+enddef;
+
+def letter_ja(suffix a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r) =
+% define points of "malayalam letter ja"
+% x coordinates relative to x.a
+% y coordinates absolute;
+    % first eye
+    z.a=(x.a, 12uh);
+    eye(a,b,c,d)(8uw, 8uh);
+    % first bow
+    z.e=(x.a, 14uh);
+    z.f=(x.a+7uw, 20uh);
+    z.g=(x.a+14uw, 13uh);
+    z.h=(x.g, 8uh);
+    % second bow
+    z.i=(x.a+21uw, 20uh);
+    z.j=(x.a+26uw, 14uh);
+    % tail
+    z.k=(x.a+13uw, 4uh);
+    z.l=(x.a+.5uw, -2uh);
+    z.m=(x.a+7uw, -6uh);
+    z.n=(x.a+15uw, -3uh);
+    % second eye (diameter = 6)
+    z.p=(x.a+22.5uw, 0);
+    eye(o,p,q,r)(6uw, 6uh);
+enddef;
+
+def letter_jha(suffix a,b,c,d,e,f,g,h,i,j,k,l,m,n) =
+% define points of "malayalam letter jha"
+% x coordinates relative to x.b
+% y coordinates absolute;
+    % first bow
+    z.a=(x.b+4uw, 0);
+    z.b=(x.b, 10uh);
+    z.c=(x.b+10uw, 20uh);
+    z.d=(x.b+20uw, 8uh);
+    z.e=(x.b+15uw, 0);
+    % second bow
+    z.f=(x.b+10uw, y.d);
+    z.g=(x.b+20uw, 20uh);
+    z.h=(x.b+28uw, 10uh);
+    z.i=(x.b+35uw, 0);
+    z.j=(x.b+42uw, 10uh);
+    z.k=(x.j, 19.5uh);
+    z.l=(x.b+50uw, 0);
+    z.m=(x.b+58uw, 10uh);
+    z.n=(x.b+54uw, 20uh);
+enddef;
+
+def letter_nya(suffix a,b,c,d,e,f,g,h,i,j,k,l,m,n,o) =
+% define points of letter nya
+% x coordinates relative to x.e
+% y coordinates absolute
+    front_eye(a,b,c,d,e);
+    z.e=(x.e, 10uh);
+    z.f=(x.e + 9uw, 20uh);
+    z.g=(x.e + 17uw, 10uh);
+    z.h=(x.g, .5uh);
+    % second bow
+    z.i=(x.e + 26uw, 20uh);
+    z.j=(x.e + 36uw, 8uh);
+    z.k=(x.e + 31uw, 0);
+    z.l=(x.e + 26uw, 8uh);
+    % third bow
+    z.m=(x.e + 36uw, 20uh);
+    z.n=(x.e + 46uw, 10uh);
+    z.o=(x.e + 42uw, 0);
+enddef;
+
+def letter_tta(suffix a,b,c,d,e,f,g) =
+% define points of "malayalam letter tta" (looks like "latin letter s")
+% x coordinates relative to x.c
+% y coordinates absolute;
+    z.a=(x.c+18uw, 18uh);
+    z.b=(x.c+9uw, 20uh);
+    z.c=(x.c, 15uh);
+    z.d=(x.c+9uw, 10uh);
+    z.e=(x.c+18uw, 5uh);
+    z.f=(x.c+9uw, 0);
+    z.g=(x.c, 2uh);
+enddef;
+
+def letter_dda(suffix a,b,c,d,e,f,g,h,i,j) = 
+% define points of "malayalam letter dda"
+% x coordinates relative to x.b
+% y coordinates absolute;
+    % (almost) upside down mirror image of "malayalam letter sa"
+    z.a=(x.b+4uw, 0);
+    z.b=(x.b, 10uh);
+    z.c=(x.b+7uw, 20uh);
+    z.d=(x.b+14uw, 10uh);
+    z.e=(x.b+21uw, 0);
+    z.f=(x.b+28uw, 10uh);
+    z.g=(x.f, 19.5uh);
+    z.h=(x.b+36uw, 0);
+    z.i=(x.b+44uw, 10uh);
+    z.j=(x.b+40uw, 20uh);
+enddef;
+
+def letter_ta(suffix a,b,c,d,e,f,g,h,i) = 
+% define points of "malayalam letter ta"
+% x coordinates relative to x.b
+% y coordinates absolute;
+    % first bow
+    z.a=(x.b+4uw, 0);
+    z.b=(x.b, 10uh);
+    z.c=(x.b+10uw, 20uh);
+    z.d=(x.b+20uw, 8uh);
+    z.e=(x.b+15uw, 0);
+    % second bow
+    z.f=(x.b+10uw, y.d);
+    z.g=(x.b+20uw, 20uh);
+    z.h=(x.b+30uw, 10uh);
+    z.i=(x.b+26uw, 0);
+enddef;
+
+def letter_da(suffix a,b,c,d,e,f,g,h,i) = 
+% define points of "malayalam letter da"
+% x coordinates relative to x.b
+% y coordinates absolute;
+    z.a=(x.b+2uw, 0);
+    z.b=(x.b, 10uh);
+    z.c=(x.b+9uw, 20uh);
+    z.d=(x.b+17uw, 15uh);
+    z.e=(x.b+8uw, 10uh);
+    z.f=(x.b+7uw, y.e);
+    z.g=(x.b+18uw, 5uh);
+    z.h=(x.b+12uw, 0);
+    z.i=(x.b+6uw, 1uh);
+enddef;
+
+def letter_dha(suffix a,b,c,d,e,f,g,h) = 
+% define points of "malayalam letter dha"
+% x coordinates relative to x.b
+% y coordinates absolute;
+    z.a=(x.b+4uw, 20uh);
+    z.b=(x.b, 10uh);
+    z.c=(x.b+8uw, 0);
+    z.d=(x.b+16uw, 10uh);
+    z.e=(x.d, 19.5uh);
+    z.f=(x.b+24uw, 0);
+    z.g=(x.b+32uw, 10uh);
+    z.h=(x.b+28uw, 20uh);
+enddef;
+
+def letter_na(suffix a,b,c,d,e,f,g,h) = 
+% define points of "malayalam letter na"
+% x coordinates relative to x.b
+% y coordinates absolute;
+    z.a=(x.b+4uw, 0);
+    z.b=(x.b, 10uh);
+    z.c=(x.b+8uw, 20uh);
+    z.d=(x.b+16uw, 10uh);
+    z.e=(x.d, .5uh);
+    z.f=(x.b+24uw, 20uh);
+    z.g=(x.b+32uw, 10uh);
+    z.h=(x.b+28uw, 0);
+enddef;
+
+def draw_letter_na(suffix a,b,c,d,e,f,g,h) = 
+    draw z.a..z.b{up}..z.c{right}..{down}z.d---z.e;
+    draw z.e---z.d{up}..z.f{right}..z.g{down}..z.h;
+enddef;
+
+def letter_n_na(suffix a,b,c,d,e,f,g,h,i,j,k) = 
+% define points of "malayalam letter na"
+% x coordinates relative to x.b
+% y coordinates absolute;
+	letter_na(a,b,c,d,e,f,g,h');
+	letter_na(d',e',f',g,h,i,j,k);
+enddef;
+
+def half_ba(suffix a,b,c,d,e,f,g,h,i,j,k) =
+% define points of first half of letter ba (32uw wide)
+% x coordinates relative to x.e
+% y coordinates absolute
+    front_eye(a,b,c,d,e);
+    % first bow
+    z.e=(x.e, 10uh);
+    z.f=(x.e+9uw, 20uh);
+    z.g=(x.e+17uw, 10uh);
+    z.h=(x.g, 0);
+    % second bow
+    z.i=(x.e+24uw, 20uh);
+    z.j=(x.e+32uw, 10uh);
+    z.k=(x.e+28uw, 0);
+enddef;
+
+def letter_bha(suffix a,b,c,d,e,f,g,h,i,j,k,l) =
+% define points of "malayalam letter bha"
+% x coordinates relative to x.b
+% y coordinates absolute;
+    z.a=(x.b+2uw, 0);
+    z.b=(x.b, 10uh);
+    z.c=(x.b+11uw, 20uh);
+    z.d=(x.b+19uw, 16uh);
+    z.e=(x.d-3uw, y.d-3uh);
+    z.f=(x.g+3uw, y.g+3uh);
+    z.g=(x.b+6uw, 10uh);
+    z.h=(x.g+3uw, y.g-3uh);
+    z.i=(x.j-3uw, y.j+3uh);
+    z.j=(x.b+20uw, 4uh);
+    z.k=(x.b+14uw, 0);
+    z.l=(x.b+6uw, 1uh);
+enddef;
+
+def letter_ma(suffix a,b,c,d,e,f,g,h) = 
+% define points of "malayalam letter ma"
+% x coordinates relative to x.a
+% y coordinates absolute;
+    z.a=(x.a, .5uh);
+    z.b=(x.a+12uw, 14uh);
+    z.c=(x.a+7uw, 19uh);
+    z.d=(x.a+3uw, 17uh);
+    % outer loop
+    z.e=(x.a, 10uh);
+    z.f=(x.a+10uw, 20uh);
+    z.g=(x.a+20uw, y.e);
+    z.h=(x.g, y.a);
+enddef;
+
+def draw_letter_ma(suffix a,b,c,d,e,f,g,h) = 
+    draw z.a..z.b{up}..z.c{left}..z.d;
+    draw z.a--z.h & z.h---z.g{up}..z.f{left}..{down}z.e---z.a;
+enddef;
+
+def letter_ya(suffix a,b,c,d,e,f,g,h,i,j) =
+% define points of "malayalam letter ya"
+% x coordinates relative to x.e
+% y coordinates absolute;
+    z.a=(x.e+11.5uw, 14uh);
+    z.b=(.5[x.a,x.c], 20uh);
+    z.c=(x.e+24uw, 12uw);
+    z.d=(.5[x.c,x.e], 0);
+    z.e=(x.e, 12uh);
+    z.f=(x.e+6uw, 20uh);
+    z.g=(x.e+11.5uw, 12uh);
+    z.h=(.5[x.g,x.i], 0);
+    z.i=(x.e+32uw, 10uh);
+    z.j=(x.e+28uw, 20uh);
+enddef;
+
+def letter_ra(suffix a,b,c,d,e,f,g) =
+% define points of "malayalam letter ra"
+% x coordinates relative to x.b
+% y coordinates absolute;
+    large_bow(a,b,c,d,e.tmp);
+    end_loop(d,e,f,g);
+enddef;
+
+def letter_la(suffix a,b,c,d,e,f) =
+% define points of "malayalam letter la"
+% x coordinates relative to x.a
+% y coordinates absolute;
+	z.a=(x.a, 8.5uh);
+	z.b=(x.a+18uw, y.a);
+	z.c=(x.a+9uw, 20uh);
+	z.d=(x.a, .5uh);
+	z.e=(x.a+32uw, y.d);
+	z.f=(x.e, 19.5uh);
+enddef;
+
+def letter_sha(suffix a,b,c,d,e,f,g,h,i) =
+% define points of "malayalam letter sha"
+% x coordinates relative to x.b
+% y coordinates absolute;
+    letter_ga(a,b,c,d,e,f,g.tmp);
+    end_loop(f,g,h,i);
+enddef;
+
+def letter_sa(suffix a,b,c,d,e,f,g,h,i,j) =
+% define points of "malayalam letter sa"
+% x coordinates relative to x.b
+% y coordinates absolute;
+    z.a=(x.b+4uw, 0);
+    z.b=(x.b, 10uh);
+    z.c=(x.b+8uw, 20uh);
+    z.d=(x.b+16uw, 10uh);
+    z.e=(x.d, .5uh);
+    z.f=(x.b+23uw, 20uh);
+    z.g=(x.b+30uw, 10uh);
+    z.h=(x.b+37uw, 0);
+    z.i=(x.b+44uw, 10uh);
+    z.j=(x.b+40uw, 20uh);
+enddef;
+
+def letter_ha(suffix a,b,c,d,e,f,g,h,i,j,k,l) =
+% define points of "malayalam letter ha"
+% x coordinates relative to x.b
+% y coordinates absolute;
+    y.a = y.h = 0;
+	small_bow(a,b,c,d,e);
+	z.f = z.e + (3uw, .5uh);
+	z.g	= z.h + (-3uw, .5uh);
+	x.k = x.b+42uw;
+	large_bow(h,i,j,k,l);
+enddef;
+
+endinput;
+
+% end of mmdefs.mf

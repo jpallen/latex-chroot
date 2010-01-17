@@ -1,0 +1,152 @@
+% $Header: /u/levy/texts/geombook/RCS/geombk11.sty,v 1.1 1992/07/11 22:32:09 levy Exp levy $
+
+%
+% This is the geom style bk12 file, by Silvio Levy.
+% It contains modifications to bk12.sty of <24 Nov 89>.
+%
+% \typeout{Reading geombk12.sty $Revision: 1.1 $ (changes to bk12.sty)}
+
+% make the \parsep 0pt
+
+\def\small{\@setsize\small{12pt}\xpt\@xpt
+  \abovedisplayskip 10pt plus2pt minus5pt
+  \belowdisplayskip \abovedisplayskip
+  \abovedisplayshortskip 0pt plus3pt
+  \belowdisplayshortskip 6pt plus3pt minus3pt
+  \def\@listi{\leftmargin\leftmargini \parsep 0pt
+    \itemsep 3pt plus 2pt minus 0pt
+    \topsep 6pt plus 2pt minus 2pt}}
+
+\def\footnotesize{\@setsize\footnotesize{11pt}\ixpt\@ixpt
+  \abovedisplayskip 8pt plus 2pt minus 4pt%
+  \belowdisplayskip \abovedisplayskip
+  \abovedisplayshortskip \z@ plus 1pt%
+  \belowdisplayshortskip 4pt plus 2pt minus 2pt
+  \def\@listi{\leftmargin\leftmargini %% Added 22 Dec 87
+  \parsep 0pt
+  \topsep 4pt plus 2pt minus 2pt
+  \itemsep 2pt plus 1pt minus 1pt}}
+
+% Make chapter and section heads less huge 
+
+\let\chapheadsize=\LARGE
+\let\huge=\Large
+\let\Large=\large
+
+% Increase the page size 
+
+\textwidth 5.5in \oddsidemargin .6in \evensidemargin .4in 
+
+\textheight = 44\baselineskip \advance\textheight by \topskip \topmargin -.25in
+
+% Increase the parindent
+
+\parindent 20pt 
+
+% Extra vertical space, in addition to 
+% \parskip and \topsep, added when user
+% leaves blank line before environment.
+% (Changed from 3 +2 -2)
+
+\partopsep 2pt plus 1pt minus 1pt 
+
+% Replaced \Huge by \chapheadsize, added +10pt at end
+
+\def\@makechapterhead#1{             % Heading for \chapter command
+  \vspace*{50pt}                     % Space at top of text page.
+  { \parindent 0pt \raggedright 
+    \ifnum \c@secnumdepth >\m@ne     % IF secnumdepth > -1 THEN
+      \huge\bf \@chapapp{} \thechapter % Print 'Chapter' and number.
+      \par 
+      \vskip 20pt \fi                  % Space between number and title.
+    \chapheadsize \bf                        % Title.
+    #1\par 
+    \nobreak                         % TeX penalty to prevent page break.
+    \vskip 40pt plus 10 pt           % Space between title and text.
+  } }
+
+\def\@makeschapterhead#1{             % Heading for \chapter* command
+  \vspace*{50pt}                     % Space at top of page.
+  { \parindent 0pt \raggedright 
+    \chapheadsize \bf                        % Title.
+    #1\par 
+    \nobreak                         % TeX penalty to prevent page break.
+    \vskip 40pt plus 10pt            % Space between title and text.
+  } }
+
+% Don't skip page if proofing
+
+\def\chapter{\ifproofing\clearpage\else\cleardoublepage\fi 
+   \thispagestyle{chapter}   % Page style of chapter page is 'plain'
+   \global\@topnum\z@        % Prevents figures from going at top of page.
+   \@afterindentfalse        % Suppresses indent in first paragraph.  Change
+   \secdef\@chapter\@schapter}   % to \@afterindenttrue to have indent.
+
+% Define \object@type
+% stepcounter section so subsidiary counters (e.g. theorems) get reset
+% don't \typeout
+% mess with \addcontentsline
+% no need for \protect before \addvspace
+% automatic label
+
+\def\@chapter[#1]#2{%
+ \ifnum \c@secnumdepth >\m@ne \def\object@type{chapter}
+ \refstepcounter{section}\refstepcounter{chapter}
+       \def\@tempa{\addcontentsline{toc}{chapter}}%
+       \edef\@tempb{\noexpand\numberline{\thechapter}}%
+       \expandafter\@tempa\expandafter{\@tempb #1}%
+ \else\addcontentsline{toc}{chapter}{#1}\fi
+ \chaptermark{#1}%
+ \addtocontents{lof}{\addvspace{10pt}}
+ \addtocontents{lot}{\addvspace{10pt}} 
+ \if@twocolumn \@topnewpage[\@makechapterhead{#2}]%
+  \else \@makechapterhead{#2}\@afterheading \fi
+ \ifautolabel\label*{#2}\fi}
+
+% add mark and table of contents line
+
+\def\@schapter#1{%
+ \schaptermark{#1}
+ \ifstarredcontents\addcontentsline{toc}{chapter}{#1}\fi
+ \addtocontents{lof}{\addvspace{10pt}}
+ \addtocontents{lot}{\addvspace{10pt}} 
+ \if@twocolumn \@topnewpage[\@makeschapterhead{#1}]
+  \else \@makeschapterhead{#1}\@afterheading\fi}
+
+% Normalize according to \parindent
+
+\leftmargini\parindent
+\listparindent .8\parindent
+\leftmarginii .8\parindent
+\leftmarginiii .8\parindent
+\leftmarginiv .8\parindent
+\leftmarginv .8\parindent
+\leftmarginvi .8\parindent
+\leftmargin\leftmargini
+\labelwidth\leftmargini\advance\labelwidth-\labelsep
+
+% Make \parsep 0
+
+\def\@listI{\leftmargin\leftmargini
+  \topsep 6pt plus 3pt minus 3pt
+  \itemsep 3pt plus 2pt minus \p@
+  \parsep \z@}
+\let\@listi\@listI
+\@listi 
+
+\def\@listii{\leftmargin\leftmarginii
+ \labelwidth\leftmarginii\advance\labelwidth-\labelsep
+ \topsep 5pt plus 2.5pt minus \p@
+ \itemsep 2.5pt plus \p@ minus \p@
+ \parsep \z@}
+
+\def\@listiii{\leftmargin\leftmarginiii
+ \labelwidth\leftmarginiii\advance\labelwidth-\labelsep
+ \topsep 2.5pt plus \p@ minus \p@ 
+ \parsep \z@ \partopsep \p@ plus \z@ minus \p@
+ \itemsep \topsep}
+
+% $Log: geombk11.sty,v $
+%Revision 1.1  1992/07/11  22:32:09  levy
+%Initial revision
+%

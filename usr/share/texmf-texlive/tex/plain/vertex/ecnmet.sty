@@ -1,0 +1,151 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% ecnmet.sty  -- Economagica style for VerTeX
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Set pagesize
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\hsize=29pc
+\vsize=46pc
+\hoffset=1in
+\voffset=1in
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Headline and footline
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\runningname{Use $\$ runningname}
+\runningtitle{Use $\$ runningtitle}
+
+\nopagenumbers
+\def\rightheadline{\hbox to \hsize{{\hfil\scten\runtitle}\hfil{\folio}}}
+\def\leftheadline{\hbox to \hsize{\folio \hfil {\scten\runname}\hfil}}
+\headline={\ifodd\pageno\rightheadline \else\leftheadline\fi}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     Redefine figure macro
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\Figure#1#2#3{
+     \midinsert
+     \vbox to #2{\vfil}
+     \hbox to \hsize{\hss\vbox{\parindent=0pt
+     {\scten Figure \number#1}.---\rm #3}}
+     \endinsert}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Define topmatter style
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\TitleFont=\sctwelve
+\let\AuthorFont=\scten
+
+\def\title#1{\DoCenteredTitle{\expandafter\uppercase{#1}}}
+
+\def\author#1{\DoCenteredAuthor{By #1}}
+\def\authortwo#1{\message{Use ``author'' for both authors in this style.}}
+
+\def\affil#1{\global\setbox\affilbox\vbox{\nineit\noindent #1}}
+\def\affiltwo#1{\message{Do not use "affiltwo" in this style.}}
+
+\def\thanks#1{\global\setbox\thanksbox\hbox{{\eightpoint #1\par}}}
+
+\def\date#1{\global\setbox\datebox\vbox{\tenrm #1 \hfil}}
+\def\version#1{}
+
+\def\abstract#1{\global\setbox\abstractbox\vbox
+       {\eightpoint\hsize=23pc\parindent=8pt#1\par}}
+
+\def\keywords#1{}
+\def\address#1{}
+
+\def\topmatter{\relax}
+\def\endtopmatter{\DoTop}
+
+\let\SectionFont=\scten
+
+\RomanSectionfalse
+
+\def\section#1\par{\DoCenteredSection{\uppercase{#1}}}
+
+\def\subsection#1\par{\BigBreak\noindent
+   {\hfil \it \number\SectionNumber.\number\SubsectionNumber\enspace #1\hfil}
+   \nobreak\medskip\noindent}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Math conventions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\outer\def\proclaim #1. #2\par{\medbreak
+  {\scten#1:\enspace}{\sl#2}\par
+  \ifdim\lastskip<\medskipamount \removelastskip\penalty55\medskip\fi}
+
+\let\eqno=\leqno
+\let\eqalignno=\leqalignno
+
+\def\proof{\goodbreak{\scten Proof:\enspace}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\RefFont=\tenpoint
+\def\vol#1{\setbox\volbox\hbox{#1}}
+
+\def\Refs{\vskip1in
+\centerline{\scten REFERENCES}
+\vskip 2pc\RefFont}
+
+\def\by#1{\setbox\bybox\hbox{\scten{#1}}}
+
+\def\SetRef{
+  \vskip 3pt
+  \ifjour\jourfalse\vbox{\HangRef
+     \unhbox\bybox:\space ``\unhbox\paperbox,'' 
+     {\unhbox\jourbox} \unhbox\volbox\space 
+     \ifvoid\nobox\relax\else\space no. \unhbox\nobox \fi
+     (\unhbox\yrbox), \unhbox\pagesbox. \par}\fi
+
+  \ifbook\bookfalse\par\vbox{\HangRef
+     \unhbox\bybox\space {\it \unhbox\bookbox}. \unhbox\publaddrbox : 
+         \unhbox\publbox , \unhbox\yrbox.\par}\fi
+
+ \ifinbook\inbookfalse\par\vbox{\HangRef
+     \unhbox\bybox\space (\unhbox\yrbox): ``\unhbox\paperbox,'' in 
+     {\it \unhbox\bookbox}, ed. by {\rm \unhbox\editorbox}.
+     \unhbox\publaddrbox : \unhbox\publbox \ifvoid\pagesbox\relax
+     \else, \unhbox\pagesbox .\fi\par}\fi
+
+ \ifunpublished\unpublishedfalse\par\vbox{\HangRef
+     \unhbox\bybox:
+    ``\unhbox\paperbox, '' \unhbox\paperinfobox,\space\unhbox\yrbox.\par}\fi
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Set the paper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\titlehead{\line{\hfil\eightpoint{\it Economagica}, Vol. 99, No. 9 (March, 1999) pp. 9--99\hfil}}
+\def\titlefoot{\hfil}
+
+\def\DoTop{
+\vglue 1pc
+\line{\hfil\box\titlebox\hfil}
+\vskip 1pc
+\line{\hfil\box\authorbox\hfil}
+\ifvoid\thanksbox\relax\else
+   \vfootnote{$^1$}{\eightpoint \unhbox\thanksbox \par}\fi
+\vskip1pc
+\line{\hfil\box\abstractbox\hfil}
+\vskip 2.5pc}
+
+\def\document{\tenpoint\relax}
+
+\parindent=10pt
+\tenpoint
+\def\footnoterule{}

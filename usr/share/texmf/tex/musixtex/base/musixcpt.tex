@@ -1,0 +1,826 @@
+%
+%   This file is part of MusiXTeX
+%
+%   MusiXTeX is free software; you can redistribute it and/or modify
+%   it under the terms of the GNU General Public License as published by
+%   the Free Software Foundation; either version 2, or (at your option)
+%   any later version.
+%
+%   MusiXTeX is distributed in the hope that it will be useful,
+%   but WITHOUT ANY WARRANTY; without even the implied warranty of
+%   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%   GNU General Public License for more details.
+%
+%   You should have received a copy of the GNU General Public License
+%   along with MusiXTeX; see the file COPYING.  If not, write to
+%   the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+%   Boston, MA 02111-1307, USA.
+%
+%%% for those who want compatibility, input it !after! musixtex and all
+%%% other \input files, means: at very last
+
+\ifx\undefined\DIMin \else \endinput \fi
+
+\immediate\write10{MusiXComPaTible T.109\space<7 July 2002>}%
+
+\ifx\undefined\mxversion \errmessage{MusiXcpt input before MusiXTeX !}\fi
+
+\edef\catcodeat{\the\catcode`\@}\catcode`\@=11
+\catcodesmusic
+
+\voffset=-15.4mm
+\parindent=10mm
+
+\def\z@suspend@autoflag{\ifx\auto@flag\empty
+ \fil@autolines\fi \let\auto@flag\empty}
+
+  
+\let\fil@autolines\empty
+\let\auto@flag\empty
+
+\def\updatecontext{%
+  \T@bil \writ@newclefs\wbarno@x\Writ@newsigns
+    \Writ@meters\addspace\afterruleskip
+  \else\fil@autolines\let\auto@flag\@ne
+    \writ@newclefs\Writ@newsigns\z@suspend\@NewPage\fi}
+
+\def\changecontext{\n@wbar\updatecontext}
+\def\zchangecontext{\advance\n@skip\beforeruleskip \widthtyp@\@ne \t@rmskip
+  \zn@wbar\updatecontext}
+
+\def\@breakpassInoauto{\def\T@bil{\getcurpos \ifdim\y@v<\h@lf\line@width}}
+\def\ori@passIzbarre{\zn@wbar\fil@{z \the\barno}}
+
+\def\ori@passIendsection{\fil@{*\space\the\mulooseness}\mulooseness\z@}
+
+\def\@breakpassIauto{\advance\barsinlin@\@ne \ifnum\barsinlin@<\maxbarsinline}%
+
+\def\@xbarrepassIauto{\T@bil \else\advance\barsinlin@\m@ne \fi\@bar}
+\let\@xbarrepassIIauto\barre
+
+\def\@zbarpassIauto{\T@bil \zn@wbar\else\zstoppiec@\@NewPage\fi}
+
+%!!! Attention: If you use \autolines, take care for the number of lines.
+%    If they exceed 127, trouble will be ahead. (adjust MAX_SECTIONS in
+%      musixflx.c or insert a \suspmorceau..\debutmorceau)  !!!
+
+\def\autolines#1#2#3{% #1 nombre d'elemskip par mesure,
+%                      #2 nombre de mesures par ligne,
+%                      #3 nb lignes par page
+  \ifstartmuflex@done\else\startmuflex\fi
+  \global\maxbarsinline=#2\relax
+  \global\maxlinesinpage=#3\relax
+  \let\count@lines\count@lines@auto
+  \ifx\ragg@d\empty % ---> pass 1
+    \message{/autolines pass I }%
+    \let\xbar=\@xbarrepassIauto
+    \let\zbar=\@zbarpassIauto
+    \let\@nds@ction=\empty
+    \def\fil@autolines{\fil@{a}}%
+    \let\barsinline=\barsinlin@
+    \let\T@bil=\@breakpassIauto
+  \else %---> pass 2
+    \message{/autolines pass II }%
+    \let\xbar=\@xbarrepassIIauto
+    \let\@nds@ction=\empty
+  \fi}
+
+\def\noautolines{\let\fil@autolines\empty
+  \ifstartmuflex@done\else\startmuflex\fi
+  \let\xbar\ori@xbarre % original X handling
+  \let\count@lines\count@lines@empty
+  \ifx\ragg@d\empty %---> pass 1
+    \message{/noautolines pass I }%
+    \let\zbar\ori@zbarre % original X handling
+    \let\barsinline=\barsinline@ori
+    \let\T@bil\ori@T@bil
+    \let\@nds@ction=\ori@passIendsection
+  \else
+    \message{/noautolines pass II }%
+    \let\@nds@ction=\empty
+  \fi}
+ %
+
+\def\count@lines@auto{\global\advance\linesinpage\@ne
+  \ifnum\linesinpage<\maxlinesinpage
+  \else \eject \global\linesinpage\z@ \fi}
+\def\count@lines@empty{\global\advance\linesinpage\@ne}
+\let\count@lines\count@lines@empty
+  
+\def\@NewPage{\count@lines \contpiece}
+\def\@LeftRp{\stoppiec@\@NewPage\addspace{\h@lf\afterruleskip}%
+  \kernm\afterruleskip\l@eftrepeat\kern\afterruleskip}
+
+\def\T@bil{\advance\barsinlin@\@ne \ifnum\barsinlin@<\maxbarsinlin@}
+\def\ori@T@bil{\advance\barsinlin@\@ne \ifnum\barsinlin@<\maxbarsinlin@}
+
+\def\barre{\T@bil \@bar\else\stoppiec@\@NewPage\fi}
+
+\def\xbar{\@bar\global\advance\barsinpi@c@\m@ne }
+\def\ori@xbarre{\@bar\global\advance\barsinpi@c@\m@ne }
+
+\def\zbar{\T@bil \zn@wbar\else\zstoppiece\@NewPage\fi}
+\def\ori@zbarre{\T@bil \zn@wbar\else\zstoppiece\@NewPage\fi}
+
+\def\alaligne{\stoppiece\@NewPage}
+\def\Suspmorceau{\Stoppiece\count@lines}
+\def\suspmorceau{\stoppiece\count@lines}
+\def\zalaligne{\zstoppiece\@NewPage}
+\def\leftrepeat{\leftrepeat@II}
+\def\leftrepeat@II{\T@bil \setleftrepeat\@bar\else\@LeftRp\fi}
+\def\leftrightrepeat{\leftrightrepeat@II}
+\def\leftrightrepeat@II{\T@bil \setleftrightrepeat\@bar
+  \else\setrightrepeat\@LeftRp\fi}
+
+\def\finrightrepeat{\setrightrepeat\stoppiec@}
+
+
+\let\nbporteesi\n@pi
+\let\nbporteesii\n@pii
+\let\nbporteesiii\n@piii
+\let\nbporteesiv\n@piv
+\let\nbporteesv\n@pv
+\let\nbporteesvi\n@pvi
+\def\nbporteesvii{\n@pvii}%
+\def\nbporteesviii{\n@pviii}%
+\def\nbporteesix{\n@pvix}%
+
+\def\nbstaffsi{\n@pi}%
+\def\nbstaffsii{\n@pii}%
+\def\nbstaffsiii{\n@piii}%
+\def\nbstaffsiv{\n@piv}%
+\def\nbstaffsv{\n@pv}%
+\def\nbstaffsvi{\n@pvi}%
+\def\nbstaffsvii{\n@pvii}%
+\def\nbstaffsviii{\n@pviii}%
+\def\nbstaffsix{\n@pvix}%
+
+\def\resetlayout{\nullthick\f@ur\Interligne \let\interfacteur\nin@
+  \stafftopmarg\thr@@\Interligne \staffbotmarg\thr@@\Interligne
+  \let\stafflinesnbi\fiv@ \let\stafflinesnbii\fiv@ \let\stafflinesnbiii\fiv@
+  \let\stafflinesnbiv\fiv@ \let\stafflinesnbv\fiv@ \let\stafflinesnbvi\fiv@
+  \let\clefdesoli\trebleclef \let\clefdesolii\trebleclef
+  \let\clefdesoliii\trebleclef \let\clefdesoliv\trebleclef
+  \let\clefdesolv\trebleclef \let\clefdesolvi\trebleclef
+  \let\clefduti\altoclef \let\clefdutii\altoclef
+  \let\clefdutiii\altoclef \let\clefdutiv\altoclef
+  \let\clefdutv\altoclef \let\clefdutvi\altoclef
+  \let\clefdefai\bassclef \let\clefdefaii\bassclef
+  \let\clefdefaiii\bassclef \let\clefdefaiv\bassclef
+  \let\clefdefav\bassclef \let\clefdefavi\bassclef
+  \elemskip\f@ur\Internote}
+
+% These definition depends on the assumption, that \elemskip is equal 10pt
+
+\def\hqsk{\off{.3\@l@mskip}}
+\def\qsk{\hqsk\hqsk}
+
+% ============================
+% will change
+
+\chardef\@li=51
+\chardef\@liii=53
+\newif\ifcautionacc
+
+\def\@acc#1{\check@staff
+  \inhgetn@i#1\relax\@BigAcc
+  \fi}
+\def\@BigAcc{\pl@base\raise\y@i\llap{\musixchar\n@v\kern\accshift}}
+
+\def\bigfl{\n@v\@l \@acc}
+\def\bigdfl{\n@v\@li \@acc}
+\def\bigsh{\n@v\@lii \@acc}
+\def\bigdsh{\n@v\@liii \@acc}
+\def\bigna{\n@v\@liv \@acc}
+
+\def\@smallacc#1{\check@staff
+  \inhgetn@i#1\relax\n@iv\fiv@ \@SmallACC
+  \fi}
+\def\@SmallACC{\check@staff
+  \pl@base\raise\y@i\llap{\@SmallAcc\kern\accshift}\fi}
+\def\@SmallAcc{\check@staff
+  \ifcautionacc\C@ChaR \fi \musixchar\n@v
+  \ifcautionacc\kern.3\qn@width \fi
+  \fi\global\cautionaccfalse}
+
+\def\smallna{\n@v94\@smallacc}
+\def\smallfl{\n@v90\@smallacc}
+\def\smallsh{\n@v92\@smallacc}
+\def\smalldsh{\n@v93\@smallacc}
+\def\smalldfl#1{\check@staff
+  \n@v91\inhgetn@i#1\relax\n@iv\si@ \@SmallACC
+  \fi}
+
+\def\csh{\cautionacctrue\smallsh}
+\def\cdsh{\cautionacctrue\smalldsh}
+\def\cna{\cautionacctrue\smallna}
+\def\cfl{\cautionacctrue\smallfl}
+\def\cdfl{\cautionacctrue\smalldfl}
+
+\def\@UpperAcc#1{\inhgetn@i#1\relax\@UpAcc}
+\def\@UpAcc{\advance\n@i\thr@@ \zchar\n@i{\kern\qu@rt\qn@width\@SmallAcc}}
+
+\def\upperna{\n@v94\@UpperAcc}
+\def\upperfl{\n@v90\@UpperAcc}
+\def\uppersh{\n@v92\@UpperAcc}
+
+% analysis of accidentals within collective note coding
+
+\def\absoluteaccidentals{%
+  \let\Xna\na \let\Xsh\sh \let\Xfl\fl \let\Xdsh\dsh \let\Xdfl\dfl}
+\absoluteaccidentals
+
+\def\Na#1{\small@test\bigNa{#1}\else\smallNa{#1}\fi}
+\def\Fl#1{\small@test\bigFl{#1}\else\smallFl{#1}\fi}
+\def\Sh#1{\small@test\bigSh{#1}\else\smallSh{#1}\fi}
+\def\dFl#1{\small@test\bigdFl{#1}\else\smalldFl{#1}\fi}
+\def\dSh#1{\small@test\bigdSh{#1}\else\smalldSh{#1}\fi}
+
+\def\cNa{\cautionacctrue\smallNa}
+\def\cFl{\cautionacctrue\smallFl}
+\def\cSh{\cautionacctrue\smallSh}
+\def\cdFl{\cautionacctrue\smalldFl}
+\def\cdSh{\cautionacctrue\smalldSh}
+
+\def\lNa#1{\shiftaccwidth{\Na{#1}}}
+\def\lFl#1{\shiftaccwidth{\Fl{#1}}}
+\def\lSh#1{\shiftaccwidth{\Sh{#1}}}
+\def\ldFl#1{\shiftaccwidth{\dFl{#1}}}
+\def\ldSh#1{\shiftaccwidth{\dSh{#1}}}
+\def\shiftaccwidth{\loffset\smallvalue}
+
+\def\sign@diff#1\relax{\getn@i#1\relax\n@iii\n@i
+  \advance\n@iii-\ut@ref \advance\n@iii-\ut@ref
+  \loop\ifnum\n@iii>\si@ \advance\n@iii-\s@v@n \repeat
+  \loop\ifnum\n@iii<\z@ \advance\n@iii\s@v@n \repeat
+  \ifcase\n@iii
+  \n@ii\si@      % mi
+  \or\n@ii\@ne   % fa
+  \or\n@ii\thr@@ % sol
+  \or\n@ii\fiv@  % la
+  \or\n@ii\s@v@n % si
+  \or\n@ii\tw@   % do
+  \or\n@ii\f@ur  % re
+  \fi
+% \n@ii positive signature limit, \n@ii-8 negative signature limit
+  \advance\n@ii-\a@s \advance\n@ii\si@ \divide\n@ii\s@v@n \n@iv\fiv@}
+
+\def\C@aacc{\check@staff
+  \advance\n@v\n@vi \@Ti
+  \fi }
+
+\def\@Flat#1{\sign@diff#1\relax
+  \ifcase\n@ii \n@v\@liv \or\n@v\@l \or\n@v\@li \fi \C@aacc}
+
+\def\set@bigaccid{\n@vi\z@ \let\@Ti\@BigAcc}
+\def\set@smallaccid{\n@vi\@xl \let\@Ti\@SmallACC}
+\def\set@UpAcc{\n@vi\@xl \let\@Ti\@UpAcc}
+
+\def\bigFl{\set@bigaccid\@Flat}
+\def\smallFl{\set@smallaccid\@Flat}
+\def\upperFl{\set@UpAcc\@Flat}
+
+\def\@Natural#1{\sign@diff#1\relax
+  \ifcase\n@ii \n@v\@lii \or\n@v\@liv \or\n@v\@l \fi \C@aacc}
+
+\def\bigNa{\set@bigaccid\@Natural}
+\def\smallNa{\set@smallaccid\@Natural}
+\def\upperNa{\set@UpAcc\@Natural}
+
+\def\@Sharp#1{\sign@diff#1\relax
+  \ifcase\n@ii \n@v\@liii \or\n@v\@lii \or\n@v\@liv \fi \C@aacc}
+
+\def\bigSh{\set@bigaccid\@Sharp}
+\def\smallSh{\set@smallaccid\@Sharp}
+\def\upperSh{\set@UpAcc\@Sharp}
+
+\def\@nod{Can't double }
+
+\def\@dSharp#1{\sign@diff#1\relax
+  \ifcase\n@ii \message{\@nod sharpen !\noexpand\dSh #1}%
+  \or\n@v\@liii \C@aacc\or\n@v\@lii \C@aacc \fi}
+
+\def\bigdSh{\set@bigaccid\@dSharp}
+\def\smalldSh{\set@smallaccid\@dSharp}
+%\def\upperdSh{\set@UpAcc\@dSharp}
+
+\def\@dFlat#1{\sign@diff#1\relax
+  \ifcase\n@ii \n@v\@l \C@aacc\or\n@v\@li \C@aacc
+  \or\message{\@nod flatten !\noexpand\dFl #1}\fi}
+
+\def\bigdFl{\set@bigaccid\@dFlat}
+\def\smalldFl{\n@vi\@xl \n@iv\si@ \let\@Ti\@SmallACC \@dFlat}
+%\def\upperdFl{\set@UpAcc\@dFlat}
+
+\def\relativeaccidentals{%
+  \let\Xna\Na \let\Xsh\Sh \let\Xfl\Fl \let\Xdsh\dSh \let\Xdfl\dFl}
+
+%\def\writ@names{\n@loop
+%  \setbox\n@otebox\llap{\vbox{\hbox\@to\parindent{%
+%  \hss\csname instrument\romannumeral\noinstrum@nt\endcsname\hss}}~~}%
+%  \altportee\altitude \Comp@High\advance\y@v-\ht\n@otebox
+%  \advance\altportee\h@lf\y@v \raise\altportee\box\n@otebox \repeat}
+%\let\Writ@names\writ@names
+
+%\let\instrumenti\empty \let\instrumentii\empty \let\instrumentiii\empty
+%\let\instrumentiv\empty \let\instrumentv\empty \let\instrumentvi\empty
+
+% ============================
+
+\def\dimin{\decrescendo{4\qn@width}}
+\def\Dimin{\decrescendo{8\qn@width}}
+\def\DImin{\decrescendo{12\qn@width}}
+\def\DIMin{\decrescendo{16\qn@width}}
+\def\DIMIn{\decrescendo{24\qn@width}}
+\def\DIMIN{\decrescendo{36\qn@width}}
+\def\cresc{\crescendo{4\qn@width}}
+\def\Cresc{\crescendo{8\qn@width}}
+\def\CResc{\crescendo{12\qn@width}}
+\def\CREsc{\crescendo{16\qn@width}}
+\def\CRESc{\crescendo{24\qn@width}}
+\def\CRESC{\crescendo{36\qn@width}}
+
+\let\interligne\Interligne
+\def\debutmorceau{\ifstartmuflex@done\else\startmuflex\fi
+\startpiece
+\let\debutmorceau\startpiece}
+\let\finmorceau\Stoppiece
+\let\zfinmorceau\zstoppiece
+\let\finpartition\stoppiece
+\let\debutextrait\startextract
+\let\finextrait\endextract
+\let\zfinextrait\zendextract
+\let\reprmorceau\contpiece
+\let\lreprmorceau\contpiece
+\def\preprmorceau{\eject \global\linesinpage\z@ \contpiece}
+\def\resetsignatures{\generalsignature0\savesignature}
+\def\alapage{\stoppiece\eject \global\linesinpage\z@ \contpiece}
+\def\zalapage{\zstoppiece\eject \global\linesinpage\z@ \contpiece}
+\def\pchangecontext{\n@wbar\writ@newclefs\writ@newsigns
+  \z@suspend \eject \global\linesinpage\z@ \contpiece}
+\def\lchangecontext{\n@wbar\writ@newclefs\writ@newsigns
+  \z@suspend \count@lines \contpiece}
+\let\xbeambarre\bar
+\def\xbarre{\xbar}
+\def\zbarre{\zbar}
+\let\temps\empty
+\let\zglue\empty
+\let\zglu\empty
+\let\doublebarre\doublebar
+
+\def\leftrightrepeatsymbol{\C@rep\l@eftrightrepeat}
+\def\leftrepeatsymbol{\C@rep\l@eftrepeat}
+\def\rightrepeatsymbol{\C@rep\r@ightrepeat}
+\def\C@rep#1{\advance\n@skip\beforeruleskip \widthtyp@\@ne \t@rmskip
+  #1\widthtyp@\z@ \t@rmskip\addspace\afterruleskip}
+
+%\let\suspmorceau\stoppiece
+%\let\Suspmorceau\Stoppiece
+\let\computewidths\empty
+\let\computespecifics\empty
+\let\zsuspmorceau\zstoppiece
+\let\signaturegenerale\generalsignature
+\let\pointdorgue\fermataup
+\let\pointdurgue\fermatadown
+\let\zbv\zbreve
+\let\zsb\zmaxima
+\let\ha\hu
+\let\resetfacteurs\resetlayout
+\let\savesignature\empty
+\let\savemeter\empty
+\let\savemeters\empty
+\let\saveclefs\empty
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\let\ITenu\istieu
+\let\ITenl\istied
+%%%%%%%%%%%%%%%%%%
+\let\ilegu\isluru
+\let\ilegl\islurd
+\let\Ilegu\isluru
+\let\Ilegl\islurd
+%\let\tleg\tslur
+%\def\Tleg#1{\roff{\ttie#1}}
+\let\Invertslur\invertslur
+\let\qh\qb
+\let\qhp\qbp
+\let\qhpp\qbpp
+\let\zqh\zqb
+\let\zqhp\zqbp
+\let\zqhpp\zqbpp
+\let\hh\hb
+\let\soupir\qp
+\let\dsoupir\ds@oup
+\let\demisoupir\ds@oup
+\let\qsoupir\qs
+\let\quartsoupir\qs
+\let\hsoupir\hs
+\let\huitsoupir\hs
+\let\seizsoupir\qqs
+\let\Pince\Shake
+\let\pince\shake
+\let\Lpince\Shakel
+\let\Pincesw\Shakesw
+\let\Pincene\Shakene
+\let\Pincenw\Shakenw
+\let\mordant\mordent
+\let\nblines\z@
+\let\wd@skip\wn@width
+\let\musicnfont\musixfont
+
+\let\clefdesolsymbol\trebleclef
+\let\clefdefasymbol\altoclef
+\let\clefdutsymbol\bassclef
+\let\gclefdut\gregorianCclef
+\let\drumclefsymbol\drumclef
+\let\smallclefdesol\smalltrebleclef
+\let\smallclefdefa\smallaltoclef
+\let\smallclefdut\smallbassclef
+
+\let\cmbxmicro\sevenbf
+\let\cmbxtiny\eightbf
+\let\cmbxsmall\tenbf
+\let\cmbx\twelvebf
+\let\cmbxbig\bigfont
+\let\moyen\bigfont
+\let\gros\Bigfont
+\let\enorme\BIGfont
+
+\def\setprimavolta{\setvolta1}
+\def\setsecondavolta{\setvolta2}
+
+\def\advancebottom#1{}
+\newif\ifraggedlines
+\newcount\linesinpage
+\newcount\barsinline@ori
+\let\barsinline\barsinline@ori
+\newcount\maxbarsinline
+\newcount\maxlinesinpage \maxlinesinpage\maxdimen
+\newskip\zglueskip
+\newskip\tempsskip
+
+%%% definitions for holding up compatibility, not supported in musixtex
+
+\let\endinstrument\@ndstaff
+\def\huslur#1#2{\errmessage{No more need for \noexpand\huslur!}}
+\def\hdslur#1#2{\errmessage{No more need for \noexpand\hdslur!}}
+\def\liftslur#1#2{\errmessage{\noexpand\liftslur is not supported in MusiXTeX}}
+
+\def\expause#1{\charnote{#1}{\musicnorfont\char 11\hss}}
+\def\zexpause#1{\zcharnote{#1}{\musicnorfont\char 11\hss}}
+\def\exhpause#1{\charnote{#1}{\musicnorfont\char 10\hss}}
+\def\zexhpause#1{\zcharnote{#1}{\musicnorfont\char 10\hss}}
+
+\def\vdlthick{\vrule depth \hlthick}
+\let\resettens\empty
+\let\resetstem\resetst@m
+\let\setstem\setst@m
+\let\resetlegs\empty
+\let\savepenalties\empty
+\let\currenthyphenpenalty\empty
+\let\setnohyphenpenalty\empty
+\let\sethyphenpenalty\empty
+\let\setnormalhyphen\empty
+\let\glueaftersymbol\empty
+\def\zgluearule{\addspace\afterruleskip}%
+\let\gluearule\zgluearule
+\let\ygluearule\zgluearule
+\let\Writesignatures\writ@signs
+\let\changecontexte\changecontext
+\let\Changecontexte\Changecontext
+\let\Changeclefs\changeclefs
+\let\Changeclef\Changeclefs
+\def\shortstems{\stemlength4}%
+\def\normalstems{\stemlength{4.66}}%
+\normalstems
+
+\def\phpause{\hbox to \noteskip{\vrule width
+ 1.2\qn@width height \internote\hss}}%
+%\def\pause{\hbox{\raise 5\internote\phpause}}%
+%\def\hpause{\hbox{\raise 4\internote\phpause}}%
+\let\zha\zhu
+\def\minternote{-\internote}%
+\def\ffff{{\ppff {f}\kern -0.1ex{f}\kern -0.1ex{f}\kern -0.1ex{f}}}
+\def\testseq{}%
+
+\def\rtenl#1#2{\roff{\islurd{#1}{#2}}}
+\def\rtenu#1#2{\roff{\isluru{#1}{#2}}}
+
+\def\diamg{\ynq}
+\def\diamw{\dnq}
+
+\def\zdiamg{\yznq}
+\def\zdiamw{\dznq}
+
+\def\carrg{\squ}
+\def\zcarrg{\zsqu}
+\def\carpg{\lsqu}
+\def\zcarpg{\zlsqu}
+\def\carqg{\rsqu}
+\def\zcarqg{\zrsqu}
+
+\def\yu{\yqu}
+\def\yup{\yqup}
+\def\yupp{\yqupp}
+\def\yuppp{\yquppp}
+\def\yl{\yql}
+\def\ylp{\yqlp}
+\def\ylpp{\yqlpp}
+\def\ylppp{\yqlppp}
+
+\def\yh{\yqb}
+\def\yb{\yqb}
+
+\def\zy{\yzq}
+\def\zyp{\yzqp}
+\def\zypp{\yzqpp}
+\def\zyppp{\yzqppp}
+
+\def\du{\dqu}
+\def\dup{\dqup}
+\def\dupp{\dqupp}
+\def\duppp{\dquppp}
+
+\def\dl{\dql}
+\def\dlp{\dqlp}
+\def\dlpp{\dqlpp}
+\def\dlppp{\dqlppp}
+
+\def\dh{\dqb}
+\def\db{\dqb}
+
+\def\zd{\dzq}
+\def\zdp{\dzqp}
+\def\zdpp{\dzqpp}
+\def\zdppp{\dzqppp}
+
+\def\xu{\xqu}
+\def\xup{\x@symbol\@qup}
+\def\xupp{\x@symbol\@qupp}
+\def\xl{\xql}
+\def\xlp{\x@symbol\@qlp}
+\def\xlpp{\x@symbol\@qlpp}
+
+\let\xb\xqb
+\let\xh\xqb
+
+\def\zx{\xzq}
+\def\zxp{\x@symbol\@zqp}
+\def\zxpp{\x@symbol\@zqpp}
+
+\def\xcccu{\x@symbol\@cccu}
+\def\xccccu{\x@symbol\@ccccu}
+\def\xcccl{\x@symbol\@cccl}
+\def\xccccl{\x@symbol\@ccccl}
+
+\def\xclp{\x@symbol\@clp}
+\def\xcup{\x@symbol\@cup}
+\def\xclpp{\x@symbol\@clpp}
+\def\xcupp{\x@symbol\@cupp}
+
+\def\oxu{\oxqu}
+\def\oxup{\ox@symbol\@qup}
+\def\oxupp{\ox@symbol\@qupp}
+\def\oxl{\oxql}
+\def\oxlp{\ox@symbol\@qlp}
+\def\oxlpp{\ox@symbol\@qlpp}
+
+\def\oxb\oxqb
+\let\oxh\oxqb
+
+\def\ozx{\oxzq}
+\def\ozxp{\ox@symbol\@zqp}
+\def\ozxpp{\ox@symbol\@zqpp}
+
+\def\oxcccu{\ox@symbol\@cccu}
+\def\oxccccu{\ox@symbol\@ccccu}
+\def\oxcccl{\ox@symbol\@cccl}
+\def\oxccccl{\ox@symbol\@ccccl}
+
+\def\oxclp{\ox@symbol\@clp}
+\def\oxcup{\ox@symbol\@cup}
+\def\oxclpp{\ox@symbol\@clpp}
+\def\oxcupp{\ox@symbol\@cupp}
+
+\def\ku{\kqu}
+\def\kup{\k@symbol\@qup}
+\def\kupp{\k@symbol\@qupp}
+\def\kl{\kql}
+\def\klp{\k@symbol\@qlp}
+\def\klpp{\k@symbol\@qlpp}
+
+\let\kb\kqb
+\let\kh\kqb
+
+\def\zk{\kzq}
+\def\zkp{\k@symbol\@zqp}
+\def\zkpp{\k@symbol\@zqpp}
+
+\def\kcccu{\k@symbol\@cccu}
+\def\kccccu{\k@symbol\@ccccu}
+\def\kcccl{\k@symbol\@cccl}
+\def\kccccl{\k@symbol\@ccccl}
+
+\def\kclp{\k@symbol\@clp}
+\def\kcup{\k@symbol\@cup}
+\def\kclpp{\k@symbol\@clpp}
+\def\kcupp{\k@symbol\@cupp}
+
+%%% text, lyrics
+
+\def\midtwotext{\let\@Ti\hss \let\@Tii\hss \C@midcpt}
+\def\rmidtwotext{\let\@Ti\empty \let\@Tii\hss \C@midcpt}
+\def\zmidtwotext{\zmidstaff}
+\def\lmidtwotext{\let\@Ti\hss \let\@Tii\empty \C@midcpt}
+
+\def\C@midcpt#1{\check@staff
+  \y@v\interportee \advance\y@v\f@ur\Interligne \divide\y@v\tw@
+  \raise\y@v\uplap{\hbox\@to\noteskip{\@Ti\strut#1\@Tii}\vss}%
+  \advance\locx@skip\noteskip
+  \fi}
+
+% for what ?
+
+\def\sforz#1{{\advance\transpose by -2\usf{#1}}}
+\def\pz#1{{\advance\transpose by -2\upz{#1}}}
+\def\ppz{\uppz}
+\def\st#1{{\advance\transpose by -2\ust{#1}}}
+
+% octlines
+
+\def\barfill{\leaders\hbox{ --}\hfill}%
+\def\octnvrule{\vrule width \z@ height 3\p@ depth 3\p@}%
+\def\octvrule{\vrule width \lthick height 3\p@ depth 3\p@}%
+\def\octsup#1#2{\zcharnote{#1}{\hbox to #2\noteskip
+{\llap{\rm 8}\barfill\octnvrule}}}%
+\def\Octsup#1#2{\zcharnote{#1}{\hbox to #2{\rm 8\barfill\octnvrule}}}%
+ %\check
+ %\def\octfin#1#2{\zcharnote{#1}{\hbox to #2\noteskip{\llap{\rm 8}\barfill
+ %--\octvrule}}}%
+ \let\octfin\octfinup
+\def\Octfin#1#2{\zcharnote{#1}{\hbox to #2{\rm 8\barfill
+--\octvrule}}}%
+\def\octline#1{\zcharnote{#1}{\hbox to \line@width{\llap{\rm 8}\barfill
+\octnvrule\hskip 12\Internote}}}%
+\def\Octline#1{\zcharnote{#1}{\hbox to \line@width{\rm 8\barfill
+\octnvrule\hskip 8\Internote}}}%
+ %\check
+
+\def\octlineup{\n@v\@xxiii\C@ol}
+\def\octlinedown{\n@v\@xxv \C@ol}
+\def\C@ol#1{\zcharnote{#1}{\getcurpos\y@eol\advance\y@-\y@v
+  \hbox\@to\y@{\octnumber\mxsps\xleaders\hbox{\char\n@v}\hfill}}}
+
+% now different meaning !!!
+
+\def\trilleC#1{\hbox to #1{\leaders\hbox{\musixchar69}\hfill}}%
+\let\trille\trilleC
+\def\TrilleC#1{\hbox to #1{\it tr\leaders\hbox{\musixchar69}\hfill}}%
+\let\Trille\TrilleC
+
+\def\ntrille#1#2{\zcharnote{#1}{\trille{#2\elemskip}}}%
+\def\nTrille#1#2{\zcharnote{#1}{\Trille{#2\elemskip}}}%
+\def\xtrille#1#2{\zcharnote{#1}{\trille{#2}}}%
+\def\xTrille#1#2{\zcharnote{#1}{\Trille{#2}}}%
+
+% finding which class of fonts is normally used (cmxxx, dmxxx, dcxxx,...)
+
+\def\@wsa#1#2+{#1}
+\def\@wsb#1#2#3+{#2}
+\rm
+\edef\fonthdg{\expandafter\@wsa\fontname\the\font+}
+\edef\fonthdge{\expandafter\@wsb\fontname\the\font+}
+
+% new coda is centered above a barrule
+
+\def\coda{\n@iv85\@Char}
+
+% special wish
+
+\let\octline\octlineup
+
+% old spacings
+
+\def\normal{\elemskip=4\Internote \def\scalenoteskip{1.00}%
+  \def\notes{\vnotes1.0\elemskip}% double croches
+  \def\notesp{\vnotes1.18\elemskip}% double croches
+  \def\Notes{\vnotes1.4\elemskip}% croches
+  \def\Notesp{\vnotes1.66\elemskip}% croches
+  \def\NOtes{\vnotes2.0\elemskip}% croches pointees
+  \def\NOtesp{\vnotes2.36\elemskip}% croches pointees
+  \def\NOTes{\vnotes2.8\elemskip}% noires
+  \def\NOTesp{\vnotes3.32\elemskip}% noires
+  \def\NOTEs{\vnotes4.0\elemskip}%
+  \def\NOTEsp{\vnotes4.72\elemskip}%
+  \def\NOTES{\vnotes5.6\elemskip}}
+
+% \large could cause trouble, if user changes \scalenoteskip on his own,
+%  but this is *HIS* problem
+
+\ifx\large\undefined \def\large{\normal\def\scalenoteskip{1.2}}\fi
+
+\def\etroit{\normal
+  \def\Notes{\vnotes1.3\elemskip}%
+  \def\NOtes{\vnotes1.8\elemskip}%
+  \def\NOTes{\vnotes2.6\elemskip}%
+  \def\NOTEs{\vnotes3.6\elemskip}%
+  \def\NOTES{\vnotes5.2\elemskip}}
+
+% correct the shifting of arpeggio to musictex's appearance,
+% a little bit tricky, but works
+
+\let\arpeggio@X\arpeggio
+\def\arpeggio#1#2{\roffset{.2}{\arpeggio@X{#1}{#2}}}
+\def\larpeggio#1#2{\loffset{.6}{\arpeggio@X{#1}{#2}}} % .6=\smallvalue - 0.2
+
+% correct (nearly) the distance between note and accidental
+
+\accshift=-.1\qn@width
+
+% 'translate' old metertoks (works only if they are used as
+% \metertoksi={...}, not for \metertoksi{...}
+
+\def\metertoksi#1#2{\if =#1\else\C@warn \fi
+  \let\Writ@meters\writ@meters \m@ti={#2}}
+\def\metertoksii#1#2{\if =#1\else\C@warn \fi
+  \let\Writ@meters\writ@meters \m@tii={#2}}
+\def\metertoksiii#1#2{\if =#1\else\C@warn \fi
+  \let\Writ@meters\writ@meters \m@tiii={#2}}
+\def\metertoksiv#1#2{\if =#1\else\C@warn \fi
+  \let\Writ@meters\writ@meters \m@tiv={#2}}
+\def\metertoksv#1#2{\if =#1\else\C@warn \fi
+  \let\Writ@meters\writ@meters \m@tv={#2}}
+\def\metertoksvi#1#2{\if =#1\else\C@warn \fi
+  \let\Writ@meters\writ@meters \m@tvi={#2}}
+
+\def\C@warn{\errmessage{You MUST use '=' behind \noexpand\metertoks}\end}
+
+\let\signi\a@si
+\let\signii\a@sii
+\let\signiii\a@siii
+\let\signiv\a@siv
+\let\signv\a@sv
+\let\signvi\a@svi
+
+\let\cleftoksi\a@ci
+\let\cleftoksii\a@cii
+\let\cleftoksiii\a@ciii
+\let\cleftoksiv\a@civ
+\let\cleftoksv\a@cv
+\let\cleftoksvi\a@cvi
+
+% to be used to make heavy bars at staff left
+
+\newskip\nullthick
+\let\lowersonginstrum\maxdimen
+\let\uppersonginstrum\z@
+\newdimen\Interportee % distance between staffs of the same instrument (excl)
+
+\def\xgetn@i#1\relax{\n@viii\z@ \n@i\maxdimen % par defaut
+  \edef\t@ruc{\f@tok #1\relax\af@tok}%
+  \edef\s@uite{\s@tok #1\empty\af@tok}%
+%% pas lettre
+  \ifcat a\t@ruc \n@i\expandafter`\t@ruc\relax
+%% ramener au E (position zero en clef de sol, ut@ref=0)
+    \ifnum\n@i>96\advance\n@i-101%
+    \else\advance\n@i-\@lxxxiii % ramener au S= E + 14
+    \fi
+    \advance\n@i\ut@ref \advance\n@i\ut@ref \advance\n@i\transpose
+    \edef\ss@uite{\noexpand\n@fon{\s@uite}}%
+%% cas active character dont chiffre
+  \else
+    \let\ss@uite\empty
+    \let\alt@suite\empty
+    \ifcat 1\t@ruc
+      \if =\t@ruc \let\@TI\Xna  \C@GET \fi
+      \if *\t@ruc \sk \C@Get \fi
+      \if .\t@ruc \let\@TI\pt   \C@GET \fi
+      \if >\t@ruc \let\@TI\Xdsh \C@GET \fi
+      \if <\t@ruc \let\@TI\Xdfl \C@GET \fi
+      \if !\t@ruc \transpose\normaltranspose \C@Get \fi
+      \if '\t@ruc \advance\transpose\s@v@n   \C@Get \fi
+      \if `\t@ruc \advance\transpose-\s@v@n  \C@Get \fi
+      \ifnum\n@viii<\maxdimen \n@i#1\fi
+    \else
+      \if ^\t@ruc \let\@TI\Xsh \C@GET \fi
+      \if _\t@ruc \let\@TI\Xfl \C@GET \fi
+    \fi\alt@suite
+  \fi}
+
+% MusicTeX's settings
+
+\afterruleskip=10pt % plus glue
+\beforeruleskip=2pt % plus glue
+\nostemcut
+
+\let\nbinstruments\maxinstruments
+\normalnotesize
+\normal % to get \notes correctly defined
+\resetlayout
+\let\nbinstruments\@ne
+
+\def\breath{\errmessage{\noexpand\breath\space not implemented in MusiXTeX,
+  use \noexpand\zbreath\space or \noexpand\cbreath!}}
+
+\endcatcodesmusic
+\catcode`\@=\catcodeat
+\endinput

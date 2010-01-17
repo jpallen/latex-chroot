@@ -1,0 +1,992 @@
+% These are the lowercase letters of the rgr-package version 1.1
+% prepared on Jan 16, 1990; Lille
+%
+% ALFA
+ 
+def width =   9u enddef; 
+def height = x_height enddef;
+def dims = width#,height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = 0,.5u# enddef;
+ 
+def gen_letter =
+  pickup fine.nib;
+  pos1(stem,0); top y1=x_height+oo; rt x1r=hround(w-.5u);       %top right
+  pos2(vstem,-90); pos4(vstem,-270); x4=x2=.5w-u;
+  bot y2r=-oo; top y4r=x_height+oo;                     %bottom and top bulges
+  pos3(hair,-180); lft x3r=hround .75u; y3=.5[y2,y4];   %left bulge
+  pos6(vstem,90); x6=w-u; y6=y2;                        %bottom right
+ % numeric theta; theta=angle((x4-x6),2.5(y4-y6))-90;
+  pos5(hair,0); x5=.65[x4,x6]; y5=y3;               %point of inflection
+  alpha_tail(6,7);                                      %hook
+  filldraw stroke z1e{(x2-x1,2(y2-y1))}...              %diagonal
+   pulled_arc.e(2,3) & pulled_arc.e(3,4)                %bowl
+   ...z5e{down}...z6e{right}...{up}z7e;                 %diagonal and 
+  numeric x_baryctr; x_baryctr=  .25[x4,x1];   
+  numeric pos_stem; pos_stem=x_baryctr;                 %iota reference
+enddef;
+ 
+cmchar "Lowercase alpha";
+beginchar("a",dims);
+this_letter; penlabels(1,2,3,4,5,6,7); endchar;
+ 
+cmchar "Lowercase alpha with rough breathing";
+beginchar(oct"001",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)<; endchar;
+ 
+cmchar "Lowercase alpha with smooth breathing";
+beginchar(oct"002",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)>; endchar;
+ 
+cmchar "Lowercase alpha with acute";
+beginchar(oct"003",width#,acc_ht#,0);
+this_letter; acute(x_baryctr); endchar;
+ 
+cmchar "Lowercase alpha with rough breathing and acute";
+beginchar(oct"004",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)<; endchar;
+ 
+cmchar "Lowercase alpha with smooth breathing and acute";
+beginchar(oct"005",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)>; endchar;
+ 
+cmchar "Lowercase alpha with circumflex";
+beginchar(oct"006",width#,circ_ht#,0);
+this_letter; circumflex(x_baryctr); endchar;
+ 
+picture pic.iota;
+picture savedpicture;
+ 
+% BHTA
+ 
+def dims = 9u#,asc_height#,desc_depth# enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter=
+  pickup fine.nib; 
+  numeric thin_stem; thin_stem=.6[hair,stem];           % for upper bowl
+  numeric tilt; tilt=min(2*otilt,.5);                   % for both bowls
+  pos1(stem,180); y1-.5stem=-d-o;               % bottom left
+  pos2(hair,180); y2=.5bar_height;              % self-intersection (cf. z15)
+  x1=x2; lft x1r=hround(.75u+.5(hair-stem));    % i.e., lft x2r ~ .75u
+  x3r=x2r;                                      % beginning of curve
+  top y5r=h+oo; bot y14r=-oo; x5r=x14r;         % top and bottom bulges
+  top y10r=vstem+bot y9r=x_height; x9r=x10r;    % top and bottom of cusp
+  rt x12r=hround(w-.75u);                       % lower right bulge
+  x5r=.5[lft x2r,rt x12r]; x9r-.5vstem=hround(x5r-.5u-.5vstem);
+  %  we want to simulate the following relations, to make slopes consistent
+  %  (where |z7| is the upper right bulge):
+  % | z5r-z3r=whatever*(z9r-z7r)=whatever*(z14r-z12r);|
+  % | z7r-z5r=whatever*(z12r-z10r)=whatever*(z5r-z3r) yscaled -1;|
+  numeric slope;
+  slope=((y10r-y12r)+(y12r-y14r))/((x12r-x10r)+(x12r-x14r));
+  z7'r=z9r+whatever*(1,slope); z7'r=z5r+whatever*(1,-slope);
+  y7r=y7'r; rt x7r=hround rt x7'r;
+  z12r=z14r+whatever*(1,slope);
+z3r=z5r+whatever*(1,slope);
+  filldraw double_circ_stroke gr_arc.e(7,6,5)(hair,thin_stem,tilt)..
+    gr_arc.e(5,4,3)(hair,thin_stem,tilt)..{down}z2e..z1e;       % top and left
+  z2=z15; pos15(hair,slope-90);         % intersection pt
+  numeric slope;
+  slope=angle((z14r-z15)yscaled 2);
+  filldraw stroke z15e{dir slope}...gr_arc.e(14,13,12)(hair,stem,tilt); % bot
+  forsuffixes e=r,l:
+    path curv[]e; numeric S[]e;
+    curv1e=reverse gr_arc.e(9,8,7)(hair,thin_stem,tilt);        % cusp bottom
+    curv2e=gr_arc.e(12,11,10)(hair,stem,tilt); endfor           % cusp top
+  (S1r,S2r)=curv1r intersectiontimes curv2r;
+  (whatever,S2l)=curv1r intersectiontimes curv2l;
+  (S1l,whatever)=curv1l intersectiontimes curv2r;
+  if S1l=-1 : S1l:=2; fi
+  if S2l=-1 : S2l:=2; fi
+  filldraw stroke subpath(0,S1e+eps) of curv1e;                 % fill in cusp
+  filldraw stroke subpath(0,S2e+eps) of curv2e;
+  filldraw subpath (S1r+eps,2) of curv1r...subpath(2,S2r+eps) of curv2r..cycle;
+enddef;
+ 
+cmchar "Lowercase beta";
+beginchar("b",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15); endchar;
+ 
+picture savedpicture;
+ 
+% GAMMA
+ 
+def dims = 10u#,x_height#,desc_depth# enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter=
+  pickup fine.nib;
+  begingroup
+    save t; t:=superness; interim superness:=.95t;
+    pos2(curve,90); top y2r=h+oo;                       % top of left branch
+    pos1(hair,180); bot y1=top y2r-4/3curve;            % tip of hook
+    lft x1r=hround .5u; x2-x1=y2-y1;                    % central arc is round
+    pos3(hair,0); pos4(hair,-180); rt x3r-lft x4r=stem; % bottom of cusp
+    y4=y3; .5[x3,x4]=.5w; bot y3=-d-oo;
+    pos5(curve,-270); top y5r=h+oo; x5+.5curve=hround(w-.75u); % right branch
+    pos5'(curve,0); z5'=z5;
+    filldraw stroke z1e{up}...z2e{right}; drawloop(2,3,4,5);    
+    filldraw z5l{right}...z5'r{up}...z5r{left}--cycle;  % right branch
+    if monowidth:                                       % complete stem
+      x3'=x3r; x4'=x4r; y3'=y4'; y3'-.5stem=vround(-.8d);
+      filldraw z3r--z3'{down}...{up}z4'--z4r--cycle; fi
+  endgroup; 
+enddef;
+ 
+cmchar "Lowercase gamma";
+beginchar("g",dims);
+this_letter; penlabels(1,2,3,3',4,4',5); endchar;
+ 
+picture savedpicture;
+ 
+% DELTA
+ 
+ 
+def dims = 8.5u#,asc_height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter =
+  pickup fine.nib;
+  top y1r=vround(if not monowidth:.95 fi x_height+oo); x1r=.5w; % top of loop
+  x5r=.5w; bot y5r=-oo;                                 % bottom of ditto
+  lft x3r=w-rt x7r=hround(.75u); y3r=y7r=.5[y1r,y5r];   % left and right bulge
+  filldraw stroke gr_arc.e(1,2,3)(vair,stem,.5otilt)    % three quadrants of l
+    & gr_arc.e(3,4,5)(vair,stem,.5otilt) & gr_arc.e(5,6,7)(vair,stem,.5otilt);
+ 
+  % we now draw the hook |z8..z9..z10|.  It must satisfy the following ints:
+  % its outer contour is symmetric with respect to some axis containing |z9l|;
+  % one end is known, the width there is |thin_stem|, and the width at |z10|
+  % is, ideally, stem.  (But since we may have to change that we callt |Stem|.)
+  z8l=z1l; numeric thin_stem, med_stem; thin_stem=.5[hair,Stem];
+  % the aperture, measured perpendicular to the axis, equals |Stem|
+  numeric apert; apert=2Stem+thin_stem-currentbreadth;  % |apeth(z10l-z8l);|
+  numeric left_goal; lft left_goal=vround(lft x3r+.5u); % most tangent known
+  numeric top_goal; top top_goal=h+oo;                  % highest tangent known
+ 
+  % if by taking |Stem=stem| we got |apert > top_goal-y1l|, the problem might
+  % not have a solution with a horizontal tangent; in that case the
+  % constraint is on |apert|:
+  if 2stem+.7[hair,stem]-currentbreadth>top_goal-y8l: apert=top_goal-y8l;
+  else: Stem=stem; fi
+ 
+  % we first estimate the slope of the axis by imagining that, in the vicinity
+  % of |z9l|, the hook looks like a semicircle of diameter |apert/2|.
+  % (this value is empiric, but reasonable because the tension is high)
+  z0l=(left_goal+.25apert,top_goal-.25apert);           % center of semicircle
+  numeric axis; axis=angle(z0l-z8l)+angle(length(z0l-z8l)+-+.5apert,.5apert);
+  z9l=z0l+(.25apert,0)rotated(axis); z10l=z8l+(0,-apert)rotated(axis);
+ 
+  % we now iterate, correcting |z9l| until the tangencies are satisfied
+  path hook; numeric left_real; numeric top_real;
+  forever:
+ 
+    hook:=z8l{dir(axis)}..tension 1.5..z9l..tension 1.5..{-dir(axis)}z10l;
+    if directiontime up of hook=-1:
+      left_error:=0; message "hook has no vertical tangent!";
+    else: left_error:=xpart directionpoint up of hook-left_goal; fi
+    if directiontime right of hook=-1:
+      top_error:=0; message "hook has no horizontal tangent!";
+    else: top_error:=ypart directionpoint right of hook-top_goal; fi
+ 
+    exitif (abs(left_error)<.05) and (abs(top_error)<.05);
+    x9l:=x9l-left_error; y9l:=y9l-top_error;
+    axis:=angle(z9l-z8l)+angle(length(z9l-z8l)+-+.5apert,.5apert);
+    x10l:=x8l+apert*sind axis; y10l:=y8l-apert*cosd axis;
+  endfor
+ 
+  pos8(thin_stem,axis-90); pos10(Stem,axis+90); pos9(.3[hair,Stem],axis+180);
+  filldraw stroke
+    z7e{z7'e}..{dir axis}z8e..tension 1.5..z9e..tension 1.5..{-dir axis}z10e;
+enddef;
+ 
+cmchar "Lowercase delta";
+beginchar("d",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8,9,10); endchar;
+ 
+picture savedpicture;
+ 
+% EYILON
+ 
+def width = 7.25u enddef;
+def height = x_height enddef;
+def dims = width#,height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter =
+  pickup fine.nib;
+  pos2(.8vstem,90); x2=.5w; top y2r=x_height+o;           %   top point
+  pos7(vstem,630); x2=x7; bot y7r=-o;                   %   bottom point
+  rt x1r=hround(w-u); bot y1l=.3[bot y2l,bar_height];        %   top end
+  z1'=(x1r,y1l+.5(flare-currentbreadth));               %   approximation to z1
+  numeric slope; slope=angle((z2-z1')yscaled 2); pos1(.5flare,slope-30);
+  bar_height=.5[y1,y8]; x8=x1; pos8(flare,slope+90);    %   bottom end
+  pos3(vstem,120); lft x3r=hround .75u; y3=.5[y4r,y2r]; %   top left bulge
+  pos6(vstem,600); x6=x3; y6=.5[y5r,y7r];               %   bottom left bulge
+  y6:=y6r;y3:=y3r;                      %   for the benefit of |pulled_arc|
+  top y5r-bot y4r=curve; y5+y4=2bar_height; x5=x4=x2;   %   loop
+  pos4(vair,-90); pos5(vair,90);
+  filldraw stroke z1e{dir slope}...pulled_arc.e(2,3);   %   top
+  drawloop(3,4,5,6);                                    %   loop and bottom
+  forsuffixes e=l,r:
+    path foo.e; foo.e= z8e...pulled_arc.e(7,6);
+    if angle(direction 0 of foo.e) > angle(z8r-z8l):
+    foo.e:= z8e{z8r-z8l}...pulled_arc.e(7,6); fi
+  endfor;
+  filldraw stroke foo.e; 
+  numeric x_baryctr; x_baryctr=x2;                    %   accent reference
+enddef;
+ 
+cmchar "Lowercase epsilon";
+beginchar("e",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8); endchar;
+ 
+cmchar "Lowercase epsilon with rough breathing";
+beginchar(oct"037",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)<; endchar;
+ 
+cmchar "Lowercase epsilon with smooth breathing";
+beginchar(oct"040",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)>; endchar;
+ 
+cmchar "Lowercase epsilon with acute";
+beginchar(oct"044",width#,acc_ht#,0);
+this_letter; acute(x_baryctr); endchar;
+ 
+cmchar "Lowercase epsilon with rough breathing and acute";
+beginchar(oct"177",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)<; endchar;
+ 
+cmchar "Lowercase epsilon with smooth breathing and acute";
+beginchar(oct"046",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)>; endchar;
+ 
+picture savedpicture;
+ 
+% ZHTA
+ 
+def dims = 8.5u#,asc_height#,desc_depth# enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter=
+  pickup fine.nib;
+  pos4(hair,-180); y4=bar_height; lft x4r=hround(.75u);         % left bulge
+  pos6(hair,-180); rt x6l=hround(w-.75u); y6=-.5stem;           % bottom right
+  y3+.5stem=h+o; x3+.5stem=hround(rt x6l-.25u);                 % top right
+  numeric slope; slope=angle((z3-z4)xscaled 2); pos3(hair,slope+90);
+  pos5(stem,-90); bot y5r=0; x5=.5w;                            % inflection pt
+  pos7(vstem,-270); y6=.5[y7r,y5r]; x7-.5vstem=hround x5;
+  pos2(stem,slope+90); z2l=z3l; filldraw double_circ_stroke
+                                   % bowl and tail
+    z7e{right}...z6e{up}...z5e{left}...z4e{up}...z2e{dir slope};
+                            % where handle attaches
+  pos1(curve,0); lft x1l=hround(lft x4r+.25u); y1+.5curve=h+o;  % end of handle
+  filldraw circ_stroke z1e{down}...z3e{dir slope}; 
+enddef;
+ 
+cmchar "Lowercase zeta";
+beginchar("z",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8); endchar;
+ 
+picture savedpicture; 
+ 
+% HTA
+ 
+def width = 8.5u enddef;
+def dims = width#,x_height#,desc_depth# enddef;
+def ital = 0 enddef;
+def fit_params = if straight: .75 else: .5 fi u#,0 enddef;
+ 
+def gen_letter =
+ pickup fine.nib;
+  y1r-.5stem=-d-o; pos1(stem,0);
+  rt x2r=hround(w-.75u); y2r=.5x_height; pos2(hair,0);
+  lft x5r=hround(1.5u); y5-.5stem=-o; pos5(stem,-180);
+  top y4r=x_height+o; x4r=.5[lft x2l,rt x5l];
+  pos6(hair,180); y6=y2;
+  if straight:
+  x1=x2;x5=x6; pos4(stem,90);
+  filldraw double_circ_stroke z1e--pulled_arc.e(2,4)&pulled_arc.e(4,6)--z5e;
+ else:
+  x1r=x2r; z2'l=z2'r=up;
+  filldraw circ_stroke z1e{up}...gr_arc.e(2,3,4)(hair,stem,.8); % right leg
+  filldraw circ_stroke z5e{(z4-z5) yscaled 4}...z4e{-z4'e};     % left leg
+  z6r=((0,y2)--(w,y2)) intersectionpoint (z5r{(z4-z5) yscaled 4}...z4r{-z4'r});
+ fi
+ pos8(vstem,0); rt x8r=hround(lft x6r-.75u);            % end of handle
+ pos7(vstem,-90); top y7l=x_height+o; z8r=z7r;          % top of handle
+ filldraw circ_stroke z8e{up}...z7e{right}...z6e{down};
+ numeric x_baryctr; x_baryctr=.1[x4,x7];           % accent reference
+ numeric pos_stem; pos_stem=x5;                         % iota reference
+enddef;
+ 
+cmchar "Lowercase eta";
+beginchar("h",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8); endchar;
+ 
+cmchar "Lowercase eta with rough breathing";
+beginchar(oct"007",width#,acc_ht#,desc_depth#);
+this_letter; spirit(x_baryctr)<; endchar;
+ 
+cmchar "Lowercase eta with smooth breathing";
+beginchar(oct"010",width#,acc_ht#,desc_depth#);
+this_letter; spirit(x_baryctr)>; endchar;
+ 
+cmchar "Lowercase eta with acute";
+beginchar(oct"011",width#,acc_ht#,desc_depth#);
+this_letter; acute(x_baryctr); endchar;
+ 
+cmchar "Lowercase eta with rough breathing and acute";
+beginchar(oct"012",width#,acc_ht#,desc_depth#);
+this_letter; spirit_acute(x_baryctr)<; endchar;
+ 
+cmchar "Lowercase eta with smooth breathing and acute";
+beginchar(oct"013",width#,acc_ht#,desc_depth#);
+this_letter; spirit_acute(x_baryctr)>; endchar;
+ 
+cmchar "Lowercase eta with circumflex";
+beginchar(oct"014",width#,circ_ht#,desc_depth#);
+this_letter; circumflex(x_baryctr); endchar;
+ 
+picture pic.iota;
+picture savedpicture;
+ 
+% JHTA
+ 
+def dims = 9u#,asc_height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter=
+  pickup fine.nib;
+  lft x4r=w-rt x8r=hround .75u; y4r=y8r=.5h;            % left and right bulges
+  x2r=x6r=.5w; top y2r=h+o; bot y6r=-o;                 % top and bottom
+  filldraw stroke
+    gr_arc.e(8,1,2)(vair,stem,otilt) & gr_arc.e(2,3,4)(vair,stem,otilt) &
+    gr_arc.e(4,5,6)(vair,stem,otilt) & gr_arc.e(6,7,8)(vair,stem,otilt);
+  pos4`(bar,90); pos8`(bar,90); x4`=x4; x8`=x8; y4`=y8`=.05[y4,y2];
+  filldraw stroke z4`e--z8`e;                           % bar
+enddef;
+ 
+cmchar "Lowercase theta";
+beginchar("j",dims);
+this_letter; penlabels(1,2,3,4,4`,5,6,7,8,8`); endchar;
+ 
+picture savedpicture;
+ 
+% IWTA
+ 
+def width = 5u enddef;
+def dims = width#,x_height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = if monospace: u#,u# else:0,2curve#-3u# fi enddef;
+ 
+def gen_letter=
+  pickup fine.nib;
+  pos1(flare,180); lft x1r=hround u; top y1=x_height+oo;        % top
+  numeric neck; neck=.2[hair,stem];
+  pos2(neck,180); .2[lft x2r,rt x2l]=.2[lft x1r,rt x1l];        % neck
+  pos3(curve,-90); bot y3r=-oo;                                 % bottom
+  y2r=if monowidth:
+ 2 else: 1.5 fi[bot y3r,top y3l]; z3r-z2r=whatever*(1,-1.25);
+  if monowidth:
+    y4r+.5neck=vround y2r; x3=.5[x2,x4]; pos4(neck,0);          % tip of hook
+    filldraw stroke z4e...z3e...z2e---z1e;
+  else:
+    z4l=z4r; top y4r=y2r; z4l-z3l=whatever*(1,1);
+    path p.r, p.l; forsuffixes e=r,l: p.e=z1e---z2e...z3e...z4e; endfor
+    rt x3.5r=hround(rt xpart directionpoint up of p.r);
+    z4'r=direction 3 of p.r; z3'r=direction 2 of p.r;
+    forever:                    % avoid bad vertical tangent between 2l and 3l
+      x2.5l:= rt xpart directionpoint down of p.l;
+      exitif abs(hround(x2.5l)-x2.5l)<.05;
+      x2l:=x2l+hround(x2.5l)-x2.5l; p.l:=(z1l---z2l...z3l...z4l);
+    endfor
+    p.r:=z1r---z2r...club.r(3,3.5,4);
+                                % avoid bad vertical tangent between 3r and 4r
+    filldraw stroke p.e;
+  fi 
+  numeric x_baryctr; x_baryctr=x1;
+enddef;
+ 
+cmchar "Lowercase iota";
+beginchar("i",dims);
+this_letter; penlabels(1,2,3,4); endchar;
+ 
+cmchar "Lowercase iota with rough breathing";
+beginchar(oct"023",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr if serifs: +.25u fi)<; endchar;
+ 
+cmchar "Lowercase iota with smooth breathing";
+beginchar(oct"024",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr if serifs: -.25u fi)>; endchar;
+ 
+cmchar "Lowercase iota with acute";
+beginchar(oct"025",width#,acc_ht#,0);
+this_letter; acute(x_baryctr); endchar;
+ 
+cmchar "Lowercase iota with rough breathing and acute";
+beginchar(oct"026",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)<; endchar;
+ 
+cmchar "Lowercase iota with smooth breathing and acute";
+beginchar(oct"027",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)>; endchar;
+ 
+cmchar "Lowercase iota with circumflex";
+beginchar(oct"030",width#,circ_ht#,0);
+this_letter; circumflex(x_baryctr); endchar;
+ 
+picture savedpicture;
+ 
+% KAPPA
+ 
+def dims = 9.5u#,x_height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter=
+ pickup fine.nib;
+ x1-.5stem=hround .75u; y1-.5stem=-o;                   % lower left
+ z1+z3=(w,h); z2=.5[z1,z3];                             % upper right and mid
+ z1'=(z3-z1) if monowidth: xscaled 1/2 fi;              % slope at 1 and 3
+ pos1(stem,angle z1'+90); pos2(.6[hair,stem],angle z1'+90);
+ pos3(stem,angle z1'+90);
+ filldraw double_circ_stroke z1e{z1'}..z2e..{z1'}z3e;   % diagonal stroke
+ z4=if monowidth: z1 else: 1/3[z1,z3] fi; z4-z1=z3-z7;  % handle attachments
+ z4'=if monowidth: z1' else: (z3-z1) xscaled .25 fi;    % slope at 4 and 7
+ pos4(hair,angle z4'-90); pos7(hair,angle z4'+90);
+ pos5(vstem,90); top y5r=h+o; pos6(vstem,180); z6l=z5l;
+ lft x6r=hround(x1-.5stem-.25u);
+ filldraw circ_stroke z6e{up}...z5e{right}...z4e{-z4'};         % left handle
+ pos8(.5[vstem,stem],-90); bot y8r=-o; rt x9r=hround(x3+.5stem+.25u);
+ pos9(.5[vstem,stem],0); z9l=z8l;
+ filldraw circ_stroke z9e{down}...z8e{left}...z7e{z4'}; % right handle
+enddef;
+ 
+cmchar "Lowercase kappa";
+beginchar("k",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8,9,10); endchar;
+ 
+picture savedpicture;
+ 
+% LAMBDA
+ 
+def dims =  9.5u#,asc_height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = -.25u#,-.25u# enddef;
+def krn = -.75u# enddef;
+ 
+def gen_letter=
+  pickup fine.nib;
+  x1-.5stem=hround .75u; y1+.5stem=h;                   % top left
+  z1'=(1,.2); pos1(stem,angle z1'+90);                  % direction at z1
+  x3+x1=w; y3-.5stem=-oo; pos3(stem,-angle z1'+90);     % bottom right
+  y2=x_height-.5u; x2=.5[x1,x3];                            % attachment
+  z2'=(z3-z1)yscaled 2; pos2(hair,angle z2'+90);        % direction at z4
+  filldraw double_circ_stroke z1e{z1'}...
+    z2e{(z3-z1)yscaled 2}...{z1' yscaled -1}z3e;                % diagonal
+  lft x4l=hround.75u; bot y4l=0;                                % bottom left
+  numeric stem'; stem'=stem-currentbreadth; numeric slope;      % from z4 to z4
+  slope=angle(z2-z4l)+angle(length(z2-z4l)+-+.5stem',.5stem');
+  x4r=x4l+(stem'/sind slope); y4r=y4l; z4=.5[z4r,z4l];
+  path p; p=z1{z1'}...z2{(z3-z1)yscaled 2}...{z1' yscaled -1}z3;
+  forsuffixes e=r,l: z5e=(z4e--(z4e+2(z2-z4))) intersectionpoint p; endfor
+  filldraw stroke z4e{(z2-z4)if not monowidth: xscaled 1.2 fi}..z5e; 
+enddef;
+ 
+cmchar "Lowercase lambda";
+beginchar("l",dims);
+this_letter; penlabels(1,2,3,4,5); endchar;
+ 
+picture savedpicture;
+ 
+% MI
+ 
+def dims = 9.5u#,x_height#,desc_depth# enddef;
+def ital = 0 enddef;
+def fit_params = 0,.5stem# enddef;
+ 
+def gen_letter=
+  pickup fine.nib;
+  y6+.5stem=h+o; pos6(stem,0); rt x6r=hround(w-vstem);          % top right
+ x5r=.5[x1,x6]; bot y5r=-oo;                                   % bottom of bowl
+  if straight:
+    lft x1r=hround .75 u; y1+.5stem=h+o; pos1(stem,180);        % top left
+    x4=x1; x9=x6; y9=y4=.5x_height; pos4(stem,180); pos9(stem,0);
+    pos5(vstem, 270);
+    filldraw double_circ_stroke z1e..pulled_arc.e(4,5)&pulled_arc.e(5,9)..z6e;
+    y8-.5stem=-d-oo; x8=x1; pos8(stem,180);                     % end of handle
+    filldraw circ_stroke z8e..z4e;
+  else:
+  lft x2r=rt x2l-stem=hround .75u;            % vertical tangents of left bulb
+    top y1r=h+o; x1r=.5[x2r,x2l]; z1=z1l=z1r; z1'r=-z1'l=left;  % top left
+    y3r=.4[y1r,y5r]; lft x3r=x1r-.5hair;                        % middle left
+    numeric tilt; tilt:=.6; path p.r, p.l;
+    p.l=gr_arc.l(3,4,5)(hair,.4[hair,stem],tilt)...{up}z6l;
+    p.r=subpath (2(1-tilt),2) of gr_arc.r(3,4,5)(fie,fo,fum)...{up}z6r;
+    z3.5r=z4r; z3.5'r=z4'r; z3.5l=z3l; z3.5'l=z3'l;             % a hybrid
+    filldraw double_circ_stroke club.e(1,2,3.5) & p.e;          % bowl
+    x8=lft x2r+.5stem; bot y8=-d-oo;                           % end of handle
+    pos8(stem,angle(z4'l xscaled 2)-120); z8'r=z8'l=z4'l xscaled 2;
+    assign_z3'r(z3'l);                          % so club.r won't get confused
+    lft x7r=rt x7l-max(hair,2)=lft x2r;         % vertical tangents of handle
+    filldraw double_circ_stroke club.e(3,7,8);  % handle
+    y9r=max(y4r+epsilon,-oo+2vstem);            % where hook attaches
+    z9r=((0,y9r)--(w,y9r)) intersectionpoint p.r; pos9(hair,0);
+  fi
+  pos10(vstem,90); y10l=y5r; x10-x9=vstem;              % bottom of hook
+  pos11(hair,180); top y11=bot y10l+4/3vstem;           % tip of hook
+  rt x11l=hround(x10+(y11-y10)+.5hair);                 % central arc is round
+  filldraw stroke z9e{down}..z10e{right}..{up}z11e;    % hook
+enddef;
+ 
+cmchar "Lowercase mu";
+beginchar("m",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8,9,10,11); endchar;
+ 
+picture savedpicture;
+ 
+% NI
+ 
+def dims = 8.5u#,x_height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter =
+  pickup fine.nib;
+  rt x4r=hround(w-.75u); lft x4l-rt x4r=hround -.2[hair,stem];  % vert tangents
+  x5=lft x4l; y5+.5hair=h+oo; z5'l=z5'r=(u,-.2h);               % right tip
+  pos5(hair,angle z5'l+90);
+pos3(whatever,-90); bot y3r=-oo; x3=.5w; z3'l=z3'r=z5'l xscaled -2;   % bottom
+z3l+whatever*z3'l=z3r+(stem-currentbreadth)*(dir(angle z3'l-90)); % width=stem
+  filldraw circ_stroke club.e(5,4,3);                           % right stroke
+  y1+.5stem=h+oo; x1-.5stem=hround.75u;                         % left tip
+  z1'=(9u,-h); pos1(stem,angle z1'-90);
+  z2r=z3r; z2l-z3l=(hair-currentbreadth,0);
+  filldraw circ_stroke z1e{z1'}...{down}z2e;              % left stroke
+enddef;
+ 
+cmchar "Lowercase nu";
+beginchar("n",dims);
+this_letter; penlabels(1,2,3,4,5); endchar;
+ 
+picture savedpicture;
+ 
+% XI
+ 
+def dims = 8.5u#,asc_height#,desc_depth# enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter=
+  pickup fine.nib;
+  lft x7r=rt x7l-hair=hround(.75u); x7=.5[x7r,x7r];             % big bulge
+  pos8(stem,-90); bot y8r=0; x8=.5w; z8'r=z8'l=left;            % inflection pt
+  pos9(hair,-180); rt x9l=hround(w-.75u); y9=-.5stem;           % bottom right
+  y6+.5stem=x_height+o; x6+.5stem=hround(rt x9l-1.5u);          % middle right
+  numeric slope; slope=angle(5(x6-x7),y6-y8); pos6(stem,slope+90);
+  z6'r=z6'l=dir slope;
+  pos10(vstem,-270); y9=.5[y10r,y8r]; x10-.5vstem=hround x8;
+  filldraw double_circ_stroke                                   % bowl and tail
+    z10e{right}...z9e{up}...club.e(8,7,6);
+  pos5(hair,slope-90); z5l=z6r;                                 % attachment
+  z4=.5[z3,z5]+whatever*dir slope;                              % small bulge
+  pos4(hair,-180); lft x4r=hround(lft x7r+1.5u);
+y3+.5stem=h+o; x3+.5stem=hround(rt x9l-.25u); pos3(hair,slope+90);    % top rt
+  pos2(stem,slope+90); z2l=z3l;   
+  filldraw circ_stroke z2e{-dir slope}..z4{down}...z5e{dir slope};
+                        % where handle attaches
+  pos1(curve,0); lft x1l=hround(lft x7r+.25u); y1+.5curve=h+o;  % end of handle
+  filldraw circ_stroke z1e{down}...z3e{dir slope};
+enddef;
+ 
+cmchar "Lowercase xi";
+beginchar("x",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8,9,10); endchar;
+ 
+picture savedpicture;
+ 
+% OMIKRON
+ 
+def width = 9.5u enddef;
+def dims = width#,x_height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter =
+  pickup fine.nib;
+  lft x4r=hround .75u; x8r=w-x4r; y4r=y8r=.5x_height;   % top and bottom
+  top y2r=x_height+oo; bot y6r=-oo; x2r=x6r=.5w;        % right and left
+  filldraw stroke
+    gr_arc.e(8,1,2)(vair,curve,otilt) & gr_arc.e(2,3,4)(vair,curve,otilt) &
+    gr_arc.e(4,5,6)(vair,curve,otilt) & gr_arc.e(6,7,8)(vair,curve,otilt) ;
+  numeric x_baryctr; x_baryctr=x2;                      % accent reference
+enddef;
+ 
+ 
+cmchar "Lowercase omicron";
+beginchar("o",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8); endchar;
+ 
+cmchar "Lowercase omicron with rough breathing";
+beginchar(oct"137",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)<; endchar;
+ 
+cmchar "Lowercase omicron with smooth breathing";
+beginchar(oct"140",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)>; endchar;
+ 
+cmchar "Lowercase omicron with acute";
+beginchar(oct"103",width#,acc_ht#,0);
+this_letter; acute(x_baryctr); endchar;
+ 
+cmchar "Lowercase omicron with rough breathing and acute";
+beginchar(oct"133",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)<; endchar;
+ 
+cmchar "Lowercase omicron with smooth breathing and acute";
+beginchar(oct"135",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)>; endchar;
+ 
+picture savedpicture;
+ 
+% PI
+ 
+def dims = 9.5u#,x_height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = -.25,0 enddef;
+ 
+def gen_letter =
+  pickup fine.nib;
+  pi_bar;                                                       % bar
+  pos4(hair,0); pos7(hair,0); y4=y7=y2;                         % attachments
+  lft x4l-(x1-.5hair)=lft x7l-rt x4r=rt x3-rt x7r;
+  pos5(hair,0); pos8(hair,0); y5=y8=.5x_height; x5=x4; x8=x7;   % midstems
+  x6+.5stem=hround(rt x4r if not straight:-.25u fi); y6-.5stem=-oo; % left stem
+  numeric slope; slope=angle((z5-z6)xscaled2); pos6(.44iota_dp,slope-90);
+  filldraw circ_stroke z6e...z5e---z4e;
+  x9=x7+1.5u; bot y9l=-oo; pos9(stem,90); alpha_tail(9,10);     % right stem
+  filldraw stroke z10e...z9e{left}...z8e---z7e; 
+enddef;
+ 
+cmchar "Lowercase pi";
+beginchar("p",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8,9,10); endchar;
+ 
+picture savedpicture;
+ 
+% RO
+ 
+def width = 8.5u enddef;
+def height = x_height enddef;
+def depth = desc_depth enddef;
+def dims = width#,height#,depth# enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter =
+  pickup fine.nib;
+  lft x4r=hround .75u; x8r=w-x4r; y4r=y8r=.5h;          % left and right
+  top y2r=h+oo; bot y6r=-oo; x2r=x6r=.5w;               % top and bottom
+  filldraw stroke
+    gr_arc.e(4,5,6)(curve,vair,-otilt) & gr_arc.e(6,7,8)(curve,vair,-otilt) &
+    gr_arc.e(8,1,2)(curve,vair,-otilt) & gr_arc.e(2,3,4)(curve,vair,-otilt);
+  if straight:
+    y9-.5stem=-d-oo; x9=x4; pos9(stem,180);                     % end of handle
+    filldraw circ_stroke z9e..z4e;
+  else:
+    y9=-d-oo; x9=lft x4r+.5stem;                           % end of handle
+    pos9(stem,angle((z9-z4)xscaled3)-120); z9'r=z9'l=(z9-z4)xscaled3;
+    rt x10l=lft x10r+vair;                      % vertical tangents of handle
+    x10r=x4r-epsilon; assign_z4'r((-2eps,-1));  % so club.r won't get confused
+    filldraw double_circ_stroke club.e(4,10,9);
+  fi 
+  numeric x_baryctr; x_baryctr=x2;                     % breathing placement
+enddef;
+ 
+cmchar "Lowercase rho";
+beginchar("r",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8,9,10); endchar;
+ 
+picture savedpicture;
+ 
+% SIGMA
+ 
+def dims= 8u#,x_height#,desc_depth# enddef; 
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter =
+  pickup fine.nib;
+  pos4(hair,-180); y4=.5h; lft x4r=hround .75u;                 %  left bulge
+  pos6(hair,-180); rt x6l=hround(w-.75u); y6=-.5stem;           %  bottom right
+  top y3r=h+oo; x3+.5stem=rt x6l; pos3(stem,90);                %  top right
+pos5(stem,-90); bot y5r=0; x5=.5w;                            %  inflection pt
+  pos7(vstem,-270); y6=.5[y7r,y5r]; x7-.5vstem=hround x5;
+filldraw double_circ_stroke                                   %  bowl and tail
+    z7e{right}...z6e{up}...z5e{left}...z4e{up}...z3e{right};
+enddef;
+ 
+cmchar "Final lowercase sigma";
+beginchar("c",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8); endchar;
+ 
+numeric gen_sigma; gen_sigma=1;
+ 
+def dim_sigma =  9.5u#,x_height#,0 enddef; 
+def ital_sigma = 0 enddef;
+def fit_params_sigma = 0,.75u# enddef;
+ 
+def mid_sigma=
+italcorr ital_sigma; adjust_fit(fit_params_sigma);
+if known pic.c: currentpicture:=pic.c; else: gen_mid_sigma; fi
+if not working_hard : picture pic.c; pic.c=currentpicture; fi
+enddef;
+ 
+def gen_mid_sigma =
+  pickup fine.nib;
+  lft x4r=hround .75u; rt x8r=w-lft x4r;        % left and right bulge
+  top y2r=h; bot y6r=-oo; x2r=x6r;              % top and bottom
+  numeric fake; fake=y2r-(vstem-currentbreadth); % approx height of |z2l|
+  2y4r=y2r+y6r; 2y8r=fake+y6r;
+  (x8r-x6r)/(y8r-y6r)=-(x4r-x6r)/(y4r-y6r);     % determine |x6r|
+  y1r=y2r;rt x1=hround(rt x8r+u); pos1(flare,90);       % tip
+  filldraw stroke z1e..gr_arc.e(2,3,4)(vstem,curve,otilt)
+    & gr_arc.e(4,5,6)(vair,curve,otilt)         % top stroke and left bowl
+    & gr_arc.e(6,7,8)(vair,curve,otilt);        % bottom part of right bowl
+  z9l=z2l; pos9(vair,180); z9'l=z2'l; z9'r=left;
+  filldraw stroke z8e{z8'e}..z9e{z9'e};      % top part of right bowl
+enddef;
+ 
+cmchar "Initial and medial lowercase sigma";
+beginchar("s",dim_sigma);
+mid_sigma; penlabels(1,2,3,4,5,6,7,8,9); endchar;
+ 
+picture savedpicture;
+ 
+% TAU
+ 
+def dims = 8.5u#,x_height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = -.25,0 enddef;
+ 
+def gen_letter=
+  pickup fine.nib;
+  pi_bar;                                                       % bar
+  pos4(hair,0); y4=y2; lft x4l-(x1-.5hair)=rt x3-rt x4r;        % attachment
+  pos5(hair,0); y5=.5x_height; x5=x4;                           % midstems
+  x6=x4+1.5u; bot y6l=-oo; pos6(stem,90); alpha_tail(6,7);      % stem
+  filldraw stroke z7e...z6e{left}...z5e---z4e; 
+enddef;
+ 
+cmchar "Lowercase tau";
+beginchar("t",dims);
+this_letter; penlabels(1,2,3,6,7,8); endchar;
+ 
+picture savedpicture;
+ 
+% UPSILON
+ 
+def width = 9u enddef;
+def dims = width#,x_height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter=
+  pickup fine.nib;
+  y2+.5stem=x_height+o; x2-.5stem=hround.75u;                   % left tip
+  lft x4r=hround(x2-.5stem+.75u); y4r=.5x_height;               % left middle
+  y8r=y4r; rt x8r=hround(w-.75u);                               % right bulge
+  x6r=.5[x4r,x8r]; bot y6r=-oo;                                 % bottom
+  numeric tilt;
+  tilt:=min(2*otilt,.5);
+  filldraw stroke
+    gr_arc.e(6,7,8)(vair,stem,tilt) ;
+  filldraw stroke
+    gr_arc.e(4,5,6)(vair,.4[vair,stem],tilt) ;
+  y9+.5hair=x_height+o; x9=x8-u; pos9(hair,angle ((z8-z9) xscaled 2)+90);
+  filldraw circ_stroke z9e...{-z8'e}z8e;
+  pos2(stem,angle((z4-z2) xscaled 2)-90);
+  filldraw circ_stroke z2e...{z4'e}z4e;
+  numeric x_baryctr; x_baryctr=.5w; 
+enddef;
+ 
+cmchar "Lowercase upsilon";
+beginchar("u",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8,9); endchar;
+ 
+cmchar "Lowercase upsilon with rough breathing";
+beginchar(oct"031",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)<; endchar;
+ 
+cmchar "Lowercase upsilon with smooth breathing";
+beginchar(oct"032",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)>; endchar;
+ 
+cmchar "Lowercase upsilon with acute";
+beginchar(oct"033",width#,acc_ht#,0);
+this_letter; acute(x_baryctr); endchar;
+ 
+cmchar "Lowercase upsilon with rough breathing and acute";
+beginchar(oct"034",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)<; endchar;
+ 
+cmchar "Lowercase upsilon with smooth breathing and acute";
+beginchar(oct"166",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)>; endchar;
+ 
+cmchar "Lowercase upsilon with circumflex";
+beginchar(oct"036",width#,circ_ht#,0);
+this_letter; circumflex(x_baryctr); endchar;
+ 
+picture savedpicture;
+ 
+% FI
+ 
+def dims = 10.5u#,x_height#,desc_depth# enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter =
+  pickup fine.nib;
+  lft x4r=w-rt x8r=hround .75u; y4r=y8r=.5h;
+  x6r=.5[x4r,x8r]; bot y6r=-oo;
+  numeric tilt; tilt:=min(2*otilt,.5);
+  filldraw stroke gr_arc.e(6,7,8)(vair,stem,tilt) ;
+  filldraw stroke gr_arc.e(4,5,6)(vair,.5[vair,stem],tilt) ;
+  y2+.5stem=h+o; x2+.5stem=hround(x6-1.5u);
+  pos2(stem,angle((z2-z4)xscaled 2)+90);
+  filldraw circ_stroke z2e...{z4'e}z4e;
+  pos10(stem,180); pos11(hair,180);
+  y10-.5stem=-d-o; y11=.25h; x10=x11=x6;
+  x9r=.5[x10r,x8r]; top y9r=h+o;
+  filldraw stroke gr_arc.e(8,20,9)(.25[vair,stem],.5[vair,stem],.5tilt);
+  filldraw circ_stroke z10e..z11e{up}..{-z9'e}z9e; 
+enddef;
+ 
+cmchar "Lowercase phi";
+beginchar("f",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8,9,10,11,12,20,21); endchar;
+ 
+picture savedpicture;
+ 
+% QI
+ 
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+def dims =  10u#,x_height#,desc_depth# enddef; 
+ 
+def gen_letter=
+  pickup fine.nib;
+  x1-.5stem=hround .75u; y1+.5stem=h+oo;                % top left
+  z1'=(1,.2); pos1(stem,angle z1'+90);                  % direction at z1
+  x3+x1=w; y3-.5stem=-d-oo; pos3(stem,angle z1'+90);    % bottom right
+  z2=.5[z1,z3];                                         % attachment
+  z2'=(z3-z1)yscaled 2; pos2(hair,angle z2'+90);        % direction at z4
+  filldraw double_circ_stroke z1e{z1'}... z2e{(z3-z1)yscaled 2}...{z1'}z3e;
+  lft x7l=hround .75u; bot y7l=-d-oo; z2=.5[z7l,z8r]=.5[z7r,z8l];
+  numeric stem'; stem'=stem-currentbreadth;
+ numeric theta; theta=angle(z8r-z7l)+angle((x8r-x7l)++(y8r-y7l)+-+stem',stem');
+  x7r=x7l+(stem'/sind theta); y7r=y7l;
+  filldraw stroke z7e..z8e; 
+enddef;
+ 
+cmchar "Lowercase chi";
+beginchar("q",dims);
+this_letter; penlabels(1,2,3,7,8); endchar;
+ 
+picture savedpicture;
+ 
+% YI
+ 
+def dims = 10.5u#,asc_height#,desc_depth# enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter =
+  pickup fine.nib;
+  lft x2r=w-rt x6r=.75u; y2r=y6r=.6x_height;            % left and right bulges
+  x4r=.5[x2r,x6r]; bot y4r=-oo;                         % bottom
+  numeric tilt; tilt:=min(2*otilt,.5);
+  filldraw stroke gr_arc.e(4,5,6)(vair,stem,tilt) ;
+  filldraw stroke gr_arc.e(2,3,4)(vair,.4[vair,stem],tilt) ;
+  y7+.5hair=x_height+o; x7+.5hair=hround(rt x6r-.75u);          % right tip
+  pos7(hair,angle ((z6-z7) xscaled 2)+90);
+  filldraw circ_stroke z7e...{-z6'e}z6e;
+  y1+.5stem=x_height+o; x1-.5stem=hround(lft x2r+.5u);  % left tip
+  pos1(stem,angle((z2-z1) xscaled 2)-90);
+  filldraw circ_stroke z1e...{z2'e}z2e;
+  pos10(stem,0); pos9(hair,0); pos8(stem,0);            % vertical stroke
+  y10-.5stem=-d-o; y9=.25x_height; y8+.5stem=h+o; x10=x9=x8=x4;
+  filldraw double_circ_stroke z10e..z9e{up}..z8e; 
+enddef;
+ 
+cmchar "Lowercase psi";
+beginchar("y",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8,9,10); endchar;
+ 
+picture savedpicture;
+ 
+% WMEGA
+ 
+def width =  12u enddef; 
+def height = x_height enddef;
+def dims = width#,height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+ 
+def gen_letter =
+  pickup fine.nib;
+  pos2(stem,-180); pos8(stem,360); lft x2r=w-rt x8r=hround.75u;
+  y2=y8=.8bar_height;                                   % left and right bulges
+  y4=y6=bar_height; .5[x4,x6]=.5w; rt x4r-lft x6r=stem;
+pos4(hair,0); pos6(hair,180);                         % left and right of loop
+  bot y3r=bot y7r=-oo; x3=.5[x2,x4]; x7+.25u=.5[x6,x8];
+  pos3(vstem,-150); pos7(vstem,330);                    % left and right bottom
+  top y1r=x_height+o=top y9r;                           % left tip
+  x1=.5[x2,.5w]; pos1(.2[stem,hair],angle(-.5w,y2-x_height)-90);
+x9=.5[x8,.5w]; pos9(.8[stem,hair],angle(-.5w,x_height-y2)-90);        % rt tip
+  filldraw stroke z1e{(z2-z1) xscaled 2}...z2e{down}...z3e{right};
+  filldraw stroke z7e{right}...{up}z8e...{(z9-z8) xscaled 2}z9e;
+  drawloop(3,4,6,7); 
+  numeric x_baryctr; x_baryctr=.5[x4,x6];
+  numeric pos_stem; pos_stem=x_baryctr; 
+enddef;
+ 
+cmchar "Lowercase omega";
+beginchar("w",dims);
+this_letter; penlabels(0,1,2,3,4,5,6,7,8,9); endchar;
+ 
+cmchar "Lowercase omega with rough breathing";
+beginchar(oct"015",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)<; endchar;
+ 
+cmchar "Lowercase omega with smooth breathing";
+beginchar(oct"016",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)>; endchar;
+ 
+cmchar "Lowercase omega with acute";
+beginchar(oct"017",width#,acc_ht#,0);
+this_letter; acute(x_baryctr); endchar;
+ 
+cmchar "Lowercase omega with rough breathing and acute";
+beginchar(oct"020",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)<; endchar;
+ 
+cmchar "Lowercase omega with smooth breathing and acute";
+beginchar(oct"021",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)>; endchar;
+ 
+cmchar "Lowercase omega with circumflex";
+beginchar(oct"022",width#,circ_ht#,0);
+this_letter; circumflex(x_baryctr); endchar;
+ 
+picture pic.iota;
+picture savedpicture;
+ 

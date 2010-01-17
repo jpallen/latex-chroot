@@ -1,0 +1,118 @@
+%%
+%% This is file `ldcsetup.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% ldcsetup.dtx  (with options: `package')
+%% 
+%%
+%% (C) Copyright 1999 Frank Mittelbach, Chris Rowley, David Carlisle
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{ldcsetup}
+          [1999/09/10 v0.04 coding conventions and stuff]
+\RequirePackage{keyval,calc}
+%% Puts an ignored space at the end of the line, so `|\ |' does the right
+\def\IgnoreWhiteSpace{%
+  \edef\@tempa{%
+  \catcode`\noexpand\~=\the\catcode`\~\relax
+  \catcode`\noexpand\ =\the\catcode`\ \relax
+  \catcode`\noexpand\^^I=\the\catcode`\^^I\relax
+  \catcode`\noexpand\@=\the\catcode`\@\relax
+  \endlinechar=\the\endlinechar\relax
+  }%
+  \ifx\@currname\@empty
+    \expandafter\AtBeginDocument\expandafter{\@tempa}%
+  \else
+    \expandafter\AtEndOfPackage\expandafter{\@tempa}%
+  \fi
+  \catcode`\~=10\relax
+  \catcode`\ =9\relax
+  \catcode`\^^I=9\relax
+  \makeatletter
+  \endlinechar=` %
+}
+\IgnoreWhiteSpace
+\def\define@key#1#2{%
+  \@ifnextchar[
+     {\KV@def{#1}{\string#2}}
+     {\@namedef{KV@#1@\string#2}####1}}
+\def\setkeys#1#2{%
+  \def\KV@prefix{KV@#1@\expandafter\string}%
+  \KV@do#2,\relax,}
+\newtoks\KV@toks
+\def\KV@@sp@c#1\@nil#2\relax#3{\KV@toks{#1}\edef#3{\the\KV@toks}}
+\def\KV@equal{=}
+\def\KV@split#1=#2=#3\relax{%
+  \KV@@sp@def\@tempa{#1}%
+  \def\@tempd{#3}%
+  \ifx\@tempa\@empty\else
+    \expandafter\let\expandafter\@tempc
+      \csname\KV@prefix\@tempa\endcsname
+    \ifx\@tempc\relax
+      \KV@error{\@tempa\space \expandafter\@gobbletwo\string\@undefined}\@eha
+    \else
+      \ifx\@tempd\@empty
+        \KV@default
+      \else
+        \KV@@sp@def\@tempb{#2}%
+        \ifx\@tempd\KV@equal
+          \expandafter\@tempc\expandafter{\@tempb}\relax
+        \else
+          \KV@error{Extra~=~ sign~ after~ `#1'}\KV@erry
+        \fi
+      \fi
+    \fi
+  \fi}
+\def\KV@erry{\expandafter\KV@errx\meaning\@tempd\relax ignored\MessageBreak
+             missing~comma~in~`\expandafter\strip@prefix\meaning\@tempb'~?}
+\def\KV@errx#1>#2==\relax{%
+ `#2' }
+\def\KV@default{%
+  \expandafter\let\expandafter\@tempb
+    \csname\KV@prefix\@tempa @default\endcsname
+  \ifx\@tempb\relax
+    \KV@error{No value specified for \@tempa}\@eha
+  \else
+    \@tempb\relax
+  \fi}
+\def\KV@error#1#2{\PackageError{keyval}{#1}{#2}}
+\def\KV@parse#1{
+  \begingroup
+\def\KV@@sp@c##1\@nil##2\relax##3{\addto@hook##3{{##1}}}
+\def\KV@split##1=##2=##3\relax{%
+  \def\@tempd{##3}%
+  \expandafter\ifx\expandafter=\@firstofone##1=\else
+      \ifx\@tempd\@empty
+        \addto@hook\KV@toks\KV@default@elt
+        \KV@@sp@def\KV@toks{##1}%
+      \else
+        \ifx\@tempd\KV@equal
+          \addto@hook\KV@toks\KV@elt
+          \KV@@sp@def\KV@toks{##1}%
+          \KV@@sp@def\KV@toks{##2}%
+        \else
+          \KV@err{Extra `=' after `##1'}\@ehd
+        \fi
+    \fi
+  \fi}
+  \KV@toks{}
+   \KV@do#1,\relax,
+  \expandafter
+  \endgroup
+  \the\KV@toks}
+\let\SetInternalCounter\calc@assign@count
+\def\UndeclareRobustCommand#1{%
+  \global\let#1\undefined
+  \global\expandafter
+     \let\csname\expandafter\@gobble\string#1~\endcsname\undefined
+}
+\endinput
+%%
+%% End of file `ldcsetup.sty'.

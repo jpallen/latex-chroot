@@ -1,0 +1,1298 @@
+% This file is part of the KannadaTeX Software Package.
+%Copyright (c) 1991 G.S. Jagadeesh & Venkatesh. Gopinath.
+%
+%Author: GS. Jagadeesh.
+%The KannadaTeX Software Package is distributed in the hope that
+%it will be useful,but WITHOUT ANY WARRANTY.  No author or distributor
+%accepts responsibility to anyone for the consequences of using it
+%or for whether it serves any particular purpose or works at all,
+%unless he says so in writing.  Refer to the KannadaTeX Software Package
+%General Public License for full details.
+%
+%Everyone is granted permission to copy, modify and redistribute
+%the KannadaTeX Software Package, but only under the conditions described in the
+%KannadaTeX Software Package General Public License.   A copy of this license is
+%supposed to have been given to you along with KannadaTeX Software Package so you
+%can know your rights and responsibilities.  It should be in a
+%file named CopyrightLong.  Among other things, the copyright notice
+%and this notice must be preserved on all copies.  
+%%%%%
+
+font_coding_scheme := "TeX text";
+
+%font_size 10pt#; slant:=0; pen_width#:=0.35pt#; penangle := 30 ;
+
+% avinash: June 1998: do not set mode here, that is set by MakeTeXPK
+% mode=localfont;
+
+input kancodes;               % codes for kannada symbols
+input kanparam;  
+
+font_coding_scheme := "TeX text";
+
+mode_setup; font_setup;
+
+
+def v_e_form =
+ lft z1=(0,j_height); top z2=(1/5v_e_width,x_height);
+ z3=(2/5v_e_width,1.2j_height); top z4=(3/5v_e_width,x_height);
+ rt z5=(v_e_width,1/2x_height); z6=(4/5v_e_width,1/5x_height);
+ bot z7=(1/2v_e_width,0); z8=(1/5v_e_width,1/4x_height);
+ z9=(1/2v_e_width,1/2x_height); rt z10=(v_e_width,-1/5des_depth);
+ path v_e_p;
+ v_e_p = z1..z2..tension 1.2..z3&z3..tension 1.2..z4..z5..z6..z7..z8..z9..z10;
+ sketch v_e_p;
+enddef;
+
+def place_lit_circ (suffix $) (expr sc) =
+    lit_cir_form;
+    erase sketch lit_cir_p;
+  path pl_lit_cir_p ;
+  transform t;
+  t=identity scaled sc shifted z$ ;
+  %sketch lit_cir_p transformed t;
+  pl_lit_cir_p = lit_cir_p transformed t;
+  sketch pl_lit_cir_p ;
+enddef ;
+
+def bar_form(suffix $) (expr width) =
+  path bar_p;
+  z$b= (x$+width-2u, y$);
+  bar_p = z$--z$b;
+  sketch bar_p;
+enddef;
+  
+def bar_forma(expr width) =
+  path bar_pa;
+  z300=rt bot (0,x_height); z301= bot(width-2u, x_height);
+  bar_pa=z300--z301;
+  sketch bar_pa;
+enddef;
+  
+def vmfa_form(suffix $)  =  % tale-kattu
+  path bar_p;
+  z$c= (x$+1.4u, y$);
+  top z$d= (x$c+.5u, y$+2.5u);
+  bar_p = z$--z$c{z$c-z$}..z$d;
+  sketch bar_p;
+enddef;
+  
+def vm_aa_form =
+    top z1 = (0+u,x_height);
+    top z2 = (vm_aa_width-2u,x_height);
+    rt z3 = (vm_aa_width, 1/2y1);
+    bot z4 = (x2, 0);
+    z5 = (x2-x1, y4+.1y1);
+    z6 = (x2-1/4x1, y4+.2y1);
+    z7 = (x2-1/8x1, y4+.1y1);
+    sketch z1..tension 7..z2..tension 1.8..z3..z4..z5..z6..z7;
+    flop(4);
+enddef;
+
+def vmfaa_form(suffix $)  =  % tale-a ile.
+    top z1a = (x$+0,x_height);
+    z1b = (x$+4.2u,y1a);
+    rt z1c = (x1b+2u, .5y1a);
+    bot z1d = (x1b-.4u, 0);
+    bot z1e = (x1d, 1.5u);
+    z1f = (x1e+.25u, y1e-.5u);
+
+    sketch z1a---z1b..tension 1.8..z1c..tension 1.2..z1d..z1e..z1f;
+    %sketch z1a..tension 10..z1b..tension 1.8..z1c..tension 1.2..z1d..z1e..z1f;
+    %sketch z1a; draw z1b; draw z1c; draw z1d; draw z1e; draw z1f; draw z1f;
+enddef;
+
+
+def vmfea_form(suffix $)  =  % tale-athwa 
+  path bar_p;
+  z$c= (x$+1.5u, y$);
+  z$d= (x$c+.5u, y$+2.5u);
+  z$e= (x$+1u, y$+1.5u);
+  z$f= (x$+1.5u, y$e-.4u);
+  bar_p = z$---z$c{z$c-z$}..z$d..z$e..z$f;
+  sketch bar_p;
+enddef;
+  
+def vmah_form(suffix $)  =  % tale-ardha akshara 
+  path bar_p;
+  z$c= (x$+1.2u, y$);
+  z$cc= (x$c+1.5u, y$);
+  z$d= (x$cc-.75u, y$-1u);
+  %z$e= (x$+2.75u, y$+1.25u);               % adjust if you want it..
+  z$e= (x$+3u, y$+1.5u);
+  bar_p = z$--z$c..z$cc{dir 2}..z$d..tension 1.4..z$e;
+  sketch bar_p;
+enddef;
+  
+def cb_ka_form =
+  path cb_ka_pa, cb_ka_pb, cb_ka_pc;
+  rt top z1=(0.5cb_ka_width, 0.75x_height); lft z2=(0, 3/8x_height);
+  bot z3=(.5cb_ka_width, 0);
+  rt z4=(cb_ka_width, 3/8x_height);
+  lft z5=(0, 0.75x_height); rt z6=(cb_ka_width, .75x_height);
+  top z7=(0.5cb_ka_width, 0.75x_height);
+  top z8=(0.55cb_ka_width, x_height);
+  path cb_ka_p;
+  cb_ka_pa = z1..z2..z3..z4..cycle;
+  cb_ka_pb = z5--z6;
+  cb_ka_pc =  z7..{dir 125}z8;
+  sketch cb_ka_pa;
+  sketch cb_ka_pb;
+  sketch cb_ka_pc;
+  lft top z0 = (0, x_height);
+  bar_forma(cb_ka_width-.5u);    % z301 is comming from bar_forma...
+     %vmfa_form(301);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(301) ;
+     %vmfea_form(301);
+     %bar_form(0,cb_ka_width);
+
+   % to compute the joining point of "kombu for ka".
+   path inter;
+   inter = (1/2cb_ka_width, .3x_height)--(1.1cb_ka_width, .3x_height);
+   z400 =  cb_ka_pa  intersectionpoint  inter; 
+
+enddef;
+
+def cb_kha_form =
+  z1=(4/15cb_kha_width,5/6x_height);z2=(2/15cb_kha_width,y1-uh);
+  lft z3=(0,y1); top z4=(x6,x_height);
+  z5=(5/12cb_kha_width,1/8x_height); bot z6=(1/4cb_kha_width,0);
+  lft z7=(0,1/4x_height); z8=(1/4cb_kha_width,1/3x_height);
+  bot z9=(3/4cb_kha_width,0); rt z10=(cb_kha_width,1/3x_height);
+  top z11=(x9,x_height);
+  path cb_kha_p;
+  cb_kha_p=z1..z2..z3..z4..z5..z6..z7..z8..z9..z10..z11;
+  %sketch cb_kha_p;
+     z12 = lft z11;
+     %vmfaa_form(12) ;
+     %vmfea_form(12);
+
+   % to compute the joining point of "kombu for ka".
+   path inter;
+   inter = (.8cb_kha_width, .3x_height)--(1.1cb_kha_width, .3x_height);
+   z400 =  cb_kha_p  intersectionpoint  inter; 
+
+enddef;
+
+def cb_ga_form =
+  bot z1=(u,0); x5=cb_ga_width-x1; bot y5=0;
+  y2=y4=1/3x_height; lft x2=0; rt x4=cb_ga_width;
+  top z3=(1/2cb_ga_width,x_height);
+  path cb_ga_p, cv_ge_p, cb_ga_pt;
+  cb_ga_p=z1..z2..z3..z4..z5;
+  %sketch cb_ga_p;
+
+  % following is for vowel modifier "e".
+        numeric na,nb,nc,nd;
+       (na,nb)= cb_ga_p intersectiontimes
+                  ((0,vm_e_height2)--(1/2cb_ga_width,vm_e_height2));
+        z30= point na of cb_ga_p;
+        top z31=(1/6cb_ga_width,.9vm_e_heightx);
+        %top z31=(1/2cb_ga_width,vm_e_heightx);
+       (nc,nd)= cb_ga_p intersectiontimes
+                  ((1/2cb_ga_width,vm_e_height2)--(cb_ga_width,vm_e_height2));
+        z32= point nc of cb_ga_p;
+       cv_ge_p=z30..z31..tension1.2..z32;
+
+  % to compute the joining point of "kombu for ka".
+  path inter;
+  inter = (.8cb_ga_width, .3x_height)--(1.1cb_ga_width, .3x_height);
+  z400 =  cb_ga_p  intersectionpoint  inter; 
+
+enddef;
+
+% following macro is used for many derivatives of "pa" like gha, va etc.,
+def cb_pa_form  =
+  top z41=0.85(1/8cb_pa_width+1/2u, 1/4x_height+1/4u); 
+  top z42=0.85(1/4cb_pa_width, 3/8x_height);
+  top z43=0.85(1/8cb_pa_width, 1/2x_height); 
+  top z44=0.85(0, 3/8x_height); 
+  bot z45=(1/4cb_pa_width, 0); 
+  bot z46=(1/2cb_pa_width, 0.6w_height); 
+  bot z47=(3/4cb_pa_width, 0); 
+  rt top z48=(cb_pa_width, 1/2x_height); 
+  rt z33=(0.9cb_pa_width, .85x_height) ;
+
+  path cb_pa_p,cb_paa_p;
+  cb_pa_p = z41..z42..z43..z43..z44..z45..z46 & z46..z47..z48..z33;
+
+
+  % to compute the joining point of "kombu for pa and its derivatives".
+  path inter;
+  inter = (.8cb_pa_width, .25x_height)--(1.1cb_pa_width, .25x_height);
+  z400 =  cb_pa_p  intersectionpoint  inter; 
+
+enddef;
+
+def vm_ghu_form (suffix $) =
+  numeric diff_ht;
+  numeric mx, my, mz;
+    diff_ht = x_height-y$;
+    bot z$x = (x$+vm_u_width/4,y$-1/9diff_ht);
+    rt z$y = (x$+vm_u_width/2,y$+1/2diff_ht);
+    top rt z$z = (x$+vm_u_width/3,y$+diff_ht-0.3u);
+  path vm_ghu_p;
+  vm_ghu_p=z$..z$x..z$y..z$z;
+  sketch vm_ghu_p;
+  %penlabels($aa,$bb,$cc,$d);
+enddef;
+
+def cb_cch_form =
+   path cb_ccha_pa, cb_ccha_pb, cb_ccha_pc;
+   numeric k_w, k_yo, k_h, k_xo;
+   k_w=1/4cb_ja_width; % Kondi width
+   k_xo=1/6cb_ja_width;
+   k_yo=3/4x_height;
+   k_h=1/4x_height;
+
+   top rt rt z1=(k_xo+1/3k_w, k_yo+1/2k_h);
+   rt top z2=(k_xo+1/2k_w, k_yo);
+   rt top z3=(k_xo+k_w, k_yo+1/2k_h);
+   rt top z4=(k_xo+1/2k_w,k_yo+k_h);
+
+   rt z5=(0.075cb_ja_width, 3/4x_height);
+
+   z6=(0, 1/2x_height);
+   bot z7=(1/4cb_ja_width, 0);
+   z8=(1/2cb_ja_width, .6w_height);
+   bot z9=(3/4cb_ja_width, 0);
+   rt z10=(cb_ja_width, 1/2x_height);
+   top z11=(0.80cb_ja_width, x_height);
+
+   cb_ccha_pa = z1..z2..z3..z4..z5..z6..z7..z8..z8..z9..z10..z11;
+   sketch cb_ccha_pa;
+   z12 = (x11-.5u, y11);
+
+     %vmfa_form(12);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(12) ;
+     %vmfea_form(12);
+     %bar_form(0,cb_ja_width);
+     %vm_au_form(12,w);
+
+  % to compute the joining point of "kombu for ka".
+  path inter;
+  inter = (.8cb_ja_width, .3x_height)--(1.1cb_ja_width, .3x_height);
+  z400 =  cb_ccha_pa  intersectionpoint  inter; 
+
+enddef ;
+
+
+def cb_ch_ja_base=
+   numeric j_offset;
+   j_offset = 0.08cb_ja_width;
+   lft z1 = (0,j_height); top z2 = (cb_ja_width/8,x_height);
+   z3 = (cb_ja_width/4+j_offset,j_height);
+   z4 = (cb_ja_width/8+j_offset,x_height/2);
+   lft z5 = (0,w_height); bot z6 = (cb_ja_width/8,0);
+   %z7 = (cb_ja_width/2,0.8w_height); bot z8 = (3/4cb_ja_width,0);
+   z7 = (cb_ja_width/2,0.8w_height); bot z8 = (.8cb_ja_width,0);
+enddef ;
+
+def cb_ja_form =
+
+   cb_ch_ja_base; % Defines some base points for ja, ch O etc.,
+   rt z9 = (cb_ja_width,w_height);
+   path cb_ja_pa,cb_ja_pb, cb_nga_p, cb_ja_pc, cb_ja_pe;
+   cb_ja_pa=z1..z2..z3..z4..z5..z6..tension1.15..z7&z7..tension1.2..z8..z9;
+
+   % to define BOWL for ja.
+   z40 = (0.2cb_ja_width, .9x_height); top z41=(.95cb_ja_width, x_height);
+   z60= (z40..z41) intersectionpoint cb_ja_pa ;
+   z50 = (1.4x3,0.8x_height);
+   cb_ja_pb=z60..z50..z41;
+
+   % to define BOWL for nga.
+   z20 = (0.2cb_ja_width, .8x_height); top z21=(.95cb_ja_width, .9x_height);
+   z30= (z20..z21) intersectionpoint cb_ja_pa ;
+   top z10 = (1.4x3,.95x_height);
+   cb_nga_p=z30..z10..z21;
+
+   z42= (x41, y41+1.5u) ;
+   z43= (x41-u, y42-.75u) ;
+   z44= (x41-.7u, y42-1.4u) ;
+   cb_ja_pe = z60..z50..z41..z42..z43..z44 ;
+   z35=(0.62cb_ja_width, y40-u) ;
+   cb_ja_pc = rt bot z35 ;
+   sketch cb_ja_pa;
+   %penlabels(3w,3x,3y,3z);
+
+   % for "ile" and "tale kattu"
+
+   z52=(x41-u, y41);
+     %vmfa_form(52);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(52) ;
+     %vmfea_form(52);
+     %bar_form(0,cb_ka_width);
+     %vm_au_form(52,w);
+
+  % to compute the joining point of "kombu for ka".
+  path inter;
+  inter = (.8cb_ja_width, .3x_height)--(1.1cb_ja_width, .3x_height);
+  z400 =  cb_ja_pa  intersectionpoint  inter; 
+
+ enddef;
+
+def cb_ch_form =
+   path cb_cha_pa, cb_cha_pb, cb_cha_pc;
+   cb_ch_ja_base;
+   rt rt z9 = (0.9cb_ja_width, .6x_height);
+   cb_cha_pa=z1..z2..z3..z4..z5..z6..tension1.2..z7&z7..tension1.15..z8..tension1.1..z9;
+   sketch cb_cha_pa;
+   y11 = y10 = y9; x10=cb_ja_width; x11=x9-(x10-x9); 
+
+   top z12 = (x9, x_height);
+   cb_cha_pb = z10--z11;
+   cb_cha_pc = z9{dir 40}..z12;
+   sketch cb_cha_pb ;
+   sketch cb_cha_pc ;
+
+   z20 = (x12-.1u,y12) ;
+     %vmfa_form(20);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(20) ;
+     %vmfea_form(20);
+     %bar_form(0,cb_ka_width);
+    %vm_au_form(20,w);
+
+  % to compute the joining point of "kombu for ka".
+  path inter;
+  inter = (.8cb_ja_width, .3x_height)--(1.2cb_ja_width, .3x_height);
+  %sketch inter;
+  z400 =  cb_cha_pa  intersectionpoint  inter; 
+
+enddef ;
+
+def cb_nya_form=
+  v_e_form;
+  path cb_ny_pb;
+  z14= v_e_p intersectionpoint ((x4,.8x_height)--(w,.8x_height));
+  z15=z14;
+  z16=(v_e_width+half_plus_width, .9y14);
+  cb_ny_pb = z14{dir 60}..z16;
+  sketch cb_ny_pb;
+  z17=top(.6(x14+x16), x_height);
+  %pivot_message(x15c,x7);
+     %vmfa_form(17);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(17) ;
+     %vmfea_form(17);
+     %bar_form(0,cb_ka_width);
+     %vm_au_form(400,w);
+
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.8v_e_width, .3x_height)--(1.1v_e_width, .3x_height);
+   z500 =  v_e_p  intersectionpoint  inter; 
+   z400=(x500+3u,y500);
+     %vm_u_form(400);
+
+enddef ;
+
+def cb_ta_form =
+  lft z1=(0,.35x_height); bot z2=(.55cb_ta_width, 0);
+  rt z3=(cb_ta_width, .35x_height); z4=(.55cb_ta_width, .55x_height);
+  rt z5=(.4cb_ta_width, .42x_height);
+  top z6=(.7cb_ta_width, .48x_height);
+  bot z7=(.75cb_ta_width, .68x_height);
+  bot z8=(.7cb_ta_width, .78x_height);
+  top z9=(.5cb_ta_width, x_height);
+
+  top z10 = (.4cb_ta_width, x_height) ;
+  z11 = (.41cb_ta_width, .8x_height) ;
+  z12 = (.5cb_ta_width, .85x_height) ;
+
+ path cb_ta_p, cb_te_p;
+ cb_ta_p = z1..z2..z3..z4..tension 1.2..z5..tension1.2..z6..z7..z8..z9;
+ cb_te_p = cb_ta_p softjoin z9..z10..z11..z12 ;
+     bar_forma(cb_ta_width-.5u);    % z301 is comming from bar_forma...
+     %vmfa_form(301);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(301) ;
+     %vmfea_form(301);
+     %vm_au_form(301,vm_au_width);
+
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.8cb_ta_width, .3x_height)--(1.1cb_ta_width, .3x_height);
+   z400 =  cb_ta_p  intersectionpoint  inter; 
+     %vm_u_form(400);
+
+enddef;
+
+def cb_tta_form =
+ path cb_tta_p, cb_tta_pa, cb_tta_pe;
+ lft top z1=(0.12cb_tta_width,x_height);
+ lft top z2=(0.1cb_tta_width,x_height);
+ top z3=(0,.75x_height);
+ lft z4=(.15cb_tta_width, 0.43x_height);
+ lft z5=(.2cb_tta_width, 0.55x_height);
+ z6=(0, .25x_height);
+ bot z7=(1/4cb_tta_width, 0);
+
+ z8=(1/2cb_tta_width, 0.6w_height);%(wedge)
+
+ bot z9=(3/4cb_tta_width, 0);
+ lft z10=(cb_tta_width, 1/4x_height);
+
+ z11=(0.85cb_tta_width, 1/2x_height); %(wedge)
+ rt lft z12=(cb_tta_width, 3/4x_height); 
+ rt top z13=(.9cb_tta_width, x_height); 
+
+ %For consanant +e
+ z14=(.8cb_tta_width, .9x_height); 
+ z15=(.89cb_tta_width, .8x_height); 
+
+ %cb_tta_pa =  z1..tension1.2..z2..z3..tension1.2..z4;
+ cb_tta_pa =  z1..tension1.2..z2..z3..{curl 6.3}z4;
+ cb_tta_p =  z4..z5..tension1.2..z6..z7
+          ..z8..z8..z9..z10..z11..z11..z12..z13;
+ %For consanant +e
+ cb_tta_pe =  z4..z5..tension1.2..z6..z7
+          ..z8..z8..z9..z10..z11..z11..z12..z13..z14..z15;
+ sketch cb_tta_pa ;sketch cb_tta_p;
+ z20=(x13-u,y13);
+
+     %vmfa_form(20);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(20) ;
+     %vmfea_form(20);
+     %bar_form(0,cb_ka_width);
+     %vm_au_form(20,w);
+
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.8cb_tta_width, .3x_height)--(1.1cb_tta_width, .3x_height);
+   z400 =  cb_tta_p  intersectionpoint  inter; 
+     %vm_u_form(400);
+
+enddef;
+
+
+def cb_da_form =
+ top z1=(1/2cb_da_width,x_height); lft z2=(0,w_height);
+ bot z3=(1/3cb_da_width,0);z4=(1/2cb_da_width,.6w_height);
+ bot z5=(2/3cb_da_width,0);rt z6=(cb_da_width,1/2x_height);
+ path cb_da_p,cv_de_p;
+ cb_da_p= z4..tension 1.2..z5..z6..z1..z2..z3..tension 1.2..z4;
+ sketch cb_da_p;
+        numeric na,nb,nc,nd;
+       (na,nb)= cb_da_p intersectiontimes
+                  ((0,vm_e_height2)--(1/2cb_da_width,vm_e_height2));
+        z30= point na of cb_da_p;
+       (nc,nd)= cb_da_p intersectiontimes
+                  ((1/2cb_da_width,vm_e_height2)--(cb_da_width,vm_e_height2));
+        z32= point nc of cb_da_p;
+        top z31=(1/2cb_da_width,.95vm_e_heightx);
+       cv_de_p=z30{curl 3}..z31..z32;
+     bar_forma(cb_da_width-.5u);    % z301 is comming from bar_forma...
+     %vmfa_form(301);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(301) ;
+     %vmfea_form(301);
+     %vm_au_form(301,vm_au_width);
+
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.8cb_da_width, .3x_height)--(1.1cb_da_width, .3x_height);
+   z400 =  cb_da_p  intersectionpoint  inter; 
+     %vm_u_form(400);
+
+ enddef;
+
+def cb_dda_form =
+  path cb_dda_p, cv_dde_p;
+  rt z1=(0.1cb_da_width, .5x_height); bot z2=(0.25cb_da_width, 0);
+  bot z3=(1/2cb_da_width,0.6w_height);
+  bot z4=(0.7cb_da_width,0); lft z5=(0.9cb_da_width, 0.4x_height);
+  top z6=(0.6cb_da_width, 0.6x_height);
+  lft z7=(0.79cb_da_width, 0.7x_height);
+  top z8=(0.45cb_da_width, .99x_height);
+
+  cb_dda_p=z1...z2..z3..z3...z4...z5..{curl 2.5}z6..z7..z8..tension 1.0..cycle;
+  sketch cb_dda_p;
+
+     bar_forma(cb_da_width-u);    % z301 is comming from bar_forma...
+     %vmfa_form(301);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(301) ;
+     %vmfea_form(301);
+     %vm_au_form(301,vm_au_width);
+
+        numeric na,nb,nc,nd;
+       (na,nb)= cb_dda_p intersectiontimes
+                  ((0,vm_e_height2)--(1/2cb_da_width,vm_e_height2));
+        z30= point na of cb_dda_p;
+       (nc,nd)= cb_dda_p intersectiontimes
+                  ((1/2cb_da_width,vm_e_height2)--(cb_da_width,vm_e_height2));
+        z32= point nc of cb_dda_p;
+        top z31=(1/2cb_da_width,.92vm_e_heightx);
+       cv_dde_p=z30{curl 3}..z31...z32;
+
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.8cb_da_width, .3x_height)--(1.1cb_da_width, .3x_height);
+   z400 =  cb_dda_p  intersectionpoint  inter; 
+     %vm_u_form(400);
+
+enddef;
+
+def cb_na_form =
+ bot lft z1=(0,0); lft z2=(0,1/2w_height);
+ bot lft z1=(0,0); lft z2=(0,1/2w_height);
+ z3=(1/3cb_na_width,w_height); bot z4=(2/3cb_na_width,0);
+ rt z5=(cb_na_width,1/3x_height); top z6=(1/2cb_na_width,x_height);
+ bot z10=(.12cb_na_width, -.65w_height);
+
+ % For consonant+e
+ top z7 = (.3cb_na_width, x_height);
+ z8 = (.3cb_na_width, .7x_height);
+ z9 = (.45cb_na_width, .8x_height);
+
+ path cb_na_p, cb_ne_p;
+
+ cb_na_p=z10..z1..z2..z3..z4..z5..z6;
+ cb_ne_p = cb_na_p softjoin z6..tension1.3..z7..z8..z9;
+
+     bar_forma(cb_na_width-.5u);    % z301 is comming from bar_forma...
+     %vmfa_form(301);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(301) ;
+     %vmfea_form(301);
+     %vm_au_form(301,vm_au_width);
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.8cb_na_width, .3x_height)--(1.1cb_na_width, .3x_height);
+   z400 =  cb_na_p  intersectionpoint  inter; 
+     %vm_u_form(400);
+
+enddef;
+
+def cb_nna_form =
+  z1a=(1/3cb_nna_width,1/2sc_height);
+  bot z1=(1/4cb_nna_width,0); lft z2=(0,1/4x_height);
+  z3=(1/6cb_nna_width,1/2x_height); lft z4=(0,3/4x_height);
+  top z5=(1/4cb_nna_width,x_height); z6=(1/2cb_nna_width,.8x_height);
+  top z7=(5/8cb_nna_width,x_height); rt z8=(cb_nna_width,1/2x_height);
+  bot z9=(2/3cb_nna_width,0); bot z10=(x9-1/2sc_height,sc_height);
+  bot z11=(x9,3/2sc_height); bot z12=(x9+1/2sc_height,sc_height);
+  path cb_nna_p;
+  cb_nna_p= z1a..z1..z2..z3&z3..z4..z5..z6&z6..z7..z8..z9..z10
+            ..tension 1.1..z11..z12;
+  sketch cb_nna_p;
+     z20=bot(.8cb_na_width, x_height);
+     %bar_forma(vm_ea1_width);
+     %bar_forma(cb_nna_width);
+     %vmfa_form(20);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(20) ;
+     %vmfea_form(301);
+     %vm_au_form(20,vm_au_width);
+
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.8cb_nna_width, .3x_height)--(1.1cb_nna_width, .3x_height);
+   z400 =  cb_nna_p  intersectionpoint  inter; 
+     %vm_u_form(400);
+
+  penlabels(1a);
+enddef;
+
+def cb_ba_form =
+    lft z1 = (u/2,j_height); top z2 = (cb_ba_width/5,x_height);
+    z3 = (cb_ba_width/3,j_height); lft z4 = (0,w_height);
+    bot z5 = (cb_ba_width/4,0); bot z6 = (cb_ba_width/2,.6w_height);
+    bot z7 = (3/4cb_ba_width,0);
+    rt z8 = (cb_ba_width,w_height); %z8  contact point
+    top z9 = (.8cb_ba_width,x_height); % z9 another contact point
+
+	%for consant+e
+	z10 = (.65cb_ba_width, 1.1x_height);
+	z11 = (.65cb_ba_width, .91x_height);
+
+    path cb_ba_p, cb_be_p;
+    cb_ba_p = z1..z2..z3..z4..z5..tension 1.2..z6&z6..tension 1.2..z7..z8..z9;
+    cb_be_p = cb_ba_p softjoin z9..tension1.7..z10..z11;
+    sketch cb_ba_p;
+
+     z12 = (x9-u,y9);
+     %vmfa_form(12);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(12) ;
+     %vmfea_form(12);
+     %vm_au_form(12,vm_au_width);
+
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.8cb_ba_width, .3x_height)--(1.1cb_ba_width, .3x_height);
+   z400 =  cb_ba_p  intersectionpoint  inter; 
+     %vm_u_form(400);
+
+enddef;
+
+def vb_ea_form =
+  cb_pa_form ;
+  path vb_a_p,vb_a_pa;
+  top z9 = (.80cb_ba_width,.80x_height); % z9 another contact point
+  top z10 = (.35cb_ba_width,x_height); % z9 another contact point
+  vb_a_p = z41..z42..z43..z43..z44..z45..z46 & z46..z47..z48..z9..tension 1.2..z10;
+enddef ;
+
+def vb_eae_form =
+  vb_ea_form;
+  path vb_a_pb;
+  z11 = (.25cb_ba_width,.82x_height);
+  top z12 = (.13cb_ba_width,x_height); 
+  vb_a_pb = z41..z42..z43..z43..z44..z45..z46 & z46..z47..z48..z9..tension 1.2..z10..z10..z11..z12
+enddef ;
+
+def vb_i_form =
+  cb_pa_form;
+  path vb_a_pb;
+  top z9 = (3/4cb_pa_width, x_height); z10 = ( 1/2cb_pa_width, .8x_height);
+  top z11 = (1/4cb_pa_width, x_height); lft z12 = (0, .75x_height);
+  vb_a_pb = z41..z42..z43..z43..z44..z45..z46 & z46..z47..z48..z9..z10..z10..z11..z12
+enddef ;
+
+%def cb_va_form =
+%  cb_pa_form ;
+%  path cb_va_p,cb_va_pa;
+%  top z9 = (.82cb_ba_width,.83x_height); % z9 another contact point
+%  top z10 = (.4cb_ba_width,x_height); % z9 another contact point
+%  cb_va_p = z41..z42..z43..z43..z44..z45..z46 & z46..z47..z48..z9..z10;
+%  z20 = (.6cb_ba_width,w_height);
+%  z21 = (cb_ba_width, w_height);
+%  z30= (z20--z21) intersectionpoint cb_va_p ;
+%  vm_u_form(30);
+%enddef ;
+
+def cb_ya_form =
+
+    path cb_ya_pa, cb_ya_pb, cb_ya_pc, cb_ye_p;
+    lft z1 = (0, .49x_height); bot z2 = (3/10cb_ya_width, 0);
+    rt z3 = (3/5cb_ya_width, y1) ; top z4 = (x2, 2y1);
+    z20 = (.7x2, 3/10x_height);
+    z21 = (cb_ya_width+vm_u_width, 3/10x_height);
+    cb_ya_pa = superellipse( z3, z4, z1, z2, .7) ;
+    top z30 = (z20--z21) intersectionpoint cb_ya_pa ;
+    bot  z5 = (8/10cb_ya_width, 0); lft z6 = (.85*2x3, .5x_height);
+    %top z7 = (.9x5, x_height);
+    top z7 = (.77cb_ya_width, x_height);
+
+	%for consonant+e
+	z50 = (.75x5, 1.15x_height);
+	z51 = (.68x5, .98x_height);
+	z52 = (.89x5, .92x_height);
+    cb_ya_pb = z30..tension 1.12..z5..z6..z7;
+    cb_ye_p = z30..tension 1.12..z5..z6..z7..tension 1.4..z50..z51..z52;
+    %cb_ye_p = z30..tension 1.12..z5..z6..z7;
+    %sketch z6;sketch z7;sketch z50;sketch z51;sketch z52;
+    %cb_ye_p = z30..tension 1.12..z5..z6..z7..tension 1.6..z50; sketch z51; sketch z52;
+
+    top z40 = (z20--z21) intersectionpoint cb_ya_pb ;
+    numeric ya_width ;
+    ya_width = cb_ya_width + vm_u_width ;
+    bot  z8 = (.79(ya_width), 0); rt z9 = (ya_width, .5x_height);
+    top z10 = (.8ya_width, x_height) ;
+    cb_ya_pc = z40..z8..z9..z10 ;
+    draw cb_ya_pa ;
+    draw cb_ya_pb ;
+    draw cb_ya_pc ;
+
+     z90=(x7-1.5u, y7);
+     bar_form(90, .4cb_ya_width);
+     %vmfa_form(7);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(10) ;
+     %vmfea_form(7);
+     %vm_au_form(10,vm_au_width);
+
+   % to compute the joining point of "kombu for ya".
+   path inter;
+   inter = (.7ya_width, .3x_height)--(1.1ya_width, .3x_height);
+   z400 =  cb_ya_pc  intersectionpoint  inter; 
+     %vm_u_form(400);
+   
+enddef;
+
+def cb_la_form =
+  top z1=(1/4cb_la_width,x_height);
+  lft z2=(0,x_height/2); bot z3=(1/2cb_la_width,0);
+  rt z4=(cb_la_width,y2); top z5=(cb_la_width-.8x1,x_height);
+  z7=(x1+1.5u,2/3x_height);
+   path cb_la_pa,cb_la_pb,cb_la_p, cb_le_p, cb_le_pb;
+   cb_la_pb=z1..z2..z3..z4..z5;
+   z6=point 0.35 of cb_la_pb;
+   cb_la_pa= bot rt z6..z7..z1;
+   cb_la_p=cb_la_pa..cb_la_pb;
+
+  %for consonant+e
+
+   z20=(x5-1.5u, x_height+.7u);
+   z21=(x5-2.3u, x_height-.75u);
+   z22=(x5-.1u, x_height-.4u);
+   %draw z21;
+
+   %cb_le_pb=z1..z2..z3..z4..z5..{curl 2}z20..z21;
+   cb_le_pb=z1..z2..z3..z4..z5..tension1.6..z20..z21..z22;
+   cb_le_p=cb_la_pa..cb_le_pb;
+
+  % z8 is useful for la+u and la+uu
+  numeric na,nb;
+  (na,nb)=cb_la_pb intersectiontimes
+         ((cb_la_width/2,w_height)..(cb_la_width,w_height));
+  z9=point na of cb_la_pb;
+  z8=rt z9;
+     z55= lft z5;
+     %bar_forma(cb_ra_width);    % z301 is comming from bar_forma...
+     %vmfa_form(55);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(55) ;
+     %vmfea_form(55);
+     %vm_au_form(55,vm_au_width);
+     %vmah_form(55);  % tale-ardha akshara 
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.8cb_la_width, .5x_height)--(1.1cb_la_width, .3x_height);
+   z400 =  cb_la_p  intersectionpoint  inter; 
+     %vm_u_form(400);
+enddef;
+
+def cb_ra_form =
+    top z1=(cb_ra_width/2,x_height);
+    lft z2 = (0,w_height);
+    bot z3 = (cb_ra_width/2,0);
+    rt z4 = (cb_ra_width,y2);
+    path cb_ra_p,cv_re_p;
+   cb_ra_p =  z1..z2..z3..z4..cycle;
+   sketch  cb_ra_p;
+        numeric na,nb,nc,nd;
+       (na,nb)= cb_ra_p intersectiontimes
+                  ((0,vm_e_height2)--(1/2cb_ra_width,vm_e_height2));
+        z30= point na of cb_ra_p;
+       (nc,nd)= cb_ra_p intersectiontimes
+                  ((1/2cb_ra_width,vm_e_height2)--(cb_ra_width,vm_e_height2));
+        z32= point nc of cb_ra_p;
+        top z31=(.05cb_ra_width,.8vm_e_heightx);
+       cv_re_p=z30..z31..tension1.2..z32;
+
+     bar_forma(cb_ra_width);    % z301 is comming from bar_forma...
+     %vmfa_form(301);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(301) ;
+     %vmfea_form(301);
+     %vm_au_form(301,vm_au_width);
+     %vmah_form(301);  % tale-ardha akshara 
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.8cb_ra_width, .3x_height)--(1.1cb_ra_width, .3x_height);
+   z400 =  cb_ra_p  intersectionpoint  inter; 
+     %vm_u_form(400);
+  enddef;
+
+def cb_rra_form =
+ top z1=(1/4cb_rra_width,x_height);
+ y2=y6=1/2x_height;
+ lft x2=0; rt x6=cb_rra_width;
+ x3=x1; x5=cb_rra_width-x3;
+ bot y3=bot y5=0;
+ top z4=(1/2cb_rra_width,w_height);
+ top z7=(cb_rra_width-x1,x_height);
+ z11=(x1+1.5u,y1-1.45uh);
+ path cb_rra_p,cb_rra_pa,cb_rra_pb;
+ cb_rra_pb=z1..z2..z3..tension1.2..z4&z4..tension1.2..z5..z6..z7;
+        numeric na,nb,nc,nd, ne, nf;
+       (na,nb)= cb_rra_pb intersectiontimes
+                  ((0,5/6x_height)--(1/2cb_rra_width,5/6x_height));
+  z8=point na of cb_rra_pb;
+       (nc,nd)= cb_rra_pb intersectiontimes
+                  ((0.6cb_rra_width,w_height)--(cb_rra_width,w_height));
+  z20=point nc of cb_rra_pb;
+  z19=rt z20;
+ cb_rra_pa=bot z8..z11..z1;
+ cb_rra_p=cb_rra_pa..cb_rra_pb;
+ bot lft z18= z1;% used for placing a vertical line
+
+  z14=(cb_rra_width-1.6x1,x_height-sc_height);
+  %z15=(x7,1/2x_height);z16=(x1,y15);
+  z15 = cb_rra_p intersectionpoint
+                  ((0.7cb_rra_width,y8-.6u)--(cb_rra_width,y8-.6u));
+
+  z22 = cb_rra_p intersectionpoint
+	       ((0, .6x_height)--(.4cb_rra_width, .6x_height)) ;
+  z23 = cb_rra_p intersectionpoint
+	       ((.6cb_rra_width, .6x_height)--(cb_rra_width, .6x_height)) ;
+	      
+  z16=(x1,y15);
+   path cb_rra_pc, cb_rra_pd;
+   %cb_rra_pc= cb_rra_p..z14..z15--z16;
+   cb_rra_pc= cb_rra_p..z14..z15;%--z16;
+   cb_rra_pd = z22--z23 ;
+   sketch cb_rra_pc;
+   sketch cb_rra_pd ;
+
+   path inter;
+   inter = (.8cb_rra_width, .3x_height)--(1.1cb_rra_width, .3x_height);
+   z400 =  cb_rra_pc  intersectionpoint  inter; 
+ enddef;
+
+def arkavattu =
+    path arka_pa, arka_pb ;
+     top z1=(w/5,h);  lft z2=(0,3h/4);  z3=(x1,h/2);
+     z4=(w/3,h/2); lft z5=(0,h/4);  bot z6=(x1,0);
+     bot rt z7=(w,0);
+     arka_pa= flex(z1,z2,z3)& z3--z4;
+     arka_pb=flex(z3,z5,z6)& z6--z7;
+enddef;
+
+
+def flop(expr e) =
+  for d = 1 step 1 until e:
+   draw z[d];
+  endfor;
+enddef ;
+
+def cb_ca_form =
+ path cb_ca_p, cb_ce_p, cb_ca_pb;
+ lft z1 = (0, .25x_height); bot z2= (.5cb_ca_width, 0);
+ rt z3 = (cb_ca_width, .42x_height); z4 = (.75cb_ca_width, .82 x_height);
+ top  lft z5 = (.3cb_ca_width, .98x_height) ;
+ top  lft z6 = (.15cb_ca_width, .8x_height) ;
+ top  lft z7 = (.2cb_ca_width, .74x_height) ;
+ top  lft z8 = (.35cb_ca_width, .78x_height) ;
+ top  z9 = (.33cb_ca_width, .85x_height) ;
+ z22 = (.3cb_ca_width, y3);
+ z21 = (.58cb_ca_width, .7x_height);
+ top z20 = (.45cb_ca_width, x_height);
+
+ z30 = (x20-1.25u, x_height+1u);
+ z31 = (x20-2.25u, x_height+.5u);
+ z32 = (x20-1.25u, x_height+.1u);
+
+
+ cb_ca_p =  z20..z21..z22..z1..z2..{dir 92}z3..z4..z5..z6..z7..z8..z9;
+ cb_ca_pb = z32..z31..z30..tension1.6..z20;
+
+ cb_ce_p = cb_ca_pb softjoin cb_ca_p ;
+     bar_forma(cb_ca_width-.5u);    % z301 is comming from bar_forma...
+     %vmfa_form(301);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(301) ;
+     %vmfea_form(301);
+     %vm_au_form(301,vm_au_width);
+     %vmah_form(301);  % tale-ardha akshara 
+
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.8cb_ca_width, .3x_height)--(1.1cb_ca_width, .3x_height);
+   z400 =  cb_ca_p  intersectionpoint  inter; 
+     %vm_u_form(400);
+
+enddef;
+
+def cb_va_form =
+  cb_pa_form ;
+  path cb_va_p, cb_va_pa, cb_ve_p;
+  top z9 = (.82cb_ba_width,.8x_height); % z9 another contact point
+  top z10 = (.5cb_ba_width,x_height); % z9 another contact point
+
+  %for consonant +e
+  top z11 = (.3cb_ba_width, .8x_height);
+  z12 = (.5cb_ba_width, .85x_height);
+
+  %cb_va_p = z41..z42..z43..z43..z44..z45..z46 & z46..z47..z48..z9..{left}z10;
+  cb_va_p = z41..z42..z43..z43..z44..z45..z46 & z46..z47..z48..z9..z10;
+  cb_ve_p =z41..z42..z43..z43..z44..z45..z46 & z46..z47..z48..z9..z10..z11..z12;
+
+     bar_forma(cb_pa_width-.2u);    % z301 is comming from bar_forma...
+     %vmfa_form(301);  % Following are test to see How vowel modifer looks.
+     %vmfea_form(301);
+     %vm_u_form(46);
+
+enddef ;
+
+def cv_vu_form(suffix $) =
+    path cv_vu_p;
+    z$a = z$;
+    bot z$b = (x$a+.25cb_ba_width, -.5des_depth) ;
+    z$c = (cb_ba_width+.5vm_u_width, .4x_height);
+    rt z$d = (cb_ba_width+.35vm_u_width, .8x_height);
+    sketch z$..z$b..z$c..z$d;
+enddef;
+
+def cv_vuu_form(suffix $) =
+    path cv_vu_p;
+    z$a = z$;
+    bot z$b = (x$a+.25cb_ba_width, -.5des_depth) ;
+    z$c = (cb_ba_width+.2vm_uu_width, .4x_height);
+    rt z$d = (cb_ba_width+.5vm_uu_width, .9x_height);
+    z$e = (cb_ba_width+.8vm_uu_width, .5x_height);
+    rt z$g = (cb_ba_width+.7vm_uu_width, .05x_height);
+    z$h = (cb_ba_width+.55vm_uu_width, .1x_height);
+    z$i = (cb_ba_width+.65vm_uu_width, .25x_height);
+    sketch z$..z$b..z$c..z$d..z$e..z$g..z$h..z$i;
+enddef;
+
+def vm_a_form(suffix $) =
+  path vm_a_p ;
+  rt x$a = vm_a_width; y$a = y$;
+  x$b = x$a ; y$b = 1.3y$a;
+  vm_a_p = z$--z$a..{dir 160}z$b;
+  penlabels($a,$b,$c);
+enddef ;
+
+def vm_a_forma(suffix $) =
+  path vm_a_p ;
+  top z51$=(x$-1/6vm_a_width,x_height);
+  top z52$=(x$+.6vm_a_width,x_height);
+  top top z53$=(x$+.6vm_a_width,1.3x_height);
+  vm_a_p = z51$--z52$..{dir 160}z53$;
+enddef ;
+
+def cb_sa_form =
+  bot lft z1=(0,0); lft z2=(0,1/2w_height);
+  z3=(.5cb_na_width,.4x_height); bot rt z4=(.85cb_na_width,.02x_height);
+  rt z44=(.98cb_na_width,.1x_height);
+
+  rt z5=(cb_na_width,.5x_height); top z6=(.8cb_na_width,.9x_height);
+  path cb_sa_p;
+  top lft z77=(1/3cb_na_width-1/2c_height, top (x_height - c_height));
+  place_lit_circ(77, 1);
+  cb_sa_p=z1..z2..z3..{z5-z6}z4.. z44..z5..z6;
+     bar_forma(cb_na_width-u);    % z301 is comming from bar_forma...
+     %vmfa_form(301);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(301) ;
+     %vmfea_form(301);
+     %vm_au_form(301,vm_au_width);
+     %vmah_form(301);  % tale-ardha akshara 
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.8cb_na_width, .3x_height)--(1.1cb_na_width, .3x_height);
+   z400 =  cb_sa_p  intersectionpoint  inter; 
+     %vm_u_form(400);
+enddef;
+
+def cb_ha_form =
+  lft z1 = (0, .45x_height) ; bot z2 = (.24cb_ha_width, 0);
+  z3 = (.48cb_ha_width, .3x_height); z4 = (cb_ha_width-x3, .6x_height);
+  z5 = (.76cb_ha_width, .8x_height); rt z6 = (cb_ha_width, .4x_height);
+  bot z7 = (.76cb_ha_width, 0); z8 = (cb_ha_width-x3, y3);
+  z9 = (x3, y4); z10 = (x2, y5);
+  z11 = (x3,.65x_height); top z12 = (.4cb_ha_width, x_height);
+  path cb_ha_p, cb_ha_pa ;
+  cb_ha_p = z1..z2..z3..z4..z5..z6..z7..z8..z9..z10..cycle;
+  cb_ha_pa = z11..{dir 130}z12;
+  sketch cb_ha_p ;
+  sketch cb_ha_pa ;
+     bar_forma(cb_ha_width-u);    % z301 is comming from bar_forma...
+     %vmfa_form(301);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(301) ;
+     %vmfea_form(301);
+     %vm_au_form(301,vm_au_width);
+     %vmah_form(301);  % tale-ardha akshara 
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.8cb_ha_width, .3x_height)--(1.1cb_ha_width, .3x_height);
+   z400 =  cb_ha_p  intersectionpoint  inter; 
+     %vm_u_form(400);
+enddef ; 
+
+def cb_lla_form =
+  z1=(.18cb_lla_width,.84x_height); z2=(.25cb_lla_width,.8x_height);
+  top z3=(.32cb_lla_width,.86x_height); top z4=(x2,x_height);
+  lft z5 =(0, .8x_height);
+  z6 = (1/2cb_lla_width, .4x_height);
+  z7 = (3/4cb_lla_width, .2x_height);
+  bot z8 = (1/2cb_lla_width,0);
+  z9 = (1/4cb_lla_width,y7);
+  rt z10 = (cb_lla_width,.75x_height);
+
+  top z11 = (.8cb_lla_width,x_height);
+
+  z19 = (.9cb_lla_width, .9x_height);
+  z20 = (x19-1.2u, y19+1.2u);
+  z21 = (x19-1.5u, y19);
+  z22 = (x19-.95u, y19+.15u);
+  path cb_lla_p, cb_lle_p, cb_lla_pb;
+
+  cb_lla_p = z1..z2..z3..z4..z5..z6..z7..z8..z9..z6..z10..z11;
+
+  %cb_lla_pb = z11..tension 1.3..z20..z21;
+
+  %cb_lle_pb = cb_lla_p softjoin cb_lla_pb ;
+  cb_lle_p = z1..z2..z3..z4..z5..z6..z7..z8..z9..z6..z10..z19..tension 1.6..z20...z21..z22;
+  %cb_lle_p = z1..z2..z3..z4..z5..z6..z7..z8..z9..z6..z10..z19..z11;
+     z12 = lft lft z11;
+     %vmfa_form(12);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(12) ;
+     %vmfea_form(12);
+     %vm_au_form(12,vm_au_width);
+     %vmah_form(12);  % tale-ardha akshara 
+   % to compute the joining point of "kombu for nya".
+   path inter;
+   inter = (.6cb_lla_width, .22x_height)--(1.1cb_lla_width, .22x_height);
+   z400 =  cb_lla_p  intersectionpoint  inter; 
+     %vm_u_form(400);
+
+enddef;
+
+def cb_sha_form = 
+    cb_va_form;
+    top lft z77=(1/2cb_pa_width-1/2c_height-.5u, top (x_height - c_height));
+    place_lit_circ(77, 1);
+    bot rt z66 = (cb_pa_width, 0);
+    path cb_sha_pb;
+    z65 = (.65cb_pa_width, .6x_height);
+    cb_sha_pb =  z65--z66;
+     %bar_forma(cb_ra_width);    % z301 is comming from bar_forma...
+     %vmfa_form(301);  % Following are test to see How vowel modifer looks.
+     %vmfaa_form(301) ;
+     %vmfea_form(301);
+     %vm_au_form(301,vm_au_width);
+     %vmah_form(301);  % tale-ardha akshara 
+enddef ;
+
+def cb_ksha_form =
+  cb_ka_form;
+  top z11 = (1/6cb_ka_width, -.4cb_ksha_depth);
+  lft z12 = (0,-1/2cb_ksha_depth);
+  bot z13 = (1/4cb_ka_width,-cb_ksha_depth);
+  z14 = (.48cb_ka_width,-2/3cb_ksha_depth);
+  bot z15 = (3/4cb_ka_width,-cb_ksha_depth);
+  rt z16 = (.95cb_ka_width,-1/2cb_ksha_depth);
+  top z17 = (.8cb_ka_width, -.01cb_ksha_depth);
+  bot rt z18 = (cb_ka_width,-cb_ksha_depth);
+  bot z19 = (.9cb_ka_width, y16);
+  sketch z11..z12..z13..z14; sketch z14..z15..z16..z17;
+  sketch z19..z18;
+enddef;
+
+def v_a_form =
+ top z1=(1/4v_a_width,x_height);
+ z10=(x1-u,y1-uh); z11=(x1,y1-2(y1-y10));
+ lft z3=(0,2/3x_height); bot z4=(1/2v_a_width,0);
+ rt z5=(v_a_width,2/3x_height); top z6=(v_a_width-1.5u,x_height);
+ z7=(4/5x5,.55x_height); z8=(1/4w,y7);
+ z12=(.65v_a_width,5/6x_height); rt z2=(v_a_width,1/2x_height);
+enddef;
+
+def v_aa_form =
+  z1=(.1v_a_width,.7x_height); z2=(.3v_a_width,.85x_height);
+  top z3 = (.15v_a_width, x_height); lft z4 = (0, .75x_height);
+  lft z4a = (.12v_a_width, .2x_height);
+  bot z5 = (.5v_a_width, 0); rt z6 = (v_a_width, .3x_height);
+  bot z66 = (.85v_a_width, .55x_height);
+  top z7 = (.76v_a_width, .7x_height); top z8 = (.88v_a_width, x_height);
+  rt z9 =(v_a_width, .85x_height);
+  rt z11 =(x7, y7);
+  rt z12 =(.4v_a_width, y11);
+  sketch  z1..z2..z3..z4..z4a..z5 ..tension 1.2..z6..z66..z7..z8..z9..z7..z11--z12;
+enddef;
+
+def v_u_form =
+  path v_u_pa, v_u_pb;
+  z1 = (.13v_u_width, .78x_height); z2= (2x1, .88x_height); z3a=(.09v_u_width,y2);
+  top lft z3 = (x1, x_height);
+  lft z4 = (0, .43x_height); bot z5 = lft (.2v_u_width, 0);
+  z5a = (.38v_u_width, .53y6);
+  %top z6 = (.52v_u_width, x_height); z6a = (.65v_u_width, 1.2y5a);
+  top z6 = (.52v_u_width, x_height); z6a = (.66v_u_width, y5a);
+  bot z7 = (.8v_u_width, 0); rt z7a = (v_u_width, .5x_height);
+  rt z8 = (.94v_u_width, .9x_height) ; top rt z8a = (.91v_u_width,x_height);
+
+  %v_u_pa = z1..z2..z3..z3a..tension 1.2..z4..z5...z5a..tension 1.2..z6
+  %               {dir 9}..z6a{dir -85}..z7..z7a..z8..z8a;
+  v_u_pa = z1..z2..z3..z3a..z4..z5...z5a..z6..z6a..z7..z7a..z8..z8a;
+  %v_u_pb = z1..z2..z3..z3a..tension 1.2..z4..z5..z5a..tension 1.2..z6
+  %               {dir 5}..z6a{dir -85}..z7;
+  %flop(8); draw z3a; draw z5a; draw z6a; draw z7a; draw z8a ;
+    sketch v_u_pa;
+enddef;
+
+def vm_uu_form (suffix $) =
+  bot z1$ = (x$+.1vm_uu_width, 0); z2$ = (x$+.4vm_uu_width, .66x_height);
+  top z3$ = (x$+.52vm_uu_width,x_height);
+  rt z4$ = (x$+vm_uu_width, .5x_height);
+  bot z5$ = (x$+.75vm_uu_width, 0); z6$ = (x$+.65vm_uu_width, .1x_height);
+  rt z7$ =(x$+.85vm_uu_width, .25x_height);
+  sketch z$..z1$..z2$..z3$..z4$..z5$..z6$..z7$;
+enddef;
+
+def v_uu_form =
+   numeric wid, het ;
+   wid = v_uu_width ; het = x_height ;
+   z1 = (1/10wid,8/10het) ; z2 = (2x1, y1); top z3 = (x1, het) ;
+   lft z4 = (0-.5u, 1/2 het) ; bot z5 = (1/8wid, 0) ;
+   z6 = (1/4wid, 1/2het) ; top z7 = (3/8wid, het) ;
+   z8 = (1/2wid, 1/2het) ; bot z9 = (5/8wid, 0) ;
+   z10 = (3/4wid, 1/2het); top z11 = (7/8wid, het) ;
+   rt z12 = (wid+.5u, 1/2het) ;bot z13 = (wid-x3, 0) ;
+   z14 = (wid-x2, het-y2) ; z15 = (wid-x1, het-y1) ;
+   %sketch z1...z2...z3...z4...z5...z6...z7...z8...z9...z10...z11...z12...z13...z14...z15;
+   sketch z1..z2..z3..z4..tension 1.2..z5..tension 1.2..z6..tension 1.2..z7..tension 1.2..z8..tension 1.2..z9..tension 1.2..z10..tension 1.2..z11..tension 1.2..z12..z13..z14..z15;
+enddef;
+
+def v_ro_form =
+  path v_ro_p;
+  z1 = (.5v_ro_width, .8x_height); z2 = (.25v_ro_width, .7x_height);
+  lft z3 = (0, .8x_height); top z4 = (.5v_ro_width, x_height);
+  rt z5 = (v_ro_width, .5x_height);
+  bot z6 = (x4, 0); lft z7 = (0, .2x_height); z8 = (x2, .3x_height);
+  z9 = (x1, .2x_height);
+  v_ro_p = z1..z2..z3..z4..z5..z6..z7..z8..z9;
+
+  z10 = (.6v_ro_width, y8); z11 = (v_ro_width+2vm_u_width, y10);
+  sketch v_ro_p;
+  z19 = (z10--z11) intersectionpoint v_ro_p;
+  vm_u_form(19);
+  z29 = (x19+.4vm_u_width, x_height);
+  vm_a_forma(29);
+  sketch vm_a_p;
+  z20=z19b;
+  vm_u_form(20);
+  z39 = z20b;
+enddef;
+
+def barandhook_formk (suffix $)(expr bar_width,t) =
+  z$a=(x$+bar_width-u,y$); rt z$b=(x$a+u,y$-uh);
+  bot z$c =(x$b-u,y$-2uh); lft z$d=(x$b-2u,y$b);
+  top z$e=(x$a-u,y$); rt z$f=(x$b,y$+1.5uh);
+  top z$g=(x$a,y$f+uh); z$h=(x$d,y$f);
+  path barandhook_p;
+  barandhook_p= subpath(0,t) of (rt z$--z$a..z$b..z$c..z$d..z$e..z$f..z$g..z$h);
+  sketch  barandhook_p;
+  penlabels($a,$b,$c,$d);
+enddef;
+
+def barandhook_form (suffix $)(expr bar_width,t) =
+  z$a=(x$+bar_width-u,y$); rt z$bb=(x$a+u,y$-1/2des_depth);
+  rt z$b=(x$a+u,y$-des_depth+uh);
+  bot z$c =(x$b-u,y$b-uh); lft z$d=(x$b-1.75u,y$b);
+  top z$e=(x$d+.75u,y$b+.5u); rt z$f=(x$b,y$+1.5uh);
+  path barandhook_p;
+  barandhook_p=  (rt z$--z$a..z$bb..z$b..z$c..z$d..z$e);
+  %barandhook_p= subpath(0,t) of (rt z$--z$a..z$bb..z$b..z$c..z$d..z$e);
+  sketch  barandhook_p;
+  penlabels($a,$b,$c,$d);
+enddef;
+
+%Following is old version it's obsolete...............
+def vm_au_forma (suffix $)(expr bar_width) =  % see the above diagram
+    numeric na;
+          %top  z$e=z$;  % screwed up GHA+AU.
+          %z$e=z$;
+          z$e=(x$, y$);
+    z$a = (x$e+2/10(bar_width-u),y$e);
+    z1000 = (x$-.5u,asc_height2);
+                % 1000 was chosen arbitrarily
+        % we needed some suffix not used by any user of
+        % this macro
+    barandhook_form(1000,bar_width,5);
+    z$d=z1000a;
+    %next two statements solve for c
+    x$c = x$a;
+    z$c = whatever[z1000,z$d];
+    na:=x$c+(x1000a-x$c)/3; % used for alligning pa,pha,sha..
+    sketch  z$e--z$a{right}..{left}z$c;
+    penlabels($a,$b,$c,$d,$e,1000);
+enddef;
+
+def vm_au_form (suffix $)(expr bar_width) =  % see the above diagram
+    numeric na;
+          %top  z$e=z$;  % screwed up GHA+AU.
+          %z$e=z$;
+          z$e=(x$, y$);
+    z$a = (x$e+5/10(bar_width-u),y$e);
+    z1000 = (x$+2.3u,asc_height2);
+                % 1000 was chosen arbitrarily
+        % we needed some suffix not used by any user of
+        % this macro
+    barandhook_form(1000,.9bar_width,5);
+    z$d=z1000a;
+    %next two statements solve for c
+    x$c = x$a;
+    z$c = whatever[z1000,z$d];
+    na:=x$c+(x1000a-x$c)/3; % used for alligning pa,pha,sha..
+    sketch  z$e--z$a{right}..{left}z$c;
+    penlabels($a,$b,$c,$d,$e,1000);
+enddef;
+
+% Begin of Vowel Modifiers.....
+
+def vm_ee_form =
+  z0 = (.5vm_ee_width+u, y2);
+  z1 = (.7vm_ee_width+u, 2/3x_height);
+  rt z2 = (vm_ee_width+u, y1+1/6x_height);
+  top z3 = (1/2vm_ee_width+u, x_height);
+  lft z4 = (0+u, .6x_height); bot z5 = (3/5vm_ee_width+u, 0);
+  sketch z0..z1..z2..z3..z4..z5;
+enddef;
+
+def vm_ro_form =
+    z1=(.8vm_ro_width,3/5x_height);rt z2=(vm_ro_width,0);
+    bot z3=(1/2vm_ro_width,-des_depth);z4=(.15vm_ro_width,-.1des_depth);
+    z5=(.2vm_ro_width,.05x_height);  z6 = (.25vm_ro_width, .1x_height);
+    z7=(.3vm_ro_width,-.2des_depth); 
+    path vm_ro_p;
+    vm_ro_p =  z1..z2..z3..z4..z5..z6..z7;
+    path ct;
+    ct = vm_ro_p scaled 1 shifted (-3u, -.5des_depth) rotated 0 ;
+    sketch ct;
+enddef;
+
+def vm_y_form =
+    top z1=(.75vm_y_width, 3/5x_height); rt z1a=(vm_y_width,3/10x_height);
+    rt z2=(.8vm_y_width,.1x_height);
+    rt z3a=(vm_y_width,-1/2des_depth);
+    bot z3=(1/2vm_y_width,-des_depth);z4=(.15vm_y_width,-.1des_depth);
+    z5=(.2vm_y_width,.05x_height);  z6 = (.25vm_y_width, .1x_height);
+    z7=(.3vm_y_width,-.2des_depth); 
+    path vm_y_p ;
+    vm_y_p = z1..z1a..z2..z2..z3a..z3..z4..z5..z6..z7;
+enddef;
+
+%def vm_e_form_a (suffix $) (expr xoff, yoff)  =
+%  z$1 = (x$+xoff, y$+yoff);
+%  z$2 = (x$1+u, y$1+u);
+%  z$3 = (x$1, y$1+2u);
+%  z$4 = (x$1-u, y$1+u);
+%  z$5 = (x$1-.7u, y$1+.1u);
+%  path vm_e_p;
+%  vm_e_p = z$..z$1..z$2..z$3..z$4..z$5;
+%enddef;
+
+def vm_e_form_a (suffix $) (expr xoff, yoff)  =
+  z31 = (x$+xoff, y$+yoff);
+  z32 = (x31+u, y31+u);
+  z33 = (x31, y31+2u);
+  z34 = (x31-u, y31+u);
+  z35 = (x31-.7u, y31+.1u);
+  path vm_e_p;
+  vm_e_p = z$..z31..z32..z33..z34..z35;
+enddef;
+
+def vm_e_formb(suffix $) (expr a, b) =
+  z50 = (a-1/2u, b+u) ;
+  z51 = (a, b) ;
+  sketch z$..z50..z51 ;
+enddef;
+
+def vm_e_form =
+     path vm_e_p;
+     lft z551 = (0,x_height+1.2ascunit);
+        top z552 = (1/2vm_e_width,x_height);
+     rt z553 = (vm_e_width,x_height+2ascunit);
+      z554 = z553;
+     lft z555 = (0,x_height+3ascunit);
+     z556 = (1/2vm_e_width,y555);
+     top z557=(1/2vm_e_width,vm_e_height1+ascunit);
+ vm_e_p = subpath (0.4,1) of  z551{down}..{right}z552..z553..z557..z555..z556;
+ sketch vm_e_p;
+ %sketch subpath (0.4,1) of  z551{down}..{right}z552..z553..z557..z5..z556;
+          % hook can be attached at z7
+enddef;
+
+def naa_form = 
+  path naa_p ;
+  z1 = bot lft (cb_na_width, x_height) ; z2 = bot ( 2u, x_height) ;
+  z3 = rt (0, 5/6x_height) ;
+  z4 = bot (u, 2/3x_height) ; z5 = (3/4cb_na_width, y4) ;
+  z6 = rt (0, 1/2x_height) ;
+  z7 = bot (u, 1/3x_height); z8 = (1/2cb_na_width, y7) ;
+  z9 = rt (0, 1/6x_height) ;
+  z10 = top (u, 0) ;
+
+  naa_p = z1--z2...z3...z4--z5 &z5--z4...z6...z7--z8 & z8--z7...z9..z10 ;
+  sketch naa_p ;
+enddef ;
+
+input kanvarna ;
+input kanlets; 
+
+end;

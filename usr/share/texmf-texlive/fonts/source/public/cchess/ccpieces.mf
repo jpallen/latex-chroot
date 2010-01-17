@@ -1,0 +1,1173 @@
+mode_setup;
+message "pixels_per_inch="; show pixels_per_inch; message " ";
+showvariable FontSize; message " ";
+smoothing:=1;
+
+FS#:=FontSize/400;  % unite employee sur le papier graphique de depart
+max_rayon#:=220FS#;     % rayon du plus grand cercle entrant dans la boite de caractere
+max_diametre#:=2*max_rayon#;
+define_pixels(FS,max_rayon,max_diametre);
+SF:=1/FS;  % = number of drawing units per pixel
+           % in our particular coordinate system, if we want to
+           % move by 1 pixel, we must move by this quantity.
+pair piece_center;  piece_center=(max_rayon,0);  % center of each piece:
+pickup pencircle scaled 5FS; normal_pen := savepen;
+pickup pencircle scaled 1; fine_pen := savepen;
+transform  basic_transform; 
+basic_transform = identity scaled FS shifted  piece_center;
+diametre=0.985*max_diametre#/FS#;
+epaisseur_de_la_bordure=0.033*max_diametre#/FS#;
+
+def BaseBlanche = 
+  currenttransform := basic_transform;
+  % apres currenttransform:=... on ne specifie plus les unites.  FS est sous-entendu
+  fill fullcircle scaled diametre;  
+  unfill fullcircle scaled (diametre-epaisseur_de_la_bordure);
+%  fill fullcircle scaled 435;  unfill fullcircle scaled 425;
+  pickup normal_pen;
+enddef;
+
+def BaseNoire = 
+  currenttransform := basic_transform;
+  fill fullcircle scaled diametre;  
+  unfill fullcircle scaled (diametre-epaisseur_de_la_bordure);
+  fill fullcircle scaled (diametre-2 epaisseur_de_la_bordure);
+%  fill fullcircle scaled 435;  unfill fullcircle scaled 425;
+%  fill fullcircle scaled 415;
+  pickup normal_pen;
+enddef;
+
+def BaseNoireBlanche = 
+  currenttransform := basic_transform;
+  fill fullcircle scaled diametre;  
+  unfill fullcircle scaled (diametre-1.2 epaisseur_de_la_bordure);
+  fill fullcircle scaled (diametre-2 epaisseur_de_la_bordure);  
+  unfill fullcircle scaled (diametre-3.2 epaisseur_de_la_bordure);
+%  fill fullcircle scaled 435;  unfill fullcircle scaled 422;
+%  fill fullcircle scaled 415;  unfill fullcircle scaled 402;
+  pickup normal_pen;
+enddef;
+
+%---------------------------
+
+beginchar ("J",max_diametre#,max_rayon#,max_rayon#);  "sig"; % "Jacques Richer";
+  BaseNoire;
+  pickup fine_pen;
+  undraw (-2SF,1SF)..(-2SF,0)..(0,0)---(0,4SF)---(2SF,4SF)..(2SF,2SF)---(0,2SF);
+  undraw (1SF,2SF)..(3SF,-0.7SF);
+endchar;
+
+beginchar ("0",max_diametre#,max_rayon#,max_rayon#);  "Masque noir/black mask";
+  currenttransform := basic_transform;
+  fill fullcircle scaled 437; 
+endchar;
+
+
+beginchar ("K",max_diametre#,max_rayon#,max_rayon#);  "General noir/black king";
+  BaseNoire;
+% Correction: le dessin doit etre tourne de 90 degres vers la droite!
+  currenttransform := currenttransform rotatedaround (piece_center,-90);
+% base (jambes)
+  unfilldraw (82,-45)..(97,-34)..(95,-25)..tension 2
+  ..(90,-16){left}..(82,-17)..(70,-18)--(13,-18)
+  ..(-40,-17)..(-66,-14)..(-77,0)..(-80,41)
+  ..(-82,68)..(-90,97)..(-103,105){left}
+  ..(-113,100)..(-114,88)..(-108,71)
+  ..{down}(-100,23)..{down}(-115,-27)
+  ..{right}(-100,-43)..{right}(-76,-41)
+  ..(-57,-44){dir -45}
+  ..{down}(-51,-56) % left leg
+  ..(-56,-62) % left foot
+  --(-78,-63)..tension 1.5
+  ..{down}(-92,-80)..(-75,-100){right}..(-51,-93)
+  ..(-27,-84) % {dir 45}
+  ..(-23,-72){up}..(-28,-56){up}..(-16,-42){right}
+  ..(-7,-50)..(-1,-68){down}..(-2,-80){down}..tension 2
+  ..(12,-89)--(49,-100)..(72,-106){right}..(86,-93){up}
+  ..(81,-77){dir 135}..(67,-71)--(26,-66)..(19,-52){up}
+  ..(27,-44)--(66,-44)
+  ..cycle;
+% axe vertical central et arc en haut a droite
+  unfilldraw (70,-7)..tension 1.5
+  ..(100,0)..tension 1.5..(103,41){up}..(96,73)
+  ..(73,98)..(50,106)
+  ..{curl0}(14,110){up}..(16,126){up}
+  ..(12,139)..(1,146){left}
+  ..(-10,140)..(-12,130){down}..{curl0}(-11,110){curl0}
+  ..(-27,103)..(-39,93){down}..tension 1.5..(-27,76)
+  ..(-14,69)..(-9,48)..(-8,20)
+  ..{curl0}(-10,1)--(21,-2) % remontee axe central
+  ..(16,5)..(10,28){up}
+  ..{curl 0.5}(11,71){curl 1.5}..(22,78)..(37,79){right}
+  ..(67,68){dir -45}..(79,36){down}..(77,16)
+  ..{curl0}cycle;
+  unfilldraw (-31,120){curl 0.5} % tache gauche en haut
+  ..(-34,130)..(-42,133){left}
+  ..(-54,130)..(-70,112)..(-72,100)
+  ..(-63,92){right}..tension 1.3..(-54,96)..tension 1.5
+  ..cycle;
+  unfilldraw (-43,41){curl1.3} % tache gauche du milieu
+  ..(-37,60){up}..tension 2
+  ..(-46,83)..tension 2..(-54,76)..(-66,57)
+  ..(-68,50){down}..(-59,42)..(-44,41){right}
+  ..cycle;
+  unfilldraw (-21,1){curl0.5} % tache gauche en bas
+  ..(-35,23)..(-50,31){left}..(-59,29)..tension 2
+  ..(-62,-2){curl 0.1}..(-46,-5){right}
+  ..{curl0.3}cycle;
+  unfilldraw (32,11){right}
+  ..(43,19)..tension 1.3 ..(48,34)..tension 1.3
+  ..(55,50)..{curl0.7}(58,65){curl0.7}
+  ..(37,55)..tension 1.5..(18,35)..tension 2
+  ..cycle;
+endchar;
+
+beginchar ("k",max_diametre#,max_rayon#,max_rayon#);  "General rouge/red king";
+  BaseBlanche;  % j'ai code le dessin a l'envers!
+  currenttransform :=  currenttransform rotatedaround (piece_center,180);
+  filldraw (-50,-126)..(-42,-100){up}..{curl0}(-43,-81){dir -4}
+  ..(-24,-84)..{curl0}(-11,-91){curl0}..(0,-81)..(7,-66){up}
+  ..(1,-34){up}..(5,-10)..(12,7)--(-5,23)..(-15,14)
+  ..(-20,-1)..{curl0.8}(-23,-48)
+  ..{curl0.2}(-43,-62){curl0.2} % monte tronc principal
+  ..tension 2.5..(-46,69)..(-53,86){left}..(-79,71)--(-80,-50)
+  ..(-84,-60)..(-101,-56)..(-108,-37)..(-107,18){up}..(-122,30){left}
+  ..(-139,13){down}..(-137,-20)..{curl0}(-128,-56){curl0}..(-143,-60)
+  --(-129,-85){curl0.2}..(-110,-82)..(-90,-81)..(-81,-86)
+  --(-81,-107)--cycle;
+  filldraw (100,-107){curl0.5} % structure de droite
+  ..tension2..(112,-76)..tension3..(100,66)
+  ..{curl0.2}(101,75){curl0.2}..tension 3..(82,88){curl0.3}
+  ..(79,84)..(73,78)--(27,57){dir -100}..(23,46)..(21,29)
+  ..{curl0.5}(21,2)--(32,-3){dir 40}..tension 1.5..(50,3)
+  ..{curl0.3}(77,8){curl0.3}..(77,-6)
+  --(40,-18){curl0}..tension 2..(28,-22)..tension 2..(22,-32)
+  ..tension 2..(22,-60)..tension 2..(40,-68)--(82,-63)
+  --(80,-79)..(42,-82)..(28,-88)..tension2..(22,-98){curl0}
+  --(73,-97)..tension 1.2
+  ..{curl0.2}cycle;
+  pickup fine_pen;
+  unfilldraw (76,33)..tension 3..(72,49)..tension 3 % trou du haut
+  ..(47,43)..tension 3..(46,24)..tension 3
+  ..cycle;
+  unfilldraw (78,-33){up}..tension 0.8 % trou du bas
+  ..(72,-28)..tension 3
+  ..(52,-33)..tension 0.8..(46,-42)..tension 0.8
+  ..(51,-47)..tension 3..(73,-40)
+  ..cycle;
+endchar;
+
+beginchar ("S",max_diametre#,max_rayon#,max_rayon#);  "General noir/black king sur fond blanc";
+  BaseNoireBlanche;
+% Correction: le dessin doit etre tourne de 90 degres vers la droite!
+  currenttransform := identity rotated -90 scaled FS shifted ( piece_center - (8FS,0));
+% base (jambes)
+  filldraw (82,-45)..(97,-34)..(95,-25)..tension 2
+  ..(90,-16){left}..(82,-17)..(70,-18)--(13,-18)
+  ..(-40,-17)..(-66,-14)..(-77,0)..(-80,41)
+  ..(-82,68)..(-90,97)..(-103,105){left}
+  ..(-113,100)..(-114,88)..(-108,71)
+  ..{down}(-100,23)..{down}(-115,-27)
+  ..{right}(-100,-43)..{right}(-76,-41)
+  ..(-57,-44){dir -45}
+  ..{down}(-51,-56) % left leg
+  ..(-56,-62) % left foot
+  --(-78,-63)..tension 1.5
+  ..{down}(-92,-80)..(-75,-100){right}..(-51,-93)
+  ..(-27,-84) % {dir 45}
+  ..(-23,-72){up}..(-28,-56){up}..(-16,-42){right}
+  ..(-7,-50)..(-1,-68){down}..(-2,-80){down}..tension 2
+  ..(12,-89)--(49,-100)..(72,-106){right}..(86,-93){up}
+  ..(81,-77){dir 135}..(67,-71)--(26,-66)..(19,-52){up}
+  ..(27,-44)--(66,-44)
+  ..cycle;
+% axe vertical central et arc en haut a droite
+  filldraw (70,-7)..tension 1.5
+  ..(100,0)..tension 1.5..(103,41){up}..(96,73)
+  ..(73,98)..(50,106)
+  ..{curl0}(14,110){up}..(16,126){up}
+  ..(12,139)..(1,146){left}
+  ..(-10,140)..(-12,130){down}..{curl0}(-11,110){curl0}
+  ..(-27,103)..(-39,93){down}..tension 1.5..(-27,76)
+  ..(-14,69)..(-9,48)..(-8,20)
+  ..{curl0}(-10,1)--(21,-2) % remontee axe central
+  ..(16,5)..(10,28){up}
+  ..{curl 0.5}(11,71){curl 1.5}..(22,78)..(37,79){right}
+  ..(67,68){dir -45}..(79,36){down}..(77,16)
+  ..{curl0}cycle;
+  filldraw (-31,120){curl 0.5} % tache gauche en haut
+  ..(-34,130)..(-42,133){left}
+  ..(-54,130)..(-70,112)..(-72,100)
+  ..(-63,92){right}..tension 1.3..(-54,96)..tension 1.5
+  ..cycle;
+  filldraw (-43,41){curl1.3} % tache gauche du milieu
+  ..(-37,60){up}..tension 2
+  ..(-46,83)..tension 2..(-54,76)..(-66,57)
+  ..(-68,50){down}..(-59,42)..(-44,41){right}
+  ..cycle;
+  filldraw (-21,1){curl0.5} % tache gauche en bas
+  ..(-35,23)..(-50,31){left}..(-59,29)..tension 2
+  ..(-62,-2){curl 0.1}..(-46,-5){right}
+  ..{curl0.3}cycle;
+  filldraw (32,11){right}
+  ..(43,19)..tension 1.3 ..(48,34)..tension 1.3
+  ..(55,50)..{curl0.7}(58,65){curl0.7}
+  ..(37,55)..tension 1.5..(18,35)..tension 2
+  ..cycle;
+endchar;
+
+beginchar ("G",max_diametre#,max_rayon#,max_rayon#);  "Lettre noir/black guard";
+  BaseNoire;
+  z1=(112,22);
+  unfilldraw z1{curl 0.1}..controls(115,41)
+  ..{curl 0.2}(127,60){curl 0.2}
+  ..(84,60){dir 182}
+  ..(27,63)
+  ...(17,121) % 3
+  ...(-20,121) ..tension 1.5
+  ..(-33,53)  ..tension 1.5 %5
+  ..(-70,53) ..tension 2 %5.5
+  ..(-96,60) %6
+  ...(-112,42)..tension 2
+  ..(-133,10)..tension 2 %8
+  ..(-105,13)..tension 2 %8.5
+  ..(-80,20)..tension 2
+  ..(-33,17)..tension 2
+  ..(-30,-34)..tension 2
+  ..(-78,-37)
+  ...(-95,-40) ..tension 2
+  ..(-120,-60){curl0} ..controls (-107,-66)
+  ..{curl 0.3}(-96,-81){curl 0.3} .. controls (-63,-70) and (-40,-67)
+  ..(-2,-66)..controls(63,-68)
+  ..(80,-77)
+  ...(93,-59)
+  ...{curl 0.05}(100,-38){curl 0.05}
+  ...(67,-34)
+  ...(29,-31)..tension 1.5
+  ..(28,26){curl 0.4} .. tension 1.7
+  ..(92,27)
+  .. cycle;
+endchar;
+
+beginchar ("g",max_diametre#,max_rayon#,max_rayon#);  "Lettre rouge/red guard";
+  BaseBlanche;
+  filldraw (121,24){curl 0.2}..controls(128,34)
+  ..(140,42) %2
+  ..(140,52) %3
+  ..(127,52) ..tension 1.4 %4
+  ..(100,53) ..tension 1.4 %5
+  ..(74,52) %6
+  ..(66,79) ..tension 1.3 %7
+  ..(42,94) ..tension 1.2  %8
+  ..(14,77) %9
+  ..(13,62) %10
+  ..(2,51) ..tension 2 %11
+  ..(-31,52) ..tension 0.8 %12
+  ..(-40,70)..controls (-42,86) %13
+  ..(-56,92) %14
+  ..(-84,96) %15
+  ..(-100,93) % 15.2
+  ..(-117,81) % 15.4
+  ..(-122,66) %16
+  ..(-112,62) %17
+  ..(-85,56) %18
+  ..(-80,39) ..tension 1.5 %19
+  ..(-81,-60) ..tension 1.5 %20
+  ..(-81,-76) ..tension 2 %21
+  ..{curl 0.1}(-62,-98){curl 0.1} %22 bas du cmax_rayon
+  ..{curl 0.5}(-48,-87){curl 0.5} %23
+  ..{curl 0.1}(-44,-65){curl 0.1} %24
+  ..{curl 0.3}(-32,-71){curl 0.5} %25
+  ..(0,-60) ..tension 2 %26
+  ..(67,-60) %27
+  ..{curl 0.1}(101,-68) %28 bas du pied droit
+  ..(113,-56)
+  ..(122,-38) %30
+  ..(103,-33)..tension 1.5
+  ..{left}(66,-39) %32
+  ..(59,-37) % 32.5
+  ..(60,-28)..tension 2 %33
+  ..(62,10) %34
+  ..(78,28)..tension 1.5
+  ..(112,29)
+  ..cycle;
+  unfilldraw (15,20)..tension 1.5
+  ..(16,28)..tension 1.5
+  ..(9,29)..tension 1.5
+  ..(-15,23)
+  ..(-32,16)
+  ..(-40,6)..tension 2
+  ..(-45,-37)
+  ..{curl 0.5}(-43,-47){curl 0.5}
+  ..{curl 0.5}(-33,-37){curl 0}
+  ..(-22,-38)..tension 1.5
+  ..(-1,-39)..tension 0.8
+  ..(14,-27)..tension 2
+  ..(13,0)..tension 2
+  ..cycle;
+endchar;
+
+beginchar ("T",max_diametre#,max_rayon#,max_rayon#);  "Lettre noir/black guard sur fond blanc";
+  BaseNoireBlanche;
+  z1=(112,22);
+  filldraw z1{curl 0.1}..controls(115,41)
+  ..{curl 0.2}(127,60){curl 0.2}
+  ..(84,60){dir 182}
+  ..(27,63)
+  ...(17,121) % 3
+  ...(-20,121) ..tension 1.5
+  ..(-33,53)  ..tension 1.5 %5
+  ..(-70,53) ..tension 2 %5.5
+  ..(-96,60) %6
+  ...(-112,42)..tension 2
+  ..(-133,10)..tension 2 %8
+  ..(-105,13)..tension 2 %8.5
+  ..(-80,20)..tension 2
+  ..(-33,17)..tension 2
+  ..(-30,-34)..tension 2
+  ..(-78,-37)
+  ...(-95,-40) ..tension 2
+  ..(-120,-60){curl0} ..controls (-107,-66)
+  ..{curl 0.3}(-96,-81){curl 0.3} .. controls (-63,-70) and (-40,-67)
+  ..(-2,-66)..controls(63,-68)
+  ..(80,-77)
+  ...(93,-59)
+  ...{curl 0.05}(100,-38){curl 0.05}
+  ...(67,-34)
+  ...(29,-31)..tension 1.5
+  ..(28,26){curl 0.4} .. tension 1.7
+  ..(92,27)
+  .. cycle;
+endchar;
+
+beginchar ("B",max_diametre#,max_rayon#,max_rayon#);  "Elephant noir/black bishop";
+  BaseNoire;
+  unfilldraw (101,-61){curl 0.8}..tension 1.5..(128,-50)
+  ..(135,-42) % extremite de la grande queue de droite
+  ..(126,-32)..tension 1.5..(91,-28)..tension 1.5..(58,-20)
+  ..(51,-14){curl 0.7}..(60,-6)..(72,13)..{curl 3}(72,29)
+  --(61,28) % haut de la petite queue de droite
+  ..tension 1.5 ..(56,20)..(50,7)..(39,-8){curl 0.5}..tension 1.5
+  ..(27,8)..tension 1.5..(10,36)..tension 0.8..(13,39)
+  ---(66,40)..tension 0.8..(73,47)..tension 1.5
+  ..(73,65)..tension 1.5..(72,86)..tension 0.8
+  ..(68,89)---(30,92)
+  & (30,92){curl 0.8}..tension 1.5..(50,113)..tension 0.8
+  ..(48,122)..tension 1.5..(16,125)..tension 1.5..(-10,128)
+  ..(-25,126)..tension 1.5..(-51,110)---(-75,96)..(-88,88)
+  ..(-89,80)..tension 0.8 % extremite de la trompe
+  ..(-82,73)..{curl 0.8}(-68,78)
+  & (-68,78)..{curl 0.5}(-72,41){curl 2}..tension 1.2
+  ..(-60,36)..tension 2..(-40,37)..tension 2..(-12,39)
+  &(-12,39)..tension 2 % patte du haut
+  ..(-43,16)..controls(-51,13)..(-63,13)..controls(-70,12)
+  ..(-78,9)..(-80,-4)..tension 1.2..(-67,-8)..tension 1.2
+  ..(-40,-1)..tension 2..(-13,13)..tension 0.8
+  ..(-4,12)..tension 2..(13,-18)..tension 0.8
+  ..(13,-28)..tension 1.5..(0,-55)..(-26,-72)..(-46,-78)
+  ..(-67,-76)..tension 1.5..(-85,-70)..tension 0.8
+  ..(-88,-74)..tension 1.5..(-70,-98)..tension 1.2
+  ..(-44,-105)..(8,-92)..(26,-77)..(42,-32)
+  & (42,-32)..controls (75,-46)..cycle;
+  filldraw (53,63)  % oeil droit
+  ..(52,69)..tension 0.8..(46,73)..tension 1.5
+  ..(33,73)..tension 1.5..(17,73)..tension 0.8
+  ..(14,69)..tension 1.5..(16,61)..tension 0.8
+  ..(23,56)..tension 1.5..(34,56)..tension 1.5
+  ..(48,56)..tension 0.8..cycle;
+  filldraw (-12,62)  % oeil gauche
+  ..(-13,68)..(-21,72)..tension 1.5..(-40,70){curl 2}..tension 0.8
+  ..(-47,61)..tension 0.8..{curl 2}(-44,52)..tension 3
+  ..(-25,53)..tension 3..(-14,53)..tension 0.8..(-11,56)
+  ..cycle;
+  filldraw (7,93)..tension 1.5  % interieur de la trompe
+  ..(16,103)..tension 0.8..(16,109)..tension 2
+  ..(-4,111)..tension 1.5..(-16,110)..tension 1.5
+  ..(-20,108)..tension 1.5..(-28,103)..tension 1.5
+  ..{curl 0.8}(-50,90){curl 0.8}..tension 2
+  ..(-20,91)..tension 1.2..(0,91)..tension 0.8..cycle;
+  unfilldraw (-8,-10)..tension 0.8  % pattes de gauche
+  ..(-22,-8)..(-33,-12)..(-60,-18)..{curl 0.5}(-84,-18)..tension 2
+  ..(-90,-28) ..tension 1.5..(-83,-36)..controls(-72,-35)
+  ..(-61,-32)..tension 2..(-34,-25)..tension 2
+  ..(-17,-22)..tension 0.8..(-14,-28)..tension 1.5
+  ..(-36,-38)..tension 1.5..(-50,-43)..controls(-72,-48)
+  ..(-90,-47)..tension 1.5..{curl 0.5}(-113,-46)..tension 2
+  ..(-120,-57)..tension 0.76..(-118,-62)..tension 1.5
+  ..(-107,-68)..(-98,-70){curl 2}..tension 2
+  ..(-50,-55)..tension 2..(-5,-38)..tension 0.8
+  ..(1,-30)..tension 0.8..(-2,-20)..tension 1.5..cycle;
+endchar;
+
+beginchar ("b",max_diametre#,max_rayon#,max_rayon#);  "Elephant rouge/red bishop";
+  BaseBlanche;
+  filldraw (108,-65)..tension 2..(121,-48)..tension 3
+  ..(122,50)..(128,77) &  
+  (128,77)..tension 2..(110,95)..tension 0.8
+  ..(99,97)..controls (85,94)..(62,93)..tension 3
+  ..(15,91)..tension 3..(0,69)..controls(6,60)and(7,45)
+  ..(8,32){down}..tension 2..(7,-35)..(1,-57) &
+  (1,-57)..tension 2..(13,-71)..(25,-75)..tension 1.3
+  ..(48,-65)..tension 2..{curl 1}(88,-58)..tension 1
+  ..(86,-50)..(83,-44) &
+  (83,-44)..tension 3..(37,-43)..tension 0.8
+  ..(32,-37)..controls(34,15)..(32,68)..tension 0.8
+  ..(40,73)..tension 2..(94,74)..tension 0.8
+  ..(98,68)---(101,-20)..controls (100,-32) and (98,-40) 
+  ..(94,-46)..tension 3..cycle;
+  filldraw (25,-18)---(80,-11)..tension 2
+  ..(85,-5)..tension 2..(75,4)..tension 3..(25,6)--cycle;
+  filldraw (25,28)---(74,32)..tension 1.5
+  ..{curl 1.5}(84,49)---(25,50)--cycle;
+
+  % partie de gauche:
+  filldraw (-43,-86)..tension 2..(-30,-68)..tension 3
+  ..(-27,80)..(-44,92){left}  ..(-53,89){dir 220} ..(-63,78) &
+  (-63,78)..(-58,70)..(-57,48)---(-55,-67)..tension 3..cycle;
+  filldraw (-124,-47)..tension 3..(-113,-56)..tension 1.5
+  ..(-88,-43)..(-57,3)..(-39,35) &
+  (-39,35)..(-13,4)..(16,-20)--(16,0)..(-10,29)..(-41,71) &
+  (-41,71)..tension 1.2..(-78,10)..(-99,-16)
+  ..{curl 0.9}(-121,-27)..tension 3..cycle;
+  filldraw (-104,50)..tension 1.5..(-98,40)..(-92,38)..tension 2
+  ..(-40,47)..tension 2..(0,50)..tension 2..(10,67) & 
+  (10,67)..tension 2..(-40,66)..tension 2..(-75,69)
+  ..(-84,73)..{curl 0.8}(-90,73)..tension 3..cycle;
+endchar;
+
+beginchar ("U",max_diametre#,max_rayon#,max_rayon#);  "Elephant noir/black bishop sur fond blanc";
+  BaseNoireBlanche;
+  filldraw (101,-61){curl 0.8}..tension 1.5..(128,-50)
+  ..(135,-42) % extremite de la grande queue de droite
+  ..(126,-32)..tension 1.5..(91,-28)..tension 1.5..(58,-20)
+  ..(51,-14){curl 0.7}..(60,-6)..(72,13)..{curl 3}(72,29)
+  --(61,28) % haut de la petite queue de droite
+  ..tension 1.5 ..(56,20)..(50,7)..(39,-8){curl 0.5}..tension 1.5
+  ..(27,8)..tension 1.5..(10,36)..tension 0.8..(13,39)
+  ---(66,40)..tension 0.8..(73,47)..tension 1.5
+  ..(73,65)..tension 1.5..(72,86)..tension 0.8
+  ..(68,89)---(30,92)
+  & (30,92){curl 0.8}..tension 1.5..(50,113)..tension 0.8
+  ..(48,122)..tension 1.5..(16,125)..tension 1.5..(-10,128)
+  ..(-25,126)..tension 1.5..(-51,110)---(-75,96)..(-88,88)
+  ..(-89,80)..tension 0.8 % extremite de la trompe
+  ..(-82,73)..{curl 0.8}(-68,78)
+  & (-68,78)..{curl 0.5}(-72,41){curl 2}..tension 1.2
+  ..(-60,36)..tension 2..(-40,37)..tension 2..(-12,39)
+  &(-12,39)..tension 2 % patte du haut
+  ..(-43,16)..controls(-51,13)..(-63,13)..controls(-70,12)
+  ..(-78,9)..(-80,-4)..tension 1.2..(-67,-8)..tension 1.2
+  ..(-40,-1)..tension 2..(-13,13)..tension 0.8
+  ..(-4,12)..tension 2..(13,-18)..tension 0.8
+  ..(13,-28)..tension 1.5..(0,-55)..(-26,-72)..(-46,-78)
+  ..(-67,-76)..tension 1.5..(-85,-70)..tension 0.8
+  ..(-88,-74)..tension 1.5..(-70,-98)..tension 1.2
+  ..(-44,-105)..(8,-92)..(26,-77)..(42,-32)
+  & (42,-32)..controls (75,-46)..cycle;
+  unfilldraw (53,63)  % oeil droit
+  ..(52,69)..tension 0.8..(46,73)..tension 1.5
+  ..(33,73)..tension 1.5..(17,73)..tension 0.8
+  ..(14,69)..tension 1.5..(16,61)..tension 0.8
+  ..(23,56)..tension 1.5..(34,56)..tension 1.5
+  ..(48,56)..tension 0.8..cycle;
+  unfilldraw (-12,62)  % oeil gauche
+  ..(-13,68)..(-21,72)..tension 1.5..(-40,70){curl 2}..tension 0.8
+  ..(-47,61)..tension 0.8..{curl 2}(-44,52)..tension 3
+  ..(-25,53)..tension 3..(-14,53)..tension 0.8..(-11,56)
+  ..cycle;
+  unfilldraw (7,93)..tension 1.5  % interieur de la trompe
+  ..(16,103)..tension 0.8..(16,109)..tension 2
+  ..(-4,111)..tension 1.5..(-16,110)..tension 1.5
+  ..(-20,108)..tension 1.5..(-28,103)..tension 1.5
+  ..{curl 0.8}(-50,90){curl 0.8}..tension 2
+  ..(-20,91)..tension 1.2..(0,91)..tension 0.8..cycle;
+  filldraw (-8,-10)..tension 0.8  % pattes de gauche
+  ..(-22,-8)..(-33,-12)..(-60,-18)..{curl 0.5}(-84,-18)..tension 2
+  ..(-90,-28) ..tension 1.5..(-83,-36)..controls(-72,-35)
+  ..(-61,-32)..tension 2..(-34,-25)..tension 2
+  ..(-17,-22)..tension 0.8..(-14,-28)..tension 1.5
+  ..(-36,-38)..tension 1.5..(-50,-43)..controls(-72,-48)
+  ..(-90,-47)..tension 1.5..{curl 0.5}(-113,-46)..tension 2
+  ..(-120,-57)..tension 0.76..(-118,-62)..tension 1.5
+  ..(-107,-68)..(-98,-70){curl 2}..tension 2
+  ..(-50,-55)..tension 2..(-5,-38)..tension 0.8
+  ..(1,-30)..tension 0.8..(-2,-20)..tension 1.5..cycle;
+endchar;
+
+beginchar ("N",max_diametre#,max_rayon#,max_rayon#);  "cavalier noir/black knight";
+  BaseNoire;
+  unfilldraw (92,123)..tension 1.5
+  ..{curl 0.5}(83,136){curl 0.5}..tension 1.2
+  ..(38,132){left}..tension 1.2..(-47,142)
+  ..(-68,138)..tension 1.2..{curl 1.2}(-83,126){curl 1.2}
+  ..(-80,112)..(-72,58){down}       % milieu du cote gauche
+  ..(-73,22)..(-74,13)..tension 1.3
+  ..{curl 0.7}(-56,3){curl 0.7}..tension 1.2
+  ..(3,10){right}..tension 1.5..(62,6)..(77,-12)..(72,-37)
+  ..(53,-60)..(10,-70){left}        % bas du "5"
+  ..(-26,-67)..(-38,-61)..{curl 0.9}(-50,-52){curl 0.9}
+  ..(-58,-56)--(-65,-62)..tension 0.8..(-65,-72)..tension 1.5
+  ..(-34,-86)..(0,-93){right}..(22,-92)..tension 2..(78,-83)
+  ..(96,-66)..tension 1.2..(102,-37)..tension 1.2..(118,-1)
+  ..(119,8)..tension 2..(111,28)..(100,32)..(66,28)..tension 2
+  ..(35,28)..tension 0.8..(29,36)..tension 0.8
+  ..(37,45)                         % dent de droite en bas
+  --(71,46){curl0} ..tension 1.1..(82,53){up}..tension 1.1
+  ..{curl0}(70,60) --(36,60)..tension 0.8..(28,67)..tension 0.8
+  ..(38,75)--(74,75){curl0}..tension 1.1..(85,81)..tension 1.1
+  ..{curl0}(75,90)--(37,91)..tension 0.8..(29,101)..tension 0.8
+  ..(40,108)..tension 1.5..(84,111){curl 0.2}
+  ..tension1.5..cycle;
+  filldraw (-15,112)..tension 2.5..(-42,112)..tension 0.8
+  ..(-49,104)..tension 0.8..(-43,98)..tension 2
+  ..(-13,97)..tension 0.8..(-9,104)..tension 0.8
+  ..cycle;
+  filldraw (-14,78)..tension 2..(-43,79)..tension 0.8
+  ..(-48,73){down}..tension 0.8..(-43,63)..tension 2
+  ..(-14,63)..tension 0.8..(-11,71)..tension 0.8
+  ..cycle;
+  filldraw (-14,44)..tension 2..(-42,46)..tension 0.8
+  ..(-49,38)..tension 0.8..(-42,29)..tension 2
+  ..(-15,30)..tension 0.8..(-10,37)..tension 0.8
+  ..cycle;
+  % premiere patte (de droite a gauche)
+  unfilldraw (66,-43){curl 0.95}..tension 1.5
+  ..(53,-13)..tension 1.5..(41,-6)..tension 0.9
+  ..(36,-7)..tension 1.5..(42,-27)..tension 1.5
+  ..{curl 0.95}cycle;
+  % deuxieme patte
+  unfilldraw (30,-40){curl 0.9}..tension 1.7
+  ..(28,-20) ..tension 0.8..(20,-10)..tension 1.4
+  ..{curl 0.9}(2,-7){curl 0.9}..(1,-20)..tension 1.7
+  ..{curl 0.9}cycle;
+  % troisieme patte
+  unfilldraw (-42,-46){curl 0.8}..tension 2..(-8,-21)
+  ..tension 1.7..(-10,-8)..tension 1.7..(-30,-7)..tension 2
+  ..{curl 0.8}cycle;
+  % quatrieme patte (a gauche)
+  unfilldraw (-54,-12){curl0.7}..tension 1.5..(-74,-8)
+  ..tension 1.6..(-102,-33)..tension 1.7..(-143,-60)
+  ..(-149,-70)..(-140,-72)..tension 2.3..(-57,-34)..tension 1.2
+  ..{curl0.9}cycle;
+endchar;
+
+beginchar ("n",max_diametre#,max_rayon#,max_rayon#);  "cavalier rouge/red knight";
+  BaseBlanche;
+  filldraw (92,123)..tension 1.5
+  ..{curl 0.5}(83,136){curl 0.5}..tension 1.2
+  ..(38,132){left}..tension 1.2..(-47,142)
+  ..(-68,138)..tension 1.2..{curl 1.2}(-83,126){curl 1.2}
+  ..(-80,112)..(-72,58){down}       % milieu du cote gauche
+  ..(-73,22)..(-74,13)..tension 1.3
+  ..{curl 0.7}(-56,3){curl 0.7}..tension 1.2
+  ..(3,10){right}..tension 1.5..(62,6)..(77,-12)..(72,-37)
+  ..(53,-60)..(10,-70){left}        % bas du "5"
+  ..(-26,-67)..(-38,-61)..{curl 0.9}(-50,-52){curl 0.9}
+  ..(-58,-56)--(-65,-62)..tension 0.8..(-65,-72)..tension 1.5
+  ..(-34,-86)..(0,-93){right}..(22,-92)..tension 2..(78,-83)
+  ..(96,-66)..tension 1.2..(102,-37)..tension 1.2..(118,-1)
+  ..(119,8)..tension 2..(111,28)..(100,32)..(66,28)..tension 2
+  ..(35,28)..tension 0.8..(29,36)..tension 0.8
+  ..(37,45)                         % dent de droite en bas
+  --(71,46){curl0} ..tension 1.1..(82,53){up}..tension 1.1
+  ..{curl0}(70,60) --(36,60)..tension 0.8..(28,67)..tension 0.8
+  ..(38,75)--(74,75){curl0}..tension 1.1..(85,81)..tension 1.1
+  ..{curl0}(75,90)--(37,91)..tension 0.8..(29,101)..tension 0.8
+  ..(40,108)..tension 1.5..(84,111){curl 0.2}
+  ..tension1.5..cycle;
+  unfilldraw (-15,112)..tension 2.5..(-42,112)..tension 0.8
+  ..(-49,104)..tension 0.8..(-43,98)..tension 2
+  ..(-13,97)..tension 0.8..(-9,104)..tension 0.8
+  ..cycle;
+  unfilldraw (-14,78)..tension 2..(-43,79)..tension 0.8
+  ..(-48,73){down}..tension 0.8..(-43,63)..tension 2
+  ..(-14,63)..tension 0.8..(-11,71)..tension 0.8
+  ..cycle;
+  unfilldraw (-14,44)..tension 2..(-42,46)..tension 0.8
+  ..(-49,38)..tension 0.8..(-42,29)..tension 2
+  ..(-15,30)..tension 0.8..(-10,37)..tension 0.8
+  ..cycle;
+  % premiere patte (de droite a gauche)
+  filldraw (66,-43){curl 0.95}..tension 1.5
+  ..(53,-13)..tension 1.5..(41,-6)..tension 0.9
+  ..(36,-7)..tension 1.5..(42,-27)..tension 1.5
+  ..{curl 0.95}cycle;
+  % deuxieme patte
+  filldraw (30,-40){curl 0.9}..tension 1.7
+  ..(28,-20) ..tension 0.8..(20,-10)..tension 1.4
+  ..{curl 0.9}(2,-7){curl 0.9}..(1,-20)..tension 1.7
+  ..{curl 0.9}cycle;
+  % troisieme patte
+  filldraw (-42,-46){curl 0.8}..tension 2..(-8,-21)
+  ..tension 1.7..(-10,-8)..tension 1.7..(-30,-7)..tension 2
+  ..{curl 0.8}cycle;
+  % quatrieme patte (a gauche)
+  filldraw (-54,-12){curl0.7}..tension 1.5..(-74,-8)
+  ..tension 1.6..(-102,-33)..tension 1.7..(-143,-60)
+  ..(-149,-70)..(-140,-72)..tension 2.3..(-57,-34)..tension 1.2
+  ..{curl0.9}cycle;
+endchar;
+
+beginchar ("V",max_diametre#,max_rayon#,max_rayon#);  "cavalier noir/black knight sur fond blanc";
+% Pour l'instant, pratiquement identique au cavalier blanc.
+% Seule la patte de gauche est un peu plus longue, pour differencier.
+  BaseNoireBlanche;
+  filldraw (92,123)..tension 1.5
+  ..{curl 0.5}(83,136){curl 0.5}..tension 1.2
+  ..(38,132){left}..tension 1.2..(-47,142)
+  ..(-68,138)..tension 1.2..{curl 1.2}(-83,126){curl 1.2}
+  ..(-80,112)..(-72,58){down}       % milieu du cote gauche
+  ..(-73,22)..(-74,13)..tension 1.3
+  ..{curl 0.7}(-56,3){curl 0.7}..tension 1.2
+  ..(3,10){right}..tension 1.5..(62,6)..(77,-12)..(72,-37)
+  ..(53,-60)..(10,-70){left}        % bas du "5"
+  ..(-26,-67)..(-38,-61)..{curl 0.9}(-50,-52){curl 0.9}
+  ..(-58,-56)--(-65,-62)..tension 0.8..(-65,-72)..tension 1.5
+  ..(-34,-86)..(0,-93){right}..(22,-92)..tension 2..(78,-83)
+  ..(96,-66)..tension 1.2..(102,-37)..tension 1.2..(118,-1)
+  ..(119,8)..tension 2..(111,28)..(100,32)..(66,28)..tension 2
+  ..(35,28)..tension 0.8..(29,36)..tension 0.8
+  ..(37,45)                         % dent de droite en bas
+  --(71,46){curl0} ..tension 1.1..(82,53){up}..tension 1.1
+  ..{curl0}(70,60) --(36,60)..tension 0.8..(28,67)..tension 0.8
+  ..(38,75)--(74,75){curl0}..tension 1.1..(85,81)..tension 1.1
+  ..{curl0}(75,90)--(37,91)..tension 0.8..(29,101)..tension 0.8
+  ..(40,108)..tension 1.5..(84,111){curl 0.2}
+  ..tension1.5..cycle;
+  unfilldraw (-15,112)..tension 2.5..(-42,112)..tension 0.8
+  ..(-49,104)..tension 0.8..(-43,98)..tension 2
+  ..(-13,97)..tension 0.8..(-9,104)..tension 0.8
+  ..cycle;
+  unfilldraw (-14,78)..tension 2..(-43,79)..tension 0.8
+  ..(-48,73){down}..tension 0.8..(-43,63)..tension 2
+  ..(-14,63)..tension 0.8..(-11,71)..tension 0.8
+  ..cycle;
+  unfilldraw (-14,44)..tension 2..(-42,46)..tension 0.8
+  ..(-49,38)..tension 0.8..(-42,29)..tension 2
+  ..(-15,30)..tension 0.8..(-10,37)..tension 0.8
+  ..cycle;
+  % premiere patte (de droite a gauche)
+  filldraw (66,-43){curl 0.95}..tension 1.5
+  ..(53,-13)..tension 1.5..(41,-6)..tension 0.9
+  ..(36,-7)..tension 1.5..(42,-27)..tension 1.5
+  ..{curl 0.95}cycle;
+  % deuxieme patte
+  filldraw (30,-40){curl 0.9}..tension 1.7
+  ..(28,-20) ..tension 0.8..(20,-10)..tension 1.4
+  ..{curl 0.9}(2,-7){curl 0.9}..(1,-20)..tension 1.7
+  ..{curl 0.9}cycle;
+  % troisieme patte
+  filldraw (-42,-46){curl 0.8}..tension 2..(-8,-21)
+  ..tension 1.7..(-10,-8)..tension 1.7..(-30,-7)..tension 2
+  ..{curl 0.8}cycle;
+  % quatrieme patte (a gauche)
+  filldraw (-54,-12){curl0.7}..tension 1.5..(-74,-8)
+  ..tension 1.6..(-102,-33)..tension 1.7..(-153,-60)
+  ..(-159,-70)..(-150,-72)..tension 2.3..(-57,-34)..tension 1.2
+  ..{curl0.9}cycle;
+endchar;
+
+beginchar ("R",max_diametre#,max_rayon#,max_rayon#);  "char noir/black rook";
+  BaseNoire;
+  currenttransform := currenttransform shifted (4FS,0);
+  unfilldraw (4,-113)..tension 2..(12,-100)--(15,-70)
+  ..controls(13,-58) and (14,-55)
+  ..(25,-55)..(60,-55)..controls(80,-56)
+  ..(95,-59){curl0.5}..controls(102,-52)
+  ..(112,-47)..(115,-39){curl0.5} % right tip of lower hor-bar
+  ..(53,-40){left}..controls(13,-39)..(13,-22)..controls(13,-11)
+  ..(32,-11)..tension 1.5..(51,-12)..tension 1.5
+  ..(68,-12)..tension 0.8..(72,-8)..tension 1.5 % bot right of box
+  ..(71,-1)..tension 2..(72,43)..tension 3
+  ..(75,51)..tension 3 % top right of box
+  ..(60,70)..tension 3..(42,63)..tension 2..(21,61)..controls(15,61)
+  ..(15,75)..{curl 0.2}(16,83){curl 0.2}
+  ..(25,84)..(72,81){curl0.7}..tension 2..(86,100)..tension 1.5
+  ..(82,107){curl0.2}..tension 0.8..(78,108){curl0.2}..tension 2
+  ..(50,103)..{curl0}(20,101)..(15,102){curl0.3}..tension 0.8
+  ..(13,110)..(6,124)..(-4,127){left}..(-15,123)
+  ..(-19,111)..(-21,104){curl 0.8}..(-26,102)..tension 1.5
+  ..(-50,102)..tension 1.5..(-66,109)..tension 2.5
+  ..(-95,92)..tension 0.8..(-92,82)..controls(-50,83)
+  ..(-25,83)..tension 0.8 ..(-20,78)..tension 1.5
+  ..(-21,65)..tension 0.8..(-25,61)..tension 2
+  ..(-55,60)..tension 1.7..(-70,65)..tension 2 % top left of box
+  ..(-85,51)..tension 2..(-83,43)..tension 2
+  ..(-84,-1)..(-74,-15)..tension 1.5..(-46,-13)..tension 2
+  ..(-24,-13)..tension 0.8..(-20,-20)..tension 1.8
+  ..(-20,-36)..tension 0.8..(-25,-40)..tension 1.5
+  ..(-76,-38)..{curl 0.9}(-100,-30)..tension 0.8
+  ..(-102,-30)..tension 2..(-128,-57)..tension 0.8
+  ..(-127,-62){curl 0.8} % left lower bar
+  ..(-115,-65)..(-96,-60)..tension 2..(-56,-54)..tension 2
+  ..(-26,-54)..tension 0.8..(-20,-57)..tension 3
+  ..(-20,-82)--(-21,-100)..tension 3..(0,-111)..tension 2
+  ..cycle;
+  filldraw (47,41)..tension 0.8..(45,46)--(16,45)..tension 0.8
+  ..(14,40)..tension 0.8..(16,32)--(45,32)..tension 0.8..cycle;
+  filldraw (47,10)..tension 0.8..(45,18)--(16,18)..tension 0.8
+  ..(14,12)..tension 0.8..(16,2)--(46,2)..tension 0.8..cycle;
+  filldraw (-21,37)..tension 0.8..(-23,45)--(-54,46)..tension 0.8
+  ..(-58,38)..tension 0.8..(-56,31)--(-22,32)..tension 0.8..cycle;
+  filldraw (-22,13)..tension 0.8..(-24,18)--(-57,18)..tension 0.8
+  ..(-58,13)..tension 0.8..(-55,2)--(-23,3)..tension 0.8..cycle;
+endchar;
+
+beginchar ("r",max_diametre#,max_rayon#,max_rayon#);  "char rouge/red rook";
+  BaseBlanche;
+  currenttransform := currenttransform shifted (4FS,0);
+  filldraw (4,-113)..tension 2..(12,-100)--(15,-70)
+  ..controls(13,-58) and (14,-55)
+  ..(25,-55)..(60,-55)..controls(80,-56)
+  ..(95,-59){curl0.5}..controls(102,-52)
+  ..(112,-47)..(115,-39){curl0.5} % right tip of lower hor-bar
+  ..(53,-40){left}..controls(13,-39)..(13,-22)..controls(13,-11)
+  ..(32,-11)..tension 1.5..(51,-12)..tension 1.5
+  ..(68,-12)..tension 0.8..(72,-8)..tension 1.5 % bot right of box
+  ..(71,-1)..tension 2..(72,43)..tension 3
+  ..(75,51)..tension 3 % top right of box
+  ..(60,70)..tension 3..(42,63)..tension 2..(21,61)..controls(15,61)
+  ..(15,75)..{curl 0.2}(16,83){curl 0.2}
+  ..(25,84)..(72,81){curl0.7}..tension 2..(86,100)..tension 1.5
+  ..(82,107){curl0.2}..tension 0.8..(78,108){curl0.2}..tension 2
+  ..(50,103)..{curl0}(20,101)..(15,102){curl0.3}..tension 0.8
+  ..(13,110)..(6,124)..(-4,127){left}..(-15,123)
+  ..(-19,111)..(-21,104){curl 0.8}..(-26,102)..tension 1.5
+  ..(-50,102)..tension 1.5..(-66,109)..tension 2.5
+  ..(-95,92)..tension 0.8..(-92,82)..controls(-50,83)
+  ..(-25,83)..tension 0.8 ..(-20,78)..tension 1.5
+  ..(-21,65)..tension 0.8..(-25,61)..tension 2
+  ..(-55,60)..tension 1.7..(-70,65)..tension 2 % top left of box
+  ..(-85,51)..tension 2..(-83,43)..tension 2
+  ..(-84,-1)..(-74,-15)..tension 1.5..(-46,-13)..tension 2
+  ..(-24,-13)..tension 0.8..(-20,-20)..tension 1.8
+  ..(-20,-36)..tension 0.8..(-25,-40)..tension 1.5
+  ..(-76,-38)..{curl 0.9}(-100,-30)..tension 0.8
+  ..(-102,-30)..tension 2..(-128,-57)..tension 0.8
+  ..(-127,-62){curl 0.8} % left lower bar
+  ..(-115,-65)..(-96,-60)..tension 2..(-56,-54)..tension 2
+  ..(-26,-54)..tension 0.8..(-20,-57)..tension 3
+  ..(-20,-82)--(-21,-100)..tension 3..(0,-111)..tension 2
+  ..cycle;
+  unfilldraw (47,41)..tension 0.8..(45,46)--(16,45)..tension 0.8
+  ..(14,40)..tension 0.8..(16,32)--(45,32)..tension 0.8..cycle;
+  unfilldraw (47,10)..tension 0.8..(45,18)--(16,18)..tension 0.8
+  ..(14,12)..tension 0.8..(16,2)--(46,2)..tension 0.8..cycle;
+  unfilldraw (-21,37)..tension 0.8..(-23,45)--(-54,46)..tension 0.8
+  ..(-58,38)..tension 0.8..(-56,31)--(-22,32)..tension 0.8..cycle;
+  unfilldraw (-22,13)..tension 0.8..(-24,18)--(-57,18)..tension 0.8
+  ..(-58,13)..tension 0.8..(-55,2)--(-23,3)..tension 0.8..cycle;
+endchar;
+
+beginchar ("W",max_diametre#,max_rayon#,max_rayon#);  "char noir/black rook sur fond blanc";
+  BaseNoireBlanche;
+  currenttransform := currenttransform shifted (4FS,0);
+  filldraw (4,-113)..tension 2..(12,-100)--(15,-70)
+  ..controls(13,-58) and (14,-55)
+  ..(25,-55)..(60,-55)..controls(80,-56)
+  ..(95,-59){curl0.5}..controls(102,-52)
+  ..(112,-47)..(115,-39){curl0.5} % right tip of lower hor-bar
+  ..(53,-40){left}..controls(13,-39)..(13,-22)..controls(13,-11)
+  ..(32,-11)..tension 1.5..(51,-12)..tension 1.5
+  ..(68,-12)..tension 0.8..(72,-8)..tension 1.5 % bot right of box
+  ..(71,-1)..tension 2..(72,43)..tension 3
+  ..(75,51)..tension 3 % top right of box
+  ..(60,70)..tension 3..(42,63)..tension 2..(21,61)..controls(15,61)
+  ..(15,75)..{curl 0.2}(16,83){curl 0.2}
+  ..(25,84)..(72,81){curl0.7}..tension 2..(86,100)..tension 1.5
+  ..(82,107){curl0.2}..tension 0.8..(78,108){curl0.2}..tension 2
+  ..(50,103)..{curl0}(20,101)..(15,102){curl0.3}..tension 0.8
+  ..(13,110)..(6,124)..(-4,127){left}..(-15,123)
+  ..(-19,111)..(-21,104){curl 0.8}..(-26,102)..tension 1.5
+  ..(-50,102)..tension 1.5..(-66,109)..tension 2.5
+  ..(-95,92)..tension 0.8..(-92,82)..controls(-50,83)
+  ..(-25,83)..tension 0.8 ..(-20,78)..tension 1.5
+  ..(-21,65)..tension 0.8..(-25,61)..tension 2
+  ..(-55,60)..tension 1.7..(-70,65)..tension 2 % top left of box
+  ..(-85,51)..tension 2..(-83,43)..tension 2
+  ..(-84,-1)..(-74,-15)..tension 1.5..(-46,-13)..tension 2
+  ..(-24,-13)..tension 0.8..(-20,-20)..tension 1.8
+  ..(-20,-36)..tension 0.8..(-25,-40)..tension 1.5
+  ..(-76,-38)..{curl 0.9}(-100,-30)..tension 0.8
+  ..(-102,-30)..tension 2..(-128,-57)..tension 0.8
+  ..(-127,-62){curl 0.8} % left lower bar
+  ..(-115,-65)..(-96,-60)..tension 2..(-56,-54)..tension 2
+  ..(-26,-54)..tension 0.8..(-20,-57)..tension 3
+  ..(-20,-82)--(-21,-100)..tension 3..(0,-111)..tension 2
+  ..cycle;
+  unfilldraw (47,41)..tension 0.8..(45,46)--(16,45)..tension 0.8
+  ..(14,40)..tension 0.8..(16,32)--(45,32)..tension 0.8..cycle;
+  unfilldraw (47,10)..tension 0.8..(45,18)--(16,18)..tension 0.8
+  ..(14,12)..tension 0.8..(16,2)--(46,2)..tension 0.8..cycle;
+  unfilldraw (-21,37)..tension 0.8..(-23,45)--(-54,46)..tension 0.8
+  ..(-58,38)..tension 0.8..(-56,31)--(-22,32)..tension 0.8..cycle;
+  unfilldraw (-22,13)..tension 0.8..(-24,18)--(-57,18)..tension 0.8
+  ..(-58,13)..tension 0.8..(-55,2)--(-23,3)..tension 0.8..cycle;
+endchar;
+
+beginchar ("C",max_diametre#,max_rayon#,max_rayon#);  "canon noir/black cannon";
+  BaseNoire;
+  unfilldraw (-16,-24){curl0.2}..(-12,-10)..tension 1.3 ..(-10,20)..tension 1.3
+  ..(-9,28)..tension 1.5..(0,45)..tension 1.5..(10,56)..tension 1.2
+  ..(19,60)..tension 1.2..(50,64)..tension 1.2..(72,63)..tension 0.8
+  ..(77,54)..tension 1.2..(79,30)..tension 1.2..{curl 0.1}(81,-16){curl 0.1}
+  ..{curl 0.1}(92,-19){curl 0.7}..tension 1.5..(105,-6)..(109,9)..tension 1.5
+  ..(110,50)..tension 1.2..{up}(112,70){curl 0.5}..tension 1.2
+  ..(105,94)..tension 0.8..(100,99){left}..tension 0.8..(92,96)
+  ..(77,87)..tension 1.2..(40,81){left}..tension 0.8..(30,90)
+  --(30,109)..tension 1.1..(25,125)..(16,129)..(2,122)..tension 1.1
+  ..(0,110)..(-3,84)..(-6,66)..tension 0.8..(-17,61)..(-26,63)..(-35,60)..tension 1.2
+  ..(-39,43){down}..(-37,36) ..(-33,20)..(-31,0)..(-32,-12){curl 0.2}..tension 1.5
+  ..{curl 0.7}cycle;
+  unfilldraw (138,-10)..tension 1.1..(100,-46)..(81,-57)..(70,-60)
+  ..(60,-58)..(33,-51)..(20,-40)..(17,-27){curl 0.8}..tension 1.5
+  ..(58,-18)..tension 0.8..(62,-15){curl 0.9}..tension 1.1
+  ..(62,14)..tension 1.5..(61,37)..tension 0.8..(56,43)..tension 1.6
+  ..(34,43)..tension 1.6..{curl 0.8}(12,38)..tension 1.5
+  ..{curl 0.8}(2,28)..tension 1.8..(-1,-40)..tension 1.1..(10,-66)..tension 1.1
+  ..(50,-87)..tension 1.1..(81,-90){right}..tension 1.1..(110,-86)..tension 0.8
+  ..(122,-76)..tension 1.1..(135,-50)..tension 0.8
+  ..{curl 0.9}cycle;
+  filldraw (18,-3)..tension 4..(43,2)..tension 4..(42,21)..tension 4..(20,18)..tension 4
+  ..cycle;
+  unfilldraw (-50,24){up}..(-48,56)..(-46,82)..(-44,98){up} ..(-49,114)..tension 0.9
+  ..(-56,123)..tension 0.8..(-64,122)..tension 1.5..(-75,112)..tension 1.5
+  ..(-81,98){down}..tension 1.3..(-77,88)..(-72,65)..(-69,21){down}
+  ..(-70,0)..(-75,-17)..tension 1.5..(-88,-40)..tension 1.5..(-112,-60)..tension 0.8
+  ..(-117,-73)..tension 0.8..(-106,-88)..(-87,-85)..tension 1.5
+  ..(-70,-70)..(-65,-58)..{curl 0.9}(-58,-36)..tension 2..(-44,-55)..tension 2
+  ..{curl 0.9}(-32,-76)--(-16,-72)..(-15,-61)..(-23,-44)..tension 1.5
+  ..(-43,-13)..(-49,4)
+  ..cycle;
+  unfilldraw (-85,34)..tension 1.7..(-95,65)..tension 0.8..(-106,65)..tension 1.8
+  ..(-114,55)..tension 0.8..(-113,46)..tension 1.5..(-106,20)..tension 1.5
+  ..(-109,-8)..tension 0.8..(-107,-16)..tension 1.5..(-101,-27)..tension 0.8
+  ..(-94,-26)..(-90,-16)..(-88,10)..(-85,23)..tension 0.8
+  ..cycle;
+endchar;
+
+beginchar ("c",max_diametre#,max_rayon#,max_rayon#);  "canon rouge/red cannon";
+  BaseBlanche;
+  filldraw (-16,-24){curl0.2}..(-12,-10)..tension 1.3 ..(-10,20)..tension 1.3
+  ..(-9,28)..tension 1.5..(0,45)..tension 1.5..(10,56)..tension 1.2
+  ..(19,60)..tension 1.2..(50,64)..tension 1.2..(72,63)..tension 0.8
+  ..(77,54)..tension 1.2..(79,30)..tension 1.2..{curl 0.1}(81,-16){curl 0.1}
+  ..{curl 0.1}(92,-19){curl 0.7}..tension 1.5..(105,-6)..(109,9)..tension 1.5
+  ..(110,50)..tension 1.2..{up}(112,70){curl 0.5}..tension 1.2
+  ..(105,94)..tension 0.8..(100,99){left}..tension 0.8..(92,96)
+  ..(77,87)..tension 1.2..(40,81){left}..tension 0.8..(30,90)
+  --(30,109)..tension 1.1..(25,125)..(16,129)..(2,122)..tension 1.1
+  ..(0,110)..(-3,84)..(-6,66)..tension 0.8..(-17,61)..(-26,63)..(-35,60)..tension 1.2
+  ..(-39,43){down}..(-37,36) ..(-33,20)..(-31,0)..(-32,-12){curl 0.2}..tension 1.5
+  ..{curl 0.7}cycle;
+  filldraw (138,-10)..tension 1.1..(100,-46)..(81,-57)..(70,-60)
+  ..(60,-58)..(33,-51)..(20,-40)..(17,-27){curl 0.8}..tension 1.5
+  ..(58,-18)..tension 0.8..(62,-15){curl 0.9}..tension 1.1
+  ..(62,14)..tension 1.5..(61,37)..tension 0.8..(56,43)..tension 1.6
+  ..(34,43)..tension 1.6..{curl 0.8}(12,38)..tension 1.5
+  ..{curl 0.8}(2,28)..tension 1.8..(-1,-40)..tension 1.1..(10,-66)..tension 1.1
+  ..(50,-87)..tension 1.1..(81,-90){right}..tension 1.1..(110,-86)..tension 0.8
+  ..(122,-76)..tension 1.1..(135,-50)..tension 0.8
+  ..{curl 0.9}cycle;
+  unfilldraw (18,-3)..tension 4..(43,2)..tension 4..(42,21)..tension 4..(20,18)..tension 4
+  ..cycle;
+  filldraw (-50,24){up}..(-48,56)..(-46,82)..(-44,98){up} ..(-49,114)..tension 0.9
+  ..(-56,123)..tension 0.8..(-64,122)..tension 1.5..(-75,112)..tension 1.5
+  ..(-81,98){down}..tension 1.3..(-77,88)..(-72,65)..(-69,21){down}
+  ..(-70,0)..(-75,-17)..tension 1.5..(-88,-40)..tension 1.5..(-112,-60)..tension 0.8
+  ..(-117,-73)..tension 0.8..(-106,-88)..(-87,-85)..tension 1.5
+  ..(-70,-70)..(-65,-58)..{curl 0.9}(-58,-36)..tension 2..(-44,-55)..tension 2
+  ..{curl 0.9}(-32,-76)--(-16,-72)..(-15,-61)..(-23,-44)..tension 1.5
+  ..(-43,-13)..(-49,4)
+  ..cycle;
+  filldraw (-85,34)..tension 1.7..(-95,65)..tension 0.8..(-106,65)..tension 1.8
+  ..(-114,55)..tension 0.8..(-113,46)..tension 1.5..(-106,20)..tension 1.5
+  ..(-109,-8)..tension 0.8..(-107,-16)..tension 1.5..(-101,-27)..tension 0.8
+  ..(-94,-26)..(-90,-16)..(-88,10)..(-85,23)..tension 0.8
+  ..cycle;
+endchar;
+
+beginchar ("X",max_diametre#,max_rayon#,max_rayon#);  "canon noir/black cannon sur fond blanc";
+  BaseNoireBlanche;
+  filldraw (-16,-24){curl0.2}..(-12,-10)..tension 1.3 ..(-10,20)..tension 1.3
+  ..(-9,28)..tension 1.5..(0,45)..tension 1.5..(10,56)..tension 1.2
+  ..(19,60)..tension 1.2..(50,64)..tension 1.2..(72,63)..tension 0.8
+  ..(77,54)..tension 1.2..(79,30)..tension 1.2..{curl 0.1}(81,-16){curl 0.1}
+  ..{curl 0.1}(92,-19){curl 0.7}..tension 1.5..(105,-6)..(109,9)..tension 1.5
+  ..(110,50)..tension 1.2..{up}(112,70){curl 0.5}..tension 1.2
+  ..(105,94)..tension 0.8..(100,99){left}..tension 0.8..(92,96)
+  ..(77,87)..tension 1.2..(40,81){left}..tension 0.8..(30,90)
+  --(30,109)..tension 1.1..(25,125)..(16,129)..(2,122)..tension 1.1
+  ..(0,110)..(-3,84)..(-6,66)..tension 0.8..(-17,61)..(-26,63)..(-35,60)..tension 1.2
+  ..(-39,43){down}..(-37,36) ..(-33,20)..(-31,0)..(-32,-12){curl 0.2}..tension 1.5
+  ..{curl 0.7}cycle;
+  filldraw (138,-10)..tension 1.1..(100,-46)..(81,-57)..(70,-60)
+  ..(60,-58)..(33,-51)..(20,-40)..(17,-27){curl 0.8}..tension 1.5
+  ..(58,-18)..tension 0.8..(62,-15){curl 0.9}..tension 1.1
+  ..(62,14)..tension 1.5..(61,37)..tension 0.8..(56,43)..tension 1.6
+  ..(34,43)..tension 1.6..{curl 0.8}(12,38)..tension 1.5
+  ..{curl 0.8}(2,28)..tension 1.8..(-1,-40)..tension 1.1..(10,-66)..tension 1.1
+  ..(50,-87)..tension 1.1..(81,-90){right}..tension 1.1..(110,-86)..tension 0.8
+  ..(122,-76)..tension 1.1..(135,-50)..tension 0.8
+  ..{curl 0.9}cycle;
+  unfilldraw (18,-3)..tension 4..(43,2)..tension 4..(42,21)..tension 4..(20,18)..tension 4
+  ..cycle;
+  filldraw (-50,24){up}..(-48,56)..(-46,82)..(-44,98){up} ..(-49,114)..tension 0.9
+  ..(-56,123)..tension 0.8..(-64,122)..tension 1.5..(-75,112)..tension 1.5
+  ..(-81,98){down}..tension 1.3..(-77,88)..(-72,65)..(-69,21){down}
+  ..(-70,0)..(-75,-17)..tension 1.5..(-88,-40)..tension 1.5..(-112,-60)..tension 0.8
+  ..(-117,-73)..tension 0.8..(-106,-88)..(-87,-85)..tension 1.5
+  ..(-70,-70)..(-65,-58)..{curl 0.9}(-58,-36)..tension 2..(-44,-55)..tension 2
+  ..{curl 0.9}(-32,-76)--(-16,-72)..(-15,-61)..(-23,-44)..tension 1.5
+  ..(-43,-13)..(-49,4)
+  ..cycle;
+  filldraw (-85,34)..tension 1.7..(-95,65)..tension 0.8..(-106,65)..tension 1.8
+  ..(-114,55)..tension 0.8..(-113,46)..tension 1.5..(-106,20)..tension 1.5
+  ..(-109,-8)..tension 0.8..(-107,-16)..tension 1.5..(-101,-27)..tension 0.8
+  ..(-94,-26)..(-90,-16)..(-88,10)..(-85,23)..tension 0.8
+  ..cycle;
+endchar;
+
+beginchar ("P",max_diametre#,max_rayon#,max_rayon#)  "pion noir/black pawn";
+  BaseNoire;
+  unfilldraw (-12,-117)..tension 3
+  ..(10,-105)
+  ..(16,-96)
+  ..(21,-78)..tension 3
+  ..(23,-41)..tension 0.8
+  ..(40,-30)..tension 2
+  ..(85,-33)..tension 2
+  ..(112,-38)..tension 4
+  ..(139,-9)
+  ..{left}(115,-4)
+  ..(65,-7){left}..tension 2
+  ..(-50,-10)..tension 2
+  ..(-80,-9)..controls(-102,-7)
+  ..(-112,-2)..tension 10
+  ..(-131,-40){dir -5}%..tension 2
+  ..(-100,-35)..tension 2
+  ..(-37,-32)..tension 0.8
+  ..(-24,-43)..tension 2
+  ..(-24,-75)
+  ..{curl 2}cycle;
+  unfilldraw (-2,16){dir -125}
+  ..(-41,-17)
+  --(37,-17)
+  ..{curl 0}cycle;
+% fin de la croix du bas
+
+% debut du chapeau du haut
+  unfilldraw (90,70)
+  --(110,95)..tension0.8
+  ..(103,102)..tension 2
+  ..(87,92)..tension 2
+  ..(45,96)..tension0.8
+  ..(38,100)
+  ---(20,126)..controls(3,120.5)
+  ..(-10,118)
+  --(-18,102)..tension 2
+  ..(-35,99.5){left}..tension 2
+  ..(-74,103){curl 2}..tension 3
+  ..(-92,79)..tension 0.8
+  ..(-90,75)..tension 3
+  ..(-60,78)..tension 2
+  ..(-33,79)..tension 2
+  ..(25,78)
+  ..cycle; % fin du chapeau
+
+% petit morceau de droite
+  unfilldraw (93,10)
+  ---(111,12)
+  ---(113,30)
+  ---(80,48)
+  ---(50,65)
+  ---(42,63)
+  ---(42,61)..tension 10
+  ..(31,48)..tension 10
+  ..(5,24)
+  ---(17,18)
+  ..(28,19)
+  ---(52,42)..tension 3
+  ..(75,26)..tension 3
+  ..cycle;
+
+% petit morceau de gauche
+  unfilldraw (-5,33)
+  ---(-34,54)
+  ---(-46,66)..tension 2.5
+  ..flex((-68,64),(-57,50),(-28,26),(-20,19))
+  ..tension 3..cycle;
+  unfilldraw (-40,40)
+  ---(-55,53)---(-90,30)..tension 3
+  ..(-106,20)..tension 0.8
+  ..(-110,10)..controls(-97,5)
+  ..(-88,7)..controls(-64,24)
+  ..cycle;
+endchar;
+
+beginchar ("p",max_diametre#,max_rayon#,max_rayon#);  "pion rouge/red pawn";
+  BaseBlanche;
+% Grande barre horizontale
+  filldraw (107,-17)..tension 2
+  ..(120,-3)..tension 1.1..(117,7)
+  &flex((117,7),(46,2),
+      (-1,10),(-67,8),(-103,14))
+  ..tension 0.8..(-112,13)
+  ---(-127,-8)..(-124,-17)..(-111,-22)
+  &flex((-111,-22),(-15,-11),
+       (95,-20))..tension 0.8
+  ..cycle;
+
+% Section gauche et du haut
+  filldraw (-50,0)..tension 1.5
+  ..(-45,43)..tension 1.5
+  ..(-43,76)..tension 0.9
+  ..(-37,83)..tension 1.8
+  ..(10,88)..tension 1.8
+  ..(53,87)%..controls(60,86)
+  ..(70,89)
+  ..(81,99)..tension 0.8
+  ..(81,104)..tension 1.1
+  ..(72,110)..tension 0.8
+  ..(64,110)%..tension 1.1
+  ..(37,106)
+  ..{left}(-6,104)
+  ..{curl 1.2}(-50,109)..tension 4
+  ..(-71,92)..tension 3
+  ..(-70,42){down}
+  ..(-78,0)
+  --cycle;
+
+% Petite barre horizontale centrale
+  filldraw (-60,40)..tension 1.5
+  ..{right}(-2,47)..tension 1.5
+  ..(52,42)..tension 0.9
+  ..(67,44)..tension 1.5
+  ..(82,62)..tension 0.8
+  ..(77,67)..tension 1.5
+  ..(42,64)..(0,64)
+  ..(-58,65)
+  --cycle;
+
+% Petite barre verticale centrale
+  filldraw (27,0)
+  --(25,54)--(-3,54)
+  ..controls(2,24)..(0,0)
+  --cycle;
+
+% patte de gauche
+  filldraw (-56,-28)..tension 3
+  ..(-80,-50)..tension 3
+  ..(-110,-72)..(-116,-84)
+  ..(-104,-86)..tension 2.5
+  ..(-37,-52)..(-31,-46)
+  ..(-28,-38)..tension 0.9
+  ..(-30,-30)..tension 1.6
+  ..(-46,-24)..tension 0.8
+  ..cycle;
+
+% patte de droite
+  filldraw (100,-66)
+  ..controls(92,-60)
+  ..(72,-46)..tension 3
+  ..(48,-29)
+  ..(35,-27)
+  ..(18,-31)
+  ..(15,-40)
+  ..(20,-51){curl 1}..tension 1.5
+  ..(62,-63)..tension 1.5
+  ..(93,-76)..tension 0.8
+  ..cycle;
+endchar;
+
+beginchar ("Y",max_diametre#,max_rayon#,max_rayon#);  "pion noir/black pawn sur fond blanc";
+  BaseNoireBlanche;
+  filldraw (-12,-117)..tension 3
+  ..(10,-105)
+  ..(16,-96)
+  ..(21,-78)..tension 3
+  ..(23,-41)..tension 0.8
+  ..(40,-30)..tension 2
+  ..(85,-33)..tension 2
+  ..(112,-38)..tension 4
+  ..(139,-9)
+  ..{left}(115,-4)
+  ..(65,-7){left}..tension 2
+  ..(-50,-10)..tension 2
+  ..(-80,-9)..controls(-102,-7)
+  ..(-112,-2)..tension 10
+  ..(-131,-40){dir -5}%..tension 2
+  ..(-100,-35)..tension 2
+  ..(-37,-32)..tension 0.8
+  ..(-24,-43)..tension 2
+  ..(-24,-75)
+  ..{curl 2}cycle;
+  filldraw (-2,16){dir -125}
+  ..(-41,-17)
+  --(37,-17)
+  ..{curl 0}cycle;
+% fin de la croix du bas
+
+% debut du chapeau du haut
+  filldraw (90,70)
+  --(110,95)..tension0.8
+  ..(103,102)..tension 2
+  ..(87,92)..tension 2
+  ..(45,96)..tension0.8
+  ..(38,100)
+  ---(20,126)..controls(3,120.5)
+  ..(-10,118)
+  --(-18,102)..tension 2
+  ..(-35,99.5){left}..tension 2
+  ..(-74,103){curl 2}..tension 3
+  ..(-92,79)..tension 0.8
+  ..(-90,75)..tension 3
+  ..(-60,78)..tension 2
+  ..(-33,79)..tension 2
+  ..(25,78)
+  ..cycle; % fin du chapeau
+
+% petit morceau de droite
+  filldraw (93,10)
+  ---(111,12)
+  ---(113,30)
+  ---(80,48)
+  ---(50,65)
+  ---(42,63)
+  ---(42,61)..tension 10
+  ..(31,48)..tension 10
+  ..(5,24)
+  ---(17,18)
+  ..(28,19)
+  ---(52,42)..tension 3
+  ..(75,26)..tension 3
+  ..cycle;
+
+% petit morceau de gauche
+  filldraw (-5,33)
+  ---(-34,54)
+  ---(-46,66)..tension 2.5
+  ..flex((-68,64),(-57,50),(-28,26),(-20,19))
+  ..tension 3..cycle;
+  filldraw (-40,40)
+  ---(-55,53)---(-90,30)..tension 3
+  ..(-106,20)..tension 0.8
+  ..(-110,10)..controls(-97,5)
+  ..(-88,7)..controls(-64,24)
+  ..cycle;
+endchar;
+
+%----------------------------------------------------------
+designsize:=FontSize;
+font_coding_scheme:="Special graphics";
+font_size=FontSize;
+font_slant:=0.00;
+font_normal_space:=max_diametre#;
+font_quad:=max_diametre#;
+font_normal_stretch:=max_rayon#;
+font_normal_shrink:=0.7*max_rayon#;
+font_x_height  max_rayon#; % l'usager pourra utiliser cette valeur
+                       % pour positionner les caracteres.
+                       % elle donne la position du centre par rapport au
+                       % coin inferieur gauche.
+bye.

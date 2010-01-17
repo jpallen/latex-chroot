@@ -1,0 +1,49 @@
+% TSP.TEX
+
+% Marek Ry\'cko
+
+% Macro \tsp
+% Text SPace
+
+% uses SPLIT.TEX
+
+% version 0.0 24.07.1993
+% version 0.2,  8.10.1993
+%   -- no \input map
+% version 0.3 1.5.1996
+%   -- english description
+
+
+% uses SPLIT
+% uses MAP
+
+
+\def\tsp
+    %#1%
+    {\map
+        {\ifx\mapcur\space
+            \hskip\tspsp\relax
+        \else
+            \mapcur
+            % if it is not the last element -- join using kern:
+            \ifx\mappost\empty \else
+                % ``future'' is nonempty;
+                % we put interletter spacing only if
+                % next character is not space:
+                \split\mappost\tsptest\fool
+                \ifx\tsptest\space
+                    % will be space, don't put glue:
+                \else
+                    % not kern to make it streachable:
+                    \nobreak\hskip\tsplet\relax
+                \fi
+            \fi
+        \fi
+        }% the end of first parameter
+        %{#1}%
+    }
+% default parameters:
+% the amount of space in place of the space character:
+    \def\tspsp  {0.9em plus.3em minus.2em}
+% distance between letters:
+    \def\tsplet {.1666667em}%

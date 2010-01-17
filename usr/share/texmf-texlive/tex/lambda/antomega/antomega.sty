@@ -1,0 +1,340 @@
+%%
+%% This is file `antomega.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% antomega.dtx  (with options: `antomega')
+%% 
+%% This file is a part of the ANTOMEGA project version 0.8
+%% -----------------------------------------------------
+%% 
+%% It may be distributed under the terms of the LaTeX Project Public
+%% License, as described in lppl.txt in the base LaTeX distribution.
+%% Either version 1.0 or, at your option, any later version.
+%% Copyright (C) 2001 -- 2002 by Alexej Kryukov
+%% Please report errors to: A.M. Kryukov <basileia@yandex.ru>
+%% 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{antomega}
+\RequirePackage{keyval,ifthen,calc}
+\def\LoadOCPByName#1#2{\IfFileExists{#2.ocp}{\ocp#1=#2}{
+   \PackageWarning{antomega}{#2.ocp not found.
+      Identity will be used instead.}{}
+   \ocp#1=id}}
+\ocp\IdOCP=id
+\LoadOCPByName{\BasicIsoUni}{uniutf2uni}
+\LoadOCPByName{\BasicWinUni}{uniutf2uni}
+\LoadOCPByName{\BasicUtfUni}{uniutf2uni}
+\LoadOCPByName{\BasicTexUni}{tex2punct}
+\LoadOCPByName{\BasicBabelUni}{babel2punct}
+\LoadOCPByName{\BasicAccentsUni}{uni2accents}
+\LoadOCPByName{\UniToOmega}{uni2omega}
+\LoadOCPByName{\Oldstyle}{oldstyle}
+\LoadOCPByName{\LatinUniToTex}{uni2t1}
+\def\opt@ocp{ocp}
+\def\opt@ligatures{ligatures}
+\define@key{antomega}{ffi}[ocp]{%
+   \def\@tmpa{#1}
+   \ifx\@tmpa\opt@ocp%
+      \LoadOCPByName{\LatinUniToLig}{uni2lig}
+   \else\ifx\@tmpa\opt@ligatures%
+      \typeout{Antomega package option: ffi=ligatures}
+      \LoadOCPByName{\LatinUniToLig}{id}
+   \fi\fi
+}
+\DeclareOption{noffi}{\setkeys{antomega}{ffi=ligatures}}
+\setkeys{antomega}{ffi=ocp}
+\ocplist\BasicTexOCP=
+   \addbeforeocplist 1750 \BasicTexUni
+\nullocplist
+\ocplist\BasicBabelOCP=
+   \addbeforeocplist 2000 \BasicBabelUni
+\nullocplist
+\ocplist\BasicAccentsOCP=
+   \addbeforeocplist 2250 \BasicAccentsUni
+\nullocplist
+\ocplist\BasicInputUcsOCP=
+   \addbeforeocplist 500 \IdOCP
+\nullocplist
+\ocplist\BasicInputUtfOCP=
+   \addbeforeocplist 500 \BasicUtfUni
+\nullocplist
+\ocplist\BasicInputIsoOCP=
+   \addbeforeocplist 500 \BasicIsoUni
+\nullocplist
+\ocplist\BasicInputWinOCP=
+   \addbeforeocplist 500 \BasicWinUni
+\nullocplist
+\ocplist\LatinUniOutOCP=
+   \addbeforeocplist 3500 \LatinUniToLig
+\nullocplist
+\ocplist\LatinOmegaOutOCP=
+   \addbeforeocplist 3500 \UniToOmega
+\nullocplist
+\ocplist\LatinTexOutOCP=
+   \addbeforeocplist 3500 \LatinUniToTex
+\nullocplist
+\ocplist\OldstyleOCP=
+   \addbeforeocplist 4000 \Oldstyle
+\nullocplist
+\let\BasicInputOCP\BasicInputUcsOCP
+   \define@key{antomega}{input}[ucs-2]{
+      \def\@tmpa{#1}%
+      \ifx\@tmpa\opt@utf%
+         \let\BasicInputOCP\BasicInputUtfOCP%
+         \typeout{Antomega package option: input=utf-8}
+      \else\ifx\@tmpa\opt@sw%
+         \def\U##1{/QQ[##1]}%
+         \def\rmdefault{swtimes}%
+         \let\westernrm\rmdefault%
+         \LoadOCPByName{\BasicSWordUni}{sw2uni}%
+         \ocplist\BasicInputSWordOCP=
+            \addbeforeocplist 500 \BasicSWordUni
+         \nullocplist
+         \let\BasicInputOCP\BasicInputSWordOCP%
+         \typeout{Antomega package option: input=sw}
+      \else%
+         \let\BasicInputOCP\BasicInputUcsOCP%
+         \typeout{Antomega package option: input=ucs-2}
+      \fi}
+\LoadOCPByName{\Uppercase}{uppercase-dflt}
+\ocplist\UppercaseOCP=
+   \addbeforeocplist 3000 \Uppercase
+\nullocplist
+\def\MakeUppercase#1{{\pushocplist\UppercaseOCP#1}}
+\def\opt@standard{standard}
+\define@key{antomega}{uppercase}[ocp]{
+   \def\@tmpa{#1}
+   \ifx\@tmpa\opt@standard
+      \let\MakeUppercase\uppercase
+      \typeout{Antomega package option: use character codes}
+      \typeout{for conversion to Uppercase}
+   \fi}
+\def\oldstylenums#1{{\pushocplist\OldstyleOCP#1}}
+\def\noocpchar#1{{\clearocplists\char#1}}
+\def\#{\noocpchar{"23}}
+\def\%{\noocpchar{"25}}
+\def\&{\noocpchar{"26}}
+\def\uniencoding{UT1}
+\def\ant@load@encoding#1{%
+   \edef\ant@encodingfile{%
+      \lowercase{\def\noexpand\ant@encodingfile{#1enc-antomega.def}}}%
+   \ant@encodingfile
+   \InputIfFileExists{\ant@encodingfile}{}{%
+      \DeclareFontEncoding{#1}{}{}
+      \PackageWarning{antomega}{The \ant@encodingfile\ file was not found.
+         The #1 encoding was defined by antomega.}{}
+      }
+   \let\ant@encodingfile\@undefined
+}
+\ant@load@encoding{\uniencoding}
+\def\encodingdefault{\uniencoding}
+\ant@load@encoding{T1}
+\def\rmdefault{omlgc}
+\ifx\westernrm\@undefined\let\westernrm=\rmdefault\fi
+\ifx\westernsf\@undefined\let\westernsf=\sfdefault\fi
+\ifx\westerntt\@undefined\let\westerntt=\ttdefault\fi
+\catcode`\~=12
+\ifx\makeletter\@undefined
+   \def\makeletter#1#2{%
+      \ifnum\catcode#2=11\else\catcode#2=12 \fi
+      \ifnum\catcode#1=11\else\catcode#1=12 \fi
+      \uccode#1=#1 \uccode#2=#1%
+      \lccode#1=#2 \lccode#2=#2}
+\fi
+\ifx\makelcletter\@undefined
+   \def\makelcletter#1#2{%
+      \ifnum\catcode#2=11\else\catcode#2=12 \fi
+      \uccode#2=#1%
+      \lccode#2=#2}
+\fi
+\ifx\makeucletter\@undefined
+   \def\makeucletter#1#2{%
+      \ifnum\catcode#1=11\else\catcode#1=12 \fi
+      \uccode#1=#1%
+      \lccode#1=#2}
+\fi
+\ifx\makesameletter\@undefined
+   \def\makesameletter#1#2{%
+      \ifnum\catcode#1=11\else\catcode#1=12 \fi
+      \uccode#1=\uccode#2%
+      \lccode#1=\lccode#2}
+\fi
+\providecommand*{\ant@nocodes}[3]{%
+   \PackageWarningNoLine{antomega}%
+      {No file was found with symbol codes\MessageBreak
+         for the #2 range #3.\MessageBreak
+         You may proceed, but your #1 texts\MessageBreak
+         probably will not be correctly hyphenated.}}
+\providecommand*{\ant@nopatterns}[1]{%
+   \PackageWarningNoLine{antomega}%
+      {No hyphenation patterns were loaded for\MessageBreak
+         the language `#1'\MessageBreak
+         I will use the patterns loaded for \string\language=0
+         instead}}
+\providecommand*{\ant@nolang}[1]{%
+   \PackageWarningNoLine{antomega}%
+      {Couldn't find file omega-#1.ldf!!}}
+\def\opt@enabled{on}
+\def\opt@disabled{off}
+\def\opt@tex{tex}
+\def\opt@omega{omega}
+\def\opt@unicode{unicode}
+\def\opt@utf{utf-8}
+\def\opt@ucs{ucs-2}
+\def\opt@sw{sw}
+\define@key{antomega}{localmarks}[on]{%
+   \def\@tmpa{#1}
+   \ifx\@tmpa\opt@enabled
+      \def\local@marks##1{%
+         \def\markboth####1####2{%
+            \begingroup%
+               \let\label\relax \let\index\relax \let\glossary\relax%
+               \unrestored@protected@xdef\@themark%
+               {{\foreignlanguage{##1}{####1}}{\foreignlanguage{##1}{####2}}}%
+               \@temptokena \expandafter{\@themark}%
+               \mark{\the\@temptokena}%
+            \endgroup%
+            \if@nobreak\ifvmode\nobreak\fi\fi}%
+            \def\markright####1{%
+               \begingroup%
+                  \let\label\relax \let\index\relax \let\glossary\relax%
+                  \expandafter\@markright\@themark{\foreignlanguage{##1}{####1}}%
+                  \@temptokena \expandafter{\@themark}%
+                  \mark{\the\@temptokena}%
+               \endgroup%
+               \if@nobreak\ifvmode\nobreak\fi\fi}%
+            \def\@markright####1####2####3{\@temptokena{####1}%
+               \unrestored@protected@xdef\@themark{{\the\@temptokena}%
+               {{####3}}}}}
+   \else\ifx\@tmpa\opt@disabled
+      \def\local@marks#1{}
+      \typeout{Antomega package option: localmarks=off}
+   \fi\fi
+}
+\DeclareOption{nolocalmarks}{\setkeys{antomega}{localmarks=off}}
+\setkeys{antomega}{localmarks=on}
+\def\oaddto#1#2{%
+   \ifx#1\@undefined
+      \def#1{#2}%
+   \else
+      \ifx#1\relax
+         \def#1{#2}%
+      \else
+         {\toks@\expandafter{#1#2}%
+           \xdef#1{\the\toks@}}%
+      \fi
+   \fi
+}
+\newcommand{\background}[2][]{%
+   \IfFileExists{omega-#2.ldf}%
+   {\input{omega-#2.ldf}%
+      \AtBeginDocument{\selectlanguage[#1]{#2}}%
+   \newenvironment{#2}[1][]{\begin{otherlanguage}[####1]{#2}}%
+      {\end{otherlanguage}}%
+   \expandafter\newcommand\csname local#2\endcsname[2][]{%
+      \foreignlanguage[####1]{#2}{####2}}}%
+   {\ant@nolang{#2}}%
+}
+\newcommand{\load}[2][]{\IfFileExists{omega-#2.ldf}
+   {\input{omega-#2.ldf}\setkeys{#2}{#1}%
+   \newenvironment{#2}[1][]{\begin{otherlanguage}[####1]{#2}}%
+      {\end{otherlanguage}}
+   \expandafter\newcommand\csname local#2\endcsname[2][]{%
+      \foreignlanguage[####1]{#2}{####2}}}
+   {\ant@nolang{#2}}}
+\def\common@punctuation{%
+   \def\InitialThinSpace{\nobreak\hskip.2em\ignorespaces}%
+   \def\ExplicitHyphen{\nobreak\-\nobreak\hskip\z@skip}%
+   \def\AllowHyphenation{\hskip\z@skip}%
+   \def\DisableLigature{\textormath{\nobreak\discretionary{-}{}%
+      {\kern.03em}\allowhyphens}{}}%
+   \def\CompoundWordMarkWithBreakpoint{\nobreak-\hskip\z@skip}%
+   \def\CompoundWordMarkNoBreakpoint{\textormath{\leavevmode\hbox{-}}{-}}%
+   \def\LeftDoubleQuotationMark{^^^^201c}%
+   \def\RightDoubleQuotationMark{^^^^201d}%
+   \def\LeftPointingDoubleAngleQuotationMark{^^^^00ab}%
+   \def\RightPointingDoubleAngleQuotationMark{^^^^00bb}%
+   \def\GermanLeftDoubleQuotationMark{^^^^201e}%
+   \def\GermanRightDoubleQuotationMark{^^^^201c}%
+   \def\QuestionMark{?}%
+   \def\ExclamationMark{!}%
+   \def\InvertedQuestionMark{^^^^00bf}%
+   \def\InvertedExclamationMark{^^^^00a1}%
+   \def\Semicolon{;}%
+   \def\Colon{:}%
+   \def\NonBreakingSpace{\leavevmode\nobreak\ }}
+\def\common@font{\normalfont\fontfamily{\westernrm}%
+   \fontencoding{\uniencoding}\selectfont%
+   \let\rmdefault=\westernrm\let\sfdefault=\westernsf%
+   \let\ttdefault=\westerntt\let\encodingdefault=\uniencoding}
+\def\common@language{%
+   \protect\language=0%
+   \lefthyphenmin=2\righthyphenmin=3}
+\def\noextrascurrent#1{\@ifundefined{noextras@#1}{}%
+   {\csname noextras@#1\endcsname}}
+\def\originalOmega{\@ifundefined{languagename}{}%
+   {\noextrascurrent{\languagename}}%
+   \common@language%
+   \common@punctuation%
+   \common@font%
+   \clearocplists%
+   }
+\AtBeginDocument{\originalOmega}
+\@ifundefined{foreignlanguage}{}%
+   {\let\foreignlanguage\@undefined}
+\newcommand{\foreignlanguage}[3][]{%
+   \@ifundefined{inlineextras@#2}{\ant@nolang{#2}}{%
+     {\def\languagename{#2}%
+      \setkeys{#2}{#1}%
+      \csname inlineextras@#2\endcsname#3}%
+}}
+\@ifundefined{selectlanguage}{}%
+   {\let\selectlanguage\@undefined}
+\newcommand{\selectlanguage}[2][]{%
+   \@ifundefined{blockextras@#2}{\ant@nolang{#2}}{%
+      \def\ant@pop@language{%
+         \ant@set@language{\languagename}%
+         \let\emp@langname\undefined}%
+      \aftergroup\ant@pop@language%
+      \setkeys{#2}{#1}%
+      \ant@set@language{#2}%
+}}
+\newcommand{\ant@set@language}[1]{%
+   \select@language{#1}%
+   \if@filesw%
+      \protected@write\@auxout{}{\protect\select@language{#1}}%
+      \addtocontents{toc}{\protect\select@language{#1}}%
+      \addtocontents{lof}{\protect\select@language{#1}}%
+      \addtocontents{lot}{\protect\select@language{#1}}%
+   \fi%
+}
+\@ifundefined{select@language}{}%
+   {\let\select@language\@undefined}
+\newcommand{\select@language}[1]{%
+   \originalOmega%
+   \edef\languagename{#1}%
+   \csname blockextras@#1\endcsname%
+}
+\let\ant@pop@language\relax
+\@ifundefined{otherlanguage}{}%
+   {\let\otherlanguage\@undefined}
+\@ifundefined{endotherlanguage}{}%
+   {\let\endotherlanguage\@undefined}
+\newenvironment{otherlanguage}[2][]{%
+   \selectlanguage[#1]{#2}%
+   }{}
+\newcommand{\local@hyphenmins}[3]{%
+   \@ifundefined{#1hyphenmins}%
+      {\lefthyphenmin=#2\righthyphenmin=#3}%
+      {\csname #1hyphenmins\endcsname}%
+}
+\DeclareOption*{%
+   \edef\@temp{\noexpand\setkeys{antomega}{\CurrentOption}}%
+   \@temp%
+}
+\ProcessOptions
+\endinput
+%%
+%% End of file `antomega.sty'.

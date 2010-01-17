@@ -1,0 +1,69 @@
+def separator=max(1,vround(1/12x_height)) enddef;
+ 
+ 
+vardef diaeresis(expr center)=
+  generate_diaeresis(center,dot_size,dot_size+1/8w,h,x_height+separator);
+enddef;
+ 
+vardef generate_diaeresis(expr center,target_dot_diam,sep,eff_h,base)=
+pickup tiny.nib; numeric dot_diam;
+dot_diam:=max(tiny.breadth,hround(target_dot_diam));
+pos31(dot_diam,0); pos32(dot_diam,90); x31=x32; top y32r=vround(eff_h);
+if bot y32l<base: y32l:=min(y32r-eps,base+.5currentbreadth); fi
+y31=.5[y32l,y32r];
+pos33(dot_diam,0); penpos34(y32r-y32l,90); y33=y34=y31; x33=x34;
+if sep>0 : center=.5[x31,x33]; x33-x31=sep;
+else:
+  y35l=y35r=.5[y31,y32]; z35l=whatever[z21l,z22l]; z35r=whatever[z21r,z22r];
+  rt x31r=hround((min(x35l,x35r)-.5currentbreadth)-.05w);
+  lft x33l=hround((max(x35l,x35r)+.5currentbreadth)+.05w);
+fi
+dot(31,32); dot(33,34);
+penlabels(31,32,33,34,35);
+enddef;
+ 
+vardef generate_universal(expr center)=
+x91=center+.15u;x94=center-.15u; 
+y91=y94=x_height+1.5separator;
+x92=x91+.3univ_acc_breadth*(body_height-x_height);
+x93=x91-.3univ_acc_breadth*(body_height-x_height);
+y93=y92=y91+univ_acc_breadth*(body_height-x_height);
+fill z91--z92--z93--z94--cycle;
+enddef;
+ 
+vardef universal(expr center)=
+generate_universal(center);
+enddef;
+ 
+vardef diaeresis_universal(expr center)=
+x91=center; 
+y91=x_height+separator+dot_size;
+x92=x91+.5univ_acc_breadth*(body_height-x_height);
+x93=x91-.5univ_acc_breadth*(body_height-x_height);
+y93=y92=y91+.866univ_acc_breadth*(body_height-x_height);
+fill z91--z92--z93--cycle;
+generate_diaeresis(center,dot_size,
+1.3univ_acc_breadth*(body_height-x_height),
+.6[h,x_height],
+x_height+separator);
+enddef;
+ 
+def acute(expr center)=
+generate_universal(center);
+enddef;
+def circumflex(expr center)=
+generate_universal(center);
+enddef;
+def corr_circumflex(expr center,katiallo)=
+generate_universal(center);
+enddef;
+def spirit(expr center)text type =
+;
+enddef;
+def spirit_acute(expr center)text type =
+generate_universal(center);
+enddef;
+def spirit_circumflex(expr center)text type =
+generate_universal(center);
+enddef;
+ 

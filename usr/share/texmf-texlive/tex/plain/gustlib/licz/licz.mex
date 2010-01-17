@@ -1,0 +1,529 @@
+% zestaw makr LICZ.MEX
+% makro \licz podaj/ace s/lownie po polsku liczb/e
+% wraz z makrami pomocniczymi
+
+% autor: Marek Ry/cko
+
+% wersja 0.0, 11 sierpnia 1993 r.
+% wersja 0.1, 12 sierpnia 1993 r.
+%    -- wszystko na poziomie rozwiajania
+% wersja 0.2, 13 sierpnia 1993 r. (pi/atek!)
+%    -- pewne optymalizacje czasowe zwi/azane ze sposobem realizacji
+%       dope/lniania zerami (na poziomie makr)
+% wersja 0.3, 23 sierpnia 1993 r.
+%    -- jedynie troch/e zmieniony program testuj/acy
+% wersja 0.4, 25//26 stycznia 1994 r.
+%    -- istotna poprawka makra \lead_zeroo (dzi/eki BJ)
+% wersja 0.5, 18 lutego 1995 r. (po wyk/ladzie o rozwijaniu /zeton/ow)
+%    -- poprawki pomy/lek w komentarzach
+%    -- uzupe/lnienie brakuj/acego procentu w \licz_err
+% wersja 0.6, 27 kwietnia 1996 r. (przygotowanie do Bachotka 96)
+%    -- oparcie tylko na MEX-u
+%    -- uniezale/znienie od rodzaju stosowanej notacji polskich liter
+
+% OPIS:
+
+% \licz{<liczba>}
+%           rozwija si/e do liczby wyra/zonej s/lownie po polsku
+% \liczspace{<cokolwiek>}
+%           powoduje, /ze <cokolwiek> b/edzie wstawiane jako
+%           odst/ep separuj/acy s/lowa (domy/slnie: <cokolwiek>=zwyk/ly odst/ep)
+
+% to do:
+% -- parametryczne pisanie ,,jeden'' przed tysi/acami itp.
+% -- ewentualnie zamieni/c \lead_zero na og/olniejsze makro dope/lniaj/ace czym/s...
+
+% makra normalnie zawarte w formacie ,,Do'':
+\let\e\expandafter
+\let\expi\e
+\def\expii{\e\expi\e}
+\def\expiii{\e\expii\e}
+\def\expiv{\e\expiii\e}
+\def\letter{11}
+
+\edef\liczundcatcode{\the\catcode`\_}
+\catcode`\_\letter
+\edef\liczatcatcode{\the\catcode`\@}
+\catcode`\@\letter
+
+% zapami/etanie dotychczasowej ,,prefiksyjno/sci'':
+\let\liczprefix\pr@fix
+\if\liczprefix F\prefixing\fi
+
+% nast/epne dzia/ly zawieraj/a rozmaite makra podr/eczne:
+
+\def\expfull
+    % four times expansion of \expfull{...} expands fully ...
+    #1% a sequence of tokens expanding to characters only
+    {%
+    % triple expansion of the following expands fully #1
+    \e\e\e\gobble_first
+    % the following expands at the 2-nd level to the sequence of characters
+    % preceded by backslash
+    \e\string\csname#1\endcsname
+    \end_gobble
+    }
+\def\gobble_first#1#2\end_gobble{#2}
+
+\def\lead_zero
+    % zamienia liczb/e nieujemn/a na 10-cyfrow/a liczb/e dope/lnion/a zerami
+    #1% positive number (any)
+    {%
+    % apply \lead_zeroo to the already calculated sequence of digits:
+    \e\lead_zeroo\e{\number#1}%
+    }
+\def\lead_zeroo
+    #1% positive number (sequence of digits)
+    {%
+    \ifnum#1<10  000000000\else
+    \ifnum#1<100  00000000\else
+    \ifnum#1<1000  0000000\else
+    \ifnum#1<10000  000000\else
+    \ifnum#1<100000  00000\else
+    \ifnum#1<1000000  0000\else
+    \ifnum#1<10000000  000\else
+    \ifnum#1<100000000  00\else
+    \ifnum#1<1000000000  0\else
+    \fi\fi\fi\fi\fi\fi\fi\fi\fi
+    #1}
+
+\def\div_ten_to
+    % expands to a number (a sequence of decimal digits)
+    % without the last #2 decimal digits
+    #1% nonnegative number (<=9 999 999 999)
+    #2% divided by ten to #2 (>=0 <=9)
+    {%
+    \number % normalize the result (no leading zeros)
+    \ifcase#2
+        % 0:
+        #1%
+    \or
+        % 1:
+        \apply_take\take_ix{#1}%
+    \or
+        % 2:
+        \apply_take\take_viii{#1}%
+    \or
+        % 3:
+        \apply_take\take_vii{#1}%
+    \or
+        % 4:
+        \apply_take\take_vi{#1}%
+    \or
+        % 5:
+        \apply_take\take_v{#1}%
+    \or
+        % 6:
+        \apply_take\take_iv{#1}%
+    \or
+        % 7:
+        \apply_take\take_iii{#1}%
+    \or
+        % 8:
+        \apply_take\take_ii{#1}%
+    \or
+        % 9:
+        \apply_take\take_i{#1}%
+    \else
+        \licz_err{dzielenie przez 10 do b/l/ednej pot/egi}%
+    \fi
+    }
+
+\def\mod_ten_to
+    % expands to the last #2 decimal digits
+    % of a number (a sequence of decimal digits)
+    #1% nonnegative number (<=9 999 999 999)
+    #2% modulo ten to #2 (>=0 <=9)
+    {%
+    \number % normalize the result (no leading zeros)
+    \ifcase#2
+        % 0:
+        0%
+    \or
+        % 1:
+        \apply_take\gob_ix{#1}%
+    \or
+        % 2:
+        \apply_take\gob_viii{#1}%
+    \or
+        % 3:
+        \apply_take\gob_vii{#1}%
+    \or
+        % 4:
+        \apply_take\gob_vi{#1}%
+    \or
+        % 5:
+        \apply_take\gob_v{#1}%
+    \or
+        % 6:
+        \apply_take\gob_iv{#1}%
+    \or
+        % 7:
+        \apply_take\gob_iii{#1}%
+    \or
+        % 8:
+        \apply_take\gob_ii{#1}%
+    \or
+        % 9:
+        \apply_take\gob_i{#1}%
+    \else
+        \licz_err{dzielenie przez 10 do b/l/ednej pot/egi}%
+    \fi
+    }
+
+\def\apply_take
+    #1% np. \take_ix
+    #2% number
+    {\e\apply_takee\e#1\e{\number#2}}
+\def\apply_takee
+    #1% np. \take_ix
+    #2% number
+    {\expiv#1\expfull{\lead_zero{#2}}\end_take}
+
+\def\take_ix   #1{#1\take_viii}
+\def\take_viii #1{#1\take_vii}
+\def\take_vii  #1{#1\take_vi}
+\def\take_vi   #1{#1\take_v}
+\def\take_v    #1{#1\take_iv}
+\def\take_iv   #1{#1\take_iii}
+\def\take_iii  #1{#1\take_ii}
+\def\take_ii   #1{#1\take_i}
+\def\take_i    #1{#1\take_zero}
+\def\take_zero {\gob_rest}
+\def\gob_rest#1\end_take{}
+
+\def\gob_ix   #1{\gob_viii}
+\def\gob_viii #1{\gob_vii}
+\def\gob_vii  #1{\gob_vi}
+\def\gob_vi   #1{\gob_v}
+\def\gob_v    #1{\gob_iv}
+\def\gob_iv   #1{\gob_iii}
+\def\gob_iii  #1{\gob_ii}
+\def\gob_ii   #1{\gob_i}
+\def\gob_i    #1{\gob_zero}
+\def\gob_zero {\take_rest}
+\def\take_rest#1\end_take{#1}
+
+% koniec makr pomocniczych og/olnego u/zytku
+
+\def\licz
+    #1% number (jest obliczany jednokrotnie)
+    {\e\licz_licz\e{\number#1}}
+\def\licz_licz
+    #1% number
+    {%
+    \ifnum#1=0
+        zero%
+    \else
+        % <> 0
+        \ifnum#1<0
+            % < 0
+            minus\licz_space\licz_dod{-#1}%
+        \else
+            % > 0
+            \licz_dod{#1}%
+        \fi
+    \fi
+    }
+
+\def\licz_sep
+    #1% liczba >=0
+    {% first calculate the number, then apply
+    \e\licz_sepp\e{\number#1}}
+\def\licz_sepp
+    #1% liczba >=0 (ju/z obliczona)
+    #2% separacja modulo 10 do pot/egi #2
+    {% first calculate the mod separation, then apply
+    \e\licz_seppp\e{\number\mod_ten_to{#1}{#2}}%
+        {#1}{#2}% powtarzamy parametry
+    }
+\def\licz_seppp
+    #1% modulo ju/z wyliczone (patrz wy/zej)
+    #2% liczba >=0 (ju/z obliczona)
+    #3% separacja modulo 10 do pot/egi #3
+    {% first calculate the div separation, then apply
+    \e\licz_sepppp\e{\number\div_ten_to{#2}{#3}}%
+        {#1}% modulo ju/z wyliczone
+    }
+\def\licz_sepppp
+    #1% div
+    #2% mod
+    #3% makro dla du/zych
+    #4% makro dla ko/nc/owki
+    {%
+    \ifnum#1>0
+        #3{#1}%
+        \licz_mk_space{#1}{#2}%
+    \fi
+    #4{#2}%
+    }
+
+\def\licz_dod
+    #1% liczba dodatnia (w dowolnym zapisie w sensie TeX-a)
+    {\licz_sep{#1}3\licz_tys\licz_dotys}
+
+\def\licz_tys
+    #1% liczba dodatnia
+    {\licz_sep{#1}3\licz_miliony
+        {\licz_tylko{tysi}{/ac}{/ace}{/ecy}}}%
+
+\def\licz_miliony
+    #1% liczba dodatnia
+    {\licz_sep{#1}3\licz_miliardy
+        {\licz_tylko{milion}{}{y}{/ow}}}%
+
+\def\licz_miliardy
+    #1% liczba dodatnia
+    {\licz_sep{#1}3\licz_overflow
+        {\licz_tylko{miliard}{}{y}{/ow}}}%
+
+\def\licz_overflow
+    #1%
+    {\ifnum#1>0 \licz_err{za du/za liczba}\fi}
+
+\def\licz_tylko
+    #1% rdze/n
+    #2#3#4% ko/nc/owki 1, 2, 5
+    #5% liczba tego
+    {%
+    \ifnum#5>0
+        \licz_dod{#5}\licz_space
+        \licz_odm{#5}{#1}{#2}{#3}{#4}%
+    \else
+        % nic
+    \fi
+    }
+
+\def\licz_dotys
+    #1% >=1, <=999
+    {\licz_sep{#1}2\licz_setki\licz_dostu}
+
+\def\licz_dostu
+    #1%
+    {%
+    %
+    \ifnum#1<10
+        \licz_jedn{#1}%
+    \else
+        % #1 >= 10
+        \ifnum#1<20
+            % 10 <= #1 <= 19
+            \licz_at_least_ten{#1}%
+        \else
+            % #1 >= 20
+            \ifnum#1<100
+                % 20 <= #1 <= 99
+                \licz_sep{#1}1\licz_at_least_twenty\licz_jedn
+            \else
+                % #1 >= 100
+                \licz_err{mia/lo by/c do stu}%
+            \fi
+        \fi
+    \fi
+    }
+
+\def\licz_jedn
+    #1%
+    {%
+    \ifcase\number#1\space\space
+    % 0:
+        % nic
+    \or % 1:
+        jeden%
+    \or % 2:
+        dwa%
+    \or % 3:
+        trzy%
+    \or % 4:
+        cztery%
+    \or % 5:
+        pi/e/c%
+    \or % 6:
+        sze/s/c%
+    \or % 7:
+        siedem%
+    \or % 8:
+        osiem%
+    \or % 9:
+        dziewi/e/c%
+    \else
+        \licz_err{cyfra > 9}%
+    \fi
+    }
+
+\def\licz_at_least_ten
+    #1%
+    {%
+    \ifcase \number\mod_ten_to{#1}{1}\space\space
+        % 10:
+        dziesi/e/c%
+    \or % 11:
+        jedena/scie%
+    \or % 12:
+        dwana/scie%
+    \or % 13:
+        trzyna/scie%
+    \or % 14:
+        czterna/scie%
+    \or % 15:
+        pi/etna/scie%
+    \or % 16:
+        szesna/scie%
+    \or % 17:
+        siedemna/scie%
+    \or % 18:
+        osiemna/scie%
+    \or % 19:
+        dziewi/etna/scie%
+    \else
+        \licz_err{na/scie > 19}%
+    \fi
+    }
+
+\def\licz_at_least_twenty
+    #1%
+    {%
+    % 2 <= #1 <= 9
+    % sk/ladamy dziesi/atki:
+    \ifcase \number#1\space\space
+        % 0:
+        \licz_err{dzie/scia < 10}%
+    \or % 1:
+        \licz_err{dzie/scia < 20}%
+    \or % 2:
+        dwadzie/scia%
+    \or % 3:
+        trzydzie/sci%
+    \or % 4:
+        czterdzie/sci%
+    \or % 5:
+        pi/e/cdziesi/at%
+    \or % 6:
+        sze/s/cdziesi/at%
+    \or % 7:
+        siedemdziesi/at%
+    \or % 8:
+        osiemdziesi/at%
+    \or % 9:
+        dziewi/e/cdziesi/at%
+    \else
+        % > 9
+        \licz_err{dzie/scia > 99}%
+    \fi
+    % dziesi/atki z/lo/zone
+    }
+
+\def\licz_setki
+    #1%
+    {%
+    % 0 <= #1 <= 9
+    % sk/ladamy setki:
+    \ifcase\number#1\space\space
+        % 0:
+        % nic
+    \or % 1:
+        sto%
+    \or % 2:
+        dwie/scie%
+    \or % 3:
+        trzysta%
+    \or % 4:
+        czterysta%
+    \or % 5:
+        pi/e/cset%
+    \or % 6:
+        sze/s/cset%
+    \or % 7:
+        siedemset%
+    \or % 8:
+        osiemset%
+    \or % 9:
+        dziewi/e/cset%
+    \else
+        % > 9
+        \licz_err{setki > 9}%
+    \fi
+    }
+
+\def\licz_mk_space
+    #1#2% je/sli obie liczby >0, to rozwi/n si/e do odst/epu
+    {%
+    \ifnum#1>0
+        \ifnum#2>0
+            \licz_space
+        \fi
+    \fi
+    }
+
+\def\licz_odm
+    #1% liczba >=1
+    #2% rdze/n
+    #3% ko/nc/owka 1
+    #4% ko/nc/owka 2, 3, 4
+    #5% ko/nc/owka 5, 6, 7, 8, 9, 0
+    {%
+    \ifcase\number\mod_ten_to{#1}{1}\space\space
+        % 0:
+        #2#5%
+    \or % 1:
+        \ifnum#1=1
+            #2#3%
+        \else
+            #2#5%
+        \fi
+    \or % 2:
+        \ifnum\mod_ten_to{#1}{2}=12
+            #2#5%
+        \else
+            #2#4%
+        \fi
+    \or % 3:
+        \ifnum\mod_ten_to{#1}{2}=13
+            #2#5%
+        \else
+            #2#4%
+        \fi
+    \or % 4:
+        \ifnum\mod_ten_to{#1}{2}=14
+            #2#5%
+        \else
+            #2#4%
+        \fi
+    \or % 5:
+        #2#5%
+    \or % 6:
+        #2#5%
+    \or % 7:
+        #2#5%
+    \or % 8:
+        #2#5%
+    \or % 9:
+        #2#5%
+    \else
+        % > 9
+        \licz_err{modulo w odmianie nie dzia/la}%
+    \fi
+    }
+
+% w poni/zszym makrze u/zyty jest jawny parametr, ze wzgl/edu na mo/zliwo/s/c
+% u/zycia np. w formie \liczspace\space (bez nawias/ow klamrowych)
+\def\liczspace
+    #1% cokolwiek
+    {\def\licz_space{#1}}
+
+\def\licz_err
+    #1%
+    {{%
+    \newlinechar`\@%
+    \errhelp{Co/s jest nie tak w makrach obs/luguj/acych liczenie.@%
+        Najlepiej zawiadomi/c autora, bo to pewnie jego wina.}%
+    \errmessage{B/l/ad w liczeniu: #1}%
+    }}
+
+\catcode`\_\liczundcatcode\space
+\catcode`\@\liczatcatcode\space
+\if\liczprefix F\nonprefixing\fi
+
+% domy/slnie:
+\liczspace\space
+\endinput

@@ -1,0 +1,520 @@
+%% file: TXSfigs.tex - Figures and Tables - TeXsis version 2.18
+%% @(#) $Id: TXSfigs.tex,v 18.0 1999/07/09 17:24:29 myers Exp $
+%======================================================================*
+%
+%      These macros handles figures and tables with automatic
+% numbering and tag referencing.  Figures and tables can printed where
+% they are defined, or saved until the end of the document.  For long
+% documents you can make a list of figures or list of tables, much like
+% a table of contents.  For journal submissions you can print a separate
+% list of figure or table captions.
+%
+% For the macros for ruled tables see the file TXSruled.tex
+%
+% Dependencies:
+%       TXSmacs.tex for \unexpandedwrite, \offparens, \runtime, \seeCR
+%       TXSinit.tex for \bottominsert, \heavyinsert, \@FileInit
+%       TXStags.tex for \LabelParse
+%
+% This file is a part of TeXsis.
+% (C) copyright 1991, 1995  by Eric Myers and Frank Paige.
+%======================================================================*
+\message{Figures and Tables.}
+\catcode`\@=11                                  % let's use @ as a letter here
+\let\NX=\noexpand\let\XA=\expandafter           % handy abbreviations
+\offparens                                      % make sure [ ] not active!
+
+% Counters, flags and I/O for table number, figure number, etc...
+
+\newcount\tabnum        \tabnum=\z@             % table number
+\newcount\fignum        \fignum=\z@             % figure number
+
+\newif\ifRomanTables    \RomanTablesfalse       % Roman table numbers?
+\newif\ifCaptionList    \CaptionListfalse       % save list of captions?
+\newif\ifFigsLast       \FigsLastfalse          % save figures until end?
+\newif\ifTabsLast       \TabsLastfalse          % save tables until end?
+\def\FiguresLast{\FigsLasttrue}\def\FiguresNow{\FigsLastfalse}
+\def\TablesLast{\TabsLasttrue}\def\TablesNow{\TabsLastfalse}
+
+% Output streams for saving figures, tables, figure lists, table lists,
+% or caption lists
+
+\newwrite\fgout         \newwrite\tbout 
+\newwrite\figlist       \newwrite\tablelist     \newwrite\caplist       
+
+%======================================================================*
+% FIGURES.
+%       The following macros insert figures and define tags for them for
+% future references:
+%  \figure{<label>}       Insert figure at top of page, labeled by <label>.
+%  \midfigure{<label>}    Figure at current position, or top of next page
+%  \topfigure{<label>}    Figure at top of page, same as \figure.
+%  \fullfigure{<label>}   Figure on a separate page.
+%  \bottomfigure{<label>} Figure at bottom of the page
+%  \heavyfigure{<label>}  Figure at current position, or bottom of next page
+%  \endfigure             Ends any figure
+%  \figuresize <dimen>    Reserves vertical space of size <dimen> for figure.
+
+\long\def\figure{\@figure\topinsert}
+\long\def\topfigure{\@figure\topinsert}% just synonym for \figure
+\long\def\midfigure{\@figure\midinsert}
+\long\def\fullfigure{\@figure\pageinsert}
+\long\def\bottomfigure{\@figure\bottominsert}
+\long\def\heavyfigure{\@figure\heavyinsert}
+\long\def\widefigure{\@figure\widetopinsert}
+\long\def\widetopfigure{\@figure\widetopinsert}
+\long\def\widefullfigure{\@figure\widepageinsert}
+
+\def\FigureName{Figure}%
+\def\TableName{Table}%
+
+
+% \@figure is the generic figure making macro. If \FigsLast is
+% set it writes the figure material out to a file to be read
+% in later.  Otherwise it puts the figure material into an \insert
+% given by #1.  #2 is the label which follows \figure
+
+\def\@figure#1#2{%      generic routine to make and label a figure
+  \vskip 0pt                                    % force vertial mode 
+  \begingroup                                   % hide our calculations
+    \def\CaptionName{\FigureName}%              % type of insert is ``Figure''
+    \def\@prefix{Fg.}%                          % prefix for tagging labels
+    \let\@count=\fignum                         % counter is \fignum
+    \let\@FigInsert=#1\relax                    % what kind of insert?
+    \def\@arg{#2}\ifx\@arg\empty\def\@ID{}%     % if no label \@ID is null
+      \else\LabelParse #2;;\endlist\fi          % else parse label into \@ID
+    \ifFigsLast                                 % Save Figures til end?
+      \emsg{\CaptionName\space\@ID. {#2} [storing in \jobname.fg]}% .log it
+      \@fgwrite{\@comment> \CaptionName\space\@ID.\space{#2}}% write fig number
+      \@fgwrite{\string\@FigureItem{\CaptionName}{\@ID}{\NX#1}}% to figure file
+      \seeCR\let\@next=\@copyfig                % go copy figure text to file
+    \else                                       % save figure in .fg file
+      \emsg{\CaptionName\ \@ID.\ {#2}}%         % announce in .log
+      \let\endfigure=\@endfigure                % how to quit
+      \setbox\@capbox\vbox to 0pt{}%            % clears caption in \@capbox
+      \def\@whereCap{N}%                        % no caption (yet)
+      \let\@next=\@findcap                      % look for \caption or \Caption
+      \ifx\@FigInsert\midinsert\goodbreak\fi    % help \midinsert
+      \@FigInsert                               % start figure insert
+    \fi \@next}
+
+%  \@endfigure ends a figure insertion made by \figure, \table, etc
+
+\def\@endfigure{\relax
+   \if B\@whereCap\relax                % if bottom caption then...
+     \vskip\normalbaselineskip          %   skip down one line
+     \centerline{\box\@capbox}%         %     for caption
+   \fi 
+   \endinsert \endgroup}                % end the insert & group
+
+\def\endfigure{\emsg{> \string\endfigure before \string\figure!}}
+
+\def\figuresize#1{\vglue #1}% reserve space for a figure
+
+
+% FIGURES AT THE END OF THE DOCUMENT: saying \FiguresLast saves all
+% figures up until the end of the document, where you say \PrintFigures
+% to print them out.  If you say \FiguresNow (the default) the the
+% figures are inserted as they are defined, and \PrintFigures has no
+% effect.
+
+\def\@copyfig#1#2\endfigure{\endgroup   % copy figure definition to file
+   \ifx#1\par\@fgNXwrite{#2\@endfigure}\else\@fgNXwrite{#1#2\@endfigure}\fi}
+
+% \@fgwrite writes to the .fg file.  The argument IS expanded.
+% \@fgNXwrite writes to the .fg file without expanding.
+
+\def\@FGinit{\@FileInit\fgout=\jobname.fg[Figures]\gdef\@FGinit{\relax}}
+\def\@fgwrite#1{\@FGinit\immediate\write\fgout{#1}}
+\long\def\@fgNXwrite#1{\@FGinit\unexpandedwrite\fgout{#1}}
+
+%  \PrintFigures closes the figure file and reads it in, to put all of the
+%  figures at the end of the document.  If \FigsLastfalse then nothing happens.
+
+\def\PrintFigures{\ifFigsLast\@PrintFigures\fi}
+
+\def\@PrintFigures{%  Prints the figures at the end of the document
+   \@fgwrite{\@comment>>> EOF \jobname.fg <<<}% % and EOF marker comment
+   \immediate\closeout\fgout                    %  then close the .ref file
+   \begingroup                                  % now read the .fg file
+      \FigsLastfalse                            % avoid infinte recursion
+      \vbox to 0pt{\hbox to 0pt{\ \hss}\vss}%   % anchor top if needed
+      \offparens                                % make sure ( and ) not active
+      \catcode`@=11                             % make @ a letter
+      \emsg{[Getting figures from file \jobname.fg]}%
+      \Input\jobname.fg \relax                  % read text from .ref file
+   \endgroup}                                   % close group
+
+
+% \@FigureItem creates a figure which has been stored already
+% in the figure or table file.  #1 is the \CaptionName, #2 is the
+% figure or table number, and #3 is the type of \insert
+
+\def\@FigureItem#1#2#3{% creates a figure already stored in \jobname.fg
+   \begingroup                                  % same as in \@figure
+    #3\relax                                    % do the insert
+    \def\@ID{#2}%                               % get figure number
+    \def\CaptionName{#1}%                       % type of insert is ``Figure''
+    \setbox\@capbox\vbox to 0pt{}\def\@whereCap{N}% clear caption
+    \@findcap}                                  % check for \caption
+
+%======================================================================*
+% TABLES.
+%      These are similar to the figure macros above, with small
+% additions, such as allowing tables to be numbered by roman numerals.
+
+\long\def\table{\@table\topinsert}
+\long\def\toptable{\@table\topinsert} % synonym, just in case
+\long\def\midtable{\@table\midinsert}
+\long\def\fulltable{\@table\pageinsert}
+\long\def\bottomtable{\@table\bottominsert}
+\long\def\heavytable{\@table\heavyinsert}
+\long\def\widetable{\@table\widetopinsert}
+\long\def\widetoptable{\@table\widetopinsert}
+\long\def\widefulltable{\@table\widepageinsert}
+
+%   \@table is the generic table making macro. It also calls \@findcap,
+% which looks to see if a \Caption comes first and acts accordingly.
+
+\def\@table#1#2{% generic processing of table
+  \vskip 0pt                                    % force vertial mode and anchor
+  \begingroup                                   %
+    \def\CaptionName{\TableName}%               % type of insert is ``Table''
+    \def\@prefix{Tb.}%                          % prefix for tagging labels
+    \let\@count=\tabnum                         % counter is \fignum
+    \let\@FigInsert=#1\relax                    % what kind of insert?
+    \def\@arg{#2}\ifx\@arg\empty\def\@ID{}%     % if no label \@ID is null
+    \else\ifRomanTables                         % if Roman numeral tables
+         \global\advance\@count by\@ne          %   advance count
+         \edef\@ID{\uppercase\expandafter       %   define \@ID as uppercase
+            {\romannumeral\the\@count}}%        %   Roman numerals
+         \tag{\@prefix#2}{\@ID}%                %   and tag it
+    \else
+        \LabelParse #2;;\endlist\fi             % else parse label --> \@ID
+    \fi
+    \ifTabsLast                                 % Save Tables til end?
+      \emsg{\CaptionName\space\@ID. {#2} [storing in \jobname.tb]}% .log it
+      \@tbwrite{\@comment> \CaptionName\space\@ID.\space{#2}}% write table number
+      \@tbwrite{\string\@FigureItem{\CaptionName}{\@ID}{\NX#1}}% to table file
+      \seeCR\let\@next=\@copytab                % go copy figure text to file
+    \else                                       % save figure in .fg file
+      \emsg{\CaptionName\ \@ID.\ {#2}}%         % announce in .log
+      \let\endtable=\@endfigure                 % how to quit
+      \setbox\@capbox\vbox to 0pt{}%            % clears caption in \@capbox
+      \def\@whereCap{N}%                        % no caption (yet)
+      \let\@next=\@findcap                      % look for \caption or \Caption
+      \ifx\@FigInsert\midinsert\goodbreak\fi    % help \midinsert
+      \@FigInsert                               % start table insertion
+    \fi \@next}
+
+\def\endtable{\emsg{> \string\endtable before \string\table!}}
+
+\def\@copytab#1#2\endtable{\endgroup    % copy table definition to file
+    \ifx#1\par\@tbNXwrite{#2\@endfigure}\else\@tbNXwrite{#1#2\@endfigure}\fi}
+
+% \@tbwrite writes to the .tb file.  The argument IS expanded
+% \@tbNXwrite writes to the .tb file without expanding
+
+\def\@TBinit{\@FileInit\tbout=\jobname.tb[Tables]\gdef\@TBinit{\relax}}
+\def\@tbwrite#1{\@TBinit\immediate\write\tbout{#1}}
+\long\def\@tbNXwrite#1{\@TBinit\unexpandedwrite\tbout{#1}}
+
+
+%  \PrintTables closes the table file and reads it in, to put all of the
+%  tables at the end of the document.  If \TabsLastfalse then nothing happens.
+
+\def\PrintTables{\ifTabsLast\@PrintTables\fi}
+
+\def\@PrintTables{%  Prints the tables at the end of the document
+   \@tbwrite{\@comment>>> EOF \jobname.tb <<<}% % and EOF marker comment
+   \immediate\closeout\tbout                    %  then close the .ref file
+   \begingroup                                  % now read the .tb file
+     \TabsLastfalse                             % avoid possible recursion
+     \catcode`@=11                              % make @ a letter, in case
+     \offparens                                 % make sure ( and ) not active
+     \emsg{[Getting tables from file \jobname.tb]}%
+     \Input\jobname.tb \relax                   % read text from .ref file
+   \endgroup}                                   % close group
+
+%======================================================================*
+% CAPTIONS.
+%       A caption is specified by \Caption ...\endCaption, or by
+% \caption{<text>}.  If \caption or \Caption is the first token after
+% \figure or \table then the caption appears at the top; otherwise it
+% appears at the bottom. Additional spacing can be added with any legal
+% \vskip.
+
+\newbox\@capbox                         % box to hold caption text
+\newcount\@caplines                     % number of lines in caption
+\def\CaptionName{}                      % default Caption Name
+\def\@ID{}                              % default \@ID is null
+\def\captionspacing{\normalbaselines}   % singlespacing by default
+\def\@inCaption{F}                      % flag whether in caption or not
+
+
+\long\def\caption#1{% create a caption for a figure or table
+   \def\lab@l{\@ID}%                    % save \@ID for \label
+   \global\setbox\@capbox=\vbox\bgroup  % start box for caption
+     \def\@inCaption{T}%                % flag we are in caption
+     \captionspacing\seeCR              % adjust baseline skip, disable ^^M
+     \dimen@=20\parindent               % if column is wide then
+     \ifdim\colwidth>\dimen@\narrower\narrower\fi%   use \narrower caption
+     \noindent{\bf \linkname{\@TagName}{\CaptionName~\@ID}:\space}% 
+     #1\relax                                   % caption text
+     \vskip 0pt                                 % end paragraph
+     \global\@caplines=\prevgraf                % get number of lines
+   \egroup                                      % now caption is in \vbox
+   \ifnum\@caplines=\@ne                        % if only one line then
+     \global\setbox\@capbox=\vbox{\noindent\seeCR % reset caption box
+         \hfil{\bf \linkname{\@TagName}{\CaptionName~\@ID}:\space}% 
+         #1\hfil}\fi                            % with centering glue
+   \if N\@whereCap\def\@whereCap{B}\fi          % not top, so bottom
+   \if T\@whereCap                              % if top caption then
+     \centerline{\box\@capbox}%                 %   it needs some space
+     \vskip\baselineskip\medskip                %   under the caption
+   \fi}                                         %
+
+
+% \Caption creates a caption which can be saved in the list of
+% captions (if \CaptionListtrue is selected).
+
+\def\Caption{\begingroup\seeCR\@Caption}% line-ends visible, then...
+
+\long\def\@Caption#1\endCaption{\endgroup % create the caption
+   \ifCaptionList     % save to caption list, if asked
+%%      \def\@arg{Figure}\ifx\CaptionName\@arg\let\caplist=\figlist\fi
+%%      \def\@arg{Table}\ifx\CaptionName\@arg\let\caplist=\tablelist\fi
+      \incaplist{#1}\fi 
+   \caption{#1}}                        % in any case make the caption
+
+\def\endCaption{\emsg{> \string\endCaption\ called before \string\Caption.}}
+
+
+%   \@findcap looks at the first token in the table body to see if
+% it is a \Caption, and sets the flag accordingly
+
+\long\def\@findcap#1{%                          % look ahead for \caption first
+   \ifx #1\Caption \def\@whereCap{T}\fi         % caption at T(op)
+   \ifx #1\caption \def\@whereCap{T}\fi         % caption at T(op)
+   #1}%                                 % put lookahead token back in list
+
+\def\@whereCap{N}                               % no caption yet
+
+
+%  \ListFigureCaptions and \ListTableCaptions use \@ListCaps (below)
+% to create a list of figure and table captions, from \infiglist
+% or \intablelist, without a page number.
+% \ListCaptions lists all the captions from \Caption.
+
+\def\ListCaptions{\@ListCaps\caplist=\jobname.cap[List of Captions]
+        {\let\FIGLitem=\CAPLitem}}
+
+\def\ListFigureCaptions{%
+    \@ListCaps\figlist=\jobname.fgl[List of Figure Captions]
+    {\let\FIGLitem=\CAPLitem}}
+
+\def\ListTableCaptions{%
+    \@ListCaps\tablelist=\jobname.tbl[List of Table Captions]
+    {\let\FIGLitem=\CAPLitem}}
+
+% \CAPLitem is like \FIGLitem, but it just ignores #4 (the page number)
+
+\def\CAPLitem#1#2#3\@endFIGLitem#4{% Figure or Table caption
+   \bigskip                                     % some space between items
+   \begingroup                                  %
+     \raggedright\tolerance=1700                % don't justify
+     \hangindent=1.41\parindent\hangafter=1     % hanging indentation
+     \noindent #1\ #2                           % Figure/Table number
+     #3 \hskip 0pt plus 10pt                    % text of ``caption''
+     \vskip 0pt                                 % end paragraph
+   \endgroup}                                   %
+
+%======================================================================*
+% LISTS OF FIGURES AND TABLES (like a table of contents):
+%
+%       These macros write out to the figure list file and read it
+% in later, and similarly for the list of tables.
+
+% To make an entry in the list of figures or tables include in the
+% figure or table a call to  \infiglist{<text>} or \intablelist{<text>}
+% or \incaplist{<text>}. 
+
+\def\infiglist{\begingroup\seeCR        % <CR> breaks lines in file output
+     \@infiglist\figlist}
+
+\def\intablelist{\begingroup\seeCR      % <CR> breaks lines in file output
+     \@infiglist\tablelist}
+
+\def\incaplist{\begingroup\seeCR        % <CR> breaks lines in file output
+     \@infiglist\caplist}
+
+
+% \FigListWrite outputs text (#2) to the figure or table lists (#1).
+% Note that we DO NOT use \immediate so that info in floating
+% insertions isn't written until it becomes part of a page.  This
+% is so that we get the page numbers correct.
+
+\def\FigListWrite#1#2{% write to figure list file
+  \ifx#1\figlist\relax   \FigListInit\fi        % initialize figure list
+  \ifx#1\tablelist\relax \TabListInit\fi        % initialize table list
+  \ifx#1\caplist\relax   \CapListInit\fi        % initialize caption list
+  \edef\@line@{{#2}}%                           % expand tokens to write
+  \write#1\@line@}                              % write to fig/table list file
+
+\def\FigListInit{\@FileInit\figlist=\jobname.fgl[List of Figures]%%
+        \gdef\FigListInit{\relax}}
+\def\TabListInit{\@FileInit\tablelist=\jobname.tbl[List of Tables]%%
+        \gdef\TabListInit{\relax}}  
+\def\CapListInit{\@FileInit\caplist=\jobname.cap[List of Captions]%%
+        \gdef\CapListInit{\relax}}  
+
+% \FigListWriteNX is the same as \FigListWrite but it does not expand
+% it's argument, it is not \immediate, and it assumes file is initialized.
+
+\def\FigListWriteNX#1#2{\writeNX#1{#2}} 
+
+
+% \@infiglist does the work for \infiglist or \intablelist or \incaplist
+% The first argument is the output stream, the second is the text.
+
+\def\@infiglist#1#2{% write to list of figures or tables or captions
+     \FigListWrite#1{\@comment > \CaptionName\space\@ID:}% comment '% '
+     \FigListWrite#1{\string\FIGLitem{\CaptionName} {\@ID.\space}}%
+     \@copycap#1#2\endlist              % copy unexpanded
+     \FigListWrite#1{{\NX\folio}}% don't expand page number until written!
+   \endgroup}                           % end \seeCR
+
+\def\@copycap#1#2#3\endlist{% copy caption text to caption file
+   \ifx#2\space\writeNX#1{#3\@endFIGLitem}%
+   \else\writeNX#1{#2#3\@endFIGLitem}\fi}
+
+% \ListFigures and \ListTables create the table-of-contents style
+% list of figures and tables
+
+\def\ListFigures{\@ListCaps\figlist=\jobname.fgl[List of Figures]{}}
+\def\ListTables{\@ListCaps\tablelist=\jobname.tbl[List of Tables]{}}
+
+% \@ListCaps\writename=filename[Description]{extra instructions}
+% is a generic macro for listing figures and tables, or for listing
+% just the captions for figures and tables.  It closes the file in which
+% the list has been collected and then reads it in.  If you set
+% \showsectIDfalse before \ListFigures the caption name (``Figure'' or
+% ``Table'') will not appear, only the number will be shown.
+% NOTE!  Since figures are floating insertions it is important that they
+% all be written to the output list before the figure list is to be
+% written.  If there is any doubt about this use \supereject.
+
+\def\@ListCaps#1=#2[#3]#4{% list figures, tables or captions
+   \immediate\closeout#1                % close caption list file
+   \openin#1=#2 \relax                  % reopen to read it
+   \ifeof#1\closein#1                   % if missing or empty, ignore
+   \else\closein#1\emsg{[Getting #3]}%  % else close it and
+     \begingroup                        % read it in...
+      \showsectIDtrue                   % FORCE THIS NOW
+      \ATunlock\quoteoff\offparens      % \specials not active
+      #4                                % any modifications?
+      \input #2 \relax                  % read in captions
+     \endgroup                          %
+   \fi}
+
+
+% \FIGLitem processes a figure or table list item.  The arguments are:
+%       \FIGLitem{caption-name}{figure-id}title-text\@endFIGLitem{page-number}
+% The \TOCmargin is taken from the Table of Contents macros to match the
+% look of the table of contents.
+
+\long\def\FIGLitem#1#2#3\@endFIGLitem#4{% process a Figure or Table list item
+   \medskip                             % some space between items
+   \begingroup                          %
+     \raggedright\tolerance=1700        % don't justify
+     \ifx\TOCmargin\undefined\skip0=\parindent % sans \TOCmargin use \parindent
+     \else\skip0=\TOCmargin\fi          % but use \TOCmargin if it's there
+     \advance\rightskip by \skip0       % right margin comes in, but
+     \parfillskip=-\skip0               % page number at edge of page
+     \hangindent=1.41\parindent\hangafter=1 % hanging indentation
+     \noindent \ifshowsectID #1\ \fi #2 % show section numbers
+        #3 \hskip 0pt plus 10pt         % text of ``caption''
+     \leaddots                          % leaders to edge
+     \hbox to 2em{\hss\linkto{page.#4}{#4}}%  page number (could be a link)
+     \vskip 0pt                         % end paragraph
+   \endgroup}
+
+
+%======================================================================*
+% REFERENCING FIGURES AND TABLES.
+%
+%  The following use tags to reference figures and tables in text.
+%  Forward references are satisfied using the .aux file.  The \linkto
+%  makes these HyperTeXt links if \htmltrue is set.
+
+\def\Fig#1{\linkto{Fg.#1}{Fig.~\use{Fg.#1}}}    
+\def\Fg#1{\linkto{Fg.#1}{\use{Fg.#1}}}
+
+\def\Tab#1{\linkto{Tb.#1}{Table~\use{Tb.#1}}}
+\def\Tbl#1{\linkto{Tb.#1}{Table~\use{Tb.#1}}}
+\def\Tb#1{\linkto{Tb.#1}{\use{Tb.#1}}}
+
+
+
+%======================================================================*
+%  RULED TABLES.
+%
+%    The macros in TXSruled.tex can be used to typeset tables with vertical
+% and horizontal rules.  The syntax is the same as for Ray Cowan's macros
+% TABLES.TEX, as described in TABELDOC.TEX, and  I have used some of Cowan's
+% tricks, but most of the macros are complete re-writes.  -EAM
+%
+% TXSruled.tex is now loaded directly by texsis.tex
+
+%======================================================================*
+% SIMPLE(r) RULED TABLES:  \Tablebody   (Old stuff)
+%
+%    \Tablebody has been phased out of TeXsis in favour of TXSruled.tex,
+% which are much better for making ruled tables.  However, if someone
+% wants to see an older document that used \Tablebody we don't want
+% to disappoint them.  Hence we autoload \Tablebody from a style file
+% if needed.
+
+\autoload\Tablebody{Tablebod.txs}\autoload\Tablebodyleft{Tablebod.txs}
+\autoload\tablebody{Tablebod.txs}
+
+%======================================================================*
+% ENCAPULATED POSTSCRIPT FIGURES (using epsf.tex)
+%
+%   Tom Rokicki's macros in epsf.tex are a good way to include
+% Encapulated PostScript figures in a document.  There is only
+% one caveat:  You must translate from dvi to ps with his dvips filter,
+% not dvi2ps or something else.
+%
+% We just load definitions from epsf.tex if they are needed...
+
+\autoload\epsffile{epsf.tex}    \autoload\epsfbox{epsf.tex}
+\autoload\epsfxsize{epsf.tex}   \autoload\epsfysize{epsf.tex}
+\autoload\epsfverbosetrue{epsf.tex}\autoload\epsfverbosefalse{epsf.tex}
+
+% The problem with the above \autoload's is that they are usually
+% done in a group so they have to be repeated later.  If you intend to
+% use epsf and want to avoid this problem just say \input epsf.tex
+% somewhere early on in your document, outside of any group.
+
+%======================================================================*
+% OBSOLETE STUFF (to be removed soon)
+
+% These old synonyms from 2.11 are now \obsolete in 2.16  -EAM
+
+\obsolete\topFigure\figure \obsolete\midFigure\midfigure
+\obsolete\fullFigure\fullfigure \obsolete\TOPFIGURE\figure
+\obsolete\MIDFIGURE\midfigure \obsolete\FULLFIGURE\fullfigure
+\obsolete\endFigure\endfigure \obsolete\ENDFIGURE\endfigure
+
+% These are obsolete as of 2.17 -EAM
+
+\obsolete\topTable\toptable \obsolete\midTable\midtable
+\obsolete\fullTable\fulltable \obsolete\TOPTABLE\toptable
+\obsolete\MIDTABLE\midtable \obsolete\FULLTABLE\fulltable
+\obsolete\endTable\endtable \obsolete\ENDTABLE\endtable
+
+\def\FIG{\@obsolete\FIG\Fig\Fig}% synonym (2.11, to be removed)
+\def\TBL{\@obsolete\TBL\Tbl\Tbl}% synonym (2.11, to be removed)
+
+%>>> EOF TXSfigs.tex <<<

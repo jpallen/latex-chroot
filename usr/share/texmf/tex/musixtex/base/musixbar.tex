@@ -1,0 +1,148 @@
+%%%%%%%%%% Hiding/printing bar lines individually %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Here comes a bunch of rather general macros which enable printing or 
+% hiding barlines for each staff and inter-staff space individually:
+%
+% Mthimkhulu Molekwa <MMolekwa@rrs.co.za>
+
+\ifx\indivbarrules\undefined\else\endinput\fi
+
+\immediate\write10{MusiXBAR printing or hiding seperate bar lines 1.01\space<23 Februar 2000>}%
+
+\edef\catcodeat{\the\catcode`\@}\catcode`\@=11
+
+%\makeatletter
+
+\newdimen\barline@depth
+  
+\def\rul@indiv#1{%
+  \n@loop
+    \Comp@High
+    \expandafter\ifx\csname s@b\romannumeral\noinstrum@nt\endcsname\relax
+      \multiply\barline@depth -1\relax
+      \advance\barline@depth\altitude
+    \else
+      \barline@depth=0pt\relax
+    \fi
+    {\expandafter\ifx\csname h@bl\romannumeral\noinstrum@nt\endcsname 1%
+       \y@v=0pt\relax
+     \fi
+     \raise\altitude\rlap{\vrule\@depth\barline@depth\@width#1\@height\y@v}}%
+    \barline@depth\altitude
+    \advance\barline@depth\y@v
+  \repeat
+  \addspace#1}
+
+\def\rul@indiv@#1{\n@loop{\prul@indiv@#1}\repeat\addspace#1}
+
+\def\prul@indiv@#1{%
+      \y@v\interportee \C@Inter\advance\y@v-\stem@skip
+      \expandafter\ifx\csname s@b\romannumeral\noinstrum@nt\endcsname\relax
+        \multiply\barline@depth -1\relax
+        \advance\barline@depth\altitude
+      \else
+        \barline@depth=0pt\relax
+      \fi
+      {\expandafter\ifx\csname h@bl\romannumeral\noinstrum@nt\endcsname 1%
+         \y@v=0pt\relax
+       \fi
+      \p@loop
+        \raise\altportee\rlap{%
+          \vrule\@depth\barline@depth\@width#1\@height\y@v}%
+        \count@portee
+      \repeat}%
+      \barline@depth\altitude
+      \advance\barline@depth\y@v}
+
+%== Required to use the following macros
+\def\indivbarrules{%
+  \let\writ@rule\rul@indiv
+  \sepbarrule 1}
+
+\def\Indivbarrules{%
+  \let\writ@rule\rul@indiv@
+  \sepbarrule 1}
+
+%== separates bar line of specified instrument from one of previous instrument
+\def\sepbarrule#1{\expandafter\let\csname s@b\romannumeral#1\endcsname 1}
+
+%== connects bar line of specified instrument to one of previous instrument
+\def\conbarrule#1{%
+  \if 1#1\else\expandafter\let\csname s@b\romannumeral#1\endcsname\relax\fi}
+  
+%== hides bar line for specified instrument
+\def\hidebarrule#1{\expandafter\let\csname h@bl\romannumeral#1\endcsname 1}
+  
+%== shows bar line for specified instrument
+\def\showbarrule#1{\expandafter\let\csname h@bl\romannumeral#1\endcsname\relax}
+
+%== separates barlines in multistaff instruments
+\def\rul@sep@#1{\n@loop{\prul@sep#1}\repeat\addspace#1}
+
+\def\prul@sep#1{%
+      \y@v\interportee \C@Inter\advance\y@v-\stem@skip
+      \p@loop
+        \hbox{\raise\altportee\rlap{%
+          \vrule\@depth\hlthick\@width#1\@height\y@v}}%
+        \count@portee\repeat}
+
+\def\Sepbarrules{\let\writ@rule\rul@sep@ }
+
+%-\makeatother
+
+\catcode`\@=\catcodeat
+\endinput
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Here comes an example of how to use these macros
+
+%%%%% Pre-amble
+\input musixtex
+\input musixbar
+
+\instrumentnumber3
+\setmeter3{{\meterfrac{3}{4}}}
+\setmeter2{{\meterfrac{2}{4}}}
+\setmeter1{{\meterfrac{3}{8}}}
+\nobarnumbers
+\indivbarrules
+\sepbarrule2
+\sepbarrule3
+
+%%%%% Spacing
+\beforeruleskip=0.5\afterruleskip
+\interinstrument=4\Interligne
+
+%%%%% Macros
+\let\ni\nextinstrument
+
+%%%%% Music
+\linegoal2
+\startpiece\addspace\afterruleskip
+\NOtes\pt f\qa f\ni\qa f\ni\qa f\en
+\hidebarrule2\hidebarrule3\bar
+\NOtes\multnoteskip{.333}\Tqbu fff\ni\qa f\ni\qa f\en
+\showbarrule2\bar
+\NOtes\pt f\qa f\ni\qa f\ni\qa f\en
+\hidebarrule2\showbarrule3\bar
+\NOtes\multnoteskip{.333}\Tqbu fff\ni\qa f\ni\qa f\en
+\showbarrule2\hidebarrule3\bar
+\NOtes\pt f\qa f\ni\qa f\ni\qa f\en
+\hidebarrule2\bar
+\NOtes\multnoteskip{.333}\Tqbu fff\ni\qa f\ni\qa f\en
+\showbarrule2\showbarrule3\bar
+\NOtes\pt f\qa f\ni\qa f\ni\qa f\en
+\hidebarrule2\hidebarrule3\bar
+\NOtes\multnoteskip{.333}\Tqbu fff\ni\qa f\ni\qa f\en
+\showbarrule2\bar
+\NOtes\pt f\qa f\ni\qa f\ni\qa f\en
+\hidebarrule2\showbarrule3\bar
+\NOtes\multnoteskip{.333}\Tqbu fff\ni\qa f\ni\qa f\en
+\showbarrule2\hidebarrule3\bar
+\NOtes\pt f\qa f\ni\qa f\ni\qa f\en
+\hidebarrule2\bar
+\NOtes\multnoteskip{.333}\Tqbu fff\ni\qa f\ni\qa f\en
+\showbarrule2\showbarrule3\stoppiece
+\bye
+

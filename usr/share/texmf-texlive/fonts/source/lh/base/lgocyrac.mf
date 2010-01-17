@@ -1,0 +1,805 @@
+%
+% lgocyrac.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=1
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Old Slav Accents and Signs
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% List of accents & signs
+%
+% thousands
+% titlo
+% paerok
+% kamora
+% dasia
+% psili
+% zvat
+% pneuac
+% pneugr
+% accte
+% palatal (round titlo)
+% tlo_c
+% tlo_d
+% tlo_o
+% tlo_g
+% tlo_r
+%
+% tma
+% legion
+% leodr
+% vran
+% koloda
+% tmatem
+%
+
+LHver_check(3,5);  % like |version_check| in ec
+
+lhchar "Cyrillic sign thousands"; % ss uses SlavTeX form
+cyrchar(thousands,if serifs:8u# else:7u# fi,x_height#,desc_depth#);
+adjust_fit(0,0);
+if serifs: pickup tiny.nib; %pickup crisp.nib;
+ numeric bulb_diam,mid_thickness,stem[];
+ stem1=fudged.hair if hefty:-4stem_corr fi; bulb_diam=.7[vair,flare];
+ mid_thickness=vround if serifs:1/4 else: 1/3 fi[vair,stem];
+ x0=w-u; y0=vround .5bar_height; pos0(vair,90);
+ lft x2r=u; bot y2=-.5d if serifs:+.25bulb_diam fi; pos2(vair,180);
+ pos3(bulb_diam,180); cyrbulb(0,2,3);
+ numeric theta; theta=-135;
+ pos4(vair,theta); pos4'(vair,theta); pos5(vair,theta); pos5'(vair,theta);
+ path thous_p; thous_p=z0{left}...z2{down};
+ z1'=((.3[x2r,x0],-d)--(.3[x2r,x0],h)) intersectionpoint thous_p;
+ z2'=((.75[x2r,x0],-d)--(.75[x2r,x0],h)) intersectionpoint thous_p;
+ z4 =z1'+1.5u*dir(theta-90); z4'=z1'-1.5u*dir(theta-90);
+ z5 =z2'+1.5u*dir(theta-90); z5'=z2'-1.5u*dir(theta-90);
+ filldraw stroke z4e--z4'e; filldraw stroke z5e--z5'e;
+else: pickup fine.nib;
+ numeric middle_weight,theta,stem[];
+ middle_weight=max(fine.breadth,.6[thin_join,vair]);
+ stem1=1/3[max(fine.breadth,.6[thin_join,vair]),stem];
+ theta=angle(1/2(w-fine-max(u,.5u+.5stem1)-stem1),d); z0=(w/2,0);
+ z1=z0+5u*dir(theta); z2=z0-5u*dir(theta); if y2<-d: y2:=-d; y1:=2y0-y2; fi
+ pos1(stem1,theta-90); pos2(stem1,theta-90);
+ filldraw stroke z1e--z2e;
+ z3=z0+min(2u,.5(x0-x2))*dir(theta)+2u*dir(theta-90);
+ z4=z0+min(2u,.5(x0-x2))*dir(theta)-2u*dir(theta-90);
+ z5=z0-min(2u,.5(x0-x2))*dir(theta)+2u*dir(theta-90);
+ z6=z0-min(2u,.5(x0-x2))*dir(theta)-2u*dir(theta-90);
+ pos3(middle_weight,theta); pos4(middle_weight,theta);
+ pos5(middle_weight,theta); pos6(middle_weight,theta);
+ filldraw stroke z3e--z4e; filldraw stroke z5e--z6e; fi
+penlabels(0,1,1',2,2',3,4,4',5,5',6); endchar;
+
+lhchar "Cyrillic accent titlo";
+cyrchar(titlo,8u#,x_height#+acc_height#,0);
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0); x1=.5w;
+% low_titlo (1);
+_zero:=1;
+_one:=2; _two:=3; _three:=4; _four:=5; _five:=6; _six:=7;
+%
+pickup fine.nib; numeric stem[];
+stem0=max(currentbreadth+eps,if serifs: .8[hair,stem] else: fudged.hair-4stem_corr fi);
+pos[_one](stem0,0); pos[_two](stem0,0);
+pos[_three](stem0,0); pos[_four](stem0,0);
+numeric middle_weight;
+middle_weight=if serifs: vair else: max(fine.breadth,.6[thin_join,vair]) fi;
+pos[_five](middle_weight,90); pos[_six](middle_weight,90);
+lft x[_one]l=lft x[_two]l=x[_zero]-hround(2.75u+.5stem0);
+rt  x[_four]r=rt  x[_three]r=x[_zero]+hround(2.75u+.5stem0);
+x[_five]=x[_one]r; x[_six]=x[_three]l;
+top y[_five]r=top y[_one]; bot y[_six]l=bot y[_four];
+top y[_three]=h+o;
+bot y[_two]=if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)-.5crisp
+               else:   vround 2/3[x_height+acc_height,x_height] fi;
+y[_one]=5/6[y[_two],y[_three]]; y[_four]=1/6[y[_two],y[_three]];
+filldraw stroke z[_five]e--z[_six]e; % bar
+filldraw stroke z[_one]e--z[_two]e; filldraw stroke z[_three]e--z[_four]e; % stems
+%%%
+endchar;
+
+lhchar "Cyrillic accent paerok - vertical tilde";
+cyrchar(paerok,5u#,asc_height#,0);%Apostrophe height
+italcorr asc_height#*slant+.5pdot_diam#-2u#;%Apostrophe
+adjust_fit(if monospace: u#,u# else: 0,0 fi);
+pickup if serifs:  crisp.nib;
+ if not monospace: if vair#>.8curve#: pickup rule.nib; autorounded; fi fi
+else: fine.nib; fi
+numeric stem[];
+stem1=max(currentbreadth+eps,if serifs: .7 rule_thickness else:1/3[thin_join,vair] fi);
+stem2=max(currentbreadth+eps,if serifs:1.4 rule_thickness else:vair fi);
+theta:=30;
+x1=hround(.5w-1.25u if monospace: /expansion_factor fi)-eps;
+x3=hround(.5w+1.25u if monospace: /expansion_factor fi)+eps;
+bot y1r=good.y(asc_height-comma_depth-pdot_diam)-eps;
+top y3l=h+oo+eps; z2=1/2[z1,z3];
+pos1(stem1,theta-90); pos3(stem1,theta-90); pos2(stem2,theta);
+filldraw stroke z1e{dir theta}..{dir(theta+90)}z2e..{dir theta}z3e;
+penlabels(1,2,3); endchar;
+
+lhchar "Cyrillic accent kamora";
+cyrchar(kamora,9u#,x_height#+acc_height#,0);
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+%!!! lowercase_breve flipped
+x_center:=.5w; y_move:=0; _one:=1; _two:=2; _three:=3;
+%
+numeric stem[];
+stem1=if serifs:vround (1/3[vair,stem]) else: .6[thin_join,vair] fi;
+stem2=stem1;
+pickup if serifs: crisp else: fine fi nib;
+pos[_one](stem1,180); pos[_three](stem1,0);
+top y[_two]r=h+oo+eps; x[_two]=x_center; %!!!v
+lft x[_one]r=hround(x[_two]-if serifs: 2 else: 1.5 fi u%narrower frown
+   if monospace: /expansion_factor fi -0.5stem1);
+rt x[_three]r=hround(x[_two]+if serifs: 2 else: 1.5 fi u%narrower frown
+   if monospace: /expansion_factor fi +0.5stem1);
+bot y[_one]=bot y[_three]= %!!!
+   if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)-.5crisp
+      else:   vround 2/3[x_height+acc_height,x_height] fi;
+if y[_two]r<(y[_one]+.5if serifs: crisp else: fine fi+eps): %!!!
+   y[_two]r:=y[_one]+.5if serifs: crisp else: fine fi+eps; fi %!!!
+pos[_two](stem2,90); %!!! moved here after if
+filldraw stroke z[_one]e{((x[_one]r-x[_three]r),3acc_height)}...
+         z[_two]e{right}...{((x[_one]r-x[_three]r),-3acc_height)}z[_three]e;  % stroke
+%
+penlabels(1,2,3); endchar;
+
+lhchar "Cyrillic accent dasia pneumata";
+cyrchar(dasia,9u#,min(asc_height#,2x_height#),0); %
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+pickup if serifs: crisp else: fine fi nib;
+numeric bulb_diam,stem[];
+stem1=if serifs: vair else: max(currentbreadth+eps,1/3[thin_join,vair]) fi;
+stem2=if serifs:vround (1/4[vair,stem]) else: vair fi;
+if serifs:
+ bulb_diam=max(currentbreadth+eps,min(flare,3u-vair-1-eps));
+ lft x0r=hround (.5w-1.25u if monospace: /expansion_factor fi -0.5stem1);
+ bot y0=if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)-.5crisp
+             else: vround 2/3[x_height+acc_height,x_height] fi;
+ pos0(stem1,180); x1=.5w; top y1r=h+o; pos1(stem2,90);
+ y2=if hefty: y0 if monospace:+.5bulb_diam-.5currentbreadth fi
+        else: min(bot y0+7/8bulb_diam,top y1r-currentbreadth-eps) fi;
+ rt x2r=hround (.5w+2u if monospace: /expansion_factor fi);
+ pos2(stem1,0); pos3(bulb_diam,0); cyrbulb(1,2,3);
+ if y1r<(y2+.5currentbreadth+eps): y1r:=y2+.5currentbreadth+eps; fi
+ filldraw stroke z0e{(3(x0-x2),acc_height)}...{right}z1e;
+else:
+% zvat!!!;
+ x_center:=.5w-.5u; _one:=1; _two:=2; _three:=3;
+%
+theta:=45;
+z[_one]=(x_center-1.15u,.55[y[_three],h]); z[_two]=(x_center+1.15u,4/5[y[_three],h]);
+bot z[_three]r=(x_center+.65u,
+   if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)
+                  -.5 if serifs: crisp else: fine fi
+      else:   vround 2/3[x_height+acc_height,x_height] fi);
+pos[_one](stem1,theta+90); pos[_two](stem2,theta);
+pos[_three](stem1,theta-90);
+filldraw stroke z[_one]e{dir(theta+45)}
+         ..{dir(theta-90)}z[_two]e..{dir(theta+180)}z[_three]e;  % stroke
+fi
+endchar;
+
+lhchar "Cyrillic accent psili pneumata";
+cyrchar(psili,9u#,min(asc_height#,2x_height#),0); %
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+pickup if serifs: crisp else: fine fi nib;
+numeric bulb_diam,stem[];
+stem1=if serifs: vair else: max(currentbreadth+eps,1/3[thin_join,vair]) fi;
+stem2=vround if serifs:(1/4[vair,stem]) else: vair fi;
+if serifs:
+ bulb_diam=max(currentbreadth+eps,min(flare,3u-vair-1-eps));
+ rt x0r=hround (.5w+1.25u if monospace: /expansion_factor fi +0.5stem1);
+ bot y0=if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)-.5crisp
+             else: vround 2/3[x_height+acc_height,x_height] fi;
+ pos0(stem1,0); x1=.5w; top y1r=h+o; pos1(stem2,90);
+ y2=if hefty: y0 if monospace:+.5bulb_diam-.5currentbreadth fi
+        else: min(bot y0+7/8bulb_diam,top y1r-currentbreadth-eps) fi;
+ lft x2r=hround (.5w- 2u if monospace: /expansion_factor fi);
+ pos2(stem1,180); pos3(bulb_diam,180); cyrbulb(1,2,3);
+ if y1r<(y2+.5currentbreadth+eps): y1r:=y2+.5currentbreadth+eps; fi
+ filldraw stroke z0e{(3(x0-x2),acc_height)}...{left}z1e;
+else:
+% zvat!!!;
+ x_center:=.5w-.5u; _one:=1; _two:=2; _three:=3;
+%
+ theta:=135;
+ z[_one]=(x_center+1.15u,.55[y[_three],h]); z[_two]=(x_center-1.15u,4/5[y[_three],h]);
+ bot z[_three]r=(x_center-.65u,
+   if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)
+                  -.5 if serifs: crisp else: fine fi
+      else:   vround 2/3[x_height+acc_height,x_height] fi);
+ pos[_one](stem1,theta-90); pos[_two](stem2,theta);
+ pos[_three](stem1,theta+90);
+ filldraw stroke z[_one]e{dir(theta-45)}
+         ..{dir(theta+90)}z[_two]e..{dir(theta-180)}z[_three]e;  % stroke
+fi
+endchar;
+
+lhchar "Cyrillic zvatel'stvo accent";
+cyrchar(zvat,9u#,min(asc_height#,2x_height#),0);%height enlarged
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+pickup if serifs: crisp else: fine fi nib;
+% zvat;
+x_center:=.5w-.5u; _one:=1; _two:=2; _three:=3;
+%
+numeric stem[];
+stem1=if serifs: vair else: max(currentbreadth+eps,1/3[thin_join,vair]) fi;
+stem2=if serifs:vround  (1/3[vair,stem]) else: vair fi;
+theta:=45;
+z[_one]=(x_center-u,.55[y[_three],h]); z[_two]=(x_center+u,4/5[y[_three],h]);
+bot z[_three]r=(x_center+.5u,
+   if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)
+                  -.5 if serifs: crisp else: fine fi
+      else:   vround 2/3[x_height+acc_height,x_height] fi);
+pos[_one](stem1,theta+90); pos[_two](stem2,theta);
+pos[_three](stem1,theta-90);
+filldraw stroke z[_one]e{dir(theta+45)}
+         ..{dir(theta-90)}z[_two]e..{dir(theta+180)}z[_three]e;  % stroke
+%
+penlabels(1,2,3); endchar;
+
+lhchar "Cyrillic accent pneuac - pneumata acute";
+cyrchar(pneuac,9u#,min(asc_height#,2x_height#),0);
+italcorr asc_height#*slant+.5dot_size#-2u#;
+adjust_fit(0,0);
+old_u:=u; u:=.75u;
+x_move:=0;
+% classic acute
+if serifs: pickup crisp.nib; x1+.5fudged.stem=hround(w-2u)+x_move;
+ x2=2/3[x1,w+x_move-x1+(w+x_move-9u)];
+ y1+.5fudged.stem=h+eps;
+ y2=max(2/3[x_height+acc_height,x_height],x_height+o+hair);
+ numeric theta; theta=angle(z2-z1)+90;
+ pos1(fudged.stem,theta); pos2(min(fudged.stem,hair),theta);
+ filldraw circ_stroke z1e--z2e;  % diagonal
+else: pickup fine.nib; pos1(fudged.stem,0); pos2(vair,0);
+ rt x1r=hround(w-1.5u)+x_move;
+ lft x2l=hround(.5[w+x_move-9u,w+x_move]-.25u-.5vair);
+ top y1=h; bot y2=vround 2/3[x_height+acc_height,x_height];
+ filldraw stroke z1e--z2e; fi  % diagonal
+u:=old_u;
+% zvat;
+x_center:=.5w-1.5u; _one:=3; _two:=4; _three:=5;
+%
+numeric stem[];
+stem1=if serifs: vair else: max(currentbreadth+eps,1/3[thin_join,vair]) fi;
+stem2=if serifs:vround  (1/3[vair,stem]) else: vair fi;
+theta:=45;
+z[_one]=(x_center-u,.55[y[_three],h]); z[_two]=(x_center+u,4/5[y[_three],h]);
+bot z[_three]r=(x_center+.5u,
+   if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)
+                  -.5 if serifs: crisp else: fine fi
+      else:   vround 2/3[x_height+acc_height,x_height] fi);
+pos[_one](stem1,theta+90); pos[_two](stem2,theta);
+pos[_three](stem1,theta-90);
+filldraw stroke z[_one]e{dir(theta+45)}
+         ..{dir(theta-90)}z[_two]e..{dir(theta+180)}z[_three]e;  % stroke
+%
+penlabels(1,2,3,4,5); endchar;
+
+lhchar "Cyrillic accent pneugr - pneumata grave";
+cyrchar(pneugr,9u#,min(asc_height#,2x_height#),0);
+italcorr asc_height#*slant+.5dot_size#-2u#;
+adjust_fit(0,0);
+old_u:=u; u:=.75u;
+x_move:=if monospace:2u else: 2.5u fi;
+% classic gravis
+if serifs: pickup crisp.nib;
+ x1-.5fudged.stem=hround 2u+(w-9u)+x_move;
+ x2=2/3[x1,w+x_move-x1+(w+x_move-9u)];
+ y1+.5fudged.stem=h+eps;
+ y2=max(2/3[x_height+acc_height,x_height],x_height+o+hair);
+ numeric theta; theta=angle(z2-z1)+90;
+ pos1(fudged.stem,theta); pos2(min(fudged.stem,hair),theta);
+ filldraw circ_stroke z1e--z2e;  % diagonal
+else: pickup fine.nib; pos1(fudged.stem,0); pos2(vair,0);
+ lft x1l=hround 1.5u+(w-9u)+x_move;
+ rt x2r=hround(.5[w+x_move-9u,w+x_move]+.25u+.5vair);
+ top y1=h; bot y2=vround 2/3[x_height+acc_height,x_height];
+ filldraw stroke z1e--z2e; fi  % diagonal
+u:=old_u;
+% zvat;
+x_center:=.5w-1.5u; _one:=3; _two:=4; _three:=5;
+%
+numeric stem[];
+stem1=if serifs: vair else: max(currentbreadth+eps,1/3[thin_join,vair]) fi;
+stem2=if serifs:vround  (1/3[vair,stem]) else: vair fi;
+theta:=45;
+z[_one]=(x_center-u,.55[y[_three],h]); z[_two]=(x_center+u,4/5[y[_three],h]);
+bot z[_three]r=(x_center+.5u,
+   if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)
+                  -.5 if serifs: crisp else: fine fi
+      else:   vround 2/3[x_height+acc_height,x_height] fi);
+pos[_one](stem1,theta+90); pos[_two](stem2,theta);
+pos[_three](stem1,theta-90);
+filldraw stroke z[_one]e{dir(theta+45)}
+         ..{dir(theta-90)}z[_two]e..{dir(theta+180)}z[_three]e;  % stroke
+%
+penlabels(1,2,3,4,5); endchar;
+
+lhchar "Cyrillic accent accte - accent te";
+cyrchar(accte,8u#,x_height#+acc_height#,0);
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0); h:=x_height;
+% low_te(0);
+_zero:=0; x0=.5w;
+_one:=1; _two:=2; _three:=3; _four:=4; _five:=5;
+%
+if serifs: pickup crisp.nib;
+ else: pickup pencircle scaled min(.5fine,.15vair); fi
+numeric stem[]; stem1=if hefty: fudged.hair-2stem_corr else: .7[vair,stem] fi;
+stem2=if serifs: vair else: max(currentbreadth+eps,.6[thin_join,vair]) fi;
+stem3=min(stem1,if serifs: hair else: max(currentbreadth+eps,7/8[thin_join,vair]) fi);
+pos[_one](stem1,0); pos[_two](stem1,0);
+lft x[_one]l=lft x[_two]l=hround(x[_zero]-.5stem1);
+numeric mid_thickness;
+mid_thickness=vround if serifs:1/4 else: 1/3 fi[vair,stem];
+bot y[_two]=bot y[_four]=bot y[_five]=
+  vround max(h+o+max(tiny,.5mid_thickness),1/3[h,h+acc_height]+o-.5mid_thickness);
+top y[_one]=top y[_three]r=max(h+acc_height,bot y[_two]+1.5vair);
+filldraw stroke z[_one]e--z[_two]e; % stem
+pos[_three](stem2,90); pos[_four](stem3,0); pos[_five](stem3,180);
+x[_three]=x[_one];
+rt x[_four]r=hround(x[_zero]+2.5u if monospace:/expansion_factor fi+.5vair);
+x[_four]-x[_three]=x[_three]-x[_five];
+z[_four]'=beak_darkness[(x[_four]l,y[_three]l),
+ .5[(x[_one]r,y[_three]l),z[_four]l] ];
+z[_five]'=beak_darkness[(x[_five]l,y[_three]l),
+ .5[(x[_one]l,y[_three]l),z[_five]l] ];
+filldraw z[_four]r--z[_four]l{up}...z[_four]'
+ ...{left}(x[_one]r,y[_three]l)--(x[_one]r,y[_three]l){left}...z[_five]'
+ ...{down}z[_five]l--z[_five]r---
+ (x[_five]r,y[_three]r)---(x[_four]r,y[_three]r)---cycle;
+%%%
+endchar;
+
+lhchar "Cyrillic accent palatalization (round titlo)";
+cyrchar(palatal,10u#,x_height#+acc_height#,0); %
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+% low_palatal;
+x_center:=.5w-.25u; x_move:=0; y_move:=-o;
+_one:=1; _two:=2; _three:=3; _four:=4;
+%
+pickup fine.nib; numeric stem[];
+stem1=if serifs: vair else: max(currentbreadth+eps,1/3[thin_join,vair]) fi;
+stem2=if serifs: .8[hair,stem] else: 1/3[vair,hair] fi;
+pos[_one](stem2,180); pos[_three](1/5[stem2,stem1],0);
+pos[_two](stem1,90); pos[_four](stem1,90);
+top y[_two]r=h+o; x[_two]=x_center;
+rt x[_one]l =hround(x[_two]-3.5u if monospace: /expansion_factor fi +.5stem2);
+lft x[_three]l=hround(x[_two]+3.5u if monospace: /expansion_factor fi -.5stem2);
+bot y[_one]=bot y[_three]=
+   if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)-.5fine
+      else:   vround 2/3[x_height+acc_height,x_height] fi;
+bot y[_four]l=x_height+o; x[_four]=w+eps;
+forsuffixes e=l,r:
+  path p; p=z[_two]e{right}...{(x[_three]-x[_one]),-7acc_height}z[_three]e;
+  z[_three]'e=point .8 of p; endfor
+filldraw stroke z[_one]e{(x[_three]-x[_one]),7acc_height}...
+         z[_two]e{right}...
+         {direction .8 of p}z[_three]'e...{right}z[_four]e; % stroke
+%%%
+penlabels(1,2,3,4); endchar;
+
+lhchar "Cyrillic accent titlo with letter c";
+cyrchar(tlo_c,10u#,min(asc_height#,2x_height#),0); %
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+full_h:=h; h:=x_height+acc_height;
+% low_palatal;
+x_center:=.5w-.25u; x_move:=0; y_move:=full_h-h;
+_one:=1; _two:=2; _three:=3; _four:=4;
+%
+pickup fine.nib; numeric stem[];
+stem1=if serifs: vair else: max(currentbreadth+eps,1/3[thin_join,vair]) fi;
+stem2=if serifs: .8[hair,stem] else: 1/3[vair,hair] fi;
+pos[_one](stem2,180); pos[_three](1/5[stem2,stem1],0);
+pos[_two](stem1,90); pos[_four](stem1,90);
+top y[_two]r=h+o+y_move; x[_two]=x_center;
+rt x[_one]l =hround(x[_two]-3.5u if monospace: /expansion_factor fi +.5stem2);
+lft x[_three]l=hround(x[_two]+3.5u if monospace: /expansion_factor fi -.5stem2);
+bot y[_one]=bot y[_three]=
+   if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)-.5fine
+      else:   vround 2/3[x_height+acc_height,x_height] fi+y_move;
+bot y[_four]l=x_height+o+y_move; x[_four]=w+eps;
+forsuffixes e=l,r:
+  path p; p=z[_two]e{right}...{(x[_three]-x[_one]),-7acc_height}z[_three]e;
+  z[_three]'e=point .8 of p; endfor
+filldraw stroke z[_one]e{(x[_three]-x[_one]),7acc_height}...
+         z[_two]e{right}...
+         {direction .8 of p}z[_three]'e...{right}z[_four]e; % stroke
+%%%
+%tlo_c
+begingroup
+stem2:=1/3[hair,fudged.stem];
+if not serifs: stem2:=max(fine.breadth,1/2[thin_join,vair]);
+stem1:=max(fine.breadth,thin_join); fi
+save curve; curve:=stem2;
+if not serifs: save vair,flare; vair:=stem1; flare:=1/3[stem1,stem2]; fi
+numeric hh,ll,rr; hh=min(acc_height,bot y[_two]l-x_height)-o-oo-eps;
+y_move:=x_height+oo; old_u:=u; u:=u*(acc_height/x_height);
+ll=hround(.5w-5.25u); rr=hround(.5w+3.25u);
+clearxy;
+%
+if hefty or (1/3hh<=1):
+ pickup pencircle scaled .5 fine;
+ pos1(max(currentbreadth+eps,if hefty: min(1/3 hh,2/3vair) else: flare fi),80);
+ pos2(max(currentbreadth+eps,if hefty: min(1/3 hh,2/3vair) else: vair  fi),90);
+ pos3(max(currentbreadth+eps,if is_egyptian: 2/3 fi curve),180);
+ pos4(max(currentbreadth+eps,if hefty: min(1/3 hh,2/3vair) else: vair  fi),270);
+ pos5(max(currentbreadth+.5+eps,if hefty: min(1/3 hh,2/3vair)+eps else: flare fi),275);
+ rt x1r=hround(rr-1.1u); x2=x4=.55[x3,x1];
+ lft x3r=ll+hround max(u,2u-.5curve); rt x5r=hround(rr-.9u);
+ top y1r=vround max(2/3hh+.25flare-eps,.9hh+oo)+y_move;
+ top y2r=hh+oo+y_move; y3=.52hh+y_move;
+ bot y4r=o+y_move+eps;
+ bot y5r=bot y4r+vround min(1/3hh-.25flare+eps,.15[oo,hh]);
+ y5l:=good.y y5l; x5l:=good.x x5l;
+ filldraw stroke rterm.e(2,1,right,.9,4) & super_arc.e(2,3)
+  & super_arc.e(3,4) & term.e(4,5,right,.8,4); % arc and terminals
+else:
+ pickup fine.nib; pos1(hair,0); pos2(vair,90);
+ pos3(curve,180); pos4(vair',270); pos5(hair,360);
+ rt x1r=rt x5r=hround(rr-u); lft x3r=hround(ll+u);
+ x2=x4=min(x1l-eps,.55[x3,x1]);
+ top y2r=hh+oo+y_move; bot y4r=o+y_move; y3=.5[y2,y4];
+ bot y1=vround min(max(.65hh,.75hh-.5vair),bot y2l-eps)+y_move;
+ y5=max(good.y (.95(hh-y1)+y_move),y4l+eps-y_move)+y_move;
+ (x2l',y2l)=whatever[z2r,z1l]; x2l:=min(x2l',x2l+.5u);
+ (x4l',y4l)=whatever[z4r,z5l]; x4l:=min(x4l',x4l+.5u);
+ filldraw stroke z1e{x2-x1,5(y2-y1)}
+  ...pulled_arc.e(2,3) & pulled_arc.e(3,4)...{up}z5e; % arc
+ pos6(.3[fine.breadth,cap_hair],0); x6r=x1r; top y6=hh+oo+y_move;
+ x1r-x1'=2cap_curve-fine; y1'=y1;
+ path upper_arc; upper_arc=z1{x2-x1,10(y2-y1)}..z2{left};
+ numeric t; t=xpart(upper_arc intersectiontimes (z6l--z1'));
+ filldraw z1r--z6r--z6l--subpath(t,0) of upper_arc--cycle; % barb
+fi
+penlabels(1,2,3,4,5); endgroup;
+penlabels(1,2,3,4); endchar;
+
+
+lhchar "Cyrillic accent titlo with letter d";
+cyrchar(tlo_d,10u#,min(asc_height#,2x_height#),0); %
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+full_h:=h; h:=x_height+acc_height;
+% low_palatal;
+x_center:=.5w-.25u; x_move:=0; y_move:=full_h-h;%!!!
+_one:=1; _two:=2; _three:=3; _four:=4;
+%
+pickup fine.nib; numeric stem[];
+stem1=if serifs: vair else: max(currentbreadth+eps,1/3[thin_join,vair]) fi;
+stem2=if serifs: .8[hair,stem] else: 1/3[vair,hair] fi;
+pos[_one](stem2,180); pos[_three](1/5[stem2,stem1],0);
+pos[_two](stem1,90); pos[_four](stem1,90);
+top y[_two]r=h+o+y_move; x[_two]=x_center;
+rt x[_one]l =hround(x[_two]-3.5u if monospace: /expansion_factor fi +.5stem2);
+lft x[_three]l=hround(x[_two]+3.5u if monospace: /expansion_factor fi -.5stem2);
+bot y[_one]=bot y[_three]=
+   if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)-.5fine
+      else:   vround 2/3[x_height+acc_height,x_height] fi+y_move;%!!!
+bot y[_four]l=min(bot y[_one]-.5y_move,x_height+o+.5y_move)-eps; x[_four]=w+eps;
+forsuffixes e=l,r:
+  path p; p=z[_two]e{right}...{(x[_three]-x[_one]),-7acc_height}z[_three]e;
+  z[_three]'e=point 2/3 of p; endfor
+filldraw stroke z[_one]e{(x[_three]-x[_one]),7acc_height}...
+         z[_two]e{right}...
+         {direction .8 of p}z[_three]'e...{right}z[_four]e; % stroke
+%%%
+%tlo_d
+stem2:=1/3[hair,fudged.stem]; pickup pencircle scaled if hefty: .5 fi fine;
+if not serifs: stem2:=max(currentbreadth+eps,1/2[thin_join,vair]);
+stem1:=max(currentbreadth+eps,thin_join); fi
+pos5(max(currentbreadth+eps,if is_egyptian: 2/3 fi stem2),90);
+pos6(max(currentbreadth+eps,if is_egyptian: 2/3 fi stem2),90);
+pos5'(max(currentbreadth+eps,if hefty:1/2 fi stem1),90);
+pos7(max(currentbreadth+eps,if hefty: 1/2 fi stem1),-15);
+pos8(max(currentbreadth+eps,if hefty: 1/2 fi stem1),0);
+bot y5'l=bot y[_four]l; top y5r=top y6r=top y5'r;
+z8l=z[_three]'l;
+x8-x[_four]-eps=x7l-x8l; top y7l=min(top y5'r,y8)-eps;
+rt x6=rt x[_four]+eps; lft x5=lft x7l-eps; x5'=.5[x5,x6];
+filldraw stroke z7e{right}..{dir60}z8e; %left "stem"
+filldraw z6r--z5r--z5l{up}...z5'l...{down}z6l--cycle; % "floor"
+penlabels(1,2,3,4,5,6,7,8); endchar;
+
+lhchar "Cyrillic accent titlo with letter o";
+cyrchar(tlo_o,10u#,min(asc_height#,2x_height#),0); %
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+full_h:=h; h:=x_height+acc_height;
+% low_palatal;
+x_center:=.5w-.25u; x_move:=0; y_move:=full_h-h;
+_one:=1; _two:=2; _three:=3; _four:=4;
+%
+pickup fine.nib; numeric stem[];
+stem1=if serifs: vair else: max(currentbreadth+eps,1/3[thin_join,vair]) fi;
+stem2=if serifs: .8[hair,stem] else: 1/3[vair,hair] fi;
+pos[_one](stem2,180); pos[_three](1/5[stem2,stem1],0);
+pos[_two](stem1,90); pos[_four](stem1,90);
+top y[_two]r=h+o+y_move; x[_two]=x_center;
+rt x[_one]l =hround(x[_two]-3.5u if monospace: /expansion_factor fi +.5stem2);
+lft x[_three]l=hround(x[_two]+3.5u if monospace: /expansion_factor fi -.5stem2);
+bot y[_one]=bot y[_three]=
+   if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)-.5fine
+      else:   vround 2/3[x_height+acc_height,x_height] fi+y_move;
+bot y[_four]l=x_height+o+y_move; x[_four]=w+eps;
+forsuffixes e=l,r:
+  path p; p=z[_two]e{right}...{(x[_three]-x[_one]),-7acc_height}z[_three]e;
+  z[_three]'e=point .8 of p; endfor
+filldraw stroke z[_one]e{(x[_three]-x[_one]),7acc_height}...
+         z[_two]e{right}...
+         {direction .8 of p}z[_three]'e...{right}z[_four]e; % stroke
+%%%
+%tlo_o
+begingroup
+stem2:=1/3[hair,fudged.stem];
+if not serifs: stem2:=max(fine.breadth,1/2[thin_join,vair]);
+stem1:=max(fine.breadth,thin_join); fi
+save curve; curve:=stem2;
+if not serifs: save vair; vair:=stem1; fi
+numeric hh,ll,rr; hh=min(acc_height,bot y[_two]l-x_height)-o-oo-eps;
+y_move:=x_height+oo; old_u:=u; u:=u*(acc_height/x_height);
+ll=hround(.5w-4.5u); rr=hround(.5w+3u);
+clearxy;
+%
+penpos1(if hefty: min(1/4 hh,1/3vair) else: vair fi,90);
+penpos3(if hefty: min(1/4 hh,1/3vair) else: vair fi,-90);
+penpos2(if is_egyptian: 2/3 fi curve,180);
+penpos4(if is_egyptian: 2/3 fi curve,0);
+x2r=hround max(ll+.5u,ll+1.25u-.5curve);
+x4r=rr-(ll-x2r); x1=x3=.5[x2r,x4r]; y1r=hh+oo+y_move; y3r=o+y_move+eps;
+y2=y4=.5[o,hh]-.5vair_corr+y_move; y2l:=y4l:=.52[o,hh]+y_move;
+penstroke pulled_arc.e(1,2) & pulled_arc.e(2,3)
+ & pulled_arc.e(3,4) & pulled_arc.e(4,1) & cycle;  % bowl
+endgroup;
+penlabels(1,2,3,4); endchar;
+
+lhchar "Cyrillic accent titlo with letter g";
+cyrchar(tlo_g,10u#,min(asc_height#,2x_height#),0); %
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+full_h:=h; h:=x_height+acc_height;
+% low_palatal;
+x_center:=.5w-.25u; x_move:=0; y_move:=full_h-h;
+_one:=1; _two:=2; _three:=3; _four:=4;
+%
+pickup fine.nib; numeric stem[];
+stem1=if serifs: vair else: max(currentbreadth+eps,1/3[thin_join,vair]) fi;
+stem2=if serifs: .8[hair,stem] else: 1/3[vair,hair] fi;
+pos[_one](stem2,180); pos[_three](1/5[stem2,stem1],0);
+pos[_two](stem1,90); pos[_four](stem1,90);
+top y[_two]r=h+o+y_move; x[_two]=x_center;
+rt x[_one]l =hround(x[_two]-3.5u if monospace: /expansion_factor fi +.5stem2);
+lft x[_three]l=hround(x[_two]+3.5u if monospace: /expansion_factor fi -.5stem2);
+bot y[_one]=bot y[_three]=
+   if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)-.5fine
+      else:   vround 2/3[x_height+acc_height,x_height] fi+y_move;
+bot y[_four]l=x_height+o+y_move; x[_four]=w+eps;
+forsuffixes e=l,r:
+  path p; p=z[_two]e{right}...{(x[_three]-x[_one]),-7acc_height}z[_three]e;
+  z[_three]'e=point .8 of p; endfor
+filldraw stroke z[_one]e{(x[_three]-x[_one]),7acc_height}...
+         z[_two]e{right}...
+         {direction .8 of p}z[_three]'e...{right}z[_four]e; % stroke
+%%%
+%tlo_g
+begingroup
+stem2:=1/3[hair,fudged.stem];
+if not serifs: stem2:=max(fine.breadth,1/2[thin_join,vair]);
+stem1:=max(fine.breadth,thin_join); fi
+if not serifs: save vair,hair; vair:=stem1; hair:=stem1; fi
+numeric hh,ll,rr; hh=min(acc_height,bot y[_two]l-x_height)-o-oo-eps;
+y_move:=x_height+oo; old_u:=u; u:=u*(acc_height/x_height);
+ll=hround(.5w-4u); rr=hround(.5w+3u);
+clearxy;
+%
+pickup pencircle scaled if hefty: .5 fi fine;
+pos1(max(currentbreadth+eps, if is_egyptian: 2/3 fi stem2),0);
+pos2(max(currentbreadth+eps, if is_egyptian: 2/3 fi stem2),0);
+lft x1l=lft x2l=hround (ll+2.5u-.5stem2); top y1=hh+y_move; bot y2=o+y_move+eps;
+filldraw stroke z1e--z2e; % stem
+if not hefty: pickup if serifs: crisp else: fine fi nib; fi
+pos3(max(currentbreadth+eps, if hefty: min(1/3 hh,1/2stem2) else: vair fi),90);
+pos4(max(currentbreadth+eps, if hefty: min(1/3 hh,1/2stem2) else: vair fi),0);
+top y3r=hh+y_move; x3=x1; rt x4r=hround max(x3+vair+eps,rr-.45u)+eps;
+y4=good.y(y3l-if serifs: 1/6 fi beak)-eps;
+if hefty or (1/6beak<=1): filldraw stroke z3e--(x4r,y3e);
+else: 
+arm(3,4,e,beak_darkness,.2beak_jut-eps); fi % upper arm and beak
+if serifs and (not hefty):
+ save slab; slab:=vair; old_crisp:=crisp; crisp:=.5crisp; % lower.slab
+ nodish_serif(1,2,a,1/3,.2jut,b,1/3,.1jut);	% upper serif
+ dish_serif(2,1,c,1/3,.2jut,d,1/3,.2jut);       % lower serif
+ crisp:=old_crisp; numeric old_crisp;
+fi
+endgroup;
+penlabels(1,2,3,4); endchar;
+
+lhchar "Cyrillic accent titlo with letter r";
+cyrchar(tlo_r,10u#,min(asc_height#,2x_height#),0); %
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(0,0);
+full_h:=h; h:=x_height+acc_height;
+% low_palatal;
+x_center:=.5w-.25u; x_move:=0; y_move:=full_h-h;
+_one:=1; _two:=2; _three:=3; _four:=4;
+%
+pickup fine.nib; numeric stem[];
+stem1=if serifs: vair else: max(currentbreadth+eps,1/3[thin_join,vair]) fi;
+stem2=if serifs: .8[hair,stem] else: 1/3[vair,hair] fi;
+pos[_one](stem2,180); pos[_three](1/5[stem2,stem1],0);
+pos[_two](stem1,90); pos[_four](stem1,90);
+top y[_two]r=h+o+y_move; x[_two]=x_center;
+rt x[_one]l =hround(x[_two]-3.5u if monospace: /expansion_factor fi +.5stem2);
+lft x[_three]l=hround(x[_two]+3.5u if monospace: /expansion_factor fi -.5stem2);
+bot y[_one]=bot y[_three]=
+   if serifs: max(2/3[x_height+acc_height,x_height],x_height+o+hair)-.5fine
+      else:   vround 2/3[x_height+acc_height,x_height] fi+y_move;
+bot y[_four]l=x_height+o+y_move; x[_four]=w+eps;
+forsuffixes e=l,r:
+  path p; p=z[_two]e{right}...{(x[_three]-x[_one]),-7acc_height}z[_three]e;
+  z[_three]'e=point .8 of p; endfor
+filldraw stroke z[_one]e{(x[_three]-x[_one]),7acc_height}...
+         z[_two]e{right}...
+         {direction .8 of p}z[_three]'e...{right}z[_four]e; % stroke
+%%%
+%tlo_r
+begingroup
+stem2:=max(fine.breadth,1/3[hair,fudged.stem]-2stem_corr);
+if not serifs: stem2:=max(fine.breadth,1/2[thin_join,vair]);
+stem1:=max(fine.breadth,thin_join); fi
+save curve; curve:=stem2;
+if not serifs: save vair,hair; vair:=stem1; hair:=stem1; fi
+numeric hh,ll,rr,dd; hh=min(acc_height,bot y[_two]l-x_height)-o-oo-eps;
+dd:=d*(acc_height/x_height);
+y_move:=x_height+oo; old_u:=u; u:=u*(acc_height/x_height);
+ll=hround(.5w-4.75u); rr=hround(.5w+3.25u);
+clearxy;
+%
+pickup pencircle scaled if hefty: .5 fi fine;
+pos2(max(currentbreadth+eps,if is_egyptian: 2/3 fi stem2),0);
+pos3'(max(currentbreadth+eps,if is_egyptian: 2/3 fi stem2),0);
+lft x2l=hround(ll+2.5u-.5stem2); bot y2=o+y_move+eps;
+y3'=min(hh+1.5oo+y_move-vair-eps,1/3[.55hh,hh]+y_move); rt x3'r=rt x2r; z3'=z3;
+filldraw stroke z2e--z3'e; %stem
+pos3(max(currentbreadth+eps,if is_egyptian: 2/3 fi stem2),180);
+pos4(max(currentbreadth+eps,if is_egyptian: .5 fi vair),90);
+pos5(max(currentbreadth+eps,if is_egyptian: 2/3 fi stem2),0);
+pos6(max(currentbreadth+eps,if is_egyptian: .5 fi vair),-90);
+pos7(max(currentbreadth+eps,if is_egyptian: 1/3stem2 else: hair fi),-180);
+x4l=rr-(.5(rr-ll)-.25serif_fit)+.5u; top y4r=hh+1.5oo+y_move;
+rt x5r=hround min(rr-1.35u+.5curve,rr-.6u); y5=.25[hh,oo]+y_move;
+x6l=x4l-.2u; bot y6r=max(1/4[oo,hh],1/3[oo,hh]-oo)+y_move-eps;
+rt x7l=rt x2r; y7=min(y3,y6+y4-y3);
+(x,y4r)=whatever[z3l,z4l]; x4r:=min(x,.5[x5r,x4]);
+(x',y6r)=whatever[z7l,z6l]; x6r:=min(x',.5[x5r,x6]);
+filldraw stroke z3e{up}...{right}z4e&super_arc.e(4,5)
+ &super_arc.e(5,6)&z6e{left}...{up}z7e;  % bowl
+if serifs and (not hefty): save slab; slab:=tiny+eps; % lower.slab
+ dish_serif(2,3',b,1/3,.2jut,c,1/3,.2jut); fi  % lower serif
+penlabels(1,2,3,4,5,6,7); endgroup;
+penlabels(1,2,3,4,5,6,7); endchar;
+%
+% Number symbols
+%
+lhchar"Cyrillic Tma number symbol (ten thousands)";
+cyrchar(tma,20u#,body_height#,max(paren_depth#,desc_depth#));
+autorounded;
+adjust_fit(if monospace:-3u#,-3u# else: 0,0 fi); pickup rule.nib;
+if .5w <> good.x .5w: change_width; fi
+lft x6=hround u; x2=w-x6; top y8=h+o; bot y4=-d-o;
+circle_points; draw_circle;  % circle
+penlabels(1,2,3,4,5,6,7,8); endchar;
+
+lhchar"Cyrillic Legion number symbol (hundred thousands)";
+cyrchar(legion,20u#,body_height#,max(paren_depth#,desc_depth#));
+autorounded;
+adjust_fit(if monospace:-3u#,-3u# else: 0,0 fi); pickup rule.nib;
+if .5w <> good.x .5w: change_width; fi
+lft x6=hround u; x2=w-x6; top y8=h+o; bot y4=-d-o;
+circle_points; %draw_circle;  % circle
+pickup pencircle scaled .5rule_thickness;
+def temp (suffix $) = numeric t; t:=rule_thickness+eps;
+ filldraw (x$-t,y$)...(x$,y$-t)...(x$+t,y$)...(x$,y$+t)...cycle; % roundish dot
+enddef;
+temp(1); temp(2); temp(3); temp(4); temp(5); temp(6); temp(7); temp(8);
+penlabels(1,2,3,4,5,6,7,8); endchar;
+
+lhchar"Cyrillic Leodr number symbol (million)";
+cyrchar(leodr,20u#,body_height#,max(paren_depth#,desc_depth#));
+autorounded;
+adjust_fit(if monospace:-3u#,-3u# else: 0,0 fi); pickup rule.nib;
+if .5w <> good.x .5w: change_width; fi
+lft x6=hround u; x2=w-x6; top y8=h+o; bot y4=-d-o;
+circle_points; %draw_circle;  % circle
+numeric theta; pickup pencircle scaled .5rule_thickness;
+def temp (suffix $,$$) = numeric t; t:=rule_thickness;
+ filldraw (x$-t,y$)...(x$,y$-t)...(x$+t,y$)...(x$,y$+t)...cycle; % roundish dot
+ z$'=z$+t*(unitvector((x$,y$)-(x$$,y$$))rotated 90);
+ z$''=z$+2.5t*unitvector((x$,y$)-(x$$,y$$));
+ theta:=angle((x$,y$)-(x$$,y$$))-60;
+ draw stroke z$'{(x$,y$)-(x$$,y$$)}...z$''; % comma tail
+enddef;
+temp(1,6); temp(2,7); temp(3,8); temp(4,1);
+temp(5,2); temp(6,3); temp(7,4); temp(8,5);
+penlabels(1,2,3,4,5,6,7,8); endchar;
+
+lhchar"Cyrillic Vran number symbol (ten millions)";
+cyrchar(vran,20u#,body_height#,max(paren_depth#,desc_depth#));
+autorounded;
+adjust_fit(if monospace:-3u#,-3u# else: 0,0 fi); pickup rule.nib;
+if .5w <> good.x .5w: change_width; fi
+lft x6=hround u; x2=w-x6; top y8=h+o; bot y4=-d-o;
+circle_points; %draw_circle;  % circle
+pickup pencircle scaled .5rule_thickness;
+def temp (suffix $) = numeric t; t:=rule_thickness+1+eps;
+ draw (x$,y$-t)...(x$,y$+t); draw (x$-t,y$)...(x$+t,y$); % plus sign
+enddef;
+temp(1); temp(2); temp(3); temp(4); temp(5); temp(6); temp(7); temp(8);
+penlabels(1,2,3,4,5,6,7,8); endchar;
+
+lhchar "Cyrillic koloda number symbol (hundred millions)";
+cyrchar(koloda,18u#,body_height#,max(paren_depth#,desc_depth#));%
+italcorr h#*slant+.5vair#-1.5u#;
+adjust_fit(if monospace:-3u#,-3u# else: 0,0 fi);
+%!!! lowercase_breve flipped
+x_center:=.5w; y_move:=0; _one:=1; _two:=2; _three:=3;
+%
+pickup pencircle scaled .5rule_thickness;
+pos[_one](vair,180); pos[_three](vair,0);
+top y[_two]r=h+oo; %!!!
+x[_two]=x_center;
+lft x[_one]r=hround (1.5u); rt x[_three]r=hround(w-1.5u);
+numeric mid_thickness; mid_thickness=max(currentbreadth+eps,vround 1/3[vair,stem]);%!!!
+bot y[_one]=bot y[_three]= %!!!
+   vround max(x_height+o+tiny,1/3[x_height,h]+o-.5mid_thickness)-.5acc_height;
+if y[_two]r<(y[_one]+.5crisp+eps): %!!!
+   y[_two]r:=y[_one]+.5crisp+eps; fi %!!!
+pos[_two](mid_thickness,90); %!!! moved here after if
+filldraw stroke (z[_one]e+(u,0))--z[_one]e{up}...z[_two]e{right}
+  ...{down}z[_three]e--(z[_three]e+(-u,0));  % stroke
+%flip
+forsuffixes $ = [_one]l,[_one],[_one]r,[_two]l,[_two],[_two]r,
+   [_three]l,[_three],[_three]r :
+   y$:=h-d-y$; endfor;
+filldraw stroke (z[_three]e+(-u,0))--z[_three]e{down}...z[_two]e{left}
+  ...{up}z[_one]e--(z[_one]e+(u,0));  % stroke
+penlabels(1,2,3); endchar;
+
+lhchar"Cyrillic Tma Tem number symbol (billion/milliard)";
+cyrchar(tmatem,20u#,body_height#,max(paren_depth#,desc_depth#));
+autorounded;
+adjust_fit(if monospace:-3u#,-3u# else: 0,0 fi); pickup rule.nib;
+if .5w <> good.x .5w: change_width; fi
+lft x6=hround u; x2=w-x6; top y8=h+o; bot y4=-d-o;
+circle_points; %draw_circle;  % circle
+pickup pencircle scaled .5rule_thickness;
+def temp (suffix $) = numeric t; t:=rule_thickness+1+eps;
+ draw (x$-t,y$)...(x$+t,y$); % minus sign
+enddef;
+temp(1); temp(2); temp(3); temp(4); temp(5); temp(6); temp(7); %temp(8);
+draw (x8-t,y8)...(x8+t,y8);  draw (x8,y8-t)...(x8,y8+t);% plus sign
+penlabels(1,2,3,4,5,6,7,8); endchar;
+
+endinput;
+%end of file

@@ -1,0 +1,187 @@
+% This is  ITALN.MF
+% Version 1.0a 
+% Date 8-SEP-1991
+% 
+% (c) 1991 by J"org Knappen. See fc.rme for copying conditions
+% This file is part of the fc-package 
+% See fc.rme for more information
+%
+% J"org Knappen
+% Institut f"ur Kernphysik
+% Postfach 39 80
+% D-W 6500 Mainz
+% knappen@vkpmzd.kph.uni-mainz.de
+
+% Contents:
+%
+% The following characters are generated without condition:
+%
+% n
+%
+% And the following on demand, i. e. if their code is known:
+%
+% n_acute, n_tilde, n_dot, n_uline, enj, eng, var_eng
+%
+% Higher versions of this file might include more characters.
+
+cmchar "Italic letter n";
+beginchar("n",10u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(0,0); pickup fine.nib;
+x0=0; x1=x2; pos2(stem,0); lft x2l=hround(2.5u-.5stem); y2-.5stem=-oo;
+hook_in(0,a,1);  % opening hook
+filldraw circ_stroke z2e--z1e;  % left stem
+x4+.5stem=hround(w-2.5u+.5stem); x5=x4-.25u; ital_arch(2,3,4);  % arch
+x7=w; hook_out(5,6,7)(skewed);  % closing hook
+filldraw stroke z4e{down}..{-u,-x_height}z5e;  % right stem
+math_fit(-2/3x_height#*slant+.5hair#+.5u#,ic#);
+picture savedpicture;
+savedpicture:=currentpicture;
+penlabels(0,a,1,2,3,4,5,6,7); endchar;
+
+  iff known n_dot:
+cmchar "The letter n with dot";
+beginchar(n_dot,10u#,min(asc_height#,10/7x_height#+.5flare#),0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(0,0); 
+currentpicture:=savedpicture;
+pickup tiny.nib;
+pos88(flare,0); pos99(flare,90);
+x88=x99=good.x(.5w); top y99r=h+1;
+if bot y99l-x_height+oo<slab: y99l:=min(y99r-eps,x_height+oo+tiny+slab);fi
+y88=.5[y99l,y99r]; dot(88,99);  % dot
+penlabels(88,99);endchar;    
+
+iff known n_uline:
+cmchar "The letter n with bar below";
+beginchar(n_uline,10u#,x_height#,0.875desc_depth#);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(0,0); 
+currentpicture:=savedpicture;
+numeric macron_breadth; macron_breadth:=Vround .2[vair,stem];
+pickup if serifs: crisp.nib else: fine.nib fi;
+pos91(macron_breadth,90); pos92(macron_breadth,90);
+bot y91l=bot y92l=-d-o; lft x91=hround 2u; w-rt x92=hround 1.25u;
+filldraw stroke z91e--z92e;  % bar
+penlabels(91,92); endchar;
+
+iff known n_tilde:
+cmchar "The letter n with tilde";
+beginchar(n_tilde,10u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(0,0); 
+currentpicture:=savedpicture;
+if serifs: numeric theta; theta=angle(1/6(6u-vair),1/4(h-x_height));
+ pickup crisp.nib; numeric mid_width; mid_width=.4[vair,stem];
+ pos1(vair,theta+90); pos2(vair,theta+90);
+ pos3(vair,theta+90); pos4(vair,theta+90);
+ z2-z1=z4-z3=(mid_width-crisp)*dir theta;
+ lft x1r=hround(1/6w);rt x4l=hround(5/6w); top y4r=h;
+ bot y1l=vround(bot y1l+min(2/3[x_height,h],y3l-.25vair)-top y1r);
+ pair delta; ypart delta=3(y3l-y1l); delta=whatever*dir theta;
+ filldraw z1l..controls(z1l+delta)and(z3l-delta)..z3l..z4l
+  --z4r..controls(z4r-delta)and(z2r+delta)..z2r..z1r--cycle;  % stroke
+else: pickup fine.nib; pos1(vair,180); pos2(vair,90);
+ pos3(.5[vair,slab],90); pos4(vair,90); pos5(vair,180);
+ lft x1r=hround(1/6w);rt x5l=hround(5/6w); x2-x1=x3-x2=x4-x3=x5-x4;
+ bot y1=bot y4l=vround(.75[x_height,h]-vair);
+ top y2r=top y5=h; y3=.5[y2,y4];
+ filldraw stroke z1e{up}...z2e{right}..z3e..{right}z4e...{up}z5e; fi % stroke
+penlabels(1,2,3,4,5); endchar;
+
+iff known n_acute:
+cmchar "The letter n with acute";
+beginchar(n_acute,10u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(0,0); 
+currentpicture:=savedpicture;
+if serifs: pickup crisp.nib; x1=hround(.5w+2.5u-.5stem); 
+  x2=hround(.5w-5/6u);
+ y1+.5stem=h+eps; y2=max(2/3[h,x_height],x_height+o+hair);
+ numeric theta; theta=angle(z2-z1)+90;
+ pos1(stem,theta); pos2(hair,theta);
+ filldraw circ_stroke z1e--z2e;  % diagonal
+else: pickup fine.nib; pos1(stem,0); pos2(vair,0);
+ rt x1r=hround(.5w+3u); lft x2l=hround(.5w-.25u-.5vair);
+ top y1=h; bot y2=vround 2/3[h,x_height];
+ filldraw stroke z1e--z2e; fi  % diagonal
+penlabels(1,2); endchar;
+
+savedpicture:=nullpicture;
+
+iff known enj:
+cmchar "Italic letter enj";        %jk, based on cm j and n
+beginchar(enj,11u#,min(asc_height#,10/7x_height#+.5flare#),desc_depth#);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(if monospace:2u#,0 else: 0,0 fi); pickup fine.nib;
+x0=0; x2=x3; pos3(stem,0); lft x3l=hround(0.318w-.5stem);
+hook_in(0,1,2);  % opening hook
+pos4(vair,-90); pos5(hair,-180); pos6(flare,-180);
+bot y3=-1/3d; bot y4r=-d-oo; y6-.5flare=-vround.9d;
+x4=.35x3l; lft x5r=min(hround-.5u,lft x5r+x4-x5l-eps);
+filldraw stroke z2e---z3e...{left}z4e;  % stem and arc
+bulb(4,5,6);  % bulb
+x2'=x2; y2'-.5stem=-oo; pos2'(stem,0);
+x8+.5stem=hround(w-2.5u+.5stem); x9=x8-.25u; ital_arch(2',7,8);  % arch
+x11=w; hook_out(9,10,11)(skewed);  % closing hook
+filldraw stroke z8e{down}..{-u,-x_height}z9e;  % right stem
+math_fit(desc_depth#*slant,ic#);
+penlabels(0,1,2,2',3,4,5,6,8,9,10,11); endchar;
+ 
+iff known eng:
+cmchar "Italic letter eng";  % jk, based on cm n
+beginchar(eng,10u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(0,0); pickup fine.nib;
+x0=0; x1=x2; pos2(stem,0); lft x2l=hround(2.5u-.5stem); y2-.5stem=-oo;
+hook_in(0,a,1);  % opening hook
+filldraw circ_stroke z2e--z1e;  % left stem
+x4+.5stem=hround(w-2.5u+.5stem); x5=x4-.25u; ital_arch(2,3,4);  % arch
+y5=1/4x_height; pos5(stem,0);
+filldraw stroke z4e{down}..{-u,-x_height}z5e;  % right stem
+y77=y5; y88=bar_height; x77=.5w; x88=w;
+  numeric theta; theta=angle(z88-z77); numeric eng_hair;
+  eng_hair*cosd(theta)=vair;
+pos6(vair,-90); pos7(eng_hair,-180); pos8(eng_hair,-180);
+bot y6r=-oo; y7=y5; top y8=bar_height;
+lft x7r=hround(.5w); rt x8l=w; x6=1/3[x7r,x5r];
+filldraw stroke z5e{down}...z6e...z7e...{z8-z7}z8e; % bowl 
+math_fit(-2/3x_height#*slant+.5hair#+.5u#,ic#);
+penlabels(0,a,1,2,3,4,5,6,7,8); endchar;
+
+iff known var_eng:
+cmchar "Italic letter eng";    % from wnipa
+beginchar(var_eng,10u#,x_height#,desc_depth#);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(0,0); pickup fine.nib;
+x0=0; x1=x2; pos2(stem,0); lft x2l=hround(2.5u-.5stem); y2-.5stem=-oo;
+hook_in(0,a,1);  % opening hook
+filldraw circ_stroke z2e--z1e;  % left stem
+x4+.5stem=hround(w-2.5u+.5stem); 
+x5=x4; ital_arch(2,3,4);  % arch
+y5=0; pos5(stem,0);
+filldraw stroke z4e--z5e;  % right stem
+%     macro from wnipa included here
+def l_tail(suffix $,@) =
+x@_22=x$; x@_22r=x$r; x@_22l=x$l; bot y@_22=-1/3d; y@_22r=y@_22l=y@_22;
+filldraw stroke z$e--z@_22e;
+if serifs:  pickup tiny.nib; pos@_55(vair,-90); pos@_66(hair,-180); pos@_77(flare,-180);
+ x@_55=.5[x@_22,x@_66r]; bot y@_55r=-d-oo; y@_66-.5flare=-.88d;
+ if monospace: lft x@_66r=x$-3.5u else: z@_66r=z@_77r; rt x@_77l=floor x$-2.5u fi;
+ (x@_,y@_55r)=whatever[z@_55l,z@_22l]; x@_55r:=max(x@_,.5[x@_66r,x@_55]);
+ filldraw stroke z@_22e{down}...z@_55e{left};  bulb(@_55,@_66,@_77); % arc and bulb
+else: pickup fine.nib; pos@_22'(stem',0); z@_22'=z@_22;
+ pos@_66(.2[vair,stem'],-90); pos@_77(vair,-90);
+ lft x@_77r=hround x$-2.5u; bot y@_77r=vround 5/6(-d-oo);
+ (x@_,y@_77l)=whatever[z@_77r,(x$,h)]; x@_77l:=x@_;
+ z@_55r=z@_22'r; (x@_22'l,y@_55l)=whatever[z@_77l,z@_55r]; x@_55l=x@_22'l; y@_55=y@_55r;
+ x@_66r=.5[x@_77r,x@_55r]; x@_66l:=.5[x@_77l,x@_55l]; bot y@_66r=-d-oo;
+ filldraw stroke z@_22'e..{down}z@_55e & super_arc.e(@_55,@_66)
+  & z@_66e{left}..z@_77e; fi  % arc and terminal
+enddef;       
+%
+l_tail(5,q);
+math_fit(-2/3x_height#*slant+.5hair#+.5u#,ic#);
+penlabels(0,a,1,2,3,4,5,6,7); endchar;
+
+endinput;

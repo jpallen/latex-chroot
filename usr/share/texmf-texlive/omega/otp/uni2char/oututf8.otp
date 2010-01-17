@@ -1,0 +1,37 @@
+% File oututf8.otp
+% Conversion to UTF-8 from UTF-16
+% Copyright (c) 1999 John Plaice and Yannis Haralambous
+% Copyright (C) 2005, 2006 Roozbeh Pournader
+% This file is part of the Omega project.
+%
+
+input:  2;
+output: 1;
+
+expressions:
+
+% One-byte sequences get mapped to proper ASCII
+@"0000-@"007F
+  => \1;
+
+% Two-byte sequences
+@"0080-@"07FF
+  => #((\1 div: @"40)+@"C0)
+     #((\1 mod: @"40)+@"80);
+
+% Three-byte sequences
+(@"0800-@"D7FF|@"E000-@"FFFF)
+  => #((\1 div: @"1000)+@"E0)
+     #(((\1 mod: @"1000) div: @"40)+@"80)
+     #((\1 mod: @"40)+@"80);
+
+% Surrogate pairs, which make four-byte sequences:
+(@"D800-@"DBFF)(@"DC00-@"DFFF)
+  => #(((((\1 mod: @"400) div: 4)+@"10) div: @"40)+@"F0)
+     #(((((\1 mod: @"400) div: 4)+@"10) mod: @"40)+@"80)
+     #(((\1 mod: 4)*@"10) +((\2 mod: @"400) div: @"40)+@"80)
+     #((\2 mod: @"40)+@"80);
+
+% Anything else gets mapped to 0x00. This should probably
+% get replaced by an error message, instead.
+. => #(@"00);

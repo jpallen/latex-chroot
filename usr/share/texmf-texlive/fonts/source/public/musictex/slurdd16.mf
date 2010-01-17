@@ -1,0 +1,41 @@
+% Change of length into longueur for new modes.mf (Nicolas Brouard 4/11/91)
+input musicdef
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                             %
+%                   BOGEN (KONKAV)                            %
+%                                                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+def drawslursneg (expr i, j) =
+    save jj, factor, longueur, depth;
+    numeric jj,  absp, longueur, depth, factor;
+    factor:= 1/6;
+    longueur := j*nhw#;
+    depth  := i*1/2nhh#;
+    if  j<4 : jj := (j*(j-1)+(i-1))*8
+    else:    jj := (i-1)*8+(j mod 2)*64+floor((j-2)/2);fi;
+          beginchar(jj, longueur, 0, depth);
+            clear;
+            z2r = (w,-d);
+            z1l = origin;
+            absp := abs((d,w));
+            if (factor*absp)>2nhh : factor:= 2nhh/absp fi;
+            z3r = 1/2z2r+factor*(d,w);
+            penpos1(thinwidth,90);
+            penpos2(thinwidth,90);
+            penpos3(5/12beamht,90);
+            currentpen := pencircle xscaled thinwidth yscaled beamht ;
+            penstroke (z1e..z3e..z2e) rotatedaround (1/2z2r,180);
+          endchar;
+enddef;
+
+%%%%%%%%%%%%%%%%%%%%%%%
+% negative Steigungen %
+%%%%%%%%%%%%%%%%%%%%%%%
+
+for j= 1 upto 17:
+for i= 1 upto min(2j,8):
+drawslursneg(i,j);
+endfor;endfor;
+end;

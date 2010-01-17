@@ -1,0 +1,4118 @@
+\documentstyle[twoside,multicol,musictex,musictrp,musicper,a4report,11pt]{report}
+
+\def\hboxit#1{\hbox{\vrule\vbox{\hrule\kern3pt
+    \hbox{\kern3pt\small\it #1\kern3pt}\kern3pt\hrule}\vrule}}
+%
+\def\tty{\csname normalshape\endcsname\csname mediumseries\endcsname\tt}
+%
+\def\text#1{\leavevmode\hbox{\rm #1}}%
+%\check
+\def\ital#1{{\sl #1\/}}%
+\def\mutex{M\raise 2pt\hbox{\kern -1pt u\kern -1pt}\TeX}
+\def\bslash{{\tty\char'134}}%
+\def\unix{{\sc unix}}%
+\def\Bslash{\tty\char'134}%
+\def\|{{\tty\char'174}}%
+\def\#{{\tty\char'043}}%
+\def\{{{\char'173}}%
+\def\}{{\char'175}}%
+\def\musictex{Music\TeX}%
+\def\musixtex{MusiX\TeX}%
+\def\musicxx{\musictwenty}
+\def\keyindex#1{\leavevmode
+ \hbox{\tty\bslash #1}\index{#1=\protect\tty\protect\bslash #1}}
+\def\zkeyindex#1{\index{#1=\protect\tty\protect\bslash #1}}
+\def\ixem#1{#1\index{#1}}
+\def\itxem#1{\ital{#1}\index{#1}}
+\def\aujourdhui{\today}
+%
+%\check
+\tracingstats=1
+%
+%%%%   \input musicext  : extracting the wanted macro
+
+\makeatletter
+
+\def\tmp@dimenb{\y@ii}
+\newdimen\tmp@dimen
+% \overbracket{p}{l}{s}   draws a bracket over the music starting at the
+% current position at pitch p, width l and slope s percent, causing no space.
+\def\overbracket#1#2#3{\relax % height (note), length (dimen) slope (%)
+   \tmp@dimenb #2\multiply\tmp@dimenb by#3\divide\tmp@dimenb by100\relax
+   \getn@i{#1}\advance\tmp@dimenb by\n@i\internote\rlap{\relax
+   \raise\n@i\internote\rlap{\vrule width\lthick height \lthick
+   depth .8\Interligne}\oblique{#2}{#3}{\n@i\internote}\relax
+   \advance\tmp@dimenb by.5\lthick\relax
+   \raise\tmp@dimenb\hbox{\vrule width\lthick height \lthick
+ depth.8\Interligne}}}
+
+% \ovbkt{p}{n}{s} is the same as \overbracket, except that it draws the
+% bracket to cover n notes (note however that glue inserted by \temps
+% commands will expand the space between the notes but will not affect the
+% bracket).
+% I use this macro to indicate triplets, for instance.
+
+\def\ovbkt#1#2#3{\relax % height (note), length (number of notes) slope (%)
+   \tmp@dimen #2\noteskip\advance\tmp@dimen by\wd@skip\advance\tmp@dimen
+   by -\noteskip\advance\tmp@dimen by\lthick \overbracket{#1}{\tmp@dimen}{#3}}
+
+% \underbracket and \unbkt are similar to the above, but produce
+% brackets under the music.
+\def\underbracket#1#2#3{\relax % height (note), length (dimen) slope (%)
+   \tmp@dimenb #2\multiply\tmp@dimenb by#3\divide\tmp@dimenb by100\relax
+   \getn@i{#1}\advance\tmp@dimenb by\n@i\internote\rlap{\relax
+   \raise\n@i\internote\rlap{\vrule width\lthick depth -\lthick
+   height \Interligne}\oblique{#2}{#3}{\n@i\internote}\relax
+   \advance\tmp@dimenb by.5\lthick\relax
+   \raise\tmp@dimenb\hbox{\vrule width\lthick depth -\lthick
+ height\Interligne}}}
+\def\unbkt#1#2#3{\relax % height (note), length (number of notes) slope (%)
+   \tmp@dimen #2\noteskip\advance\tmp@dimen by\wd@skip\advance\tmp@dimen
+   by -\noteskip\advance\tmp@dimen by\lthick
+   \kern-2\lthick\underbracket{#1}{\tmp@dimen}{#3}\kern2\lthick}
+
+
+\newdimen\tmp@dimenc
+\newdimen\z@iii\newdimen\z@iv\newdimen\z@v
+
+% \oblique {l}{s}{h} draws an oblique line of length l, slope s percent, and
+% height h. This will cause an unrecorded space so it should be used within
+% \rlap. Note that this macro is a hack and probably gobbles up resources!
+% This macro is used by some of the others which follow.
+
+\def\oblique#1#2#3{\relax % length slope height
+\ifnum #2=0\relax\raise #3\vbox{\hrule width #1 height\lthick depth\z@}\relax
+\else\q@antum=25\lthick\divide\q@antum by #2\relax
+\ifdim\q@antum<0pt\relax\multiply\q@antum by -1\fi
+\global\z@iv=0pt\relax
+\loop\ifdim\z@iv<#1\relax
+ {\z@v=#1\relax\advance\z@v by -\z@iv\relax\advance\z@v by -\q@antum\relax
+ \tmp@dimenc\z@iv\multiply\tmp@dimenc by#2\relax
+ \z@iii=#3\relax\advance\z@iii by .01\tmp@dimenc\relax\advance\z@iii by
+ -0.5\internote
+ \ifnum #2<0\relax\advance\z@iii by \lthick\relax\fi
+ \tmp@dimenc\z@v\multiply\tmp@dimenc by#2\relax
+ \ifdim\z@v<0pt\relax\advance\z@iii by .01\tmp@dimenc\relax\hskip\z@v\fi
+ \advance\z@iii by 0.6\internote\relax
+ \raise\z@iii\hbox to \q@antum{\vrule width\q@antum height .5\lthick depth
+ .5\lthick}\relax
+ \global\advance\z@iv by \q@antum\relax
+}\repeat
+\fi
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% end musicext excerpt
+\font\musext=musicbrb
+\tolerance 10000
+\csname normalshape\endcsname\csname mediumseries\endcsname
+\csname pnormalshape\endcsname\csname pmediumseries\endcsname
+\makeindex
+
+\long\def\theindex{\chapter{Index}
+\parindent \z@
+\parskip \z@ \@plus .3\p@ \relax \let \item \@idxitem \columnseprule \z@
+\columnsep 35\p@ \begin{multicols}{2}
+}
+
+\def\endtheindex{\end{multicols}}
+
+%
+\begin{document}
+\title{\Huge\bf \musictex\\\LARGE\bf Using
+ \TeX\ to write polyphonic\\or
+instrumental music\\\Large\sl Version  5.17 -- \today}
+\author{\Large\rm Daniel \sc Taupin\\\large\sl
+ Laboratoire de Physique des Solides\\\normalsize\sl
+ (associ\'e au CNRS)\\\normalsize\sl
+ b\^atiment 510, Centre Universitaire, F-91405 ORSAY Cedex}
+ \date{}
+\maketitle
+\clearpage
+\thispagestyle{empty}
+\null
+\setcounter{page}0
+\clearpage
+\tableofcontents
+\setcounter{secnumdepth}3
+\pagestyle{headings}
+%
+\chapter{What is \musictex\ ?}
+ \musictex\ is a set of \TeX\ macros to typeset polyphonic, orchestral or
+polyphonic music. Therefore, it is mainly supposed to be used to type wide
+scores -- just because true musicians seldom like to have to frequently turn
+pages -- and this is not really compatible with \LaTeX's standard page
+formats, even the {\tty A4.sty} the {\Bslash textheight} and  {\Bslash
+textwidth} of which are too small for musician needs.
+
+  However, a \LaTeX\ style has been also provided (and it is used for the
+typing of the present paper) but this {\tty musictex} style is fit for
+musicographic books  rather than for normal scores to be actually played.
+
+ It should be emphasized that \musictex\ is not intended to be a
+compiler which would translate some \ixem{standard musical
+notation}s into \TeX\, nor to decide by itself about aesthetic problems in music typing.
+\musictex\ only typesets staves, notes, chords, beams, slurs and ornaments as
+requested by the composer. Since it makes very few typesetting decisions,
+\musictex\ appears to be a versatile and rather powerful tool. However, due
+to the important amount of information to be provided to the typesetting
+process, coding \musictex\ might appear to be awfully complicated, just as
+the real keyboard or orchestral music. Therefore, it should be interfaced therefore by
+some pre-compiler in the case of the composer/typesetter wanting aesthetic
+decisions to be automatically made by somebody (or something) else.
+
+\section{\musictex\ principal features}
+\subsection{Music typesetting is two-dimensional}
+
+ Most of the people who just learnt a bit of music at college probably think
+that music is a linear sequence of symbols, just as literary texts to be
+\TeX-ed. In fact, with the exception of strictly monodic instruments like
+most orchestral wind instruments and solo voices, one should be aware that
+reading music actually is a matricial operation: the non-soloist musician
+successively reads \ital{columns} of simultaneous notes which he actually plays
+if he is a pianist, clavichordist or organist, which he actually reads and
+watches if he conducts an orchestra, and which he is supposed to check and
+partially play when he is a soloist who wants to play in time with the
+accompanying instrument or choir.
+
+ In fact, our personal experience of playing piano and organ as well as
+sometimes helping as an alternate Kapellmeister leads us to think that actual
+music reading and composing is a slightly more complicated intellectual
+process: music reading, music composing and music thinking seems to be a
+three layer process. The musician usually reads or thinks several consecutive
+notes (typically a long \ital{beat} or a group of logically connected notes), then
+he goes down to the next instrument or voice and finally assembles the whole
+to build a part of music lasting roughly a few seconds. Then he handles the
+next \ital{beat} or \ital{bar} of his score.
+
+  Thus, it appears that the humanly logical way of coding music consists
+in horizontally accumulating a set of \ital{vertical combs} with
+\ital{horizontal teeth} as described in Table \ref{readtable}.
+
+ \begin{table}
+ \begin{center}
+ \begin{tabular}{|ll|ll|}\hboxit{note sequence one}
+  &\hboxit{note seq.\ four}
+  &\hboxit{note seq.\ seven}
+  &\hboxit{note seq.\ ten}\\\hboxit{note sequence two}
+  &\hboxit{note seq.\ five}
+  &\hboxit{note seq.\ eight}
+  &\hboxit{note seq.\ eleven}\\\hboxit{note seqence three}
+  &\hboxit{note seq.\  six}
+  &\hboxit{note seq.\  nine}
+  &\hboxit{note seq.\  twelve}\\
+ \end{tabular}
+ \end{center}
+ \caption{The order in which a musician reads music}\label{readtable}
+ \end{table}
+
+This is the reason
+why, in {\bf \musictex} the fundamental \ital{macro} is of the form
+
+\begin{center}
+{\Bslash notes \dots\ \& \dots\ \& \dots\ \bslash enotes}
+\end{center}
+
+\noindent where the character {\tty\&} is used to separate the notes to be
+typeset on respective staffs of the various instruments, starting from the
+bottom.
+
+In the case of an instrument whose score has to be written with
+several staffs, these staffs are separated by the
+character \|. Thus, a score written for a keyboard instrument and
+a monodic instrument (for example piano and violin)
+will be coded as follows:
+
+\begin{center}
+{\Bslash notes \dots\ \| \dots\ \& \dots\ \bslash enotes}
+\end{center}
+\noindent for each column of simultaneous \ital{groups of notes}.
+It is worth emphasizing that we actually said \ital{``groups of notes''}:
+this means that in each section of the previous macro, the music typesetter is
+welcome to insert, not only chord notes to be played at once, but small
+sequences of consecutive notes which build something he understands as a
+musical phrase. This is why note typing macros are of two kinds in \musictex,
+namely the note macros which are not followed by spacing afterwards, and those
+which induce horizontal spacing afterwards.
+
+\subsection{The spacing of the notes}
+
+It seems that many books have dealt with this problem.
+Although it can lead to interesting algorithms, we think it is
+not in practice an important point.
+
+In fact, each column of notes has not necessarily the same spacing
+and, in principle, this \itxem{spacing} should depend on the shortest
+duration of the simultaneous notes. But this cannot be established as a rule,
+for at least two reasons:
+
+\begin{enumerate}
+ \item spacing does not depend only on the local notes,
+but also on the context, at least in the same bar.
+\item in the case of polyphonic music, exceptions can easily be found.
+Here is an example:
+
+
+ \begin{music}
+\def\nbinstruments{1}\relax
+\computewidths
+\generalmeter{\meterfrac{4}{4}}\relax
+\debutextrait
+\normal\elemskip=0.110\hsize
+\temps\Notes\qsk\qsk\rlap{\hu j}\ql h\enotes
+\temps\Notes\hl g\enotes
+\temps\Notes\hu k\enotes
+\temps\Notes\ql f\enotes
+\finextrait
+ \end{music}
+
+%\check
+
+\noindent where it can be clearly seen that the half notes at beats 2 and 3
+must be spaced as if they were quarter notes since they overlap, which is
+obvious only because of the presence of the indication of the \itxem{meter} 4/4.
+\end{enumerate}
+%
+
+Therefore, we preferred to provide the composer/typesetter with a
+set of macros, the spacing of which increases by a factor of $\sqrt 2$
+(incidentally, this can be adjusted):
+
+\begin{center}
+{\Bslash notes \dots\ \& \dots\ \& \dots\ \bslash enotes\ \ \%
+\hbox to 2.5cm{\rm 1 spatial unit\hss}}
+\\
+{\Bslash Notes \dots\ \& \dots\ \& \dots\ \bslash enotes\ \ \%
+\hbox to 2.5cm{\rm 1.4 spacial unit\hss}}
+\\
+{\Bslash NOtes \dots\ \& \dots\ \& \dots\ \bslash enotes\ \ \%
+\hbox to 2.5cm{\rm 2 spatial units\hss}}
+\\{\Bslash NOTes \dots\ \& \dots\ \& \dots\ \bslash enotes\ \ \%
+\hbox to 2.5cm{\rm 2.8 spatial units\hss}}
+\\{\Bslash NOTEs \dots\ \& \dots\ \& \dots\ \bslash enotes\ \ \%
+\hbox to 2.5cm{\rm 4 spatial units\hss}}
+\\{\Bslash NOTES \dots\ \& \dots\ \& \dots\ \bslash enotes\ \ \%
+\hbox to 2.5cm{\rm 5.6 spatial units\hss}}
+\end{center}
+
+%\check
+ The size of the spatial unit (\keyindex{elemskip}) can be freely adjusted.
+In addition, \musictex\ provides a means of adjusting the note spacing
+according to an average number of elementary spaces within a line (macro
+\keyindex{autolines}).
+ 
+\subsection{Music tokens, rather than a readymade generator}
+%\check
+
+The tokens provided by \musictex\ are:
+
+\begin{itemize}
+\item the note symbols \ital{without stem};
+\item the note symbols \ital{with stems, and hooks for eighth notes and
+beyond};
+\item the indications of beam beginnings and beam ends;
+\item the indications of beginnings and ends of ties and slurs;
+\item the indications of accidentals;
+\item the ornaments: arpeggios, trills, mordents, pinc\'es, turns, staccatos
+and pizzicatos, fermatas;
+\item the bars, the meter and signature changes, etc.
+\end{itemize}
+
+ Thus, {\Bslash wh a} produces an \ital{A (of nominal frequency 222.5~Hz,
+unless transposed)} of duration being a
+\ital{whole note}. In the same way, {\Bslash wh h} produces an \ital{A
+(445~Hz)} of duration represented by a \ital{whole note}, {\Bslash qu~c}
+produces a \ital{C (250~Hz approx.)} whose value is a \ital{quarter note with
+stem up}, {\Bslash cl J} produces a \ital{C (125~Hz approx.)} of
+duration equal to an \ital{eighth note with stem down}, etc.
+
+ To generate quarter, eighth, sixteenth, etc. chords, the macro
+\keyindex{zq} can be used: it produces a quarter note head the vertical
+position of which is
+memorized and recalled when another stemmed note (possibly with a hook) is
+coded; then the stem is adjusted to link all simultaneous notes. Thus, the
+perfect C-major chord, i.e.
+
+%\check
+{\def\nbinstruments{1}\relax
+\cleftoksi={{0}{0}{0}{0}}\generalmeter{}\relax
+\debutextrait
+\normal
+\NOTes\qsk\zq c\zq e\zq g\qu j\enotes
+\finextrait}
+
+%\check
+\noindent is coded
+ \hbox{\Bslash zq~c\bslash zq~e\bslash zq~g\bslash qu~j}
+or, in a more concise way, \hbox{\Bslash zq\{ceg\}\bslash qu~j} (stem up):
+in fact, single notes are treated\dots\ like one-note chords.
+
+\subsection{Beams}
+ \ital{Beams}\index{beams} are generated using macros which define their
+beginning (at the current horizontal position), together with their altitude,
+their direction (upper of lower), their multiplicity, their slope and their
+reference number. This latter feature -- the reference number -- appears to
+be necessary, since one may want to write beams whose horizontal extents
+overlap: therefore, it is necessary to specify which beam the notes hang on
+and which beam is terminated at a given position.
+
+%\check
+\subsection{Setting anything on the score}
+
+A general macro (\keyindex{zcharnote}) provides a means of
+putting any sequence of symbols (in fact, some {\Bslash hbox\{...\}}) at any
+pitch of any staff of any instrument. Thus, any symbol defined in a font
+(letters, math symbols, etc.) can be used to typeset music.
+
+\section{A simple example}
+
+ Before giving more details, we give below an example of the two first
+bars of the sonata in C-major K545 by {\sc\ixem{Mozart}}:
+
+\begin{music}
+\parindent 1cm
+\def\nbinstruments{1}\relax
+\def\instrumenti{Piano}%
+\nbporteesi=2\relax
+\generalmeter{\meterfrac{4}{4}}\relax
+\debutextrait
+\normal
+\temps\Notes\ibu0f0\qh0{cge}\tbu0\qh0g|\hl j\enotes
+\temps\Notes\ibu0f0\qh0{cge}\tbu0\qh0g|\ql l\sk\ql n\enotes
+\barre
+\Notes\ibu0f0\qh0{dgf}|\qlp i\enotes
+\notes\tbu0\qh0g|\ibbl1j3\qb1j\tbl1\qb1k\enotes
+\temps\Notes\ibu0f0\qh0{cge}\tbu0\qh0g|\hl j\enotes
+\finextrait
+\end{music}
+%\check
+
+ The \ital{coding} is set as follows:
+
+\begin{quote}\begin{verbatim}
+\begin{music}
+\parindent 1cm
+\def\nbinstruments{1}\relax % a single instrument
+\def\instrumenti{Piano}%    % whose name is Piano
+\nbporteesi=2\relax         % with two staffs
+\generalmeter{\meterfrac{4}{4}}\relax % 4/4 meter chosen
+\debutextrait               % starting real score
+\normal                     % normal 12 pt note spacing
+\temps\Notes\ibu0f0\qh0{cge}\tbu0\qh0g|\hl j\enotes
+\temps\Notes\ibu0f0\qh0{cge}\tbu0\qh0g|\ql l\sk\ql n\enotes
+\barre                      % bar
+\Notes\ibu0f0\qh0{dgf}|\qlp i\enotes
+\notes\tbu0\qh0g|\ibbl1j3\qb1j\tbl1\qb1k\enotes
+\temps\Notes\ibu0f0\qh0{cge}\tbu0\qh0g|\hl j\enotes
+\finextrait                 % terminate excerpt
+\end{music}
+ \end{verbatim}\end{quote}
+
+\begin{itemize}
+\item {\Bslash ibu0f0} begins an upper beam, aligned on the
+\ital{f}, reference number 0, slope 0
+\item {\Bslash tbu0} terminates this beam before writing
+the second \ital{g} by means of {\Bslash qh0g}
+\item {\Bslash qh..} indicates a note hanging on a beam.
+ \item {\Bslash sk } sets a space between the two quarters at the right
+hand, so that the second is aligned with the third eighth of the left hand.
+ \item{\Bslash qlp} is a  quarter with a point.
+ \item{\Bslash ibbl1j3} begins
+a double beam, aligned on the \ital{C} ({\tty j} at this pitch)
+of slope 0.15.
+\end{itemize}
+
+\section{Some highlights}
+\subsection{Signatures}
+
+Signatures can be stated either for all instruments, for example by
+\keyindex{generalsignature}{\tty\{-2\}} which sets two flats on each staff, or
+separately for each instrument. Thus, the \keyindex{generalsignature}
+can be partly overridden by \keyindex{signii}{\tty=1} which puts one
+sharp on the staffs of \itxem{instrument number} 2 (ii). Of course, the
+current signature may change at any time as well as the meters and clefs.
+
+\subsection{Transposition}
+
+ An important question  is: \ital{``can \musictex\ transpose a score~?''}.
+The answer is now 99.5~\% \ital{yes}. If fact, there is an internal register
+named \keyindex{transpose} the default value of which is zero, but it may be
+set to any reasonable positive of negative value. In that case, it offsets all
+symbols pitched with letter symbols by that number of pitch steps. However,
+it will neither change the signature nor the local accidentals, and if -- for
+example -- you transpose a piece written in $C$ by 1 pitch, \musictex\ will
+not know whether you want it in $D\flat$, in $D$ or in $D\sharp$. This might
+become tricky if accidentals occur within the piece, which might have to be
+converted into flats, naturals, sharps or double sharps, depending on the new
+chosen signature. To avoid this trouble, \ital{relative} accidentals
+have been implemented, the actual output of which depends on the pitch of
+this accidental and of the current signature.\index{relative accidentals}
+
+
+\subsection{Selecting special instrument scores}
+
+Another question is: \ital{``can I write an orchestral score and extract the
+separate scores for individual instruments~?''} The answer is 95~\%
+\ital{yes}: in fact, you can define your own macros {\Bslash
+mynotes...\bslash enotes}, {\Bslash myNotes...\bslash enotes} with as many
+arguments as there are in the orchestral score (hope this is less or equal to
+9, but \TeX perts know how to work around) and change its definition
+depending on the selected instrument (or insert a test on the value of some
+selection register). But the limitation is that the numbering of instruments
+may change, so that {\Bslash signiii} may have to become {\Bslash signi} if
+instrument $iii$ is alone. But, in turn, this is not a serious problem for
+average \TeX\ wizard apprentices.
+
+ \subsection{Variable staff and note sizes}
+
+ Although the staff size is 20 pt as a standard, \musictex\ allors scores of
+16 pt staff sizes. In addition, any instrument may have a special staff size
+(usually smaller than the overall staff size) and special commands
+\verb|\smallnotesize| or \verb|\tinynotesize| enable notes (and also beams or
+accidentals) to be of a smaller size, in order to quote optional notes or
+\ital{cadenzas}.
+
+ \section{How to get it}
+
+ The whole \itxem{distribution} fits into a single 1.2Mbyte or
+1.44Mbyte diskette. It can also be obtained through an \ital{anonymous ftp}
+at {\tty rsovax.lps.u-psud.fr} (193.55.39.100), after selecting the
+subdirectory {\tty [.musictex]}. All sources (including fonts) are provided,
+either separately or ``zipped'' or as VMS ``\ixem{savesets}''.
+
+%\check
+\section{Enhancements}
+\subsection{Recent easy enhancements}
+
+Many enhancements have been asked for, and this is a proof that \musictex\ is
+considered as useful by many people. Some of these enhancements which seemed
+hard were in fact rather easy to implement, for example small notes to represent
+grace notes and cadenzas. But others may induce heavy problems, for example
+the need of having \ital{nice} slurs and ties.
+
+In the same way, we recently introduce Andreas {\sc Egler}'s fonts to have
+nicer braces at the left of the score, for example for piano music.
+
+Besides, we recently found a hard incompatibility of \musictex\ and a genuine
+product of the author's native country, namely {\tt french.sty} by Bernard
+{\sc Gaulle} which is the \ital{standard} of the French \TeX\ user group,
+namely the GUTenberg association. This was partly due to macro name collisions
+--- easy to solve --- and to the fact that {\tt french.sty} sets a lot of
+characters as \keyindex{active} characters in order to make them handle
+correctly the French spacing before and after punctuation marks. This seems to
+have been solved in the 4.99 version of \musictex, with the restriction that
+French macros cannot be used --- at least easily --- within lyrics.
+
+Besides, \musictex\ has been adapted --- since version 5.00 --- to score
+\ital{gregorian chant} and \ital{percussion music}.
+
+\subsection{The tie/slur problem}
+
+While typesetting notes and even beams is a rather simple problem because it
+is a \ital{local typesetting}, ties and slurs are much more difficult to handle.
+
+Of course there is small problem in case of a typesetter wanting a slur or a
+tie binding two consecutive notes, not separated by a bar. In practice this
+\ital{very restricted} use of slurs or ties can easily be solved by putting
+some symbols extracted from the {\tty slur16} or {\tty slurn16}/{\tty slurn20}
+fonts somewhere on the staffs using the general use \keyindex{zcharnote}
+macro.
+
+ But serious music typesetters or composers know that many ties are supposed
+to link notes which are on both sides of a bar, which is a likely place to
+insert line breakings, so that the coding of \itxem{ties} must have various
+versions and sizes to resist that possible line breaking. What has been said
+about ties is still more serious in the case of \itxem{phrasing slurs} which
+may extend over several bars, lines and sometimes pages. In this case, their
+shape is not only a question of producing a long curved symbol of nice
+looking shape, it also has to cope with \itxem{glue}. An then the worst is
+that music way of typing does not accept \itxem{ragged lines} but equal
+length lines, even for the last line of a music piece. Thus, long distance
+slurs and ties need to be cut into separate parts (beginning, continuing(s),
+endings) which \TeX\ can only link using \ital{horizontal line overlaps}
+or \keyindex{leaders} to insure slur continuity over this unavoidable glue.
+
+
+Therefore and up to now, ties and slurs have been implemented in a way which
+may look rather ugly, but we think it is the only way of implementing
+\ital{in one pass} ties and slurs which run \ital{across glue}. The principle
+is to have tie/slur symbols with a rather long horizontal part.
+Then, at each time a glue occurs and at each time a group of notes is coded
+while a slur or tie is pending, an \keyindex{hrule} is issued which overlaps
+the preceding tie/slur symbol so that the final output seems to contain a
+continuous line. Unfortunately, this is possible only in the glue expansion
+direction, namely in the horizontal direction.
+
+Variable size
+initial and final curved slur symbols have recently been implemented;
+the user has to choose them according
+to his intention to have short or long range slur symbols.
+
+\subsection{\musixtex}
+
+\ixem{\musixtex} is a new package, heavily derived from \musictex\ by Andreas
+{\sc Egler} and Ross {\sc Mitchell}. Its fundamentals are taken from
+\musictex, but it works in three passes~:\index{Egler, A.}\index{Mitchell, R.}
+ \begin{enumerate}
+  \item The first pass \TeX es the source with a different set of macros,
+which generate a special file telling where slurs/ties start and begin.
+  \item The second pass (a C program) computes the optimal length of the
+slurs/recorded.
+  \item The third pass generates the definitive DVI from the initial source,
+owing to information produced by the second pass, name to choose the adequate
+slur/tie symbols according to the chosen final note spacing.
+ \end{enumerate}
+ We do not decribe \musixtex\ here, but we give some suggestion to make the
+same \musictex\ source runable with both \musictex\ and \musixtex.
+
+\subsection{Enhancement limitations}
+Many requested improvements have not been
+\ital{yet} implemented for several reasons:
+
+ \begin{itemize}
+
+   \item The author's natural lazyness (!)
+
+   \item More seriously: many of them would require using some more
+registers;  unfortunately, \TeX\ registers are not numerous (256 of each
+kind and the limit of \keyindex{dimen} registers is nearly reached) and we
+are afraid many requested new features would make \TeX\ stupidly crash even
+when typesetting reasonable scores.
+
+  \item We do not think it is wise to introduce in \musictex\ itself a great
+number of macros which would be poorly used by most users: the reason is that
+\TeX\ memory is hardly limited and that unused macros may occupy some \TeX\
+storage which could make things crash because of {\tty TeX capacity
+exceeded}...
+
+ \end{itemize}  
+
+
+\section{Acknowledgements}
+
+The idea of implementing the present package is due to the previous work
+(\mutex)\index{mutex=\protect\mutex} of Andrea {\sc Steinbach} and Angelika
+{\sc Schofer}\footnote{Steinbach A. \& Schofer A., \ital{Theses} (1987, 1988),
+Rheinische Friedrich-Wilhelms Universit\"at, Bonn, Germany.}. This work
+provided the basis of the Metafont codes and some line breaking procedures,
+which both are still used here... with 99\% corrections and
+updates.\index{Schofer, A.}\index{Steinbach, A.}
+
+Besides, the original fonts of \musictex, named {\tt musicn20}, {\tt
+musicn16},  {\tt musicn13} and  {\tt musicn11}, have been recently reviewed
+by Andreas {\sc Egler} and the new release --- used in the version 5.00 and
+above of \musictex\ --- is called  {\tt musikn20}, {\tt musikn16},  {\tt
+musikn13}  {\tt musikn11} and {\tt musicbrb}.\index{Egler, A.}
+
+
+\chapter{Practical use}
+\section{Heading statements}
+
+Before any reference to \musictex\ macros:
+
+\medskip{\Bslash input musicnft }
+
+{\Bslash input musictex}
+
+ \medskip\noindent which may be followed by {\Bslash input musicadd}
+in the case you have more than six instruments (voice is two instruments: one
+for the music, one for the text) or more than 6 simultaneous beams or ties or
+slurs.\index{musicnft.tex}\index{musictex.tex}\index{musicadd.tex}
+\index{musicnft.tex}
+
+ \medskip After that, you may write a complete book of \TeX\ provided that
+you do not use {\tty \&} as a tabulation character (its \keyindex{catcode}
+has been changed) inside the music score and that you do not overwrite
+\musictex's definitions. This means that no special macros have been designed
+to help you write titles, author names, comments, literature excerpts, etc.,
+unless you use \LaTeX\ with the {\tt musictex} style.
+
+\section{Before you begin to write notes}
+
+You should first specify whether you want to typeset music in size
+20pt\index{sizes} per staff or 16pt. This only optional, the default value
+being 20pt. If you want the 16pt size, then you have to say:
+
+\medskip \keyindex{musicsize}{\tty=16}
+
+\medskip Then, the first compulsory declaration is:
+
+\medskip {\Bslash def\keyindex{nbinstruments}{\tty\{$n$\}}}
+
+\medskip \noindent where $n$ is the number of instruments, used by
+\musictex\ to performs loops building staffs, setting signatures, meters,
+etc. Therefore, it must be defined before any other statements. An instrument
+may consist of several staffs, e.g. the piano. The difference between one
+instrument of several staffs and several instruments is as follows:
+
+\begin{itemize}
+ \item distinct instruments may have distinct \itxem{signatures}, distinct
+staffs of a unique instrument share the same signature.
+ \item \itxem{stems} may be hung to \itxem{beams} belonging to differents
+staffs of the same instrument.
+ \item \itxem{chords} may extend across several staffs of the same
+instrument.
+ \item staffs of a unique \itxem{instrument} are tied together
+with a big brace at the beginning of each line.
+
+\end{itemize}
+
+\medskip If the number of staffs (in French ``\itxem{port\'ees}'') is not
+equal to one, this number must be specified by:
+
+\medskip
+%\check
+{\tty\keyindex{nbportees$r$}=$p$\bslash relax}
+
+ \medskip\noindent where $p$ is the number of staffs, and where $r$ is the
+roman numeral of the instrument considered (e.g. \keyindex{nbporteesiii}
+for the 3rd instrument, starting from the bottom). This value may be zero, in
+which case the staff lines are omitted, and this instrument may be used to
+code the \itxem{lyrics} of a song, below the actual ``instrument''
+representing the notes of the song.
+
+\medskip Unless all your instruments only use the \ital{violin} clef, you
+have to specifiy all the clefs used for all the instruments. This is done by
+coding:
+
+\medskip{\tty\keyindex{cleftoks$r$}=\{\{$s1$\}\{$s2$\}\{$s3$\}\{$s4$\}\}\%}
+
+\medskip\noindent where $r$ is the roman numeral of the instrument, $s1$
+specifies the clef of the lower staff, $s2$ the clef of the second staff,
+etc. One must always give four values with the above syntax, otherwise\dots\
+$s1=0$ means the \ital{violin} clef (\ixem{clef de sol} in French), $s1=1$
+through $s1=4$ mean the \ital{alto} clef (\ixem{clef d'ut} in French) set on
+first (lower) through fourth (next to upper line of the staff), $s1=5$ means
+the \ital{bass} clef at third (middle) line, and $s1=6$ means the usual
+\ital{bass} clef (\ixem{clef de fa} in French) at the usual fourth line.
+\index{violin clef}\index{bass clef}\index{alto clef} As an example, a
+standard piano score should include:
+
+\medskip{\tty\keyindex{cleftoksi}=\{\{6\}\{0\}\{0\}\{0\}\}\%} or {\Bslash
+cleftoksi=\{6000\}\%}
+
+\medskip
+If the signature is not void, one should code:
+
+\medskip{\tty\keyindex{generalsignature}{\tty\{$s$\}}\bslash relax}
+
+\medskip\noindent where $s>0$ indicates the number of \itxem{sharps} in the
+signature and $s<0$ the number of \itxem{flats}\footnote{We have seen once a
+score in G-minor where the signature consisted of two flats (B and E) plus
+one sharp (F). This is not supported by \musictex.}. 
+
+\medskip If there a \itxem{meter} indication is to be posted, it should be
+specified using the macro
+
+\medskip {\tty\keyindex{generalmeter}\{$m$\}\%}
+
+\medskip \noindent where $m$ is the description of the meter indication which should
+appear on each staff. If it is a \ital{fraction} (e.g. 3/4) on should code
+
+\medskip{\Bslash generalmeter\{\bslash meterfrac\{3\}\{4\}\}\%}
+
+\medskip\noindent or, in a simpler way (if the numbers are less than 10):
+
+\medskip{\Bslash generalmeter\{\bslash meterfrac 34\}\%}
+
+\medskip\rm Special denotations can be used, such as \keyindex{allabreve} to
+get \raise -6pt\hbox{\allabreve} and \keyindex{meterC} to get \raise
+-6pt\hbox{\meterC}.
+
+\medskip However, not all music scores have the same meter in each staff.
+Especially, some staffs may have \ital{ternary} meters while others have
+\ital{binary}. This can be specified by using the \keyindex{generalmeter} macro
+to set the meter for most of the scores and overriding it by means of a more
+sophisticated command:
+
+
+%\check
+\medskip{\Bslash metertoksii=\{\{\bslash
+meterfrac\{12\}8\}\{\bslash
+allabreve\}\{\}\{\}\}\%}
+\zkeyindex{metertoks$i$}
+
+\medskip \rm\noindent which sets the meter to 12/8 for the first (lower)
+staff, and \ital{alla breve} for the second staff of the instrument number 2
+(\ital{ii}). Note that there is room for 4 staffs and that void items must be
+specified, otherwise \TeX\ weird errors occur.
+
+\subsection{Instrument names} If you want the \itxem{name of the instrument}s
+(or the \itxem{name of the voice}s) to be displayed in front of their
+respective staffs at the beginning, you may code:
+
+\medskip\Bslash def\bslash instrument$r$\{\ital{name of the instrument}\}\%
+\zkeyindex{instrument$r$}
+
+\medskip \noindent\rm where $r$ is the roman numeral of the instrument
+considered. In this case, you should also adjust the \keyindex{parindent}
+dimension so that the long name of an instrument does not spill too far into
+the left margin.
+
+\subsection{Polyphonic songs}
+Except staffs of a unique instrument tied together with a big brace, staffs
+normally begin on the left with a thin vertical rule. However, it is usual to
+tie all human voices together with a left heavy and right thin vertical rule.
+This can be specified (but only once per system) by specifying
+
+\medskip{\tty\bslash def\keyindex{lowersonginstrum}\{$m$\}}
+
+{\tty\bslash def\keyindex{uppersonginstrum}\{$n$\}}
+
+\medskip\noindent where $m$ and $n$ are the intrument numbers of the first
+and last choral voices. An example of using this feature is given in
+{\tty PRAETORI} and -- more complicated -- also in {\tty ANGESCAM}
+and {\tty ANGESCAO}.
+
+%\check
+\section{Starting your masterpiece}
+\subsection{Typing the first system}
+
+Just code
+
+\medskip\keyindex{debutmorceau}
+
+\medskip\noindent which will initiate (with indentation \keyindex{parindent})
+the first set of staffs for all instruments you have previously defined. But
+that is not sufficient to begin writing notes and silences. In fact, you also
+must choose the spacing of the notes.
+
+\subsection{Easy selecting note spacing}
+The easiest way of getting a reasonable note spacing is done by saying
+
+\medskip\keyindex{normal}
+
+\medskip This defines an elementary spacing of {\tty 10pt}. If you say
+\keyindex{large}\footnote{To avoid problems with the \LaTeX\
+\index{LaTeX=\protect\LaTeX}
+macro of the same name, this macro is only activated under \LaTeX\ when
+\keyindex{begin\{music\}} is invoked.} the elementary spacing (\keyindex{elemskip}) is set to {\tty
+12pt}. Once this is done, you can select $\sqrt 2$ multiples of this value to
+select specific note spacing by initiating your note column with {\Bslash
+notes} (spacing {\Bslash elemskip}), {\Bslash Notes} (spacing {\tty
+1.4\bslash elemskip}), etc.
+
+The is also a macro named \keyindex{etroit} which yields
+narrower\footnote{\ital{Etroit} means \ital{narrow} in French.} spacings but
+not increasing in the same way.
+
+\medskip In practice, the choice of the macro {\Bslash notes}, {\Bslash
+Notes}, {\Bslash NOtes}, etc., to initiate of column of notes sets an
+internal dimension register, named \keyindex{noteskip} to the given multiple
+of \keyindex{elemskip}. Thus, each \itxem{spacing note} (\keyindex{qu},
+\keyindex{qh}, \keyindex{hl}, etc.) will be followed by a spacing of
+\keyindex{noteskip}. Then, the advantage of the definition of {\Bslash
+elemskip} is that, whenever it is changed, all subsequent {\Bslash noteskip}s
+will be updated proportionally so that a simple change of {\Bslash elemskip}
+can expand or shrink all consecutive note spacings as a whole.
+
+If these values of {\Bslash elemskip} are not
+fit to your needs, you can also say
+
+\medskip{\tty\keyindex{normal}\keyindex{elemskip}=15pt}
+
+\medskip\noindent or revert to the basic note introducing sequence:
+
+\medskip{\tty\keyindex{vnotes} $q$ \bslash elemskip
+\ital{note specifications} \bslash enotes}
+
+\medskip\noindent where $q$ is a positive integer or decimal number.
+
+\medskip Of course, if you are sufficiently skilled with \TeX, you can also
+compute \keyindex{elemskip} according to the number of bars you want in a
+line and the number of notes in each bar.
+
+
+\medskip However, you may also prefer to ask \musictex\ to compute the size
+of \keyindex{elemskip} from the current page width (\keyindex{hsize}) after
+assuming a constant number of bars of a constant number of beats within each
+line\footnote{This does not meet the requirements of contemporaneous music,
+but fits very well to baroque and romantic music.}. In this case, you have
+better use the \keyindex{autolines} macro, which is described below (see:
+\ref{linepagebreak}, ``Line and page breaking'').
+
+%\check
+ \section{Note pitch specification}
+
+ Note pitches are usually specified by letters ranging from {\tty a} to {\tty
+z} for those which are usually written under the G-clef ({\tty a} corresponds
+to the $A$ of nominal frequency 222.5~Hz; the \ital{G} of the G-clef is denoted
+{\tty g}). Lower pitch notes are specified using upper case letters ranging
+from {\tty A} to {\tty N} (the \ital{F} of the F-clef is denoted {\tty M}, and
+{\tty F} is one octave below).
+%\check
+
+\medskip If necessary, a numeric symbol can be used to place a symbol
+independently of the active clef.
+
+\medskip Besides, notes below {\tty A} (i.e. the $A$ of nominal frequency
+55.625~Hz), namely the lowest octave of the modern pianos, can only be coded
+using the transposition features (see below: \ital{transposition} and
+\ital{octaviation}) or in absolute vertical position using numbers.
+
+\section{Writing notes}
+
+There are two major kinds of note macros: \begin{enumerate} \item those
+which terminate a note/chord stem and are followed by a horizontal spacing of
+value \keyindex{noteskip},
+ \item those which initiate or extend a note/chord stem and do not cause
+horizontal spacing.
+\end{enumerate}
+
+\medskip The first kind is used to type a melody, the second kind is used to
+type chords.
+%\check
+
+\subsection{Single (spacing) notes}
+
+\begin{quote}\begin{description}
+\item[\keyindex{wh}~$p$ : ]whole note at pitch $p$.
+\item[\keyindex{hu}~$p$ : ]half note at pitch $p$ with stem up.
+\item[\keyindex{hl}~$p$ : ]half note at pitch $p$ with stem down.
+\item[\keyindex{qu}~$p$ : ]quarter note at pitch $p$ with stem up.
+\item[\keyindex{ql}~$p$ : ]quarter note at pitch $p$ with stem down.
+\item[\keyindex{cu}~$p$ : ]eighth note\footnote{The {\Bslash c} of this macro
+ name is taken from the French word {``croche''} which is by the way one
+ half of the english {``crotchet''}; {\Bslash cc...}, {\Bslash ccc...}
+ are standing for {``double croche''}, {``triple croche''}, etc.}
+ at pitch $p$ with stem up.
+\item[\keyindex{cl}~$p$ : ]eighth note at pitch $p$ with stem down.
+\item[\keyindex{ccu}~$p$ : ]sixteenth note at pitch $p$ with stem up.
+\item[\keyindex{ccl}~$p$ : ]sixteenth note at pitch $p$ with stem down.
+\item[\keyindex{cccu}~$p$ : ]32-th note at pitch $p$ with stem up.
+\item[\keyindex{cccl}~$p$ : ]32-th note at pitch $p$ with stem down.
+\item[\keyindex{ccccu}~$p$ : ]64-th note at pitch $p$ with stem up.
+\item[\keyindex{ccccl}~$p$ : ]64-th note at pitch $p$ with stem down.
+%\check
+\end{description}\end{quote}
+
+\medskip As an example, the sequence:
+
+\begin{music}\parindent=0pt\def\nbinstruments{1}\def\instrumenti{}
+ \generalsignature{0}\savesignature\cleftoksi={{0}{0}{0}{0}}
+ \debutextrait\normal
+\notes\cu c\temps\cl j\enotes\barre
+\notes\ccu c\temps\ccl j\enotes\barre
+\notes\cccu c\temps\cccl j\enotes\barre
+\notes\ccccu c\temps\ccccl j\enotes\finextrait
+\end{music}
+
+\medskip \noindent was coded as:
+
+%\check
+\begin{quote}\begin{verbatim}
+\notes\cu c\temps\cl j\enotes\barre
+\notes\ccu c\temps\ccl j\enotes\barre
+\notes\cccu c\temps\cccl j\enotes\barre
+\notes\ccccu c\temps\ccccl j\enotes
+\end{verbatim}\end{quote}
+
+\medskip If these notes are preceded by \ital{non-spacing} notes (i.e.
+macros \keyindex{zq} or \keyindex{zh}) their stem is extended up or down so
+as to join all notes into a single chord.
+ \subsection{Non-spacing (chord) notes}
+
+\begin{quote}\begin{description}
+\item[\keyindex{zq}~$p$ : ]quarter (or shorter) note head at pitch $p$ with no
+spacing after.
+\item[\keyindex{zh}~$p$ : ]half note head at pitch $p$ with no spacing after.
+\end{description}\end{quote}
+
+\medskip It must be pointed out that the pitch $p$ of these notes is
+memorized so that the stem of the further spacing note will join them into
+a chord. This stem top and bottom pitch is \ital{reset} at each spacing
+note.
+
+\medskip \noindent{\sl REMARK : Notes of duration longer than whole notes are
+always non-spacing. This saves one useless definition, since these notes are
+always longer than other simultaneous ones. If needed they can be followed by
+\keyindex{sk} to force spacing.}
+ \subsection{Shifted non-spacing (chord)
+heads} These symbols are used mainly in chords where \ital{second} intervals
+are present. It is the responsibility of the typist to choose which heads
+should be shifted left or right.
+
+\rm\medskip \par\keyindex{rw}~$p$ : whole note head shifted right by one note
+width ($\approx$ 6pt), no spacing.
+ \par\keyindex{lw}~$p$ : whole note head shifted left by one note
+width ($\approx$ 6pt), no spacing.
+ \par\keyindex{rh}~$p$ : half note head shifted right by one note
+width ($\approx$ 6pt), no spacing.
+ \par\keyindex{lh}~$p$ : half note head shifted left by one note
+width ($\approx$ 6pt), no spacing.
+ \par\keyindex{rq}~$p$ : quarter note head shifted right by one note
+width ($\approx$ 6pt), no spacing.
+ \par\keyindex{lq}~$p$ : quarter note head shifted left by
+one note width ($\approx$ 6pt), no spacing.
+
+\medskip Except that they are shifted left of right, these macros act like
+{\Bslash z...} macros for stem building.
+
+\subsection{Shifted notes}
+
+\begin{quote}\begin{description}
+ \item[\keyindex{rqu} : ]acts like {\Bslash qu} but the note head is
+shifted one note width. This is used for \itxem{chords} with upper note 
+on the right side of the stem.
+ \item[\keyindex{rql} : ]same with stem down.
+ \item[\keyindex{rhu} : ]same as above for a half note, stem up.
+ \item[\keyindex{rhl} : ]same with stem down.
+\end{description}\end{quote}
+
+In addition on can use the command \keyindex{roff} to offset any note
+character by one quarter note head, e.g.:
+
+ \verb|\roff{\zqup h}|
+
+\noindent which will post a pointed quarter note with stem up, offset by one
+quarter note head with respect to its normal abscissa. \verb|\roff{...}| is
+heavily recommended instead of \verb|\qsk| if the score is intended to be run
+also with \musixtex.
+
+\subsection{Non-spacing single notes}
+
+\begin{quote}\begin{description}
+ \item[\keyindex{zhu} : ]half note with stem up but no spacing. It acts like
+{\Bslash hu} for stem building.
+ \item[\keyindex{zhl} : ]half note with stem down but no spacing. It acts like
+\keyindex{hl} for stem building.
+ \item[\keyindex{zqu} : ]quarter note with stem up but no spacing. It acts like
+{\Bslash qu} for stem building.
+ \item[\keyindex{zql} : ]quarter note with stem down but no spacing. It acts
+like {\Bslash ql} for stem building.
+ \item[\keyindex{zcu} : ]eighth note with stem up but no spacing. It acts like
+{\Bslash cu} for stem building.
+ \item[\keyindex{zcl} : ]eighth note with stem down but no spacing. It acts
+like {\Bslash cl} for stem building.
+
+
+\item[\keyindex{lhu}, \keyindex{lhl}, \keyindex{lqu}, \keyindex{lql} : ]same
+as above, but the whole of the note is shifted one note width on the left.
+ \item[\keyindex{zw}~$p$ : ]whole note at pitch $p$ with no spacing after.
+\item[\keyindex{zwq}~$p$ : ]arbitrary duration note (\raise
+2.5pt\hbox{\musicxx\char 125}) at pitch $p$ with no spacing after.
+\item[\keyindex{zbv}~$p$ : ]breve note (\raise
+2.5pt\hbox{\musicxx\char 36}) at pitch $p$ with no spacing after.
+\item[\keyindex{zsb}~$p$ : ]semi-breve note (\raise
+2.5pt\hbox{\musicxx\char 32}) at pitch $p$ with no spacing after.
+\end{description}\end{quote}
+
+\subsection{Single (spacing) stemless notes}
+
+ Although not standard in real music scores, one may need to have stemless
+quarter and half noteheads posted in the same way as whole notes. This can be
+done with the following commands: 
+
+\begin{quote}\begin{description}
+\item[\keyindex{nh}~$p$ : ]half notehead at pitch $p$.
+\item[\keyindex{nq}~$p$ : ]quarter notehead at pitch $p$.
+\end{description}\end{quote}
+
+\medskip As an example, the sequence:
+
+\begin{music}\parindent=0pt\def\nbinstruments{1}\def\instrumenti{}
+ \generalsignature{0}\savesignature\cleftoksi={{0}{0}{0}{0}}
+ \debutextrait\normal
+\notes\nq c\temps\nq j\enotes\barre
+\Notes\nh c\temps\nh j\enotes\barre
+\notes\nq {cdef}\enotes\finextrait
+\end{music}
+
+\medskip \noindent was coded as:
+
+%\check
+\begin{quote}\begin{verbatim}
+\notes\nq c\temps\nq j\enotes\barre
+\Notes\nh c\temps\nh j\enotes\barre
+\notes\nq {cdef}\enotes\finextrait
+\end{verbatim}\end{quote}
+
+ In case of special need, non spacing variants have been provided, namely
+\keyindex{znh} and \keyindex{znq}.
+
+\subsection{Pointed notes}
+ One simple way of doing consists in putting \keyindex{pt
+$p$} to get a \ital{dot} after the normal note head at pitch $p$. Thus a
+quarter note with a point can be coded {\Bslash pt h\bslash qu h}.
+
+
+\medskip A simpler way of doing consists in using compact macros, namely:
+\keyindex{qup}, \keyindex{qupp}, \keyindex{quppp}, \keyindex{zqp},
+\keyindex{zhp}, \keyindex{zwp} (these three {\Bslash z...p} are useful in
+chords), \keyindex{hup}, \keyindex{whp}, \keyindex{qhp}, \keyindex{qhpp},
+\keyindex{qlp}, \keyindex{qlpp}, etc.
+
+
+\medskip You may also introduce pointed notes, especially in groups by coding
+a \ital{period} before (not after) the letter representing the pitch:
+{\Bslash qu\{.a.\^{}b.c\}} which is equivalent to:
+
+\medskip
+\begin{quote}\begin{verbatim}
+\pt{a}\qu{a}\pt{b}\sh{b}\qu{b}\pt{c}\qu{c}
+\end{verbatim}\end{quote}
+
+Finally, pointed nots can also be produced without spacing aftef, using
+\keyindex{zhup}, \keyindex{zhlp}, \keyindex{zqup}, \keyindex{zqlp},
+\keyindex{zcup}, \keyindex{zclp}, and the same with two {\tty p}'s for
+double-pointed notes.
+
+\section{Beams}
+
+ Beams are not automatically handled, but they must be declared explicitely,
+\ital{before} the first spacing note involving them is coded. Two kinds of
+macros are provided:
+
+\begin{enumerate}
+
+\item fixed slope beams have an arbitrary slope chosen by the user in
+the range -45\% to +45\% (by multiples of 5\%);
+
+\item semi-automatic beams have their slope computed knowing the number
+of \keyindex{noteskip} over which they are supposed to extend, and knowing the
+initial and final pitch of the notes they are supposed to link.
+
+\end{enumerate}
+
+\subsection{Fixed slope beams}
+
+\begin{quote}\begin{description}
+\item[\keyindex{ibu}~$nps$ : ]initiates an \ital{upper beam} 3 horizontal
+line spacings above the pitch $p$~; $m$ is its reference number, which must be
+in the range [0-5] ([0-9] if {\tty musicadd} file has been {\Bslash
+input});
+$s$ is the slope of the beam.
+
+\end{description}\end{quote}
+
+ $s$ is an integer in the range [-9,9].
+$s=1$ means a slope of 5\%, $s=9$ means a slope of 45\% (the maximum with the
+{\tty beamn20} or {\tty beamn16} fonts), $s=-3$ means a slope of -15\%, etc.
+With usual spacings a slope of 2 or 3 is fit for ascending scales. A slope of
+6 to 9 is fit for ascending arpeggios.
+
+\begin{quote}\begin{description}
+
+\item[\keyindex{ibl}~$nps$ : ]initiates a \ital{lower beam} 3 horizontal line
+spacings below the pitch $p$. Other parameters as above.
+
+
+\item[\keyindex{ibbu}~$nps$ : ]initiates a \ital{double upper beam} (same
+parameter meaning).
+ \item[\keyindex{ibbl}~$nps$ : ]initiates a \ital{double lower beam} (same
+parameter meaning).
+ \item[\keyindex{ibbbu}~$nps$ : ]initiates a \ital{triple upper beam} (same
+parameter meaning).
+ \item[\keyindex{ibbbl}~$nps$ : ]initiates a \ital{triple lower beam} (same
+parameter meaning).
+ \item[\keyindex{ibbbbu}~$nps$ : ]initiates a \ital{quadruple upper beam} (same
+parameter meaning).
+ \item[\keyindex{ibbbbl}~$nps$ : ]initiates a \ital{quadruple lower beam} (same
+parameter meaning).
+ \item[\keyindex{ibbbbbu}~$nps$ : ]initiates a \ital{quintuple upper beam} (same
+parameter meaning).
+ \item[\keyindex{ibbbbbl}~$nps$ : ]initiates a \ital{quintuple lower beam} (same
+parameter meaning).
+\end{description}\end{quote}
+
+\medskip Beam termination is also not automatic. The termination of a given
+beam must be explicitely declared \ital{before} coding the last spacing note
+connected to that beam.
+
+\begin{quote}\begin{description}
+\item[\keyindex{tbu}~$n$ : ]terminates upper beam number $n$ at current
+position. \item[\keyindex{tbl}~$n$ : ]terminates lower beam number $n$ at
+current position.
+\end{description}\end{quote}
+
+\medskip\keyindex{tbu} and \keyindex{tbl} terminate beams of any
+multiplicity. Therefore 32-th notes hanging on a triple beam are initiated by
+\keyindex{ibbbu}~$nps$ and terminated by \keyindex{tbu}~$n$.
+
+\medskip It is also possible to code beams whose multiplicity is not the same
+at the beginning. The multiplicity can be increased at any position. For
+instance, \keyindex{nbbu}~$n$ which sets the multiplicity of upper beam
+number $n$ to 2 starting at the current position, \keyindex{nbbbu}~$n$ sets
+its multiplicity to 3, \keyindex{nbbbbu}~$n$ sets its multiplicity to 4, and
+\keyindex{nbbbbbu}~$n$ sets it to 5. \keyindex{nbbl}~$n$ \dots
+\keyindex{nbbbbbl}~$n$ perform the same functions for lower beams.
+
+\medskip Notes hanging or standing on beams are coded in the form
+{\Bslash qh$n\,\,p$} and {\Bslash qb$n\,\,p$} where $n$ is the beam number and $p$
+the pitch of the note head. \musictex\ adjusts the length of the note stem to
+link the bottom of the chord to an upper beam (normally with \keyindex{qh}) and
+the top of the chord to a lower beam (normally with \keyindex{qb}).
+
+\medskip Note that the difference between upper and lower beams does not
+mainly consist in the beam being above or below the note heads; rather, it
+specifies whether the abscissa of the beginning and the end of this beam is
+aligned on the right (upper beam) or on the left (lower) beam. Thus, the
+sequence:
+
+\begin{music}
+\def\nbinstruments{1}\nbporteesi=1\relax
+\cleftoksi={{0}{0}{0}{0}}\def\instrumenti{}\resetsignatures\debutextrait
+\large\temps
+\notes\ibu0h0\qh0e\nbbu0\qh0e\nbbbu0\qh0e\nbbbu0\relax
+\qh0e\nbbbbu0\qh0e\nbbbbbu0\qh0e\tbu0\qh0e\enotes
+\finextrait
+\end{music}
+
+%\check
+\noindent has been coded as
+\begin{quote}\begin{verbatim}
+\notes\ibu0h0\qh0e\nbbu0\qh0e\nbbbu0\qh0e\nbbbu0\relax
+\qh0e\nbbbbu0\qh0e\nbbbbbu0\qh0e\tbu0\qh0e\enotes
+\end{verbatim}\end{quote}
+%\check
+
+ \rm It is quite possible to terminate with \keyindex{tbu} a beam initiated
+with \keyindex{ibl}. This may give:
+
+
+\begin{music}
+\def\nbinstruments{1}\nbporteesi=1\relax
+\cleftoksi={{0}{0}{0}{0}}\def\instrumenti{}\resetsignatures\debutextrait
+\large\temps
+\notes\ibl0p0\qb0p\nbbl0\qb0p\nbbbl0\qb0p\tbu0\qh0e\enotes
+\finextrait
+\end{music}
+
+%\check
+\noindent which has been coded as
+
+\begin{quote}\begin{verbatim}
+\notes\ibl0p0\qb0p\nbbl0\qb0p\nbbbl0\qb0p\tbu0\qh0e\enotes
+\end{verbatim}\end{quote}
+%\check
+ \rm Partial termination of beams is also possible, by using \keyindex{tbbu}
+or \keyindex{tbbl}~: these macros terminate the current beam except that of
+order 1 (eighths). \keyindex{tbbbu} or \keyindex{tbbbl} terminate the current
+beam except those of order 1 and 2, etc.
+
+
+\medskip
+The macros \keyindex{tbbu} and \keyindex{tbbl} may also be invoked when only
+a single beam is active. Then, a second beam (upper or lower according
+the initiating procedure) is opened \ital{one note width before
+the current position, and closed immediately}. Thus the following sequence
+
+\begin{music}
+\def\nbinstruments{1}\nbporteesi=1\relax
+\cleftoksi={{0}{0}{0}{0}}\def\instrumenti{}\resetsignatures\debutextrait
+\large     \temps
+\notes\ibu0e0\qh0e\tbbu0\tbu0\qh0e\enotes
+\finextrait
+\end{music}
+
+\medskip\noindent is coded:
+
+\medskip
+\begin{quote}\begin{verbatim}
+\notes\ibu0e0\qh0e\tbbu0\tbu0\qh0e\enotes
+\end{verbatim}\end{quote}
+
+%\check
+
+\rm \medskip The same behaviour occurs in the case of \keyindex{tbbbu},
+\keyindex{tbbbl}, \keyindex{tbbbbu}, \keyindex{tbbbbl}, \keyindex{tbbbbbu}
+and \keyindex{tbbbbbl}.
+
+\medskip The symmetrical pattern is also possible. For example:
+
+\begin{music}\def\nbinstruments{1}\nbporteesi=1\relax
+\cleftoksi={{0}{0}{0}{0}}\def\instrumenti{}\resetsignatures
+\debutextrait\normal
+\Notes\ibbl0j0\rlap{\qsk\tbbl0}\qb0j\tbl0\qb0j\enotes
+\finextrait
+\end{music}
+
+\noindent has been coded as:
+
+\medskip
+\begin{quote}\begin{verbatim}
+\Notes\ibbl0j0\rlap{\qsk\tbbl0}\qb0j\tbl0\qb0j\enotes
+\end{verbatim}\end{quote}
+
+
+\medskip \noindent{\sl REMARK: these codings may seem complicated. In fact,
+it is the responsibility of the user to define macros which perform the most
+common sequences in his masterpiece. For example, one could define sets of
+four sixteenths by the macro:}
+
+\medskip{\Bslash def\bslash qqh\#1\#2\#3\#4\#5\{\%
+
+\bslash ibbl0\#2\#1\bslash qh \#2\bslash qh \#3\bslash tbl0\bslash qh \#4\}}
+
+\medskip\noindent{\sl
+where the first argument is the slope and the other four arguments are the
+pitches of the four consecutive sixteenths wanted.}
+ %\check
+\subsection{Repeated pattern beams}\index{repeated patterns}
+ Note heads hanging on beams are not necessarily quarter (or higher order)
+note heads. It is possible to hang half note heads on beams using
+\keyindex{hh} and \keyindex{hb} macros, e.g.:
+
+\begin{music}\def\nbinstruments{1}\nbporteesi=1\relax
+\cleftoksi={{0}{0}{0}{0}}\def\instrumenti{}\resetsignatures
+\debutextrait\normal
+\Notes\ibbl0j0\hb0j\tbl0\hb0j\enotes
+\Notes\ibbu0g0\hh0g\tbu0\hh0g\enotes
+\finextrait
+\end{music}
+
+\noindent has been coded as:
+
+\medskip
+\begin{quote}\begin{verbatim}
+\Notes\ibbl0j0\hb0j\tbl0\hb0j\enotes
+\Notes\ibbu0g0\hh0g\tbu0\hh0g\enotes
+\end{verbatim}\end{quote}
+
+It is also possible to write
+
+\begin{music}\def\nbinstruments{1}\nbporteesi=1\relax
+\cleftoksi={{0}{0}{0}{0}}\def\instrumenti{}\resetsignatures
+\debutextrait\normal
+\Notes\ibbl0j3\wh j\tbl0\wh l\enotes
+\Notes\ibbu0g3\wh g\tbu0\wh i\enotes
+\finextrait
+\end{music}
+
+\noindent which was coded as:
+
+\medskip
+\begin{quote}\begin{verbatim}
+\Notes\ibbl0j3\wh j\tbl0\wh l\enotes
+\Notes\ibbu0g3\wh g\tbu0\wh i\enotes
+\end{verbatim}\end{quote}
+
+\noindent However, a better look could be obtained in a more sophisticated
+way\footnote{You are suggested to make your own macro if you have to type many
+of these.}:
+
+\begin{music}\def\nbinstruments{1}\nbporteesi=1\relax
+\cleftoksi={{0}{0}{0}{0}}\def\instrumenti{}\resetsignatures
+\debutextrait\normal
+\Notes\zw j\qsk\ibbl0j3\sk\tbl0\wh l\enotes
+\Notes\ibbu0g3\wh g\tbu0\qsk\wh i\enotes
+\finextrait
+\end{music}
+
+\noindent which was simply coded as:
+
+\medskip
+\begin{quote}\begin{verbatim}
+\Notes\zw j\qsk\ibbl0j3\sk\tbl0\wh l\enotes
+\Notes\ibbu0g3\wh g\tbu0\qsk\wh i\enotes
+\end{verbatim}\end{quote}
+
+
+\subsection{Semi-automatic beams}
+ In order to avoid tedious checks to adjust the slope (and even the starting
+pitch) of beams in music with a lot of steep beams, a set of automatically
+slope computing has recently been implemented (file {\tty  musicvbm.tex}). If
+you say {\Bslash Ibu2gj3} \musictex\ will understand that you want to
+build an upper beam (beam number 2) horizontally extending \hbox{3\Bslash
+noteskip}, the first note of which is a {\tty g} and the last note is a{\tty j}.
+Knowing these parameters it will choose the highest slope number which
+corresponds to a slope not more than $(\hbox{\tty j}-\hbox{\tty
+g})/(3\keyindex{noteskip})$. Moreover, if there is no sufficiently steep beam
+slope available, then it will raise the starting point.
+
+
+\medskip Ten such macros are available: \keyindex{Ibu}, \keyindex{Ibbu},
+\keyindex{Ibbbu}, \keyindex{Ibbbbu}, \keyindex{Ibbbbbu}, \keyindex{Ibl},
+\keyindex{Ibbl}, \keyindex{Ibbbl}, \keyindex{Ibbbbl} and \keyindex{Ibbbbbl}.
+Examples of their use is given in {\tty marcello.tex}.
+
+\par\penalty -8000
+\rm
+ \section{Rests}
+
+ Except that difference that they have no specific pitch, rests are coded in a
+very simple way.
+
+\subsection{ordinary rests}
+
+ Full bar rests (also called ``pauses'') are coded as \keyindex{pause};
+smaller rests are \keyindex{hpause} (of duration equal to a \ital{half
+note}), \keyindex{soupir} (duration equal to a \ital{quarter note}),  
+\keyindex{dsoupir} (duration equal to an \ital{eighth note}, also
+\keyindex{ds}),   \keyindex{quartsoupir} (duration equal to an
+\ital{sixteenth note}, also \keyindex{qs}), \keyindex{huitsoupir} (duration
+equal to an \ital{thirtysecond note}, also \keyindex{hs}),
+\keyindex{seizsoupir} (duration equal to an \ital{sixty fourth note}, also
+\keyindex{qqs}).
+
+  Long rests (lasting several bars) can be coded as \keyindex{PAuse}
+and \keyindex{PAUSe}, which respectively yield:
+
+ \begin{music}
+\def\nbinstruments{1}\relax
+\computewidths
+\generalmeter{\meterfrac{4}{4}}\relax
+\debutextrait
+\normal\elemskip=0.115\hsize
+\temps\Notes\sk\PAuse\enotes
+\barre\Notes\sk\PAUSe\enotes
+\finextrait
+ \end{music}
+
+\subsection{Lifted rests}
+  All the previous rests are \ital{hboxes}; this means that they
+can be vertically offset to meet polyphonic music requirements using the
+standard \TeX\ command \keyindex{raise}.  
+
+ In addition, two symbols have been provided to put a \itxem{full rest} or a
+\itxem{half rest} above or below the staff. Then the ordinary \verb|\pause| or
+\verb|\hpause| cannot be used since there is a need for small horizontal line
+to distinguish between the full and the half rest. They are~:
+ \begin{itemize}
+ \item \keyindex{expause}~$p$ (spacing) for \hbox to 1.5em{\hss\expause 1\hss}
+at pitch position $p$,
+ \item \keyindex{exhpause}~$p$ (spacing) for \hbox to 1.5em{\hss\exhpause 1\hss},
+ \item \keyindex{zexpause}~$p$ (non spacing) for \hbox to 1.5em{\hss\zexpause 1\hss},
+ \item \keyindex{zexhpause}~$p$ (non spacing) for \hbox to
+1.5em{\hss\zexhpause 1\hss}.
+ \end{itemize}
+
+ \section{Phantom notes}
+
+It may be interesting, when coding a sequence of notes within a unique pair
+{\Bslash notes...\bslash enotes}, to skip one note place in order -- for
+example -- to set the third note of one staff at the same abscissa as that of
+the second note of another staff. This can be done by inserting \keyindex{sk}
+which causes a spacing of one \keyindex{noteskip}\footnote{Do not use
+\keyindex{kern} nor \keyindex{hskip}~: in fact \keyindex{sk} not only causes
+a space but also records that space for correct handling of beams.}.
+
+\medskip If you just want to shift a note or a symbol by one note head width,
+you may write \keyindex{qsk}. However, if you want to offset a note by one
+note head width in a chord, you have better use the \keyindex{roff}
+macro\footnote{The reason for that pertains to \ixem{\musixtex} which might
+dilate or shrink the {\bslash \qsk} spacing while the {\bslash roff} offset is
+absolute.}.
+
+\medskip Note that these two latter macros must be used inside a pair {\tty
+\bslash notes...\bslash enotes}. If you want to make a spacing of one note
+head width outside, write \keyindex{nspace}. Conversely, a more general
+spacing is allowed within the {\Bslash notes...\bslash enotes} pairs, namely:
+
+\medskip{\tty\keyindex{off} $d$}
+
+\medskip\noindent where $d$ is any \TeX\ valid dimension, for example
+{\Bslash noteskip} or {\tty 5\bslash Interligne}. In fact, if you look to the
+\musictex\ source, you will find that {\Bslash off} is the basic control
+sequence used to define \keyindex{sk}, \keyindex{qsk}, etc.
+
+
+\section{Collective coding: sequences of notes}
+
+
+As seen in the {\sc Mozart} example, it is not necessary to write a macro
+sequence {\Bslash notes...\bslash enotes} for each column. If, on all
+staffs of all instruments, spacings are equal or multiple of a unique value,
+the notes may be concatenated in each staff: each note in each staff makes
+the current position horizontally advance by the elementary spacing specified
+by the choice of {\Bslash notes}, {\Bslash Notes}, {\Bslash
+NOtes}, etc.
+
+%\check
+
+
+
+\medskip The major interest of this feature resides in that fact that
+the note macros are able to write several items; for instance
+{\Bslash qu\{cdefghij\}} writes the \ital{C-major} scale in quarters with
+stem up. In the same way {\Bslash cl\{abcdef\^{ }gh\}} writes the
+\ital{A-minor} scale in eighths. Not all note generating macros can be used
+to perform collective coding, but most of them can. They are:
+
+\begin{itemize} \item all the spacing notes: \keyindex{wh}, \keyindex{hu},
+\keyindex{hl}... \keyindex{ccccl} and the beam hooked notes, i.e.
+\keyindex{qh}$n$ and \keyindex{qb}$n$. \item all the chord notes with names
+of the form {\Bslash z...}. \end{itemize}
+
+ Conversely, shifted notes are not supposed to be used in collective coding,
+mainly because they are used in very special cases which do not deserve
+wasting memory space to make them collective.
+
+\medskip If necessary a void space can be inserted in a collective coding by
+using {\tty*}\index{*}.
+
+
+%\check
+\section{Accidentals}
+
+
+Accidentals can be introduced in two ways.
+
+\medskip The first way, the \ital{manual} way of coding them, consists for
+example in coding {\tty\keyindex{fl} a} to put a \ital{flat} at the pitch $a$,
+supposedly before the further note of that pitch. There is no control upon
+the fact that a note will be put at this position and at this pitch.
+Naturals, sharps, double flats and double sharps are coded \keyindex{na}~$p$,
+\keyindex{sh}~$p$, \keyindex{dfl}~$p$ and \keyindex{dsh}~$p$ respectively.
+
+\medskip
+Alternate procedures \keyindex{lfl}, \keyindex{lna}, \keyindex{lsh},
+\keyindex{ldfl} and \keyindex{ldsh}
+place the same accidentals, but their abscissa is shifted one note head width
+on the left. The purpose of this is to avoid collision of accidentals
+in a chord with narrow intervals.
+
+\medskip
+%\check
+ The second way of coding accidentals consists in putting the symbol {\tty
+\^{ }} (sharp), the symbol {\tty\_} (flat), the symbol {\tty=} (natural), the
+symbol {\tty>\relax} (double sharp), or the symbol {\tty<\relax} (double
+flat) within the coding of the note, e.g.: {\Bslash qh\{\^{ }g\}} yields a
+$G\sharp$. This may very well be combined with collective coding, e.g.:
+{\Bslash qu\{ac\^{ }d\}}.
+
+
+\medskip Two sizes are available for accidentals. They revert to the small
+version when notes are supposed to be too close to each other. These two
+sizes can be forces by coding \keyindex{bigfl}, \keyindex{bigsh}, etc., or
+\keyindex{smallfl}, \keyindex{smallsh}, etc. If one does not want to have any
+small accidentals, then one can declare \keyindex{bigaccid} (conversely
+\keyindex{smallaccid} or \keyindex{varaccid} -- the latter restoring variable
+sizes).
+
+
+\medskip Small accidentals can also be put \ital{above} the note
+heads. This is done using \keyindex{uppersh}~$p$, \keyindex{upperna}~$p$ or
+\keyindex{upperfl}~$p$:
+
+ \begin{music}
+\def\nbinstruments{1}\relax
+\computewidths
+\debutextrait
+\normal
+\temps\NOtes\sk\uppersh l\ql l\enotes
+\temps\NOtes\upperna m\ql m\enotes
+\temps\NOtes\upperfl l\ql l\enotes
+\finextrait
+ \end{music}
+
+ It also possible to introduce \ital{\ixem{cautionary accidental}s} on a
+score, i.e.\ small size accidentals between parentheses. This done by preceding
+the name of the accidental keyword by a {\tty c}, e.g.
+by coding {\tty\keyindex{cfl}}$p$ to get a cautionary flat.
+ Available cautionary accidentals are \keyindex{csh}, \keyindex{cfl}, \keyindex{cna},
+\keyindex{cdfl} and \keyindex{cdsh}, which give:
+
+ \begin{music}
+\def\nbinstruments{1}\relax
+\computewidths
+\debutextrait
+\normal
+\temps\NOtes\sk\csh g\qu g\enotes
+\temps\NOtes\cfl h\qu h\enotes
+\temps\NOtes\cna i\qu i\enotes
+\temps\NOtes\cdfl j\qu j\enotes
+\temps\NOtes\cdsh k\qu k\enotes
+\finextrait
+ \end{music}
+
+ Since cautionary accidentals are wider
+that normal ones, it might be useful to insert some spacing before them, either
+using \keyindex{temps} or a \keyindex{sk} within a {\Bslash notes...\bslash
+enotes} group.
+
+ 
+ \section{Transposition and octaviation}
+
+
+An important feature is the existence of a special register
+\keyindex{transpose} the normal value of which is 0. If you say
+
+\medskip
+{\Bslash transpose=3}
+
+\medskip\rm\noindent all subsequent pitches specified by
+upper or lower case letters will be transposed 3 positions. If you set
+\keyindex{transpose} to 7 you may write your music one octave below its final
+pitch. Thus, you can define \ital{octaviation} macros like
+%\check
+
+\medskip
+\Bslash def\bslash soqu\#1\{\bslash zq\{\#1\}\{\bslash transpose=7\bslash relax
+\bslash qu\{\#1\}\}\}
+
+\medskip\rm\noindent to build quarter note octaves in a single call. Note
+that the octaviated note is coded within braces so that the transposition
+is only local.
+%\check
+
+
+\medskip
+ \ital{Octaviation}\index{octaviation} can also be performed in is another
+way, namely unsing special codes to transpose by multiples of 7 intervals.
+For example {\Bslash qu\{'ab\}} is equivalent to {\Bslash qu\{hi\}} and
+{\Bslash qu\{\`{}kl\}} is equivalent to {\Bslash qu\{de\}}. It should be
+emphasized here that the {\tty'} (\itxem{acute accent}) and the {\tty\`{}}
+(\itxem{grave accent}) have cumulative effects, so that {\Bslash qu\{''A'A\}}
+is equivalent to {\Bslash qu\{ah\}} and that the {\Bslash transpose}
+parameter is only reset to its initial value (not necessarily zero) when
+changing staff or instrument (i.e. {\tty \|} or {\tty \&}) or at {\Bslash
+enotes}. Since this may be confusing, it is useful to use the {\tty !} prefix
+to reset the {\Bslash transpose} register explicitely to the value it had
+when entering {\Bslash notes}\footnote{This value is saved in another
+register named \keyindex{normaltranspose}.}. Thus {\Bslash qu\{!a'a\}} always
+gives the note {\tty a} and its upper octave {\tty h} \ital{shifted by the
+value of {\Bslash transpose} at the beginning of the current} \noindent
+{\Bslash notes...\bslash enotes} group (or {\Bslash Notes...\bslash enotes},
+etc.) whatever the number of previous grave and acute accents occurring
+inbetween.
+
+\medskip
+ The above processes indeed change the vertical position of the note heads
+and associated symbols (note stems, accents and beams) but they do not
+take care of the necessary changes of accidentals when transposing, i.e. the
+fact that an $F\sharp$ occurring with a zero signature should become a
+$B\natural$ when transposing from the tonality of $C$ major to $F$ major where
+the normal $B$ is the $B\flat$. Since the intent of the composer is not
+obvious -- he may want to shift a group of notes within the same tonality
+or conversely to transpose it in another tonality -- this is not done
+automatically. Thus the \keyindex{sh}, \keyindex{fl}, \keyindex{na}, \keyindex{dsh} and
+\keyindex{dfl} symbols \ital{are not affected} by a change of the \keyindex{transpose}
+register.
+
+
+\medskip
+ But the composer/typesetter may ask \musictex\ to do that work. In this
+case, he should code \keyindex{Sh}, \keyindex{Fl}, \keyindex{Na},
+\keyindex{dSh} and \keyindex{dFl} (or \keyindex{bigSh}, \keyindex{bigFl},
+\keyindex{bigNa}, \keyindex{bigdSh} and \keyindex{bigdFl} or
+\keyindex{smallSh}, \keyindex{smallFl}, \keyindex{smallNa},
+\keyindex{smalldSh}, \keyindex{smalldFl}, \keyindex{cSh}, \keyindex{cFl},
+\keyindex{cNa},  \keyindex{cdSh} and \keyindex{cdFl}) instead of the usual
+lower case accidental symbols. The symbol \keyindex{Sh} (resp.
+\keyindex{bigSh} and \keyindex{smallSh}) means that the corresponding pitch
+has to be raised by \ital{one half pitch} with respect to its normal value
+\ital{according to the current signature}. Thus {\Bslash Sh b} means a
+$B\sharp$ if the signature is zero or positive, and a $B\natural$ if it is
+negative. The same logic applies for all accidentals having an upper case
+forelast letter.
+
+
+\medskip
+ Obviously, the computation is done after taking account of the value of
+the \keyindex{transpose} register.
+
+
+\medskip The compact codes {\tty \^{}}, {\tty \_}, {\tty =} are normally not
+affected by transposition and signatures, but their behaviour can be changed
+by saying \keyindex{relativeaccidentals} and reset by
+\keyindex{absoluteaccidentals} (the default situation).
+
+%\check
+
+
+\medskip Although \ital{relative accidental coding} is an easy and safe way
+of coding \ital{transposable} scores, care should be exercised in getting rid
+of the habit of saying {\Bslash na b} to rise the pitch of a $B$ when the
+tonality is $F$ major (i.e. with {\tty\keyindex{sign$n$}=-1} or
+{\tty\keyindex{generalsignature}\{-1\}}). An example of sophisticated
+transposition is given in the score {\tty souvenir.tex} (which {\Bslash
+input}s {\tty souvenix.tex}). It should be noted that \ital{relative accidental
+coding} is compatible with \itxem{cautionary accidental} coding: in this
+case, one should code \keyindex{cNa}, \keyindex{cSh},  \keyindex{cFl}, 
+\keyindex{cdSh},  \keyindex{cdFl} respectively.
+
+\medskip
+ Besides, the typical piano octave transposition \hbox{\sl 8 - - - - - } can
+be obtained by coding:
+
+%\check
+\medskip  \keyindex{octfin} $p$ $n$
+
+\medskip\noindent which puts the 8 and dotted line symbols at the pitch $p$
+(usually {\tty p} to {\tty r}). The length is $n$\keyindex{noteskip}. This
+obviously fit for short octaviation denotations. To transpose a whole line,
+use \keyindex{octline}~$p$. Since \keyindex{octfin} terminates with a small
+hook down, to indicate clearly where octaviation stops, you may also like to
+use \keyindex{octsup} which behaves like \keyindex{octfin} without the final
+hook. All this supposes you have an idea of the actual line breaking of your
+score in that section, and this is admittedly difficult to handle when octave
+transposition is supposed to long a large number of lines. In that latter
+case, you can use the {\Bslash def\keyindex{everystaff}\{...\}} to insert
+whatever code you like at each new line of score. This has been used to set
+octaviation in the score of the \ital{Toccata in F} by Charles-Marie
+\index{Widor, C.-M.}{\sc Widor}\footnote{A French organist (1844-1937) and
+composer who was in charge of the organ of  St-Sulpice in Paris, from 1864 to
+1934.}: at each bar (or virtual bar, namely \keyindex{zbarre}), the {\Bslash
+everystaff} procedure is updated to produce the convenient code, in case of
+the line breaking happening before the next definition.
+%\check
+
+ \section{Ties and slurs} 
+
+ They have been implemented in a way which may look
+rather ugly, but we think it is the only way of implementing \ital{in one
+pass} ties and slurs which run \ital{across glue}.
+
+
+\medskip Slurs and ties must be initiated within the pair {\Bslash
+notes...\bslash notes} before the spacing note is coded. They must be
+terminated also before the last note is coded.
+
+
+\medskip\keyindex{itenu}~$np$
+
+
+\medskip\noindent\rm (\ital{ten} stands for the Italian word \ital{tenuto})
+initiates an upper tie (convex) at pitch $p$. Just like beams, ties have a
+reference number $n$, from 0 to 6 (or 9 if {\tty musicadd} is included).
+\keyindex{itenl}~$np$ initiates a lower tie (concave).
+
+
+\medskip The tie of reference number $n$ is terminated by
+\keyindex{tten}~$n$.
+
+
+\medskip Slurs are initiated with \keyindex{ilegu}~$np$ and
+\keyindex{ilegl}~$np$, where \ital{leg} stands for the Italian word
+\ital{legato}, and they are terminated with \keyindex{tleg}~$n$. Except that
+slurs start before the note position and stop after, ties and slurs work the
+same way with the same syntax. They also share the same registers so that
+slurs nesting tied notes should have numbers $n$ distinct from each other.
+\subsection{Standard and nicer slurs}
+
+\medskip  Since version 4.7, beginnings and ends of slurs are produced  using
+a special font ({\tty slurn16} or {\tty slurn20}) rather than using \TeX\
+bracing tokens from {\tty cmex10}. Thus the bending of slurs is now nicer and,
+moreover, several slur sizes are available. For example:
+
+\begin{music}
+\def\nbinstruments{1}\relax
+\computewidths
+\debutextrait
+\normal
+\temps\NOtes\Ilegu0l\qu g\enotes
+\NOtes\qu h\enotes
+\NOtes\ql i\enotes
+\NOtes\tleg0\ql j\enotes
+\finextrait
+ \end{music}
+
+\noindent has been coded using \keyindex{Ilegu} rather than \keyindex{ilegu}
+(resp.\ using \keyindex{Ilegl} rather than \keyindex{ilegl} if a lower slur
+is wanted), namely:
+
+\begin{quote}\begin{verbatim}
+\NOtes\Ilegu0l\qu g\enotes
+\NOtes\qu h\enotes
+\NOtes\ql i\enotes
+\NOtes\tleg0\ql j\enotes
+\end{verbatim}\end{quote}
+
+  It should to be noted that, as a standard, \itxem{ties} still use the \TeX\
+bracing symbols; this is mainly done to avoid visibility problems with ties
+occurring in the middle of staffs, i.e. in a situation where tie lines could
+overlap and be confused with staff lines. But the \musictex\ user can request
+using special slur fonts by coding \keyindex{Itenu} or \keyindex{Itenl}
+instead of \keyindex{itenu} or \keyindex{itenl}. Even more, big symbol ties
+are available using \keyindex{ITenu} or \keyindex{ITenl}.
+
+\medskip  As a standard, only two slur and tie symbol sizes are referred by
+\musictex\ macros, but a quick look into {\tty musicnft.tex} show that these
+definitions explicitely refer to a character number of the slur font:
+
+\begin{quote}\begin{verbatim}
+\def\ITenu#1{\selecttenue{#1}\I@tenu{70}}%
+\def\Ilegu#1#2{\selecttenue{#1}{\advance\locx@skip by -1.5\qn@width
+\I@tenu{70}{#2}}}%
+\def\Itenu#1{\selecttenue{#1}\I@tenu{66}}%
+\def\ilegu#1#2{\selecttenue{#1}{\advance\locx@skip by -1.5\qn@width
+\I@tenu{66}{#2}}}%
+\end{verbatim}\end{quote}
+
+ Then the \musictex\ user can, for his own special needs, define new macros
+using other character codes in the range 64--79, knowing that each character
+of this range is one point longer than the previous one.
+
+\subsection{Problem with large slur ends}
+
+Due to spacing problems, it may happen that the end of an \keyindex{Ilegu} or
+\keyindex{Ilegl} makses some ugly overlap between the currrent slur
+horizontal rule and the ending symbol itself. This is due to the ending
+symbol being so long that it overlaps the end of the horizontal rule. The
+easiest way of removing that slight trouble consists in replacing --- for
+example --- {\tty\keyindex{tleg}0} with the more sophisticated commands~:
+
+\medskip\verb|\rlap{\qsk\tleg0}|
+
+\medskip\noindent which delays the position of the closing slur symbol by a
+space equal to the note head width.
+
+\subsection{Weird slurs and ties}
+
+In some special cases, usually in romantic music, one may want to invert the
+sense of a slur, linking for example a keyboard phrase beginning at the left
+hand and ending at the right hand. Thus, the slur of number $n$ (a numeric
+vamue, not a roman numeral) can be inverted
+by
+
+\medskip\keyindex{Invertslur} $n$
+
+\medskip Besides, for some good reason, one may want to raise a slur at the
+next line. This is done by
+
+\medskip\verb|\def\atnextline{|\keyindex{liftslur} $n$\verb|{|
+\ital{dimension} \verb|}}|
+
+\medskip\noindent which will lift the slur number $n$ by the given amount at
+the next line change. Of course, \keyindex{liftslur} could be called in the middle
+of a line, but the result would be rather ugly.
+
+These two features are used at bars number 131--132 of examples {\tty
+PACIFIQB} and {\tty PACIFIQN}.
+
+\subsection{Refined slurs for clever typesetters}
+  In addition to the previous extension and improvement of existing features,
+long nice horizontal slurs are also available, but they can be used only with
+two restrictions:
+
+\begin{itemize}
+
+\item They are not managed when \itxem{glue} is inserted, especially by
+\keyindex{temps} and \keyindex{barre};
+
+\item They cannot be cut at line breaking.
+
+\end{itemize}
+
+ Thus, their use is recommended only for nice slurs extending a few bars and
+not supposed to occur across lines. With this restrictions,
+
+\begin{music}
+\def\nbinstruments{1}\relax
+\computewidths
+\debutextrait
+\normal
+\temps\NOtes\zcharnote l{\huslur{3.5\noteskip}}\qu g\enotes
+\NOtes\qu h\enotes
+\NOtes\ql i\enotes
+\NOtes\ql j\enotes
+\finextrait
+\end{music}
+
+\noindent has been obtained by coding:
+
+\begin{quote}\begin{verbatim}
+\NOtes\zcharnote l{\huslur{3.5\noteskip}}\qu g\enotes
+\NOtes\qu h\enotes
+\NOtes\ql i\enotes
+\NOtes\ql j\enotes
+\end{verbatim}\end{quote}
+
+However, the best solution is now to use \ixem{\musixtex} which systematically
+makes beautiful slurs, at the cost of a three pass system instead of one...
+
+\section{Bars}
+
+\subsection{Bars and spacing}
+
+
+ Ordinary \ital{bars} a coded using the macro \keyindex{barre} (this is a
+French word\footnote{Whose advantage is that it differs from {\Bslash
+bar} which is already defined in \TeX.}). This macro provides an optional
+(discretionary) line or page break\footnote{Unless it is triggered according
+to bar counting when \keyindex{autolines} has been invoked.}. It also
+provides some \ital{glue} in order to expand the text over an evenly filled
+line.
+
+
+\medskip However, since the number of bars in a score line is generally
+small, it may be convenient to allow \ital{glue} not only on each sides of
+\ital{bars}. This can be done using the macro \keyindex{temps} (the
+French word for \ital{beat}). This macro has two effects:
+
+\begin{enumerate}
+ \item it inserts some \ital{glue} but prevents line breaking\footnote{This
+could unpleasantly occur if you insert a space...},
+ \item if some ties or slurs are pending it expands them across the glue by
+writing an \keyindex{hrule} which overlaps the unfinished tie and makes it
+look prolongated.
+ \end{enumerate}
+
+
+\medskip
+ Whatever the care you exercize in adjusting the size of the
+\keyindex{elemskip}, you are still likely to find some broken ties (which
+indicate excessive glue disassembling the gliding tie \keyindex{hrule}s) or
+some unexpected (and unwanted) line breaks or some Over[aw]full
+\keyindex{hbox}es. A useful means of estimating the remaining space to be
+filled with glue consists in declaring \keyindex{raggedlinestrue}~: after
+that, an \keyindex{hfil} will be inserted by \musictex\ before each computed
+(when using \keyindex{autolines}) or forced line break. Thus, all the musical
+text will be packed on the left of the line and you will clearly see the
+amount of remaining space. Then, it will be up to you do decide changing some
+spacing parameters.
+
+
+\medskip\noindent{\bf Important: \sl do not use \keyindex{temps} when
+\ital{beams} are pending, otherwise their spatial synchronization would fail.
+ In other words, ties and slurs can jump over glue (because horizontal rules
+may overlap and thus have some elasticity) but beams (as well as any oblique
+lines) cannot.}
+
+\subsection{Bar numbering}
+\rm Unless otherwise specified, \index{bar numbering}bars are
+numbered. This is a good means of finding errors provided that the Music\TeX\
+user has put comments in his source text recording the (expected) bar number.
+However, this can look unpleasant for final outputs, since the habit is to
+number bars only each other five or ten bars. This is not a serious problem
+since the frequency of bar numbering is defined as:
+
+\medskip{\Bslash def\keyindex{freqbarno}\{1\}}
+
+\medskip
+If you replace the {\tty 1} by {\tty 5}, bar numbering will occur each other five
+bars. You can also inhibit any bar number printing by telling:
+
+\medskip{\Bslash def\bslash wbarno\{\}}
+
+\medskip\noindent or, in a more clever way:
+
+\medskip{\Bslash def\bslash freqbarno\{9999\}}.
+
+\medskip The bar counter is also accessible, its name is \keyindex{barno}.
+This has nothing to do the the bar counting invoked by \keyindex{autolines},
+so you can change it without any dramatic consequence. 
+
+\subsection{Full and instrument divided bars}
+ Normally, bars (as well as double bars, final bars and repeat bars) are
+drawn as a continuous line, starting for the bottom of the lower staff of the
+lower instrument, and ending at the top of the upper staff of the upper
+instrument. However, one may want to have discontinuous bars, that is, one
+continuous bar for all the staffs of a unique instrument. This is done by
+issuing the command \keyindex{sepbarrules}. An example of this is given in the
+{\tty ANGESCAO} (or {\tty ANGESCAM}) example; it has also been used in the
+example of section \ref{avemaria}.
+
+ The initial situation can be forced or restored by
+\keyindex{stdbarrules}. 
+
+\section{Line and page breaking}\label{linepagebreak}
+
+
+Bars provide a line breaking mechanism which is supposed to enable \TeX\
+to break a full score into lines and pages, with an optimal distribution
+of the text into lines and pages. Unfortunately, this does not work
+correctly for scores of more that approximately one page. The reason is
+that \TeX\ must compile the entire contents of a paragraph, before it
+tries to break it into lines and pages. Therefore, one cannot rely on \TeX\
+to make that work which automatically results in the diagnostic {\tty TeX
+capacity exceeded, memory...}.
+%\check
+
+
+\medskip To circumvent this dramatically restrictive capacity\footnote{\TeX\
+has been designed to type text, not music.} unless you use some
+Big\TeX\footnote{Whose drawback is that it is very slow on ordinary PCs.}
+another mechanism must be invoked to break lines.\index{Big\protect\TeX}
+
+
+\medskip The first one is the manual one: you replace some of the {\Bslash
+barre} macro calls by either \keyindex{alaligne} (equivalent to
+\keyindex{break} within text: in fact it contains a \keyindex{break} plus
+some (many) other things). In the same way, you can code {\Bslash alapage} to
+force an \keyindex{eject} with proper reinitialization of staffs, clefs and
+signatures.
+
+
+\medskip The second one is fit for scores with
+bars of regular length: after \keyindex{debutmorceau}, you code the
+following macro:
+
+
+\medskip\Bslash autolines $tml$
+
+\medskip\noindent\rm where $t$ is the number of \ital{elementary spacings}
+(the length of {\Bslash notes...\bslash enotes}) in an average bar, $m$ is
+the number of bars you wish in a line and $l$ is the number of lines you wish
+in a page\footnote{After having coded nearly one hundred of pages of music, I
+strongly recommend the use of \keyindex{autolines} except when inserting
+short excerpts of less than one line, such as in musicographic books.}.
+
+\medskip This sets some parameters, namely \keyindex{maxbarsinline} and
+\keyindex{maxlinesinpage} which are simply used to count the bars, optionally
+perform \keyindex{alaligne} or \keyindex{alapage} instead of the normal
+\keyindex{barre}. You may freely alter the values of these parameters, once
+they have been established by \keyindex{autolines}. Moreover, you can still
+force line breaking of page ejection using {\Bslash alaligne} or
+\keyindex{alapage} without problem since these macros actually reset the bar
+counters appropriately.
+
+
+\medskip On the other hand, you may want to forbid line breaking at a bar,
+then you replace {\Bslash barre} by \keyindex{xbarre}.
+
+
+\medskip Conversely, you may want to
+break a line \ital{not at a bar}\footnote{For example, you may prefer to turn
+the page at a place where the pianist has one hand free.}. This is allowed by
+\keyindex{zbarre} (optional line break) or forced by {\Bslash
+zalaligne} or \keyindex{zalapage}.
+
+
+\medskip
+The final heavy double bar of a piece is provided by \keyindex{finmorceau}.
+If you just want to terminate the text with a simple bar, you say
+\keyindex{suspmorceau}. If you want to terminate it without a bar, you code
+\keyindex{zsuspmorceau}. Once you have stopped the score by any of these
+means, you can restart it using \keyindex{reprmorceau}.
+
+However,  using {\Bslash reprmorceau} after a {\Bslash finmorceau} may have a
+little drawback: if {\Bslash finmorceau} occurs at the bottom of a page
+defined by \keyindex{autolines}, it does not cause a page break which could
+lead to en empty page after the end of the piece but, conversely, this might
+cause another trouble if this only was the end of a scora part, not the end of
+the whole score. Therefore, an alternate command has been provided, namely
+\keyindex{Suspmorceau} which duly performs the page break, in order to be
+ready to score another part of a complex peace. Thus, as a rule~:
+
+\begin{itemize}
+ \item use \keyindex{finmorceau} at the very end of your score,
+ \item use \keyindex{Suspmorceau} at the end of the parts of a complex piece.
+
+\end{itemize}
+
+
+\medskip If you want the next vertical bar to be a double bar, you have to
+declare \keyindex{setdoublebar} before the \keyindex{barre} (or the
+\keyindex{suspmorceau} or \keyindex{alaligne} or \keyindex{alapage}) to be
+marked with a double thin bar.
+
+
+\section{Changing score attributes}
+
+
+ As seen before, you can change the
+signature of the whole set of instruments by \keyindex{generalsignature}~$n$
+where $n>0$ means a number of sharps, $n<0$ means a number of flats. Or, you
+may prefer to change the signature of only one or two instruments by the
+statement:
+
+
+\medskip\Bslash sign$r$=$s$
+
+\medskip\rm\noindent
+ %\check
+ where $r$ is the roman numeral of the instrument considered, and $s$ its
+specific signature. Since you may change simultaneously (with respect to the
+score) but consecutively (with respect to your code) the signatures of
+several instruments, this change takes place only when you say
+\keyindex{changesignature} (within a bar) or \keyindex{changecontext} (after
+a single vertical rule) or \keyindex{Changecontext} (after a double vertical
+rule).
+%\check
+ In the same way, you may want to change the active clefs.
+This is done by
+
+\medskip\tty\keyindex{cleftoks$r$}=\{\{$s1$\}\{$s2$\}\{$s3$\}\{$s4$\}\}\%
+
+\medskip\rm\noindent where $r$ is the roman numeral of the instrument, $s1$
+specifies the clef of the lower staff, $s2$ the clef of the second staff,
+etc. One must always give four values with the above syntax, otherwise\dots\
+$s1=6$ means the \ital{bass} clef (\ixem{clef de fa} in French), $s1=0$ means
+the \ital{violin} clef (\ixem{clef de sol} in French), $s1=1$ through $s1=5$
+mean the \ital{alto} clef (\ixem{clef d'ut} in French) set on first (lower)
+through fifth (upper line of the staff). \index{violin clef}\index{bass
+clef}\index{alto clef}
+ As seen above in the case of signatures, several clefs may be changed at the
+same time; thus all the clef changes become operational only when the macro
+\keyindex{changeclefs} is coded. Normal usage consists in issuing this
+command before the bar, not after (this helps the music player when the
+change happens across a line break).
+
+ The \verb|\changeclefs| command normally takes some horizontal space to put
+one of more clef symbols, but it may happen that you have no notes
+immediately before on the staff whose clef is changed. In that case, you can
+use \keyindex{zchangeclefs} which performs the same posting, overwritten left on
+the last part of the score in that staff. Of course it is your responsability
+to ensure that no notes will collide with the clef change symbols. 
+ %\check
+
+ Caution should be exercized changing clefs when \itxem{beams} are pending:
+in fact the \verb|\changeclefs| and \verb|\zchangeclefs| perturbate the
+computation of beams and this command should be invoked only
+ \begin{itemize}
+ \item out of {\Bslash notes}, {\Bslash Notes}... --- {\Bslash enotes} pairs;
+ \item only when no beam is pending\footnote{No problem with slurs and ties.}.
+\end{itemize}
+
+If a clef change has to be typeset when one or several beams are pending, the
+operation should be done in a more manual way:
+\begin{itemize}
+ \item say \keyindex{saveclefs} instead of \keyindex{changeclefs}~:
+This actually records the \keyindex{cleftoks$r$} statement and no further
+{\Bslash changeclefs} will repeat the clef change; the new clef will not
+be typeset by \verb|\saveclefs| itself but rather by the next \verb|\notes| or
+\verb|\Notes| command; 
+ \item say \verb|\charnote0{\smallclefdesol}| (resp.
+\verb|\charnote0{\smallclefdefa}| or \verb|\charnote0{\smallclefdut}|) where
+you like it and at the right staff (i.e.  within  {\Bslash notes}, {\Bslash
+Notes}... --- {\Bslash enotes} pairs) to type set the wanted clef symbol.
+ \end{itemize}
+ As an example, an excerpt of {\sc Brahms}'s Intermezzo op.~117,1 provided by
+Miguel {\sc Filgueiras}:\index{Brahms}
+
+\begin{music}
+\parindent 1cm
+\def\nbinstruments{1}\relax
+\def\freqbarno{9999}% no bar numbers
+\nbporteesi=2\relax
+\cleftoksi={6000}% F- and G-clefs
+\generalsignature{-3}% 3 flats
+\relax
+\debutextrait
+\normal
+\off{1em}\temps\Notes\larpeggio{E}5\zq{EI}\qu{N}\charnote0{\smallclefdesol}\relax
+\nextstaff\qsk\ibl0e{-1}\zq{eg}\qb0l\zq{d}\qb0k\enotes
+\cleftoksi={0000}\saveclefs\Notes\tbu0\zq{ce}\qh0j\relax
+\nextstaff\zq{sn}\cl{l}\enotes
+\Notes\zq{be}\qu{i}\nextstaff\zq{sn}\ql{l}\enotes
+\cleftoksi={6000}\changeclefs\Notes\zq{E}\cu{I}\relax
+\nextstaff\ibbu1h{-1}\zq{ae}\qh1h\tbu1\zq{N}\qh1g\enotes
+\finextrait
+ \end{music}
+\noindent which was coded as:
+ \begin{verbatim}
+\begin{music}
+\def\nbinstruments{1}\relax
+\def\freqbarno{9999}% no bar numbers
+\nbporteesi=2\relax
+\cleftoksi={6000}\generalsignature{-3}% 3 flats
+\debutextrait
+\normal
+\off{1em}\temps\Notes\larpeggio{E}5\zq{EI}\qu{N}%
+\charnote0{\smallclefdesol}\relax
+\nextstaff\qsk\ibl0e{-1}\zq{eg}\qb0l\zq{d}\qb0k\enotes
+\cleftoksi={0000}\saveclefs\Notes\tbu0\zq{ce}\qh0j\relax
+\nextstaff\zq{sn}\cl{l}\enotes
+\Notes\zq{be}\qu{i}\nextstaff\zq{sn}\ql{l}\enotes
+\cleftoksi={6000}\changeclefs\Notes\zq{E}\cu{I}\relax
+\nextstaff\ibbu1h{-1}\zq{ae}\qh1h\tbu1\zq{N}\qh1g\enotes
+\finextrait
+\end{music}
+ \end{verbatim} 
+
+\medskip \ital{Meter} changes are implemented the same way:
+
+\medskip\Bslash metertoks$r$=\{\{$m1$\}\{$m2$\}\{$m3$\}\{$m4$\}\}\%
+
+\medskip\rm\noindent
+ where $r$ is the roman numeral of the instrument, $m1$ specifies the meter
+of the lower staff, $m2$ the meter of the second staff, etc. One must always
+give four values with the above syntax, otherwise\dots\ Since meter changes
+are meaningful only across bars, they are actually taken in account with
+\keyindex{changecontext} or \keyindex{Changecontext} or \keyindex{alaligne}
+or \keyindex{alapage}.
+
+
+\section{Repeats}
+%\check
+
+
+ To insert a \ital{repeat bar} you can use several sets of procedures.
+
+\subsection{Elementary and unsafe solutions} The
+simplest consists in using the commands \keyindex{leftrepeatsymbol}, 
+\keyindex{rightrepeatsymbol} and \keyindex{leftrightrepeatsymbol} -- coded
+outside the {\Bslash notes...\bslash enotes} pairs -- which will simply
+insert these colon adorned double bars at the requested place. For example:
+
+\begin{music}
+ \def\nbinstruments{1}
+ \generalsignature{0}\savesignature
+ \nbporteesi=1\cleftoksi={{0}{0}{0}{0}}\relax
+ \debutextrait\normal
+ \notes\hu g\enotes
+ \leftrepeatsymbol
+ \notes\hu h\enotes
+ \leftrightrepeatsymbol
+ \notes\hu i\enotes
+ \rightrepeatsymbol
+ \Notes\wh j\enotes
+ \finextrait
+\end{music} 
+
+ \noindent has been coded as:
+%\check
+
+
+\begin{quote}\begin{verbatim}
+\notes\hu g\enotes
+\leftrepeatsymbol
+\notes\hu h\enotes
+\leftrightrepeatsymbol
+\notes\hu i\enotes
+\rightrepeatsymbol
+\Notes\wh j\enotes
+\end{verbatim}\end{quote}
+
+\medskip
+ However, the previous way of coding does not provide for line breaking
+at repeat bars, nor does it advance the bar numbering. In fact, this way of
+coding if only fit for repeats occurring in the middle of a bar.
+
+
+\medskip A second way of coding consists in saying \keyindex{setleftrepeat},
+\keyindex{setrightrepeat} or \keyindex{setleftrightrepeat} before a bar
+(\keyindex{barre}), \keyindex{suspmorceau} or \keyindex{changecontext}). In
+this case, the next single\footnote{\keyindex{setrightrepeat} does not change
+the effect of \keyindex{finmorceau}; in that case use
+\keyindex{finrightrepeat}.} vertical bar will be replaced with the selected
+repeat bar. This meets the traditional music typesetting conventions in the
+only case of the \ital{right repeat} but, unfortunately, left and left/right
+repeats use to behave in a different manner when in the middle of a line and
+at a line break.
+
+
+\subsection{Safe and correct coding} The third coding, namely the correct coding -- i.e. transforming in
+the correct manner when occurring at a line break -- is obtained by
+substituting the \keyindex{barre} command with \keyindex{leftrepeat},
+\keyindex{rightrepeat} and \keyindex{leftrightrepeat}.
+%\check
+
+
+\medskip
+ Now, if you want to force a new line at a repeat, you should code
+respectively:
+
+
+\medskip\keyindex{setrightrepeat}\keyindex{alaligne}
+
+ \keyindex{setrightrepeat}\keyindex{suspmorceau}
+
+ {\Bslash alaligne}\keyindex{leftrepeatsymbol}
+
+ \keyindex{reprmorceau}\keyindex{leftrepeatsymbol}
+
+ \keyindex{debutmorceau}\keyindex{leftrepeatsymbol}
+
+\medskip\noindent or the combination of two of these in the case of a
+left/right repeat.
+
+\subsection{Specific first and second pass scoring}
+
+A frequent situation consists in a long repeated score, but the last few bars
+are different at first pass and at second pass. This can be specified by
+saying \keyindex{setprimavolta} or \keyindex{setsecondavolta}\footnote{From
+the Italian \ital{prima volta} meaning ``first time'', and \ital{seconda
+volta} meaning ``second time''.} before the next \keyindex{barre} or
+\ital{repeat} (usually {\Bslash rightrepeatsymbol}). For example~:
+
+
+\begin{music}
+ \def\nbinstruments{1}
+ \generalsignature{0}\savesignature
+ \nbporteesi=1\cleftoksi={{0}{0}{0}{0}}\relax
+ \debutextrait\normal
+ \Notes\qu {ghij}\enotes
+ \setprimavolta\barre
+ \Notes\qu {hijk}\enotes
+ \setsecondavolta\setrightrepeat\barre
+ \Notes\qu {ijkl}\enotes
+ \barre
+ \NOTes\wh j\enotes
+ \finextrait
+\end{music} 
+
+ \noindent has been coded as:
+\begin{quote}\begin{verbatim}
+ \def\nbinstruments{1}
+ \generalsignature{0}\savesignature
+ \nbporteesi=1\cleftoksi={{0}{0}{0}{0}}\relax
+ \debutextrait\normal
+ \Notes\qu {ghij}\enotes
+ \setprimavolta\barre
+ \Notes\qu {hijk}\enotes
+ \setsecondavolta\setrightrepeat\barre
+ \Notes\qu {ijkl}\enotes
+ \barre
+ \NOTes\wh j\enotes
+ \finextrait
+\end{verbatim} \end{quote}
+
+The ``prima volta'' and ``seconda volta'' symbols are normally set at {\tty
+2\bslash Interligne} above the upper line of the staff, and one centimeter
+wide. If the music typesetter does not like that, he can issue for example:
+
+\medskip\keyindex{Setprimavolta}\verb|{4\Interligne}{0.78in}|
+
+\medskip\noindent where the first argument is the vertical offset, and the
+second one is the length of the upper horizontal line. A symmetrical feature is
+\keyindex{Setsecondavolta} with also two dimension arguments.
+
+Note that these special settings are only valid for one usage; after that,
+they are reset to the standard values.
+
+%\check
+\subsection{Large scope repeats} Large scope repeats have also been provided
+special symbols, namely using \keyindex{coda} and \keyindex{segno}~:
+
+ \begin{music}
+\def\nbinstruments{1}\relax
+\computewidths
+\nbporteesi=1\relax
+\debutextrait
+\normal
+\notes\sk\enotes
+\temps\NOtes\coda l\enotes
+\temps\NOtes\segno l\enotes
+\finextrait
+ \end{music}
+
+\medskip\noindent which have been coded:
+
+\begin{quote}\begin{verbatim}
+\NOtes\coda l\enotes
+\NOtes\segno l\enotes
+\end{verbatim}\end{quote}
+
+%\check
+ \section{Miscellaneous}
+
+\subsection{Putting anything anywhere}
+
+Special macros are provided to help the composer to set any \TeX\
+text on the staffs. The macro
+
+\medskip\keyindex{charnote}~$p$\tty\{ {\rm text} \}
+
+\medskip\rm\noindent
+sets the given text with its base line at pitch $p$ of the current staff
+(this means it must be coded inside {\Bslash notes...\bslash enotes}).
+Whatever the length of the text, the spacing is \keyindex{noteskip}.
+If you do not want it to cause spacing, you code \keyindex{zcharnote}.
+If you want the possible spilling text to expand on the left rather than on the
+right, then you can use \keyindex{lcharnote}.
+%
+
+\medskip
+To place some text at the mid-position between the two staffs of
+a keyboard instrument, you may code:
+
+\medskip\tty\keyindex{midtwotext}\{ {\rm text} \}\ \ \% \rm (spacing)
+
+\medskip\tty\keyindex{zmidtwotext}\{ {\rm text} \}\ \ \% \rm (non spacing)
+
+\medskip\rm\noindent being however
+careful, a) to put it inside {\Bslash notes...\bslash enotes}, b) to code it in the
+text of the lower staff.
+
+\medskip A text to be put above the current staff is introduced by
+{\tty\keyindex{uptext}\{...\}}. This may however cause some collision with bar
+numbering or notes above the staff; it is then wise to use {\tty
+\keyindex{Uptext}\{...\}} which puts the text two pitches higher (recommended
+to post the tempo).
+
+\medskip
+The macro \keyindex{zcharnote} is fit for coding special notations like
+accents above or below the notes. It behaves like \keyindex{charnote} but
+causes no spacing.
+\subsection{Metronomic indications}
+
+Metronomic indication deserves a special macro. The mention:
+ \par\centerline{\def\nbinstruments{0}\computewidths
+\metron{\hup}{60}}\smallskip\noindent
+ is coded by {\tty\keyindex{metron}\{\bslash hup\}\{60\}} (normally embedded
+in \keyindex{Uptext} which is in turn embedded within {\Bslash
+notes...\bslash enotes}).
+
+
+
+\subsection{Usual ornaments}
+
+%\check
+\ital{Arpeggios} (i.e. \raise -4pt\hbox{\musicxx\char92}\ ) can be coded with
+ the macro
+
+\medskip\keyindex{arpeggio} $pm$
+
+\medskip\rm\noindent where $p$ is the pitch of
+the base of the arpeggio symbol and $m$ is its multiplicity (one period is
+equal to one space between staff lines, i.e. 5 points). This macro causes
+a space of one note head width. If should be issued before the concerned
+chords. Its variant \keyindex{larpeggio} sets the arpeggio symbol slightly
+more on the left, in order to avoid collision with accidentals in front of
+the chords.
+
+ Note the \keyindex{arpeggio} and \keyindex{larpeggio} make an extra spacing
+of width one notehead (i.e; \keyindex{qsk}) so that it is wise to insert a
+{\Bslash qsk} in the other staffs before notes which are syncrhonous to the
+arpeggiated note.
+
+\medskip \ital{Trills} can be coded in several ways. \keyindex{trille}~$l$
+(where $l$ is a \TeX\ dimension) yields \hbox{\trille{1cm}} while
+\keyindex{Trille}~$l$ (where $l$ is a \TeX\ dimension) yields
+\hbox{\Trille{2cm}}. To put these patterns at a given pitch, one may use
+\keyindex{xtrille}~$pl$ or \keyindex{xTrille}~$pl$. On the other hand
+\keyindex{ntrille}~$pn$ is equivalent to
+\keyindex{xtrille}~$p${\tty\{$n$\bslash noteskip\}} and
+\keyindex{nTrille}~$pn$ is equivalent to {\tty
+\keyindex{xTrille}~$p$\{$n$\bslash noteskip\}}
+
+
+\medskip Other \ital{ornaments} are available:
+
+ \begin{itemize}
+ \item \keyindex{mordant}~$p$ for \hbox to 1.5em{\mordant 0\hss},
+ \item \keyindex{pince}~$p$ for \hbox to 1.5em{\pince 0\hss},
+ \item \keyindex{Pince}~$p$ for \hbox to 1.5em{\Pince 0\hss},
+ \item \keyindex{Lpince}~$p$ for \hbox to 2em{\hss\Lpince 0\hss} (thanks to A.
+{\sc Egler})\index{Egler, A.},
+ \item \keyindex{Pincesw}~$p$ for \hbox to 2em{\hss\Pincesw 0\hss},
+ \item \keyindex{Pincene}~$p$ for \hbox to 2em{\hss\Pincene 0\hss},
+ \item \keyindex{Pincenw}~$p$ for \hbox to 2em{\hss\Pincenw 0\hss},
+ \item \keyindex{turn}~$p$ for \hbox to 2.5em{\kern 0.6em\turn 0\hss},
+ \item \keyindex{backturn}~$p$ for \hbox to 2.5em{\kern 0.6em\backturn 0\hss},
+ \item \keyindex{upz}~$p$ (upper \ital{pizzicato}) to put a dot above a note
+head at pitch $p$,
+ \item \keyindex{lpz}~$p$ (lower \ital{pizzicato}) to put a dot below a note
+head at pitch $p$,
+ \item \keyindex{usf}~$p$ (upper \itxem{sforzando}) to put a $>$ accent above
+a note head at pitch $p$,
+ \item \keyindex{lsf}~$p$ (lower \itxem{pizzicato}) to put a $>$ accent below
+a note head at pitch $p$,
+ \item \keyindex{ust}~$p$ (upper \itxem{staccato} or \itxem{portato}) to put a
+hyphen above a note head at pitch $p$,
+ \item \keyindex{lst}~$p$ (lower \ital{staccato} or \ital{portato}) to put a
+hyphen below a note head at pitch $p$,
+ \item \keyindex{uppz}~$p$ (upper strong \ital{pizzicato}) to put an
+apostrophe above a note head at pitch $p$,
+ \item \keyindex{lppz}~$p$ (lower strong \ital{pizzicato}) to put a reversed
+apostrophe below a note head at pitch $p$.
+ \item \keyindex{pointdorgue}~$p$ puts a \itxem{fermata} (in French ``point
+d'orgue'') at pitch $p$. No spacing occurs.
+ \item \keyindex{pointdurgue}~$p$ puts a reverse \ital{fermata} at the same
+place.
+ \item \keyindex{PED} to insert the piano pedal command below the staff;
+pedal release is specified by \keyindex{DEP}; thus the following example
+
+ \begin{music}
+\def\nbinstruments{1}\relax
+\computewidths
+\cleftoksi={{6}{0}{0}{0}}\relax
+\nbporteesi=2\relax
+\debutextrait
+\normal
+\temps\NOtes\qsk\PED\wh J|\qsk\qu h\enotes
+\temps\NOtes|\qu g\enotes
+\temps\NOtes|\hu k\enotes
+\temps\Notes\DEP\enotes
+\finextrait
+ \end{music}
+
+ \noindent was coded as:
+
+\begin{verbatim}
+\temps\NOtes\qsk\PED\wh J|\qsk\qu h\enotes
+\temps\NOtes|\qu g\enotes
+\temps\NOtes|\hu k\enotes
+\temps\Notes\DEP\enotes
+\end{verbatim}
+
+ \end{itemize}
+
+%\check
+
+\subsection{New line synchronization of coding}
+
+ The procedure named \keyindex{everystaff} is executed each time a new system
+is typed. It is normally void, but it can be defined (simply by {\Bslash
+def\keyindex{everystaff}\{...\}}) to tell \musictex\ to post anything
+reasonable at the beginning of each system. It was used in the example
+{NWIDOR} to post octaviation dashed lines at the end of the piece.
+
+
+\medskip
+ The procedure named \keyindex{atnextline}, normally void, is executed at the
+next computed (through \keyindex{autolines}) or forced line break (using
+\keyindex{alaligne} or \keyindex{alapage}). More precisely, it is executed
+after the break and before the next system is typed. Thus it is fit for
+posting new definitions of layout parameters, when no system is
+pending\footnote{Its logic is similar to plain \TeX's \keyindex{vadjust}
+command.}. 
+
+ \medskip
+ \index{tenor violin clef}In some scores, tenor parts are not code using the
+\ital{bass} clef, but using rather the \ital{violin clef} subscripted by a
+{\tty 8}. This is not directly supported by the \keyindex{cleftoks$r$}{\tty=}
+command, but it can be handled using \keyindex{everystaff} and \keyindex{zcharnote}.
+As an example the following score
+
+\begin{music}
+\def\nbinstruments{4}
+\cleftoksi={6000}
+\cleftoksii={0000}
+\cleftoksiii={0000}
+\cleftoksiv={0000}
+\font\eightfig=cmr8
+\def\everystaff{\znotes&\zcharnote{-6}{\eightfig
+  \kern -1.4\Interligne 8}&\zcharnote{-6}{\eightfig
+  \kern -1.4\Interligne 8}\enotes}
+\debutextrait
+\normal
+\NOtes\hu{HIJK}&\hu{efgh}&\hl{hijk}&\hl{hmlk}\enotes
+\finextrait
+\end{music}
+\noindent was coded as:
+
+\begin{quote}\begin{verbatim}
+\def\nbinstruments{4}
+\cleftoksi={6000}
+\cleftoksii={0000}
+\cleftoksiii={0000}
+\cleftoksiv={0000}
+\font\eightfig=cmr8
+\def\everystaff{\znotes&\zcharnote{-6}{\eightfig
+  \kern -1.4\Interligne 8}&\zcharnote{-6}{\eightfig
+  \kern -1.4\Interligne 8}\enotes}
+\debutextrait
+\normal
+\NOtes\hu{HIJK}&\hu{efgh}&\hl{hijk}&\hl{hmlk}\enotes
+\finextrait
+\end{verbatim}\end{quote}
+ where the \verb|\eightfig| font declaration can obviously be omitted if
+the \TeX\ format declares an 8 point roman font.
+
+%\check
+
+\subsection{Beams across bars}
+
+The \keyindex{barre} macro inserts glue and terminates spacing account. Thus
+it is not compatible with pending \itxem{beams} and this is the usual way most
+composers wrote their scores, at least until the beginning of the XIX-th
+century. Unfortunately, later composers ({\sc Brahms}, {\sc Scriabin}, etc.)
+wanted to write beams jumping across bars.
+
+This can be partly handled by \musictex, using the macro
+\keyindex{xbeambarre}\footnote{An ugly mixture of French and English which is
+therefore not likely to be redefined by somebody else.} which puts a bar line
+of global width {\Bslash elemskip} with no glue around. Bar counting is done
+for \keyindex{autolines} purpose but no line breaking can occur, which means
+that the beams going across line or page breaks are not supported.
+
+We give an example from {\sc Brahms}'s Intermezzo op.~118,1 provided by
+Miguel {\sc Filgueiras}:\index{Brahms}
+
+\begin{music}
+\def\interfacteur{13}
+\def\nbinstruments{1}
+\nbporteesi=2\relax
+\cleftoksi={6000}
+\generalmeter{\allabreve}
+\debutextrait
+\normal
+\off{1em}\temps\Notes\qp\nextstaff\Ilegu0r\zq{q}\ql{j}\enotes
+\barre
+\Notes\qsk\ibu0a1\qh0{CEJLcL}\relax
+\nextstaff\qsk\rw{l}\pt{p}\zh{_p}\pt{i}\hl{_i}\enotes
+\Notes\qh0J\itenl1a\qh0a\nextstaff\tleg0\zq{o}\ql{h}\enotes
+\xbeambarre
+\Notes\zh{.L.a}\hl{.e}\relax
+\nextstaff\tten1\qb0{chj}\tbl0\qb0l\cl{q}\ds\enotes
+\Notes\qp\nextstaff\zq{q}\ql{j}\enotes
+\finextrait
+ \end{music}
+\noindent whose coding is:
+
+\begin{verbatim}
+\begin{music}
+\def\interfacteur{13}
+\def\nbinstruments{1}
+\nbporteesi=2\relax
+\cleftoksi={6000}
+\generalmeter{\allabreve}
+\debutextrait
+\normal
+\off{1em}\temps\Notes\qp\nextstaff\Ilegu0r\zq{q}\ql{j}\enotes
+\barre
+\Notes\qsk\ibu0a1\qh0{CEJLcL}\relax
+\nextstaff\qsk\rw{l}\pt{p}\zh{_p}\pt{i}\hl{_i}\enotes
+\Notes\qh0J\itenl1a\qh0a\nextstaff\tleg0\zq{o}\ql{h}\enotes
+\xbeambarre
+\Notes\zh{.L.a}\hl{.e}\relax
+\nextstaff\tten1\qb0{chj}\tbl0\qb0l\cl{q}\ds\enotes
+\Notes\qp\nextstaff\zq{q}\ql{j}\enotes
+\finextrait
+ \end{music}
+\end{verbatim}
+
+%\check
+\section{Small and tiny notes}
+
+Before entering details, let us point out that we are presently concerned with
+typing notes of smaller size than the normal one, without attempting to change
+the interval between the five lines building a single staff. Changing staff
+line interval will be treated in a further section.
+
+\subsection{Cadenzas and explicit ornaments}
+
+ Ornaments and \itxem{cadenzas} usually need to be written using smaller
+notes\footnote{This is independent of the staff size.}. This can be done
+everywhere by stating \keyindex{smallnotesize} or \keyindex{tinynotesize}.
+Normal note size is restored by \keyindex{normalnotesize}.\index{ornaments}
+
+ These macros only have a local scope. Thus, if these macros are invoked
+outside the {\Bslash notes...\bslash enotes} pair, the change is valid for
+the rest of the piece unless explicitely modified but, if they are invoked
+inside, their effect is local to the current staff of the current  {\Bslash
+notes...\bslash enotes} pair. As an example, the following excerpt (beginning
+of the Aria of the ``Creation'' by Joseph {\sc Haydn})\index{Haydn, J.}
+
+\begin{music}
+\def\DS{\hbox{\ds}}
+\def\FS{\hbox{\kern 0.3\noteskip\soupir}\kern -0.3\noteskip}
+\def\qbl#1#2#3{\ibl{#1}{#2}{#3}\qb{#1}{#2}}%
+\def\qbu#1#2#3{\ibu{#1}{#2}{#3}\qh{#1}{#2}}%
+\def\nbinstruments{2}%
+\generalmeter{\meterfrac{4}{4}}%
+\signaturegenerale{0}%
+\nbporteesii=1\relax
+\nbporteesii=2\relax
+\cleftoksi={{6}{0}{0}{0}}
+\cleftoksii={{6}{0}{0}{0}}
+\etroit     
+\debutextrait
+\NOTes\soupir&\soupir|\qu g\enotes
+% mesure 1
+\advance\barno by -1\relax
+\barre\NOtes\itenu2J\wh J&\zw N\ibl0c0\qb0e|\qu j\enotes
+\notes&\qbl0c0|\noteskip=0.6\elemskip\tinynotesize
+\Ibbu1ki2\qh1{kj}\tqh1i\qsk\enotes
+\Notes&\qb0e\tbl0\qb0c|\qu j\enotes
+\temps\Notes&\ibl0c0\qb0{ece}\tbl0\qb0c|\ql l\sk\ql j\enotes
+% mesure 2
+\barre\Notes\tten2\wh J&\ql J\sk\ql L|\ppt g\rlap{\qu g}\qbl1e0\relax
+       \zq c\qb1e\zq c\qb1e\relax
+       \zq c\tbl1\rlap{\qb1e}\ \ \ccu h\enotes
+\temps\Notes&\ql N\sk\pt L\ibl0L{-4}\qb0L|\ibl1e0\zq c\rlap{\qb1e}\cu g\relax
+       \zq c\rlap{\qb1e}\raise\Interligne\DS \rlap{\qu g}\qb1g\enotes
+\notes&\sk\tbbl0\tbl0\qb0J|\tbl1\zq c\qb1e\enotes
+\finextrait
+\end{music}
+
+\noindent can be coded as:
+
+\begin{verbatim}
+\def\DS{\hbox{\ds}}
+\def\FS{\hbox{\kern 0.3\noteskip\soupir}\kern -0.3\noteskip}
+\def\qbl#1#2#3{\ibl{#1}{#2}{#3}\qb{#1}{#2}}%
+\def\qbu#1#2#3{\ibu{#1}{#2}{#3}\qh{#1}{#2}}%
+\def\nbinstruments{2}%
+\generalmeter{\meterfrac{4}{4}}%
+\signaturegenerale{0}%
+\nbporteesii=1\relax
+\nbporteesii=2\relax
+\cleftoksi={{6}{0}{0}{0}}
+\cleftoksii={{6}{0}{0}{0}}
+\etroit     
+%
+%  end of preliminary definitions
+%
+\debutextrait
+\NOTes\soupir&\soupir|\qu g\enotes
+% mesure 1
+\advance\barno by -1\relax
+\barre\NOtes\itenu2J\wh J&\zw N\ibl0c0\qb0e|\qu j\enotes
+\notes&\qbl0c0|\noteskip=0.6\elemskip\tinynotesize
+\Ibbu1ki2\qh1{kj}\tqh1i\qsk\enotes
+\Notes&\qb0e\tbl0\qb0c|\qu j\enotes
+\temps\Notes&\ibl0c0\qb0{ece}\tbl0\qb0c|\ql l\sk\ql j\enotes
+% mesure 2
+\barre\Notes\tten2\wh J&\ql J\sk\ql L|\ppt g\rlap{\qu g}\qbl1e0\relax
+       \zq c\qb1e\zq c\qb1e\relax
+       \zq c\tbl1\rlap{\qb1e}\ \ \ccu h\enotes
+\temps\Notes&\ql N\sk\pt L\ibl0L{-4}\qb0L|\ibl1e0\zq c\rlap{\qb1e}\cu g\relax
+       \zq c\rlap{\qb1e}\raise\Interligne\DS \rlap{\qu g}\qb1g\enotes
+\notes&\sk\tbbl0\tbl0\qb0J|\tbl1\zq c\qb1e\enotes
+\finextrait
+\end{verbatim}
+
+ \subsection{Grace notes}
+
+ Grace notes are a special case of small and tiny notes: the difference is
+that they are always coded as eighth notes with an oblique bar over the flag.
+To perform this, special variants of \keyindex{cu} and \keyindex{cl} have been
+provided, namely \keyindex{grcu} and \keyindex{grcl}, with the only difference
+that the flag has been slashed. Using this together with the note reduction
+macro, grace notes (optionally chord grace notes) can be easily coded:
+
+  \begin{music}
+  \def\nbinstruments{1}
+  \nbporteesi=1\relax
+  \cleftoksi={{0}{0}{0}{0}}\relax
+  \debutextrait
+  \normal
+  \NOtes\qsk\hu h\enotes
+  \temps\smallnotesize
+  \notes\grcu j\enotes
+  \temps\normalnotesize
+  \NOtes\hu i\enotes
+  \barre\tinynotesize
+  \notes\qsk\zq h\grcl j\enotes
+  \normalnotesize
+  \NOTEs\wh i\enotes
+  \finextrait
+  \end{music}
+
+  The previous example was coded as:
+
+\begin{quote}\begin{verbatim}
+\NOtes\qsk\hu h\enotes
+\temps\smallnotesize
+\notes\grcu j\enotes
+\temps\normalnotesize
+\NOtes\hu i\enotes
+\barre\tinynotesize
+\notes\qsk\zq h\grcl j\enotes
+\normalnotesize
+\NOTEs\wh i\enotes
+\end{verbatim}\end{quote}
+
+\subsection{Gregorian note shapes}\label{gregnotes}
+ Provided that four line staffs are used, \itxem{gregorian music} was
+frequently quoted using specific \itxem{neumes}, and this way of coding
+has been commonly used for the coding of liturgical chant in the Catholic
+Church until the middle of the twentieth century. Symbols available in
+\musictex\ are~:
+
+\begin{itemize}
+ \item Diamond shaped \itxem{punctum}: \raise 2.5pt\hbox{\musicxx\char 0} =
+\keyindex{diamg}~$p$~,
+ \item Square \itxem{punctum}: \raise 2.5pt\hbox{\musicxx\char 1} =
+\keyindex{carrg}~$p$~,
+ \item Left stemmed \itxem{virga}: \raise 2.5pt\hbox{\musicxx\char 2} =
+\keyindex{carpg}~$p$~,
+ \item Right stemmed \itxem{virga}: \raise 2.5pt\hbox{\musicxx\char 3} =
+\keyindex{carqg}~$p$~. \end{itemize}
+
+They all have a non-spacing variant, which are~:
+
+\begin{itemize}
+ \item Non spacing diamond shaped \itxem{punctum}: \raise
+2.5pt\hbox{\musicxx\char 0} = \keyindex{zdiamg}~$p$~,
+ \item Non spacing square \itxem{punctum}: \raise 2.5pt\hbox{\musicxx\char 1}
+= \keyindex{zcarrg}~$p$~,
+ \item Non spacing left stemmed \itxem{virga}: \raise
+2.5pt\hbox{\musicxx\char 2} = \keyindex{zcarpg}~$p$~,
+ \item Non spacing right stemmed \itxem{virga}: \raise
+2.5pt\hbox{\musicxx\char 3} = \keyindex{zcarqg}~$p$~.
+ \end{itemize}
+
+To memorize these symbols, remember that {\tt carr} comes from the French
+word \ital{carr\'e} which means \ital{square}, that the letter {\tt p} has a
+tail on the left side and the {\tt q} has a tail on the right side. Other
+\itxem{neumes} can ne obtained by combining two or more of these symbols
+
+
+\subsection{Percussion stemless note shapes}\label{percunotes}
+Percussion\index{percussion music} music often uses stemless note heads
+different from the usual ones. 
+
+\begin{itemize}
+ \item  White diamond or \itxem{rimshot}: \raise 2.5pt\hbox{\musicxx\char 127} =
+\keyindex{diamw}~$p$~,
+ \item  The \itxem{shaker}: \raise 2.5pt\hbox{\musicxx\char 79} =
+\keyindex{shaker}~$p$~,
+ \item  The {tremolo chord}: \hbox to 2em{\hss\musicxx\char 78\hss} =
+\keyindex{tremolord}~$p$~,
+\end{itemize}
+
+
+They all have a non-spacing variant\footnote{Stemless, not to be confused with
+{\bslash zq} qui extends stems within a chord. For that purpose, see
+\ref{genpercus} and \ref{othernotes}.}, which are~:
+
+\begin{itemize}
+ \item  Non spacing white diamond or \itxem{rimshot}: \raise
+2.5pt\hbox{\musicxx\char 127} = \keyindex{zdiamw}~$p$~,
+ \item  Non spacing \itxem{shaker}: \raise 2.5pt\hbox{\musicxx\char 79} =
+\keyindex{zshaker}~$p$~,
+ \item  Non spacing {tremolo chord}: \hbox to 2em{\hss\musicxx\char 78\hss} =
+\keyindex{ztremolord}~$p$~,
+\end{itemize}
+
+
+\subsection{Other note shapes}\label{othernotes} The classical note heads
+given above --- namely \raise 0.5ex\hbox{\musicnorfont\char 33}~, \raise
+0.5ex\hbox{\musicnorfont\char34} and \raise 0.5ex\hbox{\musicnorfont\char35}
+--- can be replaced with less classical note heads, for example to code
+special \itxem{violin harmonic notes} or \itxem{percussion music}. See an
+example in \ref{abnormalscores}
+
+ At present time, alternate available note heads are~:
+ \begin{itemize}
+ 
+ \item The \raise 0.5ex\hbox{\musicnorfont\char 0} symbol which is obtained using the \verb|\qu|,
+\verb|\qh| etc. macros replacing the ``{\tt q}'' letter in the macro name
+with a ``{\tt y}'' or writing \keyindex{ycu},  \keyindex{ycl},
+\keyindex{yccu}, \keyindex{ycup} etc. instead of \verb|\cu|, \verb|\cl|,
+\verb|\ccu|, \verb|\cup|, etc.
+
+ \item The \raise 0.5ex\hbox{\musicnorfont\char 127} symbol which is obtained
+using the \verb|\qu|, \verb|\qh| etc. macros replacing the ``{\tt q}'' letter
+in the macro name with a ``{\tt d}'' (think of \ital{diamond}) or writing
+\keyindex{dcu},  \keyindex{dcl}, \keyindex{dccu}, \keyindex{dcup}, etc.
+instead of \verb|\cu|, \verb|\cl|, \verb|\ccu|, \verb|\cup|, etc.
+
+ 
+ \item The \raise 0.5ex\hbox{\musicnorfont\char 39} symbol which is obtained
+using the \verb|\qu|, \verb|\qh| etc. macros replacing the ``{\tt q}'' letter
+in the macro name with a ``{\tt k}'' or writing \keyindex{kcu}, 
+\keyindex{kcl}, \keyindex{kccu}, \keyindex{kcup}, etc. instead of \verb|\cu|,
+\verb|\cl|, \verb|\ccu|, \verb|\cup|, etc.
+
+ 
+ \item The \raise 0.5ex\hbox{\musicnorfont\char"35} symbol which is obtained
+using the \verb|\qu|, \verb|\qh| etc. macros replacing the ``{\tt q}'' letter
+in the macro name with a ``{\tt x}'' or writing \keyindex{xcu}, 
+\keyindex{xcl}, \keyindex{xccu}, \keyindex{xcup} instead of \verb|\cu|,
+\verb|\cl|, \verb|\ccu|, \verb|\cup|, etc.
+
+ 
+ \item The \raise 0.5ex\hbox{\musicnorfont\char38} symbol which is obtained
+using the \verb|\qu|, \verb|\qh| etc. macros replacing the ``{\tt q}'' letter
+in the macro name with the pair ``{\tt ox}'' or writing \keyindex{oxcu}, 
+\keyindex{oxcl}, \keyindex{oxccu}, \keyindex{oxcup} instead of \verb|\cu|,
+\verb|\cl|, \verb|\ccu|, \verb|\cup|, etc.
+
+ \end{itemize}
+ %\check
+\section{Staff size} \index{staff size}
+\subsection{Moving from 20pt to 16pt general staff sizes and conversely}
+ You also want to write some parts of your score in 20pt
+staff size and in 16pt staff size, namely
+for distinct parts of pieces. Changing the \ixem{general staff size}
+is done by saying:
+
+\tty\keyindex{musicsize}=16\bslash computespecifics\quad \rm or
+
+\Bslash musicsize=20\keyindex{computespecifics}
+
+\rm\noindent respectively.
+
+\subsection{Changing staff size for certain instruments}\label{staffspace}
+Regardless of the general choice of 16pt or 20pt staff sizes, it is now
+possible to assign certain instruments -- not sperate staffs belonging to a
+same instrument -- to have narrower staff size. This is done by giving a
+special definition of \keyindex{staffspacing$r$}  where $r$ is the roman
+numeral of the instrument considered. For example, if the second instrument
+(starting from the system bottom) is required to have 25\% narrower staffs,
+one only hase to declare:
+
+\medskip{\Bslash def\bslash staffspacingii\{0.75\}}
+
+\medskip\noindent before the starting command {\Bslash debutmorceau}.
+
+Not only does this statement change the vertical spacing between staff lines,
+but is also changes the size of the key, accidental and note symbols to fit
+the modified staff line spacing. However, the existence of discrete font
+scales for music symbol typing results in some reasonable restrictions of the
+values of \keyindex{staffspacing$r$}~: recommended values are approximately
+1, 0.8 and 0.64; if different values are chosen, then the symbol size is
+taken smaller than the line spacing, which may lead to readable but rather
+ugly typesetting.
+
+As an example, we give two bars of the \ital{Ave Maria} by Charles {\sc
+Gounod}\index{Gounod, C.} using the first prelude of Johann-Sebastian Bach's
+\ital{Well Tempered Clavier} (transcription for organ, violin and voice,
+thanks to Markus {\sc Veittes}):\label{avemaria}
+
+ \begin{music}
+\def\nbinstruments{4}
+\computewidths
+\sepbarrules
+\generalmeter{\meterC}\relax
+\def\oct{\advance\transpose by 7\relax}
+\def\staffspacingii{0.64}
+\def\staffspacingiv{0.64}
+\cleftoksi{{6}{0}{0}{0}}
+\cleftoksii{{0}{0}{0}{0}}
+\cleftoksiv{{0}{0}{0}{0}}
+\nbporteesi=2\relax
+\nbporteesiii=0\relax
+\debutextrait
+\normal\elemskip=0.02\hsize
+%Takt 9
+\Notes\zhl c\raise27pt\qs\qupp e|\ds&\oct
+  \itenu5h\hl h&gra---&\itenl4h\hu h\enotes
+\Notes|\ibbl0j3\qb0h\tqb0l\enotes
+\Notes|\ibbl1k0\qb1o\qb1h\qb1l\tqb1o\enotes
+\temps\Notes\zhl c\raise27pt\qs\qupp e|\ds&\oct
+  \tten5\ibl4c0\qb4h&&\tten4\ibu5g{-3}\qh5h\enotes
+\Notes|\ibbl0j3\qb0h\tqb0l&\oct\qb4a&---&\tqh5a\enotes
+\Notes|\ibbl1k0\qb1o\qb1h&\oct\qb4b&ti-&\cu b\enotes
+\Notes|\qb1l\tqb1o&\oct\tqb4c&a&\cu c\enotes
+\barre
+%Takt 10
+\Notes\zhl c\raise27pt\qs\qupp d|\ds&\oct
+  \qlp d&ple---&\Ilegu4k\pt d\qu d\enotes
+\Notes|\ibbu1g3\bigaccid\qh1{^f}\tqh1h\enotes
+\Notes|\ibbu2i0\qh2k\qh2f\enotes
+\Notes|\qh2h\tqh2k&\oct \cl e&&\tleg4\cu e\enotes
+\temps\Notes\zhl c\raise27pt\qs\qupp d|\ds&\oct
+  \ql d&na,&\qu d\enotes
+\Notes|\ibbu1g3\qh1f\tqh1h\enotes
+\Notes|\ibbu2i0\qh2k\qh2f\qh2h\tqh2k&\qp&&\qp\enotes
+\finextrait
+ \end{music}
+
+   This example was coded as:
+
+\begin{quote}\begin{verbatim}
+\def\nbinstruments{4}
+\sepbarrules
+\generalmeter{\meterC}\relax
+\def\oct{\advance\transpose by 7\relax}
+\def\staffspacingii{0.64}
+\def\staffspacingiv{0.64}
+\cleftoksi{{6}{0}{0}{0}}
+\cleftoksii{{0}{0}{0}{0}}
+\cleftoksiv{{0}{0}{0}{0}}
+\nbporteesi=2\relax
+\nbporteesiii=0\relax
+%
+\debutextrait
+\normal\elemskip=0.02\hsize
+%Takt 9
+\Notes\zhl c\raise27pt\qs\qupp e|\ds&\oct
+  \itenu5h\hl h&gra---&\itenl4h\hu h\enotes
+\Notes|\ibbl0j3\qb0h\tqb0l\enotes
+\Notes|\ibbl1k0\qb1o\qb1h\qb1l\tqb1o\enotes
+\temps\Notes\zhl c\raise27pt\qs\qupp e|\ds&\oct
+  \tten5\ibl4c0\qb4h&&\tten4\ibu5g{-3}\qh5h\enotes
+\Notes|\ibbl0j3\qb0h\tqb0l&\oct\qb4a&---&\tqh5a\enotes
+\Notes|\ibbl1k0\qb1o\qb1h&\oct\qb4b&ti-&\cu b\enotes
+\Notes|\qb1l\tqb1o&\oct\tqb4c&a&\cu c\enotes
+\barre
+%Takt 10
+\Notes\zhl c\raise27pt\qs\qupp d|\ds&\oct
+  \qlp d&ple---&\Ilegu4k\pt d\qu d\enotes
+\Notes|\ibbu1g3\bigaccid\qh1{^f}\tqh1h\enotes
+\Notes|\ibbu2i0\qh2k\qh2f\enotes
+\Notes|\qh2h\tqh2k&\oct \cl e&&\tleg4\cu e\enotes
+\temps\Notes\zhl c\raise27pt\qs\qupp d|\ds&\oct
+  \ql d&na,&\qu d\enotes
+\Notes|\ibbu1g3\qh1f\tqh1h\enotes
+\Notes|\ibbu2i0\qh2k\qh2f\qh2h\tqh2k&\qp&&\qp\enotes
+\end{verbatim}\end{quote}
+
+
+
+ %\check
+ \section{Layout parameters}
+
+
+ Most layout parameters are set by \musictex\ to reasonable default values.
+However, sophisticated scores\footnote{To our knowledge, the most complicated
+scores are those written for the piano, during the romantic and post-romantic
+periods.} may need more place below the lowest staff, between staves, etc.
+\def\nochange{(\ital{NOT to be changed})} We give below a short list of the
+most significant parameters.
+
+%\check
+
+\subsection{List of layout parameters}
+
+{\sl REMARK : the mention ``\nochange'' does not mean that this parameter cannot
+be changed, but that it should not be modified directly, e.g.\ by saying
+something like {\Bslash interligne=14pt}. In other words, changing these
+parameters must be performed using more comprehensive macros which not only
+update them but also perform some other compulsory related changes.}
+
+\begin{description}
+
+ \item[\keyindex{interligne} : ]vertical interval between lines in a staff of
+the current instrument, taking account of a possible specification of \keyindex{staffspacing$r$}
+(see \ref{staffspace})
+\nochange
+ \item[\keyindex{Interligne} : ]vertical distance between the base of staff
+lines  of the current instrument, taking account of a possible specification
+of \keyindex{staffspacing$r$} (\keyindex{interligne} is the size of the blank
+space between lines; the difference between them is the line thickness
+\keyindex{lthick}) \nochange.
+ \item[\keyindex{internote} : ]the vertical spacing of contiguous notes  of
+the current instrument, taking account of a possible specification of
+\keyindex{staffspacing$r$}, i.e.\ the half of {\Bslash Interligne} \nochange
+ \item[\keyindex{Internote} : ]the vertical spacing of contiguous notes of
+the instrument(s) whose \keyindex{staffspacing$r$} has the \ital{default
+value} of one (1.0). Since this dimension is the same, regardless of the
+actual value of the staff line spacing of any instrument, only this value
+should be used to specify horizontal spacings. It should be used rather than
+absolute dimensions in \verb|pt| or \verb|mm|, since \verb|\Internote| is
+duly proportional to the general size (\keyindex{musicsize}) but not
+dependent on specific changes in  \keyindex{staffspacing$r$} \nochange
+ \item[\keyindex{nullthick} : ]reserved height above base line for zero staff
+lines (text of songs)
+ \item[\keyindex{staffbotmarg} : ]margin below the first staff of the lowest
+instrument. If not already assigned a non zero dimension, it is set to
+\keyindex{bottomfacteur}\keyindex{Interligne} at the next system.
+ \item[\keyindex{stafftopmarg} : ]margin above the upper staff of the upper
+instrument.
+ \item[\keyindex{interbeam} : ]vertical distance between beams.
+ \item[\keyindex{interportee} : ]the distance between the bottom of one staff and
+the bottom of the next one. It is set to
+2\keyindex{interfacteur}{\Bslash internote} at the next system.
+ \item[\keyindex{Interportee} : ]the distance between the top of one staff
+and the bottom of the next one. Re-computed at the at the next system.
+ \item[\keyindex{interinstrument} : ]the additional vertical distance between
+two different instruments (must be positive, otherwise weird results can
+happen). This means that the distance between the upper
+staff of the previous instrument and the lowest line of the current
+instrument is equal to \keyindex{interportee+\bslash interinstrument}.
+This value is normally zero, but it helps putting additional space between
+distinct instruments for the sake of clarity. This is a general dimension
+which holds for each of the vertical spaces between instruments, except the
+upper one, in which case this interval is irrelevant. However, this parameter
+can be overridden for the space above a specific instrument. For example (see
+the example {\tty angescao.tex}) one can state:
+
+\medskip
+\begin{quote}\begin{verbatim}
+\def\interinstrumenti{5pt}
+\end{verbatim}\end{quote}
+
+\medskip
+\noindent to force an additional spacing of 5 points above instrument $i$,
+whatever the value of \keyindex{interinstrument}.
+ This feature can usefully be used to have more space before instruments
+representing \itxem{voices}, in order to have enough place to put
+\itxem{lyrics} without assigning these lyrics a zero staff specific instrument
+(useful to avoid having too many declared insruments in a choir score).
+ \item[\keyindex{systemheight} : ]the distance from the bottom of the
+lowest staff to the top of the highest staff of the upper instrument. This is
+the height of the vertical bars (single, double, repeats, etc.) \nochange.
+\end{description}
+
+
+\medskip
+ In addition, when handling notes of a given staff of a given instrument, the
+following dimensions are available (note these are not true registers, but
+\ital{equivalenced symbols} through a {\Bslash def}):
+\begin{itemize}
+ \item\keyindex{altitude} : the altitude of the lowest line of the lowest
+staff of the current instrument \nochange.
+ \item\keyindex{altportee} : the altitude of the lowest line of the current
+staff \nochange.
+ \item\keyindex{stemfactor} : a parameter defining the size of half, quarter
+and hooked eighth notes stems. Normally a stem has the length of one octave,
+i.e. 3.5\keyindex{Interligne}. However, this is not valid for small size
+notes and, therefore, the stem size is related to the \keyindex{interbeam}
+dimensions which, in turn, is \ital{normally} equal to 0.75
+\keyindex{Interligne}. Thus the normal value of \keyindex{stemfactor} is
+4.66, but it can be shortened for any purpose by saying, for example:
+
+  \verb|\def\stemfactor{3.5}|
+
+Normal stem length is restored by calling the macro \keyindex{normalstems}.
+
+\end{itemize}
+
+%\check
+
+\subsection{Changing layout parameters}
+
+ Most of these values can be changed, but only between the end of the
+previous system and the beginning of the next one. This can be inserted
+between a \keyindex{suspmorceau} (or a \keyindex{finmorceau})
+and a \keyindex{reprmorceau} (or a \keyindex{debutmorceau}), but it is
+wiser to say, for example: 
+
+\medskip
+\begin{quote}\begin{verbatim}
+\def\atnextline{\global\staffbotmarg=5\Interligne}
+\end{verbatim}\end{quote}
+
+\medskip
+
+When doing so, the \musictex\ user should be aware that this could disturb
+pending \ital{slurs} or \ital{ties}, since the altitude of these is stored in
+an absolute way, starting from the baseline of the systems. Therefore,
+changing the \keyindex{staffbotmarg} dimension can also be made by means of
+{\tty\keyindex{advancebottom}\{$<dimension>$\}} which updates all pending slur
+and tie altitudes by the given dimension. This has been used in {\tty
+pacifiqn} and {\tty pacifiqb}.
+
+\medskip The user may prefer to redefine {\Bslash
+def\keyindex{bottomfacteur}} or {\Bslash def\keyindex{interfacteur}} to a
+given integer number, but this can be done only between  a
+\keyindex{suspmorceau} (or a \keyindex{finmorceau}) and a
+\keyindex{reprmorceau} (or a \keyindex{debutmorceau}), but it is wiser to use
+\keyindex{atnextline} as previously.
+
+\medskip It is also wise to use \keyindex{atnextline} to change the the
+number of instruments, the staff spacings, the number of staffs at the next
+line... provided that the coding of the notes \ital{resists} an unexpected
+line change executing the \keyindex{atnextline}.
+
+\medskip In anycase it is a good idea to look at the procedures
+\keyindex{computewidths} and \keyindex{computespecifics} to understant what
+they really compute, and also to find the places where they are actually
+invoked.
+
+\subsection{Changing the vertical distance between consecutive systems}
+
+If this has to be changed only once at the beginning of a piece, the simplest
+is to say
+
+\medskip
+\begin{quote}\begin{verbatim}
+\def\bottomfacteur{8}
+\end{verbatim}\end{quote}
+
+\medskip\noindent before invoking\keyindex{debutmorceau}. Note that
+\keyindex{bottomfacteur} is invoked to compute the dimension register
+\keyindex{staffbotmarg} whenever this register contains a zero dimension.
+The number (it must be a number) is multiplied by \keyindex{Interligne} and
+affected to \keyindex{staffbotmarg}.
+
+\medskip If this has to be changed several times to meet page layout
+requirements with scores sometimes -- but only sometimes -- going very deep
+below the lowes staff of the systems, it is wiser to use
+\keyindex{advancebottom}, namely:
+
+\medskip
+\begin{quote}\begin{verbatim}
+\advancebottom{10pt}
+\end{verbatim}\end{quote}
+
+\medskip\noindent to advance the bottom margin register by that dimension at
+the next system line break.
+
+{\medskip\noindent\sl REMARK : it is also possible to change the system top
+margin, i.e.\ \keyindex{stafftopmarg} between systems. Changing top and
+bottom margin add together but it may influence the position of the whole in
+the pages.}
+
+\subsection{Changing staff distance within systems}
+
+This can be done at the beginning by changing the definition of
+\keyindex{interfacteur} (it is {\Bslash def}ined to a number) before the
+first \keyindex{debutmorceau}. But it is also possible to give a new
+dimension to the dimension register \keyindex{interportee} and, optionally,
+to the dimension register \keyindex{interinstrument} (see above).
+
+\subsection{Changing the number of lines in staffs}
+
+Unless explicitely specified, staffs consist of five lines, in accordance to
+the normal way of coding music scores. However, two exceptions might be
+preferred when using \musictex~:
+
+\begin{itemize}
+ \item \itxem{gregorian music} is often writen using staff of
+four lines instead of five,
+ \item \itxem{percussion music} (e.g. drums, triangle) only needs one line
+staffs, since the pitch cannot change.
+\end{itemize}
+
+Therefore, since its version 5.00, \musictex\ allows for choosing the number
+of lines of the staffs of an instrument. This is done by defining the macro
+\keyindex{stafflinesnb}$r$ --- where $r$ is the roman numeral of the wanted
+instrument as usual --- to be the number of lines of the specific staff.
+For example~:\label{gregorian}
+
+\begin{quote}
+\noindent\verb|\def\stafflinesii{4}|
+\end{quote}
+will make the instrument number 2 (i.e. {\tt ii}) to have staffs of four
+lines, that is, fit for gregorian music.
+%\check
+
+\subsection{Resetting normal layout parameters}
+
+Except \keyindex{musicsize} which has to be explicitely changed if needed, all
+layour registers are reset to default values by \keyindex{resetfacteurs} which
+put zero dimensions into \keyindex{staffbotmarg} and \keyindex{stafftopmarg},
+so that the next \keyindex{debutmorceau} will recompute them, unless they have
+been given non zero dimensions inbetween.
+
+\subsection{Typesetting one-line excerpts rather than larges scores}
+
+Very often, what is wanted is not to typeset a large comprehensive score of
+several lines and pages, but an excerpt of one or two bars, preferably
+centered such as the various examples of this manual. This can be done simply
+by replacing \keyindex{debutmorceau} with
+\keyindex{debutextrait}\footnote{\ital{Extrait} is the French word for
+\ital{excerpt}.} and {\Bslash finmorceau} or {\Bslash suspmorceau} with
+\keyindex{finextrait}.
+
+ If you want to terminate it without a bar, you code
+\keyindex{zfinextrait} which acts like {\Bslash zsuspmorceau}..
+
+%\check
+
+ \subsection{Lyrics}\index{lyrics}
+
+ Lyrics can be introduced in several ways~:
+ \begin{enumerate}
+
+ \item The first one consists in dedicating
+one instrument whose \keyindex{nbportees$r$} is zero. Then the text of the
+lyrics is just inserted, note by note, by inserting it at the right position
+between {\Bslash notes}...{\Bslash enotes}. The drawback is that a four voice
+choir needs eight instruments which may lead to troubles if there is also an
+orchestra score below the voices.
+
+ \item Therefore, another solution consists in adjusting \keyindex{interinstrument}
+and \keyindex{staffbotmarg} to give more place below the song
+instruments\footnote{Beware of a shift of one position, since {\Bslash
+intersinstrument$r$} indicates the interval \ital{above} the $r$-th
+instrument.}. Then the texts of the lyrics are indicated with the song tune
+instrument, using \keyindex{zcharnote} with a negative numeric position
+value.
+
+ By the way, the {\Bslash zcharnote} may have a {\Bslash vbox} as a second
+argument, and this \keyindex{vbox} may contain several {\Bslash hbox}es
+describing the text of the different couplets (see example {\tty ANGESCAO}).
+
+  \item Of easier use are the commands \keyindex{zsong} (right of the note),
+\keyindex{lsong} (left) and \keyindex{csong} (centered) which post the lyrics
+at the lower staff line \ital{minus} the previous
+\keyindex{interinstrument}~$n$ or the \keyindex{staffbotmarg} quantity. These
+commands only have one argument, namely the lyrics text:
+
+
+\begin{center}
+\keyindex{zsong}\verb|{|\ital{text}\verb|}|\quad
+\keyindex{lsong}\verb|{|\ital{text}\verb|}|\quad
+\keyindex{csong}\verb|{|\ital{text}\verb|}|
+\end{center}
+
+ \medskip As an example, the following French song
+
+ \begin{music}
+ \generalsignature{1}
+ \def\nbinstruments{1}
+ \debutextrait
+ \NOtes\zsong{Au }\qu g\enotes
+ \NOtes\zsong{clair }\qu g\enotes
+ \NOtes\zsong{de }\qu g\enotes
+ \NOtes\zsong{la }\qu h\enotes
+ \barre
+ \NOTes\zsong{lu- }\hu i\enotes
+ \NOTes\zsong{ne, }\hu h\enotes
+ \barre
+ \NOtes\zsong{mon }\qu g\enotes
+ \NOtes\zsong{a- }\qu i\enotes
+ \NOtes\zsong{mi }\qu h\enotes
+ \NOtes\zsong{Pier- }\qu h\enotes
+ \barre
+ \NOTes\zsong{rot, }\wh g\sk\enotes
+ \finextrait
+ \end{music}
+
+\noindent was coded as:
+
+\begin{quote}\begin{verbatim}
+ \generalsignature{1}
+ \def\nbinstruments{1}
+ \debutextrait
+ \NOtes\zsong{Au }\qu g\enotes
+ \NOtes\zsong{clair }\qu g\enotes
+ \NOtes\zsong{de }\qu g\enotes
+ \NOtes\zsong{la }\qu h\enotes
+ \barre
+ \NOTes\zsong{lu- }\hu i\enotes
+ \NOTes\zsong{ne, }\hu h\enotes
+ \barre
+ \NOtes\zsong{mon }\qu g\enotes
+ \NOtes\zsong{a- }\qu i\enotes
+ \NOtes\zsong{mi }\qu h\enotes
+ \NOtes\zsong{Pier- }\qu h\enotes
+ \barre
+ \NOTes\zsong{rot, }\wh g\sk\enotes
+ \finextrait
+\end{verbatim}\end{quote}
+
+ \end{enumerate}
+
+
+%\check
+
+ \section{Other special ornaments}
+
+ Since the first release of \musictex, many users have either asked for
+new features of proposed their own procedures to be included in \musictex.
+Some of them have been added because of their high utility, some others have
+been left aside for several reasons. The major reason for not including many
+proposals in the \musictex\ release is that -- at least on many computers and
+especially PC's -- the \TeX\ memory is limited to 65~000 ``words''. This is a
+very restricted value which causes many trials to exceed the capacity of \TeX\
+(unless using ``big\TeX''). Therefore, only the proposed macros of very
+general use can be introduced in the release as a standard and the users are
+suggested to take their specific procedures and include them (directly of by
+means of an {\Bslash input}) in their own source code.
+
+  This is particularly valid for people who want to typeset \itxem{baroque}
+music using the ancient \itxem{ornament codings} rather than the modern
+equivalents. As a compromise, some macros kindly provided by Ian {\sc Collier}
+in Great Britain have slightly been updated and provided in a separate file
+named {\tty musicext.tex}.
+
+  For example, brackets can be produced:
+
+  \begin{music}
+\def\nbinstruments{1}\relax
+\computewidths
+\nbporteesi=1\relax
+\debutextrait
+\normal
+\temps\Notes\ovbkt j3{15}\ql{hij}\enotes
+\finextrait
+
+  \end{music}
+
+%\check
+ \section{The {\tt musicsty} macros}\label{musicsty}
+% non musical procedures used in typesetting the non-musical
+% texts together with musictex
+ This file is made for non \TeX perts and/or lazy score typesetters. It
+provides
+ \begin{itemize}
+ \item a set of font definitions of common use, such as \verb|\tenrm|,
+\verb|\eightrm|, etc.,
+ \item a reasonable setting of \keyindex{hsize}, \keyindex{vsize},
+\keyindex{hoffset}, \keyindex{voffset} dimensions in order to have a good
+layout fi for European A4 paper\footnote{People addicted to \itxem{legal} or
+other paper sizes should correct it for their own purpose.}
+ \item a set of text size commands:
+
+ \begin{description}
+  \item[\keyindex{eightpoint}] which sets the usual \keyindex{rm},
+\keyindex{bf}, \keyindex{sl}, \keyindex{it} commands to 8 point font size;
+  \item[\keyindex{tenpoint}] which sets the usual \keyindex{rm},
+\keyindex{bf}, \keyindex{sl}, \keyindex{it} commands to 10 point font size;
+  \item[\keyindex{twlpoint}] to get 12 point font size;
+  \item[\keyindex{frtpoint}] to get 14.4 point font size;
+  \item[\keyindex{svtpoint}] to get 17.28 point font size;
+  \item[\keyindex{twtypoint}] to get 20.74 point font size;
+  \item[\keyindex{twfvpoint}] to get 24.88 point font size;
+ \end{description}
+ \item a set of commands to make easy piece titles~:
+  \begin{itemize} \item \keyindex{author} or
+\keyindex{fullauthor} to be put at the right of the first page, below the
+title of the piece; the calling sequence is, for example:
+
+  \verb|     \author{Daniel TAUPIN\\organiste \`a Gif-sur-Yvette}|
+
+  \noindent where the \verb|\\| makes theauthor name displayed on two or
+several lines.
+
+ 
+  \item \keyindex{shortauthor} to be put at the bottom of each page,
+  \item \keyindex{fulltitle} which is the big main title of the piece,
+  \item \keyindex{subtitle} is displayed below the main title of the piece,
+  \item \keyindex{shorttitle} or \keyindex{title}
+  which is the title repeated at the bottom of each page,
+  \item \keyindex{othermention} which is displayed on the left of the page, in
+front of the author's name (it may contain several \verb|\\| to display it on
+several lines,
+  \item \keyindex{maketitle}  which displays all the previous stuff.
+  \end{itemize}
+
+ \item  Some additional commands to make \itxem{footnotes}.
+ These commands are
+  \begin{itemize}
+   \item The normal Plain-\TeX\ \keyindex{footnote} command which has two
+arguments --- not only one as in \LaTeX\index{LaTeX=\protect\LaTeX} --- namely
+the label of the footnote, i.e. any sequence of characters and not only
+figures, and the text of the footnote.
+
+\noindent{\sl IMPORTANT: the \verb|\footnote| command does not work inside
+boxes\footnote{This is not a \TeX-bug, this is a feature!}, therefore this
+command must not be issued within music. But another alternate feature is
+provided (see below).}
+
+ \item The \keyindex{Footnote} command, which counts the footnotes and uses a
+number as the label of the foot note (equivalent to \LaTeX's \verb|\footnote|
+command). The same restriction applies concerning footnotes within the music
+coding.
+
+ \item The \keyindex{vfootnote} command, taken from the Plain-\TeX, which
+makes the footnote itself at the bottom of the current page, but does not put
+the footnote label at the place it is referred in the main text.
+
+ Thus, if a footnote is needed whose reference lies inside the music itself,
+the music typesetter must perform it in two steps~:
+ \begin{enumerate}
+  \item quote the reference inside the music, using \verb|zcharnote| for
+example,
+  \item post the footnote itself, using \verb|\vfootnote| outside the music,
+either before \keyindex{debutmorceau} or between \keyindex{suspmorceau} and
+\keyindex{reprmorceau} or equivalent commands.
+ \end{enumerate}
+
+  \end{itemize}
+ \end{itemize}
+
+ Note that \verb|musicsty| should not be used with \LaTeX.
+
+
+\section{Abnormal music coding}
+\subsection{Gregorian chant}
+\index{gregorian music}Gregorian chant is often coded using four line staffs
+(see section \ref{gregorian}) and using special notes (called \itxem{neumes})
+which are described in section \ref{gregnotes}. But the gregorian chant also
+needs a special \itxem{alto clef} which is in fact the ancester of the modern
+alto clef. The gregorian \itxem{alto clef} can be invoked instead of the
+modern one by re-declaring the \keyindex{clefdut}$r$ macro. Thus
+
+\begin{quote}\begin{verbatim}
+\def\clefdutiv{\gclefdut}
+\end{verbatim}\end{quote}
+will cause the instrument number 4 (i.e. {\tt iv}) to exhibit a gregorian C
+clef whenever the value of \verb|\cleftoskiv| refers to an alto clef.
+The modern alto clef can be restored for that instrument by~:
+
+
+\begin{quote}\begin{verbatim}
+\def\clefdutiv{\clefdutsymbol}
+\end{verbatim}\end{quote}
+
+\subsection{Music score without clefs or with special clefs}\index{clefs
+(empty)} Regardless of the number of lines of the staffs, an instrument may
+have no clefs, e.g. for \itxem{percussion music} but also for any weird
+purpose. This done by declaring some of the following items~:
+
+\medskip
+\verb|\def|\keyindex{clefdesol}$r$\verb|{\relax}|
+
+\verb|\def|\keyindex{clefdut}$r$\verb|{\relax}|
+
+\verb|\def|\keyindex{clefdefa}$r$\verb|{\relax}|
+
+\medskip
+ At first sight, it could be thought to be silly to cancel the G clef, the C
+clef and/or the F clef to have an empty clef symbol. But the reason is that
+the absence of clefs does not mean that notes should not be raised according
+to their pitch. Thus, if the user uses the G clef coding of pitches, he is
+welcome to use the present feature to cancel the G clef, but if he uses some
+alto clef coding, then he should cancel the alto clef symbol. Of course, all
+this is irrelevant if the engraver chooses to use numeric coding of note
+position like \verb|\qu{10}|.
+
+ Normal symbols for these clefs and for instrument or roman number $r$ can be
+restored by~:
+
+
+\medskip
+\verb|\def\clefdesol|$r$\verb|{|\keyindex{clefdesolsymbol}\verb|}|
+
+\verb|\def\clefdefa|$r$\verb|{|\keyindex{clefdefasymbol}\verb|}|
+
+\verb|\def\clefdut|$r$\verb|{|\keyindex{clefdutsymbol}\verb|}|
+
+\medskip Besides, a special \itxem{drum clef} (two heavy vertical bars) can
+replace any of the standard clefs, for exemple the G clef by saying~:
+
+\medskip
+\verb|\def\clefdesol|$r$\verb|{|\keyindex{drumclefsymbol}\verb|}|
+
+
+\medskip It is to be emphasised that these features are specific to one
+instrument --- not one staff of a several staff instrument --- so that some
+weird score for \ital{monks}, \ital{drum} and \ital{electronic keyboard}
+such as
+
+\begin{music}
+\parindent 19mm
+\def\nbinstruments{3}   \def\instrumenti{keyboard}
+\def\instrumentii{drum} \def\instrumentiii{monks}
+\def\stafflinesnbii{1}  \def\stafflinesnbiii{4}
+\generalsignature{0}    \generalmeter{\relax}
+\signi=-1\relax % one flat at keyboard
+\nbporteesi=2\relax % 2 staffs at keyboard
+\cleftoksi={6000}\cleftoksiii={3000}\cleftoksii={1000}
+\def\clefdutiii{\gclefdut} % gregorian C clef at instrument iii
+\def\clefdutii{\drumclefsymbol}   % cancel C clef at instrument ii
+\def\interinstrumentii{-4\Interligne} % less spacing above drum
+\normal
+\debutextrait
+\Notes\hu F|\zh c\hu h&\diamw 0&\carrg {acd}\enotes
+\NOtes\qu I|\zq N\qu d&\diamg 0&\diamg f\enotes
+\NOtes\qu J|\zq a\qu e&\diamg 0&\diamg e\enotes
+\notes\hu G|\zh b\hu d&\zshaker 3\diamw {00}&\zcarrg d\carqg g\carrg {hgh}\enotes
+\finextrait
+\end{music}
+\noindent could be coded as follows, regardless this is relevant~:
+\begin{verbatim}
+\parindent 19mm
+\def\nbinstruments{3}   \def\instrumenti{keyboard}
+\def\instrumentii{drum} \def\instrumentiii{monks}
+\def\stafflinesnbii{1}  \def\stafflinesnbiii{4}
+\generalsignature{0}    \generalmeter{\relax}
+\signi=-1\relax            % one flat at keyboard
+\nbporteesi=2\relax % 2 staffs at keyboard
+\cleftoksi={6000}\cleftoksiii={3000}\cleftoksii={1000}
+\def\clefdutiii{\gclefdut} % gregorian C clef at instrument iii
+\def\clefdutii{\drumclefsymbol}   % cancel C clef at instrument ii
+\def\interinstrumentii{-4\Interligne} % less spacing above drum
+\normal
+\debutextrait
+\Notes\hu F|\zh c\hu h&\diamw 0&\carrg {acd}\enotes
+\NOtes\qu I|\zq N\qu d&\diamg 0&\diamg f\enotes
+\NOtes\qu J|\zq a\qu e&\diamg 0&\diamg e\enotes
+\notes\hu G|\zh b\hu d&\zshaker 3\diamw {00}&\zcarrg d\carqg g\carrg {hgh}\enotes
+\finextrait
+\end{verbatim}
+
+In the same way, a possible violin score with \itxem{harmonic notes} (see
+\ref{othernotes}) could be~:\label{abnormalscores}
+
+\begin{music}
+\def\freqbarno{9999}% no bar numbers
+\def\nbinstruments{1}\nbporteesi=1\relax
+\generalsignature{-2}\generalmeter{\allabreve}\cleftoksi={0000}
+\normal
+\debutextrait
+\NOtes\zd o\zh d\hu h\enotes
+\Notes\ibu0k0\zq g\yh0k\qh0j\zq e\yh0i\tbu0\qh0j\enotes
+\barre
+\NOTes\zd g\hu k\enotes
+\NOTes\hpause\enotes
+\barre
+\NOtes\zd o\zh d\hl h\enotes
+\Notes\ibl0b0\zq g\yb0k\qb0j\zq e\yb0i\tbl0\qb0j\enotes
+\barre
+\NOTes\zd g\hu k\enotes
+\NOTes\hpause\enotes
+\finextrait
+\end{music}
+
+It was coded as follows:
+\begin{quote}\begin{verbatim}
+\def\nbinstruments{1}\nbporteesi=1\relax
+\generalsignature{-2}\generalmeter{\allabreve}\cleftoksi={0000}
+\normal
+\debutextrait
+\NOtes\zd o\zh d\hu h\enotes
+\Notes\ibu0k0\zq g\yh0k\qh0j\zq e\yh0i\tbu0\qh0j\enotes
+\barre
+\NOTes\zd g\hu k\enotes
+\NOTes\hpause\enotes
+\barre
+\NOtes\zd o\zh d\hl h\enotes
+\Notes\ibl0b0\zq g\yb0k\qb0j\zq e\yb0i\tbl0\qb0j\enotes
+\barre
+\NOTes\zd g\hu k\enotes
+\NOTes\hpause\enotes
+\finextrait
+\end{verbatim}\end{quote}
+
+
+\subsection{Usual percussion music}
+\label{genpercus} Besides single percussion scores usually
+written using one-line staffs, percussion music involving several instruments
+is often writen on five-line staffs with a \ital{drum clef}, where the
+instruments are distinguished by the type of the note heads and the apparent
+pitch of the note on the staff. We give an example --- kindly provided by
+Agusti {\sc Mart\'in Domingo}~:
+
+\medskip
+\begin{music}
+\def\freqbarno{9999}% no bar numbers
+\def\nbinstruments{1}\generalsignature{0}\def\stafflinesbi{5}
+\generalmeter{\meterfrac44}
+\cleftoksi={0000}\def\clefdesoli{\drumclefsymbol}
+\normal
+\debutextrait
+\leftrepeat
+\Notes\zql f\rlap{\soupir}\ibu0m0\xh0{nn}\enotes
+\Notes\zk d\zql f\zq j\xh0n\tbu0\xh0n\enotes
+\Notes\zql f\rlap{\soupir}\ibu0m0\xh0{nn}\enotes
+\Notes\zk d\zql f\zq j\xh0n\tbu0\xh0n\enotes
+\barre
+\Notes\zql f\rlap{\soupir}\ibu0m0\kh0{nn}\enotes
+\Notes\zx d\zql f\zq j\kh0n\tbu0\kh0n\enotes
+\Notes\zql f\rlap{\soupir}\ibu0m0\kh0{nn}\enotes
+\Notes\zx d\zql f\zq j\kh0n\tbu0\kh0n\enotes
+\barre
+\Notes\zql f\rlap{\soupir}\ibu0m0\oxh0{nn}\enotes
+\Notes\zox d\zql f\zq j\kh0n\tbu0\oxh0n\enotes
+\Notes\zql f\rlap{\soupir}\ibu0m0\oxh0{nn}\enotes
+\Notes\zox d\zql f\zq j\kh0n\tbu0\oxh0n\enotes
+\setrightrepeat\finextrait
+\end{music}
+ Its coding was~:
+ \begin{quote}\begin{verbatim}
+\begin{music}
+\def\nbinstruments{1}\generalsignature{0}\def\stafflinesbi{5}
+\generalmeter{\meterfrac44}
+\cleftoksi={0000}\def\clefdesoli{\drumclefsymbol}
+\normal
+\debutextrait
+\leftrepeat
+\Notes\zql f\rlap{\soupir}\ibu0m0\xh0{nn}\enotes
+\Notes\zk d\zql f\zq j\xh0n\tbu0\xh0n\enotes
+\Notes\zql f\rlap{\soupir}\ibu0m0\xh0{nn}\enotes
+\Notes\zk d\zql f\zq j\xh0n\tbu0\xh0n\enotes
+\barre
+\Notes\zql f\rlap{\soupir}\ibu0m0\kh0{nn}\enotes
+\Notes\zx d\zql f\zq j\kh0n\tbu0\kh0n\enotes
+\Notes\zql f\rlap{\soupir}\ibu0m0\kh0{nn}\enotes
+\Notes\zx d\zql f\zq j\kh0n\tbu0\kh0n\enotes
+\barre
+\Notes\zql f\rlap{\soupir}\ibu0m0\oxh0{nn}\enotes
+\Notes\zox d\zql f\zq j\kh0n\tbu0\oxh0n\enotes
+\Notes\zql f\rlap{\soupir}\ibu0m0\oxh0{nn}\enotes
+\Notes\zox d\zql f\zq j\kh0n\tbu0\oxh0n\enotes
+\setrightrepeat\finextrait
+\end{music}
+ \end{verbatim}\end{quote}
+
+ To use these different note heads, one must
+ \begin{itemize}
+ \item either include a specific percussion file namely {\tt
+\ixem{musicper.tex}} after the usual \verb|\input musictex| or invoke the
+\LaTeX\ style option {\tt\ixem{musicper}}\index{musicper.sty};
+ \item use special macro names to replace the usual elliptic back note head
+with either a double sharp sign or with a $+$. These macros are~:
+ \begin{itemize}
+  \item \keyindex{zx}, \keyindex{xu}, \keyindex{xup}, \keyindex{xupp},
+ \keyindex{xl}, \keyindex{xlp}, \keyindex{xlpp},
+ \keyindex{xh}, \keyindex{xb}, \keyindex{zx},
+ \keyindex{xcu}, \keyindex{xcup}, \keyindex{xcupp},
+ \keyindex{xccu}, \keyindex{xcccu}, \keyindex{xccccu},
+ \keyindex{xcl}, \keyindex{xclp}, \keyindex{xclpp},
+ \keyindex{xccl}, \keyindex{xcccl} and \keyindex{xccccl}, which behave exactly like
+ \verb|\zq|, \verb|\qu|, \verb|\qup|, \verb|\qupp|,
+ \verb|\ql|, \verb|\qlp|, \verb|\qlpp|,
+ \verb|\qh|, \verb|\qb|, \verb|\zq|,
+ \verb|\cu|, \verb|\cup|, \verb|\cupp|,
+ \verb|\ccu|, \verb|\cccu|, \verb|\ccccu|,
+ \verb|\cl|, \verb|\clp|, \verb|\clpp|,
+ \verb|\ccl|, \verb|\cccl| and  \verb|\ccccl|, except that the note head is
+ \raise 0.6ex\hbox{\musicnorfont\char '65} instead of \raise
+0.5ex\hbox{\musicnorfont\char '41}~.
+  \item \keyindex{zox}, \keyindex{oxu}, \keyindex{oxup}, \keyindex{oxupp},
+ \keyindex{oxl}, \keyindex{oxlp}, \keyindex{oxlpp},
+ \keyindex{oxh}, \keyindex{oxb}, \keyindex{zx},
+ \keyindex{oxcu}, \keyindex{oxcup}, \keyindex{oxcupp},
+ \keyindex{oxccu}, \keyindex{oxcccu}, \keyindex{oxccccu},
+ \keyindex{oxcl}, \keyindex{oxclp}, \keyindex{oxclpp},
+ \keyindex{oxccl}, \keyindex{oxcccl} and \keyindex{oxccccl}, to get a note
+head of
+\raise 0.6ex\hbox{\musicnorfont\char 38} instead of \raise
+0.5ex\hbox{\musicnorfont\char '41}~.
+  \item \keyindex{zk}, \keyindex{ku}, \keyindex{kup}, \keyindex{kupp},
+ \keyindex{kl}, \keyindex{klp}, \keyindex{klpp},
+ \keyindex{kh}, \keyindex{kb}, \keyindex{zk},
+ \keyindex{kcu}, \keyindex{kcup}, \keyindex{kcupp},
+ \keyindex{kccu}, \keyindex{kcccu}, \keyindex{kccccu},
+ \keyindex{kcl}, \keyindex{kclp}, \keyindex{kclpp},
+ \keyindex{kccl}, \keyindex{kcccl} and \keyindex{kccccl}, to get a
+note head of
+ \raise 0.6ex\hbox{\musicnorfont\char 39} instead of \raise
+0.6ex\hbox{\musicnorfont\char '41}~.
+ \end{itemize}
+ \end{itemize}
+
+
+ \section{Writing your own macros: the {\Bslash catcode} problems}
+
+As seen before, the \keyindex{catcodes} of the {\tty\|} and {\tty\&} symbols
+are modified by \musictex, in the range of the actual scores but no
+more\footnote{Since version 4.99.} in
+the whole of the \TeX\ source. Thus, if you define your own macros to make
+your writing easier, you are likely to invoke  the {\tty\|} or {\tty\&}
+symbols in a part of text where their  \keyindex{catcode}s are not correctly set.
+This may result typically in a diagnostic like~:
+
+\verb|! Misplaced alignment tab character &.|
+
+\noindent when you attempt, not to define, but to use your macro using the
+{\tty\&} symbol to change the instrument. Smart \TeX ers know that the
+\keyindex{catcode}s are attached to the characters \ital{when they are input}
+and not when they are used; thus you must be sure that {\tty\|} and {\tty\&}
+have the correct \musictex\ \keyindex{catcode} when the macro is defined,
+which may well occur outside the actual score.
+
+It is also worth pointing out that the same problem may occur with other
+punctuation marks like ``{\tty<\relax}'', ``{\tty>\relax}'',  ``\verb|^|,
+etc., if their \keyindex{catcode} has been changed by some other set of
+macros, like {\tty \ixem{french.sty}}.
+
+
+ \section{Musicla\TeX}
+
+\subsection{The {\tt musictex.sty} style}
+ 
+ As said before, the amount of memory and registers used by \musictex\ makes
+it hardly compatible with \LaTeX. However, Nicolas {\sc
+Brouard}\index{Brouard, N.} succeeded in building a {\tty\ixem{musictex.sty}}
+which is now included in the distribution. This is not recommended to make
+separate music scores. Its purpose is rather to provide a means of inserting
+short musical excerpts in books or articles written with \LaTeX. Then, the
+\keyindex{documentstyle} command should include {\tty musictex} in the
+options.
+
+
+\medskip
+ The \LaTeX\ style file {\tty \ixem{musictex.sty}} simply \verb|\input|s
+the following files (in that very order): \begin{itemize}
+ \item {\tty musicpre.tex}
+ \item {\tty musicnft.tex}
+ \item {\tty musictex.tex}
+ \item {\tty musicvbm.tex}
+ \item {\tty musicpos.tex}
+ \end{itemize}
+
+
+
+\medskip
+ In the case of a \LaTeX\index{LaTeX=\protect\LaTeX}
+user wanting to use accidental
+transposition facilities, he should invoke {\tty\ixem{musictrp}} in the
+options of the \keyindex{documentstyle} command.
+
+ In case of {\tty TeX capacity exceeded...}, use a ``Bigla\TeX'' (after
+checking there is no visible error in the source
+code).\index{BigLaTeX=Big\LaTeX}
+
+\subsection{Wide music in \LaTeX}
+
+  Another difficulty appears with \LaTeX: internal \LaTeX\ macros handle the
+page size in a way which is not supposed to be changed within a given document.
+This means that text horizontal and vertical sizes are somewhat frozen so that
+one can hardly insert pieces of music of page size different from the size
+specified by the LaTeX  \itxem{style}. Although a \itxem{largemusic} has been
+provided, the main drawback is an unpredictable behaviour of top and bottom
+printouts, especially page numberings.
+
+ If the whole of a document has wide pages, it can be haddled with the {\tty
+a4wide}\index{a4wide} style option, or any derivate of it.
+
+%\check
+
+ \subsection{The {\Bslash catcode} problems}
+ The {\tty musicpos.tex} file
+merely overrides the \keyindex{catcode}s of the {\tty\|} and {\tty\&} symbols
+which are modified by \musictex. To have access to these symbols when coding
+music, on should then enclose the scores or excerpts within {\Bslash
+begin\{music\}} and {\Bslash end\{music\}}. But there is also another
+possibility, i.e.\ to say \keyindex{nextinstrument} instead of {\tty
+\&}\index{\&} and \keyindex{nextstaff} instead of {\tty\|}.\index{\|}
+
+ Another problem comes from the {\tty \ixem{french.sty}} written by Bernard
+{\sc Gaulle}\index{Gaulle, B.} which is the standard of the \ixem{GUTenberg}
+French association. This style changes many \keyindex{catcode}s which lead
+\musictex\ to fail in many cases. Therefore, since the version 4.99, the
+\keyindex{catcode}s of all are forced to the adequate value at
+\keyindex{debutmorceau}, \keyindex{debutextrait} and restored at their
+original value at \keyindex{finmorceau}, \keyindex{suspmorceau} and
+\keyindex{finextrait}. This means that some facilities like the
+\itxem{guillemets} or the \itxem{tabulation} character are inhibited within
+music scores (possible problem with sophisticated \itxem{lyrics}) but
+perfectly available within the normal text.
+
+ Anyway, in case of emergency, one can invoke \keyindex{catcodesmusic} to
+establish the \keyindex{catcode}s at their value fit for music, and
+\keyindex{endcatcodesmusic} to reset them at their external value, for example
+those chosen by {\tty french.sty}.
+
+ \section{Implementation and restrictions}
+
+ The macroinstruction file \musictex\ contains approximately 2500 lines of
+code, that is 80~000 bytes approximately. This requires your score to be
+compiled by the most extended versions of \TeX\ (65~000 words of working
+memory). It is therefore wise to set \hbox{\Bslash tracingsstats} to 2 in
+order to have an information about the memory used in each page. In desperate
+situations, we recommend using the ``Big\TeX'' processors which,
+unfortunately, perform a great deal of disk input/outputs (on PCs with i286
+processors) which make them awfully slow\footnote{Using i386 or i486
+processors, this problem disappears with the specific version of {\tty
+emTeX}}.\index{Big\protect\TeX}\index{em\TeX}
+
+In particular, the number of registers it uses and the amount of memory used
+by \LaTeX\ macros makes it doubtfully compatible with \LaTeX, unless using
+Big\LaTeX.\index{BigLaTeX=Big\LaTeX}
+
+Other precautions are necessary: beware of end-of-line spaces; they corrupt
+layout and may cause unwanted line breakings after which music symbols seem
+to \ital{float} in the air without staffs. To avoid that, it is recommended
+to use \keyindex{relax} rather than {\tty\%} at the end of source lines.
+
+\chapter{Installation}
+
+\section{Getting the stuff}
+
+As seen before, all the files are available at \itxem{anonymous ftp} {\tty
+rsovax.lps.u-psud.fr} (193.55.39.100) in the directory\footnote{{\sc
+unix} addicts whould beware that this primary server is an old MicroVax run
+the VMS system. Therefore the brackets in the directory name are compulsory,
+not optional.}
+{\tty[anonymous.musictex]}, which can more easily be reached
+using the simple command
+
+{\tt cd musictex}
+
+
+This directory normally contains {\tty musictex.zip} which contains
+all the distribution for PC (\ixem{MS-DOS}) computers. This is only for
+{\tty ftp}-ing convenience since all source files are directly available
+in the same directory. In addition a set of examples (i.e. the files
+whose name does not begin with ``{\tty music}'') is packed into
+{\tty musicexa.zip}, and {\tty recueil.zip} contains the zipped DVIs of a large
+subset of the examples. Finally the PK files of specific fonts are provided
+in {\tty musicpk.zip}; getting this file is useless if you are able to {\tty
+metafont} the files whose {\tty *.mf} are provided in the main package.
+
+The \ixem{VMS} files are also packed into {\tty musictex.bck}\index{musictex.zip}
+\index{musictex.bck}. Notwithstanding the fact that files are packed together
+or not, the files provided are of two kinds:
+\begin{enumerate}
+\item the basic files;
+\item the example files.
+\end{enumerate}
+
+All \itxem{basic files} are either of the form {\tty music*.*} (excluding of
+course {\tty *.zip} and {\tty *.bck}), {\tty beamn*.*} and {\tty slurn*.*}. Other
+files ({\tty *.tex} or {\tty *.dvi}) are example files.
+
+\ital{Fonts}\index{fonts} are provided as {\tty *.mf} files but also as {\tty
+*.tfm} and {\tty *.pk} files for 300~dpi printers or previewers. Additional
+values of the \ixem{dpi} parameter are also provided in {\tty musicpk.zip}.
+Normally needed fonts are {\tty musikn20}, {\tty musikn16}, {\tty musikn13},
+{\tty musikn11},  {\tty musicbra} or {\tty musicbrb}\footnote{{\tt musicbra}
+and {\tt musicbrb} exhibit some drawing differences, but they meet the same
+purpose of typing \itxem{piano braces}.}, {\tty beamn20}, {\tty beamn16}, {\tty beamn13},
+{\tty beamn11},  {\tty slurn20} and {\tty slurn16}.
+
+\section{Installing the fonts}
+ \textit{All} files with the extension \verb|.tfm|\footnote{\TeX\ font metric
+files, needed directly from binary for \TeX ing the examples or the doc.} have
+to be copied in the same directory as the other \verb|.tfm|'s.
+Then, if you get the error message:
+
+\verb|! Font ... not loadable: Metric (TFM) file not found.|
+
+\noindent this means
+you did not succeed in installing the \verb|.tfm|'s, or you installed them in
+the wrong directory. Then look at your general \TeX\
+documentation\footnote{The specific \TeX\ installation manual, not necessarily
+the \TeX book.} and try again.
+
+
+The \verb|.tfm| only contains the width, height and depth of each character
+of a font and is the only font file needed for \TeX ing. But, to preview
+and/or view you need the pixel fonts, i.e. not the metrics but the exact
+drawing of the characters. On most systems they are packed and have either
+the extension \verb|.pk| or the extension {\tt.}$<dpi>${\tty pk}, where $dpi$
+is the actual resolution of the font needed in the requested size. This means
+that the the given \verb|*.pk| files provided often have to be renamed as
+\verb|*.300pk|, especially in \unix\ systems.
+
+ Mostly needed and spreaded are the fonts for \verb|dvi|-driver with
+resolution of 300dpi. Using Em\TeX the \verb|.pk|-fonts have to be copied in
+\verb|...\pixel.lj\300dpi\|. In \unix\ systems they often have to be renamed
+as  \verb|*.300pk| and put in a directory --- the name of which can be
+provided by your local manual or \TeX-wizard --- of the form
+\verb|.../fonts/pk|.
+
+\section{Building a format}\label{formatbuild}
+
+Introducing the basically needed files in a \itxem{format} (with
+\ixem{INITEX}) is a means of saving computer time and memory. Besides, you
+will have a format compatible with \musixtex\ and --- provided you made the
+symmetrical format for \musixtex that is, including {\tt musixcpt} in your
+\musixtex\ format --- you can compile exactly the same source files with both
+\musictex\ and \musixtex, which is a good means of finding whether some
+strange behaviour is specific to one implementation or the other, or whether
+you made some general mistake.
+
+\subsection{Starting from nil}
+\begin{enumerate}
+\item Build up a file called \verb|musictex.ini| with following contents:
+
+\begin{verbatim}
+\input plain % or your local plain-like TeX format
+\input musicnft
+\input musictex
+\input musicvbm 
+\input musictrp % optionally
+\input musicsty % optionally
+\def\fmtname{musictex}\def\fmtversion{5.08}
+\dump
+\end{verbatim}
+
+\item Make your format with the command
+
+\smallskip
+ \verb|initex musictex.ini|\footnote{depends on your implementation.
+{\tty initex} may require another form, such as
+``\verb|tex386 -i|''.}
+
+\item Then your format may me invoked for \TeX ing score by something like
+
+
+ \verb|tex &musictex| \textit{jobname}\footnote{depends on your
+implementation. Very often the formatless \TeX is invoked by \verb|virtex|
+rather than \verb|tex| which already invokes a default plain format.}.
+\end{enumerate}
+
+\subsection{Starting from your usual plain format}
+\begin{enumerate}
+ \item First, try to find --- on your favourite system --- whether \verb|tex| is
+an executable routine, or a \verb|tex.bat| command in MS-DOS or a {\sl
+shell\/} procedure under \unix.
+ \item If \verb|tex| is a command try to find the ``initex'' local command:
+usually it is either \verb|initex| or \verb|tex -i|.
+ \item Try to find the name of the ``plain \TeX'' format (usually posted
+when \TeX ing anything.
+ \item Then, {\it mutatis mutandis\/}, assuming the ``initex'' command has
+the name \verb|initex| and the ``plain \TeX'' format is \verb|plain|, run the
+shell command:
+
+ \medskip
+ \verb|initex  \&plain musictex.ins|
+
+ \medskip\noindent which will produce a format file {\tt musictex.fmt} which
+you shall put in the same directory  as the others formats (hoping you have
+the access rights...). Note, in \unix\ systems, the backslash before the
+\verb|&| which tells the system to consider this character as a member of the
+command, not a batch execution indication. Once this is done, you can
+\musictex\ any score you have written using a command such as:
+
+ \medskip
+ \verb|tex \&musictex my-score.tex|
+
+ \medskip\noindent that is, specifying your new format {\tt musictex.fmt}
+instead of the usual {\tt plain.fmt}.
+
+ For MS-DOS/{\tt emTeX} users the format building command is:
+
+ \verb|tex386 -i &plain musictex.ins|
+
+ \noindent (you can change \verb|plain| into \verb|dc-plain| or any other
+plain-like format you have) then:
+
+ \verb|copy musictex.fmt \emtex\btexfmts\*.*|
+
+ \noindent and the {\tt musictex.bat} command can be
+
+% It makes no sense to state -mt20000, perhaps this is useful for MusicTeX,
+% (it uses hyphenation to break a line) but not for MusiXTeX (it uses musixflx)
+\begin{quote}\begin{verbatim}
+if exist %1.tex goto tex
+goto end
+
+:tex
+tex386 -mt20000 &musictex %1 %2 %3 %4 %5 %6 %7 %8 %9
+
+:end
+ \end{verbatim}\end{quote}
+\end{enumerate}
+
+
+
+
+ \input musicdoc.ind
+ 
+ 
+\chapter{Examples}
+
+\vskip -8mm
+Due to compatibility problems with \LaTeX\ (used to produce this notice)
+large examples must be \TeX -ed separately, i.e.\ using \TeX\ and not \LaTeX.
+Therefore, the Music\TeX\ future user is suggested to produce
+some of the following examples and to look carefully at the way some
+special features have been coded.
+
+\medskip When producing this examples, care should be taken about the fact
+that many several files are supposed to be included (by means of
+\keyindex{input}) in other files. Thus the only good files to be directly
+\TeX-ed are those which begin with ``{\Bslash input musicnft}'' or
+ ``\verb|% \input musixtex|''. This latter command indicates that this
+exemple can be run, both with \musictex\ inserting
+
+ \verb|\input musicnft| 
+
+ \verb|\input musictex| 
+
+ \verb|\input musicvbm| 
+
+ \verb|\input musictrp| 
+
+ \verb|\input musicsty|
+
+ \noindent at the beginning, or inserting the correcponding files of
+MusiX\TeX\ (see corresponding manual). A simplerway of doing consists in having
+two formats, one for \musictex\ (see \ref{formatbuild}), one for MusiX\TeX\
+plus its compatibility input files. 
+
+In addition, it must be noted that most DVI previewers and laser printers
+have their origin at one inch below and one inch right of the right upper
+corner of the paper, while the musical examples have their upper left
+significant corner only at one centimeter right and below the left top of the
+paper. Therefore, special parameters have to be given to the DVI
+transcription programs unless special \keyindex{hoffset} and
+\keyindex{voffset} \TeX\ commands are introduced within the source \TeX\
+text.
+
+\medskip Suggested tests are:
+
+\begin{itemize}
+\item{\tty PACIFIQN} for a long original piano work (11 pages);
+ {\tty PACIFIQB} is the same in 16~pt staff size;
+\item{\tty CARILLON} for a sophisticated piano score (use Big\TeX~!);
+\item{\tty PRAETORI} to get an ancient polyphonic song with three
+ transpositions;
+\item{\tty ANGESCAO} if you like Christmas carols with four voices, a
+ three-staff organ score and the same transposed to meet ordinary
+ singer's limitations; {\tty ANGESCAM} is the same without organ. See {\tty
+ angescax.tex} to see how the same source has been used for two distinct
+layouts. 
+\item{\tty HPRELFUG} if you like imitations of J.-S. Bach
+  (included in {\tty RECUEIL});
+\item{\tty MARCELLX} if you like pre-baroque music  (included in {\tty RECUEIL});
+\item{\tty RECUEIL} if you want to get all the organ works\footnote{All
+subsets of {\tty RECUEIL} can be \musictex-ed separately.} of the author in a
+single book (65 pages);
+ \item{\tty HWIDOR} and {\tty NWIDOR} to get the Toccata by Charles-Marie
+{\sc Widor} in two different sizes;
+ \item{\tty AVEMARIX} to get the ``M\'editation'' (alias ``Ave Maria'') by
+Charles {\sc Gounod} for organ and violin or song.\index{Gounod, C.} and {\tty
+AVEMARIO} to get the same for organ solo;
+ \item{\tty RACINE} to get the ``Cantique de Jean Racine'' by Gabriel {\sc
+Faur\'e} in a transcription fit for organ rather than for
+piano.\index{Faur\'e, G.}
+
+\end{itemize}\index{Widor, C.-M.}\index{Gounod, C.}
+
+\chapter{Summary of denotations}
+\section{Pitches}
+\begin{music}
+\cleftoksi={6000}
+\def\lbnt#1{\zcharnote{9}{\tty #1}\wh{!#1}}
+\def\LBNT#1{\zcharnote{9}{\tty !\relax #1}\wh{!#1}}
+\def\nbinstruments{1}\relax
+\debutextrait\autolines{13}{1}{12}\temps\notes\qsk
+\LBNT {`A}\LBNT {`B}\relax
+\LBNT {`C}\LBNT {`D}\LBNT {`E}\relax
+\LBNT {`F}\LBNT {`G}\relax
+\lbnt A\lbnt B\lbnt C\lbnt D\lbnt E\lbnt F\enotes\finextrait
+\def\lbnt#1{\zcharnote{-5}{\tty #1}\wh{!#1}}\relax
+\debutextrait\autolines{13}{1}{12}\temps\notes\qsk
+\lbnt G\lbnt H\lbnt I\relax
+\lbnt J\lbnt K\lbnt L\lbnt M\lbnt N\lbnt a\lbnt b\lbnt c\lbnt d\lbnt e\relax
+\enotes\finextrait
+\def\nbinstruments{1}\relax
+\cleftoksi={0000}
+\def\lbnt#1{\zcharnote{10}{\tty #1}\wh{!#1}}\relax
+\debutextrait\autolines{13}{1}{12}\temps\notes\qsk
+\lbnt a\lbnt b\lbnt c\lbnt d\lbnt e\lbnt f\lbnt g\lbnt h\lbnt i\relax
+\lbnt j\lbnt k\lbnt l\lbnt m\enotes\finextrait
+\def\lbnt#1{\zcharnote{-4}{\tty #1}\wh{!#1}}\relax
+\debutextrait\autolines{13}{1}{12}\temps\notes\qsk
+\lbnt n\lbnt o\lbnt p\lbnt q\lbnt r\relax
+\lbnt s\lbnt t\lbnt u\lbnt v\lbnt w\lbnt x\lbnt y\lbnt z\relax
+\enotes
+\finextrait
+\end{music}
+\section{Notes and Rests}
+\begin{music}
+\def\mcra#1{\zcharnote{10}{\hbox to 1.3\Interligne{\hss\Bslash #1\hss}}}
+\def\Mcra#1{\zcharnote{14}{\hbox to 1.3\Interligne{\hss\Bslash #1\hss}}}
+\def\nbinstruments{1}
+\debutextrait\normal\temps\NOTes\sk
+\mcra{zbv}\zbv i\sk\mcra{zsb}\zsb i\sk\enotes\Notes\relax
+\mcra{wh}\wh i\qsk
+\mcra{hu}\hu f\qsk\mcra{hl}\hl l\qsk
+\mcra{qu}\qu f\qsk\mcra{ql}\ql l\qsk
+\mcra{cu}\cu f\qsk\mcra{cl}\cl l\qsk
+\qsk\mcra{ccu}\ccu f\qsk\qsk\mcra{ccl}\ccl l\qsk\relax
+\qsk\qsk\mcra{cccu}\cccu d\qsk\qsk\qsk\mcra{cccl}\cccl l\qsk
+\qsk\qsk\mcra{ccccu}\ccccu f\qsk\qsk\qsk\mcra{ccccl}\ccccl l\enotes\finextrait
+\end{music}
+%
+\begin{music}
+\def\mcra#1{\zcharnote{10}{\hbox to 1.3\Interligne{\hss\Bslash #1\hss}}}
+\def\Mcra#1{\zcharnote{14}{\hbox to 1.3\Interligne{\hss\Bslash #1\hss}}}
+\def\nbinstruments{1}
+\debutextrait\normal\temps\NOTes\qsk
+\mcra{whp}\whp i\qsk
+\mcra{hup}\hup f\qsk\mcra{hlp}\hlp l\qsk
+\mcra{qup}\qup f\qsk\mcra{qlp}\qlp l\qsk
+\mcra{cup}\cup f\qsk\mcra{clp}\clp l\qsk\enotes
+\Notes\qsk\mcra{qh0}\ibu0f0\qh0f\tbu0\sk
+\qsk\mcra{qb0}\ibl0l0\qb0l\tbl0\sk\relax
+\qsk\mcra{qhp0}\ibu0f0\qhp0f\tbu0\sk
+\qsk\mcra{qbp0}\ibl0l0\qbp0l\tbl0\sk\relax
+\qsk\mcra{qhpp0}\ibu0f0\qhpp0f\tbu0\sk
+\qsk\mcra{qbpp0}\ibl0l0\qbpp0l\tbl0\sk\relax
+\enotes
+\finextrait
+%
+\def\mcrb#1#2{\zcharnote{14}{\hbox to 1.3\Interligne{\hss\Bslash #1\hss}}%
+\mcra{#2}}%
+\def\Mcrb#1#2{\zcharnote{18}{\hbox to 1.3\Interligne{\hss\Bslash #1\hss}}%
+\Mcra{#2}}%
+\def\mcrc#1#2#3{\zcharnote{18}{\hbox to 1.3\Interligne{\hss\Bslash #1\hss}}%
+\mcrb{#2}{#3}}%
+\debutextrait\normal\NOTES\qsk\relax
+\Mcrb{seizsoupir}{qqs}\qqs\qsk%     hemi-demi-semi-quaver rest
+\mcrb{huitsoupir}{hs}\hs\qsk%             demi-semi-quaver rest
+\mcrc{quartsoupir}{qsoupir}{qs}\qs\qsk\qsk% semi-quaver rest
+\mcrc{demisoupir}{dsoupir}{ds}\ds\qsk%  quaver rest
+\enotes\finextrait
+\debutextrait\normal\NOTEs
+\mcrb{soupir}{qp}\qp\qsk%                  crotchet rest
+\mcra{hpause}\hpause%                  minim rest
+\mcra{pause}\pause%                    semibreve rest
+\mcra{PAuse}\PAuse%                    ? rest
+\enotes\NOTes
+\mcra{PAUSe}\PAUSe%                    ?? rest
+\enotes\finextrait
+\end{music}
+%
+\section{Other symbols}
+
+
+\begin{music}
+\def\nbinstruments{1}\parindent 0pt
+\def\mcra#1{\zcharnote{17}{\hbox to 1.3\Interligne{\hss\Bslash #1\hss}}}
+\def\Mcra#1{\charnote{17}{\hbox to \noteskip{\Bslash #1\hss}}}
+\debutextrait\NOTEs
+\mcra{nTrille}\nTrille{n}4\sk\qsk
+\mcra{ntrille}\ntrille{n}4\sk\sk
+\mcra{pince}\pince{n}\sk\mcra{Pince}\Pince{n}\sk\relax
+\mcra{mordant}\mordant{n}\sk
+\mcra{turn}\turn{n}\sk\mcra{backturn}\backturn{n}\sk
+\mcra{coda}\coda{n}\sk\mcra{segno}\segno{n}\sk
+\enotes\finextrait
+\debutextrait
+\def\mcra#1{\zcharnote{10}{\hbox to \noteskip{\Bslash #1\hss}}}\relax
+\NOTes\sk\relax
+\mcra{dimin}\zcharnote b{\dimin}\sk\sk
+\mcra{Dimin}\zcharnote b{\Dimin}\sk\sk\relax
+\mcra{DImin}\zcharnote b{\DImin}\sk\sk\sk\relax
+\mcra{DIMin}\zcharnote b{\DIMin}\sk\sk\sk\sk\relax
+\enotes\finextrait
+\debutextrait
+\def\mcra#1{\zcharnote{10}{\hbox to \noteskip{\Bslash #1\hss}}}\relax
+\NOTes\sk\relax
+\mcra{cresc}\zcharnote b{\cresc}\sk\sk\relax
+\mcra{Cresc}\zcharnote b{\Cresc}\sk\sk\relax
+\mcra{CResc}\zcharnote b{\CResc}\sk\sk\sk\relax
+\mcra{CREsc}\zcharnote b{\CREsc}\sk\sk\sk\sk\relax
+\enotes\finextrait
+\debutextrait
+\def\mcra#1{\zcharnote{14}{\hbox to 2\Interligne{\hss\Bslash #1\hss}}}\relax
+\NOTEs\sk
+\mcra{pointdorgue}\pointdorgue{l}\wh k\sk\relax
+\mcra{pointdurgue}\pointdurgue{e}\wh f\sk\enotes
+\NOTes
+\mcra{PED}\PED\sk\mcra{DEP}\DEP\sk\relax
+\enotes\finextrait
+\end{music}
+\end{document}
+
+

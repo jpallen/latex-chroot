@@ -1,0 +1,18 @@
+#!/bin/sh
+# sample usage:
+#   showenc T2A
+#   showenc OT1 '\setint{monowidth}{1}'
+
+latex << EOF | perl -ne 'next if (!s/^SLOT: //); s,\n,\0,; $q.=$_;
+  END { $_=$q; s,\0\[LIG] ([^\0]*), L $1,g; s,\0,\n,g; print }'
+\input fontinst.sty
+\catcode\`\_=11
+$2
+\def\setint#1#2{}
+\def\setslot#1{\edef\slot_name{#1}\do_slot
+  \typeout{SLOT: \the\slot_number\space\slot_name\space;}}
+\def\ligature#1#2#3{\typeout{SLOT: [#1] #2 #3 ;}\vpl_ligature{#1}{#2}{#3}}
+\inputetx{$1}
+\bye
+EOF
+rm -f fontinst.log

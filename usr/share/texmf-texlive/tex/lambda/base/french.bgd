@@ -1,0 +1,135 @@
+\catcode`\@=11
+
+% par défaut
+\def\LeftPointingDoubleAngleQuotationMark{^^^^00ab\kern.1667em}
+\def\RightPointingDoubleAngleQuotationMark{\unskip\kern.1667em^^^^00bb}
+     \ocp\Uppercase=uppercase
+     \ocplist\UppercaseOCP=
+     \addbeforeocplist 3000 \Uppercase
+     \nullocplist
+% options
+\newcounter{niveauguillemets}[paragraph]
+\def\tmp@normal{normal}
+\def\tmp@paragraphe{paragraphe}
+\def\tmp@ligne{ligne}
+\define@key{french}{guillemets}[normal]{\def\@tmpa{#1}\ifx\@tmpa\tmp@ligne
+\def\LeftPointingDoubleAngleQuotationMark{^^^^00ab\kern.1667em%
+\ifthenelse{\value{niveauguillemets} = 1}{\everypar={}\localleftbox{^^^^00ab\kern.1667em}}{%
+\everypar={{\popocplist^^^^00ab}\kern.1667em}\setcounter{niveauguillemets}{1}}}
+\def\RightPointingDoubleAngleQuotationMark{\unskip\kern.1667em^^^^00bb\everypar={}\localleftbox{}%
+\ifthenelse{\value{niveauguillemets} = 1}{\everypar={{\popocplist^^^^00ab}\kern.1667em}%
+\setcounter{niveauguillemets}{0}}{}}
+\else
+\ifx\@tmpa\tmp@paragraphe
+\def\LeftPointingDoubleAngleQuotationMark{^^^^00ab\kern.1667em\everypar={^^^^00ab\kern.1667em}}
+\def\RightPointingDoubleAngleQuotationMark{\unskip\kern.1667em^^^^00bb\everypar={}}
+\else
+\def\LeftPointingDoubleAngleQuotationMark{^^^^00ab\kern.1667em}
+\def\RightPointingDoubleAngleQuotationMark{\unskip\kern.1667em^^^^00bb}
+\fi\fi}
+\def\tmp@avec{avecaccents}
+\def\tmp@sans{sansaccents}
+\define@key{french}{majuscules}[avecaccents]{\def\@tmpa{#1}\ifx\@tmpa\tmp@sans
+     \ocp\Uppercase=uppercase-no-accents
+     \ocplist\UppercaseOCP=
+     \addbeforeocplist 3000 \Uppercase
+     \nullocplist
+\else
+     \ocp\Uppercase=uppercase
+     \ocplist\UppercaseOCP=
+     \addbeforeocplist 3000 \Uppercase
+     \nullocplist
+\fi}
+
+
+     \ocp\IdOCP=id
+     \ocplist\NilOCP=
+     \addbeforeocplist 500 \IdOCP
+     \addbeforeocplist 1750 \IdOCP
+     \addbeforeocplist 2000 \IdOCP
+     \addbeforeocplist 3500 \IdOCP
+     \nullocplist
+     \ocp\BasicLatinTexUni=french2uni
+     \ocp\BasicLatinUniToFont=uni2lat
+     \ocp\BasicLatinUniToFontNoFfi=uni2lat-noffi
+     \ocplist\BasicLatinOCP=
+     \addbeforeocplist 500 \BasicLatinTexUni
+     \addbeforeocplist 1750 \IdOCP
+     \addbeforeocplist 2000 \IdOCP
+     \addbeforeocplist 3500 \BasicLatinUniToFont
+     \nullocplist
+
+\def\LeftDoubleQuotationMark{^^^^201c}
+\def\RightDoubleQuotationMark{^^^^201d}
+\def\QuestionMark{\unskip\kern.1667em?}
+\def\ExclamationMark{\unskip\kern.1667em!}
+\def\Semicolon{\unskip\kern.1667em;}
+\def\Colon{\unskip~:}
+
+
+\language=\l@french
+\def\markboth#1#2{\gdef\@themark{{\pushocplist\BasicLatinOCP#1}{\pushocplist\BasicLatinOCP#2}}{%
+     \let\protect\@unexpandable@protect
+     \let\label\relax \let\index\relax \let\glossary\relax
+     \mark{\@themark}}\if@nobreak\ifvmode\nobreak\fi\fi}
+\def\markright#1{{\let\protect\@unexpandable@protect
+     \let\label\relax \let\index\relax \let\glossary\relax
+     \expandafter\@markright\@themark
+     {#1}\mark{\@themark}}\if@nobreak\ifvmode\nobreak\fi\fi}
+\def\@markright#1#2#3{\gdef\@themark{{\pushocplist\BasicLatinOCP#1}{\pushocplist\BasicLatinOCP#3}}}
+
+   \def\refname{R\'ef\'erences}%
+   \def\abstractname{R\'esum\'e}%
+   \def\bibname{Bibliographie}%
+   \def\prefacename{Pr\'eface}%
+   \def\chaptername{Chapitre}%
+   \def\appendixname{Annexe}%
+   \def\contentsname{Table des mati\`eres}%
+   \def\listfigurename{Table des figures}%
+   \def\listtablename{Liste des tableaux}%
+   \def\indexname{Index}%
+   \def\figurename{{\scshape Fig.}}%
+   \def\tablename{{\scshape Tab.}}%
+   \def\partname{\protect\@Fpt partie}%
+   \def\@Fpt{{\ifcase\value{part}\or Premi\`ere\or Deuxi\`eme\or
+   Troisi\`eme\or Quatri\`eme\or Cinqui\`eme\or Sixi\`eme\or
+   Septi\`eme\or Huiti\`eme\or Neuvi\`eme\or Dixi\`eme\or Onzi\`eme\or
+   Douzi\`eme\or Treizi\`eme\or Quatorzi\`eme\or Quinzi\`eme\or
+   Seizi\`eme\or Dix-septi\`eme\or Dix-huiti\`eme\or Dix-neuvi\`eme\or
+   Vingti\`eme\fi}\space\def\thepart{}}%
+   \def\pagename{page}%
+   \def\seename{{\emph{voir}}}%
+   \def\alsoname{{\emph{voir aussi}}}%
+   \def\enclname{P.~J. }%
+   \def\ccname{Copie \`a }%
+   \def\headtoname{}%
+   \def\proofname{D\'emonstration}% for AMS-\LaTeX
+  \def\today{\number\day
+    \ifnum1=\day \ier\fi
+    \space \ifcase\month
+    \or janvier\or f\'evrier\or mars\or avril\or mai\or juin\or
+    juillet\or ao\^ut\or septembre\or octobre\or novembre\or
+    d\'ecembre\fi
+    \space \number\year}
+%     \def\labelitemi{--}%
+%     \def\labelitemii{--}%
+%     \def\labelitemiii{--}%
+%     \def\labelitemiv{--}
+\def\addcontentsline#1#2#3{%
+  \addtocontents{#1}{\protect\contentsline{#2}{\protect\pushocplist\BasicLatinOCP#3}{\thepage}}}%
+
+\newenvironment{french}{\def\today{\number\day
+    \ifnum1=\day \ier\fi
+    \space \ifcase\month
+    \or janvier\or f\'evrier\or mars\or avril\or mai\or juin\or
+    juillet\or ao\^ut\or septembre\or octobre\or novembre\or
+    d\'ecembre\fi
+    \space \number\year}%
+\def\addcontentsline##1##2##3{%
+  \addtocontents{##1}{\protect\contentsline{##2}{\protect\pushocplist\BasicLatinOCP##3}{\thepage}}}%
+\pushocplist\NilOCP}{}
+\newcommand{\localfrench}[1]{{\protect\pushocplist\BasicLatinOCP#1}}
+
+\pushocplist\BasicLatinOCP
+
+\endinput

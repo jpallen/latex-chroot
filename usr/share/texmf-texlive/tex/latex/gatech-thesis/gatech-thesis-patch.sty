@@ -1,0 +1,255 @@
+%%
+%% This is file `gatech-thesis-patch.sty', generated manually.
+%%
+%% This file is free software; you can redistribute it and/or
+%% modify it under the terms of the GNU General Public License
+%% as published by the Free Software Foundation; either version 2
+%% of the License, or (at your option) any later version.
+%%
+%% This program is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%% GNU General Public License for more details.
+%%
+%% You should have received a copy of the GNU General Public License
+%% along with this program; if not, write to the Free Software
+%% Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+%%
+%% See the COPYING file for license information.
+%%
+%% This patch file will remove the following bugs from the gatech-thesis
+%% class.  Each item contains the name of the person who discovered
+%% the bug (or GT-OGS, if they changed requirements).  Then the
+%% date on which the bug was found, followed by the version number
+%% which includes the fix for that bug, the date the fix was released,
+%% and the name of the person who provided the code for the bugfix.
+%% Next follows a a short description of the problem, and the 
+%% reason for the bug in parenthesis, if applicable.
+%%
+%% 1) GT-OGS 2003/06/22, 1.6b (2003/06/23 C. Wilson)
+%%    When figure or table caption extended over multiple lines,
+%%    'Figure X:' part switched to San Serif.  This patch fixes
+%%    that bug. (forgot to remove both instances of '\textsf' 
+%%    in @makecaption, during the runup to 1.6 release)
+%%
+%% 2) GT-OGS 2003/11/19, 1.6c (2003/11/20 C. Wilson)
+%%    The List of Figures and List of Tables pages now must 
+%%    look like this:  'Figure 1:   my caption .......  27'
+%%    instead of    :  '1   my caption ...............  27'
+%%    Note that, if you are using the List of Listings as
+%%    demonstrated by the bellswhistles example, then you
+%%    should download the an updated copy of jules-verne.sty
+%%    and copy over the modified listings stuff from there.
+%%
+%% 3) D. Semwogerere 2003/11/20, 1.6d (2003/11/21 C. Wilson)
+%%    1.6c didn't work unless the hyperref package is present.
+%%    Hopefully this version will work with and without hyperref.
+%%    Also, remove the trailing ':' from the List of <Stuff>.
+%%
+%% 4) GT-OGS 2003/11/21, 1.6e (2003/11/22 C. Wilson)
+%%    Electronic submissions are now allowed by GT.  However,
+%%    the electronic version of the approval (signature) page
+%%    is different from the paper version.  To generate a 
+%%    thesis suitable for electronic submission, issue the 
+%%    following commands:
+%%      \electronicsignaturepagetrue
+%%      \approvaldate{10 July 2003)
+%%    where the date specified is "the date on which the last
+%%    committee member approved the final draft of the thesis"
+%%
+\ProvidesFile{gatech-thesis-patch.sty}[2003/11/21 1.6e (Charles Wilson)]
+\gtthesis@checkVersion{1.6}
+{\typeout{^^J%
+    ***^^J%
+    *** This is a patch for `gatech-thesis.cls' version 1.6, but^^J%
+    *** you're using version \gtthesisversion.^^J%
+    ***^^J%
+    *** Patch file not loaded.^^J%
+    ***^^J}%
+    \endinput
+}
+%
+% 1) When figure or table caption extended over multiple lines,
+%    'Figure X:' part switched to San Serif.  This patch fixes
+%    that bug.
+\long\def\@makecaption#1#2{%
+  \vskip\abovecaptionskip
+  \sbox\@tempboxa{\textbf{#1: }#2}%
+  \ifdim \wd\@tempboxa >\hsize
+    \textbf{#1: }#2\par
+  \else
+    \global \@minipagefalse
+    \hb@xt@\hsize{\hfil\box\@tempboxa\hfil}%
+  \fi
+  \vskip\belowcaptionskip}
+%
+% 2) The List of Figures and List of Tables pages now must 
+%    look like this:  'Figure 1   my caption ........  27'
+%    instead of    :  '1   my caption ...............  27'
+%    This is very kludgy since we must work around the fact
+%    that hyperref MIGHT be loaded, and if so, it will 
+%    clobber our redefinition of \@caption...
+%
+% 3) 1.6c didn't work unless the hyperref package is present.
+%    Hopefully this version will work with and without hyperref.
+%    Also, remove the trailing ':' from the List of <Stuff>.
+\if@hyperref\relax\else%
+  \def\hyper@makecurrent#1{}
+  \def\Hy@raisedlink#1{}
+  \def\hyper@@anchor#1{}
+  \let\@currentHref\@empty
+  \newif\ifHy@nesting
+  \Hy@nestingfalse
+\fi
+\if@hyperref% 
+\AtBeginDocument{%
+\long\def\@caption#1[#2]#3{%
+  \hyper@makecurrent{\@captype}%
+  \par\addcontentsline{\csname ext@#1\endcsname}{#1}{%
+    \protect\numberline{\csname fnum@#1\endcsname}{\ignorespaces #2}%
+  }%
+  \begingroup
+    \@parboxrestore
+    \if@minipage
+      \@setminipage
+    \fi
+    \normalsize
+    \@makecaption{\csname fnum@#1\endcsname}{%
+      \ignorespaces
+      \ifHy@nesting
+        \hyper@@anchor{\@currentHref}{#3}%
+      \else
+        \Hy@raisedlink{\hyper@@anchor{\@currentHref}{\relax}}#3%
+      \fi
+    }%
+    \par
+  \endgroup
+}
+\let\Hy@float@caption\@caption
+\@ifpackageloaded{float}{%
+  \def\Hy@float@caption{%
+    \hyper@makecurrent{\@captype}%
+    \float@caption
+  }
+  \let\HyOrg@float@makebox\float@makebox
+  \renewcommand{\float@makebox}[1]{%
+    \HyOrg@float@makebox{%
+      #1\relax
+      \hyper@@anchor{\@currentHref}{\relax}%
+    }%
+  }%
+}{}%
+}
+\else
+\long\def\@caption#1[#2]#3{%
+  \par
+  \addcontentsline{\csname ext@#1\endcsname}{#1}%
+    {\protect\numberline{\csname fnum@#1\endcsname}{\ignorespaces #2}}%
+  \begingroup
+    \@parboxrestore
+    \if@minipage
+      \@setminipage
+    \fi
+    \normalsize
+    \@makecaption{\csname fnum@#1\endcsname}{\ignorespaces #3}\par
+  \endgroup}
+\let\noHyper@caption\@caption
+\fi
+\renewcommand*\l@figure{%
+  \let\gt@@toclineskip=\gt@beforefigskip@value
+  \gt@dottedtocline{1}{0em}{4.8em}}%
+\renewcommand*\l@table{%
+  \let\gt@@toclineskip=\gt@beforetableskip@value
+  \gt@dottedtocline{1}{0em}{4.8em}}%
+%
+% 4) Electronic submissions are now allowed by GT.  However,
+%    the electronic version of the approval (signature) page
+%    is different from the paper version.  To generate a 
+%    thesis suitable for electronic submission, issue the 
+%    following commands:
+%      \electronicsignaturepage
+%      \approvaldate{10 July 2003)
+%    where the date specified is "the date on which the last
+%    committee member approved the final draft of the thesis"
+\newif\ifelectronicsignaturepage
+\electronicsignaturepagefalse
+\renewcommand{\signature}[1]{%
+  \ifx\empty#1{}\empty%
+  \else%
+    \parbox[t]{\signature@width}{%
+      \ifelectronicsignaturepage%
+        \parbox{\signature@width}{#1 \hfill}\\
+        \vspace{.25in}%
+      \else%
+        \rule{\signature@width}{.01in}\\
+        \parbox{\signature@width}{#1 \hfill}\\
+        \vspace{.25in}%
+      \fi%
+    }
+  \fi%
+}
+\long\def\gtt@approvaldate{\parbox{2in}{%
+  \textbf{\Large{SPECIFY DATE}}\\
+  \texttt{{\char '134}approvaldate\{10 July 2003\}}}%
+}
+\newcommand{\approvaldate}[1]%
+  {\ifx\empty#1\empty\else\gdef\gtt@approvaldate{#1}\fi}
+
+\newcommand{\gtt@dateapprovedelectronic}[1]{%
+  \makebox[\signature@width]{Date Approved: \gtt@approvaldate\hfill\kern\z@}%
+}
+\newcommand{\gtt@dateapprovedpaper}[1]{%
+  \makebox[\signature@width]{Date Approved: \leaders\hrule height0.01in\hfill\kern\z@}%
+}
+\let\gtt@dateapproved\gtt@dateapprovedpaper
+\renewcommand{\signature@bodyonecol}{%
+  \ifelectronicsignaturepage
+    \let\gtt@dateapproved\gtt@dateapprovedelectronic
+  \fi
+  \begin{flushright}
+    \parbox{\signature@width}{\begin{flushleft}Approved by:\\ \end{flushleft}}\\
+    \vspace*{0.3in}
+    \ifx\empty\@committeechair{}\empty%
+    \else%
+       \signature{\@committeechair, Committee Chair}%
+    \fi%
+    \ifx\empty\@principaladvisor{}\empty%
+    \else%
+      \signature{\@principaladvisor, \advis@r}%
+    \fi%
+    \signature\@firstreader
+    \signature\@secondreader
+    \signature\@thirdreader
+    \signature\@fourthreader
+    \signature\@fifthreader
+    \signature\@sixthreader
+    \vspace{.5in}
+    \gtt@dateapproved\\
+  \end{flushright}
+}
+
+\renewcommand{\signature@bodytwocol}{%
+  \ifelectronicsignaturepage
+    \let\gtt@dateapproved\gtt@dateapprovedelectronic
+  \fi
+  \begin{flushleft}
+    Approved by:\\
+  \end{flushleft}
+  \vspace*{0.3in}
+  \begin{minipage}[t]{.49\textwidth}%
+    \begin{flushleft}%
+      \dosiglist{\L@signatures}{cnt@Lsig}
+    \end{flushleft}
+  \end{minipage}
+  \begin{minipage}[t]{.49\textwidth}%
+    \begin{flushright}%
+      \dosiglist{\R@signatures}{cnt@Rsig}
+    \end{flushright}
+  \end{minipage}
+  \begin{flushright}
+    \vspace{.5in}
+    \gtt@dateapproved\\
+  \end{flushright}
+}
+
+\typeout{gatech-thesis-patch loaded}

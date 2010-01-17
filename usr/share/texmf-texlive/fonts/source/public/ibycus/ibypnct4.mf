@@ -1,0 +1,73 @@
+def selectpunct expr t =
+  currenttitle:= t;
+  if t = "Hash mark (number sign)" : let next_ = lose_it_
+  elseif t = "At sign" : let next_ = lose_it_
+  elseif t = "Semicolon" : 
+	code_offset := ASCII"?" - ASCII";"; let next_ = use_it_
+  elseif t = "Apostrophe" : 
+	code_offset := quotesnglright - ASCII"'"; let next_ = use_it_
+  elseif t = "Reverse apostrophe" : 
+	code_offset := quotesnglleft - ASCII"`"; let next_ = use_it_
+  else: code_offset := 0; let next_ = use_it_ fi; next_ enddef;
+
+def remapcomlig expr t =
+  currenttitle:= t;
+  if t = "Closing quotes" : 
+    code_offset := quotedblright - oct"42"; let next_ = use_it_
+  elseif t = "Opening quotes" : 
+    code_offset := quotedblleft - oct"134"; let next_ = use_it_
+  elseif t = "En dash" : 
+    code_offset := endash - oct"173"; let next_ = use_it_
+  elseif t = "Em dash" : 
+    code_offset := emdash - ASCII"|"; let next_ = use_it_
+  else: code_offset := 0; let next_ = use_it_ fi; next_ enddef;
+
+% Get a good set of critical edition marks for this font.
+
+def selectsym expr t =
+  currenttitle:= t;
+  if t = "Left curly brace" :
+	code_offset := braceleft - oct"146"; let next_ = use_it_
+  elseif t = "Right curly brace" :
+	code_offset := braceright - oct"147"; let next_ = use_it_
+  elseif t = "Left floor bracket" :
+	code_offset := bracketleftbt - oct"142"; let next_ = use_it_
+  elseif t = "Right floor bracket" :
+	code_offset := bracketrightbt - oct"143"; let next_ = use_it_
+  elseif t = "Left angle bracket" :
+	code_offset := angleleft - oct"150"; let next_ = use_it_
+  elseif t = "Right angle bracket" :
+	code_offset := angleright - oct"151"; let next_ = use_it_
+  elseif t = "Dagger mark" :
+	code_offset := dagger - oct"171"; let next_ = use_it_
+  elseif t = "Double dagger mark" :
+	code_offset := daggerdbl - oct"172"; let next_ = use_it_
+  else: let next_ = lose_it_ fi; next_ enddef;
+
+% Use Computer modern characters for as many signs as possible.
+
+let cmchar = selectpunct;
+input punct
+let ligtable_ = ligtable;
+def ligtable text t = enddef;
+let cmchar = remapcomlig;
+input comlig
+let cmchar = relax;
+let ligtable = ligtable_;
+let cmchar = selectsym;
+input symbol
+
+code_offset := 0;
+
+% Special Greek punctuation from Silvio Levy's src/punct.mf.
+
+def selectgrpunct expr t =
+  currenttitle:= t;
+  if t = "'Anw tele'ia" : let next_ = use_it_
+  elseif t = "Open quotes (eisagwgik'a)" : let next_ = use_it_
+  elseif t = "Close quotes (eisagwgik'a)" : let next_ = use_it_
+  else: code_offset := 0; let next_ = lose_it_ fi; next_ enddef;
+
+let cmchar = selectgrpunct;
+readfrom("grpunct");
+

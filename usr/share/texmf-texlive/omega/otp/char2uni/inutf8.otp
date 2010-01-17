@@ -1,0 +1,54 @@
+% File inutf8.otp
+% Conversion to UTF-16 from UTF-8 
+% Copyright (c) 1999 John Plaice and Yannis Haralambous
+% Copyright (C) 2005, 2006 Roozbeh Pournader
+% This file is part of the Omega project.
+%
+% The information was originally provided by Martin Dürst.
+% Updated to incorporate exact definition of UTF-8 from Unicode 4.0.
+%
+
+input:  1;
+output: 2;
+
+expressions:
+
+% One-byte sequences get mapped to proper ASCII
+@"00-@"7F
+  => \1;
+
+% Two-byte sequences:
+% U+0080..U+07FF
+(@"C2-@"DF)(@"80-@"BF)
+  => #(((\1-@"C0)*@"40) + (\2-@"80));
+
+% Three-byte sequences:
+% U+0800..U+0FFF
+@"E0(@"A0-@"BF)(@"80-@"BF)
+  => #(((\2-@"80)*@"40) + (\3-@"80));
+% U+1000..U+CFFF, U+E000..U+FFFF
+(@"E1-@"EC|@"EE-@"EF)(@"80-@"BF)(@"80-@"BF)
+  => #(((\1-@"E0)*@"1000) + ((\2-@"80)*@"40) + (\3-@"80));
+% U+D000..U+D7FF
+@"ED(@"80-@"9F)(@"80-@"BF)
+  => #(@"D000 + ((\2-@"80)*@"40) + (\3-@"80));
+
+% Four-byte sequences:
+% The arithmatics is a little complex here, since the characters
+% are converted to UTF-16 directly.
+% U+10000..U+3FFFF
+@"F0(@"90-@"BF)(@"80-@"BF)(@"80-@"BF)
+  => #(@"D7C0 + ((\2-@"80)*4) + ((\3-@"80) div: @"10))
+     #(@"DC00 + ((\3 mod: 10)*@"40) + (\4 - @"80));
+% U+40000..U+FFFFF
+(@"F1-@"F3)(@"80-@"BF)(@"80-@"BF)(@"80-@"BF)
+  => #(@"D7C0 + ((\1-@"F0)*@"100) + ((\2-@"80)*4) + ((\3-@"80) div: @"10))
+     #(@"DC00 + ((\3 mod: 10)*@"40) + (\4 - @"80));
+% U+100000..U+10FFFF
+@"F4(@"80-@"8F)(@"80-@"BF)(@"80-@"BF)
+  => #(@"DBC0 + ((\2-@"80)*4) + ((\3-@"80) div: @"10))
+     #(@"DC00 + ((\3 mod: 10)*@"40) + (\4 - @"80));
+
+% Anything else gets mapped to U+FFFD. This should probably
+% get replaced by an error message, instead.
+. => @"FFFD;

@@ -1,0 +1,157 @@
+% chessboard.sty
+% sebastian rahtz  august 29th 1989
+%
+% from Clark's cheq.sty, and article by W. Appelt in Tugboat 9.2,
+% 284--287, 1988
+%---------------
+% fonts
+% Derived from cheq.pl by Adrian F. Clark, 11th July 1989.
+% Can be used by LaTeX or by plain TeX.
+\newcounter{chessmove}
+\setcounter{chessmove}{0}
+\font\Cheq=cheq at 18pt    % design size is 1pt; characters just legible at this size
+
+\def\CheqBBOnBlack{\Cheq\char 241 }
+\def\CheqBB{\Cheq\char 76 }
+\def\CheqBXOnBlack{\Cheq\char 240 }
+\def\CheqBX{\Cheq\char 75 }
+\def\CheqBKOnBlack{\Cheq\char 234 }
+\def\CheqBK{\Cheq\char 83 }
+\def\CheqBPOnBlack{\Cheq\char 184 }
+\def\CheqBP{\Cheq\char 80 }
+\def\CheqBQOnBlack{\Cheq\char 206 }
+\def\CheqBQ{\Cheq\char 81 }
+\def\CheqBROnBlack{\Cheq\char 229 }
+\def\CheqBR{\Cheq\char 84 }
+\def\CheqBSquare{\Cheq\char 120 }
+\def\CheqWBOnBlack{\Cheq\char 186 }
+\def\CheqWB{\Cheq\char 98 }
+\def\CheqWXOnBlack{\Cheq\char 251 }
+\def\CheqWX{\Cheq\char 107 }
+\def\CheqWKOnBlack{\Cheq\char 167 }
+\def\CheqWK{\Cheq\char 115 }
+\def\CheqWPOnBlack{\Cheq\char 185 }
+\def\CheqWP{\Cheq\char 112 }
+\def\CheqWQOnBlack{\Cheq\char 182 }
+\def\CheqWQ{\Cheq\char 113 }
+\def\CheqWROnBlack{\Cheq\char 160 }
+\def\CheqWR{\Cheq\char 116 }
+%--------------
+\newif\ifblackchess
+\newif\ifblackplaying
+\def\BB{\ifblackchess\CheqBBOnBlack\else\CheqBB\fi}
+\def\BX{\ifblackchess\CheqBXOnBlack\else\CheqBX\fi}
+\def\BK{\ifblackchess\CheqBKOnBlack\else\CheqBK\fi}
+\def\BP{\ifblackchess\CheqBPOnBlack\else\CheqBP\fi}
+\def\BQ{\ifblackchess\CheqBQOnBlack\else\CheqBQ\fi}
+\def\BR{\ifblackchess\CheqBROnBlack\else\CheqBR\fi}
+\def\WB{\ifblackchess\CheqWBOnBlack\else\CheqWB\fi}
+\def\WX{\ifblackchess\CheqWXOnBlack\else\CheqWX\fi}
+\def\WK{\ifblackchess\CheqWKOnBlack\else\CheqWK\fi}
+\def\WP{\ifblackchess\CheqWPOnBlack\else\CheqWP\fi}
+\def\WQ{\ifblackchess\CheqWQOnBlack\else\CheqWQ\fi}
+\def\WR{\ifblackchess\CheqWROnBlack\else\CheqWR\fi}
+%
+% Appelt's move macros, amended
+%
+\def\Move#1#2#3#4#5#6{
+% [XQKBRP][a-h][1-9][-x][a-h][1-8]
+\def\hashthree{\ifcase#3\relax\or A\or B\or C\or D\or E\or F\or G\or H\fi}
+\def\hashsix{\ifcase#6\relax\or A\or B\or C\or D\or E\or F\or G\or H\fi}
+\ifblackplaying\relax\else\addtocounter{chessmove}{1}\par\thechessmove.\fi
+#1#2#3#4#5#6
+\typeout{#1 #2#3 #4 #5#6}
+\expandafter%
+\def\csname #2@\hashthree\endcsname{\void}%
+\ifblackplaying\expandafter%
+\def\csname #5@\hashsix\endcsname{\csname B#1\endcsname}%
+\else\expandafter%
+\def\csname #5@\hashsix\endcsname{\csname W#1\endcsname}%
+\fi
+}
+%
+\def\move#1#2#3#4#5#6 {
+% [XQKBRP][a-h][1-8][-x][a-h][1-8]
+\if#3-
+\Move P#1#2#3#4#5
+\else\if#3x
+\Move P#1#2#3#4#5%
+\else
+\Move #1#2#3#4#5#6
+\fi\fi
+\ifblackplaying\blackplayingfalse\else\blackplayingtrue\fi
+}
+%-------------------
+\def\void{\ifblackchess\CheqBSquare\else\hfill\fi}
+%------ Initial settings of board -------------
+\def\a@H{\BR}
+\def\b@H{\BK}\def\c@H{\BB}\def\d@H{\BQ}
+\def\e@H{\BX}\def\f@H{\BK}\def\g@H{\BB}
+\def\h@H{\BR}
+% ps
+\def\a@G{\BP}\def\b@G{\BP}\def\c@G{\BP}
+\def\d@G{\BP}\def\e@G{\BP}\def\f@G{\BP}
+\def\g@G{\BP}\def\h@G{\BP}
+% blank squares 
+%
+\def\a@F{\void}\def\b@F{\void}\def\c@F{\void}\def\d@F{\void}
+\def\e@F{\void}\def\f@F{\void}\def\g@F{\void}\def\h@F{\void} 
+\def\a@E{\void}\def\b@E{\void}\def\c@E{\void}\def\d@E{\void}
+\def\e@E{\void}\def\f@E{\void}\def\g@E{\void}\def\h@E{\void}
+\def\a@D{\void}\def\b@D{\void}\def\c@D{\void}\def\d@D{\void}
+\def\e@D{\void}\def\f@D{\void}\def\g@D{\void}\def\h@D{\void} 
+\def\a@C{\void}\def\b@C{\void}\def\c@C{\void}\def\d@C{\void}
+\def\e@C{\void}\def\f@C{\void}\def\g@C{\void}\def\h@C{\void}
+%
+\def\a@B{\WP}\def\b@B{\WP}\def\c@B{\WP}\def\d@B{\WP}\def\e@B{\WP}\def\f@B{\WP}
+\def\g@B{\WP}\def\h@B{\WP}
+%
+\def\a@A{\WR}\def\b@A{\WK}\def\c@A{\WB}\def\d@A{\WX}
+\def\e@A{\WQ}\def\f@A{\WB}\def\g@A{\WK}\def\h@A{\WR}
+%---------------------------------------------------
+%
+\def\BlackSquare#1{\blackchesstrue#1\blackchessfalse}
+%
+\def\showboard{
+\par\vspace{1cm}
+\centerline{Board after move \thechessmove\ of \ifblackplaying White
+\else Black \fi player}
+\par\vspace{1cm}
+\tabcolsep=0pt
+\centerline{\begin{tabular}{lcccccccc}
+\cline{2-9}
+8 \vline& \a@H\vline&\BlackSquare{\b@H}\vline&\c@H\vline&\BlackSquare{\d@H}\vline&\e@H\vline&\BlackSquare{\f@H}\vline&
+\g@H\vline&\BlackSquare{\h@H}\vline\\
+\cline{2-9}
+7 \vline& \BlackSquare{\a@G}\vline&\b@G\vline&\BlackSquare{\c@G}\vline&\d@G\vline&\BlackSquare{\e@G}\vline&\f@G\vline&\BlackSquare{\g@G}\vline&\h@G\vline\\
+\cline{2-9}
+6 \vline& \a@F\vline&\BlackSquare{\b@F}\vline&\c@F\vline&\BlackSquare{\d@F}\vline&\e@F\vline&\BlackSquare{\f@F}\vline&
+\g@F\vline&\BlackSquare{\h@F}\vline\\
+\cline{2-9}
+5 \vline& \BlackSquare{\a@E}\vline&\b@E\vline&\BlackSquare{\c@E}\vline&\d@E\vline&\BlackSquare{\e@E}\vline&\f@E\vline&\BlackSquare{\g@E}\vline&\h@E\vline\\
+\cline{2-9}
+4 \vline& \a@D\vline&\BlackSquare{\b@D}\vline&\c@D\vline&\BlackSquare{\d@D}\vline&\e@D\vline&\BlackSquare{\f@D}\vline&
+\g@D\vline&\BlackSquare{\h@D}\vline\\
+\cline{2-9}
+3 \vline& \BlackSquare{\a@C}\vline&\b@C\vline&\BlackSquare{\c@C}\vline&\d@C\vline&\BlackSquare{\e@C}\vline&\f@C\vline&\BlackSquare{\g@C}\vline&\h@C\vline\\
+\cline{2-9}
+2 \vline& \a@B\vline&\BlackSquare{\b@B}\vline&\c@B\vline&\BlackSquare{\d@B}\vline&\e@B\vline&\BlackSquare{\f@B}\vline&
+\g@B\vline&\BlackSquare{\h@B}\vline\\
+\cline{2-9}
+1 \vline& \BlackSquare{\a@A}\vline&\b@A\vline&\BlackSquare{\c@A}\vline&\d@A\vline&\BlackSquare{\e@A}\vline&\f@A\vline&\BlackSquare{\g@A}\vline&\h@A\vline\\
+\cline{2-9}
+&a&b&c&d&e&f&g&h\\
+\end{tabular}}
+\par
+} 
+
+% examples
+%\showboard
+%
+%\move e2-e4 \move c7-c6 \move c2-c4 
+%\move d7-d5 
+%\move Kb1-d2 \move d5xe4 \move Kd2xe4 \move Kb8-d7 
+%\move Kg1-f3
+%
+%\showboard
+%

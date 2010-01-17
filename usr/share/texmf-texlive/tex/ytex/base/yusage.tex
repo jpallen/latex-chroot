@@ -1,0 +1,1772 @@
+% for yTeX
+\typesize=10pt
+\runninghead={How to Use \ytex}
+\makelgtbrackets
+
+% small caps font
+\font\sc=cmcsc10
+
+% easy indexing of macros described
+\let\+=\relax                                   % commands
+\let\==\relax                                   % parameters
+\let\:=\relax                                   % switches
+
+% easy verbatim stuff
+\catcode`\"=12\relax
+\def\"{\hbox{\tt "}}
+\def\verbq{\verb"}
+\addspecial\"
+\catcode`\"=\active \let"=\verbq
+
+% macro descriptions
+\newelement\gab
+  \setup \unvpar
+         \advance\parskip by2pt plus1pt
+         \leftskip=\parindent
+         \clubpenalty=10000
+         \def\*{\noindent \hskip-\leftskip\ignorespaces}%
+         \def\\{\linebreak\ignorespaces}%
+         \def\##1{{\tt \char`\{}#1{\tt \char`\}}}%
+  \above \minbreak \pregabpenalty \abovegabskip
+  \below \dobreak \postgabpenalty \belowgabskip \vpar
+  \begin
+  \end \endgraf
+  \endnew
+\abovegabskip=\abovebulletsskip
+\belowgabskip=\belowbulletsskip
+\pregabpenalty=\prebulletspenalty
+\postgabpenalty=\postbulletspenalty
+
+% names for TeXs
+\let\tex=\TeX
+\def\LaTeX{L\kern-.2em\raise.3ex\hbox{a}\kern-.09em\TeX}
+\let\latex=\LaTeX
+\def\Tbase{\sy{TBASE}}
+\let\tbase=\Tbase
+\def\Plain{{\rm Plain}}
+\let\plain=\Plain
+\def\lisp{L{\smllrm ISP}}
+
+\begintitlepage
+
+\tcenter{\sc The Artificial Intelligence Laboratory\\ Massachusetts
+Institute of Technology}
+
+\vskip 1pc
+
+\spread {Working Paper 273}{May 1985}
+\spread {}{Revised, June 1986}
+
+\vskip 6pc
+
+\ctitle {How to Use \ytex}
+
+\vskip 3pc
+
+\cauthor {Daniel Brotsky\\ June 9, 1986}
+
+\vskip 3pc
+
+\beginabstract
+
+\ytex---pronounced {\it why}-\tex\ or {\it oops}-\tex---is a
+\tex\ macro package.  \ytex\ provides both an easy-to-use
+interface for \tex\ novices and a powerful macro-creation library
+for \tex\ programmers.  It is this two-tier structure that makes
+\ytex\ more useful to a diverse \tex\ user community than other
+macro packages such as \plain\ or \latex.
+
+This paper contains \ytex\ instructions intended for novice
+users.  It summarizes the facilities provided in \ytex\ and
+concludes with a table of useful commands.
+
+The version of \ytex\ documented here is release \fmtversion.
+
+\endabstract
+
+\beginbottomtext
+
+Work on \ytex\ was supported by a desire to avoid doing real
+work, like research.
+
+\smallskip
+
+A.I. Laboratory Working Papers are produced for internal
+circulation, and may contain information that is, for example,
+too preliminary or too detailed for formal publication.  It is
+not intended that they should be considered papers to which
+reference can be made in the literature.
+
+\endbottomtext
+
+\endtitlepage
+
+\section {What is \ytex?}
+
+\ytex---usually pronounced {\it why}-\tex\ but see below---is a
+\tex\ macro package.  \ytex\ evolved from the author's experience
+with other \tex\ macro packages, primarily \tbase, \plain,
+\latex, and the \sy{PHW} book macros.  This experience showed
+that, on the one hand, packages as complete as \latex\ or \tbase\
+tend to be inflexible while, on the other hand, packages as
+flexible as \plain\ tend to be incomplete.  \ytex\ ties both
+hands together by aiming for inflexibility and incompleteness
+simultaneously.
+
+Like most \tex-related programs and macro packages, \ytex\ has a
+``cute'' name that attempts a dual-language pun in English and
+pseudo-Greek.\footnote*{The result is about as weak the premise
+suggests.} The letter preceding the \tex\ in \ytex\ is not just a
+`Y' but also an {\it upsilon}---the Greek antecedent for the
+English letters `u' and `y'.\footnote\dag{Experienced \TeX\ math
+hackers may know that \TeX\ makes a version of capital upsilon
+available as $\Upsilon$, and they may wonder why the name \yTeX\
+is not spelled as \lower.5ex\hbox{$\Upsilon$}\kern-.1667em\TeX.
+That's because \TeX's version of $\Upsilon$ is not a Greek
+version (one of which really looked like `Y'---trust the Romans
+to be accurate in their borrowing) but actually the Uncial
+version popular among middle-ages religious circles.  Hey, what
+can I say?  Trust \TeX\ to be medieval whenever possible.} Thus
+you may pronounce \ytex\ as the expected {\it why}-\tex, the
+erudite {\it upsilon}-\tex, or the shorter {\it oops}-\tex.  But
+when you spell it to the computer, you have to spell it
+\sy{YTEX}.
+
+\section {About This Document}
+
+This document contains basic instructions for using \ytex.  It
+describes the things you can do using the user interface that
+\ytex\ always provides.  It does {\it not} explain how to use the
+\ytex\ library facilities to add to and replace parts of that
+interface.  Readers who are interested in such matters should
+look at the \ytex\ sources.
+
+If you are a complete \tex\ beginner you may find this document
+hard to follow.  In fact, almost everyone will find parts of the
+presentation hard to follow.  My advice to those who are confused
+is to not worry about it: most of the time you will be confused
+because you are reading about a feature you have no use for and
+thus no experience with.  If you need to use something and don't
+understand what is said about it here, just try the examples I
+give in one of your manuscripts and see if you can figure it out
+from there.  If that doesn't work, try finding someone who does
+use the feature and ask them.  As a last resort, try finding a
+\tex\ wizard and asking them.
+
+If you wish a quick summary of most of the \ytex\ commands, you
+should turn to the tables of commands, parameters, and switches
+at the very end of this document.
+
+\section {Some Notation and Conventions I Use Throughout}
+
+In what follows, I try to use notation and conventions very
+similar to those Knuth uses in the \tex book.  For
+convenience,\footnote*{(and also for those many of us who find
+the \tex book completely confusing)} I summarize most of
+the conventions here.
+
+\beginbullets
+
+\bpar Text set in "typewriter" type is suitable for \ytex\ input.
+
+\bpar Commands---also called {\it control sequences} or {\it
+macros}---all start with a backslash.  {\it Alphabetic commands}
+such as "\section" and "\it" have one or more letters after their
+backslash, while {\it non-alphabetic commands} such as "\'" and
+"\&" have a single non-letter after their backslash.  When you
+use an alphabetic command, you must have a space or other
+non-letter right after the command name (as in "{\it italics}"),
+and any spaces after the command are ignored by \tex.  When you
+use a non-alphabetic command, you can have anything at all after
+the command name (as in the Spanish "m\'agico"), and spaces you
+put there are {\it not} ignored by \tex.
+
+\bpar Commands sometimes need {\it arguments}, such as the stuff
+typed in braces in
+\beginverb
+\section {This is the Argument.}
+\endverb
+Most commands which use arguments---a process also called {\it
+taking} or {\it reading} arguments---expect their arguments to be
+enclosed in braces (as they were in this example).  But there are
+other ways of specifying arguments, and these are detailed in
+what follows.
+
+\bpar \ytex\ and \tex\ both have the notion of {\it parameters}
+which have {\it values}.  For example, the value of the "\hsize"
+parameter is used as the normal length of lines in paragraphs.
+To set a parameter, you give the name of the parameter, an
+optional `"="' sign, and then the desired new value for the
+parameter.  For example, to set the normal line length to 5
+inches, you could say either of the following things:
+\beginverb
+\hsize=5in
+\hsize 5in
+\endverb
+
+\bpar There are several kinds of parameters: <integer> parameters
+hold integers (such as 3 or $-1$), <dimen> parameters hold
+distances (such as "2in" or "5pt"), <glue> parameters hold
+variable distances (such as "6pt plus 2pt minus 1pt"), and <toks>
+parameters hold token lists (such as
+"{\bigsize\bf}").\footnote\dag{There are also <muglue>
+parameters, but only math wizards worry about those.} The
+different kinds of parameters are used for different purposes;
+for example, the "\hsize" parameter mentioned above is a <dimen>
+because line length is a distance, and the "\pageno" parameter
+that holds the current page number is---as expected---an
+<integer> parameter.  But no matter what their type, you assign
+values to parameters in the manner described above.
+
+\bpar If you ever want to examine the value of a parameter---for
+example, if you want to know what it is so you can change it
+appropriately---you can get \ytex\ to show you the value by
+putting "\showthe" in front of the parameter name.  For example,
+if you said "\showthe\parindent" in your input file, \ytex\ would print
+\beginverb
+>20.0pt.
+...  \showthe\parindent
+\endverb
+on your terminal screen when it processes your input.  It would
+then pause and wait for you to type a carriage return before
+continuing.
+
+\endbullets
+
+\section {Format of a \ytex\ Input File}
+
+\ytex\ input is just normal \tex\ input.\footnote*{Of course,
+this means \tex82!  \tbase\ input, for example, will not work in
+\ytex.}  It is customary, however, to start \ytex\ input files
+with a comment indicating that \ytex\ is expected to process the
+file.  For example, the manuscript file for this document starts
+with the line
+\beginverb
+% for yTeX
+\endverb
+so anyone who looks at the file will realize this.
+
+The first command in every \ytex\ manuscript should be a
+\="\typesize"\= command specifying the desired type size for the
+text of the document.  For example, after the comment shown
+above, the manuscript for this document has the line
+\beginverb
+\typesize=11pt
+\endverb
+As you can see, a "\typesize" command looks like a command for
+setting one of \tex's <dimen> parameters, such as "\parindent".
+However, the dimension that follows the equal sign must be one
+of 10pt, 11pt, or 12pt, since these are the only sizes that
+\ytex\ supports for normal text.
+
+If you forget to put a "\typesize" command at the beginning of
+your manuscript, \ytex\ will complain with the error message
+\beginverb
+! You never gave a \typesize command.
+\endverb
+Don't panic; just type a carriage return and \ytex\ will use
+10~point type.  But you should add a "\typesize" command before
+you run the file again.
+
+You can't give more than one "\typesize" command in a single
+manuscript.  This is because \ytex\ implements your desired size
+by magnifying a 10pt document by the right amount, and \tex\ does
+not like to change magnification in the middle of a run.  This
+may seem like a drawback, but it's really a feature, because it
+means that the line and page breaks will not change if you run a
+manuscript through \ytex\ a second time using a different
+typesize!  So you can proof your document in one size and run it
+off in a different size without worrying about formatting
+changes.
+
+\section {How To Invoke \ytex}
+
+To invoke \ytex\ on \sy{OZ} you give the command \sy{YTEX} to the
+\sy{EXEC}.\footnote*{The commands \sy{YTEXHE} and \sy{YTEXTR}
+also exist for those who prefer the Helvetica or Times Roman font
+families.} \ytex\ starts up by printing a release number and
+reading in any recent fixes to itself.  It then looks for two
+files called \sy{YMATH.TEX} and \sy{YLOCAL.TEX} in your
+connected directory (and on \sy{TEXINPUTS:} if they are not
+found locally).  You can customize your \ytex\ by putting
+appropriate commands in these two files.
+
+The \sy{YMATH.TEX} files are intended for favorite mathematics
+macros while the \sy{YLOCAL.TEX} macros are for macros or
+parameter settings of any kind.  Of course, all kinds of \tex\
+commands can be put in either of these files, but keep the
+following in mind: separating math macros from others can make
+the job of merging different authors' manuscripts a lot easier.
+
+\section {Where are the Sources}
+
+The source for \ytex\ lives in the directory \sy{KS:<TEX.YTEX>}
+on \sy{OZ} and is split primarily among the files \sy{YTEX.MAC},
+\sy{YBASE.MAC}, \sy{YFONTS.MAC}, and \sy{YUSER.MAC}.  The file
+\sy{YLOG.MAC} contains a log of essentially all the changes made
+to \ytex\ since its early stages; the first few lines of this
+file declare the current version number.  The file \sy{YSITE.MAC}
+contains definitions and parameter settings (``site changes'')
+appropriate to the local installation.  The file \sy{YUSAGE.TEX}
+contains the source for this document.
+
+The file \sy{KS:<TEX.YTEX>YFIX.MAC} is where \ytex\ looks for
+revisions made to the macros since the last version was dumped.
+Finally, an archive of correspondence about \ytex\ can be found
+in the file \sy{KS:<TEX.YTEX>YTEX.MAIL} on \sy{OZ}.
+
+\section {The \ytex\ View of Documents}
+
+\ytex\ believes that documents are made up of chunks of text
+called {\it elements} which are laid out on pages.  For example,
+each paragraph is an element, as is each chapter or section
+heading, each figure, each footnote, and so on.  Many of the
+\ytex\ commands you will use most often serve to tell \ytex\
+which text belongs to which element.  For example, the command
+"\footnote" tells \ytex\ that its argument is a footnote
+element.
+
+As \ytex\ encounters elements of various types in its input, it
+first tries to format the content of each element in the desired
+way.  For example, when it finishes reading the contents of a
+paragraph, it first tries to break the contents into lines
+according to the rules currently in effect for paragraph
+elements.  When \ytex\ finishes reading the text of a table, it
+tries to format that text according to the current rules for
+table elements.
+
+Once \ytex\ accumulates enough elements to fit on a page, it
+tries to lay those elements out on a page according to the layout
+rules that apply to each element.  For example, header elements
+appear as a single line alone at the very top of a page, while
+footnote elements appear tacked onto the bottoms of pages.
+
+Page layout is the hardest part of \ytex's job.  This is because
+the rules for laying out various elements may come into conflict.
+For example, the rules for figures elements that appear in text
+may say that the figure should be separated from the surrounding
+text by one pica.\footnote*{There are six picas to the inch.}
+But a figure may be placed just before a section heading, and the
+rules for section heading elements may say that they should be
+preceded by two picas.  In cases like this, \ytex\ does the best
+it can, but it may not do exactly what you want.  So if you are
+very picky about the page layout of a particular document, you
+may have to tell \ytex\ exactly what you want at each place a
+conflict like this arises.  But don't worry: usually only people
+who are publishing books need to be this picky.
+
+\section {The Five Kinds of \ytex\ Commands}
+
+There are five kinds of \ytex\ commands:
+
+\beginbullets
+
+\bpar {\it Delimiters\/} are commands that demarcate the text of
+particular elements: they do what is commonly known as
+``typemarking.''  For example, "\section" and "\footnote" are
+both delimiters.  All delimiters read arguments (in ways
+explained below); it is the contents of these arguments that
+become the contents of the elements they delimit.
+
+\bpar {\it Parameters\/} are commands that affect the formatting
+and layout rules for particular elements.  For example, "\hsize"
+and "\parskip" are parameters that affect the width and layout of
+paragraphs and pages.  Parameters don't take arguments; instead,
+they have values which can be assigned in the manner described
+above.
+
+\bpar {\it Switches\/} are commands like parameters that affect
+the formatting and layout of particular elements.  For example,
+"\noindent" and "\offheaders" are switches.  Switches come in two
+kinds---on/off switches and true/false switches---which are
+described in detail later.  Switches never take arguments.
+
+\bpar {\it Abbreviations\/} are commands that expand into common
+sequences of low-level \tex\ commands.  For example, "\padline"
+and "\linebreak" are abbreviations.  Some abbreviations have
+arguments, and some don't.  Any abbreviations that take arguments
+take them in braces in the normal \tex\ way.
+
+\bpar {\it Descriptors\/} are commands that create new element
+types with particular formatting and layout rules.  For example,
+the commands "\newfloat" and "\newtitle" are descriptors that
+are used to create elements which float to the top of pages or
+which title things.  Descriptors take very complex arguments.
+
+\endbullets
+
+Normally, you use only delimiters, parameters, switches, and
+abbreviations in your manuscripts.  Descriptors are for
+compulsive \tex\ hackers who feel the need for new element types,
+or for wizards who are preparing documents with special
+requirements (such as this manual).
+
+\section {More About Delimiter Commands}
+
+Delimiters come in three kinds:
+
+\beginbullets
+
+\bpar {\it Standard\/} delimiters---such as "\section", "\footnote",
+or "\spread"---take their arguments in the standard \tex\ way:
+the arguments are enclosed in braces and appear immediately after
+the command.  For example, this is how you give two arguments
+to the "\spread" command:
+\beginverb
+\spread {First argument}{Second argument}
+\endverb
+
+\bpar {\it Paired\/} delimiters---such as
+"\begintext"/\allowbreak"\endtext" and
+"\beginabstract"/\allowbreak"\endabstract"---surround their
+argument.  For example, this is how you delimit the text of an
+abstract:
+\beginverb
+\beginabstract
+This is a very short abstract
+used only for expository purposes.
+I wish all my abstracts were this simple.
+\endabstract
+\endverb
+
+\bpar {\it Paragraph\/} delimiters---such as "\bpar" and
+"\ftpar"---are kind of a cross between standard and paired
+delimiters.  Their most important argument---the text of the
+paragraph---is delimited by the paragraph delimiter in front and
+the command "\par" (or a blank line) in back.  But they may have
+additional arguments (such as tag text) which are given in braces
+immediately following the paragraph delimiter.  For example, this
+paragraph starts with
+\beginverb
+\bpar {\it Paragraph\/} delimiters---
+\endverb
+and ends with a blank line.  But it would look exactly the same
+if it had started with
+\beginverb
+\ftpar{$\bullet$}  {\it Paragraph\/} delimiters---
+\endverb
+instead.
+
+\endbullets
+
+Most paired delimiters are also available in a standard form.
+For example, you can use the command "\abstract" instead of
+"\beginabstract" and "\endabstract", in which case you would
+enclose the text of the abstract in braces and place it right
+after the command.\footnote*{The only paired delimiters that are
+not available in standard form are those in which the delimited
+text is in ``nofill'' mode, such as "\beginverbatim" and
+"\endverbatim".  This has to do with subtle differences between
+the effect of the two forms, differences that you needn't care
+about and which can confuse even \tex\ wizards.}  As you may have
+guessed from the example, you get the standard form of paired
+delimiters by removing the "begin" and "end" prefixes.
+
+Each argument to a standard or paired delimiter is a local group;
+that is, font and other parameter changes inside the element do
+not have any effects outside.  So if you want the text of your
+abstract to be in italics, you can just say
+\beginverb
+\beginabstract
+\it This abstract is in italics.
+\endabstract
+\endverb
+instead of the (also correct but) tedious
+\beginverb
+\beginabstract
+{\it This abstract is in italics.}
+\endabstract
+\endverb
+Similarly, you can just say
+\beginverb
+\section {\it An Italic Section Header}
+\endverb
+instead of
+\beginverb
+\section {{\it An Italic Section Header}}
+\endverb
+
+\section {More About Switches}
+
+Switches come in two kinds:
+
+\bpar {\it On/off} switches are usually used to control whether
+things such as headers and footers appear on a page.
+For example, whether headers appear or not is controlled by the
+two commands "\onheaders" and "\offheaders".  These two commands
+together are said to control the "\headers" switch.
+
+\vpar All on/off switches have variations in a {\it yes/no} form.
+For example, the commands "\yesheaders" and "\noheaders" are like
+"\onheaders" and "\offheaders", except that they {\it only}
+control headers on the current page, not on future pages as well.
+
+The point of having both on/off and yes/no versions of switches
+can be seen from the following: If you want none of the pages of
+a letter numbered, you would put "\offfooters" at the beginning of
+the letter.  But if you want numbers on the bottoms of all pages
+except the first, you would put "\nofooters" at the beginning.
+The effect of "\nofooters" is to turn off the "\footers" switch
+for the first page {\it only}.
+
+\bpar {\it True/false} switches are mostly used by wizards, so I
+won't say much about them here.  They are much like off/on
+switches except that they have a different form.  For example,
+the "\vpar" switch controls whether the first paragraph after a
+section heading is left-flush or not; the "\vpar" switch is
+turned on with "\vpartrue" and turned off with "\vparfalse".  You
+can see the effects of saying "\vpartrue" in this document.
+
+\section {A List of the \ytex\ User Macros}
+
+This section contains descriptions of the most useful \ytex\
+macros.  The listing is broken down by subject area; for example,
+all the commands relevant to footnotes can be found in one place,
+and all the commands relevant to sectioning in another.  The next
+section gives an alphabetized list of all the commands.
+
+In the following descriptions, only the "begin" half of paired
+delimiters is mentioned.  All the paired delimiters are available
+in standard forms unless the description mentions otherwise.
+Also, only the "on" form of on/off switches is mentioned.  Of
+course, the "off", "yes", and "no" forms are also available.
+
+\heading {Titling Pages}
+
+\ytex\ provides two kinds of titling pages: {\it part pages}
+which are delimited by \+"\beginpartpage"\+ and {\it title pages}
+which are delimited by \+"\begintitlepage"\+.  The only
+difference between the two is that title pages are always
+numbered 0 while part pages have whatever number they would
+normally be assigned.  The contents of titling pages are centered
+by default, and titling pages have no runners unless you ask for
+them.
+
+The following commands are useful both on titling pages and
+elsewhere:
+
+\begingab
+
+\*\+"\begintitle"\+ and \+"\beginctitle"\+\\set their arg as
+titles.  "\begintitle" gives a left-flush ragged-right paragraph
+and "\beginctitle" gives a ragged-center paragraph.  Inside of
+titles, the commands \+"\\"\+, \+"\cr"\+, and \+"\crcr"\+ force
+line breaks.
+
+\*\+"\beginauthor"\+ and \+"\begincauthor"\+\\are like
+"\begintitle" and "\beginctitle" but use \="\authorfont"\=
+(default "\regsize\rm") instead of \="\titlefont"\= (default
+"\bigsize\bf").
+
+\*\+"\beginabstract"\+\\delimits abstract text which is set in
+\="\abstractfont"\= (default "\smlsize\rm") and indented from
+both margins by "\abstractindent" (default "0pt").
+
+\endgab
+
+The following command is available only on titling pages:
+
+\begingab
+
+\*\+"\beginbottomtext"\+\\delimits text which is set at the
+bottom of the page in \="\bottomtextfont"\= (default
+"\smllsize\rm").  If you use this command, the text of the page
+will no longer be centered.  Instead, the delimited material
+appears at the bottom of the page and material above it will
+start at the top of the page.
+
+\endgab
+
+\heading {Chapters and Sections}
+
+These macros produce titles at the top of chapters, sections, and
+so on.  Titles are normally set as left-flush, ragged-right
+paragraphs.  Inside of titles, the commands \+"\\"\+, \+"\cr"\+,
+and \+"\crcr"\+ force line breaks.
+
+
+\begingab
+
+\*\+"\beginchapter"\+ <title> "\endchapter"\\starts a new
+chapter.  The <title> is set in the \="\chapterfont"\= (default
+"\bigsize\bf") as a left-flush ragged-right paragraph.  The title
+is preceded by \="\prechapterpenalty"\= and
+\="\abovechapterskip"\= and followed by \="\postchapterpenalty"\=
+and \="\belowchapterskip"\=.  Most people prefer the standard
+form "\chapter"~\#{<title>}.
+
+\*\+"\beginpchapter"\+\\is like "\beginchapter" but it forces the
+title to the top of a new page and turns off runners for that
+page.  In two-sided matter, it forces the title to the top of a
+recto page.
+
+\*\+"\beginsection"\+\\is like "\beginchapter" but uses smaller
+font and spacing.  Neither chapters nor sections do any automatic
+numbering for you.  But there are no-op commands \+"\secdef"\+
+and \+"\secref"\+ which, like their figure and table cousins, can
+be used to help keep track of numbering.  There are commands
+\+"\beginsubsection"\+ and \+"\beginsubsubsection"\+ but they are
+just aliases for "\section".
+
+\*\+"\beginheading"\+\\is like "\beginsection" but with smaller
+font and spacing.
+
+\endgab
+
+The true/false switch \:"\centerheadingstrue"\: controls whether
+chapter, section, and other titles are set as left-flush or
+centered ragged-margin paragraphs.  The default is
+"\centerheadingsfalse"; that is, headings are left-flush as
+mentioned above.
+
+\heading {Page Layout}
+
+Pages have headers and footers, jointly called runners.  When
+they are turned on, runners are single lines that appear
+separated from the main text by the distances \="\headerdrop"\=
+and \="\footerdrop"\=.\footnote*{These dimensions are not
+measured baseline-to-baseline; rather, they are the appearing
+space between the runners and the text.} By default, headers are
+turned on and footers are turned off.
+
+\begingab
+
+\*\:"\onrunners"\:, \:"\onheaders"\:, and \:"\onfooters"\:\\are
+switches that turn the various runners on.  Recall that the
+effects of these commands are permanent; the effects of their
+yes/no counterparts are confined to the current page.
+
+\endgab
+
+There are actually two versions of headers and footers---one for
+recto (right-hand or odd-numbered) pages and one for verso
+(left-hand or even-numbered) pages.  By default, all pages are
+considered to be recto pages, but you can use the switch
+\:"\twosidedtrue"\: to get two-sided output and "\twosidedfalse"
+to go back to one-sided.
+
+The contents of headers and footers are the values of the <toks>
+parameters \="\versoleftheader"\=, \="\rectoleftheader"\=, and so
+on.  By default, the \="\rectorightheader"\=, the
+"\versoleftheader", and both center footers contain a boldface
+page number (called a {\it folio}); these come out in roman
+numerals if they are negative.  (The page number is the parameter
+\="\pageno"\= which you can set.)  Also by default, the
+"\rectoleftheader" is the "\firstmark".
+
+For example, if you want your pages numbered at the bottom, you
+could say
+\beginverb
+\offheaders     % turn off the header lines
+\onfooters      % turn on the footer lines
+\endverb
+because the footers contain page numbers by default.  If you want
+each page to have a title and a page number, you can say
+\beginverb
+\rectoleftheader={The Title of My Paper}
+\endverb
+Since this is done so often, there is a synonym
+\="\runninghead"\= for "\rectoleftheader" that lets you say
+\beginverb
+\runninghead={The Title of My Paper}
+\endverb
+instead.
+
+The default font for runners is kept in the <toks> parameter
+\="\runnerfont"\=, which starts out as "\smlsize\rm".
+
+\heading {Paragraphs}
+
+Each paragraph is an element to \ytex.  Paragraphs are considered
+to consist of a crown (the first line) and a vest (all the other
+lines).  By default, the crown is indented "\parindent" and the
+vest is not.  But there are a variety of paragraph delimiters
+that give you paragraph elements that are formatted differently.
+(Recall that paragraph delimiters start paragraphs that are
+ended by "\par" or a blank line.)
+
+\begingab
+
+\*\+"\ivpar"\+\\delimits an {\it inverted} paragraph: the crown
+is not indented but the vest is.
+
+\*\+"\ipar"\+\\delimits an {\it indented} paragraph: both crown
+and vest are indented.
+
+\*\+"\ftpar"\+ \#{<tag text>}\\delimits a {\it flush-tagged}
+paragraph: both crown and vest are indented and the first
+argument (in braces) to "\ftpar" is set flush on the left margin
+of the crown.  For example,
+\beginverb
+\ftpar {1.} First line ...\linebreak second line ...\par
+\endverb
+produces a paragraph that looks like this:
+\begintextlines
+\parindent=2em%
+\ftpar{1.}First line \dots\linebreak{}second line \dots
+\endtextlines
+
+\*\+"\atpar"\+ \#{<tag text>}\\delimits an {\it adjoint-tagged}
+paragraph: both crown and vest are indented and the first
+argument (in braces) to "\atpar" is set so its right edge is
+\="\partagsep"\= away from the left edge of the crown line.
+(This is like the \plain\ \tex\ "\item" command.)  For example,
+\beginverb
+\atpar {a)} First line ...\linebreak second line ...\par
+\endverb
+produces a paragraph that looks like this:
+\begintextlines
+\parindent=2em%
+\atpar{a)}First line \dots\linebreak{}second line \dots
+\endtextlines
+
+\*\+"\vtpar"\+ \#{<tag text>}\\delimits a {\it variably-tagged}
+paragraph: the crown, vest, and tag are set just like an
+adjoint-tagged paragraph but the width of the indent is not the
+"\parindent" but instead is the width of the tag text.  For
+example,
+\beginverb
+\vtpar {Keywords:} This ...\linebreak and that ...\par
+\endverb
+produces a paragraph that looks like this:
+\begintextlines
+\vtpar{Keywords:}This \dots\linebreak{}and that \dots
+\endtextlines
+
+\*\+"\bpar"\+\\delimits a {\it bullet} paragraph: a flush-tagged
+paragraph whose tag is a bullet symbol.
+
+\endgab
+
+If bullet paragraphs appear next to each other, it is good
+practice to put a \+"\beginbullets"\+ before the first one and an
+\+"\endbullets"\+ after the last one.  This will add a little
+space before and after so as to visually cluster the paragraphs.
+
+If you interpose math or a figure or a title between paragraphs,
+it is standard typesetting practice not to indent the paragraph
+immediately following the interposed element.  For example,
+the paragraphs which immediately follow section titles
+in this document are not indented, nor are those which follow
+figures or textual displays.
+
+To follow this practice in your own documents, you could
+use "\noindent" to start the paragraphs which follow interposed
+elements.  But \ytex\ does this for you automatically.  The
+command \+"\vpar"\+ effectively forces the next paragraph to
+start with "\noindent", and all \ytex\ commands which interpose
+material between paragraphs---such as "\section"---end with
+"\vpar".  Thus you will not have to use "\noindent" after
+figures and so on.
+
+If for some reason you want a particular paragraph that follows
+interposed text to be indented normally, just give the command
+\+"\unvpar"\+ in front of that paragraph.  "\unvpar" cancels the
+effect of "\vpar" and allows the paragraph to be indented.
+
+\begingab
+
+\*\:"\vpartrue"\: and "\vparfalse"\\allow and disallow the
+effects of "\vpar".  If you don't want the first paragraphs of
+sections and so on to be left-flush, say "\vparfalse".
+
+\*\+"\linebreak"\+\\ends the current line of a paragraph, filling
+out to the right hand margin with blank space.
+
+\*\:"\onindent"\:\\turns the default indentation of crown lines
+on.  If you want your paragraphs to normally have no indentation,
+say "\offindent".  But keep in mind that this will break commands
+like "\bpar" which rely on indentation.
+
+\*\+"\beginquote"\+\\delimits a quote.  Quotes are set in the
+\="\quotefont"\= (default "\smlsize\rm") with the left and right
+margins narrowed by "\parindent".  Inside of quotes paragraph
+indentation is turned off (with "\offindent").
+
+\endgab
+
+\heading {Fonts and Sizes}
+
+To change type face in a document, you use the normal \tex\
+commands "\it", "\bf", "\tt", "\sl", and "\rm".  To change to
+increasingly bigger sizes of type, you can use the commands
+\+"\bigsize"\+, \+"\biggsize"\+, and \+"\bigggsize"\+.  For
+increasingly smaller sizes, you can use \+"\smlsize"\+,
+\+"\smllsize"\+, and \+"\smlllsize"\+.  You can switch to the
+regular size with \+"\regsize"\+.  The size-changing commands all
+switch to the roman face.
+
+There are commands \+"\smlrm"\+, \+"\smllrm"\+, and \+"\smltt"\+
+which are like face-changing commands in that the baseline
+spacing does not change, but the ``typeface'' they switch to are
+actually smaller sizes of the indicated face.  For example, to
+get the effect of what printers call ``small caps'', you can use
+the "\smllrm" face.  To get \lisp, you would say
+"L{\smllrm"~"ISP}".
+
+If you ever want to set material in the font selected by a font
+parameter such as "\titlefont", you can select that font by
+saying "\the" in front of the parameter name.  For example, to
+set three words in the "\captionfont", I could say
+\beginverb
+Here are {\the\captionfont three small words}.
+\endverb
+which gives me
+\begintext
+Here are {\the\captionfont{}three small words}.
+\endtext
+\vpar
+
+The command \+"\singlespace"\+ causes lines to be single spaced,
+and the command \+"\doublespace"\+ causes lines to be double
+spaced.  Single spaced lines are the default.  These commands
+affect all text, including footnotes and captions, so that if you
+use "\doublespace" you might want to add a "\singlespace" command
+to the font parameters for footnotes, captions, and so on.  If
+you don't like the exact spacing values used by "\singlespace" or
+"\doublespace", read what it says below about line spacing for
+wizards and define your own versions of these commands.
+
+\heading {Figures}
+
+You can ask \yTeX\ to lay out your figures in one of four ways:
+{\it stationary}, which means that figures are boxes that appear
+where they are defined; {\it section}, which are like stationary
+except that they are followed by "\vfil" glue which makes them
+suitable for putting all in one section with no intervening text;
+{\it top}, which means all figures float to the top of a page; or
+{\it floating}, which means they appear where they are defined
+unless they can't fit on the page there in which case they float
+to the top of the next page they fit on.  The current layout
+discipline (default {\it floating}) can be set with
+\+"\stationaryfigures"\+, \+"\sectionfigures"\+,
+\+"\topfigures"\+, and \+"\floatingfigures"\+.
+
+\begingab
+
+\*\+"\figdef"\+ and \+"\figref"\+\\are no-ops which are useful
+for keeping track of figure numbers.
+
+\*\+"\beginfigure"\+\\delimits a figure definition.  You get a
+figure layed out according to the current discipline.  Each
+figure is enclosed in a "\vbox" so you don't have to worry about
+breaks.
+
+\begingroup \figurelinetrue
+\beginfigure
+
+\noindent This figure was defined with
+\beginverb
+\beginfigure
+\noindent This figure was defined with ...
+   ...
+\begincaption
+Figure~\figdef{1}.  A figure which is ...
+... it will float.
+\endcaption
+\endfigure
+\endverb
+and this was the result.
+
+\begincaption
+Figure~\figdef{1}.  A figure which is also an example of how to
+prepare a figure.  This figure will appear where it was defined
+unless it can't fit on that page, in which case it will
+float.
+\endcaption
+
+\endfigure
+\endgroup
+
+\*\+"\beginpagefigure"\+\\delimits a full-page figure definition.
+These figures go on pages by themselves.
+
+\beginpagefigure
+
+\vfil
+
+\noindent This full-page figure was defined with
+\beginverb
+\beginpagefigure
+\vfil
+\noindent This full-page figure was defined with ...
+  ...
+\begincaption
+Figure~\figdef{2}.  A figure which is ...
+... it will float.
+\vfil
+\endcaption
+\endpagefigure
+\endverb
+and this was the result.
+
+\vfil
+
+\begincaption
+Figure~\figdef{2}.  A figure which is also an example of how to
+prepare a figure.  This figure will appear where it was defined
+unless it can't fit on that page, in which case it will float.
+\endcaption
+
+\endpagefigure
+
+\*\+"\beginstationaryfigure"\+\\gives a stationary figure no
+matter what the current layout discipline is.  The paired
+delimiter "\beginstationarypagefigure" gives a full-page
+stationary figure, and there are similar explicit commands
+provided for all four of the layout disciplines.
+
+\*\+"\begincaption"\+\\is defined only within figures and
+delimits captions, which are set as unindented paragraphs in
+\="\captionfont"\= with margins narrowed by \="\captionindent"\=.
+Captions are preceded by \="\abovecaptionskip"\=.
+
+\endgab
+
+For examples, see figures~\figref{1} and~\figref{2}, which I
+referred to here by saying
+\beginverb
+... see figures~\figref{1} and~\figref{2}, ...
+\endverb
+Note, in particular, that figure~\figref{1} is bracketed by
+horizontal lines.  \ytex\ will put out such lines if you say
+\:"\figurelinetrue"\: at the front of your document; the default
+is \:"\figurelinefalse"\: (no lines).  (The lines themselves are
+put \="\figurelinedrop"\= away from the body of the figure.)
+
+The easiest way to leave space for a paste-in figure is to define
+a figure whose body consists of a vertical skip command, as in
+\beginverb
+\beginfigure
+\vskip 2 true in
+\begincaption
+This will be a 2 inch high pasted in figure.
+\endcaption
+\endfigure
+\endverb
+Note that the amount to skip was given in {\tt true} inches, not
+just inches.  This is because typesizes larger than ten point are
+implemented by magnifying the entire document: if the dimension
+had been given as "2in" and the typesize were given as "11pt",
+\yTeX\ would leave 2.2 inches of space instead of 2.  The use of
+"true" in the dimension specification prevents \yTeX\ from
+magnifying the space it leaves for the paste-in
+material.\footnote*{Keep in mind that specifying sizes in true
+dimensions may cause the page breaks to change when the type
+size changes.  If you are proofing in a larger typesize and you
+want page breaks to remain consistent, you should specify
+paste-in sizes {\it without} the "true" specification, basing the
+declared size on the magnification which will be used in {\it
+final} output.  Then don't worry about the fact that the spaces
+in the proof version are a little large.}
+
+There is a <toks> parameter \="\topsep"\= whose contents are
+inserted between the floating figures and text on any page where
+floating figures appear.  By default, "\topsep" is empty, so only
+the normal below-figure space appears between floating figures
+and text.  If you want more space, you can say, for example,
+\beginverb
+\topsep={\bigskip}
+\endverb
+
+\heading {Tables}
+
+Tables are delimited with \+"\begintable"\+ and "\endtable".
+Right after the "\begintable" command you must have a {\it
+preamble specification} enclosed in brackets ("[" and "]"), such
+as in
+\beginverb
+\begintable [l"r|lc]
+\topline
+Item&&        Price&&  User&          Use\cr
+\dmidline
+Widgets&&    \$2.50&&  D. Brotsky&    \TeX\ work\cr
+\midline
+Grommets&&\$2500.50&&  The Pentagon&  none\cr
+\botline
+\endtable
+\endverb
+which produces table~\tabref{1}.
+
+\beginfigure
+
+{\catcode`\"=12\relax
+ \centerline {%
+   \begintable [l"r|lc]
+     \topline
+     Item&&     Price&&     User&          Use\cr
+     \dmidline
+     Widgets&&    \$2.50&&  D. Brotsky&    \TeX\ work\cr
+     \midline
+     Grommets&&\$2500.50&&  The Pentagon&  none\cr
+     \botline
+   \endtable}}
+
+\begincaption
+Table~\tabdef{1}.  This table is produced by the example in the
+text.  Well, actually, this table is {\it almost} produced by
+that example; in fact, this one has also been centered on the
+page by putting the entire text of that example into the argument
+of "\centerline".
+\endcaption
+
+\endfigure
+
+Inside of a preamble specification, each character stands for one
+column in the table.  The meanings of the characters are:
+\begindisplaytable [cl]
+"l"&   left-aligned column\cr
+"L"&   left-aligned math column\cr
+"c"&   center-aligned column\cr
+"C"&   center-aligned math column\cr
+"r"&   right-aligned column\cr
+"R"&   right-aligned math column\cr
+"|"&   single-thickness vertical line\cr
+ \"&   double-thickness vertical line\cr
+"&"&   repeat specification marker\cr
+\enddisplaytable
+Math columns are just like their non-math counterparts except
+that the entries are set in math mode in \="\tablestyle"\=
+(default "\displaystyle").  The "&" specification allows you to
+take advantage of \tex's automatic iteration of column
+specifications: if you have more entries in a line than you have
+columns in the preamble, the preamble columns will repeat from
+wherever the "&" was specified.
+
+The thickness of a "|" line is the <dimen> parameter
+\="\vbarwidth"\= (default ".4pt") and the thickness of a \" line
+is the <dimen> parameter \="\dvbarwidth"\= (default "1pt").  Keep
+in mind that "|" and \" columns must be delimited by "&" like
+other columns.  It's just that normally the contents of these
+columns are empty, so you end up with "&&" in the rows of your
+input.
+
+Inside tables the command "\\" ends rows like "\cr".  In
+addition, you get access to a variety of useful commands:
+
+\begingab
+
+\*\+"\inline"\+\\puts a horizontal line in the table.  Better to
+use are \+"\topline"\+, \+"\midline"\+, and \+"\botline"\+ (which
+you normally use at the top, middle, and bottom of the table)
+because they put padding around the line which looks good.
+
+\*\+"\dinline"\+, \+"\dtopline"\+, \+"\dmidline"\+, and
+\+"\dbotline"\+\\are the double-width counterparts of the
+commands mentioned above.  "\inline"-type lines have thickness
+\="\hbarheight"\=, and "\dinline"-type lines have thickness
+\="\dhbarheight"\=.
+
+\*\+"\padline"\+ <dimen>\\puts <dimen> extra space between lines
+of the table with the nice feature that vertical bars specified
+in the preamble extend right through the extra space.  The
+<dimen> is not an argument: don't put it in braces.
+
+\endgab
+
+In addition, you get \+"\tabdef"\+ and \+"\tabref"\+ which, like
+"\figdef" and "\figref", are no-ops useful for keeping track of
+table numbers.  Also, there are the following table-affecting
+parameters:
+
+\begingab
+
+\*\="\pretabskip"\=, \="\intabskip"\=, and
+\="\posttabskip"\=\\are the glue parameters that "\tabskip" glue
+is set to before the first column, between columns, and after the
+last column of a table.  Defaults are "\hfil" glue for
+"\pretabskip" and "\posttabskip", "1em" glue for "\intabskip".
+
+\*\="\tablewidth"\=\\is settable like a <dimen>, and setting it
+has strong side effects.  If you set it positive, all lines in
+tables are set to that width.  If you set it to zero, tables have
+their natural width.  If you set it negative, tables are expanded
+by the negative of what you set it to.  The default is "0pt";
+that is, tables have their natural size.
+
+\endgab
+
+Finally, in addition to the "\begintable" command which puts a
+box around its table, there is \+"\beginopentable"\+ which does
+not put a box and there is \+"\begindisplaytable"\+ which centers
+the whole table in a "$$"-style display.
+
+\heading {Footnotes}
+
+\ytex\ gives you a footnote mechanism essentially equivalent to
+\plain's, but footnotes are output as adjoint-tagged paragraphs
+in the \="\footnotefont"\= with an indent of
+\="\footnotemarkerwidth"\=.
+
+\begingab
+
+\*\+"\footnote"\+\#{<tag>}\#{<footnote text>}\\puts <tag> where
+you call "\footnote" and also gives you a footnote marked with
+<tag>.  You use "\footnote" inside paragraphs.
+
+\*\+"\nfootnote"\+\#{<tag>}\#{<footnote text>}\\is like
+"\footenote" but the <tag> must be a number.  The tag is set as a
+superscript.
+
+\*\+"\vfootnote"\+\#{<tag>}\#{<footnote text>}\\is like
+"\footnote" but it doesn't put the tag where you call it, only on
+the footnote text itself.  You use "\vfootnote" between
+paragraphs.
+
+\*\+"\beginfootmatter"\+\\gives you a footnote with no marker and
+with no left margin indentation where the marker would go.  I'm
+not sure why you would want this.
+
+\endgab
+
+The no-ops \+"\footdef"\+ and \+"\footref"\+ are provided to help
+keep track of footnote numbering.  There is a <toks> parameter
+\="\botsep"\= whose contents are inserted between the text and
+footnotes on any page where footnotes appear.  By default,
+"\botsep" puts in some space and a short line.  If you just want
+space, you can say, for example,
+\beginverb
+\botsep={\bigskip}
+\endverb
+
+\heading {Textual Displays}
+
+These macros give you "$$"-like displays containing text and
+other useful textual blocks.  There are no standard forms for any
+of the "begin" and "end" paired delimiters that produce textual
+displays.
+
+\begingab
+
+\*\+"\beginnofill"\+\\delimits text that is not made into filled
+lines, but output in lines as it appears in the input.
+Indentation is turned off.
+
+\*\+"\begintext"\+\\gives you a "$$"-like display containing the
+nofill material it delimits.  The displayed lines have width
+"\displaywidth" and are indented "\parindent" from the normal
+"\displayindent" of the display.
+
+\*\+"\begintextlines"\+\\is like "\begintext" but the displayed
+lines are the full "\hsize" wide and the normal "\displayindent"
+is ignored.
+
+\endgab
+
+\hangindent 2\parindent \hangafter0
+\noindent For example, this is a paragraph which has both its
+crown and vest indented twice the normal paragraph indentation.
+If, inside this paragraph, we produce a display with
+\beginverb
+\begintext
+Here is the first line of the display
+Here is the second.
+\endtext
+\endverb
+then the result appears to have a left margin even with the
+indentation of the paragraph, as in:
+\begintext
+Here is the first line of the display
+Here is the second.
+\endtext
+(Each line of the display is indented "\parindent" from the
+margin because each line starts a paragraph.)  But if we specify
+the text of the display using the following commands:
+\beginverb
+\begintextlines
+Here is the first line of the display
+Here is the second.
+\endtextlines
+\endverb
+then the display ignores the indentation of the paragraph,
+producing the following:
+\begintextlines
+Here is the first line of the display
+Here is the second.
+\endtextlines
+
+\begingab
+
+\*\+"\begincode"\+ and \+"\begincodelines"\+\\are like
+"\begintext" and "\begintextlines" but the material is set in the
+typewriter font.
+
+\*\+"\verb"\+\\is used as
+\begintext
+\noindent"\verb"<char><text><char>
+\endtext
+and gives you <text> verbatim in the typewriter font.  All \tex\
+special characters (such as "\" and "&") are treated as normal
+characters.
+
+\*\+"\beginverb"\+ and \+"\beginverblines"\+\\are like
+"\begincode" and "\begincodelines" except the intervening text is
+taken verbatim.
+
+\endgab
+
+\begingroup
+
+\newverbatim\myverb
+  \begincs \beginmyverb
+  \readcs \readmyv@rb
+  \endcsname endmyverb%
+  \display
+  \setup \hsize=\displaywidth \advance\leftskip\displayindent \tt
+  \begin
+  \end
+  \endnew
+  
+For example
+\beginmyverb
+\beginverb
+\noindent This is some \verbatim \text.
+\centerline {Note that commands are ignored.}
+\endverb
+\endmyverb
+produces
+\beginverb
+\noindent This is some \verbatim \text.
+\centerline {Note that commands are ignored.}
+\endverb
+
+\endgroup
+
+\begingab
+
+\*\+"\beginlisp"\+ and \+"\beginlisplines"\+\\delimit \lisp\
+programs.  Programs are printed in the \="\lispfont"\= (default
+"\regsize\tt") in nofill mode; the \tex\ control characters (such
+as "#") often found in \lisp\ code are turned off; and comments
+are printed in roman.  Programs are boxed to prevent breaks; the
+sequence ";\pbrk"\+ at the start of a line makes that line an
+escape into surrounding vertical mode: you can put in breaks and
+glue.  If you just specify \+"\pbrk"\+ after the semicolon, with
+nothing else on the line, you get a space suitable for insertion
+between function definitions.
+
+\endgab
+
+For example, this input
+\beginverb
+\beginlisp
+;;Good Old Factorial
+(defun fact (n)
+  (cond ((zerop n) 1)                ;base case
+        (t (* n (fact (1- n))))))    ;recursive case
+;\pbrk
+(defun myfact (n)
+  (cond ((> n 0) (fact n))           ;OK if pos
+        (t (- (fact (- n))))))       ;invert if neg
+;\pbrk \medskip
+(fact -5)                            ;sample usage
+    -125
+\endlisp
+\endverb
+produces this output
+\beginlisp
+;;Good Old Factorial
+(defun fact (n)
+  (cond ((zerop n) 1)                ;base case
+        (t (* n (fact (1- n))))))    ;recursive case
+;\pbrk
+(defun myfact (n)
+  (cond ((> n 0) (fact n))           ;OK if pos
+        (t (- (fact (- n))))))       ;invert if neg
+;\pbrk \medskip
+(fact -5)                            ;sample usage
+    -125
+\endlisp
+
+\heading {Two-Column Text}
+
+The paired delimiter \+"\begintwocolumntext"\+ sets its argument
+material in two columns, with the columns separated by
+\="\columnskip"\=.  Top figures and footnotes in this material
+are still set in a single column extending the full width of the
+page.  Note that you can not use the floating figure style in
+two-column text because there is no way of knowing in advance
+whether figure material set in this style should be one- or
+two-columns wide.  Also, full-page stationary or section figures
+are liable not to work.
+
+The paired delimiter \+"\begindoublecolumn"\+ sets its argument
+material two columns per page, just as if the "\hsize" had been
+narrowed and the results pasted up.  Thus, every page becomes a
+single column, and commands like "\eject" refer to columns, not
+pages.  The command \+"\pageeject"\+ will force a true page
+break.  {\it Warning}: The "\begindoublecolumn" command will
+throw away everything on the current page, so it is only safe to
+use at the start of a fresh page.
+
+\heading {Formatting Small Pieces of Text}
+
+These commands produce little chunks of text in useful shapes, or
+combine small blocks of text in handy ways.
+
+\begingab
+
+\*\+"\spread"\+\\takes two or more arguments and spreads them out
+evenly spaced on a line.  For example, the input
+\beginverb
+\spread{Piece1}{Piece2}{}{Piece4 (3 was empty)}
+\endverb
+produces
+\begintextlines
+\spread{Piece1}{Piece2}{}{Piece4 (3 was empty)}
+\endtextlines
+Each piece of text except the leftmost and rightmost are centered
+on their appropriate position.  Notice that the empty argument
+took up a position even though it didn't put anything in that
+place.
+
+\*\+"\begintleft"\+, \+"\begintcenter"\+, and
+\+"\begintright"\+\\set their arguments as left-flush, centered,
+and right-flush titles in the current font.  Titles are allowed
+to contain more than one paragraph.  Inside of titles, the
+commands \+"\\"\+, \+"\cr"\+, and \+"\crcr"\+ force line breaks.
+
+\*\+"\sy"\+ and \+"\sybox"\+\\set their arguments in a slightly
+smaller typewriter font.  They differ only in that "\sybox" also
+puts the argument in an hbox so it can't be broken across lines.
+
+\*\+"\ucsy"\+ and \+"\ucsybox"\+\\are relatives of "\sy" and
+"\sybox" that put their arguments in upper case.
+
+\*\+"\ignore"\+\\does just that to its single argument.
+
+\*\+"\filpage"\+\\fills up the rest of the page with white space
+and does a page break.
+
+\endgab
+
+\heading {The Date}
+
+\begingab
+
+\*\="\hour"\= and \="\minute"\=\\are <number> parameters that
+hold the time \ytex\ started in 24-hour format.  \+"\daytime"\+
+outputs this in the form \sybox{15:35}.
+
+\*\+"\monthname"\+ and \+"\monthshortname"\+\\output the name of
+the current month; "\monthshortname" is three letters long.
+
+\*\+"\shortyear"\+\\names the current year without the first two
+digits, as in 86.
+
+\*\+"\date"\+, \+"\shortdate"\+, and \+"\slashdate"\+\\output the
+current date as in June~9,~1986; 9~Jun~86; and 6/9/86.
+
+\endgab
+
+For example, you can get output like
+\begintext
+Today is day 14 of Aug ({\it{}i.e.} August), %
+and the time is 14:34.
+\endtext
+by saying
+\beginverb
+Today is day \number\day\ of \monthshortname
+({\it i.e.} \monthname), and the time is \daytime.
+\endverb
+
+\heading {Miscellany}
+
+\begingab
+
+\*\+"\ytex"\+, "\yTeX", "\YTEX", "\YTeX", and \+"\oopstex"\+\\all
+give the \ytex\ symbol.
+
+\*\+"\draft"\+\\adds a line to the bottom of each page that looks
+like this:
+\begintextlines
+\let\message=\ignore%
+\draft\line{\the\bottomgloss}%
+\endtextlines
+This command also sets the "\overfullrule" to "5pt" instead of
+the default "0pt" and prints the message "{Draft}" on your
+terminal screen.
+
+\endgab
+
+Here are the default values of a few parameters not yet
+mentioned:
+\beginverb
+\hsize=28pc \vsize=44pc
+\abovedisplayskip=3pt plus1pt minus2pt
+\belowdisplayskip=3pt plus1pt minus2pt
+\abovedisplayshortskip=0pt plus1pt
+\belowdisplayshortskip=2pt plus1pt minus1pt
+\parindent=2em
+\parskip=0pt plus1pt
+\normallineskip=2pt
+\normallineskiplimit=0pt
+\clubpenalty=900
+\widowpenalty=900
+\endverb
+The default "\typesize" is ten point.  Keep in mind that, if you
+make the "\typesize" "11pt" or "12pt", the "\hsize" and "\vsize"
+will be magnified by $1.1$ or $1.2$, so you probably won't need
+to change them.  If you have a definite measurement you want used
+for the margins independent of what magnification gets used,
+specify it in ``true'' units (as in "\hsize=6 true in").  The
+output routine will always try to center your output on the
+output page; you can use "\hoffset" and "\voffset" to shift it
+off center any desired amount.
+
+\section {For Wizards Only}
+
+Here are some features that inexperienced \tex nicians should
+probably avoid.  Once again they are grouped by topic: some of
+the topics also appeared above.
+
+\heading {Page Glosses}
+
+Pages can have {\it glosses} which are special lines that appear
+above the header and below the footer.  The <toks> parameters
+\="\topgloss"\= and \="\bottomgloss"\= contain the contents of
+the glosses.  You turn glosses off and on just like runners, but
+both glosses default off.  The top gloss defaultly contains a
+copyright message like the following:
+\begintextlines
+\copyrightholder={by the author}%
+\line{\the\topgloss}%
+\endtextlines
+while the bottom gloss is defaultly empty.  The words ``by the
+author'' are the value of the <toks> parameter
+\="\copyrightholder"\=.
+
+\begingab
+
+\*\:"\showcopyrighttrue"\: and "\showcopyrightfalse"\\allow and
+disallow the showing of the top gloss.  To actually get the top
+gloss to show on a particular page, you also have to say
+\+"\copyrightpage"\+ somewhere on that page.
+
+\endgab
+
+The "\draft" macro described above uses the bottom gloss.
+
+\heading {Size Changing}
+
+There are also explicit size-selection commands such as
+"\twelevepoint", but these pay no attention to the "\typesize",
+so their use is not advised.
+
+The baseline spacing is set whenever a size change command is
+given by saying
+\beginverb
+\normalbaselineskip=\the\baselinefactor em%
+\baselineskip\normalbaselineskip
+\endverb
+Thus, the value of the <toks> parameter \="\baselinefactor"\=
+(default "{1.3}") can be used to vary the baseline spacing.  Note
+that changes in "\baselinefactor" will not take effect until you
+give a size-changing command or say \+"\setnormalbaselines"\+.
+For example, these are the default definitions for "\singlespace"
+and "\doublespace":
+\beginverb
+\def\singlespace{\baselinefactor={1.3}\setnormalbaselines}
+\def\doublespace{\baselinefactor={2.6}\setnormalbaselines}
+\endverb
+
+\heading {Setup Hooks}
+
+A variety of the default user-level macros---such as figures,
+captions, footnotes, etc.---provide for user-defined set-up
+hooks.  For example, every figure macro calls the macro
+"\setupfigure", which in turn calls a macro "\setupfigurehook"
+which the user is free to define.  Check the source code for
+details as to which of these hooks exist.
+
+\heading {More About Tables}
+
+There is an escape mechanism whereby arbitrary alignment
+specifications can be put into the preamble of a table.  A column
+is normally specified by a letter, but arbitrary material
+enclosed within balanced braces may be used to specify a column
+instead.  For example, the preamble specification
+\beginverb
+[l{\hfil $\displaystyle #$}c]
+\endverb
+produces the following preamble
+\beginverb
+\tabskip\intabskip
+#\hfil & \hfil $\displaystyle #$& \hfil #\hfil
+\tabskip\posttabskip\cr
+\endverb
+
+The material within matching braces can only specify one column
+in the preamble: you must use more than one set of braces to
+specify more than one column.  There is no limit on the number of
+columns that can be specified in this way.  When a column is
+specified in this way, the entry produced for that column by
+"\padline" will contain an "\omit" so as to produce white space.
+Thus, if the specified material contains a "\vrule"
+specification, that rule will not extend through padding.
+
+If the material in braces starts with a "\tabskip" specification,
+\ytex\ assumes that it contains only that specification, and it
+merely embeds the specification in the preamble instead of making
+it a column specification.  For example, the specification
+\beginverb
+[l{\tabskip=2em }lr]
+\endverb
+produces the preamble
+\beginverb
+\tabskip\intabskip
+#\hfil & \tabskip=2em #\hfil& \hfil #%
+\tabskip\posttabskip\cr
+\endverb
+This mechanism can be used to vary the between-column skip within
+a line.  Keep in mind, however, that the "\posttabskip" will
+override such specifications after the last column.
+
+The interline glue is normally turned off in tables, and struts
+are used to keep the line spacing correct.  If all of the
+preamble specifications in a table are given with the "{}" escape
+mechanism instead of \ytex's abbreviations, you should put struts
+in at least one of the columns to force correct line spacing.
+
+If you specify \hbox{"height" <dimen>} as the contents of a "|"
+or \" column, that will override the natural height of the
+"\vrule".  This is the mechanism used by "\padline".
+
+\section {A List of Many \ytex\ Commands}
+
+Here is a list of all the commands, parameters, and switches
+described hereto.  It is not a complete list of all the \ytex\
+commands, but it gets most of the useful ones.
+
+\heading {The Commands}
+
+The {\bf type} given in this table is one of {\bf SD} for
+standard delimiter, {\bf PD} for paired delimiter, {\bf Par} for
+paragraph delimiter, and {\bf A} for abbreviation.  If a paired
+delimiter has a standard form, it appears in this table in that
+form.  Paired delimiters which do not have standard forms ({\it
+i.e.}, those which delimit nofill text) appear in their "begin"
+form alphabetized under "begin".
+
+\medskip
+
+\begingroup
+  \def\crs{\cr\noalign{\vskip 0pt plus.2pt}}
+  \intabskip=.5em
+  \beginopentable [lcl]%
+    \bf Command&    \bf Type& \bf Summary\cr
+    \midline
+    "\\"&                 A&  breaks lines in titles, ends rows in tables\crs
+    "\abstract"&         PD&  abstract text\crs
+    "\atpar"&           Par&  adjoint-tagged paragraph\crs
+    "\author"&           PD&  author's name(s)\crs
+    "\begincode"&        PD&  typewriter font textual display\crs
+    "\begincodelines"&   PD&  unindented typewriter font textual display\crs
+    "\beginlisp"&        PD&  \lisp\ program display\crs
+    "\beginlisplines"&   PD&  unindented \lisp\ program display\crs
+    "\beginnofill"&      PD&  unboxed unfilled text\crs
+    "\begintext"&        PD&  unfilled textual display\crs
+    "\begintextlines"&   PD&  unindented unfilled textual display\crs
+    "\beginverb"&        PD&  typewriter font verbatim display\crs
+    "\beginverblines"&   PD&  unindented typewriter font verbatim display\crs
+    "\bigsize"&           A&  switch to a larger size of type\crs
+    "\biggsize"&          A&  switch to an even larger size\crs
+    "\bigggsize"&         A&  switch to an even larger size still\crs
+    "\botline"&           A&  horizontal line for bottom of tables\crs
+    "\bottomtext"&       PD&  text for bottom of title page\crs
+    "\bpar"&            Par&  bullet paragraph\crs
+    "\bullets"&          PD&  group of bullet paragraphs\crs
+    "\caption"&          PD&  caption (figures only)\crs
+    "\cauthor"&          PD&  centered author's name\crs
+    "\chapter"&          PD&  chapter title\crs
+    "\copyrightpage"&     A&  allow copyright message\crs
+    "\cr"&                A&  breaks lines in titles, ends rows in tables\crs
+    "\crcr"&              A&  breaks lines in titles, ends rows in tables\crs
+    "\ctitle"&           PD&  centered title\crs
+    "\date"&              A&  date as June 9, 1986\crs
+    "\daytime"&           A&  time of day in 24 hour format\crs
+    "\dbotline"&          A&  double width line for bottom of table\crs
+    "\dinline"&           A&  double width unpadded table line\crs
+    "\displaytable"&     PD&  table display\crs
+    "\dmidline"&          A&  double width line for middle of table\crs
+    "\doublecolumn"&     PD&  double-column mode\crs
+    "\doublespace"&       A&  double space text\crs
+    "\draft"&             A&  put draft mark on all pages\crs
+    "\dtopline"&          A&  double width line for top of table\crs
+    "\figdef"&            A&  no-op for managing figure numbers\crs
+    "\figref"&            A&  no-op for managing figure numbers\crs
+    "\figure"&           PD&  figure in current style\crs
+    "\figurebox"&        PD&  stationary boxed figure\crs
+    "\filpage"&           A&  end current page with white space\crs
+    "\floatingfigures"&   A&  figure style is {\it floating}\crs
+    "\floatingfigure"&   PD&  define floating figure\crs
+    "\floatingpagefigure"&PD&  define floating full-page figure\crs
+    "\footdef"&           A&  no-op for managing footnote numbers\crs
+    "\footref"&           A&  no-op for managing footnote numbers\crs
+    "\footnote"&         SD&  specify footnote while in paragraph\crs
+    "\footmatter"&       PD&  specify footnote text with no marker\crs
+    "\ftpar"&           Par&  flush-tagged paragraph\crs
+    "\heading"&          PD&  left-flush heading\crs
+    "\ignore"&            A&  ignore argument\crs
+    "\inline"&            A&  unpadded horizontal line in table\crs
+    "\ipar"&            Par&  indented paragraph\crs
+    "\ivpar"&           Par&  inverted paragraph\crs
+    "\linebreak"&         A&  force line break in paragraph\crs
+    "\midline"&           A&  horizontal line for middle of table\crs
+    "\monthname"&         A&  full name of current month\crs
+    "\monthshortname"&    A&  first three letters of current month\crs
+    "\nfootnote"&        SD&  specify numbered footnote in paragraph\crs
+    "\oopstex"&           A&  the \ytex\ symbol\crs
+    "\opentable"&        PD&  unboxed table\crs
+    "\padline"&           A&  put padding in table\crs
+    "\pageeject"&         A&  force a page break in double-column mode\crs
+    "\pagefigure"&       PD&  full page figure in desired style\crs
+    "\partpage"&         PD&  titling page with usual page number\crs
+    "\pbrk"&              A&  escape to vertical mode in \lisp\ programs\crs
+    "\pchapter"&         PD&  chapter title on new page\crs
+    "\quote"&            PD&  quotation text\crs
+    "\regsize"&           A&  switch to the regular size of type\crs
+    "\secdef"&            A&  no-op for managing section numbers\crs
+    "\secref"&            A&  no-op for managing section numbers\crs
+    "\section"&          PD&  section title\crs
+    "\sectionfigures"&    A&  figure style is {\it section}\crs
+    "\sectionfigure"&    PD&  define section figure\crs
+    "\sectionpagefigure"&PD&  define section full-page figure\crs
+    "\setnormalbaselines"&A&  use "\baselinefactor" to set baselines\crs
+    "\shortdate"&         A&  date as in 9 Jun 86\crs
+    "\shortyear"&         A&  last two digits of current year\crs
+    "\singlespace"&       A&  single space text\crs
+    "\slashdate"&         A&  date as in 6/9/86\crs
+    "\smlsize"&           A&  switch to a smaller size of type\crs
+    "\smllsize"&          A&  switch to an even smaller size\crs
+    "\smlllsize"&         A&  switch to an even smaller size still\crs
+    "\spread"&           SD&  spread args evenly on line\crs
+    "\stationaryfigures"& A&  figure style is {\it stationary}\crs
+    "\stationaryfigure"& PD&  define stationary figure\crs
+    "\stationarypagefigure"&PD&  define stationary full-page figure\crs
+    "\subsection"&       PD&  synonym for "\section"\crs
+    "\subsubsection"&    PD&  synonym for "\section"\crs
+    "\sy"&               SD&  set arg in smaller typewriter font\crs
+    "\sybox"&            SD&  hboxed "\sy"\crs
+    "\tabdef"&            A&  no-op for managing table numbers\crs
+    "\table"&            PD&  vboxed table\crs
+    "\tabref"&            A&  no-op for managing table numbers\crs
+    "\tcenter"&          PD&  centered title\crs
+    "\title"&            PD&  title\crs
+    "\titlepage"&        PD&  titling page with page number 0\crs
+    "\tleft"&            PD&  left-flush title\crs
+    "\topfigures"&        A&  figure style is {\it top}\crs
+    "\topfigure"&        PD&  define top figure\crs
+    "\toppagefigure"&    PD&  define top full-page figure\crs
+    "\topline"&           A&  horizontal line for top of table\crs
+    "\tright"&           PD&  right-flush title\crs
+    "\twocolumntext"&    PD&  two-column text\crs
+    "\ucsy"&             SD&  uppercase "\sy"\crs
+    "\ucsybox"&          SD&  uppercase "\sybox"\crs
+    "\unvpar"&            A&  allow indentation on next paragraph\crs
+    "\verb"&              A&  verbatim text\crs
+    "\vfootnote"&        PD&  specify footnote text in vertical mode\crs
+    "\vpar"&              A&  disallow indentation on next paragraph\crs
+    "\vtpar"&           Par&  variably-tagged paragraph\crs
+    "\ytex"&              A&  the \ytex\ symbol\cr
+  \endopentable
+\endgroup
+
+\heading {Parameters}
+
+The {\bf type} given in this table is one of {\bf I} for
+<integer>, {\bf D} for <dimen>, {\bf G} for <glue>, and {\bf
+T} for <toks>.
+
+\medskip
+
+\begingroup
+  \def\crs{\cr\noalign{\vskip 0pt plus.2pt}}
+  \intabskip=.5em
+  \beginopentable [lcl]%
+    \bf Parameter&  \bf Type& \bf Default\cr
+    \midline
+    "\abovecaptionskip"&   G&  "\medskipamount"\crs
+    "\abovechapterskip"&   G&  "18pt", stretch is 3 times the "\parskip"'s\crs
+    "\abstractfont"&       T&  "{\smlsize\rm}"\crs
+    "\abstractindent"&     D&  "0pt"\crs
+    "\authorfont"&         T&  "{\regsize\rm}"\crs
+    "\baselinefactor"&     T&  "{1.3}"\crs
+    "\belowchapterskip"&   G&  "9pt", stretch is 3 times the "\parskip"'s\crs
+    "\bottomgloss"&        T&  <empty>\crs
+    "\bottomtextfont"&     T&  "{\smllsize\rm}"\crs
+    "\botsep"&             T&  "{\vskip\bigskipamount \footnoterule}"\crs
+    "\captionindent"&      D&  "\parindent"\crs
+    "\captionfont"&        T&  "{\smlsize\rm}"\crs
+    "\chapterfont"&        T&  "{\bigsize\bf}"\crs
+    "\columnskip"&         D&  "2pc"\crs
+    "\copyrightholder"&    T&  "{by the author}"\crs
+    "\dhbarheight"&        D&  "1pt"\crs
+    "\dvbarwidth"&         D&  "1pt"\crs
+    "\figurelinedrop"&     D&  "4pt"\crs
+    "\footerdrop"&         D&  "1.25pc"\crs
+    "\footnotefont"&       T&  "{\smlsize\rm}"\crs
+    "\footnotemarkerwidth"&D&  "10pt"\crs
+    "\hbarheight"&         D&  "0.4pt"\crs
+    "\headerdrop"&         D&  "1.25pc"\crs
+    "\hour"&               I&  starting hour of job\crs
+    "\intabskip"&          G&  "1em"\crs
+    "\lispfont"&           T&  "{\smlsize\tt}"\crs
+    "\minute"&             I&  starting minute of job\crs
+    "\pageno"&             I&  current page number\crs
+    "\partagsep"&          D&  separation between tag and crown line\crs
+    "\postchapterpenalty"& I&  "10000"\crs
+    "\posttabskip"&        G&  "0pt plus 1fil"\crs
+    "\prechapterpenalty"&  I&  "-500"\crs
+    "\pretabskip"&         G&  "0pt plus 1fil"\crs
+    "\quotefont"&          T&  "{\smlsize\rm}"\crs
+    "\rectoleftheader"&    T&  "{\firstmark}"\crs
+    "\rectocenterheader"&  T&  <empty>\crs
+    "\rectorightheader"&   T&  "{\bf folio}"\crs
+    "\rectoleftfooter"&    T&  <empty>\crs
+    "\rectocenterfooter"&  T&  "{\bf folio}"\crs
+    "\rectorightfooter"&   T&  <empty>\crs
+    "\runnerfont"&         T&  "{\smlsize\rm}"\crs
+    "\runninghead"&        T&  <synonym for "\rectoleftheader">\crs
+    "\tablewidth"&         D&  "0pt" (settable only)\crs
+    "\tablestyle"&         T&  {"\displaystyle"}\crs
+    "\titlefont"&          T&  "{\bigsize\bf}"\crs
+    "\topgloss"&           T&  <empty>\crs
+    "\topsep"&             T&  <empty>\crs
+    "\typesize"&           D&  10pt (settable only)\crs
+    "\vbarwidth"&          D&  "0.4pt"\crs
+    "\versoleftheader"&    T&  "{\bf folio}"\crs
+    "\versocenterheader"&  T&  <empty>\crs
+    "\versorightheader"&   T&  <empty>\crs
+    "\versoleftfooter"&    T&  <empty>\crs
+    "\versocenterfooter"&  T&  "{\bf folio}"\crs
+    "\versorightfooter"&   T&  <empty>\cr
+  \endopentable
+\endgroup
+
+\heading {Switches}
+
+The {\bf type} given in this table is one of {\bf O} for on/off
+and {\bf T} for true/false.
+
+\medskip
+
+\begingroup
+  \def\crs{\cr\noalign{\vskip 0pt plus.2pt}}
+  \intabskip=.5em
+  \beginopentable [lcl]%
+    \bf Switch&     \bf Type& \bf Default\cr
+    \midline
+    "\centerheadings"&     T&  false\crs
+    "\figureline"&         T&  false\crs
+    "\footers"&            O&  off\crs
+    "\headers"&            O&  on\crs
+    "\indent"&             O&  on\crs
+    "\runners"&            O&  on\crs
+    "\showcopyright"&      T&  false\crs
+    "\twosided"&           T&  false\crs
+    "\vpar"&               T&  true\cr
+  \endopentable
+\endgroup
+
+\bye

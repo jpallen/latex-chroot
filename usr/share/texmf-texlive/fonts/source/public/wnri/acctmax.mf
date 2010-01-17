@@ -1,0 +1,106 @@
+%
+% Washington Romanized Indic accent driver
+%
+% File       : acctmax.mf
+% Author     : Thomas Ridgeway <ridgeway@u.washington.edu>
+% Date       : May 19 1992
+%
+% Updated by : Anshuman Pandey <apandey@u.washington.edu>
+% On         : 18 Feb 1998
+%
+% Copyright 1992 Humanities and Arts Computing Center, University of 
+% Washington. Licensed to the public according to the terms of the 
+% Free Software Foundation General Public License.
+%
+% WNRI is based on Computer Modern Roman and encoded according to
+% the Classical Sanskrit/Classical Sanskrit eXtended character set. 
+% See wnindic.map for more details.
+%
+
+transform At,Tf; At=Tf=identity;
+
+numeric acctdiff; acctdiff = min(dot_size,1/3(asc_height-x_height));
+
+def makeACCENT(suffix $) = 
+transform Tf; Tf = identity shifted(-.5w,0);
+if tracingspecs>0:
+	message ">> savepicture ";
+	show str $;
+	show Tf;
+	fi
+picture $; $=currentpicture transformed Tf; 
+enddef;
+
+def savePicture(suffix $) = 
+if tracingspecs>0:
+	message ">> savepicture ";
+	show str $;
+	show Tf;
+	fi
+picture $; $=currentpicture transformed Tf; 
+enddef;
+
+% addpicture
+def ap(suffix $) =
+  if unknown At: transform At; At=identity; fi
+  if tracingspecs>0:
+	  message ">> addpicture "; 
+	  show str $; 
+	  show At;
+	  fi
+  addto currentpicture also $ transformed At;
+enddef;
+
+def whap(suffix $,$$,$$$) =
+  if unknown At: transform At; At=identity; fi
+  if tracingspecs>0:
+	  message ">> addpicture "; 
+	  show str $; 
+	  show At;
+	  fi
+  if w > $$$: addto currentpicture also $ transformed At;
+  else: addto currentpicture also $$ transformed At;
+  fi
+enddef;
+
+numeric adhocht; adhocht=0;
+
+% shall accented characters show the height and depth of the accent?
+if unknown trueheights: boolean trueheights; trueheights=false; fi
+
+%adjustacctht
+def ah =
+ if trueheights:
+  if asc_height + (h - x_height) + adhocht > h: 
+     h:=asc_height + (h - x_height)+ adhocht; charht:= h / vppp;
+  fi
+ fi
+enddef;
+
+%adjustacctdp
+def ad =
+ if trueheights:
+  if d < desc_depth: d:=desc_depth; chardp:= d / vppp; fi
+ fi
+enddef;
+
+def deepen =
+ if trueheights:
+  if d <  max(dot_size,cap_curve)+.25x_height: d:=dot_diam+.25x_height;
+      chardp:=max(dot_size#,cap_curve#)+.25x_height#;
+  fi
+ fi
+enddef;
+
+% general accent height shift from x_height
+numeric acht; 
+acht:= if serifs: max(2/3[asc_height,x_height],x_height+o+hair)
+       else: vround 2/3[asc_height,x_height]
+       fi ;
+
+% replaced by use of czd
+%def slurped (expr accentpoint) =
+%  identity shifted ((xpart accentpoint) + slant*(ypart accentpoint),aspect_ratio * (ypart accentpoint))
+%enddef;
+
+% end of file acctmax.mf

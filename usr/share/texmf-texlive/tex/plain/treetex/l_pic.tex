@@ -1,0 +1,839 @@
+% All this stuff comes from latex.tex, most of it from the                      
+% picture environment. No changes!!!                                            
+% It is needed if you want to use TreeTeX together with plain TeX.              
+                                                                                
+\catcode`\@=11                                                                  
+                                                                                
+\def\@height{height}                                                            
+\def\@depth{depth}                                                              
+\def\@width{width}                                                              
+                                                                                
+\font\tenln=line10                                                              
+\font\tencirc=lcircle10                                                          
+\font\tenlnw=linew10                                                            
+\font\tencircw=lcirclew10                                                        
+                                                                                
+\newcount\@tempcnta                                                             
+\newcount\@tempcntb                                                             
+\newdimen\@tempdima                                                             
+\newdimen\@tempdimb                                                             
+\newbox\@tempboxa                                                               
+                                                                                
+\def\@whilenoop#1{}                                                             
+                                                                                
+\def\@whiledim#1\do #2{\ifdim #1\relax#2\@iwhiledim{#1\relax#2}\fi}             
+\def\@iwhiledim#1{\ifdim #1\let\@nextwhile=\@iwhiledim                          
+        \else\let\@nextwhile=\@whilenoop\fi\@nextwhile{#1}}                     
+                                                                                
+\def\@ifnextchar#1#2#3{\let\@tempe #1\def\@tempa{#2}\def\@tempb{#3}\futurelet   
+    \@tempc\@ifnch}                                                             
+\def\@ifnch{\ifx \@tempc \@sptoken \let\@tempd\@xifnch                          
+      \else \ifx \@tempc \@tempe\let\@tempd\@tempa\else\let\@tempd\@tempb\fi    
+      \fi \@tempd}                                                              
+                                                                                
+% NOTE: the following hacking must precede the definition of \:                 
+%  as math medium space.                                                        
+                                                                                
+\def\:{\let\@sptoken= } \:  % this makes \@sptoken a space token                
+                                                                                
+\def\:{\@xifnch} \expandafter\def\: {\futurelet\@tempc\@ifnch}                  
+                                                                                
+\def\@ifstar#1#2{\@ifnextchar *{\def\@tempa*{#1}\@tempa}{#2}}                   
+                                                                                
+\let\:=\>                                                                       
+                                                                                
+%      ****************************************                                 
+%      *       THE PICTURE ENVIRONMENT        *                                 
+%      ****************************************                                 
+%                                                                               
+%  \unitlength     = value of dimension argument                                
+%  \@wholewidth    = current line width                                         
+%  \@halfwidth     = half of current line width                                 
+%  \@linefnt       = font for drawing lines                                     
+%  \@circlefnt     = font for drawing circles                                   
+%                                                                               
+% \linethickness{DIM} : Sets the width of horizontal and vertical lines         
+%     in a picture to DIM.  Does not change width of slanted lines              
+%     or circles.   Width of all lines reset by \thinlines and                  
+%     \thicklines                                                               
+%                                                                               
+% \picture(XSIZE,YSIZE)(XORG,YORG)                                              
+%   BEGIN                                                                       
+%     \@picht :=L YSIZE * \unitlength                                           
+%     box \@picbox :=                                                           
+%          \hbox to XSIZE * \unitlength                                         
+%            {\hskip -XORG * \unitlength                                        
+%             \lower YORG * \unitlength                                         
+%             \hbox{                                                            
+%   END                                                                         
+%                                                                               
+% \endpicture ==                                                                
+%   BEGIN                                                                       
+%                   } \hss }                                                    
+%                   heigth of \@picbox := \@picht                               
+%                   depth  of \@picbox := 0                                     
+%                   leavevmode                                                  
+%                   \box\@picbox                                                
+%   END                                                                         
+%                                                                               
+% \put(X, Y){OBJ} ==                                                            
+%   BEGIN                                                                       
+%     \@killglue                                                                
+%     \raise Y * \unitlength  \hbox to 0pt { \hskip X * \unitlength             
+%                                              OBJ \hss             }           
+%     \ignorespaces                                                             
+%   END                                                                         
+%                                                                               
+% \multiput(X,Y)(DELX,DELY){N}{OBJ} ==                                          
+%   BEGIN                                                                       
+%    \@killglue                                                                 
+%    \@multicnt := N                                                            
+%    \@xdim  := X * \unitlength                                                 
+%    \@ydim  := Y * \unitlength                                                 
+%    while \@multicnt > 0                                                       
+%      do \raise \@ydim \hbox to 0pt { \hskip \@xdim                            
+%                                             OBJ \hss   }                      
+%         \@multicnt := \@multicnt - 1                                          
+%         \@xdim     := \@xdim + DELX * \unitlength                             
+%         \@ydim     := \@ydim + DELY * \unitlength                             
+%      od                                                                       
+%    \ignorespaces                                                              
+%   END                                                                         
+%                                                                               
+%  \shortstack[POS]{TEXT} : Makes a \vbox containing TEXT stacked as            
+%      a one-column array, positioned l, r or c as indicated by POS.            
+                                                                                
+\newdimen\@wholewidth                                                           
+\newdimen\@halfwidth                                                            
+\newdimen\unitlength \unitlength =1pt                                           
+\newbox\@picbox                                                                 
+\newdimen\@picht                                                                
+                                                                                
+\def\picture(#1,#2){\@ifnextchar({\@picture(#1,#2)}{\@picture(#1,#2)(0,0)}}     
+                                                                                
+\def\@picture(#1,#2)(#3,#4){\@picht #2\unitlength                               
+\setbox\@picbox\hbox to #1\unitlength\bgroup                                    
+\hskip -#3\unitlength \lower #4\unitlength \hbox\bgroup}                        
+                                                                                
+\def\endpicture{\egroup\hss\egroup\ht\@picbox\@picht                            
+\dp\@picbox\z@\leavevmode\box\@picbox}                                          
+                                                                                
+\long\def\put(#1,#2)#3{\@killglue\raise#2\unitlength\hbox to \z@{\hskip         
+#1\unitlength #3\hss}\ignorespaces}                                             
+                                                                                
+\long\def\multiput(#1,#2)(#3,#4)#5#6{\@killglue\@multicnt=#5\relax              
+\@xdim=#1\unitlength                                                            
+\@ydim=#2\unitlength                                                            
+\@whilenum \@multicnt > 0\do                                                    
+{\raise\@ydim\hbox to \z@{\hskip                                                
+\@xdim #6\hss}\advance\@multicnt \m@ne\advance\@xdim                            
+#3\unitlength\advance\@ydim #4\unitlength}\ignorespaces}                        
+                                                                                
+\def\@killglue{\unskip\@whiledim \lastskip >\z@\do{\unskip}}                    
+                                                                                
+\def\thinlines{\let\@linefnt\tenln \let\@circlefnt\tencirc                      
+  \@wholewidth\fontdimen8\tenln \@halfwidth .5\@wholewidth}                     
+\def\thicklines{\let\@linefnt\tenlnw \let\@circlefnt\tencircw                   
+  \@wholewidth\fontdimen8\tenlnw \@halfwidth .5\@wholewidth}                    
+                                                                                
+\def\linethickness#1{\@wholewidth #1\relax \@halfwidth .5\@wholewidth}          
+                                                                                
+\def\shortstack{\@ifnextchar[{\@shortstack}{\@shortstack[c]}}                   
+                                                                                
+\def\@shortstack[#1]{\leavevmode                                                
+\vbox\bgroup\baselineskip-1pt\lineskip 3pt\let\mb@l\hss                         
+\let\mb@r\hss \expandafter\let\csname mb@#1\endcsname\relax                     
+\let\\\@stackcr\@ishortstack}                                                   
+                                                                                
+\def\@ishortstack#1{\halign{\mb@l ##\unskip\mb@r\cr #1\crcr}\egroup}            
+                                                                                
+                                                                                
+\def\@stackcr{\@ifstar{\@ixstackcr}{\@ixstackcr}}                               
+\def\@ixstackcr{\@ifnextchar[{\@istackcr}{\cr\ignorespaces}}                    
+                                                                                
+\def\@istackcr[#1]{\cr\noalign{\vskip #1}\ignorespaces}                         
+                                                                                
+                                                                                
+% \line(X,Y){LEN} ==                                                            
+% BEGIN                                                                         
+%  \@xarg    := X                                                               
+%  \@yarg    := Y                                                               
+%  \@linelen := LEN * \unitlength                                               
+%  if \@xarg = 0                                                                
+%     then \@vline                                                              
+%     else if \@yarg = 0                                                        
+%            then \@hline                                                       
+%            else \@sline                                                       
+%          if                                                                   
+%  if                                                                           
+% END                                                                           
+%                                                                               
+% \@sline ==                                                                    
+%  BEGIN                                                                        
+%    if \@xarg < 0                                                              
+%      then @negarg := T                                                        
+%           \@xarg  := -\@xarg                                                  
+%           \@yyarg := -\@yarg                                                  
+%      else @negarg := F                                                        
+%           \@yyarg := \@yarg                                                   
+%    fi                                                                         
+%    \@tempcnta := |\@yyarg|                                                    
+%    if \@tempcnta > 6                                                          
+%      then error: 'LATEX ERROR: Illegal \line or \vector argument.'            
+%           \@tempcnta := 0                                                     
+%    fi                                                                         
+%    \box\@linechar := \hbox{\@linefnt \@getlinechar(\@xarg,\@yyarg) }          
+%     if \@yarg > 0 then \@upordown = \raise                                    
+%                         \@clnht := 0                                          
+%                   else \@upordown = \lower                                    
+%                        \@clnht := height of \box\@linechar                    
+%     fi                                                                        
+%     \@clnwd  := width of \box\@linechar                                       
+%     if @negarg                                                                
+%       then \hskip - width of \box\@linechar                                   
+%            \@tempa == \hskip - 2* width of box \@linechar                     
+%       else \@tempa == \relax                                                  
+%     fi                                                                        
+%  %% Put out integral number of line segments                                  
+%     while \@clnwd <  \@linelen                                                
+%       do  \@upordown \@clnht \copy\@linechar                                  
+%           \@tempa                                                             
+%           \@clnht := \@clnht + ht of \box\@linechar                           
+%           \@clnwd := \@clnwd + width of \box\@linechar                        
+%       od                                                                      
+%                                                                               
+%  %% Put out last segment                                                      
+%     \@clnht := \@clnht - height of \box\@linechar                             
+%     \@clnwd := \@clnwd - width of \box\@linechar                              
+%     \@tempdima   := \@linelen - \@clnwd                                       
+%     \@tempdimb   := \@tempdima - width of \box\@linechar                      
+%     if @negarg  then \hskip -\@tempdimb                                       
+%                 else \hskip  \@tempdimb                                       
+%     fi                                                                        
+%     \@tempdima   := 1000 * \@tempdima                                         
+%     \@tempcnta   := \@tempdima / width of \box\@linechar                      
+%     \@tempdima   := (\@tempcnta * ht of \box\@linechar)/1000                  
+%     \@clnht := \@clnht + \@tempdima                                           
+%     if \@linelen < width of box\@linechar                                     
+%         then \hskip width of box\@linechar                                    
+%         else \hbox{\@upordown \@clnht \copy\@linechar}                        
+%     fi                                                                        
+% END                                                                           
+%                                                                               
+% \@hline ==                                                                    
+%   BEGIN                                                                       
+%     if \@xarg < 0 then  \hskip -\@linelen \fi                                 
+%     \vrule height \@halfwidth depth \@halfwidth width \@linelen               
+%     if \@xarg < 0 then  \hskip -\@linelen \fi                                 
+%  END                                                                          
+%                                                                               
+% \@vline == if \@yarg < 0 \@downline else \@upline  fi                         
+%                                                                               
+%                                                                               
+% \@getlinechar(X,Y) ==                                                         
+%   BEGIN                                                                       
+%     \@tempcnta := 8*X - 9                                                     
+%     if Y > 0                                                                  
+%       then \@tempcnta := \@tempcnta + Y                                       
+%       else \@tempcnta := \@tempcnta - Y + 64                                  
+%     fi                                                                        
+%     \char\@tempcnta                                                           
+%   END                                                                         
+%                                                                               
+% \vector(X,Y){LEN} ==                                                          
+% BEGIN                                                                         
+%  \@xarg    := X                                                               
+%  \@yarg    := Y                                                               
+%  \@linelen := LEN * \unitlength                                               
+%  if \@xarg = 0                                                                
+%     then \@vvector                                                            
+%     else if \@yarg = 0                                                        
+%            then \@hvector                                                     
+%            else \@svector                                                     
+%          if                                                                   
+%  if                                                                           
+% END                                                                           
+%                                                                               
+% \@hvector ==                                                                  
+%   BEGIN                                                                       
+%     \@hline                                                                   
+%     {\@linefnt if \@xarg < 0 then  \@getlarrow(1,0)                           
+%                              else  \@getrarrow(1,0)                           
+%                 fi}                                                           
+%   END                                                                         
+%                                                                               
+% \@vvector == if \@yarg < 0 \@downvector else \@upvector  fi                   
+%                                                                               
+% \@svector ==                                                                  
+%  BEGIN                                                                        
+%   \@sline                                                                     
+%   \@tempcnta := |\@yarg|                                                      
+%     if  \@tempcnta < 5                                                        
+%        then  \hskip - width of \box\@linechar                                 
+%              \@upordown \@clnht \hbox                                         
+%                       {\@linefnt                                              
+%                        if @negarg then \@getlarrow(\@xarg,\@yyarg)            
+%                                   else \@getrarrow(\@xarg,\@yyarg)            
+%                        fi }                                                   
+%        else  error: 'LATEX ERROR: Illegal \line or \vector argument.'         
+%     fi                                                                        
+%  END                                                                          
+%                                                                               
+% \@getlarrow(X,Y) ==                                                           
+%  BEGIN                                                                        
+%   if Y = 0                                                                    
+%     then \@tempcnta := '33                                                    
+%     else \@tempcnta := 16 * X  -  9                                           
+%          \@tempcntb := 2 * Y                                                  
+%          if \@tempcntb > 0                                                    
+%            then  \@tempcnta := \@tempcnta  +  \@tempcntb                      
+%            else  \@tempcnta := \@tempcnta  -  \@tempcntb +  64                
+%          fi                                                                   
+%   fi                                                                          
+%   \char\@tempcnta                                                             
+%  END                                                                          
+%                                                                               
+% \@getrarrow(X,Y) ==                                                           
+%  BEGIN                                                                        
+%   \@tempcntb := |Y|                                                           
+%   case of \@tempcntb                                                          
+%     0 : \@tempcnta := '55                                                     
+%     1 : if X < 3                                                              
+%           then \@tempcnta :=  24*X - 6                                        
+%           else if X = 3                                                       
+%                  then \@tempcnta := 49                                        
+%                  else \@tempcnta := 58  fi                                    
+%         fi                                                                    
+%     2 : if X < 3                                                              
+%           then \@tempcnta :=  24*X - 3                                        
+%           else \@tempcnta := 51     % X must = 3                              
+%         fi                                                                    
+%     3 : \@tempcnta := 16*X - 2                                                
+%     4 : \@tempcnta := 16*X + 7                                                
+%   endcase                                                                     
+%   if Y < 0                                                                    
+%     then \@tempcnta := \@tempcnta + 64                                        
+%   fi                                                                          
+%   \char\@tempcnta                                                             
+%  END                                                                          
+                                                                                
+\newif\if@negarg                                                                
+                                                                                
+\def\line(#1,#2)#3{\@xarg #1\relax \@yarg #2\relax                              
+\@linelen=#3\unitlength                                                         
+\ifnum\@xarg =0 \@vline                                                         
+  \else \ifnum\@yarg =0 \@hline \else \@sline\fi                                
+\fi}                                                                            
+                                                                                
+\def\@sline{\ifnum\@xarg< 0 \@negargtrue \@xarg -\@xarg \@yyarg -\@yarg         
+  \else \@negargfalse \@yyarg \@yarg \fi                                        
+\ifnum \@yyarg >0 \@tempcnta\@yyarg \else \@tempcnta -\@yyarg \fi               
+\ifnum\@tempcnta>6 \@badlinearg\@tempcnta0 \fi                                  
+\setbox\@linechar\hbox{\@linefnt\@getlinechar(\@xarg,\@yyarg)}%                 
+\ifnum \@yarg >0 \let\@upordown\raise \@clnht\z@                                
+   \else\let\@upordown\lower \@clnht \ht\@linechar\fi                           
+\@clnwd=\wd\@linechar                                                           
+\if@negarg \hskip -\wd\@linechar \def\@tempa{\hskip -2\wd\@linechar}\else       
+     \let\@tempa\relax \fi                                                      
+\@whiledim \@clnwd <\@linelen \do                                               
+  {\@upordown\@clnht\copy\@linechar                                             
+   \@tempa                                                                      
+   \advance\@clnht \ht\@linechar                                                
+   \advance\@clnwd \wd\@linechar}%                                              
+\advance\@clnht -\ht\@linechar                                                  
+\advance\@clnwd -\wd\@linechar                                                  
+\@tempdima\@linelen\advance\@tempdima -\@clnwd                                  
+\@tempdimb\@tempdima\advance\@tempdimb -\wd\@linechar                           
+\if@negarg \hskip -\@tempdimb \else \hskip \@tempdimb \fi                       
+\multiply\@tempdima \@m                                                         
+\@tempcnta \@tempdima \@tempdima \wd\@linechar \divide\@tempcnta \@tempdima     
+\@tempdima \ht\@linechar \multiply\@tempdima \@tempcnta                         
+\divide\@tempdima \@m                                                           
+\advance\@clnht \@tempdima                                                      
+\ifdim \@linelen <\wd\@linechar                                                 
+   \hskip \wd\@linechar                                                         
+  \else\@upordown\@clnht\copy\@linechar\fi}                                     
+                                                                                
+\def\@hline{\ifnum \@xarg <0 \hskip -\@linelen \fi                              
+\vrule \@height \@halfwidth \@depth \@halfwidth \@width \@linelen               
+\ifnum \@xarg <0 \hskip -\@linelen \fi}                                         
+                                                                                
+\def\@getlinechar(#1,#2){\@tempcnta#1\relax\multiply\@tempcnta 8                
+\advance\@tempcnta -9 \ifnum #2>0 \advance\@tempcnta #2\relax\else              
+\advance\@tempcnta -#2\relax\advance\@tempcnta 64 \fi                           
+\char\@tempcnta}                                                                
+                                                                                
+\def\vector(#1,#2)#3{\@xarg #1\relax \@yarg #2\relax                            
+\@linelen=#3\unitlength                                                         
+\ifnum\@xarg =0 \@vvector                                                       
+  \else \ifnum\@yarg =0 \@hvector \else \@svector\fi                            
+\fi}                                                                            
+                                                                                
+\def\@hvector{\@hline\hbox to 0pt{\@linefnt                                     
+\ifnum \@xarg <0 \@getlarrow(1,0)\hss\else                                      
+    \hss\@getrarrow(1,0)\fi}}                                                   
+                                                                                
+\def\@vvector{\ifnum \@yarg <0 \@downvector \else \@upvector \fi}               
+                                                                                
+\def\@svector{\@sline                                                           
+\@tempcnta\@yarg \ifnum\@tempcnta <0 \@tempcnta=-\@tempcnta\fi                  
+\ifnum\@tempcnta <5                                                             
+  \hskip -\wd\@linechar                                                         
+  \@upordown\@clnht \hbox{\@linefnt  \if@negarg                                 
+  \@getlarrow(\@xarg,\@yyarg) \else \@getrarrow(\@xarg,\@yyarg) \fi}%           
+\else\@badlinearg\fi}                                                           
+                                                                                
+\def\@getlarrow(#1,#2){\ifnum #2 =\z@ \@tempcnta='33\else                       
+\@tempcnta=#1\relax\multiply\@tempcnta \sixt@@n \advance\@tempcnta              
+-9 \@tempcntb=#2\relax\multiply\@tempcntb \tw@                                  
+\ifnum \@tempcntb >0 \advance\@tempcnta \@tempcntb\relax                        
+\else\advance\@tempcnta -\@tempcntb\advance\@tempcnta 64                        
+\fi\fi\char\@tempcnta}                                                          
+                                                                                
+\def\@getrarrow(#1,#2){\@tempcntb=#2\relax                                      
+\ifnum\@tempcntb < 0 \@tempcntb=-\@tempcntb\relax\fi                            
+\ifcase \@tempcntb\relax \@tempcnta='55 \or                                     
+\ifnum #1<3 \@tempcnta=#1\relax\multiply\@tempcnta                              
+24 \advance\@tempcnta -6 \else \ifnum #1=3 \@tempcnta=49                        
+\else\@tempcnta=58 \fi\fi\or                                                    
+\ifnum #1<3 \@tempcnta=#1\relax\multiply\@tempcnta                              
+24 \advance\@tempcnta -3 \else \@tempcnta=51\fi\or                              
+\@tempcnta=#1\relax\multiply\@tempcnta                                          
+\sixt@@n \advance\@tempcnta -\tw@ \else                                         
+\@tempcnta=#1\relax\multiply\@tempcnta                                          
+\sixt@@n \advance\@tempcnta 7 \fi\ifnum #2<0 \advance\@tempcnta 64 \fi          
+\char\@tempcnta}                                                                
+                                                                                
+                                                                                
+                                                                                
+\def\@vline{\ifnum \@yarg <0 \@downline \else \@upline\fi}                      
+                                                                                
+\def\@upline{\hbox to \z@{\hskip -\@halfwidth \vrule \@width \@wholewidth       
+   \@height \@linelen \@depth \z@\hss}}                                         
+                                                                                
+\def\@downline{\hbox to \z@{\hskip -\@halfwidth \vrule \@width \@wholewidth     
+   \@height \z@ \@depth \@linelen \hss}}                                        
+                                                                                
+\def\@upvector{\@upline\setbox\@tempboxa\hbox{\@linefnt\char'66}\raise          
+     \@linelen \hbox to\z@{\lower \ht\@tempboxa\box\@tempboxa\hss}}             
+                                                                                
+\def\@downvector{\@downline\lower \@linelen                                     
+      \hbox to \z@{\@linefnt\char'77\hss}}                                      
+                                                                                
+% \dashbox{D}(X,Y) ==                                                           
+%  BEGIN                                                                        
+%  leave vertical mode                                                          
+%  \hbox to 0pt {                                                               
+%       \baselineskip := 0pt                                                    
+%       \lineskip     := 0pt                                                    
+%  %% HORIZONTAL DASHES                                                         
+%       \@dashdim := X * \unitlength                                            
+%       \@dashcnt := \@dashdim + 200 % to prevent roundoff error                
+%       \@dashdim := D * \unitlength                                            
+%       \@dashcnt := \@dashcnt / \@dashdim                                      
+%       if \@dashcnt is odd                                                     
+%         then \@dashdim := 0pt                                                 
+%              \@dashcnt := (\@dashcnt + 1) / 2                                 
+%         else \@dashdim := \@dashdim / 2                                       
+%              \@dashcnt := \@dashcnt / 2 - 1                                   
+%              \box\@dashbox   := \hbox{\vrule height \@halfwidth               
+%                                    depth \@halfwidth width \@dashdim}         
+%              \put(0,0){\copy\@dashbox}                                        
+%              \put(0,Y){\copy\@dashbox}                                        
+%              \put(X,0){\hskip -\@dashdim\copy\@dashbox}                       
+%              \put(X,Y){\hskip -\@dashdim\box\@dashbox}                        
+%              \@dashdim := 3 * \@dashdim                                       
+%       fi                                                                      
+%       \box\@dashbox := \hbox{\vrule height \@halfwidth                        
+%                                 depth \@halfwidth width D * \unitlength       
+%                              \hskip D * \unitlength}                          
+%       \@tempcnta := 0                                                         
+%       \put(0,0){\hskip \@dashdim                                              
+%                while \@tempcnta < \@dascnt                                    
+%                  do \copy\@dashbox                                            
+%                     \@tempcnta := \@tempcnta + 1                              
+%                  od                                                           
+%               }                                                               
+%       \@tempcnta := 0                                                         
+%       put(0,Y){\hskip \@dashdim                                               
+%                while \@tempcnta < \@dascnt                                    
+%                  do \copy\@dashbox                                            
+%                     \@tempcnta := \@tempcnta + 1                              
+%                  od                                                           
+%               }                                                               
+%                                                                               
+% %% vertical dashes                                                            
+%       \@dashdim := Y * \unitlength                                            
+%       \@dashcnt := \@dashdim + 200 % to prevent roundoff error                
+%       \@dashdim := D * \unitlength                                            
+%       \@dashcnt := \@dashcnt / \@dashdim                                      
+%       if \@dashcnt is odd                                                     
+%         then \@dashdim := 0pt                                                 
+%              \@dashcnt := (\@dashcnt + 1) / 2                                 
+%         else \@dashdim := \@dashdim / 2                                       
+%              \@dashcnt := \@dashcnt / 2 - 1                                   
+%              \box\@dashbox   := \hbox{\hskip -\@halfwidth                     
+%                                       \vrule width \@wholewidth               
+%                                                height \@dashdim  }            
+%              \put(0,0){\copy\@dashbox}                                        
+%              \put(X,0){\copy\@dashbox}                                        
+%              \put(0,Y){\lower\@dashdim\copy\@dashbox}                         
+%              \put(X,Y){\lower\@dashdim\copy\@dashbox}                         
+%              \@dashdim := 3 * \@dashdim                                       
+%       fi                                                                      
+%       \box\@dashbox := \hbox{\vrule width \@wholewidth                        
+%                                 height D * \unitlength       }                
+%       \@tempcnta := 0                                                         
+%       put(0,0){\hskip -\halfwidth                                             
+%                \vbox{while \@tempcnta < \@dashcnt                             
+%                       do \vskip D*\unitlength                                 
+%                          \copy\@dashbox                                       
+%                          \@tempcnta := \@tempcnta + 1                         
+%                       od                                                      
+%                      \vskip \@dashdim                                         
+%                     } }                                                       
+%       \@tempcnta := 0                                                         
+%       put(X,0){\hskip -\halfwidth                                             
+%                \vbox{while \@tempcnta < \@dashcnt                             
+%                       do \vskip D*\unitlength                                 
+%                          \copy\@dashbox                                       
+%                          \@tempcnta := \@tempcnta + 1                         
+%                       od                                                      
+%                      \vskip \@dashdim                                         
+%                     }                                                         
+%               }                                                               
+%    }     % END DASHES                                                         
+%                                                                               
+%  \@imakepicbox(X,Y)                                                           
+% END                                                                           
+                                                                                
+\def\dashbox#1(#2,#3){\leavevmode\hbox to \z@{\baselineskip \z@%                
+\lineskip \z@%                                                                  
+\@dashdim=#2\unitlength%                                                        
+\@dashcnt=\@dashdim \advance\@dashcnt 200                                       
+\@dashdim=#1\unitlength\divide\@dashcnt \@dashdim                               
+\ifodd\@dashcnt\@dashdim=\z@%                                                   
+\advance\@dashcnt \@ne \divide\@dashcnt \tw@                                    
+\else \divide\@dashdim \tw@ \divide\@dashcnt \tw@                               
+\advance\@dashcnt \m@ne                                                         
+\setbox\@dashbox=\hbox{\vrule \@height \@halfwidth \@depth \@halfwidth          
+\@width \@dashdim}\put(0,0){\copy\@dashbox}%                                    
+\put(0,#3){\copy\@dashbox}%                                                     
+\put(#2,0){\hskip-\@dashdim\copy\@dashbox}%                                     
+\put(#2,#3){\hskip-\@dashdim\box\@dashbox}%                                     
+\multiply\@dashdim 3                                                            
+\fi                                                                             
+\setbox\@dashbox=\hbox{\vrule \@height \@halfwidth \@depth \@halfwidth          
+\@width #1\unitlength\hskip #1\unitlength}\@tempcnta=0                          
+\put(0,0){\hskip\@dashdim \@whilenum \@tempcnta <\@dashcnt                      
+\do{\copy\@dashbox\advance\@tempcnta \@ne }}\@tempcnta=0                        
+\put(0,#3){\hskip\@dashdim \@whilenum \@tempcnta <\@dashcnt                     
+\do{\copy\@dashbox\advance\@tempcnta \@ne }}%                                   
+\@dashdim=#3\unitlength%                                                        
+\@dashcnt=\@dashdim \advance\@dashcnt 200                                       
+\@dashdim=#1\unitlength\divide\@dashcnt \@dashdim                               
+\ifodd\@dashcnt \@dashdim=\z@%                                                  
+\advance\@dashcnt \@ne \divide\@dashcnt \tw@                                    
+\else                                                                           
+\divide\@dashdim \tw@ \divide\@dashcnt \tw@                                     
+\advance\@dashcnt \m@ne                                                         
+\setbox\@dashbox\hbox{\hskip -\@halfwidth                                       
+\vrule \@width \@wholewidth                                                     
+\@height \@dashdim}\put(0,0){\copy\@dashbox}%                                   
+\put(#2,0){\copy\@dashbox}%                                                     
+\put(0,#3){\lower\@dashdim\copy\@dashbox}%                                      
+\put(#2,#3){\lower\@dashdim\copy\@dashbox}%                                     
+\multiply\@dashdim 3                                                            
+\fi                                                                             
+\setbox\@dashbox\hbox{\vrule \@width \@wholewidth                               
+\@height #1\unitlength}\@tempcnta0                                              
+\put(0,0){\hskip -\@halfwidth \vbox{\@whilenum \@tempcnta < \@dashcnt           
+\do{\vskip #1\unitlength\copy\@dashbox\advance\@tempcnta \@ne }%                
+\vskip\@dashdim}}\@tempcnta0                                                    
+\put(#2,0){\hskip -\@halfwidth \vbox{\@whilenum \@tempcnta< \@dashcnt           
+\relax\do{\vskip #1\unitlength\copy\@dashbox\advance\@tempcnta \@ne }%          
+\vskip\@dashdim}}}\@makepicbox(#2,#3)}                                          
+                                                                                
+% CIRCLES AND OVALS                                                             
+%                                                                               
+%  USER COMMANDS:                                                               
+%                                                                               
+%  \circle{D} : Produces the circle with the diameter as close as               
+%               possible to D * \unitlength.  \put(X,Y){\circle{D}}             
+%               puts the circle with its center at (X,Y).                       
+%                                                                               
+%  \oval(X,Y) : Makes an oval as round as possible that fits in the             
+%               rectangle of width X * \unitlength and height                   
+%               Y * \unitlength. The reference point is the center.             
+%                                                                               
+% \oval(X,Y)[POS] : Save as \oval(X,Y) except it draws only the                 
+%                   half or quadrant of the oval indicated by POS.              
+%                   E.G., \oval(X,Y)[t] draws just the top half                 
+%                   and \oval(X,Y)[br] draws just the bottom right              
+%                   quadrant.  In all cases, the reference point is             
+%                   the same as the unqualified \oval(X,Y) command.             
+%                                                                               
+% \@ovvert {DELTA1} {DELTA2} : Makes a vbox containing either the left side     
+%        or the right side of the oval being constructed.  The baseline         
+%        will coincide with the outside bottom edge of the oval; the left       
+%        side of the box will coincide with the left edge of the vertical       
+%        rule.  The width of the box will be \@tempdima.                        
+%        DELTA1 and DELTA2 are added to the character number in \@tempcnta      
+%        to get the characters for the top and bottom quarter circle pieces.    
+%                                                                               
+% \@ovhorz : Makes an hbox containing the straight rule for either the          
+%         top or the bottom of the oval being constructed.  The baseline        
+%         will coincide with bottom edge of the rule; the left side of          
+%         the box will coincide with the left side of the oval.                 
+%         The width of the box will be \@ovxx.                                  
+%                                                                               
+% \@getcirc {DIAM} : Sets \@tempcnta to the character number                    
+%                   of the top-right quarter circle with the largest            
+%                   diameter less than or equal to DIAM.                        
+%                   Sets \@tempboxa to an hbox containing that character.       
+%                   Sets \@tempdima to \wd \@tempboxa, which is the distance    
+%                   from the circle's left outside edge to its right            
+%                   inside edge.                                                
+%                   (These characters are like those described in the           
+%                   TeXbook, pp. 389-90.)                                       
+%                                                                               
+% \@getcirc {DIAM} ==                                                           
+%   BEGIN                                                                       
+%     \@tempcnta       := integer coercion of DIAM                              
+%     \@tempcnta       := \@tempcnta / integer coercion of 4pt                  
+%     if \@tempcnta > 10                                                        
+%       then \@tempcnta := 10 fi                                                
+%     if \@tempcnta > 0                                                         
+%       then \@tempcnta := \@tempcnta-1                                         
+%       else LaTeX Warning: Oval too small.                                     
+%     fi                                                                        
+%     \@tempcnta       := 4 * \@tempcnta                                        
+%     \@tempboxa       := \hbox{\@circlefnt \char \@tempcnta}                   
+%     \@tempdima       := \wd \@tempboxa                                        
+%   END                                                                         
+%                                                                               
+% \@put{X}{Y}{OBJ} ==                                                           
+%   BEGIN                                                                       
+%     \raise Y \hbox to 0pt{\hskip X OBJ \hss}                                  
+%   END                                                                         
+%                                                                               
+% \@oval(X,Y)[POS] ==                                                           
+%   BEGIN                                                                       
+%     \begingroup                                                               
+%	\boxmaxdepth := \maxdimen                                                     
+%       @ovt := @ovb := @ovl := @ovr := true                                    
+%       for all E in POS                                                        
+%         do  @ovE := false od                                                  
+%       \@ovxx      := X * \unitlength                                          
+%       \@ovyy      := Y * \unitlength                                          
+%       \@tempdimb := min(\@ovxx,\@ovyy)                                        
+%       \@getcirc{\@tempdimb}                                                   
+%       \@ovro     := \ht \@tempboxa                                            
+%       \@ovri     := \dp \@tempboxa                                            
+%       \@ovdx     := \@ovxx - \@tempdima                                       
+%       \@ovdx     := \@ovdx/2                                                  
+%       \@ovdy     := \@ovyy - \@tempdima                                       
+%       \@ovdy     := \@ovyy/2                                                  
+%       \@circlefnt                                                             
+%       \@tempboxa :=                                                           
+%           \hbox{                                                              
+%                 if @ovr                                                       
+%                   then \@ovvert{3}{2} \kern -\@tempdima                       
+%                 fi                                                            
+%                 if @ovl                                                       
+%                   then \kern \@ovxx \@ovvert{0}{1} \kern -\@tempdima          
+%                        \kern -\@ovxx                                          
+%                 fi                                                            
+%                 if @ovt                                                       
+%                   then \@ovhorz \kern -\@ovxx                                 
+%                 fi                                                            
+%                 if @ovb                                                       
+%                   then \raise \@ovyy \@ovhorz                                 
+%                 fi                                                            
+%                }                                                              
+%       \@ovdx    := \@ovdx + \@ovro                                            
+%       \@ovdy    := \@ovdy + \@ovro                                            
+%      \ht\@tempboxa := \dp\@tempboxa := 0                                      
+%       \@put{-\@ovdx}{-\@ovdy}{\box\@tempboxa}                                 
+%    \endgroup                                                                  
+%   END                                                                         
+%                                                                               
+% \@ovvert {DELTA1} {DELTA2} ==                                                 
+%   BEGIN                                                                       
+%      \vbox to \@ovyy {                                                        
+%                      if @ovb                                                  
+%                        then \@tempcntb := \@tempcnta + DELTA1                 
+%                             \kern -\@ovro                                     
+%                             \hbox { \char \@tempcntb }                        
+%                             \nointerlineskip                                  
+%                        else \kern \@ovri \kern \@ovdy                         
+%                      fi                                                       
+%                      \leaders \vrule width \@wholewidth \vfil                 
+%                      \nointerlineskip                                         
+%                      if @ovt                                                  
+%                        then \@tempcntb := \@tempcnta + DELTA2                 
+%                             \hbox { \char \@tempcntb }                        
+%                        else \kern \@ovdy \kern \@ovro                         
+%                      fi                                                       
+%                     }                                                         
+%   END                                                                         
+%                                                                               
+% \@ovhorz ==                                                                   
+%   BEGIN                                                                       
+%    \hbox to \@ovxx{                                                           
+%                   \kern \@ovro                                                
+%                   if @ovr                                                     
+%                     then                                                      
+%                     else \kern \@ovdx                                         
+%                   fi                                                          
+%                   \leaders \hrule height \@wholewidth \hfil                   
+%                   if @ovl                                                     
+%                     then                                                      
+%                     else \kern \@ovdx                                         
+%                   fi                                                          
+%                   \kern \@ovri                                                
+%                  }                                                            
+%   END                                                                         
+%                                                                               
+% \circle{DIAM} ==                                                              
+%   BEGIN                                                                       
+%    \begingroup                                                                
+%    \boxmaxdepth := maxdimen                                                   
+%    \@tempdimb := DIAM *\unitlength                                            
+%    if \@tempdimb > 15.5pt                                                     
+%      then \@getcirc{\@tempdimb}                                               
+%           \@ovro := \ht \@tempboxa                                            
+%           \@tempboxa := \hbox{                                                
+%                   \@circlefnt                                                 
+%                   \@tempcnta := \@tempcnta + 2                                
+%                   \char \@tempcnta                                            
+%                   \@tempcnta := \@tempcnta - 1                                
+%                   \char \@tempcnta                                            
+%                   \kern -2\@tempdima                                          
+%                   \@tempcnta := \@tempcnta + 2                                
+%                   \raise \@tempdima \hbox { \char \@tempcnta }                
+%                   \raise \@tempdima \box\@tempboxa                            
+%                  }                                                            
+%           \ht\@tempboxa := \dp\@tempboxa := 0                                 
+%           \@put{-\@ovro}{-\@ovro}{\@tempboxa}                                 
+%      else                                                                     
+%           \@circ{\@tempdimb}{96}                                              
+%    fi                                                                         
+%   \endgroup                                                                   
+%   END                                                                         
+%                                                                               
+% \circle*{DIAM}  ==  \@dot{DIAM} == \@circ{DIAM*\unitlength}{112}              
+%                                                                               
+% \@circ{DIAM}{CHAR} ==                                                         
+%  BEGIN                                                                        
+%   \@tempcnta := integer coercion of (DIAM + .5pt)/1pt.                        
+%   if \@tempcnta > 15 then \@tempcnta := 15 fi                                 
+%   if \@tempcnta > 1  then \@tempcnta := \@tempcnta - 1 fi                     
+%   \@tempcnta := \@tempcnta + CHAR                                             
+%   \@circlefnt                                                                 
+%   \char \@tempcnta                                                            
+%  END                                                                          
+%                                                                               
+                                                                                
+\newif\if@ovt                                                                   
+\newif\if@ovb                                                                   
+\newif\if@ovl                                                                   
+\newif\if@ovr                                                                   
+\newdimen\@ovxx                                                                 
+\newdimen\@ovyy                                                                 
+\newdimen\@ovdx                                                                 
+\newdimen\@ovdy                                                                 
+\newdimen\@ovro                                                                 
+\newdimen\@ovri                                                                 
+                                                                                
+\def\@getcirc#1{\@tempdima #1\relax \@tempcnta\@tempdima                        
+  \@tempdima 4pt\relax \divide\@tempcnta\@tempdima                              
+  \ifnum \@tempcnta > 10\relax \@tempcnta 10\relax\fi                           
+  \ifnum \@tempcnta >\z@ \advance\@tempcnta\m@ne                                
+    \else \@warning{Oval too small}\fi                                          
+  \multiply\@tempcnta 4\relax                                                   
+  \setbox \@tempboxa \hbox{\@circlefnt                                          
+  \char \@tempcnta}\@tempdima \wd \@tempboxa}                                   
+                                                                                
+\def\@put#1#2#3{\raise #2\hbox to \z@{\hskip #1#3\hss}}                         
+                                                                                
+\def\oval(#1,#2){\@ifnextchar[{\@oval(#1,#2)}{\@oval(#1,#2)[]}}                 
+                                                                                
+\def\@oval(#1,#2)[#3]{\begingroup\boxmaxdepth \maxdimen                         
+  \@ovttrue \@ovbtrue \@ovltrue \@ovrtrue                                       
+  \@tfor\@tempa :=#3\do{\csname @ov\@tempa false\endcsname}\@ovxx               
+  #1\unitlength \@ovyy #2\unitlength                                            
+  \@tempdimb \ifdim \@ovyy >\@ovxx \@ovxx\else \@ovyy \fi                       
+  \@getcirc \@tempdimb                                                          
+  \@ovro \ht\@tempboxa \@ovri \dp\@tempboxa                                     
+  \@ovdx\@ovxx \advance\@ovdx -\@tempdima \divide\@ovdx \tw@                    
+  \@ovdy\@ovyy \advance\@ovdy -\@tempdima \divide\@ovdy \tw@                    
+  \@circlefnt \setbox\@tempboxa                                                 
+  \hbox{\if@ovr \@ovvert32\kern -\@tempdima \fi                                 
+  \if@ovl \kern \@ovxx \@ovvert01\kern -\@tempdima \kern -\@ovxx \fi            
+  \if@ovt \@ovhorz \kern -\@ovxx \fi                                            
+  \if@ovb \raise \@ovyy \@ovhorz \fi}\advance\@ovdx\@ovro                       
+  \advance\@ovdy\@ovro \ht\@tempboxa\z@ \dp\@tempboxa\z@                        
+  \@put{-\@ovdx}{-\@ovdy}{\box\@tempboxa}%                                      
+  \endgroup}                                                                    
+                                                                                
+\def\@ovvert#1#2{\vbox to \@ovyy{%                                              
+    \if@ovb \@tempcntb \@tempcnta \advance \@tempcntb by #1\relax               
+	\kern -\@ovro \hbox{\char \@tempcntb}\nointerlineskip                          
+    \else \kern \@ovri \kern \@ovdy \fi                                         
+    \leaders\vrule width \@wholewidth\vfil \nointerlineskip                     
+    \if@ovt \@tempcntb \@tempcnta \advance \@tempcntb by #2\relax               
+	\hbox{\char \@tempcntb}%                                                       
+    \else \kern \@ovdy \kern \@ovro \fi}}                                       
+                                                                                
+\def\@ovhorz{\hbox to \@ovxx{\kern \@ovro                                       
+    \if@ovr \else \kern \@ovdx \fi                                              
+    \leaders \hrule height \@wholewidth \hfil                                   
+    \if@ovl \else \kern \@ovdx \fi                                              
+    \kern \@ovri}}                                                              
+                                                                                
+\def\circle{\@ifstar{\@dot}{\@circle}}                                          
+\def\@circle#1{\begingroup \boxmaxdepth \maxdimen \@tempdimb #1\unitlength      
+   \ifdim \@tempdimb >15.5pt\relax \@getcirc\@tempdimb                          
+      \@ovro\ht\@tempboxa                                                       
+     \setbox\@tempboxa\hbox{\@circlefnt                                         
+      \advance\@tempcnta\tw@ \char \@tempcnta                                   
+      \advance\@tempcnta\m@ne \char \@tempcnta \kern -2\@tempdima               
+      \advance\@tempcnta\tw@                                                    
+      \raise \@tempdima \hbox{\char\@tempcnta}\raise \@tempdima                 
+        \box\@tempboxa}\ht\@tempboxa\z@ \dp\@tempboxa\z@                        
+      \@put{-\@ovro}{-\@ovro}{\box\@tempboxa}%                                  
+   \else  \@circ\@tempdimb{96}\fi\endgroup}                                     
+                                                                                
+\def\@dot#1{\@tempdimb #1\unitlength \@circ\@tempdimb{112}}                     
+                                                                                
+\def\@circ#1#2{\@tempdima #1\relax \advance\@tempdima .5pt\relax                
+   \@tempcnta\@tempdima \@tempdima 1pt\relax                                    
+   \divide\@tempcnta\@tempdima                                                  
+   \ifnum\@tempcnta > 15\relax \@tempcnta 15\relax \fi                          
+   \ifnum \@tempcnta >\z@ \advance\@tempcnta\m@ne\fi                            
+   \advance\@tempcnta #2\relax                                                  
+   \@circlefnt \char\@tempcnta}                                                 
+                                                                                
+                                                                                
+%INITIALIZATION                                                                 
+\thinlines                                                                      
+                                                                                
+\newcount\@xarg                                                                 
+\newcount\@yarg                                                                 
+\newcount\@yyarg                                                                
+\newcount\@multicnt                                                             
+\newdimen\@xdim                                                                 
+\newdimen\@ydim                                                                 
+\newbox\@linechar                                                               
+\newdimen\@linelen                                                              
+\newdimen\@clnwd                                                                
+\newdimen\@clnht                                                                
+\newdimen\@dashdim                                                              
+\newbox\@dashbox                                                                
+\newcount\@dashcnt                                                              
+                                                                                
+                                                                                
+                                                                                
+%                                                                               
+

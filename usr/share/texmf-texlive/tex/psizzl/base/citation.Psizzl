@@ -1,0 +1,607 @@
+% CITATION PSIZZL  - citation macros
+%
+% The first time you cite the reference, use the `=' syntax:
+% this creates an entry in the table of references.
+% here's how to refer to a reference the first time:
+% "...as was shown first in\reference\DrellYan={%
+%   Drell,~S.~D., Levy,~D.~J., Yan,~T.~M.,
+%   A FIELD THEORETIC MODEL FOR ELECTRON - NUCLEON DEEP INELASTIC
+%   SCATTERING,
+%   Phys.~Rev.~Lett. \refspec{22, 744-8(1969)}.
+%   }%
+% here's how to cite the ref:
+% "...hadrons produced in this way\cite\DrellYan\ obey a distribution..."
+% or:
+% "...as was shown first in \reference\DrellYan .  "
+% or:
+% "...end of sentence. \Reference\DrellYan\ has the somewhat curious.."
+% References cited this way will have automatic style switching.
+%
+% Figures and tables are to be defined in an analogous way
+% The first time a figure is referred to:
+% "... these data are displayed in
+%  \figure\<mnemonic>=
+%  {Title of the figure}{caption}{<the figure itself>} more text..."
+% and on subsequent references:
+% "...the cross section ( see \figure\nanobarn)..."
+% or:
+% "...end of sentence. \Figure\newcross\ shows how the new physics..."
+% Tables are exactly analogous to figures.
+%
+% Equations are defined:
+% \equation\<mnemonic>={<equation expression without $$'s>}%
+% e.g.:
+% \equation\quadrature={x^2+y^2=z^2}%
+% to use this construct:
+% "...end of sentence. \Equation\quadrature\ therefore represents..."
+%
+\def\p@gerightglue{\hss}\def\p@geleftglue{\hss}%
+\def\Ps@zerr#1#2{\errhelp=#2\errmessage{Psizzl: #1}}%
+\newhelp\Ps@zmsngtxt{%
+   I expected you to define this name here, but you didn't.
+   You need to define this name here.
+   Hit <CR> to continue processing.
+   }%
+\newhelp\Ps@zmltptxt{%
+   I already encountered this name, but you're trying to define it here.
+   You need to give the defining text the first time the name is used,
+   not here. Hit <CR> to continue.
+   }%
+\newif\iftitleincaption\titleincaptiontrue
+\newif\ifv@ta
+\def\vita#1{%
+   \v@tatrue\def\v@ta{#1}%
+   }%
+\def\v@tahead{\uppercase{Vita}}%
+% needed: macros to assist in the preparation of the author list on the
+% titlepage
+%
+% Macros common to references and title page addresses
+%
+\def\c@tset{\c@tMactive\c@tVset\l@twrite}%
+\def\xd@fnumber#1#2{\xdef#1{{\number\m@decount}}\m@debump}%
+\def\xd@fletter#1#2{\xdef#1{{\char\number\m@decount}}\m@debump}%
+\def\xd@ftext#1#2{\xdef#1{{\it#2}}}%
+\def\xd@fch@pt#1{%
+   \xdef#1{\ch@ptercite{\ch@ptername}{\number\m@decount}}\m@debump
+   }%
+\def\m@debump{%
+   \global\advance\m@decount\@ne \global\advance\m@detotal\@ne
+   }%
+\def\m@deref#1{%
+   \begingroup
+   \ifx=\next
+      \aftergroup\m@detypr\aftergroup#1%
+      \c@tset
+      \begingroup\aftergroup\g@ttok\aftergroup\m@decap
+      \begingroup\aftergroup\g@ttok\aftergroup\m@deeqs
+      \else
+      \Ps@zerr{missing text for \string#1}\Ps@zmsngtxt
+      \fi
+   \endgroup
+   }%
+\def\m@detypr#1{\c@tMeoline
+   \edef\next{\noexpand#1{\the\m@decap}}\global\m@decap{}%
+   \begingroup\aftergroup\expandafter\aftergroup\m@dedoembed
+      \endgroup\next
+   }%
+%
+% Reference Macros
+%
+\newcount\r@ftotal\r@ftotal\z@
+\newcount\r@fcount\r@fcount\@ne
+\newif\ifr@frenumber\r@frenumberfalse%
+\newif\ifch@pterrenumber\ch@pterrenumberfalse%
+\newwrite\r@fcapwrite\def\r@fcapfile{refcap.psiztemp }%
+\def\r@fcaphead{\uppercase{References}}%
+\newwrite\r@ftabwrite\def\r@ftabfile{reftab.psiztemp }%
+\def\r@ftabhead{\uppercase{List of References}}%
+\def\hyphen{-}\def\comma{,}%
+\newif\ifciter@f
+\newif\ifsuperr@f\superr@ftrue
+\newif\ifc@tenull
+\newif\ifnewr@f
+\def\refspec#1,#2(#3){{\bf#1}, #2 (#3)}%
+\def\volyearpageref{\gdef\refspec##1,##2(##3){{\bf##1} (##3) ##2}}%
+\def\cernref{%vol
+   \gdef\refspec##1,##2(##3){%
+      %author, year, {\it Journal} Publisher {\fb Vol}, page.
+      }%
+   }%
+\def\refstyle{%
+   \r@fstyle
+   }%
+\def\r@fstyle#1{\r@fbeg#1\r@fend}%
+\def\lapperiod{%
+   \hbox to \z@{.\hss}%
+   }%
+\def\r@fsupbeg{$^\bgroup}\def\r@fsupend{\egroup$}%
+\def\r@fsupparbeg{$^\bgroup(}\def\r@fsupparend{)\egroup$}%
+\def\r@fbrabeg{[}\def\r@fbraend{]}%
+\def\r@fparbeg{(}\def\r@fparend{)}%
+\def\superreference{%
+   \let\r@fbeg\r@fsupbeg\let\r@fend\r@fsupend
+   }\superreference
+\def\bracketreference{%
+   \let\r@fbeg\r@fbrabeg\let\r@fend\r@fbraend
+   }%
+\def\parenreference{%
+   \let\r@fbeg\r@fparbeg\let\r@fend\r@fparend
+   }%
+\def\superparenreference{%
+   \let\r@fbeg\r@fsupparbeg\let\r@fend\r@fsupparend
+   }%
+\def\cite{%
+   \let\t@g=\r@fstyle\r@fget
+   }%
+\def\hideref{%
+   \let\t@g\g@ble\r@fget
+   }%
+\def\bareref{%
+   \let\t@g\relax\r@fget
+   }%
+\def\reference{%
+   \let\t@g=\r@f\r@fget
+   }%
+\def\Reference{%
+   \let\t@g=\R@f\r@fget
+   }%
+\def\r@f{Ref.\tie}%
+\def\R@f{Reference\tie}%
+\def\r@fget{%
+   \let\m@dedef=\m@deref\let\m@degobble=\g@bble
+   \let\m@decount=\r@fcount\let\m@detotal=\r@ftotal
+   \let\m@dedoembed\r@fembed
+   \let\p@riod=\p@int
+   \l@tnxt\m@denxt
+   }%
+\def\r@fembed#1#2{\xd@fnumber#1{#2}%
+   \t@g{#1}\c@tMeoline\@dd\r@fcapwrite{#1\p@riod}{{\rm#2}}%
+   }%
+% following 6 lines define macros to be used in mutiple references
+\def\f@rstcite{\let\cite\s@ccite\let\sp@nit\g@ble\bareref}%
+\def\s@ccite{\let\cite\th@rdcite\let\sp@nit\comma\hideref}%
+\def\th@rdcite{\let\cite\hideref\let\sp@nit\dash\hideref}%
+\def\spancite{\begingroup\let\cite\f@rstcite\r@fbeg}%
+\def\groupcite{\begingroup\let\cite\bareref\let\sp@nit\g@ble\r@fbeg}%
+\def\endcite{\sp@nit\mn@m\r@fend\endgroup}%
+\def\comma{,}\def\dash{-}%
+%
+%
+%  author address macros
+%
+%
+% three styles:
+%
+% 1 - inline author addresses
+%
+% 2 - footnoted address
+%
+% 3 - addresses in ref list
+%
+\newcount\@ddrcount
+\newcount\@ddrtotal
+\newif\ifc@teaddress
+\def\rm@a{`a}\def\gr@a{\tw@}%
+\def\@ddsuper#1{$^{(#1)}$}%
+\adddef\resd@c{\@ddrcount\@ddrz@\@ddrtotal\z@}%
+\def\pr@sent{Present address: }%
+\def\authoraddress{%
+   \let\@ddrpre=\relax\@ddrget
+   }%
+\def\presentaddress{%
+   \let\@ddrpre=\pr@sent\@ddrget
+   }%
+\def\addressreference{% author addresses are references
+   \let\@ddraction=\@ddradd
+   \let\@ddrxdef=\xd@fletter
+   \let\@ddrtag=\@ddsuper
+   \let\@ddrt@tal=\r@ftotal
+   \let\@ddrz@\rm@a % alt: \let\@ddrz@\gr@a
+   \c@teaddresstrue
+   }%
+\def\@ddradd#1#2{%
+   \t@g{#1}\c@tMeoline\@dd\r@fcapwrite{(#1)}{{\rm\@ddrpre#2}}%
+   }%
+\def\addressfootnote{% author addresses are footnotes
+   \let\@ddraction=\@ddrfoot
+   \let\@ddrxdef=\xd@fletter
+   \let\@ddrtag=\@ddsuper
+   \let\@ddrt@tal=\@ddrtotal
+   \let\@ddrz@\rm@a
+   \c@teaddresstrue
+   }%
+\def\@ddrfoot#1#2{\footnote{\t@g{#1}}{{\rm\@ddrpre#2}}}%
+\def\addressinline{% author addresses are inline
+   \let\@ddraction=\@ddrinline
+   \let\@ddrxdef=\xd@ftext
+   \let\@ddrtag=\breaktitle
+   \let\@ddrt@tal=\@ddrtotal
+   \let\@ddrz@\z@
+   \c@teaddressfalse
+   }%
+\def\@ddrinline#1#2{{\rm\t@g#2}}%
+\def\@ddrget{%
+   \let\m@dedef=\m@deref\let\m@degobble=\g@bble
+   \let\m@decount=\@ddrcount\let\m@detotal=\@ddrt@tal
+   \let\t@g=\@ddrtag
+   \let\m@dedoembed=\@ddrembed
+   \let\p@riod=\p@int
+   \l@tnxt\m@denxt
+   }%
+\def\@ddrembed#1#2{\@ddrxdef#1{#2}\@ddraction#1{#2}}%
+\addressfootnote
+%
+% EQUATION NUMBER MACRO
+%
+\newcount\eq@count\eq@count\@ne\newcount\eq@total\eq@total\z@
+\newwrite\eq@write
+\def\eq@file{equation.textemp }%
+\def\eq@head{\uppercase{List of Equations}}%
+\def\display{%
+   \let\t@g\g@ble\eq@get
+   }%
+\def\Equation{%
+   \let\t@g\Eq@\eq@get
+   }%
+\def\Eq@{Equation\tie}%
+\def\equation{%
+   \let\t@g\eq@\eq@get
+   }%
+\def\eq@{Eqn.\tie}%
+\def\eq@get{%
+   \let\m@dedef=\m@deref\let\m@degobble=\g@bble
+   \let\m@decount=\eq@count\let\m@detotal=\eq@total
+   \let\m@dedoembed=\@qnembed
+   \let\p@riod=\d@sh
+   \l@tnxt\m@denxt
+   }%
+\def\@qnembed#1#2{\xd@fch@pt#1\t@g{#1}{\l@tMspace$$#2\eqno(#1)$$}}%
+%
+% macros common to \figure and \table commands
+%
+\def\m@denxt#1{\def\mn@m{#1}%
+   \ifx\undefined#1\let\temp\m@dedef\else\let\temp\m@dechk\fi
+   \temp#1%
+   }%
+\def\m@dechk#1{\t@g{#1}%
+   \ifx=\next\let\temp\m@lterr\else\let\temp\g@ble\fi\temp#1%
+   }%
+\def\m@lterr#1{%
+   \Ps@zerr{multiple text for \string#1}\Ps@zmltptxt\m@degobble
+   }%
+\def\g@bbbble#1#2#3#4{}%
+\def\g@bbble#1#2#3{}%
+\def\g@bble#1#2{}%
+\def\g@ble#1{}%
+\def\m@deset#1{%
+   \begingroup
+   \ifx=\next
+      \aftergroup\m@detype\aftergroup#1%
+      \c@tset
+      \begingroup\aftergroup\g@ttok\aftergroup\m@defig
+      \begingroup\aftergroup\g@ttok\aftergroup\m@decap
+      \begingroup\aftergroup\g@ttok\aftergroup\m@detit
+      \begingroup\aftergroup\g@ttok\aftergroup\m@deeqs
+      \else
+      \Ps@zerr{missing text for \string#1}\Ps@zmsngtxt
+      \fi
+   \xd@fch@pt#1% chapter number is embedded in this number.
+   \t@g#1% the rest of this must not generate any unwanted spaces!
+   \endgroup
+   }%
+\newtoks\m@deeqs\newtoks\m@detit\newtoks\m@decap\newtoks\m@defig
+\def\m@detype#1{\c@tMeoline
+   \edef\next{\noexpand#1{\the\m@detit}{\the\m@decap}{\the\m@defig}}%
+   \global\m@detit{}\global\m@decap{}\global\m@defig{}%
+   \begingroup\aftergroup\expandafter
+      \ifm@dembed\aftergroup\m@dedoembed\else\aftergroup\m@denoembed\fi
+      \endgroup\next
+   }%
+%
+% end of macros common to \table and \figure commands
+%
+% FIGURE CAPTION MACRO
+%
+% The Figure Caption macro generates a list of figure captions.  It
+% is similar to the reference macro.
+%
+\newif\iffigureembed\figureembedtrue
+\newif\iff@gmidpage\f@gmidpagetrue
+\newif\iff@gfullpage
+\newcount\f@gcount\f@gcount\@ne
+\newcount\f@gtotal\f@gtotal\z@
+\newwrite\f@gcapwrite\def\f@gcapfile{figcap.psiztemp }%
+\def\f@gcaphead{\uppercase{Figure Captions}}%
+\newwrite\f@gtabwrite\def\f@gtabfile{figtab.psiztemp }%
+\def\f@gtabhead{{List of Figures}}%
+\newwrite\f@gfigwrite\def\f@gfigfile{figfig.psiztemp }%
+\def\f@ginsert{%
+   \iff@gfullpage\let\next=\pageinsert
+      \else\iff@gmidpage\let\next=\ordinsert
+         \else\let\next=\topinsert
+         \fi
+      \fi\next
+   }%
+\def\f@gcaptext#1#2#3{%
+   \noindent\F@g#1. \iftitleincaption#2\fi#3%
+   }%
+\def\f@gcaption#1#2#3{%
+   \iff@gfullpage\vfill\f@gcaptext{#1}{#2}{#3}%
+      \else{\narrower{\f@gcaptext{#1}{#2}{#3}}\par}%
+      \fi
+   }%
+\def\figure{%
+   \def\t@g{\f@g}\f@gget%
+   }%
+\def\Figure{%
+   \def\t@g{\F@g}\f@gget
+   }%
+\def\hidefig{%
+   \let\t@g\g@ble\f@gget
+   }%
+\def\barefig{%
+   \let\t@g\relax\f@gget
+   }%
+\def\f@g{Fig.\tie}%
+\def\F@g{Figure\tie}%
+\def\f@gget{%
+   \let\m@dedef=\m@deset\let\m@degobble\g@bbbble
+   \let\m@decount=\f@gcount\let\m@detotal=\f@gtotal
+   \let\ifm@dembed=\iffigureembed
+   \let\m@dedoembed\f@gpar\let\m@denoembed\f@gnow
+   \let\p@riod=\p@int
+   \l@tnxt\m@denxt
+   }%
+\def\f@gpar#1#2#3#4{\ch@ckpar
+   \adddef\m@dpar{\l@tMspace
+      \f@ginsert
+         \singlespace
+         \ifdraft\else\line{\p@geleftglue\vbox{#4}\p@gerightglue}\fi
+         \f@gcaption#1{#2}{#3}%
+         \@ddtab\f@gtabwrite#1{#2}%
+         \endinsert
+      }%
+   }%
+\def\f@gnow#1#2#3#4{%
+   {\l@twrite
+      \@ddtab\f@gtabwrite#1{#2}%
+      \@dd\f@gcapwrite{#1.}{\iftitleincaption#2\fi#3}%
+      \immediate\write\f@gfigwrite{#4}%
+      \immediate\write\f@gfigwrite{\hang\F@g#1.\endpage}%
+      }%
+   }%
+%
+% TABLE CAPTION MACRO
+%
+% The Table Caption macro generates a list of table captions.
+% It is similar to the figure macro.
+%
+\newif\iftableembed\tableembedtrue
+\newif\ift@bmidpage\t@bmidpagetrue
+\newif\ift@bfullpage
+\newcount\t@bcount\t@bcount\@ne \newcount\t@btotal\t@btotal\z@
+\newwrite\t@bcapwrite\def\t@bcapfile{tabcap.psiztemp }%
+\def\t@bcaphead{\uppercase{Table Captions}}%
+\newwrite\t@btabwrite\def\t@btabfile{tabtab.psiztemp }%
+\def\t@btabhead{{List of Tables}}%
+\newwrite\t@bfigwrite\def\t@bfigfile{tabfig.psiztemp }%
+\def\t@binsert{%
+   \ift@bfullpage\let\next=\pageinsert
+      \else\ift@bmidpage\let\next=\ordinsert
+         \else\let\next=\topinsert
+         \fi
+      \fi\next
+   }%
+\def\t@bcaptext#1#2#3{%
+   \noindent\T@b#1\p@riod\ \iftitleincaption#2\fi#3%
+   }%
+\def\t@bcaption#1#2#3{%
+   \ift@bfullpage\t@bcaptext{#1}{#2}{#3}\par
+      \else\ift@bmidpage\bigskip\fi
+      {\narrower{\t@bcaptext{#1}{#2}{#3}\par}}\medskip
+      \fi
+   }%
+\def\table{%
+   \let\t@g\t@b\t@bget
+   }%
+\def\Table{%
+   \let\t@g\T@b\t@bget
+   }%
+\def\hidetab{%
+   \let\t@g\g@ble\t@bget
+   }%
+\def\baretab{%
+   \let\t@g\relax\t@bget
+   }%
+\def\t@b{Table\tie}\def\T@b{Table\tie}%
+\def\t@bget{%
+   \let\m@dedef=\m@deset\let\m@degobble=\g@bbbble
+   \let\m@decount=\t@bcount\let\m@detotal=\t@btotal
+   \let\ifm@dembed=\iftableembed
+   \let\m@dedoembed\t@bpar\let\m@denoembed\t@bnow
+   \let\p@riod=\p@int
+   \l@tnxt\m@denxt
+   }%
+\def\t@bpar#1#2#3#4{\ch@ckpar
+   \adddef\m@dpar{\l@tMspace
+      \t@binsert
+         \singlespace
+         \t@bcaption#1{#2}{#3}%
+         \ifdraft\else\line{\p@geleftglue\vbox{#4}\p@gerightglue}\fi
+         \@ddtab\t@btabwrite#1{#2}%
+         \endinsert
+      }%
+   }%
+\def\t@bnow#1#2#3#4{%
+   {\l@twrite
+      \@ddtab\t@btabwrite#1{#2}%
+      \@dd\t@bcapwrite{#1.}{\iftitleincaption#2\fi#3}%
+      \immediate\write\t@bfigwrite{#4}%
+      \immediate\write\t@bfigwrite{\hang\T@b#1.\endpage}%
+      }%
+   }%
+%
+% COMMON MACROS FOR ALL THE ABOVE
+%
+% Following three macros implement the ordered midinsert: \ordinsert.
+% This repairs the defect in \midinsert which can cause the order of
+% the inserts in the typeset document to be different from the
+% order in which they appear in the source.
+% Note that a \midinsert is translated into a \topinsert if it is too big
+% or if there are any inserts carried over at all. So a split footnote
+% would have an interference effect here.
+\newif\if@ord
+\def\ordinsert{\@ordtrue\@midtrue\@ins}%
+\def\endinsert{\egroup % finish the \vbox
+  \if@mid\p@gefalse\if@ord\ifnum\insertpenalties>\z@\@midfalse\fi\fi\fi
+  \if@mid
+    \dimen@\ht\z@\advance\dimen@\dp\z@\advance\dimen@\bigskipamount
+    \advance\dimen@\pagetotal\advance\dimen@\pagedepth
+    \advance\dimen@-\pageshrink\advance\dimen@-\pagegoal
+    \ifdim\dimen@>\z@\@midfalse\fi
+    \fi
+  \if@mid \bigskip\box\z@\bigbreak
+    \else\insert\topins{\penalty100 % floating insertion
+      \splittopskip\z@skip
+      \splitmaxdepth\maxdimen \floatingpenalty\z@
+      \ifp@ge \dimen@\dp\z@
+        \vbox to\vsize{\unvbox\z@\kern-\dimen@}% depth is zero
+        \else \box\z@\nobreak\vskip\@ne\bigskipamount
+        \fi
+      }%
+    \fi\endgroup\@ordfalse
+  }%
+% Following five macros examine successive tokens until something other
+% than a <CR> is seen. This, then becomes the tokens put into the
+% token register which is the argument of \g@ttok.
+% In this way, the tokens are absorbed with <CR> as an active character
+% but still preserving TeX's property of spacing past blanks (including
+% a <CR>) as it is absorbing the arguments of a macro.
+\def\g@ttok#1{\let\temp#1\l@kt@k}%
+\def\l@kt@k{\futurelet\next\d@ct@k}%
+\def\d@ct@k{%
+   \if\next\h@tMactive\let\next\g@bt@k\else\let\next\g@tt@k\fi\next
+   }%
+\def\g@tt@k#1{\global\temp{#1}\endgroup}%
+\def\g@bt@k#1{\l@kt@k}%
+\def\ch@ckpar{%
+   \ifx\par\endgraf\gdef\par{\m@dpar}%
+      \gdef\m@dpar{\gdef\m@dpar{}\global\let\par\endgraf\par}%
+      \fi
+   }%
+\def\l@tnxt#1#2{\def\temp{#1#2}\futurelet\next\temp}%
+\def\lowercasecite{%
+   \gdef\r@f{ref.\tie}\gdef\f@g{fig.\tie}%
+   \gdef\t@b{table\tie}\gdef\eq@{eqn.\tie}%
+   }%
+\adddef\l@twrite{% define in macros
+   \l@tMother
+   \let\figure=0\let\Figure=0%
+   \let\table=0\let\Table=0%
+   \let\reference=0\let\Reference=0\let\cite=0%
+   \let\authoraddress=0\let\presentaddress=0%
+   \let\equation=0\let\Equation=0\let\display=0%
+   \let\picture=0%
+   }%
+\gdef\@dd#1#2#3{% add something to the specified file
+   {\l@twrite
+      \immediate\write#1{\noexpand\hangpar{.08}{#2\quad}\percent}%
+      \immediate\write#1{#3}%
+      }%
+   }%
+\def\hangpar#1#2{%
+   \par\noindent\hangindent#1\refsize
+   \hbox to #1\refsize{\hfill#2}%
+   }%
+\def\@ddtab#1#2#3{%
+   {\l@twrite
+      \write#1{%
+         \line{%
+            \quad\strut#2\quad\h@tMother#3\h@tMother
+            \leaderfil\number\p@gecount
+            }%
+         }%
+      }%
+   }%
+%
+% MACROS FOR OUTPUTTING CITATIONS AND FOR RESETTING THEM
+%
+\def\re@dback#1#2#3#4{%
+   \ifnum#4>\z@
+      \ifproof\bigskip\else\endpage\fi
+      {\bf\centertitle#3}%
+      \immediate\closeout#1
+      \unlock\input#2\lock
+      \fi
+   }%
+\def\c@teout{%
+   \ifnum\r@ftotal>\z@
+      \ifproof\else\endpage\fi
+      \xdef\writeit{%
+         \write\ch@pterwrite{%
+            \line{%
+               \strut\h@tMother\r@fcaphead\h@tMother
+               \leaderfil\noexpand\number\p@gecount
+               }%
+            }%
+         }\writeit
+      \re@dback\r@fcapwrite\r@fcapfile\r@fcaphead\r@ftotal
+      \ifproof\else\endpage\fi
+      \fi
+   \ifv@ta
+      \endpage
+      \xdef\writeit{%
+         \write\ch@pterwrite{%
+            \line{%
+               \strut\h@tMother\v@tahead\h@tMother
+               \leaderfil\noexpand\number\p@gecount
+               }%
+            }%
+         }\writeit
+      \centertitle{\v@tahead}\v@ta
+      \fi
+   \iftableembed\else
+      \re@dback\t@bcapwrite\t@bcapfile\t@bcaphead\t@btotal
+      \fi
+   \iffigureembed\else
+      \re@dback\f@gcapwrite\f@gcapfile\f@gcaphead\f@gtotal
+      \fi
+   }%
+\def\c@tereset{%
+   \global\f@gcount\@ne
+   \global\t@bcount\@ne
+   \global\eq@count\@ne
+   \global\r@fcount\@ne
+   \global\f@gtotal\z@
+   \global\t@btotal\z@
+   \global\r@ftotal\z@
+   \n@llout\r@ftabwrite\r@ftabfile
+   \n@llout\r@fcapwrite\r@fcapfile
+   \n@llout\f@gtabwrite\f@gtabfile
+   \n@llout\f@gcapwrite\f@gcapfile
+   \n@llout\f@gfigwrite\f@gfigfile
+   \n@llout\t@btabwrite\t@btabfile
+   \n@llout\t@bcapwrite\t@bcapfile
+   \n@llout\t@bfigwrite\t@bfigfile
+   \n@llout\eq@write\eq@file
+   }%
+\adddef\b@dyreset{\c@tereset}%
+\def\c@teclear{%
+   \ifch@pterrenumber
+      \global\f@gcount\@ne
+      \global\t@bcount\@ne
+      \global\eq@count\@ne
+      \fi
+   \ifr@frenumber\global\r@fcount\@ne\fi
+   }%
+\def\f@gt@bhead{\f@gt@bheadfalse
+   \ifnum\t@btotal>\z@\f@gt@bheadtrue
+      \line{\strut\t@btabhead\leaderfil\romannumeral-\t@bpagecount}%
+      \fi
+   \ifnum\f@gtotal>\z@\f@gt@bheadtrue
+      \line{\strut\f@gtabhead\leaderfil\romannumeral-\f@gpagecount}%
+      \fi
+   }%
+% when text is missing, must still typeset the ref number.
+% show error messages in the documentation

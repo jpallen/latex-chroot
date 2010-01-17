@@ -1,0 +1,163 @@
+%% This file is part of the ANTOMEGA project version 0.7
+%% -----------------------------------------------------
+%% 
+%% It may be distributed under the terms of the LaTeX Project Public
+%% License, as described in lppl.txt in the base LaTeX distribution.
+%% Either version 1.0 or, at your option, any later version.
+%% Copyright (C) 2003 by Alexej Kryukov <basileia@yandex.ru>
+%% Information provided by Olaf Dietrich <olaf.dietrich@ikra.med.uni-muenchen.de>
+%%
+%% Please report errors to: A.M. Kryukov <basileia@yandex.ru>
+
+\makeatletter
+
+\LoadOCPByName{\GermanBabelUni}{babel2de}
+
+\ocplist\GermanBabelOCP=
+   \addbeforeocplist 2000 \GermanBabelUni
+\nullocplist
+
+\ifx\l@german\@undefined
+   \ant@nopatterns{german}
+   \adddialect\l@german0
+\fi
+
+\ifx\westernrm\undefined\let\westernrm=\rmdefault\fi
+\ifx\westernsf\undefined\let\westernsf=\sfdefault\fi
+\ifx\westerntt\undefined\let\westerntt=\ttdefault\fi
+
+\ifx\westernencoding\undefined\let\westernencoding=\uniencoding\fi
+
+\def\german@font{\fontfamily{\westernrm}%
+   \fontencoding{\westernencoding}\selectfont%
+   \let\rmdefault=\westernrm%
+   \let\sfdefault=\westernsf%
+   \let\ttdefault=\westerntt%
+   \let\encodingdefault=\westernencoding}
+
+\def\tmp@uni{unicode}
+\def\tmp@omega{omega}
+\def\tmp@tex{tex}
+
+\def\tmp@ucs{ucs-2}
+\def\tmp@utf{utf-8}
+\def\tmp@iso{iso-8859-1}
+\def\tmp@win{cp1252}
+
+\def\eventualDePunct{\protect\pushocplist\BasicTexOCP}
+\def\eventualDeShorthands{\protect\pushocplist\GermanBabelOCP}
+\def\eventualDeInput{\protect\pushocplist\BasicInputOCP}
+\def\eventualDeAccents{\protect\pushocplist\BasicAccentsOCP}
+
+\ifx\eventualEuOutput\undefined
+   \def\eventualEuOutput{\protect\pushocplist\LatinUniOutOCP%
+   }
+\fi
+
+\def\german@OCP{\protect\clearocplists%
+   \eventualDeInput%
+   \eventualDePunct%
+   \eventualDeShorthands%
+   \eventualDeAccents%
+   \eventualEuOutput}
+
+\define@key{german}{input}[ucs-2]{%
+   \def\@tmpa{#1}
+   \ifx\@tmpa\tmp@iso\def\eventualDeInput{%
+      \protect\pushocplist\BasicInputIsoOCP}
+      \typeout{Option: German input encoding=iso-8859-1}
+   \else\ifx\@tmpa\tmp@win\def\eventualDeInput{%
+      \protect\pushocplist\BasicInputWinOCP}
+      \typeout{Option: German input encoding=windows-1252}
+   \else\ifx\@tmpa\tmp@utf\def\eventualDeInput{%
+      \protect\pushocplist\BasicInputUtfOCP}
+      \typeout{Option: German input encoding=utf-8}
+   \else\def\eventualDeInput{%
+      \protect\pushocplist\BasicInputUcsOCP}
+      \typeout{Option: German input encoding=ucs-2}
+   \fi\fi\fi}
+
+\define@key{german}{shorthands}[on]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\opt@enabled\def\eventualDeShorthands{%
+      \protect\pushocplist\GermanBabelOCP}%
+      \typeout{Option: Shorthands for German text enabled}%
+   \else\def\eventualDeShorthands{}%
+      \typeout{Option: Shorthands for German text disabled}%
+   \fi}
+
+\define@key{german}{output}[unicode]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@tex\def\eventualEuOutput{%
+      \protect\pushocplist\LatinTexOutOCP}%
+      \def\westernencoding{T1}%
+   \else\ifx\@tmpa\tmp@omega\def\eventualEuOutput{%
+      \protect\pushocplist\LatinOmegaOutOCP}%
+      \def\westernencoding{UT1}%
+   \else\def\eventualEuOutput{%
+      \protect\pushocplist\LatinUniOutOCP}%
+      \def\westernencoding{UT1}%
+   \fi\fi}
+
+\def\german@punctuation{%
+   \frenchspacing%
+}
+
+\def\nogerman@punctuation{%
+   \nonfrenchspacing%
+}
+
+\def\german@captions{%
+   \def\prefacename{\localgerman{Vorwort}}%
+   \def\refname{\localgerman{Literatur}}%
+   \def\abstractname{\localgerman{Zusammenfassung}}%
+   \def\bibname{\localgerman{Literaturverzeichnis}}%
+   \def\chaptername{\localgerman{Kapitel}}%
+   \def\appendixname{\localgerman{Anhang}}%
+   \def\contentsname{\localgerman{Inhaltsverzeichnis}}%
+   \def\listfigurename{\localgerman{Abbildungsverzeichnis}}%
+   \def\listtablename{\localgerman{Tabellenverzeichnis}}%
+   \def\indexname{\localgerman{Index}}%
+   \def\figurename{\localgerman{Abbildung}}%
+   \def\tablename{\localgerman{Tabelle}}%
+   \def\partname{\localgerman{Teil}}%
+   \def\enclname{\localgerman{Anlage(n)}}%
+   \def\ccname{\localgerman{Verteiler}}%
+   \def\headtoname{An}%
+   \def\pagename{\localgerman{Seite}}%
+   \def\seename{\localgerman{siehe}}%
+   \def\alsoname{\localgerman{siehe auch}}%
+   \def\proofname{\localgerman{Beweis}}% for AMS-\LaTeX
+   \def\glossaryname{\localgerman{Glossar}}%
+   \def\today{\localgerman{\number\day.%
+      \space \ifcase\month%
+      \or Januar\or Februar\or M^^^^00e4rz\or April\or Mai\or Juni\or%
+      Juli\or August\or September\or Oktober\or November\or%
+      Dezember\fi%
+      \space \number\year}}}
+
+\def\german@language{\protect\language=\l@german}
+
+\def\noextras@german{%
+   \nogerman@punctuation%
+}
+
+\def\blockextras@german{%
+   \german@language%
+   \local@hyphenmins{german}{2}{2}%
+   \german@punctuation%
+   \german@captions%
+   \local@marks{german}%
+   \german@OCP%
+   \german@font%
+}
+
+\def\inlineextras@german{%
+   \german@language%
+   \local@hyphenmins{german}{2}{2}%
+   \german@punctuation%
+   \german@OCP%
+   \german@font%
+}
+
+\endinput

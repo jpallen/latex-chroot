@@ -1,0 +1,95 @@
+%%
+%% This is file `coollist.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% coollist.dtx  (with options: `package')
+%% 
+%% This is a generated file
+%% 
+%% This file may be distributed and/or modified under the
+%% conditions of the Limited General Product License
+%% 
+\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+\ProvidesPackage{coollist}
+ [2006/08/14 v1 COntent Oriented LaTeX Lists]
+\RequirePackage{ifthen}
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+\newcounter{COOL@listlen}%
+\newcommand{\COOL@listEnd}{@@@}%
+\newcommand{\COOL@listStop}{@@}%
+\newcommand{\setlistStop}[1]{\renewcommand{\COOL@listStop}{#1}}%
+\newcommand{\setlistEnd}[1]{\renewcommand{\COOL@listEnd}{#1}}%
+\newcounter{COOL@listpointer}%
+\newboolean{COOL@found}%
+\def\COOL@listgobble[#1]#2,#3,\COOL@listEnd{%
+\ifthenelse{\equal{#3}{\COOL@listStop}}%
+{%
+\ifthenelse{\value{COOL@listpointer}=#1}%
+{%
+\setboolean{COOL@found}{true}%
+#2%
+}%
+{%
+}%
+}%
+{%
+\ifthenelse{\value{COOL@listpointer}=#1}%
+{%
+\setboolean{COOL@found}{true}%
+#2%
+}%
+{%
+}%
+\stepcounter{COOL@listpointer}%
+\COOL@listgobble[#1]#3,\COOL@listEnd%
+}%
+}%
+\newcommand{\listval}[2]{%
+   \setcounter{COOL@listpointer}{1}%
+\setboolean{COOL@found}{false}%
+\COOL@listgobble[#2]#1,\COOL@listStop,\COOL@listEnd%
+}%
+\def\COOL@liststore@gobbler[#1]#2,#3,\COOL@listEnd{%
+\ifthenelse{\equal{#3}{\COOL@listStop}}%
+{%
+\expandafter\gdef\csname #1\roman{COOL@listpointer}\endcsname{#2}%
+}%
+{%
+\expandafter\gdef\csname #1\roman{COOL@listpointer}\endcsname{#2}%
+\stepcounter{COOL@listpointer}%
+\COOL@liststore@gobbler[#1]#3,\COOL@listEnd%
+}%
+}
+\newcommand{\liststore}[2]{%
+\setcounter{COOL@listpointer}{1}%
+\COOL@liststore@gobbler[#2]#1,\COOL@listStop,\COOL@listEnd%
+}%
+\newcommand{\listlen}[1]{%
+\listval{#1}{0}%
+\arabic{COOL@listpointer}
+}%listlength
+\newcommand{\listlenstore}[2]{%
+\listval{#2}{0}%
+\setcounter{#1}{\value{COOL@listpointer}}
+}%listlength
+\endinput
+%%
+%% End of file `coollist.sty'.

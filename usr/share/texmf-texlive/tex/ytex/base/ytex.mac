@@ -1,0 +1,92 @@
+% Copyright (c) 1985, 1986 Daniel C. Brotsky.  All rights reserved.
+% The yTeX macros.  Written and maintained by DCB@MIT-AI.ARPA
+% Questions, suggestions, bug reports by net mail to BUG-YTEX@MIT-AI.ARPA
+
+\ifx \fmtname\completelyundefinedcontrolsequence
+  \input yplain.mac \fi                 % load a Plain format if needed
+
+\message{[Loading the YTEX macros:}
+
+% CONTENTS
+
+% ^L-page       contents
+% ----------------------------------------------------------------------
+% 1             %% YTEX macros
+% 2             %% setup
+% 3             %% Load the library
+% 4             %% Load the fonts
+% 5             %% Load the user level
+% 6             %% miscellany
+% 7             %% initialization
+
+%% setup
+
+% @ used in macros
+\def\makeatletter {\catcode`\@=11\relax}
+\def\makeatother {\catcode`\@=12\relax}
+\makeatletter
+
+% conditional message output
+\newif\ifyinfo
+\newif\ifywarn
+\newif\ifydebug
+\def\ymessage #1{\ifyinfo \message{#1}\fi}
+\def\ywarning #1{\ifywarn \message{#1}\fi}
+\def\ybuginfo #1{\ifydebug \message{#1}\fi}
+
+% preserve def of \input
+\let\@@input=\input
+
+%% Load the library
+
+\message{(BASE)}
+\@@input ybase.mac
+
+%% Load the fonts
+
+\message{(FONTS)}
+\@@input yfonts.mac
+
+%% Load the user level
+
+\message{(USER)}
+\@@input yuser.mac
+
+%% miscellany
+
+% library location
+\def\ytexlibrary {}
+
+% name of this TeX
+\def\yTeX {\leavevmode\lower.5ex\hbox{Y}\kern-.1667em\TeX}
+\def\ytex {\yTeX}
+\let\YTEX=\ytex
+\let\YTeX=\ytex
+\let\oopstex=\ytex
+
+%% initialization
+
+% format name, version, and site modifications
+\ifx \fmtname\completelyundefinedcontrolsequence
+  \def\fmtname{yTeX}\fi
+\@@input ylog.mac
+\@@input ysite.mac
+
+% read fixes and augmentations to these macros
+\everyjob={%
+  \ymessage{{YTEX version \fmtversion}}%
+  \st@rttime
+  \makeatletter
+  \@input{\ytexlibrary yfix.mac}{\ymessage{{No fixes}}}%
+  \makeatother
+  \@input@{ymath}{}%
+  \@input@{ylocal}{}%
+  }
+
+% no user @ in macro names, print messages only
+\makeatother
+\yinfotrue
+\ywarntrue
+\ydebugfalse
+
+\message{(DONE)]}

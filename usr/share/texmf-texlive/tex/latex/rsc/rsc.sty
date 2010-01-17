@@ -1,0 +1,114 @@
+%%
+%% This is file `rsc.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% rsc.dtx  (with options: `package')
+%%  ----------------------------------------------------------------
+%%  The rsc package - BibTeX and macro support for Royal Society
+%%  of Chemistry and Wiley chemistry articles
+%%  Maintained by Joseph A. Wright
+%%  E-mail: joseph.wright@morningstar2.co.uk
+%%  Released under the GNU General Public License
+%%  See http://www.gnu.org/licenses/gpl.txt
+%%  ----------------------------------------------------------------
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{rsc}[2007/01/01 v1.1
+Useful chemistry functions]
+\RequirePackage{unitsdef,graphicx,amssymb,fixltx2e,float,varioref}
+\RequirePackage[super]{cite}
+\RequirePackage[labelsep=quad,labelfont=bf]{caption}
+\newif\ifRSC@floatcentre\RSC@floatcentretrue
+\DeclareOption{floatleft}{\global\RSC@floatcentrefalse}
+\DeclareOption{fl}{\global\RSC@floatcentrefalse}
+\newif\ifRSC@captioncentre\RSC@captioncentretrue
+\DeclareOption{captionleft}{\global\RSC@captioncentrefalse}
+\DeclareOption{cl}{\global\RSC@captioncentrefalse}
+\newif\ifRSC@chapter\RSC@chapterfalse
+\DeclareOption{chapter}{\global\RSC@chaptertrue}
+\DeclareOption{ch}{\global\RSC@chaptertrue}
+\newif\ifRSC@angew\RSC@angewfalse
+\DeclareOption{angew}{\global\RSC@angewtrue%
+\global\RSC@captioncentrefalse}
+\ProcessOptions
+\newunit{\cubiccentimeter}{\cm\unitsuperscript{3}}
+\newcommand*{\cmc}{\cubiccentimeter}
+\newcommand*{\Hz}{\hertz}
+\newunit{\Molar}{\textsc{m}}
+\newunit{\molar}{\mole\unitsep\dm\unitsuperscript{--3}}
+\newunit{\mmHg}{mm\unitsep{}Hg}
+\newcommand*{\standardstate}%
+  {\textsuperscript{\rotatebox[origin=c]{140.8}%
+  {\ensuremath{\varnothing}}}}
+\newcommand*{\iPr}{\ifRSC@angew\emph{i}Pr\else Pr\textsuperscript{i}\fi}
+\newcommand*{\iBu}{\ifRSC@angew\emph{i}Bu\else Bu\textsuperscript{i}\fi}
+\newcommand*{\tBu}{\ifRSC@angew\emph{t}Pr\else Bu\textsuperscript{t}\fi}
+\ifRSC@angew
+  \def\@citess#1{\textsuperscript{[#1]}}
+\fi
+\ifRSC@angew
+  \floatstyle{plaintop}
+  \captionsetup[Table]{labelsep=colon}
+  \captionsetup[Scheme]{labelsep=period}
+  \captionsetup[Figure]{labelsep=period}
+\fi
+\ifRSC@captioncentre
+  \relax
+\else
+  \captionsetup{singlelinecheck=off}
+\fi
+\ifRSC@chapter
+  \ifx\chapter\@undefined
+     \PackageError{rsc}{No chapters in this document}\@eha
+     \newfloat{Scheme}{htbp}{los}
+     \newfloat{Figure}{htbp}{lof}
+     \newfloat{Table}{htbp}{lot}
+  \else
+     \newfloat{Scheme}{htbp}{los}[chapter]
+     \newfloat{Figure}{htbp}{lof}[chapter]
+     \newfloat{Table}{htbp}{lot}[chapter]
+  \fi
+\else
+  \newfloat{Scheme}{htbp}{los}
+  \newfloat{Figure}{htbp}{lof}
+  \newfloat{Table}{htbp}{lot}
+\fi
+\floatname{Scheme}{Scheme}
+\floatname{Table}{Table}
+\ifRSC@angew
+  \floatname{Figure}{Figure}
+\else
+  \floatname{Figure}{Fig.}
+\fi
+\ifRSC@floatcentre
+  \newenvironment{scheme}[1][htbp]{\begin{Scheme}[#1]\centering}
+    {\end{Scheme}}
+  \renewenvironment{figure}[1][htbp]{\begin{Figure}[#1]\centering}
+    {\end{Figure}}
+  \renewenvironment{table}[1][htbp]{\begin{Table}[#1]\centering}
+    {\end{Table}}
+\else
+  \newenvironment{scheme}[1][htbp]{\begin{Scheme}[#1]\flushleft}
+    {\end{Scheme}}
+  \renewenvironment{figure}[1][htbp]{\begin{Figure}[#1]\flushleft}
+    {\end{Figure}}
+  \renewenvironment{table}[1][htbp]{\begin{Table}[#1]\flushleft}
+    {\end{Table}}
+\fi
+\newcommand*{\listofschemes}[1][List of Schemes]%
+    {\listof{Scheme}{#1}}
+\renewcommand*{\listoffigures}[1][List of Figures]%
+    {\listof{Figure}{#1}}
+\renewcommand*{\listoftables}[1][List of Tables]%
+    {\listof{Table}{#1}}
+\labelformat{Scheme}{Scheme~#1}
+\ifRSC@angew
+  \labelformat{Figure}{Figure~#1}
+\else
+  \labelformat{Figure}{Fig.~#1}
+\fi
+\labelformat{Table}{Table~#1}
+\endinput
+%%
+%% End of file `rsc.sty'.

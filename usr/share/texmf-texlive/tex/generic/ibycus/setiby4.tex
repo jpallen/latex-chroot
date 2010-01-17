@@ -1,0 +1,35 @@
+\newfam\gkf@m
+\newskip\gr@@kbaselineskip
+\font\twelvegrk=fibr84 scaled \magstep1
+\font\twelvegrksl=fibo84 scaled \magstep1
+\font\elevengrk=fibr84 scaled \magstephalf
+\font\elevengrksl=fibo84 scaled \magstephalf
+\font\tengrk=fibr84
+\font\tengrksl=fibo84
+\font\ninegrk=fibr849
+\font\ninegrksl=fibo849
+\font\eightgrk=fibr848
+\font\eightgrksl=fibo848
+\gdef\setgreek#1/#2 {%
+  \def\f@ntp@int##1{\ifcase##1\toks0={zero}%
+   \or\toks0={zero}\or\toks0={zero}\or\toks0={zero}% 1,2,3
+   \or\toks0={zero}\or\toks0={zero}\or\toks0={zero}% 4,5,6
+   \or\toks0={zero}% 7
+   \or\toks0={eight}\or\toks0={nine}\or\toks0={ten}
+   \or\toks0={eleven}\or\toks0={twelve}\fi
+  }%
+  \def\gksizep@int##1{\expandafter\gdef\csname ##1point\endcsname{%%
+     \textfont\gkf@m=\csname ##1grk\endcsname
+     \gdef\gk{\fam\gkf@m\csname ##1grk\endcsname}%
+     \edef\gksl{\csname ##1grksl\endcsname}%
+  }}%
+  \global\gr@@kbaselineskip=#2pt
+  \f@ntp@int{#1}%
+      % Get the English for the fontsize into \toks0
+  \expandafter\expandafter\expandafter\gksizep@int{\the\toks0}%
+  \edef\gr@@kpoint{%
+    \expandafter\noexpand\csname\the\toks0point\endcsname}%
+  \csname\the\toks0point\endcsname
+}
+\message{Type \noexpand\setgreek10/12 to set 10pt greek on 12pt leading}
+\message{ \noexpand\GK to start, \noexpand\RM to end greek }

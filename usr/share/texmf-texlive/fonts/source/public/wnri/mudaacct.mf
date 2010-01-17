@@ -1,0 +1,61 @@
+%
+% Washington Romanized Indic accent driver
+%
+% Macros to draw combination macron, acute accent, and underdot
+%
+
+cmchar "Dot accent";
+numeric dot_diam#; dot_diam#=max(dot_size#,cap_curve#);
+beginchar(oct"137",5u#,min(asc_height#,10/7x_height#+.5dot_diam#),0);
+define_whole_blacker_pixels(dot_diam);
+italcorr h#*slant+.5dot_diam#-2u#;
+adjust_fit(0,0);
+pickup tiny.nib; pos1(dot_diam,0); pos2(dot_diam,90);
+x1=x2=.5w; top y2r=h+1;
+if bot y2l<x_height+o+slab: y2l:=min(y2r-eps,x_height+o+slab+.5tiny); fi
+y1=.5[y2l,y2r]; dot(1,2);  % dot
+transform Tf; Tf = identity shifted (-.5w + slant*(-h-dot_diam) ,aspect_ratio*(-h-dot_diam));
+savePicture(UdotPic); 
+endgroup;
+
+cmchar "Acute accent";
+beginchar(oct"023",9u#,min(asc_height#,2x_height#),0);
+italcorr h#*slant-if serifs: 1.5 fi u#;
+adjust_fit(0,0);
+if serifs: pickup crisp.nib; x1+.5stem=hround(w-2u); x2=2/3[x1,w-x1];
+ y1+.5stem=h+eps; y2=max(2/3[h,x_height],x_height+o+hair);
+ numeric theta; theta=angle(z2-z1)+90;
+ pos1(stem,theta); pos2(hair,theta);
+ filldraw circ_stroke z1e--z2e;  % diagonal
+else: pickup fine.nib; pos1(stem,0); pos2(vair,0);
+ rt x1r=hround(w-1.5u); lft x2l=hround(.5w-.25u-.5vair);
+ top y1=h; bot y2=vround 2/3[h,x_height];
+ filldraw stroke z1e--z2e; fi  % diagonal
+transform Tf; Tf=identity shifted (-.5w + slant*(-y2) ,aspect_ratio*(-y2));
+savePicture(MacronPic);
+endgroup;
+cmchar "Macron (bar) accent";
+numeric macron_breadth#; macron_breadth#=.2[vair#,stem#];
+beginchar(oct"026",9u#,.4[x_height#,asc_height#]+macron_breadth#,0);
+italcorr h#*slant-.75u#;
+adjust_fit(0,0);
+numeric macron_breadth; macron_breadth:=Vround .2[vair,stem];
+pickup if serifs: crisp.nib else: fine.nib fi;
+pos1(macron_breadth,90); pos2(macron_breadth,90);
+top y1r=top y2r=h+o; lft x1=w-rt x2=hround 1.25u;
+filldraw stroke z1e--z2e;  % bar
+transform At; At=identity shifted(.5w + slant*(h+acctdiff),aspect_ratio*(h+acctdiff));
+ap(MacronPic);
+if monospace: currentpicture:=currentpicture shifted(0,1/2aspect_ratio*dot_size); fi
+makeACCENT(MacronPic);
+endgroup;
+
+
+extra_endchar:=
+  " czu ap(MacronPic);  czd  ap(UdotPic); ah; oechar; ";
+
+boolean dotson; dotson=false; % omit dots on i, j, and possibly etc.
+def cp = muda enddef;
+
+% end of file mudaacct.mf
+

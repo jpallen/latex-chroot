@@ -1,0 +1,299 @@
+% ITRANS Devanagari Header for TeX/LaTeX.
+% using either Devnac or Devnag font
+% Defines devanagari fonts in various sizes
+% Also includes some macros for the ITRANS song book....
+%-----
+% Copy this file to someplace where TeX can find it, the best place
+% is usually the ITRANS lib/ directory. Make sure to add that directory
+% to the TEXINPUTS environment variable.
+%-----
+% created: avinash chopde, february 1994
+%          avinash@acm.org
+% modified: may 2001
+% $Header:$
+% -----------------------------------------------------------------
+%% Usage:
+%% Include this file somewhere in the beginning of your input file.
+% \input <thisfilename>
+%% Then, if you are using Frans's font, add these lines (uncommented):
+% #indianifm=dvng_is.ifm  % ITRANS command
+% #indianfont=\fransdvng
+%% If you are using the PostScript Devnac font that came with ITRANS, add
+%% these lines (uncommented):
+% #indianifm=dvnc.ifm  % ITRANS command
+% #indianfont=\postdvng
+%% Then, whenever you need to use some particular size of the font,
+%% use the following command:
+% \let\usedvng=\largedvng % usedvng is used by \fransdvng or \avidvng
+%% sizes available: normaldvng < largedvng < LARGEdvng < hugedvng
+% see the file ../doc/sample.itx for an example.
+% -----------------------------------------------------------------
+\newif\iffrans
+% -----------------------------------------------------------------
+% Page commands (for LaTeX ONLY, use one of these commands in preamble)
+\def\portraitpage{%
+    \setlength{\topmargin}{-0.50in} % real margin == this + 1in
+    \setlength{\oddsidemargin}{-0.0in} % real margin == this + 1in
+    \setlength{\evensidemargin}{-0.0in} % real margin == this + 1in
+    \setlength{\columnsep}{20pt}
+    \setlength{\columnseprule}{0.4pt}
+
+    % Use Portrait Size Page
+    \setlength{\textwidth}{6.5in}
+    \setlength{\textheight}{9.0in}%
+}
+\def\landscapepage{%
+    \typeout{Landscape Mode: be sure to print in landscape format}
+    \typeout{   (for dvips, use -t landscape option)}
+    
+    \setlength{\topmargin}{-0.75in} % real margin == this + 1in
+    \setlength{\oddsidemargin}{-0.0in} % real margin == this + 1in
+    \setlength{\evensidemargin}{-0.0in} % real margin == this + 1in
+    \setlength{\columnsep}{20pt}
+    \setlength{\columnseprule}{0.4pt}
+
+    % Use Landscape Size Page
+    \setlength{\textwidth}{9.5in}
+    \setlength{\textheight}{7in}%
+}
+% -----------------------------------------------------------------
+% Font Stuff
+\font\sixrm=cmr6
+\font\sevenrm=cmr7
+\font\eightrm=cmr8
+\font\ninerm=cmr9
+\font\tenrm=cmr10
+
+\let\smallcmr=\sixrm
+\let\titlefont=\eightrm
+
+\def\devnmode{
+    \tolerance=10000
+    \pretolerance=10000
+    \normalbaselines
+    \hyphenchar\devnfont=-1 % do not hyphenate words using this font
+	%
+	% If using Frans's font, need to make punctuation chars active.
+	\iffrans
+	    \specialsforfrans % turn this on for Frans' font only.
+	\fi
+    % \englfont % default font is english font.
+    \devnfont % default font is devanagari font.
+}
+% ------------------------------------------------------------------------
+% Devanagari font macros
+% sizes: normal < large < Large < LARGE < huge < Huge
+
+% 10pt text
+\def\normaldvng{
+    \iffrans
+        \font\devnfont=dvng10
+        \font\englfont=cmr10
+    \else
+        \font\devnfont=dnh at 12pt % size looks like 10pt
+        \font\englfont=cmbx10
+    \fi
+    \normalbaselineskip=15pt \devnmode}
+
+% 10.95pt text
+\def\largedvng{\iffrans \font\devnfont=dvng10 scaled\magstephalf
+          \font\englfont=cmr10 scaled\magstephalf
+    \else \font\devnfont=dnh at 14pt % size looks like 11pt
+          \font\englfont=cmbx10 scaled\magstephalf
+    \fi
+    \normalbaselineskip=16pt \devnmode}
+
+% 12pt text
+\def\Largedvng{\iffrans \font\devnfont=dvng10 scaled\magstep1
+          \font\englfont=cmr10 scaled\magstep1
+    \else \font\devnfont=dnh at 16pt % size looks like 12pt
+          \font\englfont=cmbx10 scaled\magstep1
+    \fi
+    \normalbaselineskip=18pt \devnmode}
+
+% 14.4pt text
+\def\LARGEdvng{\iffrans \font\devnfont=dvng10 scaled\magstep2 % 14.4pt
+          \font\englfont=cmr10 scaled\magstep2
+    \else \font\devnfont=dnh at 19pt % size looks like 14.4 pt
+          \font\englfont=cmbx10 scaled\magstep2
+    \fi
+    \normalbaselineskip=21pt minus2pt \devnmode}
+
+% 17.28pt text
+\def\hugedvng{\iffrans \font\devnfont=dvng10 scaled\magstep3 % 17.28pt
+          \font\englfont=cmr10 scaled\magstep3
+    \else \font\devnfont=dnh at 22pt % size looks like 17.28 pt
+          \font\englfont=cmbx10 scaled\magstep3
+    \fi
+    \normalbaselineskip=25pt \devnmode}
+
+% 20.74pt text
+\def\Hugedvng{\iffrans \font\devnfont=dvng10 scaled\magstep4 % 20.74
+          \font\englfont=cmr10 scaled\magstep4
+    \else \font\devnfont=dnh at 25pt % size looks like 20.74 pt
+          \font\englfont=cmbx10 scaled\magstep4
+    \fi
+    \normalbaselineskip=28pt \devnmode}
+
+% ------------------------------------------------------------------------
+% (Must do \let\usedvng after normaldvng is defined...)
+%
+\let\usedvng=\normaldvng	% default font size definition
+
+\def\fransdvng{\franstrue\usedvng}
+
+\def\postdvng{\fransfalse\usedvng}
+
+% ------------------------------------------------------------------------
+% Macro for song listings (verbatim mode---see page 381 of the TeXbook)
+\def\obeyspaceslines{\def\par{\leavevmode\null\endgraf\penalty-500\relax}%
+                        \obeylines \obeyspaces}
+% actually, the TeXbook defn has problems -- according to comp.text.tex
+% readers, I needed to add the \null and \relax above to make it correct!
+% otherwise TeX will eat up any number that starts a line!!!!!
+%{\obeyspaces\global\let =\ } % TeX sets space = "\space", change it to "\ "
+{\obeyspaces\global\let =~} % use this for a non-breaking space
+
+\def\threedots{{\englfont%
+    \leavevmode\hbox{\hskip2pt .\hskip2pt .\hskip2pt .\hskip2pt}}}
+
+% For Frans's devanagari font, make punctuation chars that are absent from
+% the font active characters, and define them to use the roman font punctuation.
+% These characters have to be made special
+% NO NEED TO DO THIS FOR THE PostScript Devnac font...
+\def\specialsforfrans{%
+	\catcode`\(=\active
+	\catcode`\,=\active
+	\catcode`\)=\active
+	\catcode`\:=\active
+	\catcode`\;=\active
+	\catcode`\!=\active
+	\catcode`\?=\active
+	\catcode`\'=\active
+	\catcode`\"=\active
+	\catcode`\/=\active
+	\catcode`\|=\active%
+}
+% define the commands for the punctuations
+{\specialsforfrans
+	\gdef,{{\englfont\char`\,}}
+	\gdef({{\englfont\char`\(}}
+	\gdef){{\englfont\char`\)}}
+	\gdef:{{\englfont\char`\:}}
+	\gdef;{{\englfont\char`\;}}
+	\gdef!{{\englfont\char`\!}}
+	\gdef?{{\englfont\char`\?}}
+	\gdef'{{\englfont\char`\'}}
+	\gdef"{{\englfont\char`\"}}
+	\gdef/{{\englfont\char`\/}}
+	\gdef|{.}
+	% CANNOT do the same for - (numbers like kern-0.3 get screwed up!)
+	% \catcode`\-=\active % NOTE: this implies that minus cannot be used (no numbers)!
+	% \def-{{\englfont\char`\-}} % DONT EVER TURN THIS ON!
+	% Therefore, have to use \- in the input song
+	% Similarly, cannot use . in input text (to get roman period)
+	% Use \. instead.
+}
+% Frans's Font does not have -, but cannot make - an active character,
+% so you must use \- to get a dash (same goes for . (dot) use \. instead).
+% For PostScript out, the hdr.ips defines a \- procedure, so all works
+% there too..... (IF your PostScript intepretor accepts \ in a name!)
+% See the comments regarding "specialsforfrans" in this file to see how
+% other punctuation characters are handled for Frans's devnag font...
+% ------------------
+%
+% ------ definitions for song headings, etc ------
+\def\fileinfo{%
+    \ifx\songfile\undefined % songfile is defined when multiple
+    			    % .s files are combined by "isongcat" program.
+        \ifx\jobname\undefined
+            \rightline{\hbox to 120pt{\hfill\smallcmr ITRANS Song Book}}%
+	\else
+            \rightline{\hbox to 120pt{\smallcmr ITRANS Song Book:\hfill{\jobname}.s}}%
+	\fi
+    \else
+        \rightline{\hbox to 120pt{\smallcmr ITRANS Song Book:\hfill{\songfile}}}%
+    \fi
+}
+
+% songtitle - use if needed. Invoke this after a \startsong statement
+% Assumes that both \startsong and \songtitle lines in the input text
+% do not contain a % at the end....
+    \def\stitle#1{}	% unused today...
+    \def\film#1{\def\vvfilm{#1}}
+    \def\starring#1{}
+    \def\singer#1{\def\vvsinger{#1}}
+    \def\lyrics#1{\def\vvlyrics{#1}}
+    \def\music#1{\def\vvmusic{#1}}
+
+    \def\printtitle{{% print out vvfilm, vvsinger, vvlyrics, vvmusic
+	\ifx\vvfilm\undefined \def\vvfilm{} \fi
+	\ifx\vvsinger\undefined \def\vvsinger{} \fi
+	\ifx\vvlyrics\undefined \def\vvlyrics{} \fi
+	\ifx\vvmusic\undefined \def\vvmusic{} \fi
+	\vskip3pt
+	\baselineskip=0pt% local def only, using 2 {'s to define \printtitle..
+	%
+	% Now, print out legend only if atleast one of the args is non-{}
+	\def\vvnonempty{1} % initialize non-empty to TRUE
+	\ifx\vvfilm\empty \else\def\vvnonempty{0}\fi % check film non-empty
+	\ifx\vvsinger\empty \else\def\vvnonempty{0}\fi % check singers
+	\ifx\vvlyrics\empty \else\def\vvnonempty{0}\fi % check lyrics
+	\ifx\vvmusic\empty \else\def\vvnonempty{0}\fi % check music
+	% if any args present, print out legend:
+	\nobreak
+	\if0\vvnonempty
+	    \setbox0=\hbox{\titlefont {\smallcmr film:} \vvfilm%
+	    			   \quad{\smallcmr singer:} \vvsinger%
+				   \quad{\smallcmr lyrics:} \vvlyrics%
+				   \quad{\smallcmr music:} \vvmusic}%
+	    \ifdim\wd0>\hsize
+		% too large, split into two lines
+		\hbox to\hsize{\titlefont {\smallcmr film:} \vvfilm%
+	    			   \quad{\smallcmr singer:} \vvsinger\hfill}%
+		\vskip2pt
+		\hbox to\hsize{\titlefont {\smallcmr lyrics:} \vvlyrics%
+				   \quad{\smallcmr music:} \vvmusic\hfill}%
+	    \else
+		\hbox to\hsize{\titlefont {\smallcmr film:} \vvfilm%
+	    			   \hfill{\smallcmr singer:} \vvsinger%
+				   \hfill{\smallcmr lyrics:} \vvlyrics%
+				   \hfill{\smallcmr music:} \vvmusic\hfill}%
+	    \fi
+	\fi
+	\nobreak
+	}}% printtitle
+
+% ------------------------------------------------
+%%%%%%%%%%%%% Shrisha Rao's macros %%%%%%%%%%%%%%
+\def\ldq{{\englfont ``\hskip+0.1em}} % Avinash Chopde's definitions
+\def\rdq{{\englfont ''}}           % to make quotes possible.
+
+\def\ast{{\englfont *}}      % defined to use an asterisk
+\def\dash{{\englfont ---}}   % defined to use a long dash
+\def\spl{{\englfont \S}}     % defined to use a special symbol
+
+\def\lsq{{\englfont `\hskip+0.1em}}  % single open-quote
+\def\rsq{{\englfont '}}            % single close-quote
+
+\def\?{{\englfont ?}}        % defined to use a question-mark
+%%%%%%%%%%%%% End of Shrisha Rao's macros %%%%%%%%%%%%%%
+% ------------------------------------------------
+
+\def\startsong{\bgroup 
+	\def\-{{\englfont -}}%
+	\def\.{{\englfont .}}%
+	\usedvng % use whatever font the user wants...default normaldvng
+	\englfont % usedvng makes default font indian, restore english font
+	\parindent=7pt%
+        \obeyspaceslines}
+
+\def\endsong{%
+	\nobreak
+	\vskip 9pt plus1fill % fill this page if no more material available
+	\fileinfo\smallskip
+	\hrule height0.4pt%
+	\egroup
+	}
+
+% ----------------------- End of idevn.tex ------------------------

@@ -1,0 +1,103 @@
+%%
+%% This is file `fink.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% fink.dtx 
+%% 
+
+
+%% Copyright (C) 1999-2002 Didier Verna
+
+%% This file is part of FiNK.
+
+%% FiNK may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.1
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%% http://www.latex-project.org/lppl.txt
+%% and version 1.1 or later is part of all distributions of LaTeX
+%% version 1999/06/01 or later.
+
+%% FiNK consists of all files listed in the file `README'.
+
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+\NeedsTeXFormat{LaTeX2e}
+
+\ProvidesPackage{fink}[2002/04/03 v1.2
+                       Keep track of the current filename]
+
+\newcommand\finkfile{}
+\def\fink@extension#1{\xdef\finkfile{\jobname#1}}
+\newcommand\finkextension[1]{
+  \fink@extension{#1}
+  \PackageInfo{FiNK}{main filename switched to `\finkfile'}
+  \renewcommand\finkextension[1]{
+    \PackageError{FiNK}{\protect\finkextension\space can only be used once}{%
+      You seem to have called \protect\finkextension\space twice.\MessageBreak
+      Type X to quit, remove spurious call(s) and rerun LaTeX.}}}
+\@onlypreamble\finkextension
+
+\DeclareOption{tex}{\fink@extension{.tex}}
+\DeclareOption{ltx}{\fink@extension{.ltx}}
+\AtEndOfPackage{\PackageInfo{FiNK}{main filename is `\finkfile'}}
+
+\ExecuteOptions{tex}
+\ProcessOptions*
+
+\def\fink@setnewfile#1{%
+  {\filename@parse{#1}%
+    \xdef\@finkfile{%
+      \filename@base.\ifx\filename@ext\relax tex\else\filename@ext\fi}}}
+
+\def\fink@input{%
+  \xdef\finkfile{\@finkfile}%
+  \@@input\@filef@und}
+\def\fink@restore{\xdef\finkfile}
+
+\long\def\IfFileExists#1#2#3{%
+  \openin\@inputcheck#1 %
+  \ifeof\@inputcheck
+    \ifx\input@path\@undefined
+      \def\reserved@a{#3}%
+    \else
+      \def\reserved@a{\@iffileonpath{#1}{#2}{#3}}%
+    \fi
+  \else
+    \closein\@inputcheck
+    \edef\@filef@und{#1 }%
+    \fink@setnewfile{#1}%
+    \def\reserved@a{#2}%
+  \fi
+  \reserved@a}
+
+\long\def\InputIfFileExists#1#2{%
+  \IfFileExists{#1}{%
+    #2\@addtofilelist{#1}%
+    \expandafter\fink@input%
+    \expandafter\fink@restore\expandafter{\finkfile}}}
+\def\@input#1{%
+  \IfFileExists{#1}{%
+    \expandafter\fink@input%
+    \expandafter\fink@restore\expandafter{\finkfile}}{%
+    %% else
+    \GenericWarning{}{no file #1.}}}
+
+\endinput
+%%
+%% End of file `fink.sty'.

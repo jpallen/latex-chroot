@@ -1,0 +1,1048 @@
+%  This should appear in a file named diagram.tex
+%         Copyright 1988,1989 Michael Barr
+%         Department of Mathematics and Statistics
+%         McGill University
+%         805 Sherbrooke St., W
+%         Montreal, Quebec, Canada
+%         H3P 1S4
+%
+%         barr@triples.math.mcgill.ca
+%
+%         All commercial rights reserved.  May be freely distributed
+%         and used with the following exceptions:
+%         1. No commercial use without explicit permission.
+%         2. It may not be used by any employee of a telephone
+%         company.
+%         3. It may not be distributed without this notice.
+%
+%         Last revised 91-05-04
+ 
+% Ascii character test:
+%  32:     33: !   34: "   35: #   36: $   37: %   38: &   39: '
+%  40: (   41: )   42: *   43: +   44: ,   45: -   46: .   47: /
+%  48: 0   49: 1   50: 2   51: 3   52: 4   53: 5   54: 6   55: 7
+%  56: 8   57: 9   58: :   59: ;   60: <   61: =   62: >   63: ?
+%  64: @   65: A   66: B   67: C   68: D   69: E   70: F   71: G
+%  72: H   73: I   74: J   75: K   76: L   77: M   78: N   79: O
+%  80: P   81: Q   82: R   83: S   84: T   85: U   86: V   87: W
+%  88: X   89: Y   90: Z   91: [   92: \   93: ]   94: ^   95: _
+%  96: `   97: a   98: b   99: c  100: d  101: e  102: f  103: g
+% 104: h  105: i  106: j  107: k  108: l  109: m  110: n  111: o
+% 112: p  113: q  114: r  115: s  116: t  117: u  118: v  119: w
+% 120: x  121: y  122: z  123: {  124: |  125: }  126: ~
+ 
+ 
+\makeatletter
+ 
+\def\diagram{\m@th\leftwidth=\z@ \rightwidth=\z@ \topheight=\z@
+\botheight=\z@ \setbox\@picbox\hbox\bgroup}
+ 
+\def\enddiagram{\egroup\wd\@picbox\rightwidth\unitlength
+\ht\@picbox\topheight\unitlength \dp\@picbox\botheight\unitlength
+\hskip\leftwidth\unitlength\box\@picbox}
+ 
+\def\bfig{\begin{diagram}}
+\def\efig{\end{diagram}}
+\newcount\wideness \newcount\leftwidth \newcount\rightwidth
+\newcount\highness \newcount\topheight \newcount\botheight
+ 
+\def\ratchet#1#2{\ifnum#1<#2 \global #1=#2 \fi}
+ 
+\def\putbox(#1,#2)#3{%
+\horsize{\wideness}{#3} \divide\wideness by 2
+{\advance\wideness by #1 \ratchet{\rightwidth}{\wideness}}
+{\advance\wideness by -#1 \ratchet{\leftwidth}{\wideness}}
+\vertsize{\highness}{#3} \divide\highness by 2
+{\advance\highness by #2 \ratchet{\topheight}{\highness}}
+{\advance\highness by -#2 \ratchet{\botheight}{\highness}}
+\put(#1,#2){\makebox(0,0){$#3$}}}
+ 
+\def\putlbox(#1,#2)#3{%
+\horsize{\wideness}{#3}
+{\advance\wideness by #1 \ratchet{\rightwidth}{\wideness}}
+{\ratchet{\leftwidth}{-#1}}
+\vertsize{\highness}{#3} \divide\highness by 2
+{\advance\highness by #2 \ratchet{\topheight}{\highness}}
+{\advance\highness by -#2 \ratchet{\botheight}{\highness}}
+\put(#1,#2){\makebox(0,0)[l]{$#3$}}}
+ 
+\def\putrbox(#1,#2)#3{%
+\horsize{\wideness}{#3}
+{\ratchet{\rightwidth}{#1}}
+{\advance\wideness by -#1 \ratchet{\leftwidth}{\wideness}}
+\vertsize{\highness}{#3} \divide\highness by 2
+{\advance\highness by #2 \ratchet{\topheight}{\highness}}
+{\advance\highness by -#2 \ratchet{\botheight}{\highness}}
+\put(#1,#2){\makebox(0,0)[r]{$#3$}}}
+ 
+ 
+\def\adjust[#1]{} % For compatibility
+ 
+\newcount \coefa
+\newcount \coefb
+\newcount \coefc
+\newcount\tempcounta
+\newcount\tempcountb
+\newcount\tempcountc
+\newcount\tempcountd
+\newcount\xext
+\newcount\yext
+\newcount\xoff
+\newcount\yoff
+\newcount\gap%
+\newcount\arrowtypea
+\newcount\arrowtypeb
+\newcount\arrowtypec
+\newcount\arrowtyped
+\newcount\arrowtypee
+\newcount\height
+\newcount\width
+\newcount\xpos
+\newcount\ypos
+\newcount\run
+\newcount\rise
+\newcount\arrowlength
+\newcount\halflength
+\newcount\arrowtype
+\newdimen\tempdimen
+\newdimen\xlen
+\newdimen\ylen
+\newsavebox{\tempboxa}%
+\newsavebox{\tempboxb}%
+\newsavebox{\tempboxc}%
+ 
+\newdimen\w@dth
+ 
+\def\setw@dth#1#2{\setbox\z@\hbox{\m@th$#1$}\w@dth=\wd\z@
+\setbox\@ne\hbox{\m@th$#2$}\ifnum\w@dth<\wd\@ne \w@dth=\wd\@ne \fi
+\advance\w@dth by 1.2em}
+ 
+%The definitions below look more elaborate than they need to be.
+%The reason is that an empty asscript will still cause extra vertical
+%spacing and the only way to avoid ugly extra space seems to be using
+%some such method as this.
+ 
+\def\t@^#1_#2{\allowbreak\def\n@one{#1}\def\n@two{#2}\mathrel
+{\setw@dth{#1}{#2}
+\mathop{\hbox to \w@dth{\rightarrowfill}}\limits
+\ifx\n@one\empty\else ^{\box\z@}\fi
+\ifx\n@two\empty\else _{\box\@ne}\fi}}
+%\def\t@^#1_#2{\mathrel{\mathop{\hbox{\rightarrowfill}}\limits
+%^{\mkern12mu#1\mkern12mu}_{\mkern12mu#2\mkern12mu}}}
+\def\t@@^#1{\@ifnextchar_{\t@^{#1}}{\t@^{#1}_{}}}
+\def\to{\@ifnextchar^{\t@@}{\t@@^{}}}
+ 
+\def\t@left^#1_#2{\def\n@one{#1}\def\n@two{#2}\mathrel{\setw@dth{#1}{#2}
+\mathop{\hbox to \w@dth{\leftarrowfill}}\limits
+\ifx\n@one\empty\else ^{\box\z@}\fi
+\ifx\n@two\empty\else _{\box\@ne}\fi}}
+%\def\t@left^#1_#2{\mathrel{\mathop{\hbox{\leftarrowfill}}\limits
+%^{\mkern12mu#1\mkern12mu}_{\mkern12mu#2\mkern12mu}}}
+\def\t@@left^#1{\@ifnextchar_{\t@left^{#1}}{\t@left^{#1}_{}}}
+\def\toleft{\@ifnextchar^{\t@@left}{\t@@left^{}}}
+ 
+\def\two@^#1_#2{\allowbreak
+\def\n@one{#1}\def\n@two{#2}\mathrel{\setw@dth{#1}{#2}
+\mathop{\vcenter{\lineskip\z@\baselineskip\z@
+                 \hbox to \w@dth{\rightarrowfill}%
+                 \hbox to \w@dth{\rightarrowfill}}%
+       }\limits
+\ifx\n@one\empty\else ^{\box\z@}\fi
+\ifx\n@two\empty\else _{\box\@ne}\fi}}
+\def\tw@@^#1{\@ifnextchar _{\two@^{#1}}{\two@^{#1}_{}}}
+\def\two{\@ifnextchar ^{\tw@@}{\tw@@^{}}}
+ 
+\def\tofr@^#1_#2{\def\n@one{#1}\def\n@two{#2}\mathrel{\setw@dth{#1}{#2}
+\mathop{\vcenter{\hbox to \w@dth{\rightarrowfill}\kern-1.7ex
+                 \hbox to \w@dth{\leftarrowfill}}%
+       }\limits
+\ifx\n@one\empty\else ^{\box\z@}\fi
+\ifx\n@two\empty\else _{\box\@ne}\fi}}
+\def\t@fr@^#1{\@ifnextchar_ {\tofr@^{#1}}{\tofr@^{#1}_{}}}
+\def\tofro{\@ifnextchar^ {\t@fr@}{\t@fr@^{}}}
+ 
+\def\epi{\mathop{\mathchar"221\mkern -12mu\mathchar"221}\limits}
+\def\leftepi{\mathop{\mathchar"220\mkern -12mu\mathchar"220}\limits}
+\def\mon{\mathop{\m@th\hbox to
+      14.6\P@{\lasyb\char'51\hskip-2.1\P@$\arrext$\hss
+$\mathord\rightarrow$}}\limits} % width of \epi
+\def\leftmono{\mathrel{\m@th\hbox to
+14.6\P@{$\mathord\leftarrow$\hss$\arrext$\hskip-2.1\P@\lasyb\char'50%
+}}\limits} % width of \epi
+\mathchardef\arrext="0200       % amr minus for arrow extension (see \into)
+ 
+ 
+\setlength{\unitlength}{.01em}%
+\def\settypes(#1,#2,#3){\arrowtypea#1 \arrowtypeb#2 \arrowtypec#3}
+\def\settoheight#1#2{\setbox\@tempboxa\hbox{#2}#1\ht\@tempboxa\relax}%
+\def\settodepth#1#2{\setbox\@tempboxa\hbox{#2}#1\dp\@tempboxa\relax}%
+\def\settokens`#1`#2`#3`#4`{%
+     \def\tokena{#1}\def\tokenb{#2}\def\tokenc{#3}\def\tokend{#4}}
+\def\setsqparms[#1`#2`#3`#4;#5`#6]{%
+\arrowtypea #1
+\arrowtypeb #2
+\arrowtypec #3
+\arrowtyped #4
+\width #5
+\height #6
+}
+\def\setpos(#1,#2){\xpos=#1 \ypos#2}
+ 
+ 
+ 
+\def\settriparms[#1`#2`#3;#4]{\settripairparms[#1`#2`#3`1`1;#4]}%
+ 
+\def\settripairparms[#1`#2`#3`#4`#5;#6]{%
+\arrowtypea #1
+\arrowtypeb #2
+\arrowtypec #3
+\arrowtyped #4
+\arrowtypee #5
+\width #6
+\height #6
+}
+ 
+\def\resetparms{\settripairparms[1`1`1`1`1;500]\width 500}%default values%
+ 
+\resetparms
+ 
+\def\mvector(#1,#2)#3{%%
+\put(0,0){\vector(#1,#2){#3}}%
+\put(0,0){\vector(#1,#2){26}}%
+}
+\def\evector(#1,#2)#3{{%%
+\arrowlength #3
+\put(0,0){\vector(#1,#2){\arrowlength}}%
+\advance \arrowlength by-30
+\put(0,0){\vector(#1,#2){\arrowlength}}%
+}}
+ 
+\def\horsize#1#2{%
+\settowidth{\tempdimen}{$#2$}%
+#1=\tempdimen
+\divide #1 by\unitlength
+}
+ 
+\def\vertsize#1#2{%
+\settoheight{\tempdimen}{$#2$}%
+#1=\tempdimen
+\settodepth{\tempdimen}{$#2$}%
+\advance #1 by\tempdimen
+\divide #1 by\unitlength
+}
+ 
+\def\putvector(#1,#2)(#3,#4)#5#6{{%
+\ifnum3<\arrowtype
+\putdashvector(#1,#2)(#3,#4)#5\arrowtype
+\else
+\ifnum\arrowtype<-3
+\putdashvector(#1,#2)(#3,#4)#5\arrowtype
+\else
+\xpos=#1
+\ypos=#2
+\run=#3
+\rise=#4
+\arrowlength=#5
+\ifnum \arrowtype<0
+    \ifnum \run=0
+        \advance \ypos by-\arrowlength
+    \else
+        \tempcounta \arrowlength
+        \multiply \tempcounta by\rise
+        \divide \tempcounta by\run
+        \ifnum\run>0
+            \advance \xpos by\arrowlength
+            \advance \ypos by\tempcounta
+        \else
+            \advance \xpos by-\arrowlength
+            \advance \ypos by-\tempcounta
+        \fi
+    \fi
+    \multiply \arrowtype by-1
+    \multiply \rise by-1
+    \multiply \run by-1
+\fi
+\ifcase \arrowtype
+\or \put(\xpos,\ypos){\vector(\run,\rise){\arrowlength}}%
+\or \put(\xpos,\ypos){\mvector(\run,\rise)\arrowlength}%
+\or \put(\xpos,\ypos){\evector(\run,\rise){\arrowlength}}%
+\fi\fi\fi
+}}
+ 
+\def\putsplitvector(#1,#2)#3#4{%%
+\xpos #1
+\ypos #2
+\arrowtype #4
+\halflength #3
+\arrowlength #3
+\gap 140
+\advance \halflength by-\gap
+\divide \halflength by2
+\ifnum\arrowtype>0
+   \ifcase \arrowtype
+   \or \put(\xpos,\ypos){\line(0,-1){\halflength}}%
+       \advance\ypos by-\halflength
+       \advance\ypos by-\gap
+       \put(\xpos,\ypos){\vector(0,-1){\halflength}}%
+   \or \put(\xpos,\ypos){\line(0,-1)\halflength}%
+       \put(\xpos,\ypos){\vector(0,-1)3}%
+       \advance\ypos by-\halflength
+       \advance\ypos by-\gap
+       \put(\xpos,\ypos){\vector(0,-1){\halflength}}%
+   \or \put(\xpos,\ypos){\line(0,-1)\halflength}%
+       \advance\ypos by-\halflength
+       \advance\ypos by-\gap
+       \put(\xpos,\ypos){\evector(0,-1){\halflength}}%
+   \fi
+\else \arrowtype=-\arrowtype
+   \ifcase\arrowtype
+   \or \advance \ypos by-\arrowlength
+       \put(\xpos,\ypos){\line(0,1){\halflength}}%
+       \advance\ypos by\halflength
+       \advance\ypos by\gap
+       \put(\xpos,\ypos){\vector(0,1){\halflength}}%
+   \or \advance \ypos by-\arrowlength
+       \put(\xpos,\ypos){\line(0,1)\halflength}%
+       \put(\xpos,\ypos){\vector(0,1)3}%
+       \advance\ypos by\halflength
+       \advance\ypos by\gap
+       \put(\xpos,\ypos){\vector(0,1){\halflength}}%
+   \or \advance \ypos by-\arrowlength
+       \put(\xpos,\ypos){\line(0,1)\halflength}%
+       \advance\ypos by\halflength
+       \advance\ypos by\gap
+       \put(\xpos,\ypos){\evector(0,1){\halflength}}%
+   \fi
+\fi
+}
+ 
+\def\putmorphism(#1)(#2,#3)[#4`#5`#6]#7#8#9{{%
+\run #2
+\rise #3
+\ifnum\rise=0
+  \puthmorphism(#1)[#4`#5`#6]{#7}{#8}#9%
+\else\ifnum\run=0
+  \putvmorphism(#1)[#4`#5`#6]{#7}{#8}#9%
+\else
+\setpos(#1)%
+\arrowlength #7
+\arrowtype #8
+\ifnum\run=0
+\else\ifnum\rise=0
+\else
+\ifnum\run>0
+    \coefa=1
+\else
+   \coefa=-1
+\fi
+\ifnum\arrowtype>0
+   \coefb=0
+   \coefc=-1
+\else
+   \coefb=\coefa
+   \coefc=1
+   \arrowtype=-\arrowtype
+\fi
+\width=2
+\multiply \width by\run
+\divide \width by\rise
+\ifnum \width<0  \width=-\width\fi
+\advance\width by60
+\if l#9 \width=-\width\fi
+\putbox(\xpos,\ypos){#4}%            %node 1
+{\multiply \coefa by\arrowlength%      %node 2
+\advance\xpos by\coefa
+\multiply \coefa by\rise
+\divide \coefa by\run
+\advance \ypos by\coefa
+\putbox(\xpos,\ypos){#5} }%
+{\multiply \coefa by\arrowlength%      %label
+\divide \coefa by2
+\advance \xpos by\coefa
+\advance \xpos by\width
+\multiply \coefa by\rise
+\divide \coefa by\run
+\advance \ypos by\coefa
+\if l#9%
+   \putrbox(\xpos,\ypos){#6}%
+\else\if r#9%
+   \putlbox(\xpos,\ypos){#6}%
+\fi\fi }%
+{\multiply \rise by-\coefc%             %arrow
+\multiply \run by-\coefc
+\multiply \coefb by\arrowlength
+\advance \xpos by\coefb
+\multiply \coefb by\rise
+\divide \coefb by\run
+\advance \ypos by\coefb
+\multiply \coefc by70
+\advance \ypos by\coefc
+\multiply \coefc by\run
+\divide \coefc by\rise
+\advance \xpos by\coefc
+\multiply \coefa by140
+\multiply \coefa by\run
+\divide \coefa by\rise
+\advance \arrowlength by\coefa
+\ifcase\arrowtype
+\or \put(\xpos,\ypos){\vector(\run,\rise){\arrowlength}}%
+\or \put(\xpos,\ypos){\mvector(\run,\rise){\arrowlength}}%
+\or \put(\xpos,\ypos){\evector(\run,\rise){\arrowlength}}%
+\fi}\fi\fi\fi\fi}}
+ 
+ 
+\newcount\numbdashes \newcount\lengthdash \newcount\increment
+ 
+\def\howmanydashes{% Actually returns both number and length
+\numbdashes=\arrowlength \lengthdash=40
+\divide\numbdashes by \lengthdash
+\lengthdash=\arrowlength
+\divide\lengthdash by \numbdashes
+%This futzing around is to minimize round-off error.
+\increment=\lengthdash
+\multiply\lengthdash by 3
+\divide\lengthdash by 5
+}
+ 
+\def\putdashvector(#1)(#2,#3)#4#5{%
+\ifnum#3=0 \putdashhvector(#1){#4}#5
+\else
+\ifnum#2=0
+\putdashvvector(#1){#4}#5\fi\fi}
+ 
+\def\putdashhvector(#1,#2)#3#4{{%
+\arrowlength=#3 \howmanydashes
+\multiput(#1,#2)(\increment,0){\numbdashes}%
+{\vrule height .4pt width \lengthdash\unitlength}
+\arrowtype=#4 \xpos=#1
+\ifnum\arrowtype<0 \advance\arrowtype by 7 \fi
+\ifcase\arrowtype
+\or \advance\xpos by 10
+    \put(\xpos,#2){\vector(-1,0){\lengthdash}}
+    \advance\xpos by 40
+    \put(\xpos,#2){\vector(-1,0){\lengthdash}}
+\or \advance \xpos by 10
+    \put(\xpos,#2){\vector(-1,0){\lengthdash}}
+    \advance\xpos by  \arrowlength
+    \advance\xpos by  -50
+    \put(\xpos,#2){\vector(-1,0){\lengthdash}}
+\or \advance\xpos by 10
+    \put(\xpos,#2){\vector(-1,0){\lengthdash}}
+\or \advance\xpos by \arrowlength
+    \advance\xpos by -\lengthdash
+    \put(\xpos,#2){\vector(1,0){\lengthdash}}
+\or {\advance\xpos by 10
+    \put(\xpos,#2){\vector(1,0){\lengthdash}}}
+    \advance\xpos by \arrowlength
+    \advance\xpos by -\lengthdash
+    \put(\xpos,#2){\vector(1,0){\lengthdash}}
+\or \advance\xpos by \arrowlength
+    \advance\xpos by -\lengthdash
+    \put(\xpos,#2){\vector(1,0){\lengthdash}}
+    \advance\xpos by -40
+    \put(\xpos,#2){\vector(1,0){\lengthdash}}
+   \fi
+}}
+ 
+\def\putdashvvector(#1,#2)#3#4{{%
+\arrowlength=#3 \howmanydashes
+\ypos=#2 \advance\ypos by -\arrowlength
+\multiput(#1,#2)(0,\increment){\numbdashes}%
+    {\vrule width .4pt height \lengthdash\unitlength}
+\arrowtype=#4 \ypos=#2
+\ifnum\arrowtype<0 \advance\arrowtype by 7 \fi
+\ifcase\arrowtype
+\or \advance\ypos by \arrowlength \advance\ypos by -40
+    \put(#1,\ypos){\vector(0,1){\lengthdash}}
+    \advance\ypos by -40
+    \put(#1,\ypos){\vector(0,1){\lengthdash}}
+\or \advance\ypos by 10
+    \put(#1,\ypos){\vector(0,1){\lengthdash}}
+    \advance\ypos by \arrowlength \advance\ypos by -40
+    \put(#1,\ypos){\vector(0,1){\lengthdash}}
+\or \advance\ypos by \arrowlength \advance\ypos by -40
+    \put(#1,\ypos){\vector(0,1){\lengthdash}}
+\or \advance\ypos by 10
+    \put(#1,\ypos){\vector(0,-1){\lengthdash}}
+\or \advance\ypos by 10
+    \put(#1,\ypos){\vector(0,-1){\lengthdash}}
+    \advance\ypos by \arrowlength \advance\ypos by -40
+    \put(#1,\ypos){\vector(0,-1){\lengthdash}}
+\or \advance\ypos by 10
+    \put(#1,\ypos){\vector(0,-1){\lengthdash}}
+    \advance\ypos by 40
+    \put(#1,\ypos){\vector(0,-1){\lengthdash}}
+\fi
+}}
+ 
+\def\puthmorphism(#1,#2)[#3`#4`#5]#6#7#8{{%
+\xpos #1
+\ypos #2
+\width #6
+\arrowlength #6
+\arrowtype=#7
+\putbox(\xpos,\ypos){#3\vphantom{#4}}%
+{\advance \xpos by\arrowlength
+\putbox(\xpos,\ypos){\vphantom{#3}#4}}%
+\horsize{\tempcounta}{#3}%
+\horsize{\tempcountb}{#4}%
+\divide \tempcounta by2
+\divide \tempcountb by2
+\advance \tempcounta by30
+\advance \tempcountb by30
+\advance \xpos by\tempcounta
+\advance \arrowlength by-\tempcounta
+\advance \arrowlength by-\tempcountb
+\putvector(\xpos,\ypos)(1,0)\arrowlength\arrowtype
+\divide \arrowlength by2
+\advance \xpos by\arrowlength
+\vertsize{\tempcounta}{#5}%
+\divide\tempcounta by2
+\advance \tempcounta by20
+\if a#8 %
+   \advance \ypos by\tempcounta
+   \putbox(\xpos,\ypos){#5}%
+\else
+   \advance \ypos by-\tempcounta
+   \putbox(\xpos,\ypos){#5}%
+\fi}}
+ 
+\def\putvmorphism(#1,#2)[#3`#4`#5]#6#7#8{{%
+\xpos #1
+\ypos #2
+\arrowlength #6
+\arrowtype #7
+\settowidth{\xlen}{$#5$}%
+\putbox(\xpos,\ypos){#3}%
+{\advance \ypos by-\arrowlength
+\putbox(\xpos,\ypos){#4}}%
+{\advance\arrowlength by-140
+\advance \ypos by-70
+\ifdim\xlen>0pt
+   \if m#8%
+      \putsplitvector(\xpos,\ypos)\arrowlength\arrowtype
+   \else
+   \putvector(\xpos,\ypos)(0,-1)\arrowlength\arrowtype
+   \fi
+\else
+   \putvector(\xpos,\ypos)(0,-1)\arrowlength\arrowtype
+\fi}%
+\ifdim\xlen>0pt
+   \divide \arrowlength by2
+   \advance\ypos by-\arrowlength
+   \if l#8%
+      \advance \xpos by-40
+      \putrbox(\xpos,\ypos){#5}%
+   \else\if r#8%
+      \advance \xpos by40
+      \putlbox(\xpos,\ypos){#5}%
+   \else
+      \putbox(\xpos,\ypos){#5}%
+   \fi\fi
+\fi
+}}
+ 
+\def\putsquarep<#1>(#2)[#3;#4`#5`#6`#7]{{%
+\setsqparms[#1]%
+\setpos(#2)%
+\settokens`#3`%
+\puthmorphism(\xpos,\ypos)[\tokenc`\tokend`{#7}]{\width}{\arrowtyped}b%
+\advance\ypos by \height
+\puthmorphism(\xpos,\ypos)[\tokena`\tokenb`{#4}]{\width}{\arrowtypea}a%
+\putvmorphism(\xpos,\ypos)[``{#5}]{\height}{\arrowtypeb}l%
+\advance\xpos by \width
+\putvmorphism(\xpos,\ypos)[``{#6}]{\height}{\arrowtypec}r%
+}}
+ 
+\def\putsquare{\@ifnextchar <{\putsquarep}{\putsquarep%
+   <\arrowtypea`\arrowtypeb`\arrowtypec`\arrowtyped;\width`\height>}}
+\def\square{\@ifnextchar< {\squarep}{\squarep
+   <\arrowtypea`\arrowtypeb`\arrowtypec`\arrowtyped;\width`\height>}}
+                                                   %         #6
+\def\squarep<#1>[#2`#3`#4`#5;#6`#7`#8`#9]{{%       %     #2------>#3
+\setsqparms[#1]%                                   %      |       |
+\diagram%                                          %      |       |
+\putsquarep<\arrowtypea`\arrowtypeb`\arrowtypec`%  %    #7|       |#8
+\arrowtyped;\width`\height>%                       %      |       |
+(0,0)[#2`#3`#4`{#5};#6`#7`#8`{#9}]%                %      |       |
+\enddiagram%                                       %      v       v
+}}                                                 %     #4------>#5
+                                                   %         #9
+\def\putptrianglep<#1>(#2,#3)[#4`#5`#6;#7`#8`#9]{{%
+\settriparms[#1]%
+\xpos=#2 \ypos=#3
+\advance\ypos by \height
+\puthmorphism(\xpos,\ypos)[#4`#5`{#7}]{\height}{\arrowtypea}a%
+\putvmorphism(\xpos,\ypos)[`#6`{#8}]{\height}{\arrowtypeb}l%
+\advance\xpos by\height
+\putmorphism(\xpos,\ypos)(-1,-1)[``{#9}]{\height}{\arrowtypec}r%
+}}
+ 
+\def\putptriangle{\@ifnextchar <{\putptrianglep}{\putptrianglep
+   <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+\def\ptriangle{\@ifnextchar <{\ptrianglep}{\ptrianglep
+   <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+                                              %          #5
+\def\ptrianglep<#1>[#2`#3`#4;#5`#6`#7]{{%%    %      #2----->#3
+\settriparms[#1]%                             %      |      /
+\diagram%                                     %      |     /
+\putptrianglep<\arrowtypea`\arrowtypeb`%      %    #6|    /#7
+\arrowtypec;\height>%                         %      |   /
+(0,0)[#2`#3`#4;#5`#6`{#7}]%                   %      |  /
+\enddiagram%%                                 %      v v
+}}                                            %      #4
+ 
+\def\putqtrianglep<#1>(#2,#3)[#4`#5`#6;#7`#8`#9]{{%
+\settriparms[#1]%
+\xpos=#2 \ypos=#3
+\advance\ypos by\height
+\puthmorphism(\xpos,\ypos)[#4`#5`{#7}]{\height}{\arrowtypea}a%
+\putmorphism(\xpos,\ypos)(1,-1)[``{#8}]{\height}{\arrowtypeb}l%
+\advance\xpos by\height
+\putvmorphism(\xpos,\ypos)[`#6`{#9}]{\height}{\arrowtypec}r%
+}}
+ 
+\def\putqtriangle{\@ifnextchar <{\putqtrianglep}{\putqtrianglep
+   <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+\def\qtriangle{\@ifnextchar <{\qtrianglep}{\qtrianglep
+   <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+                                              %           #5
+\def\qtrianglep<#1>[#2`#3`#4;#5`#6`#7]{{%%    %        #2----->#3
+\settriparms[#1]%                             %         \      |
+\width=\height                                %          \     |
+\diagram%                                     %         #6\    |#7
+\putqtrianglep<\arrowtypea`\arrowtypeb`%      %            \   |
+\arrowtypec;\height>%                         %             \  |
+(0,0)[#2`#3`#4;#5`#6`{#7}]%                   %              v v
+\enddiagram%%                                 %               #4
+}}
+ 
+\def\putdtrianglep<#1>(#2,#3)[#4`#5`#6;#7`#8`#9]{{%
+\settriparms[#1]%
+\xpos=#2 \ypos=#3
+\puthmorphism(\xpos,\ypos)[#5`#6`{#9}]{\height}{\arrowtypec}b%
+\advance\xpos by \height \advance\ypos by\height
+\putmorphism(\xpos,\ypos)(-1,-1)[``{#7}]{\height}{\arrowtypea}l%
+\putvmorphism(\xpos,\ypos)[#4``{#8}]{\height}{\arrowtypeb}r%
+}}
+ 
+\def\putdtriangle{\@ifnextchar <{\putdtrianglep}{\putdtrianglep
+   <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+\def\dtriangle{\@ifnextchar <{\dtrianglep}{\dtrianglep
+   <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+                                              %                   #2
+\def\dtrianglep<#1>[#2`#3`#4;#5`#6`#7]{{%%    %                  / |
+\settriparms[#1]%                             %                 /  |
+\width=\height                                %              #5/   |#6
+\diagram%                                     %               /    |
+\putdtrianglep<\arrowtypea`\arrowtypeb`%      %              /     |
+\arrowtypec;\height>%                         %             v      v
+(0,0)[#2`#3`#4;#5`#6`{#7}]%                   %            #3----->#4
+\enddiagram%%                                 %                #7
+}}
+ 
+\def\putbtrianglep<#1>(#2,#3)[#4`#5`#6;#7`#8`#9]{{%
+\settriparms[#1]%
+\xpos=#2 \ypos=#3
+\puthmorphism(\xpos,\ypos)[#5`#6`{#9}]{\height}{\arrowtypec}b%
+\advance\ypos by\height
+\putmorphism(\xpos,\ypos)(1,-1)[``{#8}]{\height}{\arrowtypeb}r%
+\putvmorphism(\xpos,\ypos)[#4``{#7}]{\height}{\arrowtypea}l%
+}}
+ 
+\def\putbtriangle{\@ifnextchar <{\putbtrianglep}{\putbtrianglep
+   <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+\def\btriangle{\@ifnextchar <{\btrianglep}{\btrianglep
+   <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+                                             %              #2
+\def\btrianglep<#1>[#2`#3`#4;#5`#6`#7]{{%%   %              | \
+\settriparms[#1]%                            %              |  \
+\width=\height                               %            #5|   \#6
+\diagram%                                    %              |    \
+\putbtrianglep<\arrowtypea`\arrowtypeb`%     %              |     \
+\arrowtypec;\height>%                        %              v      v
+(0,0)[#2`#3`#4;#5`#6`{#7}]%                  %              #3----->#4
+\enddiagram%%                                %                 #7
+}}
+ 
+\def\putAtrianglep<#1>(#2,#3)[#4`#5`#6;#7`#8`#9]{{%
+\settriparms[#1]%
+\xpos=#2 \ypos=#3
+{\multiply \height by2
+\puthmorphism(\xpos,\ypos)[#5`#6`{#9}]{\height}{\arrowtypec}b}%
+\advance\xpos by\height \advance\ypos by\height
+\putmorphism(\xpos,\ypos)(-1,-1)[#4``{#7}]{\height}{\arrowtypea}l%
+\putmorphism(\xpos,\ypos)(1,-1)[``{#8}]{\height}{\arrowtypeb}r%
+}}
+ 
+\def\putAtriangle{\@ifnextchar <{\putAtrianglep}{\putAtrianglep
+   <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+\def\Atriangle{\@ifnextchar <{\Atrianglep}{\Atrianglep
+   <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+                                                   %           #2
+\def\Atrianglep<#1>[#2`#3`#4;#5`#6`#7]{{%%         %         /   \
+\settriparms[#1]%                                  %        /     \
+\width=\height                                     %     #5/       \#6
+\diagram%                                          %      /         \
+\putAtrianglep<\arrowtypea`\arrowtypeb`%           %     /           \
+\arrowtypec;\height>%                              %    v             v
+(0,0)[#2`#3`#4;#5`#6`{#7}]%                        %   #3------------>#4
+\enddiagram%%                                      %          #7
+}}
+ 
+\def\putAtrianglepairp<#1>(#2)[#3;#4`#5`#6`#7`#8]{{%
+\settripairparms[#1]%
+\setpos(#2)%
+\settokens`#3`%
+\puthmorphism(\xpos,\ypos)[\tokenb`\tokenc`{#7}]{\height}{\arrowtyped}b%
+\advance\xpos by\height
+\puthmorphism(\xpos,\ypos)[\phantom{\tokenc}`\tokend`{#8}]%
+{\height}{\arrowtypee}b%
+\advance\ypos by\height
+\putmorphism(\xpos,\ypos)(-1,-1)[\tokena``{#4}]{\height}{\arrowtypea}l%
+\putvmorphism(\xpos,\ypos)[``{#5}]{\height}{\arrowtypeb}m%
+\putmorphism(\xpos,\ypos)(1,-1)[``{#6}]{\height}{\arrowtypec}r%
+}}
+ 
+\def\putAtrianglepair{\@ifnextchar <{\putAtrianglepairp}{\putAtrianglepairp%
+   <\arrowtypea`\arrowtypeb`\arrowtypec`\arrowtyped`\arrowtypee;\height>}}
+\def\Atrianglepair{\@ifnextchar <{\Atrianglepairp}{\Atrianglepairp%
+   <\arrowtypea`\arrowtypeb`\arrowtypec`\arrowtyped`\arrowtypee;\height>}}
+ 
+\def\Atrianglepairp<#1>[#2;#3`#4`#5`#6`#7]{{%           %  #2a
+\settripairparms[#1]%                         %           / | \
+\settokens`#2`%                               %          /  |  \
+\width=\height                                %       #3/  #4   \#5
+\diagram%                                     %        /    |    \
+\putAtrianglepairp                            %       /     |     \
+<\arrowtypea`\arrowtypeb`\arrowtypec`%        %      v      v      v
+\arrowtyped`\arrowtypee;\height>%             %     #2b---->#2c---->#2d
+(0,0)[{#2};#3`#4`#5`#6`{#7}]%                 %         #6     #7
+\enddiagram%%
+}}
+ 
+\def\putVtrianglep<#1>(#2,#3)[#4`#5`#6;#7`#8`#9]{{%
+\settriparms[#1]%
+\xpos=#2 \ypos=#3
+\advance\ypos by\height
+{\multiply\height by2
+\puthmorphism(\xpos,\ypos)[#4`#5`{#7}]{\height}{\arrowtypea}a}%
+\putmorphism(\xpos,\ypos)(1,-1)[`#6`{#8}]{\height}{\arrowtypeb}l%
+\advance\xpos by\height
+\advance\xpos by\height
+\putmorphism(\xpos,\ypos)(-1,-1)[``{#9}]{\height}{\arrowtypec}r%
+}}
+ 
+\def\putVtriangle{\@ifnextchar <{\putVtrianglep}{\putVtrianglep
+   <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+\def\Vtriangle{\@ifnextchar <{\Vtrianglep}{\Vtrianglep
+   <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+                                               %               #5
+\def\Vtrianglep<#1>[#2`#3`#4;#5`#6`#7]{{%%     %        #2------------->#3
+\settriparms[#1]%                              %         \             /
+\width=\height                                 %          \           /
+\diagram%                                      %         #6\         /#7
+\putVtrianglep<\arrowtypea`\arrowtypeb`%       %            \       /
+\arrowtypec;\height>%                          %             \     /
+(0,0)[#2`#3`#4;#5`#6`{#7}]%                    %              v   v
+\enddiagram%%                                  %               #4
+}}
+ 
+\def\putVtrianglepairp<#1>(#2)[#3;#4`#5`#6`#7`#8]{{
+\settripairparms[#1]%
+\setpos(#2)%
+\settokens`#3`%
+\advance\ypos by\height
+\putmorphism(\xpos,\ypos)(1,-1)[`\tokend`{#6}]{\height}{\arrowtypec}l%
+\puthmorphism(\xpos,\ypos)[\tokena`\tokenb`{#4}]{\height}{\arrowtypea}a%
+\advance\xpos by\height
+\puthmorphism(\xpos,\ypos)[\phantom{\tokenb}`\tokenc`{#5}]%
+{\height}{\arrowtypeb}a%
+\putvmorphism(\xpos,\ypos)[``{#7}]{\height}{\arrowtyped}m%
+\advance\xpos by\height
+\putmorphism(\xpos,\ypos)(-1,-1)[``{#8}]{\height}{\arrowtypee}r%
+}}
+ 
+\def\putVtrianglepair{\@ifnextchar <{\putVtrianglepairp}{\putVtrianglepairp%
+    <\arrowtypea`\arrowtypeb`\arrowtypec`\arrowtyped`\arrowtypee;\height>}}
+\def\Vtrianglepair{\@ifnextchar <{\Vtrianglepairp}{\Vtrianglepairp%
+    <\arrowtypea`\arrowtypeb`\arrowtypec`\arrowtyped`\arrowtypee;\height>}}
+                                               %     #3      #4
+\def\Vtrianglepairp<#1>[#2;#3`#4`#5`#6`#7]{{%  %  #2a---->#2b---->#2c
+\settripairparms[#1]%                          %   \      |      /
+\settokens`#2`%                                %    \     |     /
+\diagram%                                      %   #5\   #6    /#7
+\putVtrianglepairp                             %      \   |   /
+<\arrowtypea`\arrowtypeb`\arrowtypec`%         %       \  |  /
+\arrowtyped`\arrowtypee;\height>%              %        v v v
+(0,0)[{#2};#3`#4`#5`#6`{#7}]%                  %         #2d
+\enddiagram%%
+}}
+ 
+ 
+\def\putCtrianglep<#1>(#2,#3)[#4`#5`#6;#7`#8`#9]{{%
+\settriparms[#1]%
+\xpos=#2 \ypos=#3
+\advance\ypos by\height
+\putmorphism(\xpos,\ypos)(1,-1)[``{#9}]{\height}{\arrowtypec}l%
+\advance\xpos by\height
+\advance\ypos by\height
+\putmorphism(\xpos,\ypos)(-1,-1)[#4`#5`{#7}]{\height}{\arrowtypea}l%
+{\multiply\height by 2
+\putvmorphism(\xpos,\ypos)[`#6`{#8}]{\height}{\arrowtypeb}r}%
+}}
+ 
+\def\putCtriangle{\@ifnextchar <{\putCtrianglep}{\putCtrianglep
+    <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+\def\Ctriangle{\@ifnextchar <{\Ctrianglep}{\Ctrianglep
+    <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+                                             %                 #2
+\def\Ctrianglep<#1>[#2`#3`#4;#5`#6`#7]{{%%   %                / |
+\settriparms[#1]%                            %             #5/  |
+\width=\height                               %              /   |
+\diagram%                                    %             v    |
+\putCtrianglep<\arrowtypea`\arrowtypeb`%     %           #3     |#6
+\arrowtypec;\height>%                        %             \    |
+(0,0)[#2`#3`#4;#5`#6`{#7}]%                  %            #7\   |
+\enddiagram%%                                %               \  |
+}}                                           %                v v
+                                             %                 #4
+\def\putDtrianglep<#1>(#2,#3)[#4`#5`#6;#7`#8`#9]{{%
+\settriparms[#1]%
+\xpos=#2 \ypos=#3
+\advance\xpos by\height \advance\ypos by\height
+\putmorphism(\xpos,\ypos)(-1,-1)[``{#9}]{\height}{\arrowtypec}r%
+\advance\xpos by-\height \advance\ypos by\height
+\putmorphism(\xpos,\ypos)(1,-1)[`#5`{#8}]{\height}{\arrowtypeb}r%
+{\multiply\height by 2
+\putvmorphism(\xpos,\ypos)[#4`#6`{#7}]{\height}{\arrowtypea}l}%
+}}
+ 
+\def\putDtriangle{\@ifnextchar <{\putDtrianglep}{\putDtrianglep
+    <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+\def\Dtriangle{\@ifnextchar <{\Dtrianglep}{\Dtrianglep
+   <\arrowtypea`\arrowtypeb`\arrowtypec;\height>}}
+                                            %          #2
+\def\Dtrianglep<#1>[#2`#3`#4;#5`#6`#7]{{%%  %          | \
+\settriparms[#1]%                           %          |  \#6
+\width=\height                              %          |   \
+\diagram%                                   %          |    v
+\putDtrianglep<\arrowtypea`\arrowtypeb`%    %        #5|    #3
+\arrowtypec;\height>%                       %          |    /
+(0,0)[#2`#3`#4;#5`#6`{#7}]%                 %          |   /#7
+\enddiagram%%                               %          |  /
+}}                                          %          v v
+                                            %          #4
+\def\setrecparms[#1`#2]{\width=#1 \height=#2}%
+%              #4
+%        #3b<-------#3a x #3b
+%       ^ |             |
+%      /  |             |
+%   #5/   |             |
+%    /    |             |
+%   /     |             |
+%  /      |             |
+% #3c     |#6           |#3a x #5
+%  \      |             |
+%   \     |             |
+%  #8\    |             |
+%     \   |             |
+%      \  |             |
+%       v v             v
+%        #3d<-------#3a x #3d
+%              #8
+ 
+\def\recursep<#1`#2>[#3;#4`#5`#6`#7`#8]{{\m@th
+\width=#1 \height=#2
+\settokens`#3`
+\settowidth{\tempdimen}{$\tokena$}
+\ifdim\tempdimen=0pt
+  \savebox{\tempboxa}{\hbox{$\tokenb$}}%
+  \savebox{\tempboxb}{\hbox{$\tokend$}}%
+  \savebox{\tempboxc}{\hbox{$#6$}}%
+\else
+  \savebox{\tempboxa}{\hbox{$\hbox{$\tokena$}\times\hbox{$\tokenb$}$}}%
+  \savebox{\tempboxb}{\hbox{$\hbox{$\tokena$}\times\hbox{$\tokend$}$}}%
+  \savebox{\tempboxc}{\hbox{$\hbox{$\tokena$}\times\hbox{$#6$}$}}%
+\fi
+\ypos=\height
+\divide\ypos by 2
+\xpos=\ypos
+\advance\xpos by \width
+\bfig
+\putCtrianglep<-1`1`1;\ypos>(0,0)[`\tokenc`;#5`#6`{#7}]%
+\puthmorphism(\ypos,0)[\tokend`\usebox{\tempboxb}`{#8}]{\width}{-1}b%
+\puthmorphism(\ypos,\height)[\tokenb`\usebox{\tempboxa}`{#4}]{\width}{-1}a%
+\advance\ypos by \width
+\putvmorphism(\ypos,\height)[``\usebox{\tempboxc}]{\height}1r%
+\efig
+}}
+ 
+\def\recurse{\@ifnextchar <{\recursep}{\recursep<\width`\height>}}
+ 
+\def\puttwohmorphisms(#1,#2)[#3`#4;#5`#6]#7#8#9{{%
+% 1 and 2 are position, 3 and 4 are the nodes, 5 and 6 the labels,
+% 7 the distance between node centers and 8 & 9 are the arrow types.
+%         #5
+% #3 ===========> #4
+%         #6
+%
+\puthmorphism(#1,#2)[#3`#4`]{#7}0a
+\ypos=#2
+\advance\ypos by 20
+\puthmorphism(#1,\ypos)[\phantom{#3}`\phantom{#4}`#5]{#7}{#8}a
+\advance\ypos by -40
+\puthmorphism(#1,\ypos)[\phantom{#3}`\phantom{#4}`#6]{#7}{#9}b
+}}
+ 
+\def\puttwovmorphisms(#1,#2)[#3`#4;#5`#6]#7#8#9{{%
+% 1 and 2 are position, 3 and 4 are the nodes, 5 and 6 the labels,
+% 7 the distance between node centers and 8 & 9 are the arrow types.
+%
+%              #3
+%              ||
+%              ||
+%           #5 || #6
+%              ||
+%              ||
+%              vv
+%              #4
+%
+\putvmorphism(#1,#2)[#3`#4`]{#7}0a
+\xpos=#1
+\advance\xpos by -20
+\putvmorphism(\xpos,#2)[\phantom{#3}`\phantom{#4}`#5]{#7}{#8}l
+\advance\xpos by 40
+\putvmorphism(\xpos,#2)[\phantom{#3}`\phantom{#4}`#6]{#7}{#9}r
+}}
+ 
+\def\puthcoequalizer(#1)[#2`#3`#4;#5`#6`#7]#8#9{{%
+% #1 is (\xpos,\ypos), the next 6 are the nodes and arrow labels
+% #8 is the distance between each pair of nodes and #9 is the pos of #7
+% either a (above) or b (below)
+%         #5            #7
+% #2 ===========> #3 --------> #4
+%         #6
+%
+\setpos(#1)%
+\puttwohmorphisms(\xpos,\ypos)[#2`#3;#5`#6]{#8}11%
+\advance\xpos by #8
+\puthmorphism(\xpos,\ypos)[\phantom{#3}`#4`#7]{#8}1{#9}
+}}
+ 
+\def\putvcoequalizer(#1)[#2`#3`#4;#5`#6`#7]#8#9{{%
+% #1 is (\xpos,\ypos), the next 6 are the nodes and arrow labels
+% #8 is the distance between each pair of nodes and #9 is the pos of #7
+% either l (left) or r (right)
+%
+%              #2
+%              | |
+%              | |
+%           #5 | | #6
+%              | |
+%              | |
+%              v v
+%              #3
+%               |
+%               |
+%            #7 |
+%               |
+%               v
+%              #4
+%
+\setpos(#1)%
+\puttwovmorphisms(\xpos,\ypos)[#2`#3;#5`#6]{#8}11%
+\advance\ypos by -#8
+\putvmorphism(\xpos,\ypos)[\phantom{#3}`#4`#7]{#8}1{#9}
+}}
+ 
+\def\putthreehmorphisms(#1)[#2`#3;#4`#5`#6]#7(#8)#9{{%
+% Use: \putthreehmorphisms(xpos,ypos)[lnode`rnode;toplabel`midlabel%
+% botlabel]{distance}(toparrowtype,midarrowtype,botarrowtype){position}
+\setpos(#1) \settypes(#8)
+\if a#9 %
+     \vertsize{\tempcounta}{#5}%
+     \vertsize{\tempcountb}{#6}%
+     \ifnum \tempcounta<\tempcountb \tempcounta=\tempcountb \fi
+\else
+     \vertsize{\tempcounta}{#4}%
+     \vertsize{\tempcountb}{#5}%
+     \ifnum \tempcounta<\tempcountb \tempcounta=\tempcountb \fi
+\fi
+\advance \tempcounta by 60
+\puthmorphism(\xpos,\ypos)[#2`#3`#5]{#7}{\arrowtypeb}{#9}
+\advance\ypos by \tempcounta
+\puthmorphism(\xpos,\ypos)[\phantom{#2}`\phantom{#3}`#4]{#7}{\arrowtypea}{#9}
+\advance\ypos by -\tempcounta \advance\ypos by -\tempcounta
+\puthmorphism(\xpos,\ypos)[\phantom{#2}`\phantom{#3}`#6]{#7}{\arrowtypec}{#9}
+}}
+ 
+\def\setarrowtoks[#1`#2`#3`#4`#5`#6]{%
+\def\toka{#1}
+\def\tokb{#2}
+\def\tokc{#3}
+\def\tokd{#4}
+\def\toke{#5}
+\def\tokf{#6}
+}
+\def\hex{\@ifnextchar <{\hexp}{\hexp<1000`400>}}
+\def\hexp<#1`#2>[#3`#4`#5`#6`#7`#8;#9]{%
+\setarrowtoks[#9]
+\yext=#2 \advance \yext by #2
+\xext=#1 \advance\xext by \yext
+\bfig
+\putCtriangle<-1`0`1;#2>(0,0)[`#5`;\tokb``\tokd]
+\xext=#1 \yext=#2 \advance \yext by #2
+\putsquare<1`0`0`1;\xext`\yext>(#2,0)[#3`#4`#7`#8;\toka```\tokf]
+\advance \xext by #2
+\putDtriangle<0`1`-1;#2>(\xext,0)[`#6`;`\tokc`\toke]
+\efig
+}
+%\def\doublecomplex[#1`#2`#3`#4`#5`#6`#7`#8`#9]{%
+%\bfig
+%\putsquare<0`0`1`1;500`500>(0,1700)[`\vdots`\cdots`{#1};```]
+%\puthmorphism(500,1700)[\ph{#1}`\cdots`]{500}1a
+%\puthmorphism(1000,1700)[\ph{\cdots}`\ph{#2}`]{500}1a
+%\putsquare<0`1`1`1;700`500>(1500,1700)[\vdots`\vdots`{#2}`{#3};```]
+%\puthmorphism(2200,1700)[\ph{#3}`0`]{500}1a
+%\putvmorphism(500,1700)[`\vdots`]{400}1a \putvmorphism(500,1300)[``]{400}1a
+%\putvmorphism(1500,1700)[`\vdots`]{400}1a \putvmorphism(1500,1300)[``]{400}1a
+%\putvmorphism(2200,1700)[`\vdots`]{400}1a \putvmorphism(2200,1300)[``]{400}1a
+%\putsquare<1`0`1`1;500`500>(0,400)[\cdots`{#4}`\cdots`{#7};```]
+%\puthmorphism(500,900)[\ph{#1}`\cdots`]{500}1a
+%\puthmorphism(1000,900)[\ph{\cdots}`\ph{#2}`]{500}1a
+%\puthmorphism(500,400)[\ph{#1}`\cdots`]{500}1a
+%\puthmorphism(1000,400)[\ph{\cdots}`\ph{#2}`]{500}1a
+%\putsquare<1`1`1`1;700`500>(1500,400)[{#5}`{#6}`{#8}`{#9};```]
+%\puthmorphism(2200,900)[\ph{#6}`0`]{500}1a
+%\puthmorphism(2200,400)[\ph{#9}`0`]{500}1a
+%\putvmorphism(500,400)[`0`]{400}1a
+%\putvmorphism(1500,400)[`0`]{400}1a
+%\putvmorphism(2200,400)[`0`]{400}1a
+%\efig
+%}
+%
+%\def\doublecocomplex[#1`#2`#3`#4`#5`#6`#7`#8`#9]{%
+%\bfig
+%\putsquare<0`0`-1`-1;500`500>(0,1700)[`\vdots`\cdots`{#1};```]
+%\puthmorphism(500,1700)[\ph{#1}`\cdots`]{500}{-1}a
+%\puthmorphism(1000,1700)[\ph{\cdots}`\ph{#2}`]{500}{-1}a
+%\putsquare<0`-1`-1`-1;500`500>(1500,1700)[\vdots`\vdots`{#2}`{#3};```]
+%\puthmorphism(2000,1700)[\ph{#3}`0`]{500}{-1}a
+%\putvmorphism(500,1700)[`\vdots`]{400}{-1}a \putvmorphism(500,1300)[``]{400}{-1}a
+%\putvmorphism(1500,1700)[`\vdots`]{400}{-1}a \putvmorphism(1500,1300)[``]{400}{-1}a
+%\putvmorphism(2000,1700)[`\vdots`]{400}{-1}a \putvmorphism(2000,1300)[``]{400}{-1}a
+%\putsquare<-1`0`-1`-1;500`500>(0,400)[\cdots`{#4}`\cdots`{#7};```]
+%\puthmorphism(500,900)[\ph{#1}`\cdots`]{500}{-1}a
+%\puthmorphism(1000,900)[\ph{\cdots}`\ph{#2}`]{500}{-1}a
+%\puthmorphism(500,400)[\ph{#1}`\cdots`]{500}{-1}a
+%\puthmorphism(1000,400)[\ph{\cdots}`\ph{#2}`]{500}{-1}a
+%\putsquare<-1`-1`-1`-1;500`500>(1500,400)[{#5}`{#6}`{#8}`{#9};```]
+%\puthmorphism(2000,900)[\ph{#6}`0`]{500}{-1}a
+%\puthmorphism(2000,400)[\ph{#9}`0`]{500}{-1}a
+%\putvmorphism(500,400)[`0`]{400}{-1}a
+%\putvmorphism(1500,400)[`0`]{400}{-1}a
+%\putvmorphism(2000,400)[`0`]{400}{-1}a
+%\efig
+%}
+\makeatother

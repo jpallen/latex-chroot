@@ -1,0 +1,39 @@
+% File tibvoweluni.otp
+% Setting of the  vowels.
+% Copyright (c) 1997 Norbert Preining
+% this file is part of the otibet package.
+% 
+
+input:  2;
+output: 2;
+
+states: main, compose;
+
+aliases:
+cons =          ( ( @"0f40 - @"0f47 ) | ( @"0f49 - @"0f69 ) | @"25cc ) ;
+subjoin = ( ( @"0f90 - @"0f95 ) | @"0f97 | ( @"0f99 - @"0fad ) | 
+		( @"0fb1 - @"0fb7 ) | @"0fb9 ) ;
+compound = ( ( @"e08c - @"e0e7 ) | @"e0f3 | @"e0f8 | @"e0f9 ) ;
+allcons = ( {cons} | {compound} ) ;
+voup    =       ( (@"0f72 - @"0f73) | (@"0f7a - @"0f7e) |
+		  (@"e001 - @"e003) ) ;
+vodo =  ( @"0f71 | ( @"0f74 - @"0f75 ) ) ;
+vo = ( {voup} | {vodo} ) ;
+
+expressions:
+.			=> <= \1		<main>		;
+
+<main>	{allcons} end:	=> \1				<main>	;
+<main>	{allcons}	=> "\turn{" \1 "\relax}"   <compose>	;
+<main>  .		=> \1			<main>		;
+
+<compose> {subjoin} end:	=> "\turn{\setbelow{" \1 "}}\stop "	<compose> ;
+<compose> {voup} end:	=> "\turn{\setabove{" \1 "}}\stop "	<compose> ;
+<compose> {vodo} end:	=> "\turn{\setbelow{" \1 "}}\stop "	<compose> ;
+<compose> {subjoin}	=> "\turn{\setbelow{" \1 "}}"	<compose> ;
+<compose> @"25cc	=>				<compose> ;
+<compose> {voup}	=> "\turn{\setabove{" \1 "}}"	<compose> ;
+<compose> {vodo}	=> "\turn{\setbelow{" \1 "}}"	<compose> ;
+<compose> {allcons}	=> "\stop " <= \1		<main>	;
+<compose> .		=> "\stop " \1			<main>	;
+

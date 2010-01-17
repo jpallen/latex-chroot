@@ -1,0 +1,139 @@
+%% Package style for the pst-eucl documentation package
+\DeclareOption{french}{\gdef\euclide@language{frenchb}}%
+\def\fileversion{1.0}
+\def\filedate{2005/01/19}%
+%% This program can be redistributed and/or modified under the terms
+%% of the LaTeX Project Public License Distributed from CTAN
+%% archives in directory macros/latex/base/lppl.txt.
+\csname EuclideManualLoaded\endcsname
+\let\EuclideManualLoaded\endinput
+\def\@english{english}%
+\def\@frenchb{frenchb}%
+\def\euclide@language{english}%
+\ProcessOptions
+\message{`Euclide manual package v\fileversion, \filedate\space (Dominique RODRIGUEZ)}%
+\message{ all declarations for the pst-eucl manual}%
+\message{ BEWARE you are using the \euclide@language\ language setting}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\PassOptionsToPackage{greek}{babel}%%\PassOptionsToPackage{LGR}{fontenc}
+\usepackage[T1]{fontenc}
+%\expandafter\ifx\csname PDF\endcsname\relax\else
+\usepackage{ae,aecompl,aeguill}
+%\usepackage{pslatex}%for generating a pdf-file with ps2pdf
+%\fi
+\usepackage[\euclide@language]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[a4paper]{geometry}
+\usepackage[usenames]{pstcol}
+\usepackage{pst-eucl}
+\usepackage{pst-plot}
+\usepackage{ifthen}
+\usepackage{calc}
+\usepackage{array}
+\usepackage{moreverb}
+\usepackage{multicol}
+\usepackage{mathrsfs}
+\usepackage{changebar}
+\usepackage{xspace}
+\usepackage{fancyhdr}
+\usepackage{multind}
+\usepackage{textcomp}
+%\usepackage{yhmath}
+\usepackage{longtable}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% QQ DEFINITIONS
+\def\Vecteur#1{\ensuremath{\overrightarrow{#1\hspace{.3em}}}}%
+\def\Angle#1{\ensuremath{\widehat{#1}}}%
+\def\Segment#1{\ensuremath{[#1]}}%
+\def\Arg#1{{\normalfont$\{$\@Arg{#1}$\}$}}%
+\def\Argsans#1{\@Arg{#1}}%
+\def\OptArg#1{{\normalfont[{\@Arg{#1}}]}}%
+\def\@Arg#1%
+  {$\protect\langle${\itshape\mdseries\rmfamily#1}$\protect\rangle$}%
+%% le backslash \
+\newcommand{\bs}{\symbol{'134}}%
+\newcommand{\defcom}[3][\null]{%
+  \begin{trivlist}\item\fbox{\texttt{\upshape\bs#2}#3}\end{trivlist}
+  \glossary{#2}%%pour le numéro de page dans le glossaire des commandes
+  \glossary{#2!\protect\indexcom{#2}\protect#3}% pour le glossaire
+  \Glos{#2}{\protect\indexcom{#2}\protect#3}{\hspace{1.5em}#1}%
+}%
+\newcommand{\Glos}[3]{\glossary{#1!#2!#3}}%
+\newcommand{\indexcom}[1]%
+  {\textmd{\texttt{\upshape\bs#1}}}%
+%  {\index{latex}{#1@{\texttt{\upshape\bs#1}}}\textmd{\texttt{\upshape\bs#1}}}%
+\newcommand{\ComUnDescr}{\null}
+\newcommand{\ComDeuxDescr}{\null}
+\newcommand{\defcomdeux}[4]{%
+    \begin{center}%
+    \begin{minipage}[t]{.45\linewidth}%
+      \begin{trivlist}\item\fbox{\texttt{\upshape\bs#1}#2}\end{trivlist}%
+      \glossary{#3}%%pour le numéro de page dans le glossaire des commandes
+      \glossary{#1!\protect\indexcom{#1}\protect#2}% pour le glossaire
+      \Glos{#1}{\protect\indexcom{#1}\protect#2}{\hspace{1.5em}\expandafter\ComUnDescr}%
+    \end{minipage}%
+    \hfill%
+    \begin{minipage}[t]{.45\linewidth}%
+      \begin{trivlist}\item\fbox{\texttt{\upshape\bs#3}#4}\end{trivlist}%
+      \glossary{#3}%%pour le numéro de page dans le glossaire des commandes
+      \glossary{#3!\protect\indexcom{#3}\protect#4}% pour le glossaire
+      \Glos{#3}{\protect\indexcom{#3}\protect#4}{\hspace{1.5em}\expandafter\ComDeuxDescr}%
+    \end{minipage}
+    \end{center}}%end defcomdeux
+\newcommand{\ParamList}[1]{\par
+  \small\hspace{1.5em}Param\ifx\euclide@language\@english eters\else ètres \fi: #1}
+\newenvironment{tabexemple}[1]%
+  [@{}m{.3\linewidth}@{\hspace{.013\linewidth}}>{\small}m{.677\linewidth}@{}]%
+  {\vspace{1em}\noindent\small\begin{center}%
+   \noindent\begin{tabular}{#1}}%
+  {\mbox{}\vspace{-1.5em}\end{tabular}\end{center}}%
+\newcommand{\tabex}[2]%
+  [@{}m{.3\linewidth}@{\hspace{.013\linewidth}}m{.677\linewidth}@{}]%
+{%
+  \begin{tabexemple}[#1]%
+    \input{Exemples/#2}&\smallverbatiminput{Exemples/#2_in}%
+  \end{tabexemple}%
+}%
+\def\smallverbatiminput#1{\small\verbatiminput{#1}}%
+\def\param#1{\texttt{#1}}
+\def\com#1{\texttt{\bs #1}}
+\def\DefaultVal#1%
+  {(\ifx\euclide@language\@english by default \fi\texttt{#1}\ifx\euclide@language\@frenchb\ par défaut\fi)\xspace}
+\def\PStricks{\texttt{PSTricks}\xspace}
+\def\PostScript{\textsf{PostScript}\xspace}
+\def\Version{Version 1{.}3{.}2\xspace}
+\def\Date{\ifx\euclide@language\@english march 28th \else 28 mars \fi 2005}
+\newcommand{\MonEuro}{\texteuro\xspace}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\geometry{bottom=2.5cm, left=1cm, headheight=15.8pt, verbose}%, verbose}
+\psset{subgriddiv=0,griddots=5}
+\setlength{\changebarsep}{10pt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% entête et pied de page
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+%\lhead{\Version -- \Date}
+%\chead{}
+%\rhead{Extension \texttt{pst-eucl} -- D. \textsc{Rodriguez}}
+%\cfoot{\psshadowbox{\thepage}}
+\lfoot{\Version --\Date}
+\rfoot{Extension \texttt{pst-eucl} -- D. \textsc{Rodriguez}}
+%%%%%%%%%%%%%%%%%%%%
+\newcounter{i}
+%%%%%%%%%%%%%%%%%%%%
+\def\twocoltoc{%
+  \chapter*{\contentsname
+      \@mkboth{%
+         \MakeUppercase\contentsname}{\MakeUppercase\contentsname}}%
+  \begin{multicols}{2}
+    \@starttoc{toc}%
+  \end{multicols}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% GLOSSAIRE
+\makeglossary
+\endinput

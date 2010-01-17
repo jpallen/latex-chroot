@@ -1,0 +1,195 @@
+%%
+%% This is file `xo-grid.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xo-grid.dtx  (with options: `package,progress')
+%% 
+%% Not for distribution
+%% 
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%% 
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+
+\def\@tempa#1: #2.dtx,v #3 #4 #5 #6 #7${
+  \ProvidesPackage{#2}[#4 #3 #5 #6]}
+\@tempa$Id: xo-grid.dtx,v 1.3 2000/08/11 07:14:20 latex3 Exp $
+\IgnoreWhiteSpace
+\newskip\headingsinkage
+\headingsinkage=5pt plus 3pt minus 5pt
+\def\@startsection#1#2#3#4#5#6{%
+  \if@noskipsec \leavevmode \fi
+  \par
+  \@tempskipa #4\relax
+  \@afterindenttrue
+  \ifdim \@tempskipa <\z@
+    \@tempskipa -\@tempskipa \@afterindentfalse
+  \fi
+  \if@nobreak
+    \everypar{}%
+  \else
+    \addpenalty\@secpenalty
+    \addvspace\@tempskipa
+    \vskip-\headingsinkage
+    \vskip\saved@topskip
+    \vskip-\prevdepth
+    \nointerlineskip
+    \null
+    \nobreak
+    \vskip-\saved@topskip
+    \vskip\headingsinkage
+  \fi
+  \@ifstar
+    {\@ssect{#3}{#4}{#5}{#6}}%
+    {\@dblarg{\@sect{#1}{#2}{#3}{#4}{#5}{#6}}}}
+\def\@sect#1#2#3#4#5#6[#7]#8{%
+  \ifnum #2>\c@secnumdepth
+    \let\@svsec\@empty
+  \else
+    \refstepcounter{#1}%
+    \protected@edef\@svsec{\@seccntformat{#1}\relax}%
+  \fi
+  \@tempskipa #5\relax
+  \IgnoreAlignToGrid
+  \ifdim \@tempskipa>\z@
+    \begingroup
+      #6{%
+        \@hangfrom{\hskip #3\relax\@svsec}%
+          \interlinepenalty \@M #8\@@par}%
+    \endgroup
+    \csname #1mark\endcsname{#7}%
+    \addcontentsline{toc}{#1}{%
+      \ifnum #2>\c@secnumdepth \else
+        \protect\numberline{\csname the#1\endcsname}%
+      \fi
+      #7}%
+  \else
+    \def\@svsechd{%
+      #6{\hskip #3\relax
+      \@svsec #8}%
+      \csname #1mark\endcsname{#7}%
+      \addcontentsline{toc}{#1}{%
+        \ifnum #2>\c@secnumdepth \else
+          \protect\numberline{\csname the#1\endcsname}%
+        \fi
+        #7}}%
+  \fi
+  \@xsect{#5}}
+\def\@xsect#1{%
+  \ObeyAlignToGrid
+  \@tempskipa #1\relax
+  \ifdim \@tempskipa>\z@
+    \par \nobreak
+    \vskip \@tempskipa
+    \@afterheading
+  \else
+    \@nobreakfalse
+    \global\@noskipsectrue
+    \everypar{%
+      \if@noskipsec
+        \global\@noskipsecfalse
+       {\setbox\z@\lastbox}%
+        \clubpenalty\@M
+        \AlignToGrid
+        \begingroup \@svsechd \endgroup
+        \unskip
+        \@tempskipa #1\relax
+        \hskip -\@tempskipa
+      \else
+        \clubpenalty \@clubpenalty
+        \everypar{}%
+      \fi}%
+  \fi
+  \ignorespaces}
+\def\@afterheading{%
+  \@nobreaktrue
+  \everypar{%
+    \if@nobreak
+      \@nobreakfalse
+      \clubpenalty \@M
+      \if@afterindent \else
+        {\setbox\z@\lastbox}%
+      \fi
+      \AlignToGrid
+    \else
+      \clubpenalty \@clubpenalty
+      \everypar{}%
+    \fi}}
+\def\@doendpe{\@endpetrue
+     \def\par{\@restorepar
+              \everypar{\everypar{}\AlignToGrid}\par\@endpefalse}%
+     \everypar{{\setbox\z@\lastbox}\everypar{}\AlignToGrid\@endpefalse}%
+}
+\def\endtrivlist{%
+  \if@inlabel
+    \leavevmode
+    \global \@inlabelfalse
+  \fi
+  \if@newlist
+    \@noitemerr
+    \global \@newlistfalse
+  \fi
+  \ifhmode\unskip \par\fi
+  \if@noparlist
+    \everypar{\everypar{}\AlignToGrid}
+  \else
+    \ifdim\lastskip >\z@
+      \@tempskipa\lastskip \vskip -\lastskip
+      \advance\@tempskipa\parskip \advance\@tempskipa -\@outerparskip
+      \vskip\@tempskipa
+    \fi
+    \@endparenv
+  \fi
+}
+\def \displaymath {
+   \relax\ifmmode
+      \@badmath
+   \else
+      \ifvmode
+         \nointerlineskip
+         \makebox[.6\linewidth]%
+      \fi
+      $$%%$$ BRACE MATCH HACK
+   \fi
+}
+\def \enddisplaymath {
+   \relax\ifmmode
+      \ifinner
+         \@badmath
+      \else
+         $$%%$$ BRACE MATCH HACK
+      \fi
+   \else
+      \@badmath
+   \fi
+   \par
+   \@endpetrue % kill parindent if current paragraph continues
+   \@ignoretrue
+}
+\def\[{\begin{displaymath}}
+\def\]{\end{displaymath}}
+\def\endequation{\eqno \hbox{\@eqnnum}$$\par\@ignoretrue
+   \@endpetrue % kill parindent if current paragraph continues
+}
+\def\endeqnarray{%
+      \@@eqncr
+      \egroup
+      \global\advance\c@equation\m@ne
+   $$\par\@ignoretrue
+   \@endpetrue % kill parindent if current paragraph continues
+}
+\endinput
+%%
+%% End of file `xo-grid.sty'.

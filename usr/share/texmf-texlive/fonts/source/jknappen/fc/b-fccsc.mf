@@ -1,0 +1,247 @@
+% This is B-FCCSC.MF
+% African Computer Modern Roman Caps and Small Caps
+% 
+% This is a parameter and driver file in one
+% Version 1.3
+% Date 5-MAR-1998
+% 
+% (c) Copyright 1991--1998 by J"org Knappen. See fc.rme for copying conditions
+% This file is part of the fc-package 
+% See fc.rme for more information
+%
+% J"org Knappen
+% Barbarossaring 43
+% D 55118 Mainz
+
+if unknown cmbase: input cmbase fi
+
+font_identifier:="FCCSC"; font_size design_size * pt#;
+
+% first come parameters used to set the uppercase letters
+% (including some for lowercase that aren't actually used)
+% These parameters are nearly the same as the Computer Modern Roman
+% parameters.
+
+input c-cmr;
+univ_acc_breadth:=0.5;    % zusatz parameter for the universal accent
+u#:=                      % unit width
+    ((u#*360pt#) + (design_size * 1))/360pt#;
+
+letter_fit#:=             % extra space added to all sidebars
+    ((letter_fit#*360pt#) + (design_size * 5))/360pt#;    
+
+ligs:=1;                  % level of ligatures to be included
+
+mode_setup; 
+font_setup;
+
+input fcmacros;
+input fccoding;
+input olddig;  % oldstyle numbers from computer modern
+input fcpunct;   
+input fcaccent;
+input fcrompct;
+input uppera;
+input upperbcd;
+input uppere;
+input upperfgh;
+input upperij;
+input upperklm;
+input uppern;
+input uppero;
+input upperpqr;
+input upperst;
+input upperuvw;
+input upperxyz;
+
+input fcscligt.mf;
+font_slant slant; font_x_height x_height#;
+if monospace: font_normal_space 9u#; % no stretching or shrinking
+ font_quad 18u#;
+ font_extra_space 9u#;
+else: font_normal_space 6u#+2letter_fit#;
+ font_normal_stretch 3u#; font_normal_shrink 2u#;
+ font_quad 18u#+4letter_fit#;
+ font_extra_space 2u#;
+def lig_o_table (expr k) =
+             "o" kern k,  open_o kern k, open_o_tilde kern k,
+                          o_grave kern k, o_dot kern k, o_hat kern k,
+                          o_tilde kern k, o_umlaut kern k, oe_lig kern k,
+                          crossed_o kern k, o_dotu kern k, o_uline kern k,
+                          o_bar kern k, o_hachek kern k
+enddef;
+%
+def lig_a_table (expr k) =
+           "a" kern k,    a_tilde kern k, ae_lig kern k
+enddef;
+%
+def lig_u_table (expr k)=
+             "u" kern k, u_dotu kern k, u_tilde kern k, var_u kern k
+enddef;
+%
+def lig_A_table (expr k) =
+           "A" kern k,    A_tilde kern k, AE_lig kern k
+enddef;
+%
+def lig_O_table (expr k) =
+             "O" kern k,  open_o kern k, open_O_tilde kern k,
+                          O_grave kern k, O_dot kern k, O_hat kern k,
+                          O_tilde kern k, O_umlaut kern k, OE_lig kern k,
+                          crossed_O kern k, O_dotu kern k, O_uline kern k,
+                          O_bar kern k, O_hachek kern k
+enddef;
+%
+def lig_U_table (expr k)=
+             "U" kern k, U_dotu kern k, U_tilde kern k, var_U kern k
+enddef;
+%
+
+
+ k#:=-.5u#; kk#:=-1.5u#; kkk#:=-2u#; % three degrees of kerning
+ ligtable "P": "T": hooktop_P: hooktop_T: "Y": hooktop_Y:
+            lig_a_table(kk#), lig_A_table(kk#);
+ ligtable "F": long_F: "V": "W": 
+            if serifs: lig_a_table(kkk#), lig_A_table(kkk#),
+            else: lig_a_table(kk#), lig_A_table(kk#), fi
+  "K": "X": lig_o_table(k#), lig_O_table(k#), "c" kern k#, "C" kern k#,
+            hooktop_c kern k#, hooktop_C kern k#, c_cedilla kern k#, 
+            C_cedilla kern k#,
+            "g" kern k#, "G" kern k#, "q" kern k#, "Q" kern k#;
+ ligtable "O": "D": Edh: hooktop_D: open_O: open_O_tilde: O_grave: O_dot:
+          O_hat: O_tilde: O_umlaut: crossed_O: O_dotu: O_bar: O_hachek:
+            "x" kern k#, "X" kern k#, "w" kern k#, "W" kern k#,
+            lig_a_table(k#), lig_A_table(k#), "v" kern k#, "V" kern k#, 
+            "y" kern k#, "Y" kern k#, hooktop_y kern k#, hooktop_Y kern k#;
+ ligtable "A": A_tilde: if serifs: "R": fi 
+            "c" kern k#, "C" kern k#, hooktop_c kern k#, hooktop_C kern k#, 
+            c_cedilla kern k#, C_cedilla kern k#,
+            lig_o_table(k#), lig_O_table(k#), "g" kern k#, "G" kern k#,
+            lig_u_table(k#), lig_U_table(k#), "q" kern k#, "Q" kern k#,
+          "L": latin_Iota:
+            "T" kern kk#, "t" kern kk#, long_T kern k#, long_t kern k#,
+            "Y" kern kk#, "y" kern kk#, hooktop_Y kern k#, hooktop_y kern k#,
+            "V" kern kkk#, "v" kern kkk#, "W" kern kkk#, "w" kern kkk#;
+ ligtable "I": "I" kern -k#; fi % Richard III
+
+
+% now come replacements used to set the lowercase caps
+% Since the number of strings is critical in the FC font, I decided to
+% overwrite the uppercase settings.
+
+u#:=                % unit width
+    (u#*36pt#*16)/(21*36pt#);
+
+width_adj#:=        % width adjustment for certain characters
+    width_adj#;
+
+cap_serif_fit#:=    % extra sidebar near uppercase serifs
+    (cap_serif_fit#*36pt#*4)/(5*36pt#);
+
+letter_fit#:=       % extra space added to all sidebars
+    (letter_fit#*36pt#*24)/(5*360pt#);
+
+body_height#:=      % height of tallest characters
+    (body_height#*36pt#*20.0)/(27.0*36pt#);
+
+cap_height#:=       % height of caps
+    (cap_height#*36pt#*18.5)/(24.6*36pt#);
+
+x_height#:=         % height of lowercase without ascenders
+    (x_height#*3.6pt#*116)/(155*3.6pt#);
+
+bar_height#:=       % height of crossbar in lowercase e
+    (bar_height#*36pt#*65)/(87*36pt#);
+
+comma_depth#:=      % depth of comma below baseline
+    (comma_depth#*36pt#*52)/(70*36pt#);
+
+stem#:=             % lowercase stem breadth
+    (stem#*36pt#*21)/(25*36pt#);
+
+flare#:=            % diameter of bulbs or breadth of terminals
+    (flare#*36pt#*25)/(33*36pt#);
+
+cap_hair#:=         % uppercase hairline breadth
+    (cap_hair#*3.6pt#*91)/(11*36pt#);
+
+cap_stem#:=         % uppercase stem breadth
+    (cap_stem#*36pt#*26)/(32*36pt#);
+
+cap_curve#:=        % uppercase curve breadth
+    (cap_curve#*36pt#*31)/(37*36pt#);
+
+cap_ess#:=          % breadth in middle of uppercase s
+    (cap_ess#*36pt#*28)/(35*36pt#);
+
+cap_jut#:=          % protrusion of uppercase serifs
+    (cap_jut#*36pt#*26)/(37*36pt#);
+
+beak_jut#:=         % horizontal protrusion of beak serifs
+    (beak_jut#*36pt#*7)/(10*36pt#);
+
+beak#:=             % vertical protrusion of beak serifs
+    (beak#*36pt#*52)/(7*360pt#);
+
+slab#:=             % serif and arm thickness
+    (slab#*36pt#*91)/(11*360pt#);
+
+cap_bar#:=          % uppercase bar thickness
+    (cap_bar#*36pt#*91)/(11*360pt#);
+
+cap_band#:=         % uppercase thickness above/below lobes
+    (cap_band#*36pt#*91)/(11*360pt#);
+
+cap_notch_cut#:=    % max breadth above/below uppercase notches
+    cap_notch_cut#;
+
+o#:=                % amount of overshoot for curves
+    (o#*36pt#*5)/(8*36pt#);
+
+apex_o#:=           % amount of overshoot for diagonal junctions
+    (apex_o#*36pt#*4)/(8*36pt#);
+
+fudge:=             % factor applied to weights of heavy characters
+    fudge;
+
+font_setup; % now try again with |lower| settings
+extra_endchar:=extra_endchar&"charcode:=charcode+code_offset";
+code_offset:=ASCII"a" - ASCII"A";
+input uppera;
+input upperbcd;
+input uppere;
+input upperfgh;
+input upperij;
+input upperklm;
+input uppern;
+input uppero;
+input upperpqr;
+input upperst;
+input upperuvw;
+input upperxyz;
+
+code_offset:=0;
+input fccscspu;  % some specials
+if not monospace:
+ k#:=-.5u#; kk#:=-1.5u#; kkk#:=-2u#; % three degrees of kerning
+ ligtable "p": "t": "y": hooktop_p: hooktop_t: hooktop_y:
+              lig_a_table(kk#);
+ ligtable "f": long_f: "v": "w": 
+              lig_a_table(if serifs: kkk# else: kk#\\fi),
+          "k": "x": 
+              lig_o_table(k#), "c" kern k#, hooktop_c kern k#, 
+              c_cedilla kern k#,
+              "g" kern k#, "q" kern k#;
+ ligtable "o": "d": open_o: open_o_tilde: o_grave: o_dot:
+          o_hat: o_tilde: o_umlaut: crossed_o: o_dotu: o_uline:
+          o_bar: o_hachek: crossed_d: tailed_d: hooktop_d:
+              "x" kern k#, "w" kern k#, lig_a_table(k#),
+              "v" kern k#, "y" kern k#, hooktop_y kern k#;
+ ligtable "a": if serifs: "r": fi 
+              "c" kern k#, c_cedilla kern k#, hooktop_c kern k#, 
+              lig_o_table(k#),
+              "g" kern k#, "u" kern k#, "q" kern k#,
+          "l": latin_iota: oct"033": oct"037":
+               "'" kern kk#, "t" kern kk#, long_t kern kk#, "y" kern kk#, 
+               hooktop_y kern kk#, "v" kern kkk#, "w" kern kkk#;
+ ligtable "i": "i" kern -k#; fi % skiing
+bye.

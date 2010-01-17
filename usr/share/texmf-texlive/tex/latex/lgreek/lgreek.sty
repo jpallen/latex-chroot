@@ -1,0 +1,70 @@
+\DeclareOption{allgreek}{\renewcommand{\encodingdefault}{LG}\greeknames}
+\DeclareOption{delims}{\greekdelims}
+
+\def\greekmode{%
+\catcode`\<=13
+\catcode`\>=13
+\catcode`\'=11
+\catcode`\`=11
+\catcode`\~=11
+\catcode`\"=11
+\catcode`\|=11
+\lccode`\<=`\<%
+\lccode`\>=`\>%
+\lccode`\'=`\'%
+\lccode`\`=`\`%
+\lccode`\~=`\~%
+\lccode`\"=`\"%
+\lccode`\|=`\|%
+}
+\newcount\vwl
+\newcount\acct
+\def\lt{<}
+\def\gt{>}
+{
+  \greekmode
+  \gdef>{\@ifnextchar `{\expandafter\smoothgrave\@gobble}{\char\lq\>}}
+  \gdef<{\@ifnextchar `{\expandafter\roughgrave\@gobble}{\char\lq\<}}
+  \gdef\smoothgrave#1{\acct=\rq137 \vwl=\lq#1 \dobreathinggrave}
+  \gdef\roughgrave#1{\acct=\rq103 \vwl=\lq#1 \dobreathinggrave}
+  \gdef\dobreathinggrave{\ifnum\vwl\lt\rq140    %if uppercase
+    \char\the\acct\char\the\vwl\else\expandafter\testiota\fi}
+  \gdef\testiota{\@ifnextchar |{\addiota\doaccent\@gobble}{\doaccent}}
+  \gdef\addiota{\ifnum\vwl=\lq a\vwl=\rq370
+    \else\ifnum\vwl=\lq h\vwl=\rq371 \else\vwl=\rq372 \fi\fi}
+  \gdef\doaccent{\accent\the\acct \char\the\vwl\relax}
+}
+     
+\DeclareFontEncoding{LG}{\greekmode}{}
+
+\newif\ifgreek\greekfalse
+\newenvironment{greek}{\fontencoding{LG}\selectfont\greektrue}{}
+
+{\catcode`\$=13
+\gdef\greekdelims{\catcode`\$=13
+\def${\ifgreek\end{greek}\else\begin{greek}\fi}}}
+
+\def\greeknames{
+% \def\prefacename{Preface}%
+% \def\refname{References}%
+% \def\abstractname{Abstract}%
+\def\bibname{Bibliograf'ia}% <----------
+\def\chaptername{Kef'alaio}% <----------
+\def\appendixname{Par'arthma}% <-----------
+\def\contentsname{Perieq'omena}% <----------
+\def\listfigurename{Eik'onec}% <----------
+\def\listtablename{P'inakec}% <----------
+\def\indexname{Euret'hrio}% <----------
+\def\figurename{Eik'ona}% <----------
+\def\tablename{P'inakac}% <----------
+\def\partname{M'eroc}% <----------
+% \def\enclname{encl}%
+% \def\ccname{cc}%
+% \def\headtoname{To}%
+% \def\pagename{Page}%
+% \def\seename{see}%
+% \def\alsoname{see also}}
+}
+
+\ProcessOptions
+

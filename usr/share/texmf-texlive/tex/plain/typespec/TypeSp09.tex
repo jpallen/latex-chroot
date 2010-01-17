@@ -1,0 +1,264 @@
+%%% Stephen Moye
+%%% Stephen_Moye@brown.edu
+%%% Brown University
+%%% Graphic Services
+
+\newdimen\leading
+\newdimen\ascheight
+\newdimen\xheight
+\newdimen\adjust
+\newdimen\sampletextwd
+\newdimen\gutter
+\newdimen\dist
+\newdimen\dspsize
+\newdimen\dspsizeincr
+\newdimen\depth
+\newdimen\mainleading
+
+\newcount\scratch
+\newcount\divisor
+\newcount\spconv
+\newcount\divisor
+\newcount\scratch
+\newcount\sscratch
+\newcount\intgp
+\newcount\fracp
+\newcount\dsplineno
+\newcount\xascrnum
+
+\newtoks\texttoks
+\newtoks\dspfont
+
+%%%
+
+\vbadness10000
+
+%%%
+
+\def\setleading{%
+\setbox0=\hbox{Ilpgy}%
+\setbox1=\hbox{x}%
+\xheight=\ht1 
+\ascheight=\ht0
+\depth=\dp0
+\leading=\ht0
+\advance\leading \depth
+\leading=1.25\leading
+\dimen0=\ascheight
+\divide\dimen0 by 2\relax
+\advance\dimen0-\xheight
+%%% Account for large x-height
+\ifdim\dimen0<0pt \else \advance\leading-\dimen0\fi
+%%% Account for missing descenders -- smallcaps for instance
+\ifdim\depth<.1\ascheight \advance \leading .4\ascheight\fi}
+
+%%% Calculates ratio of x-height to ascender height
+\def\calcxaratio#1{%
+\dimen0=\the\fontdimen5#1
+\xascrnum=\dimen0%
+\divisor=\number\ascheight
+\multiply\xascrnum by 100\relax
+\divide\xascrnum by\ascheight}
+
+%%% Type factor = ([Type size] * [# of characters in a sample])/(linear length of sample)
+%%% Based on {\it Brown's Index}, Bruce Brown, Greenwood Publishing, Great Britain 1983
+\def\typefact#1{%
+\dist=10pt
+\font\facttext=#1 at\dist
+\spconv=\number\dist
+\multiply\spconv by 12
+\multiply\spconv by 204
+\setbox1=\hbox{\facttext\freqabc}%
+\divisor=\number\wd1
+\divide\divisor by 100
+\divide\spconv by \divisor
+\scratch=\spconv 
+	\divide\scratch100
+ \divisor=\scratch
+ \multiply \scratch100
+ \advance\spconv-\scratch
+ \hbox{\number\divisor.\ifnum\spconv<10 0\the\spconv \else \the\spconv\fi}}
+ 
+%%% Convert from TeX's bulky 4-decimal point measurements to 1
+\def\prettypt#1{\dist=#1%
+\multiply\dist10%
+\scratch=\number\dist
+\divide\scratch65536%
+\intgp=\scratch \divide\intgp10%
+\sscratch=\intgp 
+\multiply\sscratch10 \advance\scratch-\sscratch
+\fracp=\scratch
+\hbox{\the\intgp.\the\fracp}pt}
+
+\def\displaytype#1{%
+\font\bigtype=#1 at 24pt
+\font\medtype=#1 at 18pt
+\font\normtype=#1 at 14pt
+\font\smalltype=#1 at 12pt
+\font\tinytype=#1 at 10pt
+\font\tinytinytype=#1 at 8pt}
+
+\texttoks={\emergencystretch2em Brick quiz whangs jumpy veldt fox.
+Nymphs vex, beg quick fjord waltz.
+Quick wafting zephyrs vex bold Jim.
+West quickly gave Bert handsome prizes for six juicy plums.
+Freight to me sixty dozen quart jars and twelve black pans.
+My help squeezed back in again and joined the weavers after six.
+Turgid saxophones blew over Mick's jazzy quiff.
+Five wine experts jokingly quizzed sample chablis.
+My grandfather picks up quartz and valuable onyx jewels.
+Mix Zapf with Veljovic and get quirky Beziers.
+All questions asked by five watch experts amazed the judge.
+Back in June we delivered oxygen equipment of the same size.
+We have just quoted on nine dozen boxes of grey lamp wicks.
+A large fawn jumped quickly over white zinc boxes.
+The exodus of jazzy pigeons is craved by squeamish walkers.}
+
+\def\freqabc{zjqx%
+       kkvv%
+       bbbbppppyyyywwwwgggg%
+       mmmmmmffffffccccccuuuuuu%
+       lllllllldddddddd%
+       hhhhhhhhhhhhrrrrrrrrrrrrssssssssssss%
+       ooooooooooooooiiiiiiiiiiiiiinnnnnnnnnnnnnn%
+       aaaaaaaaaaaaaaaatttttttttttttttttt%
+       eeeeeeeeeeeeeeeeeeeeeeee}% 204 chars
+
+%%% #1 - Font TeX name; #2 - number of lines in sample
+%%% #3 - Printed name of font
+\def\textbox#1#2#3{#1%\setleading%%
+\setbox0=\vtop{%
+\hbadness10000\hsize\sampletextwd\the\texttoks}%
+\setbox1=\vsplit0 to #2\baselineskip
+\vtop{\hsize\sampletextwd\centerline{\strut#1[#3]}\smallskip\unvbox1\relax%
+%%% Comment-out the following line if you don't want/need numbers in the sample text
+1\hfill2\hfill3\hfill4\hfill5\hfill6\hfill7\hfill8\hfill9\hfill0\hfill\&\null\par%
+}}
+
+\def\setupmargnote{%
+\tinytinytype \setleading \baselineskip=\leading \vskip\baselineskip}
+
+%%% 1-type size; 2-Number of lines;
+%%% 3-TeX type name 1; 4-Printed type name 1;
+%%% 5-TeX type name 2; 6-Printed type name 2
+\def\lineoftwo#1#2#3#4#5#6{%
+\begingroup
+\font\typeone=#3 at #1%
+%% Set up baselineskip for the two samples
+%% and the info for the margin notes for the
+%% sample on the left:
+\typeone\setleading \calcxaratio{\typeone}
+ \baselineskip=\leading
+ \mainleading=\leading
+\font\typetwo=#5 at #1%
+\line{%
+\llap{\vtop{\setupmargnote%
+   \halign{\hfill##\cr#1\cr
+   \prettypt{\the\mainleading}\cr
+   \typefact{#3}\cr
+   0.\the\xascrnum\cr}}\enskip}\hss%
+\textbox{\typeone}{#2}{#4}%
+\hskip\gutter
+%% Setup the info for the margin note describing
+%% the sample on the right
+\typetwo \setleading \calcxaratio{\typetwo}
+\textbox{\typetwo}{#2}{#6}%
+\hss
+\rlap{\enskip\vtop{\setupmargnote%
+			\halign{##\hfil\cr#1\cr
+   \prettypt{\the\mainleading}\cr
+   \typefact{#5}\cr
+   0.\the\xascrnum\cr}}}%
+}\endgroup}
+
+\def\lineofone#1#2#3#4{%
+\begingroup
+\font\typeone=#3 at #1 \typeone \setleading \calcxaratio{\typeone}
+\baselineskip=\leading
+\line{\hss%%
+\hbox{\textbox{\typeone}{#2}{#4}%
+\hss
+\rlap{\enskip\vtop{\setupmargnote%
+			\halign{##\hfil\cr
+   #1\cr
+   \prettypt{\the\mainleading}\cr
+   \typefact{#3}\cr
+   0.\the\xascrnum\cr}}}}%
+\hss}\endgroup}
+
+\def\comment#1{%
+\bigskip
+\hrule
+\smallskip
+\line{\hfill\vbox{\hyphenpenalty10000 \emergencystretch1em%
+\leftskip0pt plus 4em \rightskip0pt \parfillskip0pt
+\tinytinytype\setleading\hsize.75\sampletextwd\noindent#1}}}
+
+%%% Calculates the largest display typesize to fit \hsize
+%%% First typeset it very small (.1pt) and measure its width
+%%% then scale it to get it to fit to \hsize
+\def\dabc{AGQMstaefgpy1234?!\&}
+\def\makedisplay#1{%
+\dspfont={#1}
+\font\dsp=\the\dspfont\space at .1pt
+\setbox0=\hbox{\dsp \dabc}%
+\dspsize=\hsize 
+\scratch=\dspsize \multiply\scratch10 \divisor=\wd0
+\divide\scratch by \divisor
+\dspsize=\scratch pt \divide\dspsize by 100
+%%% Calculates the increment such that smallest display size is 12pt
+\dspsizeincr=\dspsize \advance\dspsizeincr by -12pt
+\divide\dspsizeincr by 6 \dsplineno7
+%%% Make the display
+\bgroup
+\loop\font\dsp=\the\dspfont\space at \dspsize \dsp \baselineskip1em
+		\hbox to\hsize{\dabc\hfill\hss\rlap{\tinytinytype\enskip\prettypt{\the\dspsize}}}%
+ 	\vskip.075in\relax
+		\ifnum\dsplineno>1 \global\advance\dsplineno by-1\relax
+			\advance\dspsize by -\dspsizeincr \font\dsp=\the\dspfont\space at \dspsize\repeat
+\egroup}
+
+%%%
+%%% Example
+%%%
+
+%%% Setup
+
+\parindent0pt
+\nopagenumbers
+\hsize6in
+\hoffset.25in
+\gutter1pc
+\sampletextwd2.85in
+\displaytype{Helvetica}
+
+
+%%%
+%%% The Page
+%%%
+
+\leftline{\medtype BodoniClassic}
+\smallskip
+\hrule
+\bigskip
+
+%%% Display Type
+\makedisplay{BodoniClassic-Roman}
+
+\bigskip
+\hrule
+\bigskip
+
+\lineoftwo{10pt}{9}{BodoniClassic-Roman}{Bodoni Classic}{BodoniClassic-Italic}{Bodoni Classic Italic}
+
+\bigskip
+
+\lineoftwo{10pt}{9}{BodoniClassic-Bold}{BodoniClassic bold}{BodoniClassic-BoldItalic}{BodoniClassic BoldItalic}
+
+\comment{BodoniClassic, drawn by Bruce Rogers; italic by Frederick Warde}
+
+%%%
+%%% The End
+%%%
+
+\bye

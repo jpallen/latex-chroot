@@ -1,0 +1,119 @@
+% Copyright 2003-2005 Han The Thanh <hanthethanh@gmx.net>.
+% This file is part of vntex.  License: LPPL, version 1.3 or newer,
+% according to http://www.latex-project.org/lppl.txt
+
+% driver for roman fonts (based on exroman.mf)
+
+version_check(1,0);  % |version_check| was introduced in dc1.3
+
+input exaccess; % accessories for polish special letters
+input expseudo; % pseudoparameters 
+
+mode_setup;
+font_setup;
+pseudo_setup;
+
+if known testing:
+    set_lowercase;
+    input vnaccent;
+    input_lr_fam;
+    set_uppercase;
+    input vnaccent;
+    input_ur_fam;
+    let next = endinput;
+else:
+    let next = relax;
+fi % known testing
+next;
+
+if known gen_t5_supp:
+    input exbraces; % ^ ~ cwm  ( ) < | > [ ] \ { } _ - (177) space (040)
+    input expunct;  %  < << > >>  ! ` ' *  + , . / = ; : (spanish !)
+    input exaccent; %
+    input exsign;   %  zero for mille, " # $ % @ pound sign
+    set_lowercase;
+    input vnaccent;
+    input vndothook;% dotbelow and hookabove
+    input vnminus;  % minus iff monospace:
+    input vnlacc;   % lowercase accents
+    input vnlor;    % ohorn
+    input vnlur;    % uhorn
+    input vnldr;    % dcroat
+    set_uppercase;
+    input vnaccent;
+    input vnuacc;   % lowercase accents
+    input vnuor;    % Ohorn
+    input vnuur;    % Uhorn
+    input vnudr;    % Dcroat
+    let next = endinput;
+else:
+    let next = relax;
+fi % known gen_t5_supp
+next;
+
+
+input exbraces; % ^ ~ cwm  ( ) < | > [ ] \ { } _ - (177) space (040)
+input expunct;  %  < << > >>  ! ` ' *  + , . / = ; : (spanish !)
+input exaccent; %
+input exsign;   %  zero for mille, " # $ % @ pound sign
+input exrlig;   % dotless i,j; letter ligatures  ff fi fl ffi ffl
+input exromp;   % (roman punctuation)  & ? (spanish ?)
+input exrulett; % upper case (majuscules)
+input exrllett; % lower case (minuscules)
+input exrdigit; % roman digits
+
+set_lowercase;  % set `case_' and `vncase' for lowercase letters
+input vnaccent; % define the accents for lowercase letters
+input vnlar;    % modified/accented "a"
+input vnler;    % modified/accented "e"
+input vnlir;    % accented "i"
+input vnlor;    % modified/accented "o"
+input vnlur;    % modified/accented "u"
+input vnlyr;    % accented "y"
+input vnldr;    % d-bar
+
+input vndothook;% dotbelow and hookabove
+input vnminus;  % minus for monospace font
+
+set_uppercase;  % set `case_' and `vncase' for uppercase letters
+input vnaccent; % define the accents for uppercase letters
+input vnuar;    % modified/accented "A"
+input vnuer;    % modified/accented "E"
+input vnuir;    % accented "I"
+input vnuor;    % modified/accented "O"
+input vnuur;    % modified/accented "U"
+input vnuyr;    % accented "Y"
+input vnudr;    % D-bar
+
+%
+% Fontparameter
+%
+font_coding_scheme := "Vietnamese TeX Font Encoding";
+boundarychar := oct"027";
+font_slant slant; 
+font_x_height x_height#;
+    font_cap_height cap_height#;
+    font_asc_height asc_height#;
+    font_acc_cap_height (cap_height#+acc_height#);
+    font_desc_depth desc_depth#;
+    font_max_height (max(asc_height#,body_height#, cap_height#+acc_height#));
+    font_max_depth (max(desc_depth#,paren_depth#,the_ogonek_depth#));
+    font_baselineskip max(1.2*designsize,body_height#+paren_depth#);
+%     font_digit_width % set inside the digits file
+%     font_cap_stem    % set after the programme of the capital I
+
+if monospace: 
+    font_normal_space 9u#; % no stretching or shrinking
+    font_quad 18u#;
+    font_extra_space 9u#;
+    input vnmligtb;    % do the ligature programs for monospaced fonts
+else:
+    font_normal_space 6u# + 2letter_fit#;
+    font_normal_stretch 3u#;
+    font_normal_shrink 2u#;
+    font_quad 18u# + 4letter_fit#;
+    font_extra_space 2u#;
+    input vnrligtb;     % do the ligature programs, not for monospaced fonts
+fi
+
+endinput;

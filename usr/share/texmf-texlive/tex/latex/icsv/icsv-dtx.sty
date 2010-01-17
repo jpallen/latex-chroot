@@ -1,0 +1,126 @@
+\ProvidesPackage{icsv-dtx}
+
+\renewcommand{\topfraction}{.85}
+\renewcommand{\bottomfraction}{.7}
+\renewcommand{\textfraction}{.15}
+\renewcommand{\floatpagefraction}{.66}
+\renewcommand{\dbltopfraction}{.66}
+\renewcommand{\dblfloatpagefraction}{.66}
+\setcounter{topnumber}{9}
+\setcounter{bottomnumber}{9}
+\setcounter{totalnumber}{20}
+\setcounter{dbltopnumber}{9}
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+                                   {-3ex \@plus -1ex \@minus -.2ex}%
+                                   {2ex \@plus 0.2ex}%
+                                   {\centering\normalsize\scshape}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+                                     {-2.5ex\@plus -1ex \@minus -.2ex}%
+                                     {1.5ex \@plus 0.2ex}%
+                                     {\centering\normalsize\itshape}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+                                     {-2ex\@plus -1ex \@minus -.2ex}%
+                                     {1.5ex \@plus 0.2ex}%
+                                     {\centering\normalfont\normalsize}}
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+                                    {3.25ex \@plus1ex \@minus.2ex}%
+                                    {-1em}%
+                                    {\normalfont\normalsize\itshape}}
+\let\subparagraph\undefined
+\def\@maketitle{%
+  \newpage
+  {\centering
+   {\large\@title\par}\vskip1em
+   \textsc\@author\par\vskip1em
+   \@date\par}\vskip2em}
+\renewenvironment{abstract}{%
+  \begin{trivlist}\item[]
+    \setlength\leftskip{0.15\textwidth}
+    \setlength\rightskip{0.15\textwidth}
+    \small\textit{Abstract}\quad}{\end{trivlist}}
+\setcounter{tocdepth}{2}
+\renewcommand\tableofcontents{%
+  \section*{\contentsname}
+  \begin{trivlist}\item[]
+    \begin{multicols}{2}
+      \setlength\parskip{0pt}
+      \small
+      \@starttoc{toc}%
+    \end{multicols}
+  \end{trivlist}}
+\renewcommand*\l@section[2]{%
+  \ifnum \c@tocdepth >\z@
+    \addpenalty\@secpenalty
+    \addvspace{1.0em \@plus\p@}%
+    \setlength\@tempdima{1.5em}%
+    \begingroup
+      \raggedright
+      \parindent \z@
+      \rightskip \z@
+      \parfillskip \@flushglue
+      \leavevmode
+      \advance\leftskip\@tempdima
+      \hskip -\leftskip
+      #1\quad\nobreak#2\hfil\par
+    \endgroup
+  \fi}
+\def\@dottedtocline#1#2#3#4#5{%
+  \ifnum #1>\c@tocdepth \else
+    {\leftskip #2\relax \rightskip \@tocrmarg \parfillskip \@flushglue
+     \parindent #2\relax\@afterindenttrue
+     \interlinepenalty\@M
+     \leavevmode
+     \raggedright
+     \@tempdima #3\relax
+     \advance\leftskip \@tempdima \null\nobreak\hskip -\leftskip
+     {#4}\quad\nobreak#5\hfil\par}%
+  \fi}
+
+\let\old@makefntext\@makefntext
+\renewcommand\@makefntext[1]{%
+  \vspace{2pt}%
+  \setlength\parindent{-1.8em}%
+  \setlength\leftskip{1.8em}%
+  \makebox[1.8em][l]{\normalfont\small\@thefnmark.}#1}
+
+\setcounter{IndexColumns}{2}
+\renewenvironment{theglossary}
+  {\small\list{}{}
+     \item\relax
+     \glossary@prologue\GlossaryParms
+     \let\item\@idxitem \ignorespaces
+     \def\pfill{\hspace*{\fill}}}
+  {\endlist}
+
+\usepackage{amstext,array,booktabs,calc,color,fancyvrb,graphicx,hyperref,ifthen,longtable,refstyle,varioref}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[sc,osf]{mathpazo}
+
+\linespread{1.069}      % A bit more space between lines
+\frenchspacing         % Remove ugly extra space after punctuation
+
+\hypersetup{colorlinks, breaklinks, linktocpage,
+  linkcolor=red, citecolor=red, filecolor=blue, urlcolor=blue}
+
+\newcommand*\setexsize[1]{\let\examplesize#1}
+\newcommand*\setverbwidth[1]{\def\auxwidth{#1}}
+
+\newcommand*\name[1]{{#1}}
+\newcommand*\pkg[2][]{\relax
+  \edef\@tempa{#1}\relax
+  \ifx\@tempa\@empty
+    \textsf{\mbox{#2}}\else
+    \href{#1}{\textsf{\mbox{#2}}}\fi}
+\newcommand*\env[1]{\textsf{#1}}
+
+\newcommand*\note[1]{\unskip\footnote{#1}}
+
+\let\latin\textit
+\def\eg{\latin{e.g.}}
+\def\Eg{\latin{E.g.}}
+\def\ie{\latin{i.e.}}
+\def\etc{\@ifnextchar.{\latin{etc}}{\latin{etc.}\@}}
+
+\def\TeX{\smash{T\kern-.15em\lower.5ex\hbox{E}\kern-.07em X}\spacefactor1000\relax}
+

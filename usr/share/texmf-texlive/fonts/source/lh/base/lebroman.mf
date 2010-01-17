@@ -1,0 +1,82 @@
+%
+% lebroman.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Driver file, called by parameter files with roman style fonts
+% - modified EXROMAN.MF in European Computer Modern fonts (ec fonts)
+% CMBRIGHT modification
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+LHver_check(3,5); % like |version_check| in ec
+
+
+input lxpseudo;
+
+mode_setup; font_setup;
+pseudo_setup;    % |pseudo_setup| from ec
+
+% upper part exr(u/l)(lett/west/east) changed to cyrillic glyphs
+%vvv
+if roman_ec:
+  input exrulett;
+  input ebrllett;  % lower case (minuscules) % (CMBR)
+fi
+%<<<
+input lgcyru;  % input Cyrillic Uppercase shapes
+input lgcyrl;  % input Cyrillic Lowercase shapes
+
+input lgcyrsym;  % floating symbols in Cyrillic
+input lgengsym;  % latin symbols
+input lgromp;    % roman & ?
+input lgrdigit;  % roman digits
+input lgrlig;    % roman dotless i j (and ff-ligatures)
+
+input lgcyracc;  % accents
+if old_cyr:
+   input lgocyrac; % Cyrillic Old Slav accents & signs
+fi
+
+%
+% Fontparameter
+%
+font_coding_scheme:="TeX Cyrillic Font Encoding - "&enc_name;
+boundarychar:=oct"027";
+font_slant slant; 
+font_x_height x_height#;
+font_cap_height cap_height#;
+font_asc_height asc_height#;
+font_acc_cap_height (cap_height#+acc_height#);
+font_desc_depth desc_depth#;
+font_max_height (max(asc_height#,body_height#,
+  cap_height#+acc_height#));
+font_max_depth (max(desc_depth#,paren_depth#,the_ogonek_depth#));
+% font_digit_width % set inside the digits file
+% font_cap_stem    % set after the programme of the capital I
+font_baselineskip max(1.25*designsize,body_height#+paren_depth#);% (CMBR)
+   font_normal_space 5.7u#+2letter_fit#; % (CMBR)
+   font_normal_stretch 2.85u#; font_normal_shrink 1.9u#; %(CMBR)
+   font_quad 18u#+4letter_fit#;
+   font_extra_space 1.9u#; % (CMBR)
+% input ebrligtb;    % do the ligature programs %(CMBR)
+   TITLEfont:=false; SmallCapsfont:=false; ROMANfont:=true;
+   input llvligtb;    % do the ligature programs, not for monospaced fonts
+   if roman_ec: input llbligtb; fi
+   k#:=-.5u#; kk#:=-1.5u#; kkk#:=-2u#; % three degrees of kerning
+   scantokens("input "&(substring(fonteq-2,fonteq) of param_base)&"liker"); % Cyrillic ligs & kerns
+bye.
+
+bye.
+%end of file

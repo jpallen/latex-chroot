@@ -1,0 +1,132 @@
+%        File: cyrmorec.mf
+%    Based on: jkbashc.mf
+% Modified by: Oliver Corff
+%        Date: June 1998, Ulaanbaatar
+%
+  %jkbashc.mf by Joerg Knappen, bitnet: knappen@dmznat51
+  % Version: 8. June 1990
+  % Bashkirian letters with common shapes for upper and lower case
+
+cmchar "The bashkirian letter crossed Ge (looking like F)";
+beginchar(oct"200",11.5u#-width_adj#,cap_height#,0);
+italcorr cap_height#*slant-beak_jut#-.25u#;
+adjust_fit(cap_serif_fit#,0);
+h:=vround(h-stem_corr);
+pickup tiny.nib; pos1(cap_stem,0); pos2(cap_stem,0);
+lft x1l=lft x2l=hround max(2u,3u-.5cap_stem); top y1=h; bot y2=0;
+filldraw stroke z1e--z2e; % stem
+pickup crisp.nib; pos3(slab,90); pos4(hair,0);
+top y3r=h; x3=x1; rt x4r=hround(w-.75u); y4=good.y(y3l-beak)-eps;
+arm(3,4,e,beak_darkness,beak_jut);  % upper arm and beak
+pos5(cap_bar,-90); pos6(hair,0);
+top y5l=vround(.5[y2,y1]+.5cap_bar); x5=x1;
+pos0(cap_bar,90); pos7(hair,0);
+z0=z5; x6=x7; y6-y5l=y0l-y7;
+if serifs: rt x6r=hround(w-4u+.5hair); y6=good.y(y5l+.6beak)+eps;
+ rt x9r=hround(w-.5u);
+else: rt x6r=hround(w-1.5u); y6=y5l+eps; rt x9r=hround(w-.75u); fi
+arm(5,6,f,beak_darkness,0); arm(0,7,g,beak_darkness,0);  % middle arm and serif
+if serifs: nodish_serif(1,2,a,1/3,cap_jut,b,1/3,.5cap_jut);  % upper serif
+ dish_serif(2,1,c,1/3,cap_jut,d,1/3,1.25cap_jut); fi  % lower serif
+math_fit(0,ic#-2.5u#); penlabels(0,1,2,3,4,5,6,7,8,9); endchar;
+
+cmchar "The Bashkirian letter variant KA";
+beginchar(oct"201",12u#,cap_height#,0);
+italcorr cap_height#*slant-.5u#;
+adjust_fit(if serifs: 4 else: 2 fi u#,.25u#);
+pickup tiny.nib; pos1(fudged.cap_stem,0); pos2(fudged.cap_stem,0);
+lft x1l=lft x2l=hround max(2u,3u-.5fudged.cap_stem); top y1=h; bot y2=0;
+filldraw stroke z1e--z2e; % stem
+if serifs:  dish_serif(1,2,a,1/3,cap_jut,b,1/3,cap_jut); % upper stem serif
+ dish_serif(2,1,c,1/3,cap_jut,d,1/3,cap_jut);  % lower stem serif
+ pickup fine.nib; pos3(vair,90); x3=x1; y3=.55h; z3'=z3; pos3'(varwid,90);
+ pos4(varwid,90); x4=w-.75flare-.125u; top y4r=h+oo; %original x4=w-2u
+ x41=x4; y41=y3'; x42=x4-2u; y42=y4;
+ filldraw stroke z3'e..controls z41 and z42..z4e;  % upper diagonal
+ pos5(hair,0); pos6(flare,0);
+rt x5r=hround(w-.125u); y5+.5flare=vround(top y4r-hair)+1;%original bot y4l-.03h
+ top y4'r=top y4r; x4'=x4; pos4'(hair,90);
+ bulb(4',5,6); % bulb
+ pos7(stem,0); pos8(varwid,90); pos9(hair,180);
+ x9+.5hair=hround(w+.5hair-eps); y9=1/3x_height;
+ lft x7l=hround(w-2.75u-.5stem); y7=1/2y3; x8=w-1.2u; bot y8l=-oo;
+ filldraw stroke z3e{right}...z7e{down}
+ ...z8e{right}...{up}z9e;  % lower diagonal
+else:
+ numeric right_jut,stem[],alpha[];
+ right_jut=.4tiny;
+ pickup tiny.nib;
+ stem2=max(tiny.breadth,fudged.cap_stem-3stem_corr);
+ stem1=max(tiny.breadth,fudged.hair if hefty:-3stem_corr fi);
+ top y3=h; rt x3r=hround(r-letter_fit-u-right_jut);
+ bot y6=0; rt x6r=hround(r-letter_fit-.75u-right_jut);
+ x4=x1; y4=1/3h;
+ alpha1=diag_ratio(1,.5(stem1-tiny),y3-y4,x3r-x4);
+ penpos3(alpha1*(stem1-tiny),0); penpos4(whatever,-90);
+ alpha2=diag_ratio(1,.5(stem2-tiny),y1-y6,x6r-x1);
+ penpos6(alpha2*(stem2-tiny),0);
+ forsuffixes $=l,r: y3'$=h; y6'$=0; z4$=z3'$+whatever*(z3-z4);
+  z5$=z6'$+whatever*(z1-z6)=whatever[z3,z4]; endfor
+ z5=.5[z5l,z5r];
+ z3'r=z3r+penoffset z3-z4 of currentpen+whatever*(z3-z4);
+ z6'r=z6r+penoffset z1-z6 of currentpen+whatever*(z1-z6);
+ z6'l=z6l+penoffset z6-z1 of currentpen+whatever*(z1-z6);
+ fill z4r--diag_end(4r,3'r,1,.5,3'l,4l)--z4l--cycle;  % upper diagonal
+ fill z5l--diag_end(5l,6'l,.5,1,6'r,5r)--z5r--cycle;  % lower diagonal
+fi
+pickup crisp.nib;
+top y55r=h; x55=x1; pos55(slab,90); pos56(hair,180); 
+  x56=x1-if serifs: 6 else: 3 fi u;
+y56=good.y(y55l-beak)-eps;
+arm(55,56,q,beak_darkness**.8,-.4beak_jut);
+math_fit(0,.5ic#); penlabels(1,2,3,4,5,6); endchar;
+
+cmchar "The Bashkirian letter variant EN (looks like H with leg)";
+beginchar(oct"202",13u#+width_adj#,cap_height#,0);
+italcorr cap_height#*slant-cap_serif_fit#+cap_jut#-2.5u#+min(.5cap_stem#,u#);
+adjust_fit(cap_serif_fit#,cap_serif_fit#);
+pickup tiny.nib; pos1(cap_stem,0); pos2(cap_stem,0);
+pos3(cap_stem,0); pos4(cap_stem,0);
+lft x1l=lft x2l=hround max(2u,3u-.5cap_stem); x3=x4=w-x1;
+top y1=top y3=h; bot y2=bot y4=0;
+filldraw stroke z1e--z2e; % left stem
+filldraw stroke z3e--z4e; % right stem
+penpos5(cap_bar,90); penpos6(cap_bar,90);
+x5=x1; x6=x3; y5=y6=.52h;
+fill stroke z5e--z6e;  % bar
+if serifs: numeric inner_jut;
+ if rt x1r+cap_jut+.5u+1<=lft x3l-cap_jut: inner_jut=cap_jut;
+ else: rt x1r+inner_jut+.5u+1=lft x3l-inner_jut; fi
+ dish_serif(1,2,a,1/3,cap_jut,b,1/3,inner_jut);  % upper left serif
+ dish_serif(2,1,c,1/3,cap_jut,d,1/3,inner_jut);  % lower left serif
+ dish_serif(3,4,e,1/3,inner_jut,f,1/3,cap_jut);  % upper right serif
+ r_cyr_serif(4,3,g,1/3,inner_jut,h,1/3,cap_jut); % lower right serif
+else:
+ lcyrsanserif(4); lft x2'= lft x2l; bot y2'l=0; pos2'(slab,90);
+ rt x4'=rt x4r; y4'=y2'; pos4'(slab,90); filldraw stroke z2'e--z4'e;
+fi
+math_fit(0,.5ic#); penlabels(1,2,3,4,5,6); endchar;
+
+
+cmchar "The Bashkirian letter flipped e";
+beginchar(oct"206",14u#-width_adj#,cap_height#,0);
+italcorr .7cap_height#*slant-.5u#;
+adjust_fit(0,0);
+penpos1(vair',90); penpos3(vround(vair+1.5vair_corr),-90);
+penpos2(cap_curve,180); penpos4(cap_curve,0);
+if monospace: x2r=hround 1.5u;
+ interim superness:=sqrt superness;  % make |"O"|, not |"0"|
+else: x2r=hround u; fi
+x4r=w-x2r; x1=x3=.5w; y1r=h+o; y3r=-o;
+y2=y4=.5h-vair_corr; y2l:=y4l:=.52h;
+penstroke pulled_super_arc.e(1,2)(.5superpull)
+ & pulled_super_arc.e(2,3)(.5superpull)
+ & pulled_super_arc.e(3,4)(.5superpull)
+ & pulled_super_arc.e(4,1)(.5superpull) & cycle;  % bowl %now we have an O
+y9r-y9l=y10r-y10l=cap_band; x9r=x9l=x2; x10r=x10l=x4; y9r=y10r=top y2;
+penstroke z9e--z10e;        % bar
+bot y6=bot y7=top y9r; top y5=top y8=min(.675h,bot y1l-eps);
+lft x6=lft x5=0; rt x7=rt x8=.5w;   
+unfill z5--z6--z7--z8--cycle; cullit;    % erase extra arc
+math_fit(-.3cap_height#*slant-.5u#,ic#-.5u#); penlabels(1,2,3,4); endchar;
+  \endinput

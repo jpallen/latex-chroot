@@ -1,0 +1,82 @@
+%
+%   This file is part of MusiXTeX
+%
+%   MusiXTeX is free software; you can redistribute it and/or modify
+%   it under the terms of the GNU General Public License as published by
+%   the Free Software Foundation; either version 2, or (at your option)
+%   any later version.
+%
+%   MusiXTeX is distributed in the hope that it will be useful,
+%   but WITHOUT ANY WARRANTY; without even the implied warranty of
+%   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%   GNU General Public License for more details.
+%
+%   You should have received a copy of the GNU General Public License
+%   along with MusiXTeX; see the file COPYING.  If not, write to
+%   the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+%   Boston, MA 02111-1307, USA.
+%
+
+\immediate\write10{MusiXLITurgical 0.36\space<1 March 1995>}%
+
+\ifx\undefined\oldGclef \else \endinput \fi
+
+\edef\catcodeat{\the\catcode`\@}\catcode`\@=11
+
+\def\oldGclef{\keychar103}
+
+\def\cqu{\def\q@u{\musixchar99}\@qu}
+\def\cql{\def\q@u{\musixfont\@c}\@ql}
+\def\chu{\def\q@u{\musixchar101}\@qu}
+\def\chl{\def\q@u{\musixchar102}\@ql}
+
+\def\cnqu{\def\q@u{\musixchar99}\@nq}
+\def\cnql{\def\q@u{\musixfont\@c}\@nq}
+\def\cnhu{\def\q@u{\musixchar101}\@nq}
+\def\cnhl{\def\q@u{\musixchar102}\@nq}
+
+\def\Hpause#1#2{\zcharnote{#1}{\def\s@r{%
+  \vrule\@width.6\p@\@height1\h@lf\internote\@depth1\h@lf\internote}%
+  \s@r
+  \vrule\@width#2\noteskip\@height\h@lf\internote\@depth\h@lf\internote
+  \s@r}}
+\def\Hlonga#1#2{\zcharnote{#1}{\def\s@r{%
+  \vrule\@width.6\p@\@height1\h@lf\internote\@depth1\h@lf\internote}%
+  \s@r
+  \raise\h@lf\internote\rlap{\vrule\@width#2\noteskip
+                             \@height 0.3pt\@depth 0.3pt}%
+  \raise-\h@lf\internote\hbox{\vrule\@width#2\noteskip
+                             \@height 0.3pt\@depth 0.3pt}%
+  \s@r}}
+
+% separated short vrules over every staff (fits only for 1,2,3,5 Lines)
+
+\def\rul@SEP#1{\n@loop\short@rule\repeat\addspace#1}
+\def\short@rule{{\p@loop\y@\altportee\advance\y@\tw@\internote\raise\y@%
+  \rlap{\vrule\@width\lthick\@height\f@ur\internote}\count@portee\repeat}}
+\def\shortbarrules{\let\writ@rule\rul@SEP }
+
+% separated short vrules between every staff (fits only for 1,2,3,5 Lines)
+
+\def\rul@int#1{\n@loop\inter@rule\repeat\addspace#1}
+\def\inter@rule{{%
+  \y@iv\altitude \y@v\y@iv
+  \ifnum\st@ffs>\@ne \@ri \Comp@High\advance\y@v\altitude
+  \else \ifnum\st@ffs>\z@ \advance\y@v\@ight\internote \fi\fi
+  \advance\noinstrum@nt\@ne \s@l@ctinstr
+  \ifnum\st@ffs=\z@ \advance\noinstrum@nt\@ne\s@l@ctinstr \fi
+  \ifnum\nbinstruments<\noinstrum@nt
+    \y@iii\y@iv \y@ii\y@iii \advance\y@ii-\y@v \Put@inter@rule
+  \else
+    \y@iii\altitude \y@ii\y@iii \advance\y@ii-\y@v \Put@inter@rule
+  \fi}}
+\def\@ri{\n@ii\st@ffs \advance\st@ffs\m@ne
+  \C@Inter \y@ii\stem@skip
+  \p@loop \y@iii\altportee \advance\y@iii\interportee
+    \Put@inter@rule \advance\noport@@\@ne \repeat
+  \st@ffs\n@ii}
+\def\Put@inter@rule{\raise\y@iii\rlap{\vrule\@width\lthick\@depth\y@ii}}
+\def\interbarrules{\let\writ@rule\rul@int }
+
+\catcode`\@=\catcodeat
+\endinput

@@ -1,0 +1,492 @@
+%
+%  Macro which are responsible for correction
+%  of font parameters
+%
+
+\def\MFF@corr@many#1{%
+    \if@MFF@checkit
+       \MFF@dimenD=\MFF@temp@crisp\relax
+       \ifdim \@tempdimb<\MFF@dimenD
+              \@tempdimb=\MFF@dimenD \MFF@warncorr{#1}%
+       \fi
+       \MFF@dimenD=\MFF@temp@tiny\relax
+       \ifdim \@tempdimb<\MFF@dimenD
+              \@tempdimb=\MFF@dimenD \MFF@warncorr{#1}%
+       \fi
+       \MFF@dimenD=\MFF@temp@fine\relax
+       \ifdim \@tempdimb<\MFF@dimenD
+              \@tempdimb=\MFF@dimenD \MFF@warncorr{#1}%
+       \fi
+    \fi
+}
+
+\def\MFF@corr@corr#1{%
+    \if@MFF@checkit
+       \MFF@dimenD=\MFF@temp@cap_hair\relax
+       \ifdim \@tempdimb>0.2\MFF@dimenD
+              \@tempdimb=0.2\MFF@dimenD \MFF@warncorr{#1}%
+       \fi
+       \MFF@dimenD=\MFF@temp@stem\relax
+       \ifdim \@tempdimb>0.16666666667\MFF@dimenD
+              \@tempdimb=0.16666666667\MFF@dimenD \MFF@warncorr{#1}%
+       \fi
+       \MFF@dimenA=\MFF@temp@fudge\relax
+       \MFF@multiply{\MFF@dimenA}{\MFF@dimenD}{\MFF@dimenD}%
+       \ifdim \@tempdimb>0.25\MFF@dimenD
+              \@tempdimb=0.25\MFF@dimenD \MFF@warncorr{#1}%
+       \fi
+       \MFF@dimenD=\MFF@temp@curve\relax
+       \ifdim \@tempdimb>0.083333333333\MFF@dimenD
+              \@tempdimb=0.083333333333\MFF@dimenD \MFF@warncorr{#1}%
+       \fi
+    \fi
+}
+
+%
+%  Correct font parameters
+%
+
+
+\def\MFF@correct@u{%
+    \@tempdimb=\MFF@scale@width\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{u}\fi
+}
+
+%\def\MFF@correct@width_adj{%
+%}
+
+\def\MFF@correct@serif_fit{%
+    \@tempdimb=\MFF@scale@width\@tempdimb
+}
+
+\def\MFF@correct@cap_serif_fit{%
+    \@tempdimb=\MFF@scale@width\@tempdimb
+}
+
+%\def\MFF@correct@letter_fit{%
+%}
+
+\def\MFF@correct@body_height{%
+    \@tempdimb=\MFF@scale@height\@tempdimb
+    \@tempdimb=\MFF@scale@asc\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{body_height}\fi
+}
+
+\def\MFF@correct@asc_height{%
+    \@tempdimb=\MFF@scale@height\@tempdimb
+    \@tempdimb=\MFF@scale@asc\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{asc_height}\fi
+    \if@MFF@checkit
+       \MFF@dimenD=\MFF@temp@x_height\relax
+       \ifdim \@tempdimb<1.2\MFF@dimenD
+              \@tempdimb=1.2\MFF@dimenD \MFF@warncorr{asc_height}%
+       \fi
+    \fi
+}
+
+\def\MFF@correct@cap_height{%
+    \@tempdimb=\MFF@scale@height\@tempdimb
+    \@tempdimb=\MFF@scale@asc\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{cap_height}\fi
+}
+
+\def\MFF@correct@fig_height{%
+    \@tempdimb=\MFF@scale@height\@tempdimb
+    \@tempdimb=\MFF@scale@asc\@tempdimb
+    \@tempdimb=\MFF@scale@math\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{fig_height}\fi
+}
+
+\def\MFF@correct@x_height{%
+    \@tempdimb=\MFF@scale@height\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{x_height}\fi
+    \edef\MFF@temp@x_height{\the\@tempdimb}%
+}
+
+\def\MFF@correct@math_axis{%
+    \@tempdimb=\MFF@scale@height\@tempdimb
+    \@tempdimb=\MFF@scale@math\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{math_axis}\fi
+}
+
+\def\MFF@correct@comma_depth{%
+    \@tempdimb=\MFF@scale@height\@tempdimb
+    \@tempdimb=\MFF@scale@desc\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{comma_depth}\fi
+}
+
+\def\MFF@correct@desc_depth{%
+    \@tempdimb=\MFF@scale@height\@tempdimb
+    \@tempdimb=\MFF@scale@desc\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{desc_depth}\fi
+}
+
+\def\MFF@correct@acc_height{%
+    \@tempdimb=\MFF@scale@height\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{acc_height}\fi
+}
+
+\def\MFF@correct@dot_height{%
+    \@tempdimb=\MFF@scale@height\@tempdimb
+    \@tempdimb=\MFF@scale@asc\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{dot_height}\fi
+}
+
+\def\MFF@correct@udot_height{%
+    \@tempdimb=\MFF@scale@height\@tempdimb
+    \@tempdimb=\MFF@scale@asc\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{udot_height}\fi
+}
+
+\def\MFF@correct@bar_height{%
+    \@tempdimb=\MFF@scale@height\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{bar_height}\fi
+    \if@MFF@checkit
+       \MFF@dimenD=\MFF@temp@x_height\relax
+       \ifdim \@tempdimb<0.5\MFF@dimenD
+              \@tempdimb=0.5\MFF@dimenD \MFF@warncorr{bar_height}%
+       \fi
+       \ifdim \@tempdimb>0.55\MFF@dimenD
+              \@tempdimb=0.55\MFF@dimenD \MFF@warncorr{bar_height}%
+       \fi
+    \fi
+}
+
+\def\MFF@correct@crisp{%
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{crisp}\fi
+    \edef\MFF@temp@crisp{\the\@tempdimb}%
+}
+
+\def\MFF@correct@tiny{%
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{tiny}\fi
+    \edef\MFF@temp@tiny{\the\@tempdimb}%
+}
+
+\def\MFF@correct@fine{%
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{fine}\fi
+    \edef\MFF@temp@fine{\the\@tempdimb}%
+}
+
+\def\MFF@correct@thin_join{%
+    \@tempdimb=\MFF@scale@bold\@tempdimb
+    \if n\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \if d\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+    \fi
+    \@tempdimb=\MFF@scale@join\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{thin_join}\fi
+    \MFF@corr@many{thin_join}%
+}
+
+\def\MFF@correct@hair{%
+    \@tempdimb=\MFF@scale@thin\@tempdimb
+    \if n\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \if d\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+        \@tempdimb=\MFF@contrast\MFF@dimenD
+    \fi
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{hair}\fi
+    \MFF@corr@many{hair}%
+    \edef\MFF@temp@hair{\the\@tempdimb}%
+}
+
+\def\MFF@correct@vair{%
+    \@tempdimb=\MFF@scale@thin\@tempdimb
+    \if n\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \if d\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+        \@tempdimb=\MFF@contrast\MFF@dimenD
+    \fi
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{vair}\fi
+    \MFF@corr@many{vair}%
+}
+
+\def\MFF@correct@stem{%
+    \@tempdimb=\MFF@scale@bold\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{stem}\fi
+    \MFF@corr@many{stem}%
+    \edef\MFF@temp@stem{\the\@tempdimb}%
+}
+
+\def\MFF@correct@curve{%
+    \@tempdimb=\MFF@scale@bold\@tempdimb
+    \if n\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \if d\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{curve}\fi
+    \if@MFF@checkit
+       \MFF@dimenD=\MFF@temp@stem\relax
+       \ifdim \@tempdimb<\MFF@dimenD
+              \@tempdimb=\MFF@dimenD \MFF@warncorr{curve}%
+       \fi
+    \fi
+    \MFF@corr@many{curve}%
+    \edef\MFF@temp@curve{\the\@tempdimb}%
+}
+
+\def\MFF@correct@ess{%
+    \@tempdimb=\MFF@scale@bold\@tempdimb
+    \if n\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \if d\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{ess}\fi
+    \MFF@corr@many{ess}%
+}
+
+\def\MFF@correct@flare{%
+    \@tempdimb=\MFF@scale@bold\@tempdimb
+    \@tempdimb=\MFF@scale@dot\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{flare}\fi
+    \MFF@corr@many{flare}%
+}
+
+\def\MFF@correct@dot_size{%
+    \@tempdimb=\MFF@scale@bold\@tempdimb
+    \if n\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \if d\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \@tempdimb=\MFF@scale@dot\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{dot_size}\fi
+    \MFF@corr@many{dot_size}%
+}
+
+\def\MFF@correct@cap_hair{%
+    \@tempdimb=\MFF@scale@thin\@tempdimb
+    \if n\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@cap_stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \if d\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@cap_stem\relax
+        \@tempdimb=\MFF@contrast\MFF@dimenD
+    \fi
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{cap_hair}\fi
+    \MFF@corr@many{cap_hair}%
+    \edef\MFF@temp@cap_hair{\the\@tempdimb}%
+}
+
+\def\MFF@correct@cap_stem{%
+    \@tempdimb=\MFF@scale@bold\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{cap_stem}\fi
+    \if@MFF@checkit
+       \MFF@dimenD=\MFF@temp@stem\relax
+       \ifdim \@tempdimb<\MFF@dimenD
+              \@tempdimb=\MFF@dimenD \MFF@warncorr{cap_stem}%
+       \fi
+    \fi
+    \MFF@corr@many{cap_stem}%
+    \edef\MFF@temp@cap_stem{\the\@tempdimb}%
+}
+
+\def\MFF@correct@cap_curve{%
+    \@tempdimb=\MFF@scale@bold\@tempdimb
+    \if n\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@cap_stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \if d\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@cap_stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{cap_curve}\fi
+    \if@MFF@checkit
+       \MFF@dimenD=\MFF@temp@curve\relax
+       \ifdim \@tempdimb<\MFF@dimenD
+              \@tempdimb=\MFF@dimenD \MFF@warncorr{cap_curve}%
+       \fi
+    \fi
+    \MFF@corr@many{cap_curve}%
+}
+
+\def\MFF@correct@cap_ess{%
+    \@tempdimb=\MFF@scale@bold\@tempdimb
+    \if n\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@cap_stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \if d\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@cap_stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{cap_ess}\fi
+    \MFF@corr@many{cap_ess}%
+}
+
+\def\MFF@correct@rule_thickness{%
+    \@tempdimb=\MFF@scale@thin\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{rule_thickness}\fi
+}
+
+\def\MFF@correct@dish{%
+    \@tempdimb=\MFF@scale@dish\@tempdimb
+}
+
+%\def\MFF@correct@bracket{%
+%}
+
+\def\MFF@correct@jut{%
+    \@tempdimb=\MFF@scale@width\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{jut}\fi
+}
+
+\def\MFF@correct@cap_jut{%
+    \@tempdimb=\MFF@scale@width\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{cap_jut}\fi
+}
+
+\def\MFF@correct@beak_jut{%
+    \@tempdimb=\MFF@scale@width\@tempdimb
+}
+
+%\def\MFF@correct@beak{%
+%}
+
+\def\MFF@correct@notch_cut{%
+    \@tempdimb=\MFF@scale@thin\@tempdimb
+    \@tempdimb=\MFF@scale@notch\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{notch_cut}\fi
+}
+
+\def\MFF@correct@bar{%
+    \@tempdimb=\MFF@scale@bold\@tempdimb
+    \if n\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \if d\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{bar}\fi
+    \MFF@corr@many{bar}%
+}
+
+\def\MFF@correct@slab{%
+    \@tempdimb=\MFF@scale@bold\@tempdimb
+    \if n\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@cap_stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \if d\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@cap_stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{slab}\fi
+    \MFF@corr@many{slab}%
+    \edef\MFF@temp@slab{\the\@tempdimb}%
+}
+
+\def\MFF@correct@cap_bar{%
+    \@tempdimb=\MFF@scale@bold\@tempdimb
+    \if n\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@cap_stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \if d\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@cap_stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{cap_bar}\fi
+    \MFF@corr@many{cap_bar}%
+}
+
+\def\MFF@correct@cap_band{%
+    \@tempdimb=\MFF@scale@bold\@tempdimb
+    \if n\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@cap_stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \if d\MFF@contrasttype
+        \MFF@dimenD=\MFF@temp@cap_stem\relax
+        \@tempdimb=\MFF@dimenD
+    \fi
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{cap_band}\fi
+    \MFF@corr@many{cap_band}%
+}
+
+\def\MFF@correct@cap_notch_cut{%
+    \@tempdimb=\MFF@scale@thin\@tempdimb
+    \@tempdimb=\MFF@scale@notch\@tempdimb
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{cap_notch_cut}\fi
+}
+
+%\def\MFF@correct@serif_drop{%
+%}
+
+\def\MFF@correct@stem_corr{%
+    \MFF@corr@corr{stem_cor}%
+    \if@MFF@checkit
+       \MFF@dimenD=\MFF@temp@hair\relax
+       \MFF@dimenA=\MFF@temp@fudge\relax
+       \MFF@multiply{\MFF@dimenA}{\MFF@dimenD}{\MFF@dimenD}%
+       \ifdim \@tempdimb>0.0625\MFF@dimenD
+              \@tempdimb=0.0625\MFF@dimenD \MFF@warncorr{stem_corr}%
+       \fi
+    \fi
+}
+
+\def\MFF@correct@vair_corr{%
+    \MFF@corr@corr{vair_cor}%
+    \if@MFF@checkit
+       \MFF@dimenD=\MFF@temp@slab\relax
+       \ifdim \@tempdimb>0.25\MFF@dimenD
+              \@tempdimb=0.25\MFF@dimenD \MFF@warncorr{vair_corr}%
+       \fi
+    \fi
+}
+
+%\def\MFF@correct@apex_corr{%
+%}
+
+%\def\MFF@correct@o{%
+%}
+
+%\def\MFF@correct@apex_o{%
+%}
+
+\def\MFF@correct@fudge{%
+    \ifdim \@tempdimb<0.5pt\relax \@tempdimb=0.5pt \MFF@warncorr{fudge}\fi
+    \edef\MFF@temp@fudge{\the\@tempdimb}%
+}
+
+%\def\MFF@correct@math_spread{%
+%}
+
+%\def\MFF@correct@superness{%
+%}
+
+%\def\MFF@correct@superpull{%
+%}
+
+\def\MFF@correct@beak_darkness{%
+    \ifdim \@tempdimb<\z@ \@tempdimb=0pt \MFF@warncorr{beak_darkness}\fi
+}
+
+
+%
+% End of font correction
+%

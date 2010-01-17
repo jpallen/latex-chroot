@@ -1,0 +1,61 @@
+% this is musicdef.mf
+%
+%
+% hier evtl. mode fuer gewuenschten output setzen
+%
+%  AGFA P400 mode: for devices that print 406 pixels per inch
+%  mode_def agfa  =
+%   proofing:=0;
+%   fontmaking:=1;
+%   tracingtitles:=0;
+%   pixels_per_inch:=406;
+%   blacker:=0.65;
+%   fillin:=0;
+%   o_correction:=1;
+%   enddef;
+%  localfont:=agfa;
+%  mode:=agfa;
+%  mode_setup;
+%
+%
+%mode_def ibm =    % ibm mode: for the IBM3820
+% proofing:=0;      % no, we're not making proofs
+% fontmaking:=1;      % yes, we are making a font
+% tracingtitles:=0;    % no, don't show titles in the log
+% pixels_per_inch:=300;
+% blacker:=.78;      % (this value is conjectural)
+% fillin:=0.25;      % (ditto)
+% o_correction:=.5;    % (ditto)
+% enddef;
+%localfont:=ibm;
+%mode:=ibm;
+mode_setup;
+%
+%fontmaking:=1;
+turningcheck:=1;
+displaying:=2;
+designsize:=16;
+nhh#:=1/4designsize; %noteheadheight
+nhw#:=1.2nhh#; %noteheadwidth
+beamht#:=0.6nhh#; %Balkenst"arke
+nhh:=nhh#*pt; %noteheadheight *pt
+nhw:=nhw#*pt; %noteheadwidth  *pt
+thinwidth := 0.4pt;
+beamht := beamht#*pt;
+s := 1.0pt;
+S := 1/16designsize;
+%pair constants
+pair ne,se,sw,nw; %northeast,southeast,southwest,northwest
+ne = up+right; se = down+right; sw = down+left; nw = up+left;
+openit;
+def clear =
+  numeric x[],y[],x[]l,y[]l,x[]r,y[]r,dx[],dy[];
+  pair    sh[];
+enddef;
+%
+pickup pencircle scaled (0.1pt);
+def penstrike text t =
+ forsuffixes e = l,r: path_.e:=t; endfor
+ if cycle path_.l: cyclestroke_
+ else: filldraw path_.l -- reverse path_.r -- cycle fi enddef;
+%

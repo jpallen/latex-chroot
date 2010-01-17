@@ -1,0 +1,46 @@
+\relax
+
+% T2Ccj.etx -- install a T2C-encoded faked small-caps & oldstyle font
+%
+% This is used exclusively to install faked small-caps fonts;
+% real small caps fonts are installed using the default T2C.etx.
+
+\encoding
+
+\setcommand\lc#1#2{#1small}
+\setcommand\uc#1#2{#1}
+\setcommand\lctop#1#2{#1small}
+\setcommand\uctop#1#2{#1}
+\setcommand\lclig#1#2{#1small}
+\setcommand\uclig#1#2{#1spaced}
+\setcommand\digit#1{#1oldstyle}
+
+% The default letter spacing is 1/10 of the design size, with small
+% caps 80% the size of large caps.
+
+\setint{smallcapsscale}{800}
+
+\ifisglyph{space}\then
+   \setint{interword}{\width{space}}
+\else\ifisglyph{i}\then
+   \setint{interword}{\width{i}}
+\else
+   \setint{interword}{333}
+\fi\fi
+
+\ifisint{monowidth}\then
+   \setint{smallcapsextraspace}
+      {\div{\scale{\int{interword}}{\sub{1000}{\int{smallcapsscale}}}}{2}}
+   \setint{smallcapsspacing}{0}
+\else
+   \setint{smallcapsextraspace}{50}
+   \setint{smallcapsspacing}{50}
+\fi
+
+\ifisint{capspacing}\then
+   \setint{letterspacing}{\int{capspacing}}
+\fi
+
+\inputetx{T2C}
+
+\endencoding

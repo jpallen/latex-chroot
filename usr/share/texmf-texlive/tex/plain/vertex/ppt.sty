@@ -1,0 +1,181 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%      This is the ppt.sty (Preprint style) for VerTeX
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Special fonts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\font\twelveHelv=cmss10 at 12pt
+\font\fourteenHelvB=cmss10 at 14pt
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Pagesize
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\hsize=6.5 true in
+\vsize=8.9 true in
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Headline and footline
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%None in this style
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Topmatter style
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newbox\covertitlebox
+\newbox\coverauthorbox
+
+\def\DoCoverTitle#1{\titlepage\global
+   \CenterBox
+     \covertitlebox
+     \fourteenHelvB
+     {16pt}
+     {#1}}
+
+\def\DoCoverAuthor#1{
+     \CenterBox
+     \coverauthorbox
+     \twelveHelv
+     {14pt}
+     {#1}}
+
+\def\TitleFont{\tenpoint\bf}
+\def\AuthorFont{\tenpoint\rm}
+
+\def\title#1{\DoCoverTitle{#1}\DoCenteredTitle{#1}}
+
+\def\author#1{\DoCoverAuthor{#1}\DoCenteredAuthor{#1}}
+
+\def\affil#1{\global\setbox\affilbox
+     \vbox{\halign{\tenpoint\it\hfil##\hfil\cr#1\crcr}}}
+
+\def\thanks#1{\global\setbox\thanksbox\hbox{\eightpoint #1}}
+
+\def\date#1{\global\setbox\datebox\vbox{\hfil\tenrm #1 \hfil}}
+
+\def\version#1{\global\setbox\versionbox\vbox{\hfil\tenrm Current version: #1 \hfil}}
+
+\long\def\abstract#1{\global\setbox\abstractbox\hbox{\noindent{\bf Abstract. }\tenpoint#1}}
+
+\def\keywords#1{\global\setbox\keywordsbox\hbox{\noindent{\bf Keywords. }#1}}
+
+\def\address#1{\global\setbox\addressbox\hbox{\noindent{\bf Address. }#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Sections and subsections
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\SectionFont{\tenpoint\bf}
+
+\def\section#1\par{\DoLeftSection{#1}}
+
+\def\subsection#1\par{\BigBreak\noindent
+   {\it #1}
+   \nobreak\medskip\noindent}
+
+\outer\def\proclaim #1. #2\par{\medbreak
+  \noindent{\bf#1.\enspace}{\sl#2}\par
+  \ifdim\lastskip<\medskipamount \removelastskip\penalty55\medskip\fi}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\RefFont=\tenpoint
+
+\def\endref{\SetRef\vskip.5pc}
+
+\def\Refs{\vskip1in plus .5in minus .5in\goodbreak
+          \noindent{\hfill\tenpoint\bf References\hfill}
+          \vskip 2pc\RefFont}
+
+\def\SetRef{
+
+  \ifjour\jourfalse\vbox{\HangRef
+     \unhbox\bybox\space(\unhbox\yrbox) ``\unhbox\paperbox,'' 
+     \unhbox\jourbox, \unhbox\volbox,
+     \ifvoid\nobox\relax\else\unhbox\nobox, \fi
+     \unhbox\pagesbox. \par}\fi
+ 
+ \ifbook\bookfalse\par\vbox{\HangRef
+     \unhbox\bybox\space (\unhbox\yrbox) 
+     {\it \unhbox\bookbox}. 
+     \unhbox\publaddrbox : 
+     \unhbox\publbox .\par}\fi
+
+ \ifinbook\inbookfalse\par\vbox{\HangRef
+     \unhbox\bybox\space (\unhbox\yrbox) ``\unhbox\paperbox,'' in 
+     {\it \unhbox\bookbox}, ed. {\rm \unhbox\editorbox}.
+     \unhbox\publaddrbox : \unhbox\publbox \ifvoid\pagesbox\relax
+     \else, \unhbox\pagesbox\fi .\par}\fi
+
+ \ifunpublished\unpublishedfalse\par\vbox{\HangRef
+     \unhbox\bybox\space(\unhbox\yrbox) 
+    ``\unhbox\paperbox,'' \unhbox\paperinfobox .\par}\fi
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Define controls
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\topmatter{\relax}
+\def\endtopmatter{\nopagenumbers\DoCover}
+\def\document{\DoPaper\noindent}
+\def\prelim{\global\PreliminaryVersiontrue}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Set the cover
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\titlehead{\hfil}
+\def\titlefoot{\hfil}
+
+\def\DoCover{\nopagenumbers
+\ifPreliminaryVersion\line{\hfil Preliminary Draft}\fi
+\vglue 2in plus 1in minus 1in
+\line{\hfil\box\covertitlebox\hfil}
+\vskip 1pc
+\line{\hfil\vbox{\halign{\tenrm\hfil##\hfil\cr by\crcr}}\hfil}
+\vskip 1pc
+\line{\hfil\box\coverauthorbox\hfil}
+\ifvoid\affilbox\relax\else
+\line{\hfil\box\affilbox\hfil}\fi
+\vskip 1pc
+\box\datebox
+\box\versionbox
+\vskip .5in%
+\noindent\unhbox\abstractbox\vskip 2pc
+\ifvoid\keywordsbox\relax\else\noindent\unhbox\keywordsbox\fi
+\vskip 2pc
+\ifvoid\addressbox\relax\else\noindent\unhbox\addressbox\fi
+\vfil\eject}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Set the paper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\def\DoPaper{\Reset
+ \global\footline={\hfil\tenrm\number\pageno\hfil}
+ \vbox{\hfil\box\titlebox\hfil}
+ \vskip .5pc
+ \vbox{\hfil\box\authorbox\hfil}
+ \ifvoid\thanksbox\relax\else\vfootnote{}{
+    \eightpoint\ifdouble\vrule height 14pt width 0pt\fi\unhbox\thanksbox\endfnote}\fi
+ \vskip 2pc}
+
+\parindent=15pt
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Use a footnote rule in this style
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\footnoterule{\kern-3pt\hrule width 2truein \kern 2.6pt}

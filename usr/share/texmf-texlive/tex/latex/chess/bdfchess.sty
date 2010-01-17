@@ -1,0 +1,815 @@
+% This is BdFCHESS.STY Version 1.2
+% New additions to Piet Tutelaers CHESS.STY 1.2
+% for correspondence chess players
+%
+% Documentation see BDFGERM.TEX or BDFENGL.TEX
+%
+% Author Frank Hassel
+% February 1993
+%
+% These macros are free software in the spirit of TeX.
+% Anyone, who demands payment for the distribution of this
+% material, must make clear that the charge is for distribution
+% and is no sense a licence fee or purchase fee for BDFCHESS.STY.
+% Each user uses these macros entirely at his own risk.
+%
+%
+% To include other postcardlanguages search for xxxx
+%
+\typeout{with fixes for 2e}
+%%% FMi fixing for 2e
+\def\xiipt{\fontsize{12pt}{14pt}\rmfamily}
+%
+%------- Usefull definitions not only for postalchess ---------
+%
+%
+%
+%
+%------- \showinversboard -------------------------------------
+\newcount\@t
+\newcount\@w
+\def\@showinversrow#1{
+    \@r=#1
+    \@c=8
+    \@sum=\@r
+    \advance\@sum by\@c
+   \loop
+      \@showchar
+      \ifnum\@c>1 \advance\@c by-1\advance\@sum by-1
+   \repeat
+}
+
+\def\showinversboard{
+\@t=1
+\vbox{\offinterlineskip
+   \hrule height1pt
+   \hbox{\vrule width1pt\Chess
+          \vbox{\loop
+                \hbox{\@showinversrow\@t}
+                \ifnum\@t<8 \advance\@t by1
+                \repeat}%
+          \vrule width1pt}
+   \hrule height1pt}}
+%---- \showboardwithnotation and \showinversboardwithnotation --
+%----- for boardsizes 10,15,20 and 30 pt------------------------
+\newlength{\boardbreite}
+\newlength{\rhoehe}
+\newlength{\feldbreite}
+%
+\def\selectnotationsize{
+\settowidth{\boardbreite}{\vrule width 2pt \Chess\@showrow8}
+\feldbreite=\boardbreite
+\advance\feldbreite by -2pt
+\divide\feldbreite8
+\rhoehe=\boardbreite
+\divide\rhoehe24
+%
+\ifdim\boardbreite>240pt\font\no=cmr12\else
+\ifdim\boardbreite>160pt\font\no=cmr10\else
+\ifdim\boardbreite>120pt\font\no=cmr8\else
+\ifdim\boardbreite>80pt\font\no=cmr6\fi\fi\fi\fi}
+%
+\def\showboardwithnotation{\selectnotationsize
+\@t=8
+\vbox{\offinterlineskip
+   \hrule height1pt width\boardbreite
+   \Chess
+\loop
+   \hbox{\vrule width1pt\@showrow\@t\vrule width1pt
+    \raisebox{\rhoehe}{\no\ \the\@t}}
+    \ifnum\@t>1 \advance\@t by-1
+\repeat
+   \hrule height1pt width\boardbreite\smallskip
+\hbox{
+\hbox to \feldbreite{\hfil\no a\hfil}
+\hbox to \feldbreite{\hfil\no b\hfil}
+\hbox to \feldbreite{\hfil\no c\hfil}
+\hbox to \feldbreite{\hfil\no d\hfil}
+\hbox to \feldbreite{\hfil\no e\hfil}
+\hbox to \feldbreite{\hfil\no f\hfil}
+\hbox to \feldbreite{\hfil\no g\hfil}
+\hbox to \feldbreite{\hfil\no h\hfil}
+}}}
+%
+\def\showinversboardwithnotation{\selectnotationsize
+\@t=1
+\vbox{\offinterlineskip
+   \hrule height1pt width\boardbreite
+   \Chess
+\loop
+   \hbox{\vrule width1pt\@showinversrow\@t\vrule width1pt
+    \raisebox{\rhoehe}{\no\ \the\@t}}
+    \ifnum\@t<8 \advance\@t by1
+\repeat
+   \hrule height1pt width\boardbreite\smallskip
+\hbox{
+\hbox to \feldbreite{\hfil\no h\hfil}
+\hbox to \feldbreite{\hfil\no g\hfil}
+\hbox to \feldbreite{\hfil\no f\hfil}
+\hbox to \feldbreite{\hfil\no e\hfil}
+\hbox to \feldbreite{\hfil\no d\hfil}
+\hbox to \feldbreite{\hfil\no c\hfil}
+\hbox to \feldbreite{\hfil\no b\hfil}
+\hbox to \feldbreite{\hfil\no a\hfil}
+}}}
+%------- \savegameone and \restoregameone ---------------------
+\def\@colA{\ifcase\@c\or i\or j\or k\or l\or m\or n\or o\or p\fi}
+%
+\newif\ifWhiteone 
+\newif\ifcastlingone
+\newif\ifKnotmovedone
+\newif\ifknotmovedone
+\newif\ifpromotionone
+\newif\ifenpassantone
+\newcount\movecountone
+%
+\def\savegameone{
+\global\let\Whiteone=\White
+\global\let\castlingone=\castling
+\global\let\Knotmovedone=\Knotmoved
+\global\let\knotmovedone=\knotmoved
+\global\let\promotionone=\promotion
+\global\let\enpassantone=\enpassant
+\global\movecountone=\movecount
+
+  \@r=1
+  \loop
+    {\@c=1
+      \loop
+      \@get\piece[\@col\the\@r]
+         \@set[\@colA\the\@r](\piece)
+         \ifnum\@c<8 \advance\@c by1
+      \repeat}
+      \ifnum\@r<8 \advance\@r by 1
+   \repeat
+}
+%
+\def\restoregameone{
+\global\let\White=\Whiteone
+\global\let\castling=\castlingone
+\global\let\Knotmoved=\Knotmovedone
+\global\let\knotmoved=\knotmovedone
+\global\let\promotion=\promotionone
+\global\let\enpassant=\enpassantone
+\global\movecount=\movecountone
+   \@r=1
+   \loop
+     {\@c=1
+      \loop
+      \@get\piece[\@colA\the\@r]
+         \@set[\@col\the\@r](\piece)
+         \ifnum\@c<8 \advance\@c by1
+      \repeat}
+      \ifnum\@r<8 \advance\@r by 1
+   \repeat
+}
+%------- \savegametwo and \restoregametwo ---------------------
+\def\@colB{\ifcase\@c\or q\or r\or s\or t\or u\or v\or w\or x\fi}
+
+\newif\ifpostalWhitetwo 
+\newif\ifcastlingtwo
+\newif\ifKnotmovedtwo
+\newif\ifknotmovedtwo
+\newif\ifpromotiontwo
+\newif\ifenpassanttwo
+\newcount\movecounttwo
+%
+\def\savegametwo{
+\global\let\Whitetwo=\White
+\global\let\castlingtwo=\castling
+\global\let\Knotmovedtwo=\Knotmoved
+\global\let\knotmovedtwo=\knotmoved
+\global\let\promotiontwo=\promotion
+\global\let\enpassanttwo=\enpassant
+\global\movecounttwo=\movecount
+   \@r=1
+   \loop
+     {\@c=1
+      \loop
+      \@get\piece[\@col\the\@r]
+         \@set[\@colB\the\@r](\piece)
+         \ifnum\@c<8 \advance\@c by1
+      \repeat}
+      \ifnum\@r<8 \advance\@r by 1
+   \repeat}
+%
+\def\restoregametwo{
+\global\let\White=\Whitetwo
+\global\let\castling=\castlingtwo
+\global\let\Knotmoved=\Knotmovedtwo
+\global\let\knotmoved=\knotmovedtwo
+\global\let\promotion=\promotiontwo
+\global\let\enpassant=\enpassanttwo
+\global\movecount=\movecounttwo
+   \@r=1
+   \loop
+     {\@c=1
+      \loop
+      \@get\piece[\@colB\the\@r]
+         \@set[\@col\the\@r](\piece)
+         \ifnum\@c<8 \advance\@c by1
+      \repeat}
+      \ifnum\@r<8 \advance\@r by 1
+   \repeat
+}
+%----------- \storeboard ------------------------------------
+\def\storeboard#1{
+\newwrite\bdf
+\immediate\openout\bdf=#1
+\immediate\write\bdf{\string\begin{position}}
+\immediate\write\bdf{\string\White(}
+\@r=1
+\loop
+\@c=1
+\@sum=\@r\advance \@sum by \@c
+\loop
+   \@get\piece[\@col\the\@r]
+\if\piece E 
+\else
+%
+%
+\if\piece R \immediate\write\bdf{\uc@rook\@col\the\@r,}\fi  
+\if\piece N \immediate\write\bdf{\uc@knight\@col\the\@r,}\fi 
+\if\piece B \immediate\write\bdf{\uc@bishop\@col\the\@r,}\fi 
+\if\piece Q \immediate\write\bdf{\uc@queen\@col\the\@r,}\fi 
+\if\piece P \immediate\write\bdf{\@col\the\@r,}\fi  
+\if\piece K \@t=\@c \@w=\@r \fi
+\fi
+   \ifnum\@c<8 \advance \@c by 1 \advance\@sum by 1
+   \repeat
+   \ifnum\@r<8 \advance \@r by 1
+\@c=1
+\repeat
+\@c=\@t
+\immediate\write\bdf{\uc@king\@col\the\@w )}
+%
+\immediate\write\bdf{\string\Black(}
+\@r=1
+\loop
+\@c=1
+\@sum=\@r\advance \@sum by \@c
+\loop
+   \@get\piece[\@col\the\@r]
+\if\piece E 
+\else
+\if\piece k \@t=\@c \@w=\@r\fi
+%
+%
+\if\piece r \immediate\write\bdf{\uc@rook\@col\the\@r,}\fi
+\if\piece n \immediate\write\bdf{\uc@knight\@col\the\@r,}\fi
+\if\piece b \immediate\write\bdf{\uc@bishop\@col\the\@r,}\fi
+\if\piece q \immediate\write\bdf{\uc@queen\@col\the\@r,}\fi
+\if\piece p \immediate\write\bdf{\@col\the\@r,}\fi
+\fi
+   \ifnum\@c<8 \advance \@c by 1 \advance\@sum by 1
+   \repeat
+   \ifnum\@r<8 \advance \@r by 1
+\@c=1
+\repeat
+\@c=\@t
+\immediate\write\bdf{\uc@king\@col\the\@w )}
+%
+\immediate\write\bdf{\string\global\movecount=\the\movecount}
+\ifWhite
+\immediate\write\bdf{\string\global\string\Whitetrue}
+\else
+\immediate\write\bdf{\string\global\string\Whitefalse}
+\fi
+\immediate\write\bdf{\string\end{position}}
+\immediate\closeout\bdf
+}
+%
+%------- Here are the definitions for postal chessplayers -----
+%
+%-------- boxes for postcard in several languages -------------
+\global\font\Fig=chessf10
+\newbox\yourdatebox
+\newbox\mydatebox
+\newbox\moveonebox
+\newbox\movetwobox
+\newbox\acceptonebox
+\newbox\accepttwobox
+%
+\def\cardtabular[#1,#2,#3,#4]{
+\hbox{\hbox to 10mm{\hss #1\hss}
+      \hbox to 18mm{\hss #2\hss}
+      \hbox to 7mm{\hss #3\hss}
+      \hbox to 18mm{\hss #4\hss}}}
+%
+%%------------------- Definitions for english postcard ---------
+\chardef \pc@english=0
+\gdef\tabularheader{\vbox{
+  \hbox{\hbox to 30mm{\hss Date\hss}
+   \hbox to 70mm{\hss\ \hss}
+   \hbox to 30mm{\hss Date\hss}}
+\movetabular[Arrival,Leaving,$\sum$,{\large\bf White}, ,{\large
+\bf Black},Arrival,Leaving,$\sum$]
+\vskip 1pt\hrule}}
+%
+\def\cardenglish{%
+\gdef\postcardname{postcard}
+%%%%FMi
+\gdef\salutations{Yours sincerely}
+\gdef\nameif{if }
+\def\yourdate[##1][##2][##3]{\global\setbox\yourdatebox=\vbox{
+\hbox{Your postmark date ##1}
+\hbox{Your time taken ##2 day(s)}
+\hbox{Your total time ##3 days}}}
+%
+\def\mydate[##1][##2][##3][##4]{\global\setbox\mydatebox=\vbox{
+\hbox{Received on ##1}
+\hbox{Replied on ##2}
+\hbox{My time taken ##3 day(s)}
+\hbox{My total time ##4 days}}}
+%
+\global\setbox\acceptonebox=\vbox{
+\hbox to 50mm{\hss Game 1\hss}\vskip 2mm
+\cardtabular[No.,Your move,No.,My move]
+\hrule\vskip 2pt}
+%
+\global\setbox\accepttwobox=\vbox{
+\hbox to 50mm{\hss Game 2\hss}\vskip 2mm
+\cardtabular[No.,Your move,No.,My move]
+\hrule\vskip 2pt}
+%
+}%
+%------------------- Definitions for german postcard ---------
+\chardef \pc@german=1
+\ifcurrentlanguage{germanb}{%
+\gdef\tabularheader{\vbox{
+  \hbox{\hbox to 30mm{\hss Datum\hss}
+   \hbox to 70mm{\hss\ \hss}
+   \hbox to 30mm{\hss Datum\hss}}
+\movetabular[Ankunft,Abgang,$\sum$,{\large\bf Wei\ss}, ,{\large
+\bf Schwarz},Ankunft,Abgang,$\sum$]
+\vskip 1pt\hrule}}}
+%
+\def\cardgerman{%
+\gdef\postcardname{Postkarte}
+\gdef\salutations{Freundliche Gr\"u\ss e}
+\gdef\nameif{falls }
+\def\yourdate[##1][##2][##3]{\global\setbox\yourdatebox=\vbox{
+\hbox{Ihr Poststempeldatum ##1}
+\hbox{Ihre Bedenkzeit ##2 Tag(e)}
+\hbox{Ihre Gesamtbedenkzeit ##3 Tage}}}
+%
+\def\mydate[##1][##2][##3][##4]{\global\setbox\mydatebox=\vbox{
+\hbox{Empfangen am ##1}
+\hbox{Beantwortet am ##2}
+\hbox{Meine Bedenkzeit ##3 Tag(e)}
+\hbox{Meine Gesamtbedenkzeit ##4 Tage}}}
+%
+\global\setbox\acceptonebox=\vbox{
+\hbox to 50mm{\hss Partie 1\hss}\vskip 2mm
+\cardtabular[Nr.,Ihr Zug,Nr.,Mein Zug]
+\hrule\vskip 2pt}
+%
+\global\setbox\accepttwobox=\vbox{
+\hbox to 50mm{\hss Partie 2\hss}\vskip 2mm
+\cardtabular[Nr.,Ihr Zug,Nr.,Mein Zug]
+\hrule\vskip 2pt}
+%
+}%
+%------------------- Definitions for french postcard ---------
+\chardef \pc@french=2
+\ifcurrentlanguage{french}{%
+\gdef\tabularheader{\vbox{
+  \hbox{\hbox to 30mm{\hss Date\hss}
+   \hbox to 70mm{\hss\ \hss}
+   \hbox to 30mm{\hss Date\hss}}
+\movetabular[Arriv\'ee,D\'epart,$\sum$,{\large\bf Blanc}, ,{\large
+\bf Noir},Arriv\'ee,D\'epart,$\sum$]
+\vskip 1pt\hrule}}}
+%
+\def\cardfrench{%
+\gdef\postcardname{carte postale}
+\gdef\salutations{Salutations}
+\gdef\nameif{que }
+\def\yourdate[##1][##2][##3]{\global\setbox\yourdatebox=\vbox{
+\hbox{Votre date de la poste ##1}
+\hbox{Votre temps ##2 jour(s)}
+\hbox{Votre temps total ##3 jours}}}
+%
+\def\mydate[##1][##2][##3][##4]{\global\setbox\mydatebox=\vbox{
+\hbox{Arriv\'ee ##1}
+\hbox{D\'epart ##2}
+\hbox{Mon temps ##3 jour(s)}
+\hbox{Mon temps total ##4 jours}}}
+%
+\global\setbox\acceptonebox=\vbox{
+\hbox to 50mm{\hss Partie 1\hss}\vskip 2mm
+\cardtabular[No.,Votre coup,No.,Mon coup]
+\hrule\vskip 2pt}
+%
+\global\setbox\accepttwobox=\vbox{
+\hbox to 50mm{\hss Partie 2\hss}\vskip 2mm
+\cardtabular[No.,Votre coup,No.,Mon coup]
+\hrule\vskip 2pt}
+%
+}
+%------------------- Definitions for xxxx postcard ---------
+\chardef \pc@xxxx=3
+\ifcurrentlanguage{xxxx}{%
+\gdef\tabularheader{\vbox{
+  \hbox{\hbox to 30mm{\hss xxxx\hss}
+   \hbox to 70mm{\hss\ \hss}
+   \hbox to 30mm{\hss xxxx\hss}}
+\movetabular[xxxx,xxxx,$\sum$,{\large\bf xxxx}, ,{\large \bf
+ xxxx},xxxx,xxxx,$\sum$]
+\vskip 1pt\hrule}}}
+%
+\def\cardxxxx{%
+\gdef\postcardname{xxxx}
+\gdef\salutations{xxxx}
+\gdef\nameif{xxxx }
+\def\yourdate[##1][##2][##3]{\global\setbox\yourdatebox=\vbox{
+\hbox{xxxx ##1}
+\hbox{xxxx ##2 xxxx}
+\hbox{xxxx ##3 xxxx}}}
+%
+\def\mydate[##1][##2][##3][##4]{\global\setbox\mydatebox=\vbox{
+\hbox{xxxx ##1}
+\hbox{xxxx ##2}
+\hbox{xxxx ##3 xxxx}
+\hbox{xxxx ##4 xxxx}}}
+%
+\global\setbox\acceptonebox=\vbox{
+\hbox to 50mm{\hss xxxx 1\hss}\vskip 2mm
+\cardtabular[xxxx,xxxx,xxxx,xxxx]
+\hrule\vskip 2pt}
+%
+\global\setbox\accepttwobox=\vbox{
+\hbox to 50mm{\hss xxxx 2\hss}\vskip 2mm
+\cardtabular[xxxx,xxxx,xxxx,xxxx]
+\hrule\vskip 2pt}
+}
+%--------------- Selection of language -------------------------
+\def\p@postcardlanguage#1{\expandafter\ifx\csname pc@#1\endcsname\relax
+\errhelp{Your command will be ignored, type <return> to proceed}%
+\errmessage{You haven't defined the language #1 yet}%
+  \else
+\csname card#1\endcsname
+  \fi}
+
+\def\postcardlanguage#1{\protect\p@postcardlanguage{%
+  \ifnum\escapechar=\expandafter`\string#1\empty
+  \else \string#1\empty\fi}}
+%----------------- Init ------------------------------
+\postcardlanguage{english}% Default language
+\ifcurrentlanguage{germanb}{\postcardlanguage{german}}
+\ifcurrentlanguage{french}{\postcardlanguage{french}}
+\ifcurrentlanguage{xxxx}{\postcardlanguage{xxxx}}
+\newgame
+\newif\iffinishgameone\finishgameonetrue
+\newif\iffinishgametwo\finishgametwotrue
+\savegameone
+\savegametwo
+%
+% different cardmoves
+%
+\def\acceptmoveone#1 #2 #3 #4 {
+\global\setbox\acceptonebox= \vbox{\unvbox\acceptonebox
+\vskip 2pt\cardtabular[#1,#2,#3,#4]}}
+%
+\def\acceptmovetwo#1 #2 #3 #4 {
+\global\setbox\accepttwobox= \vbox{\unvbox\accepttwobox
+\vskip 2pt\cardtabular[#1,#2,#3,#4]}}
+%
+\def\ifmoveone#1 #2 #3 #4 {
+\movetabular[\ ,\ ,#1,#2,#3,#4,\ ,\ ,\ ]
+\global\setbox\moveonebox= \vbox{\unvbox\moveonebox
+\vskip 1.5pt\cardtabular[\nameif #1,#2,#3,#4]}}
+%
+\def\ifmovetwo#1 #2 #3 #4 {
+\movetabular[\ ,\ ,#1,#2,#3,#4,\ ,\ ,\ ]
+\global\setbox\movetwobox= \vbox{\unvbox\movetwobox
+\vskip 1.5pt\cardtabular[\nameif #1,#2,#3,#4]}}
+%
+\def\moveone[#1][#2][#3][#4]{%
+\global\setbox\moveonebox=\vbox{\cardtabular[#1,#2,#3,#4 ]}}
+%
+\def\movetwo[#1][#2][#3][#4]{%
+\global\setbox\movetwobox=\vbox{\cardtabular[#1,#2,#3,#4 ]}}
+%
+%
+%---\postmove and \postply same as \move and \ply in CHESS.STY-
+%---but with calculation of consider- and departuretime -------
+%
+\def\movetabular[#1,#2,#3,#4,#5,#6,#7,#8,#9]{\par
+     \hbox{\strut\hskip 1mm
+            \hbox to 15mm{\hfill #1\hfill}
+            \hbox to 15mm{\hfill #2\hfill}
+            \hbox to 8mm{\hfill #3}
+            \hbox to 24mm{\hfill #4\hfill}
+            \hbox to 8mm{\hfill #5}
+            \hbox to 24mm{\hfill #6\hfill}
+            \hbox to 15mm{\hfill #7\hfill}
+            \hbox to 15mm{\hfill #8\hfill}
+            \hbox to 8mm{\hfill #9}}\par}
+%
+\newcount\considerwhite
+\newcount\considersumwhite
+\newcount\considerblack
+\newcount\considersumblack
+\newcount\movecountwhite
+\newcount\movecountblack
+
+\newbox\arrivalwhite
+\newbox\leavingwhite
+\newbox\arrivalblack
+\newbox\leavingblack
+
+\newbox\plywhite
+\newbox\plyblack
+
+\def\postmove #1 #2 #3 #4 #5 #6 {\frenchspacing
+\advance\movecount by 1
+%
+\considerwhite=#2
+\advance\considersumwhite by #2
+\@departure#1 #2 {}
+\setbox\arrivalwhite=\copy\arrival
+\setbox\leavingwhite=\copy\leaving
+\setbox\plywhite=\hbox{\@ply#3 }
+%
+\considerblack=#6
+\advance\considersumblack by #6
+\@departure#5 #6 {}
+\setbox\arrivalblack=\copy\arrival
+\setbox\leavingblack=\copy\leaving
+\setbox\plyblack=\hbox{\@ply#4 }
+%
+% Typesetting 
+%
+\movetabular[\copy\arrivalwhite,\copy\leavingwhite,
+    \the\considersumwhite,\copy\plywhite,
+    \the\movecount.,\copy\plyblack,\copy\arrivalblack,
+    \copy\leavingblack,\the\considersumblack]
+%Holiday 
+\global\advance\considerwhite by -\hw
+\global\advance\considerblack by -\hb
+\global\hw=0
+\global\hb=0
+%
+\message{\the\movecount }}
+%
+%
+\def\postply#1 #2 #3 {\frenchspacing
+    \ifWhite\advance\movecount by 1
+\considerwhite=#2
+    \advance\considersumwhite by #2
+    \else
+\considerblack=#2
+    \advance\considersumblack by #2
+    \fi
+\@departure#1 #2 {}
+\ifWhite
+\setbox\arrivalwhite=\copy\arrival
+\setbox\leavingwhite=\copy\leaving
+\setbox\plywhite=\hbox{\@ply#3 }
+\movetabular[\copy\arrivalwhite,\copy\leavingwhite,
+    \the\considersumwhite,\copy\plywhite,
+    \the\movecount.,\ ,\ ,\ ,\ ]
+\else
+\setbox\arrivalblack=\copy\arrival
+\setbox\leavingblack=\copy\leaving
+\setbox\plyblack=\hbox{\@ply#3 }
+\movetabular[\ ,\ ,\ ,...,\the\movecount.,
+\copy\plyblack,\copy\arrivalblack,
+\copy\leavingblack,\the\considersumblack]
+\fi
+%Holiday 
+\global\advance\considerwhite by -\hw
+\global\advance\considerblack by -\hb
+\global\hw=0
+\global\hb=0
+%
+\message{(\the\movecount )}
+    \par}%
+%
+%------------- Game 1 --------------------------------
+%
+\newenvironment{gameone}{%
+\tabularheader
+    \newgame
+\considersumwhite=0
+\considersumblack=0
+\global\finishgameonefalse
+%
+\typeout{Game 1}
+\message{Move : }}{% 
+\savegameone
+%
+\ifWhite
+%
+\moveone[\the\movecount][\copy\plywhite][\the\movecount][\copy\plyblack]
+\yourdate[\copy\leavingwhite][\the\considerwhite][\the\considersumwhite]
+\mydate[\copy\arrivalblack][\copy\leavingblack][\the\considerblack][\the\considersumblack]
+\else
+\movecountblack=\movecount
+\advance\movecountblack by -1
+% First ply for white ?
+\ifnum\movecountblack=0
+\moveone[\,][\copy\plyblack][\the\movecount][\copy\plywhite]
+\setbox\arrivalwhite=\hbox{} %delete arrival
+\else
+\moveone[\the\movecountblack][\copy\plyblack][\the\movecount][\copy\plywhite]
+\fi
+\mydate[\copy\arrivalwhite][\copy\leavingwhite][\the\considerwhite][\the\considersumwhite]
+\yourdate[\copy\leavingblack][\the\considerblack][\the\considersumblack]
+\fi}%
+
+\def\finishgameone{
+    \newgame
+\savegameone
+\global\finishgameonetrue}
+%------------------ Game 2 -------------------------------------
+%
+\newenvironment{gametwo}{%
+\tabularheader
+    \newgame
+\considersumwhite=0
+\considersumblack=0
+\global\finishgametwofalse
+%
+\typeout{Game 2}
+\message{Move : }}{% end of begin gametwo
+\savegametwo
+%
+\ifWhite
+\movetwo[\the\movecount][\copy\plywhite][\the\movecount][\copy\plyblack]
+\iffinishgameone
+\yourdate[\copy\leavingwhite][\the\considerwhite][\the\considersumwhite]
+\mydate[\copy\arrivalblack][\copy\leavingblack][\the\considerblack][\the\considersumblack]
+\fi
+\else
+\movecountblack=\movecount
+\advance\movecountblack by -1
+\ifnum\movecountblack=0
+\movetwo[\,][\copy\plyblack][\the\movecount][\copy\plywhite]
+\setbox\arrivalwhite=\hbox{} %delete arrival
+\else
+\movetwo[\the\movecountblack][\copy\plyblack][\the\movecount][\copy\plywhite]
+\fi
+\iffinishgameone
+\yourdate[\copy\leavingblack][\the\considerblack][\the\considersumblack]
+\mydate[\copy\arrivalwhite][\copy\leavingwhite][\the\considerwhite][\the\considersumwhite]\fi
+\fi}%
+%
+\def\finishgametwo{
+    \newgame
+\savegametwo
+\global\finishgametwotrue}
+%----------------- Holiday --------------------------------
+\newcount\hw \hw=0
+\newcount\hb \hb=0
+\gdef\holidaywhite#1 {\global\hw=#1 \global\advance\considersumwhite by-\hw}
+\gdef\holidayblack#1 {\global\hb=#1 \global\advance\considersumblack by-\hb}
+%
+%-----------------Create the postcard----------------------
+%
+\def\sender#1{\gdef\sender{#1}}
+\def\receiver#1{\gdef\receiver{#1}}
+\def\cardmessage#1{\gdef\cardmessage{#1}}
+%
+\gdef\postcard{\@ifnextchar [{\@ipostcard}{\@ipostcard[e]}}
+\long\def\@ipostcard[#1](#2,#3){%
+\vbox{\vskip #3\fboxsep 0pt\rlap{\kern#2
+\if #1f \fboxrule0.5pt \else \fboxrule0pt \fi
+\fbox{\vbox to 97mm{\font\Chess=chess15
+\restoregameone
+\vskip 2mm
+\hbox to 69mm{\hskip 10mm\showboardwithnotation\hss}\vskip 2mm
+\iffinishgameone \else 
+\hbox to 69mm{\hss\copy\acceptonebox\hss}
+\hbox to 69mm{\hss\copy\moveonebox\hss}
+\fi
+\vss
+\hbox to 69mm{\hskip 10mm\copy\mydatebox\hss}
+\vskip 4mm}
+%
+\vbox to 97mm{\font\Chess=chess15
+\restoregametwo
+\vskip 2mm
+\hbox to 69mm{\hskip 10mm\showboardwithnotation\hss}\vskip 2mm
+\iffinishgametwo \else
+\hbox to 69mm{\hss\copy\accepttwobox\hss}
+\hbox to 69mm{\hss\copy\movetwobox\hss}
+\fi
+\vss
+\hbox to 69mm{\hskip 10mm\copy\yourdatebox\hss}
+\vskip 2mm
+\hbox{\salutations\hss}
+\vskip 2mm
+}}}}}
+%
+\gdef\postcardaddress{
+\@ifnextchar [{\@ipostcardaddress}{\@ipostcardaddress[ee]}}
+\long\def\@ipostcardaddress[#1#2](#3,#4){%
+\vbox{\vskip #4
+\fboxsep 4mm\rlap{\kern#3\hbox{
+\if #1f \fboxrule0.5pt \else 
+\if #2f \fboxrule0.5pt \else 
+\fboxrule0pt \fi\fi
+\fbox{\vbox to 89mm{\hsize 60mm
+\sender\\\vss
+\cardmessage\vss\vss}
+\hskip 4.5mm 
+\if #1t \vrule \else \if #2t \vrule\fi\fi
+\hskip 5.5mm
+\vbox to 89mm{\hsize 60mm\fboxrule0.5pt
+\hskip 35mm\fbox{\rule{0cm}{16mm}\hskip 12mm}\\[8mm]
+\if #1t {\xiipt \bf \postcardname} \else
+\if #2t {\xiipt \bf \postcardname} \fi\fi
+\vss\vss\vss
+\receiver
+\vss}}}}}}
+%
+%-----------------Calculation of departure date------------
+%
+% Call \departure day.month.year time ==> in box \arrival 
+% result : in box \leaving 
+\newbox\arrival
+\newbox\leaving
+%
+\newcount\posty
+\newcount\postm
+\newcount\postd
+\newcount\posttemp
+\newcount\postp
+\newcount\posts
+% date time
+\gdef\@departure#1.#2.#3 #4#5{%
+\posty=#3\relax\postm=#2\relax\postd=#1\relax\postp=#4#5\relax
+%
+% It works only up to 2099 but I think it doesn't matter
+%
+\advance\posty by -1900
+%
+\posts=\posty
+\ifnum\posts>99\advance\posts by -100 \fi
+\setbox\arrival=\hbox{\the\postd .\the\postm .\the\posts }
+%
+\ifnum\postm<3\advance\postm12\advance\posty by -1\else \fi
+%
+\posts=\posty
+\multiply\posts36525\relax
+\divide\posts100\relax
+%
+\posttemp=\postm
+\advance\posttemp1
+\multiply\posttemp306\relax
+\divide\posttemp10\relax
+\advance\posts\posttemp
+\advance\posts by -122
+\advance\posts\postd
+%
+% Advance daycount  by considertime
+%
+\advance\posts\postp
+%
+% year
+%
+\posty=\posts
+\multiply\posty by 100
+\divide\posty36525
+\posttemp=\posty
+%
+\multiply\posttemp36525
+\divide\posttemp100\relax
+\advance\posts by -\posttemp
+%
+% month
+\advance\posts by 122
+\postm=\posts
+\multiply\postm10\relax
+\divide\postm306\relax
+\advance\postm by -1
+% day
+\posttemp=\postm
+\advance\posttemp by 1
+\multiply\posttemp306\relax
+\divide\posttemp10\relax
+\advance\posts by -\posttemp
+\postd=\posts
+%
+% I think there is a little mistake in my formular 
+% Correction at leapyear : 29.2 instead of 31.2
+%
+\ifnum\postm=2 \ifnum\postd=31 \advance\postd by -2\fi\fi
+%
+\ifnum\postm>12\advance\postm by -12 \advance\posty by 1\else \fi
+\ifnum\posty>99\advance\posty by -100 \fi
+%
+% Other faults 00.04 instead of 31.03
+% Other faults 00.09 instead of 31.08
+%
+\ifnum\postm=4 \ifnum\postd=0 \postd=31 \postm=3 \fi\fi
+\ifnum\postm=9 \ifnum\postd=0 \postd=31 \postm=8 \fi\fi
+%
+\setbox\leaving=\hbox{\the\postd .\the\postm .\the\posty }
+}
+
+\def\departure#1.#2.#3 #4{% day, month, year , considertime
+\@departure}
+%

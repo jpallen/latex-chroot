@@ -1,0 +1,60 @@
+% file cbgreek.mf version 2.0c  2002/02/03
+% Copyright 1997 --- 2002 Claudio Beccari
+% It extracts the design size from the font name and calls the suitable
+% general parameter file for the specified font
+%
+% If the specific font driver file defines the gensize and calls the suitable
+% paramenter file, this cbgreek.mf gets input just once (font files generated
+% by Apostolos Syropoulos tex facility); otherwise this file gets input twice,
+% but the second time, thanks to the trick of defining the number cbgreek, it
+% gets immediately closed. This improves version 1.x, where the file was input
+% and completely parsed both times.
+if known cbgreek: expandafter endinput fi;
+if unknown gensize:
+  message "Computing gensize from file name";
+  string f_name, f_size;
+  f_name:=substring(0,4) of jobname;
+  f_size:=substring(4,8) of jobname;
+  scantokens("gensize:="&substring(0,2)of f_size&"."&substring(2,4)of f_size);
+  numeric cbgreek; cbgreek:=1;
+  scantokens("input "&f_name);
+fi
+  message "Generating glyphs";
+  if not (serifs or slitex): SansSerif:=true fi;
+  mode_setup;
+  font_setup;
+  if metrics:
+    readfrom("cbmetre");
+  else:
+    readfrom("cbaccent");
+    readfrom("cbupper");
+    readfrom("cblower");
+    readfrom("cbdigits");
+    readfrom("cbpunct");
+  fi
+  boundarychar:=oct"375";
+  if not metrics:
+  if small_caps:
+    readfrom("cbligsc");
+  elseif monospace:
+    readfrom("cbligtt");
+  elseif SansSerif:
+    readfrom("cblig");
+  elseif cursive or cbleipzig:
+    readfrom("cbligit");
+  elseif cbroman:
+    readfrom("cbligrm");
+  else:
+    readfrom("cblig");
+  fi fi
+  font_slant slant; font_x_height x_height#;
+  if monospace: font_normal_space 9u#; % no stretching or shrinking
+   font_quad 18u#;
+   font_extra_space 9u#;
+  else: font_normal_space 6u#+2letter_fit#;
+   font_normal_stretch 3u#; font_normal_shrink 2u#;
+   font_quad 18u#+4letter_fit#;
+   font_extra_space 2u#;
+  fi
+bye.
+

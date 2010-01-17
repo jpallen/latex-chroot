@@ -1,0 +1,314 @@
+%%
+%% This is file `timesht.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% timesht.dtx  (with options: `package')
+%% This file is part of the Calendar package,
+%% Copyright (C) 1996, 1997 Frank Bennett, Jr.
+%% All rights reserved.
+%% ------------------------------------------
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% You are not allowed to change this file.  You may however copy
+%% this file to a file with a different name and then change the
+%% copy if (a) you do not charge for the modified code, (b) you
+%% acknowledge the author of this file in the new file, if it
+%% is distributed to others, and (c) you attach these same
+%% conditions to the new file.
+%% 
+%% You are not allowed to distribute this file alone.  You are not
+%% allowed to take money for the distribution or use of this file
+%% (or a changed version) except for a nominal charge for copying
+%% etc.
+%% 
+%% You are allowed to distribute this file under the condition that
+%% it is distributed with all of its contents, intact.
+%% 
+%% For error reports, or offers to help make this a more powerful,
+%% friendlier, and altogether more thrilling package, please contact me on
+%% fb@soas.ac.uk.  Better yet, make a contribution to
+%% my pension.  Account details available on request.
+%% ------------------------------------------
+%% 
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{timesht}
+          [1998/01/17 18:15:23 3.1.1.1 Timesheet (Frank Bennett)]
+\newif\iftms@usetimes
+\tms@usetimestrue
+\newlength\tms@tablewidth
+\newlength{\tms@hw}
+\newlength{\tms@templen}
+\newlength{\tms@widthlessboxes}
+\newlength{\tms@timetextlen}
+\newtoks\tms@tempreg@a
+\newtoks\tms@tempreg@b
+\newcount\tms@tempcount
+\newcount\tms@start
+\newcount\tms@end
+\newcount\tms@minuteblocks
+\newcount\tms@boxes
+\newcount\tms@days
+\newcount\tms@blocks
+\newcount\tms@time@start
+\newcount\tms@time@end
+\newcount\tms@hours@start
+\newcount\tms@minutes@start
+\newcount\tms@hours@end
+\newcount\tms@minutes@end
+\newcount\tms@minute@base
+\newlength{\tms@numlen}
+\newcount\tms@rightprop
+\newcount\tms@leftprop
+\newcount\tms@groupblocks
+\newcount\tms@groupblockcount
+\tms@groupblockcount=1%
+\newlength{\tms@colonlen}
+\newlength{\tms@dashlen}
+\newlength{\tms@leftlen}
+\newlength{\tms@rightlen}
+\tms@leftprop=1%
+\tms@rightprop=1%
+\input calopts.cfg
+\InputIfFileExists{dates.cfg}{}{}
+\ProcessOptions
+\RequirePackage{longtable}
+\RequirePackage{array}[1996/06/14]
+\RequirePackage{calendar}
+\RequirePackage{keyval}
+\tracingdates=0%
+\define@key{opt}{leftspace}{\setlength{\LTleft}{#1}}
+\define@key{opt}{rightspace}{\setlength{\LTright}{#1}}
+\define@key{opt}{width}{\setlength{\tms@tablewidth}{#1}}
+\define@key{opt}{title}{\def\tms@title{#1}}
+\define@key{opt}{start}{\@settime\tms@start#1{}}
+\define@key{opt}{end}{\@settime\tms@end#1{}}
+\define@key{opt}{blockminutes}{\tms@minuteblocks=#1\relax}
+\define@key{opt}{blockgroup}{\tms@groupblocks=#1\relax}
+\define@key{opt}{leftright}{\tms@extractprops#1{}}
+\define@key{opt}{titletype}{\def\tms@titletype##1{{#1{##1}}}}
+\define@key{opt}{labeltype}{\def\tms@labeltype##1{{#1{##1}}}}
+\define@key{opt}{timelabeltype}{\def\tms@timelabeltype##1{{#1{##1}}}}
+\define@key{opt}{timeitemtype}{\def\tms@timeitemtype##1{{#1{##1}}}}
+\define@key{opt}{itemtype}{\def\tms@itemtype##1{{#1{##1}}}}
+\define@key{opt}{notimes}[f]{\tms@usetimesfalse}
+\def\tms@extractprops#1/#2#{%
+  \tms@leftprop=#1\tms@rightprop=#2}
+\def\@settime#1#2:#3#{%
+  \tms@tempcount=#2%
+  \multiply\tms@tempcount by60%
+  \advance\tms@tempcount by#3%
+  \global#1\tms@tempcount}
+\def\@splitblocks#1-#2#{%
+  \def\@blockstarttext{#1}%
+  \def\@blockendtext{#2}}
+\def\@setblocks#1,#2#{%
+  \ifcat$#1$%
+    \let\next\@gobble%
+  \else%
+    \let\next\@setblocks%
+    \global\advance\tms@blocks by 1%
+    \@splitblocks#1{}%
+    \expandafter\@settime%
+      \expandafter\tms@time@start\@blockstarttext{}%
+    \expandafter\@settime%
+      \expandafter\tms@time@end\@blockendtext{}%
+    \let\tms@tempmac\tms@blocklist%
+    \edef\tms@blocklist{%
+      \tms@tempmac\the\tms@time@start-\the\tms@time@end,}%
+  \fi%
+    \next#2{}}
+\def\tms@chopblock#1-#2,#3#{%
+  \global\tms@time@start=#1%
+  \global\tms@time@end=#2%
+  \gdef\tms@blocklist{#3}}%
+\def\tms@labellist{}%
+\def\@extractlabels#1,#2#{%
+  \ifcat$#1$%
+    \tms@tempreg@a=\expandafter{\tms@labellist}%
+    \edef\tms@label##1{%
+      \noexpand\ifcase##1\the\tms@tempreg@a\noexpand\fi}%
+    \let\next\@gobble%
+  \else%
+    \let\next\@extractlabels%
+    \let\tms@tempmac\tms@labellist%
+    \expandafter\def%
+      \expandafter\tms@labellist%
+      \expandafter{%
+      \tms@tempmac\or #1}%
+  \fi%
+    \next#2{}}
+\def\tms@titletype#1{{\Large\bfseries#1}}%
+\def\tms@labeltype#1{{\large\bfseries#1}}%
+\def\tms@timelabeltype#1{{\bfseries#1}}
+\def\tms@timeitemtype#1{{\large#1}}
+\def\tms@itemtype#1{{\small#1}}
+\def\tms@title{\themonth\space\theday,\space\theyear}
+\@settime\tms@start8:00{}
+\@settime\tms@end17:00{}
+\tms@minuteblocks=15\relax%
+\def\tms@blocklist{}%
+\def\tms@label#1{\themonth\space\theday}%
+\tms@groupblocks=4\relax%
+\tms@extractprops4/5{}
+\newcalendar%
+{timesheet}
+{\cal@insert}
+{7}
+{\tms@blocks}
+{1}
+{&}
+{G\tms@gettimes}
+{\tms@header}
+{&%
+ \global\tms@groupblockcount=1\relax%
+ \\\hline%
+ \end{longtable}}%
+{\cal@footer\newpage\cal@header}
+{&%
+ \ifnum\tms@groupblockcount<\tms@groupblocks%
+  \\*\cline{1-4}%
+  \global\advance\tms@groupblockcount by1\relax%
+ \else%
+  \\\hline%
+  \global\tms@groupblockcount=1\relax%
+ \fi%
+ \tms@timecoltext}
+{\dates@requiremonthtrue\dates@requiredaytrue
+  \setlength{\tms@tablewidth}{\textwidth}
+  \def\tms@blocklist{}}
+{\message{^^JStart: \theshortweekday\space%
+    \theday\space\theshortmonth\space\theyear}%
+  \dates@date\cal@range@end%
+  \caldate%
+  \message{^^JEnd: \theshortweekday\space%
+    \theday\space\theshortmonth\space\theyear}%
+  \dates@date\cal@range@start%
+  \caldate%
+\relax%
+\tms@blocks\tms@end%
+\advance\tms@blocks by-\tms@start%
+\divide\tms@blocks by\tms@minuteblocks%
+  \def\tms@gettimes{%
+    \ifcat$\tms@blocklist$%
+      \tms@time@start\cal@group@count%
+      \multiply\tms@time@start by\tms@minuteblocks%
+      \global\advance\tms@time@start by\tms@start%
+      \tms@time@end\tms@time@start%
+      \global\advance\tms@time@end by\tms@minuteblocks%
+    \else%
+      \expandafter\tms@chopblock\tms@blocklist-,{}%
+    \fi%
+      \mod{60}\tms@time@start\tms@minutes@start%
+      \tms@hours@start\dates@three%
+      \divide\tms@hours@start by60%
+      \mod{60}\tms@time@end\tms@minutes@end%
+      \tms@hours@end\dates@three%
+      \divide\tms@hours@end by60%
+      \ifnum\tms@minutes@start<10%
+        \edef\tms@minutes@start@mac{0\the\tms@minutes@start}%
+      \else%
+        \edef\tms@minutes@start@mac{\the\tms@minutes@start}%
+      \fi%
+      \ifnum\tms@minutes@end<10%
+        \edef\tms@minutes@end@mac{0\the\tms@minutes@end}%
+      \else%
+        \edef\tms@minutes@end@mac{\the\tms@minutes@end}%
+      \fi%
+      \xdef\tms@timecoltext{%
+        \noexpand\tms@timelabeltype{\the\tms@hours@start}&%
+        \noexpand\tms@timelabeltype{\tms@minutes@start@mac}&%
+        \noexpand\tms@timelabeltype{\the\tms@hours@end}&%
+        \noexpand\tms@timelabeltype{\tms@minutes@end@mac}&}}%
+\message{Package Timesheet: %
+  setting table \the\tms@tablewidth\space in width.^^J}%
+  \setlength{\tms@widthlessboxes}{2\arrayrulewidth}%
+  \addtolength{\tms@widthlessboxes}{3\arrayrulewidth}%
+  \addtolength{\tms@widthlessboxes}{\doublerulesep}%
+  \addtolength{\tms@widthlessboxes}{6\tabcolsep}%
+  \settowidth{\tms@numlen}{\tms@timelabeltype{99}}%
+  \settowidth{\tms@colonlen}{\tms@timelabeltype{:}}%
+  \settowidth{\tms@dashlen}{\tms@timelabeltype{\ --\ }}%
+  \addtolength{\tms@widthlessboxes}{4\tms@numlen}%
+  \addtolength{\tms@widthlessboxes}{2\tms@colonlen}%
+  \addtolength{\tms@widthlessboxes}{\tms@dashlen}%
+  \tms@tempcount\tms@leftprop%
+  \advance\tms@tempcount by\tms@rightprop%
+  \setlength{\tms@templen}{\tms@tablewidth}%
+  \addtolength{\tms@templen}{-\tms@widthlessboxes}%
+  \tms@leftlen\tms@templen%
+  \divide\tms@leftlen by\tms@tempcount%
+  \global\multiply\tms@leftlen by\tms@leftprop%
+  \tms@rightlen\tms@templen%
+  \divide\tms@rightlen by\tms@tempcount%
+  \global\multiply\tms@rightlen by\tms@rightprop%
+  \tms@tempcount\tms@days%
+  \advance\tms@tempcount by1%
+  \protected@edef\tms@header{%
+    \noexpand\begin{longtable}{%
+      |>{\hfill}%
+       m{\the\tms@numlen}%
+       @{\tms@timelabeltype{:}}%
+       m{\the\tms@numlen}%
+      @{\tms@timelabeltype{\ --\ }}%
+      >{\hfill}%
+      m{\the\tms@numlen}%
+      @{\tms@timelabeltype{:}}%
+      m{\the\tms@numlen}%
+      |%
+      m{\the\tms@leftlen}||%
+      m{\the\tms@rightlen}|}%
+     \noexpand\multicolumn{6}{c}%
+      {\tms@titletype{\noexpand\tms@title}}%
+     \\%
+     \noexpand\multicolumn{4}{l}{}%
+     &%
+     \noexpand\multicolumn{1}{c}{\textbf{Plan}}&%
+     \noexpand\multicolumn{1}{c}{\textbf{Action}}%
+     \noexpand\\\noexpand\hline%
+     \noexpand\endhead%
+     \noexpand\tms@timecoltext}%
+   \extrarowheight=3pt}
+{\par\smallskip}%
+{\cal@get@appointments[\tms@time@start/\tms@time@end]}%
+{\relax%
+  \ifnum\dates@time@start>0\relax%
+    \ifnum\dates@time@start<\tms@time@start%
+      \protected@edef\cal@entry@text{%
+        \noexpand\parbox{\the\tms@leftlen}{\noexpand\raggedright%
+        \noexpand\tms@itemtype{%
+          \noexpand$\noexpand<\noexpand$%
+        \theshorttext, to \cal@appt@end@text%
+        \noexpand$\noexpand>\noexpand$}}}%
+    \else%
+      \ifnum\dates@time@start<\dates@time@end%
+        \protected@edef\cal@entry@text{%
+          \noexpand\parbox{\the\tms@leftlen}{\noexpand\raggedright%
+          \iftms@usetimes%
+          \noexpand\tms@timeitemtype{%
+            \cal@appt@start@text%
+            --%
+            \cal@appt@end@text}%
+          \space%
+          \fi%
+          \noexpand\tms@itemtype{%
+            \thelongtext}}}%
+      \else%
+        \protected@edef\cal@entry@text{%
+         \noexpand\parbox{\the\tms@leftlen}{\noexpand\raggedright%
+         \iftms@usetimes%
+         \noexpand\tms@timeitemtype{%
+         \cal@appt@start@text}%
+          \space%
+          \fi%
+          \tms@itemtype{\thelongtext}}}%
+      \fi%
+    \fi%
+  \fi}%
+{\theappointments}
+\message{Done loading style}
+\endinput
+%%
+%% End of file `timesht.sty'.

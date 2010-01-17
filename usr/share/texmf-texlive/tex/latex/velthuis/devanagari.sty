@@ -1,0 +1,751 @@
+%
+%    devanagari.sty v2.14
+%
+%    LaTeX2e package for Devanagari for TeX system.
+%    Copyright (C) 1991-2003 University of Groningen, The Netherlands
+%
+%    Author     : Dominik Wujastyk <d.wujastyk@ucl.ac.uk>
+%    Maintainer : Anshuman Pandey <apandey@u.washington.edu>
+%                 Kevin Carmody <i@kevincarmody.com>
+%                 Zdenek Wagner <wagner@cesnet.cz>
+%    Revised    : 30 March 2006
+%
+%    This program is free software; you can redistribute it and/or modify
+%    it under the terms of the GNU General Public License as published by
+%    the Free Software Foundation.
+%
+%    This program is distributed in the hope that it will be useful,
+%    but without any warranty; without even the implied warranty of
+%    merchantability or fitness for a particular purpose. See the
+%    GNU General Public License for more details.
+%
+%    =========================================================================
+%
+%    Sample input .dn file:
+%
+%    \documentclass{article}
+%    \usepackage{dev}
+%    \begin{document}
+%    {\dn devaanaa.m priya.h}
+%    \end{document}
+%
+%    Sample input .dn file with hyphenation:
+%
+%    \documentclass{article}
+%    \begin{document}
+%    @hyphen
+%    {\dn devaanaa.m priya.h}
+%    \end{document}
+%
+%
+%
+% The Identification Part
+% ~~~~~~~~~~~~~~~~~~~~~~~
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesFile{devanagari.sty}[2006/05/04 v2.14 LaTeX macros for Velthuis Devanagari]
+%
+% Error message for someone running LaTeX 2.09: Checks for definition of
+% \documentclass; it exists in LaTeX2e, but not in LaTeX 2.09
+%
+\@ifundefined{documentclass}
+{\@latexerr{This "devanagari" style option may only be used with LaTeX2e.^^J
+        Use "dev209.sty" instead.}\@eha
+        \endinput}{}
+%
+% Error message for someone running LaTeX2e in 2.09 compatibility mode:
+%
+\if@compatibility
+\PackageError{devanagari}{%
+        This `devanagari' package is only for use with LaTeX2e.\MessageBreak
+        If you absolutely must use LaTeX 2.09 compatibility mode,\MessageBreak
+        you could try using the older `dev209.sty' file instead,\MessageBreak
+        but the results are not predictable}{You will not
+        get any further with this approach.
+        Just press "X" and quit now.}
+\fi
+%
+%
+% The Declaration of Options
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~
+% \DeclareFontEncoding{}{}{} % Already done by standard classes.
+%
+% Initialize Devanagari font family
+\DeclareFontSubstitution{U}{dn}{m}{n}
+%
+\newcommand{\dnoriginal}{\usefont{U}{dn}{m}{n}}
+\newcommand{\dnbombay}{\usefont{U}{dnb}{m}{n}}
+\newcommand{\dncalcutta}{\usefont{U}{dnc}{m}{n}}
+\newcommand{\dnnepali}{\usefont{U}{dnn}{m}{n}}
+\newcommand{\dnpen}{\usefont{U}{dnp}{m}{n}}
+\newcommand{\dnpenbombay}{\usefont{U}{dnpb}{m}{n}}
+\newcommand{\dnpencalcutta}{\usefont{U}{dnpc}{m}{n}}
+\newcommand{\dnpennepali}{\usefont{U}{dnpn}{m}{n}}
+% Default dn family
+\newcommand{\dnfamilydefault}{dn}
+%
+% Hyphenation
+% ~~~~~~~~~~~
+% The responsibility for hyphenating Devanagari text is taken over
+% completely by the preprocessor, devnag.c. The preprocessor inserts
+% discretionary hyphenation points (\-) in all the places it thinks are
+% appropriate.
+%
+% In the present style file, therefore, we simply need to do two things.
+% First we want to tell TeX where the hyphen is in the font, i.e., at
+% position 255. This we do in \DeclareFontFamily macro in the font
+% definition file, Udn.fd.
+%
+% Next, we want to prevent TeX doing any automatic hyphenation except
+% where devnag.c inserts discretionary hyphenation points. This is a bit
+% tricky: we invoke a special "language" which has been defined not to
+% have any hyphenation. This is defined in language.dat as "nohyphenation
+% zerohyph.tex", i.e., a hyphenation file without any entries is loaded.
+% When the LaTeX2e format is built (initex \dump) usually a file
+% hyphen.cfg will be loaded by the main latex.ltx format file. In turn,
+% hyphen.cfg loads language.dat. If this little chain of file references
+% fails, you can try doing all this manually by adding the following lines
+% into your LaTeX format at the time of doing a \dump of the format file:
+%
+% \newlanguage\l@nohyphenation
+% \language\l@nohyphenation
+% \begingroup\patterns{}\endgroup % no patterns
+%
+% Or, since any newly defined language initially has no associated
+% hyphenation patterns, it is probably enough just to uncomment the
+% following lines in this style file, which saves you having to make a new
+% format file:
+%
+% \newlanguage\l@nohyphenation
+% \language\l@nohyphenation
+%
+% Okay, so here's what we do about disabling automatic hyphenation for the
+% present incarnation of dev.sty. We simply say "\language\l@nohyphenation"
+% in the main \dn macro. The use of the name \l@nohyphenation is meant to
+% be forward-compatible with LaTeX2e's future, so we just do a little check
+% here to make sure we can use it, and define it if it doesn't already
+% exist:
+%
+%\@ifundefined{\l@nohyphenation}{\let\l@nohyphenation=\nohyphenation}{\relax}
+%
+%
+% The Main Code Part
+% ~~~~~~~~~~~~~~~~~~
+% Now define the main Devanagari macro, \dn.
+%
+\DeclareRobustCommand\dn{%
+  \fontencoding{U}\fontfamily{\dnfamilydefault}\selectfont%
+% \language=\l@nohyphenation
+  \renewcommand*{\-}{\@@hyph}%
+  \hfuzz=4pt
+  \tolerance=10000\pretolerance=10000
+  \emergencystretch=.2\hsize % remove this line if you are not using TeX > 3.0
+  \linespread{1.27}\selectfont
+  \csname really@do@dev@catcodes\endcsname
+  \let\dn@latex@info\@latex@info  \let\@latex@info\@gobble
+  \dn@commands  \let\@latex@info\dn@latex@info
+  \csname dn@captions\endcsname \cmnum}
+%
+% Here is the macro \do@dev@catcodes that changes the catcodes
+% appropriately for Devanagari. \UnDevCatcodes restores the
+% catcodes to original values. It may sometimes be needed. In order
+% to prevent errors we wish to define the ranges of the Devanagari
+% characters only once. The loop will therefore call an internal
+% macro \dev@catcode which will change its definition.
+%
+\newcount\dev@chnum
+%
+\def\UnDevCatcodes{}
+\def\dev@catcode{\edef\UnDevCatcodes{\UnDevCatcodes
+    \protect\catcode\the\dev@chnum=\the\catcode\dev@chnum}\catcode\dev@chnum=11
+    \show\UnDevCatcodes}
+
+\newcommand*\do@dev@catcodes{%
+  \dev@chnum=0
+  \loop\dev@catcode
+    \ifnum\dev@chnum<12 \advance\dev@chnum by1
+    \repeat
+  \dev@chnum=14
+  \loop\dev@catcode
+    \ifnum\dev@chnum<31 \advance\dev@chnum by1
+    \repeat
+  \dev@chnum=127 \dev@catcode}
+
+\let\@@protect\protect
+\let\protect\@unexpandable@protect
+\def\dev@catcode{\edef\UnDevCatcodes{\UnDevCatcodes
+    \protect\catcode\the\dev@chnum=\the\catcode\dev@chnum}}
+\do@dev@catcodes
+\let\protect\@@protect
+\def\dev@catcode{\catcode\dev@chnum=11 }
+%
+% We execute the macro straight away, which means these catcodes are in
+% force throughout the whole document, not just in the Devanagari part
+% of the text.  This can sometimes cause spurious "Omega" characters if,
+% in some special conditions, TeX reads a line feed outside the \dn
+% environment, and so forth.
+%
+% The alternative, i.e., calling the catcodes locally within Devanagari
+% text, leads to even worse "illegal character" problems with \chapter
+% and \section headings, etc. This dilemma may be soluble in the longer
+% run, but is not being addressed in the current release (2004).
+% This is, however, in conflict with MusixTeX. Option "nocatcodes" will
+% execute the macro only within Devanagari text.
+%
+% Version 2.02 of the preprocessor was redesigned so that the catcodes
+% need not be changed. The change of catcodes may be, however, in rare
+% cases necessary (see the manual for details). In such cases you can
+% use the "catcodes" option. Option "compat" enters the compatibility
+% mode which changes the catcodes within \dn as in the old version.
+
+\@ifundefined{DevnagVersion}%
+             {\let\really@do@dev@catcodes\do@dev@catcodes
+              \let\dn@commands\do@dev@catcodes}%
+             {\let\dn@commands\relax}
+
+\DeclareOption{catcodes}{\let\dn@commands\do@dev@catcodes}
+\DeclareOption{nocatcodes}{\let\dn@commands\relax}
+\DeclareOption{compat}{\let\really@do@dev@catcodes\do@dev@catcodes}
+
+% Language options: if one of these options is defined, \dn will also
+% set corresponding captions and date format
+
+\DeclareOption{hindi}{\def\dn@captions{\captionshindi \datehindi}}
+\DeclareOption{modernhindi}{\def\dn@captions{\captionsmodernhindi \datemodernhindi}}
+
+% Global definition of the font variant
+\DeclareOption{bombay}{\renewcommand{\dnfamilydefault}{dnb}}
+\DeclareOption{calcutta}{\renewcommand{\dnfamilydefault}{dnc}}
+\DeclareOption{nepali}{\renewcommand{\dnfamilydefault}{dnn}}
+\DeclareOption{pen}{\renewcommand{\dnfamilydefault}{dnp}}
+\DeclareOption{penbombay}{\renewcommand{\dnfamilydefault}{dnpb}}
+\DeclareOption{pencalcutta}{\renewcommand{\dnfamilydefault}{dnpc}}
+\DeclareOption{pennepali}{\renewcommand{\dnfamilydefault}{dnpn}}
+
+\ProcessOptions
+\dn@commands
+%\typeout{dn@commands were executed}
+
+%
+% Here are the macros that set the particular characters in the font:
+%
+\newdimen\itdim
+\def\dev@three#1w{{\char"#1}}%
+%
+\DeclareRobustCommand\dn@commands{%
+\DeclareRobustCommand*\subscr[1]{\/\itdim=\lastkern
+  \unkern\kern-\itdim \lower\dp0 \hbox to\itdim{##1\hfil}}%
+%
+\DeclareRobustCommand*\0{\llap{\char13}}%
+\DeclareRobustCommand*\1{\llap{\char32}}%
+\DeclareRobustCommand*\2{\llap{\char92}}%
+\DeclareRobustCommand\3{\dev@three}%
+\DeclareRobustCommand*\4{\llap{\char123}}%
+\DeclareRobustCommand*\5{\llap{\char125}}%
+\DeclareRobustCommand*\6[1]{\setbox0=\hbox{##1}##1\subscr{\char126}}%
+\DeclareRobustCommand*\7[1]{\setbox0=\hbox{##1}##1\subscr{\char0}}%
+\DeclareRobustCommand*\8[1]{\setbox0=\hbox{##1}##1\subscr{\char1}}%
+\DeclareRobustCommand*\9[1]{\setbox0=\hbox{##1}##1\subscr{\char2}}%
+\DeclareRobustCommand*\qa[2]{\setbox0=\hbox{##1}##1\subscr{\char253\kern1.5ex\lower1.25ex
+  \hbox{\char##2}\kern-1.5ex}}%
+\DeclareRobustCommand*\qb[1]{\setbox0=\hbox{##1}##1\subscr{\char253}}%
+% New \qc ligature command introduced by devnag version 2:
+\DeclareRobustCommand*\qc[2]{\setbox0=\hbox{##1}##1\subscr{\char126\kern1.5ex\lower1.25ex
+  \hbox{\char##2}\kern-1.5ex}}%
+\DeclareRobustCommand*\qq[1]{\setbox0=\hbox{##1}##1\subscr{\char94}}%
+\DeclareRobustCommand*\qx[1]{\setbox0=\hbox{##1}##1\subscr{\char14}}%
+\DeclareRobustCommand*\qy[1]{\setbox0=\hbox{##1}##1\subscr{\char31}}%
+\DeclareRobustCommand*\qz[1]{\setbox0=\hbox{##1}##1\subscr{\char124}}%
+\DeclareRobustCommand*\qva{\kern0.5ex\2\kern-0.5ex}%
+\DeclareRobustCommand*\qvb{\kern1ex\0\kern-1ex}%
+\DeclareRobustCommand*\qvc{\kern1ex\rdt\kern-1ex}%
+\DeclareRobustCommand*\?{\llap{\char3}}%
+\DeclareRobustCommand*\<{\llap{\char4}}%
+\DeclareRobustCommand*\rs{\NormalFont\thinspace}%
+\DeclareRobustCommand\re{\thinspace}%
+\DeclareRobustCommand*\rdt{\llap{\char19}}%
+\DeclareRobustCommand*\dnnum{\let\nstyle=d}%
+\DeclareRobustCommand*\cmnum{\let\nstyle=r}%
+\DeclareRobustCommand*\rn[1]{\if\nstyle r{\NormalFont ##1}\else##1\fi}%
+% Switch to "pen" mode of the current family
+\DeclareRobustCommand\pen{\expandafter\dn@penselect\f@family!?}%
+\def\dn@penselect##1##2##3##4?{\if##1d\if##2n% Only available for dn* fonts
+    \if##3p% do nothing, pen already selected
+    \else\if##3!\fontfamily{dnp}\selectfont % original pen font
+    \else \fontfamily{##1##2p##3}\selectfont \fi\fi
+  \fi \fi}%
+} % end of \dn@commands
+%
+% Vedic intonation mark macros (based on Kevin Carmody's code from dnmacs.tex)
+%
+% Use these macros in DN files to enable and use Vedic intonation macros.
+%
+\DeclareRobustCommand\dnveda{%
+  \DeclareRobustCommand\_{\anudattavar}%
+  \DeclareRobustCommand\={\anudattafix}%
+  \DeclareRobustCommand\|{\svarita}%
+  \DeclareRobustCommand\~{\padasep}}
+%
+\DeclareRobustCommand\dnsamaveda{%
+  \DeclareRobustCommand\^{\samatone}%
+  \DeclareRobustCommand\@{\vedicanusvara}}
+%
+\DeclareRobustCommand*\anudattavar[1]{\leavevmode\setbox0=\hbox{#1}\anudep=\dp0\anuwid=\wd0
+  \advance\anudep by 0.7ex\advance\anuwid by -0.1em{#1}\llap{\lower\anudep
+  \hbox{\vrule width\anuwid height0.07em}%
+  \hbox{\phantom{\vrule width0.1em height0.08em}}}}
+%
+\DeclareRobustCommand*\anudattafix[1]{\leavevmode\setbox0=\hbox{#1}\anudep=\dp0\anuwid=\wd0
+  \advance\anudep by 0.7ex{#1}\llap{\lower\anudep
+  \hbox to\anuwid{\hss\vrule width0.5em height0.07em\hss}}}
+%
+\DeclareRobustCommand*\svarita[1]{\leavevmode\hbox{#1}%
+  \llap{\raise5.7ex\hbox{\vrule height2.5ex width0.08em}%
+  \hbox{\phantom{\vrule height2.5ex width0.15em}}}}
+%
+\DeclareRobustCommand\padasep{\leavevmode\hbox{%
+  \kern-0.15em\raise2.42ex\hbox{\char255}%
+  \kern-0.15em\raise2.42ex\hbox{\char255}%
+  \kern-0.15em\raise2.42ex\hbox{\char255}}}
+%
+\DeclareRobustCommand*\samatone[2]{\leavevmode\hbox{#1}%
+  \llap{\raise9.5ex\hbox{\dnnum\dn@tf #2}%
+  \hbox{\phantom{\vrule height2.5ex width0.15em}}}}
+%
+\DeclareRobustCommand\vedicanusvara{\leavevmode{\kern1.0ex\lower1.5ex\hbox{\char32}}%
+  \kern-2.0ex\raise3.7ex\llap{\char94}\kern3.8ex}
+%
+% Macro for selection of Sama Veda tone font \dn@tf
+%
+\def\dn@tf{%
+  \ifdim\f@size\p@<8pt \@tempdima5pt \else
+  \ifdim\f@size\p@<10pt \@tempdima6pt \else
+  \ifdim\f@size\p@<11pt \@tempdima7pt \else
+  \ifdim\f@size\p@<14.4pt \@tempdima8pt \else
+  \ifdim\f@size\p@<17.2pt \@tempdima10pt \else
+  \ifdim\f@size\p@<18pt \@tempdima14.4pt \else
+        \@tempdima .8\f@size \fi \fi \fi \fi \fi \fi
+  \fontsize\@tempdima\@tempdima\selectfont}
+%
+% Registers for Vedic intonation marks
+%
+\newdimen\anudep
+\newdimen\anuwid
+%
+%
+%
+% Fixes
+% ~~~~~
+% Here are some fixes for specific situations, provided by Francois Patte.
+%
+% Because TeX interprets [ and ] of the biblabel as dn char 133 and
+% 135 the package cite is needed to use the command cite in the nagari
+% text. This section corrects this behaviour.
+% -- F. Patte.
+%
+\IfFileExists{cite.sty}
+ {%
+\RequirePackage{cite} }%
+{ \newcommand\citeleft{}%
+  \newcommand\citeright{}%
+  \newcommand\citemid{}%
+\typeout{}
+\typeout{Package dev Info: Package cite.sty doesn't exist on your
+ system.^^J
+\space\space\space\space\space\space\space\space\space\space
+\space\space\space\space\space\space\space
+ This package is needed if you want to make bibliographies ^^J
+\space\space\space\space\space\space\space\space\space\space
+\space\space\space\space\space\space\space
+within the Devanagari text.}
+}
+\typeout{}
+%
+\renewcommand{\citeleft}{{\NormalFont\bfseries [$\!\!$[}}
+\renewcommand{\citeright}{{\NormalFont\bfseries ]$\!\!$]}}
+\renewcommand\@biblabel[1]{{\NormalFont\bfseries [$\!\!$[}#1{\NormalFont\bfseries ]$\!\!$]}}
+\renewcommand\citemid{{\LARGE{\dn\char'24 }}} %
+%
+% end the cite correction by F. Patte.
+%
+%
+% This section corrects the use of LaTeX commands within the
+% Devanagari text for those who want a nagari text with an European
+% make-up: e.g. \item in enumerate environment will produce
+% the number followed by a danda because the period stands for a danda
+% in Velthuis'translation scheme.
+% -- F. Patte.
+%
+\@ifundefined{@dev}
+ {%
+  \renewcommand\@biblabel[1]{{\NormalFont\bfseries [$\!\!$[ #1 ]$\!\!$]}}
+  \renewcommand{\MakeUppercase}{}
+ \newcommand{\notedn}[1]{\footnote{\dn #1}}
+%
+\@ifundefined{chapter}{}{%
+%
+\newcommand{\old@part}{} % Test if \old@part can be used.
+\let\old@part\part
+%
+\renewcommand{\part}{%
+  \@ifstar{\new@partstar}{%
+    \@ifnextchar[{\new@partopt}{\new@part}%
+  }%
+}
+\newcommand{\new@partstar}[1]{%
+  \old@part*{#1}%
+}
+\newcommand{\new@partopt}[2][]{%
+  \old@part[#1\NormalFont]{#2\NormalFont}%
+}
+\newcommand{\new@part}[1]{%
+  \old@part{#1\NormalFont}%
+}
+%
+\newcommand{\old@chapter}{} % Test if \old@chapter can be used.
+\let\old@chapter\chapter
+
+\renewcommand{\chapter}{%
+  \@ifstar{\new@chapterstar}{%
+    \@ifnextchar[{\new@chapteropt}{\new@chapter}%
+  }%
+}
+\newcommand{\new@chapterstar}[1]{%
+  \old@chapter*{#1}%
+}
+\newcommand{\new@chapteropt}[2][]{%
+  \old@chapter[#1\NormalFont]{#2\NormalFont}%
+}
+\newcommand{\new@chapter}[1]{%
+  \old@chapter{#1\NormalFont}%
+}
+}
+\newcommand{\old@starttoc}{} % Test if \old@starttoc can be used (Z. Wagner).
+\let\old@starttoc\@starttoc
+\renewcommand\@starttoc{\afterassignment\NormalFont\old@starttoc}
+  \AtBeginDocument{%
+    \renewcommand\labelenumi{{\NormalFont\theenumi.}}%
+    \renewcommand\labelenumii{{\NormalFont(\theenumii)}}%
+  }%
+}{}
+
+% Select roman characters (comma, question and exclamation mark) from the correct
+% font, pen fonts always require italics
+
+\DeclareRobustCommand\NormalFont{\dn@penitshape
+    \fontencoding{\DNencdefault}\fontfamily{\DNrmdefault}\selectfont}
+\def\dn@penitshape{%
+  \def\dn@testpen##1##2##3##4\dn@{%
+    \if##1d\if##2n\if##3p\itshape\fi\fi\fi}%
+  \expandafter\dn@testpen\f@family....\dn@}
+
+% Defaults: change them on your own risk
+
+\def\DNencdefault{OT1}
+\def\DNrmdefault{cmr}
+
+% This code makes global nonconflicting robust declarations at the beginning
+% of the document
+
+\def\DeclareDnCommand{\@ifstar{\declare@dn@command}{\declare@dn@command}}
+
+\def\declare@dn@command#1{%
+   \ifx#1\@undefined\let#1\relax\else\ifx#1\relax\else
+   \edef\reserved@a{\string#1}%
+   \def\reserved@b{#1}%
+   \edef\reserved@b{\expandafter\strip@prefix\meaning\reserved@b}%
+   \edef\@tempa{%
+      \ifx\reserved@a\reserved@b
+         \noexpand\x@protect
+         \noexpand#1%
+      \fi
+      \noexpand\protect
+      \expandafter\noexpand\csname
+         \expandafter\@gobble\string#1 \endcsname
+   }%
+   \ifx#1\@tempa \else
+   \expandafter\let\csname dev@\reserved@a @saved\endcsname#1
+   \expandafter\new@command\csname
+      \expandafter\@gobble\string#1 \endcsname
+          {\csname dev@\reserved@a @saved\endcsname}%
+   \fi\fi\fi \let\@tempa\relax \new@command\@tempa
+}
+
+\def\InitialDnDeclaration#1{%
+\let\dev@saved\DeclareRobustCommand
+\let\DeclareRobustCommand\DeclareDnCommand#1
+\let\DeclareRobustCommand\dev@saved}
+
+\AtBeginDocument{\InitialDnDeclaration\dn@commands}
+
+% Devanagari representation of counters (similar as \arabic and \roman)
+
+\def\devanagari#1{\expandafter\@devanagari\csname c@#1\endcsname}
+\def\@devanagari#1{{\dn\number#1}}
+
+\def\hindidatearabic{\let\@datenumeric\@arabic}
+\def\hindidatedevanagari{\let\@datenumeric\@devanagari}
+\hindidatedevanagari
+
+% Captions
+% for (partial) compatibility with language switching
+
+\def\datehindi{\def\today{\@datenumeric\day\space\ifcase\month\or
+{\dn jnvrF}\or
+{\dn \327wrvrF}\or
+{\dn mAc\0}\or
+{\dn a\3FEw\4l}\or
+{\dn mI}\or
+{\dn \8{j}n}\or
+{\dn \7{j}lAI}\or
+{\dn ag-t}\or
+{\dn EstMbr}\or
+{\dn a\8{\3C4w}br}\or
+{\dn nvMbr}\or
+{\dn EdsMbr}\fi\space\@datenumeric\year}}
+
+\def\captionshindi{%
+\def\abstractname{{\dn sArA\2f}}%
+\def\appendixname{{\dn pErEf\309wV}}%
+\def\bibname{{\dn s\2df\0 g\5\306wT}}% (?)
+\def\ccname{}%
+\def\chaptername{{\dn a@yAy}}%
+\def\contentsname{{\dn Evqy{\rs -\re}\8{s}cF}}%
+\def\enclname{{\dn }}%
+\def\figurename{{\dn Ec/}}%
+\def\headpagename{{\dn \9{p}\309wW}}%
+\def\headtoname{}%
+\def\indexname{{\dn \8{s}cF}}%
+\def\listfigurename{{\dn Ec/o{\qva} kF \8{s}cF}}%
+\def\listtablename{{\dn tAElkAao\2 kF \8{s}cF}}%
+\def\pagename{{\dn \9{p}\309wW}}%
+\def\partname{{\dn K\317wX}}%
+\def\prefacename{{\dn \3FEw-tAvnA}}%
+\def\refname{{\dn hvAl\?}}%
+\def\tablename{{\dn tAElkA}}%
+\def\seename{{\dn d\?EKe}}%
+\def\alsoname{{\dn aOr d\?EKe}}%
+\def\alsoseename{{\dn aOr d\?EKe}}}
+
+\def\datemodernhindi{\def\today{\@datenumeric\day\space\ifcase\month\or
+{\dn jnvrF}\or
+{\dn \327wrvrF}\or
+{\dn mAc\0}\or
+{\dn a\3FEw\4l}\or
+{\dn mI}\or
+{\dn \8{j}n}\or
+{\dn \7{j}lAI}\or
+{\dn ag-t}\or
+{\dn EstMbr}\or
+{\dn a?\8{t}br}\or
+{\dn nvMbr}\or
+{\dn EdsMbr}\fi\space\@datenumeric\year}}
+
+\def\captionsmodernhindi{%
+\def\abstractname{{\dn sArA\2f}}%
+\def\appendixname{{\dn pErEf\309wV}}%
+\def\bibname{{\dn s\2df\0 g\5\306wT}}% (?)
+\def\ccname{}%
+\def\chaptername{{\dn a@yAy}}%
+\def\contentsname{{\dn Evqy{\rs -\re}\8{s}cF}}%
+\def\enclname{{\dn }}%
+\def\figurename{{\dn Ec/}}%
+\def\headpagename{{\dn \9{p}\309wW}}%
+\def\headtoname{}%
+\def\indexname{{\dn \8{s}cF}}%
+\def\listfigurename{{\dn Ec/o{\qva} kF \8{s}cF}}%
+\def\listtablename{{\dn tAElkAao\2 kF \8{s}cF}}%
+\def\pagename{{\dn \9{p}\309wW}}%
+\def\partname{{\dn K\317wX}}%
+\def\prefacename{{\dn \3FEw-tAvnA}}%
+\def\refname{{\dn hvAl\?}}%
+\def\tablename{{\dn tAElkA}}%
+\def\seename{{\dn d\?EKe}}%
+\def\alsoname{{\dn aOr d\?EKe}}%
+\def\alsoseename{{\dn aOr d\?EKe}}}
+
+\providecommand\dateUSenglish{\def\today{\ifcase\month\or
+  January\or February\or March\or April\or May\or June\or
+  July\or August\or September\or October\or November\or December\fi
+  \space\number\day, \number\year}}
+
+\providecommand\dateenglish{\def\today{\ifcase\day\or
+  1st\or 2nd\or 3rd\or 4th\or 5th\or
+  6th\or 7th\or 8th\or 9th\or 10th\or
+  11th\or 12th\or 13th\or 14th\or 15th\or
+  16th\or 17th\or 18th\or 19th\or 20th\or
+  21st\or 22nd\or 23rd\or 24th\or 25th\or
+  26th\or 27th\or 28th\or 29th\or 30th\or
+  31st\fi
+  ~\ifcase\month\or
+  January\or February\or March\or April\or May\or June\or
+  July\or August\or September\or October\or November\or December\fi
+  \space \number\year}}
+
+\providecommand\captionsenglish{%
+\def\abstractname{Abstract}%
+\def\appendixname{Appendix}%
+\def\bibname{Bibliography}%
+\def\ccname{cc}%
+\def\chaptername{Chapter}%
+\def\contentsname{Contents}%
+\def\enclname{encl}%
+\def\figurename{Figure}%
+\def\headpagename{Page}%
+\def\headtoname{To}%
+\def\indexname{Index}%
+\def\listfigurename{List of Figures}%
+\def\listtablename{List of Tables}%
+\def\pagename{Page}%
+\def\partname{Part}%
+\def\prefacename{Preface}%
+\def\prefacename{Preface}%
+\def\refname{References}%
+\def\tablename{Table}%
+\def\seename{see}%
+\def\alsoseename{see also}}
+
+%
+% The end.
+% ~~~~~~~~
+\endinput
+
+
+
+Here is the log file, created by RCS. (Log from dev.sty is also kept here.)
+
+% $Log: devanagari.sty,v $
+% Revision 1.2  2006/05/04 15:09:20  icebearsoft
+% \NormalFont made robust, otherwise sectioning commands do not work.
+%
+% Revision 1.1  2006/03/31 09:53:50  icebearsoft
+% As suggested by TeX Live developers, dev.sty was renamed to devanagari.sty
+% and dev.sty just loads devanagari.sty for compatibility with old documents.
+%
+% Manual is updated accordingly. Moreover, new features of the preprocessor
+% are mentioned and an example of using custom LaTeX command si given.
+%
+% Revision 1.2  2006/03/13 12:36:23  icebearsoft
+% Punctuation is now taken from OT1/cmr font with correct series/shape.
+%
+% Revision 1.1  2006/03/09 14:16:28  icebearsoft
+% Files moved to a new location.
+%
+% Revision 1.8  2005/03/30 14:24:23  icebearsoft
+% The name of October fixed
+%
+% Revision 1.7  2005/03/30 09:29:15  icebearsoft
+% Added forgotten \dn in the definition of \@devanagari.
+%
+% Revision 1.6  2005/03/29 13:11:42  icebearsoft
+% \devanagari{countername} was implemented similarly as \arabic{countername} or
+% \roman{countername}
+%
+% \captionshindi, \datehindi, \captionsmodernhindi, \datemodernhindi implemented,
+% texts in the original Velthuis transliteration are provided in captions.dn
+%
+% \today in \datehindi and \datemodernhindi (Europian style) displays Devanagari
+% numbers. This can be switched by \hindidatedevanagari and \hindidatearabic,
+% respectively.
+%
+% See the feature tracker for more comments.
+%
+% Revision 1.5  2005/03/15 09:15:29  icebearsoft
+% Nepali added to the \pen macro.
+%
+% Revision 1.4  2005/03/15 07:45:14  apandey
+% Added global option 'pennepali'.
+%
+% Revision 1.3  2005/03/14 08:48:50  icebearsoft
+% New package options bombay. calcutta, nepali, pen, penbombay, pencalcutta for
+% global selection of the font family (it will work with automatically generated
+% captions). If none of them is used, \dnoriginal will be used.
+%
+% New macro \dnfamilydefault which stores the default family of DN fonts. Default
+% depends on the above mentioned package options. The user is allowed to redefine
+% it by \renewcommand.
+%
+% New \pen macro which switches to the "pen" variant of the current family.
+%
+% Vedic intonation marks macros \dnveda and \dnsamaveda implemented according to
+% the code from dnmacs.tex. I do not mind using \= because the \dn macros make
+% already use of \< so that the tabbing environment cannot be used within \dn.
+%
+% Revision 1.2  2005/01/28 04:36:42  wujastyk
+% This is the devnag project as of 1 December 2004.
+% See doc/changes for details.
+%
+% Dominik Wujastyk
+% 28 Jan 2005
+%
+% Revision 2.11 2003/08/03 23:05:50  APANDEY
+% o Cleaned up comments
+%
+% Revision 2.1a 2003/02/29 22:51:10  APANDEY
+% o Added support for the Bombay, Calcutta, and Nepali font families
+% o Removed generic alternate font families
+%
+% Revision 2.1  2003/07/01 12:45:01  KC
+% o Added alternate, pen, and alternate pen font families.
+%
+% Revision 1.5  2003/04/09 17:15:12  APANDEY
+% o Fixed citation macros to prevent output of double brackets.
+%
+% Revision 1.4  2003/06/09 14:37:34  APANDEY
+% o Incorporated 'nocatcodes' package option, captions,
+%   and date macros developed by Zdenek Wagner
+%
+% Revision 1.3  2003/03/13 15:13:43  APANDEY
+% o Tidied up comments
+%
+% Revision 1.2  1999/09/25 15:13:43  APANDEY
+% o Changed use declaration macros to reflect change of
+%   font encoding from OT1 to U.
+%
+% Revision 1.14  1998/08/26 17:41:54  UCGADKW
+% o just get the revision numbers back on track.
+%
+% Revision 1.10  1998/08/26 17:30:46  UCGADKW
+% o  Changed name of dev2e.sty to dev.sty
+% o  Many other changes to make the package more "LaTeX2e-like".
+% o  Followed the suggestions of Francois Patte and David Kastrup,
+%    to whom many thanks (but no blame for my errors).
+% o  Most unsatisfactory change: moved \do@dev@catcodes back into
+%    the open, instead of being just active inside {\dn } environments.
+%    This was necessary to avoid "illegal character" messages from
+%    text inside \section{} arguments, etc.
+%
+% Revision 1.9  1998/06/22 12:19:08  UCGADKW
+% o  Corrected \ProvidesFile usage and added "Revision: 1.12" string to it;
+% o  Moved RCS log entries to after \endinput.
+%
+% Revision 1.11  1998/06/22 12:11:17  UCGADKW
+% o  added $Revision: 1.2 $ to \ProvidesFile;
+% o  moved RCS log to after \endinput.
+%
+% Revision 1.10  1998/06/22 12:10:00  UCGADKW
+% o  added $Revision $ to \ProvidesFile;
+% o  moved RCS Log to after \endinput.
+%
+% Revision 1.9  1998/06/22 12:05:20  UCGADKW
+% o  corrected \ProvidesFile argument.
+%
+% Revision 1.8  1998/06/15 12:52:12  dom
+% *** empty log message ***
+%
+% Revision 1.7  1998/06/15 12:50:00  dom
+% o  \chyph now referred to from OT1dn.fd;
+% o  Tidied up banner message.
+%
+% Revision 1.6  1995/05/26 13:48:56  dom
+% *** empty log message ***
+%
+% Revision 1.5  1995/01/24 12:33:48  dom
+% o replaced \if statements with tokens,
+% o made an official "hyphenate" option.
+%
+% Revision 1.2  1994/06/15  16:22:13  Dominik_Wujastyk
+% o  tidied up comments.
+%
+% Revision 1.1  1994/06/15  16:15:17  Dominik_Wujastyk
+% Initial revision
+%

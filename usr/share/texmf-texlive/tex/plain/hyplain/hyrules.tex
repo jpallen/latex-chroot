@@ -1,0 +1,112 @@
+%%% This is part of the hyplain package by Enrico Gregorio, version 1.0
+%%% You are allowed to do anything you want with this as long
+%%% as you cite the source and change name to the file
+%%%
+%%% (Based on HyMaster.tex by Daniel Flipo and Laurent Siebenmann)
+%%%
+%%% The interface is primitive, of course. But plain TeX users
+%%% are at their ease with primitive interfaces ;-)
+%%% 
+%%% Note: every language is defined as a pair (<language>,<nation>)
+%%% with ISO two-letter abbreviations to accommodate for national
+%%% variations (for example, (de,DE) and (de,AT) or (de,CH) for German
+%%% in Germany, Austria or Switzerland)
+%%% For New Ortography German, use the three-letter abbreviation `nde'
+%%% A fallback language (zz,ZZ) is provided, with no hyphenation
+%%% patterns
+
+\chardef\myh@us@catcode=\the\catcode`\_
+\catcode`\_=11
+\def\myh@us{_}
+
+%%% \addalias{<control sequence>}{<language>}{<nation>}
+%%% define a new alias for a language; for example
+%%% \addalias{\italiano}{it}{IT}
+\def\addalias#1#2#3{\expandafter\let\expandafter#1\csname #2\myh@us#3\endcsname}
+
+\def\myh@glet{\global\let}
+\def\selectlanguage#1#2{%
+  \expandafter\ifx\csname #1_#2\endcsname\relax
+    \expandafter\myh@glet\csname #1_#2\endcsname\zz_ZZ
+    \myh@nel{#1}{#2}%
+  \fi
+  \csname #1_#2\endcsname
+  \ignorespaces}
+\def\myh@nel#1#2{\message{^^Jhyplain warning: Language #1 for #2 undefined,
+  using fallback instead^^J}}
+
+%%% A primitive interface for adding to extras and noextras
+\newtoks\myh@toks
+\def\addto#1#2#3#4{%
+  \expandafter\let\expandafter\myh@temp\csname extras@#1\myh@us#2\endcsname
+  \myh@toks=\expandafter{\myh@temp}%
+  \myh@toks=\expandafter{\the\myh@toks #3}
+  \expandafter\edef\csname extras@#1\myh@us#2\endcsname{\the\myh@toks}%
+  \expandafter\let\expandafter\myh@temp\csname noextras@#1\myh@us#2\endcsname
+  \myh@toks=\expandafter{\myh@temp}%
+  \myh@toks=\expandafter{\the\myh@toks #4}
+  \expandafter\edef\csname noextras@#1\myh@us#2\endcsname{\the\myh@toks}%
+}
+
+\def\myh@undo{\csname noextras@\myh@lan\endcsname}
+
+%%% \definelanguage has 3 parameters:
+%%% #1: <language> (lowercase ISO abbreviation)
+%%% #2: <nation> (uppercase ISO abbreviation)
+%%% #3: pattern and hyphenation exception file
+\newlinechar`^^J
+\def\definebaselanguage#1#2#3{%
+  \message{***^^JDefining language #1 for #2 using^^J}%
+  \expandafter\chardef\csname l@#1_#2\endcsname=0 
+  \expandafter\language\csname l@#1_#2\endcsname
+  \input #3%
+  \message{This is \string\language
+    \expandafter\the\csname l@#1_#2\endcsname^^J***^^J}%
+  \myh@initialize{#1}{#2}}
+\def\definelanguage#1#2#3{%
+  \message{***^^JDefining language #1 for #2 using^^J}%
+  \csname newlanguage\expandafter\endcsname\csname l@#1_#2\endcsname
+  \expandafter\language\csname l@#1_#2\endcsname
+  \input #3%
+  \message{This is \string\language
+    \expandafter\the\csname l@#1_#2\endcsname^^J***^^J}%
+  \myh@initialize{#1}{#2}}
+%%% \definedialect has 4 parameters:
+%%% (#1,#2) is the pair to be defined, (#3,#4) is the pair over
+%%% which the dialect is defined (\definedialect{de}{AT}{de}{DE})
+\def\definedialect#1#2#3#4{%
+  \expandafter\let\csname l@#1_#2\expandafter\endcsname
+    \csname l@#3_#4\endcsname
+  \myh@initialize{#1}{#2}}
+
+\def\myh@initialize#1#2{%
+  \expandafter\def\csname #1_#2\endcsname{%
+    \expandafter\language\csname l@#1_#2\endcsname
+    \myh@undo
+    \def\myh@lan{#1_#2}%
+    \csname extras@#1_#2\endcsname}%
+  \expandafter\def\csname extras@#1_#2\endcsname{}%
+  \expandafter\def\csname noextras@#1_#2\endcsname{}}
+
+%%% \refinelanguage defines the extras for a language
+%%% It has 4 parameters: <language>,<nation>,<extras>,<noextras>
+\def\refinelanguage#1#2#3#4{%
+  \expandafter\def\csname extras@#1_#2\endcsname{#3}%
+  \expandafter\def\csname noextras@#1_#2\endcsname{#4}}
+\let\refinedialect=\refinelanguage
+
+\def\hyphenmins#1#2{\lefthyphenmin=#1\relax\righthyphenmin=#2\relax}
+
+\input hylang
+
+%%% Initialize and restore the underscore
+\let\definebaselanguage\undefined
+\let\definelanguage\undefined
+
+\def\myh@lan{} % initialization
+\def\noextras@{} % initialization
+\en_US
+
+\catcode`\_=\myh@us@catcode
+
+\endinput

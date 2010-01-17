@@ -1,0 +1,124 @@
+%% file: twin.txs  - TeXsis version 2.18
+%  @(#) $Id: twin.txs,v 18.1 2001/04/06 22:05:11 myers Exp $
+%======================================================================*
+% TWINOUT -- two pages side by side on one piece of paper
+%
+% \twinout redefines TeX's \output routine to put two pages side-by-side
+% on one piece of paper, in landscape format. By default the height/width
+% ratio of \vsize to \hsize is preserved, unless this would make the
+% two pages overlap.  In that case the new \hsize is adjusted to give 
+% a "reasonable" gutter between the two pages.  (For example, the first
+% method works for A4 paper, but fails for U.S. letter size, so then the
+% second method is used.)
+%
+% In some cases the defaults will not give you what you want. 
+% If you don't like the way that \twinout sets the sizes of the pages
+% you can adjust them to your liking AFTER you have invoked \twinout.
+% \hsize is the width of an individual page, \vsize is the height of
+% either page, and \twinhsize is the width of both pages across the
+% length of the paper (the default is the \vsize in effect before you
+% invoked \twinout).  The \hoffset and \voffset can also be adjusted.
+% The default is to set \hoffset=-0.10in, which is a reasonable place to
+% start; \voffset is unchanged.
+%
+% Typestyles are NOT changed, you have to do that yourself.   
+%
+% An example showing both page size and typestyle selection is:
+%
+%       \twinout
+%       \twinhsize=9in \vsize=6.95in \hsize=4.36in \hoffset=-0.5in
+%       \tenpoint
+%
+% These macros are patterned after similar macros in Harvmac by 
+% Paul Ginsparg, as well as the plain.tex \output routines, but this 
+% is a total rewrite by Eric Myers <myers@umich.edu>.
+%
+% Dependencies: \LandscapeSpecial should be defined in TXSsite.tex, but 
+% you can make your own definition before twin.txs is read in, or you
+% can do without it and give dvips the "-t landscape" flag.  Other than
+% worrying about that, this can be used by itself with plain.tex.  
+%
+%======================================================================*
+% (C) Copyright 1993, 2000 by Eric Myers and Frank Paige.
+% This file is a part of TeXsis.  Distribution and/or modifications
+% are allowed under the terms of the LaTeX Project Public License (LPPL).
+% See the file COPYING or ftp://ftp.texsis.org/texsis/LPPL
+%======================================================================*
+\message{- two pages on one}
+\catcode`@=11           % @ is a letter here to hide the inner workings
+
+\newbox\@leftpage       % box to hold left page while building right page
+\newdimen\twinhsize     % width of both pages together across the page
+
+
+% \LandscapeSpecial is the \special command that puts your laser printer
+% in "landscape" mode, i.e. printing sideways.  If it is not already
+% defined (in TeXsis this is done in TXSsite.tex) then the default 
+% is for Tom Rokicki's dvips.
+
+\ifx\undefined\LandscapeSpecial % is there no definition? then use
+  \def\LandscapeSpecial{\special{papersize=11in,8.5in}}% dvips version
+\fi
+
+
+% \twinout just sets up the column flag (to start in Left column),
+% sets the new \hsize and \vsize and changes \output.
+
+\def\twinout{% change \output to get two pages on one
+   \global\let\@LR=L                    % begin in left column
+   \twinsize                            % set paper size to default
+   \output={\twinoutput}}               % redefine \output
+
+
+% \twinsize sets the page size for twin page output from the
+% current settings of \vsize and \hsize, preserving their ratio.
+% If h and v are the original horizontal and vertical sizes then the
+% width of a new page is w = h*(h/v).  [Since TeX stores dimensions
+% in scaled points (65536sp=1pt) we have to be careful to rescale
+% from sp to pt to avoid arithmetic overflow.]  If the columns would
+% overlap then a smaller \hsize is chosen such that there is a
+% reasonable gutter between the two pages.
+
+\def\twinsize{% set page sizes for twin page output
+   \twinhsize=\vsize                    % two pages across one rotated page
+   \vsize=\hsize                        % height of page is width of paper
+   \hoffset=-0.1in                      % also adjust offset a bit
+% now compute default \hsize from \hsize/\vsize ratio
+   \divide\hsize by 65536               % convert sp to pt for calculations
+   \multiply\hsize by \hsize            % h^2 in points
+   \dimen@=\twinhsize \divide \dimen@ by 65536 % v in pt from sp
+   \divide\hsize by \dimen@             % w = h * (h/v)
+   \multiply\hsize by 65536             % convert pt back to sp
+% also compute candidate \hsize based on \twinhsize with a reasonable gutter
+   \dimen@=-\vsize \divide\dimen@ by 13 % gutter width computed from height
+   \advance\dimen@ by \twinhsize        % width of page minus gutter
+   \divide\dimen@ by 2                  % divide by 2 to get column width
+   \ifdim\dimen@<\hsize \hsize=\dimen@\fi} % choose smaller \hsize
+
+
+% \twinoutput builds the page as plain.tex does, but with a modified 
+% \shipout to collect the left page first, then put both pages out together
+
+\def\twinoutput{% modified version of \plainoutput for two-on-one printing
+  \twinshipout{\vbox{\makeheadline\pagebody\makefootline}}%
+  \advancepageno
+  \ifnum\outputpenalty>-\@MM \else\dosupereject\fi}
+
+
+% \twinshipout takes a \vbox, as \shipout does, but for the left page
+% it saves it temporarily.  When the right page is given it puts the two
+% side by side and ships them out together.
+
+\def\twinshipout#1{% modified version of \shipout for two-on-one  printing
+   \if L\@LR                            % left page?
+      \global\setbox\@leftpage=#1       % save the box for left page
+      \message{[\the\pageno]}%          % fake [page number] in log
+      \global\let\@LR=R                 % set flag for next (right) page
+   \else                                % right page?
+      \shipout\vbox{\LandscapeSpecial   % force landscape on every page
+        \hbox to \twinhsize{\box\@leftpage\hfil{#1}}}% 2 pages side by side
+      \global\let\@LR=L                 % set flag back to left page
+   \fi}
+
+\catcode`@=12                           % @ is no longer a letter
+% >>> EOF twinout.txs <<<

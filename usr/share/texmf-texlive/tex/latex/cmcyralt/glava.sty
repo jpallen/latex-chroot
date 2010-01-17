@@ -1,0 +1,24 @@
+% This package makes table of contents suitable for documents where chapters
+% have no names (such as in most Russian books). By Victor Boyko
+% (vb1890@cs.nyu.edu). 01/06/95.
+
+\def\@chapter[#1]#2{\ifnum \c@secnumdepth >\m@ne \if@mainmatter
+                         \refstepcounter{chapter}%
+                         \typeout{\@chapapp\space\thechapter.}%
+                         \addcontentsline{toc}{chapter}%
+                                   {\chaptername{} {\thechapter}#1}%
+                       \else
+                         \addcontentsline{toc}{chapter}{#1}%
+                       \fi
+                    \else
+                      \addcontentsline{toc}{chapter}{#1}%
+                    \fi
+                    \chaptermark{#1}%
+                    \addtocontents{lof}{\protect\addvspace{10\p@}}%
+                    \addtocontents{lot}{\protect\addvspace{10\p@}}%
+                    \if@twocolumn
+                      \@topnewpage[\@makechapterhead{#2}]%
+                    \else
+                      \@makechapterhead{#2}%
+                      \@afterheading
+                    \fi}

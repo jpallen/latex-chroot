@@ -1,0 +1,14 @@
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{hpplotsz}
+          [1997/11/07 Custom page sizes with HP 6xx series plotters (Frank Bennett)]
+\newlength\hps@templen
+\newwrite\hps@pagesizeheader
+\newcount\hps@orientation
+\def\hps@@strip#1.#2\end{#1}
+\def\hps@strip#1{\expandafter\hps@@strip\the#1\end}
+\def\sethpplotsize{%
+  \ifnum\hsize>\vsize\hps@orientation=3\else\hps@orientation=0\fi
+  \immediate\openout\hps@pagesizeheader=./\jobname.hps
+  \immediate\write\hps@pagesizeheader{%
+    <</PageSize [\hps@strip\paperwidth\space\hps@strip\paperheight] /Orientation \the\hps@orientation>>setpagedevice}
+  \immediate\closeout\hps@pagesizeheader}

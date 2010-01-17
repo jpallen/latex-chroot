@@ -1,0 +1,97 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% nameref.4ht                          2008-02-28-20:51 %
+% Copyright (C) 2005--2008       Eitan M. Gurari         %
+%                                                        %
+% This work may be distributed and/or modified under the %
+% conditions of the LaTeX Project Public License, either %
+% version 1.3c of this license or (at your option) any   %
+% later version. The latest version of this license is   %
+% in                                                     %
+%   http://www.latex-project.org/lppl.txt                %
+% and version 1.3c or later is part of all distributions %
+% of LaTeX version 2005/12/01 or later.                  %
+%                                                        %
+% This work has the LPPL maintenance status "maintained".%
+%                                                        %
+% This Current Maintainer of this work                   %
+% is Eitan M. Gurari.                                    %
+%                                                        %
+% If you modify this program your changing its signature %
+% with a directive of the following form will be         %
+% appreciated.                                           %
+%            \message{signature}                         %
+%                                                        %
+%                             gurari@cse.ohio-state.edu  %
+%                 http://www.cse.ohio-state.edu/~gurari  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\immediate\write-1{version 2008-02-28-20:51}
+
+   \let\ltx@label\label
+\def\prf:label{{\ifx \NR:Title\:UnDef \else \NR:Title\fi}{}{}}%
+\let\NR:StartSec\:StartSec
+\def\:StartSec#1#2#3{%
+   \gdef\NR:Title{\a:newlabel{#3}}%
+   \NR:StartSec{#1}{#2}{#3}%
+   \gdef\@currentlabelname{#1}%
+}
+\def\:tempc#1#2#3#4#5#6[#7]#8{%
+   \gdef\NR:Title{\a:newlabel{#7}}%
+   \o:NR@sect:{#1}{#2}{#3}{#4}{#5}{#6}[#7]{#8}}
+\HLet\NR@sect\:tempc
+
+\def\:tempc#1#2#3#4#5{%
+   \gdef\NR:Title{\a:newlabel\ssect:ttl}%
+   \o:NR@ssect:{#1}{#2}{#3}{#4}{#5}%
+   \def\@currentlabelname{\ssect:ttl}}
+\HLet\NR@ssect\:tempc
+
+\def\:tempc[#1]#2{%
+   \gdef\NR:Title{\a:newlabel{#1}}%
+   \o:no@part:[{#1}]{#2}}
+\HLet\no@part\:tempc
+
+\def\:tempc#1{%
+   \gdef\NR:Title{\a:newlabel{#1}}%
+   \o:no@spart:{#1}}
+\HLet\no@spart\:tempc
+
+\def\:tempc[#1]#2{%
+   \gdef\NR:Title{\a:newlabel{#1}}%
+   \o:NR@chapter:[#1]{#2}}
+\HLet\NR@chapter\:tempc
+
+\def\:tempc#1{%
+   \gdef\NR:Title{\a:newlabel\sch:ttl}%
+   \o:NR@schapter:{#1}%
+   \def\@currentlabelname{\sch:ttl}}
+\HLet\NR@schapter\:tempc
+\let\T:ref=\::ref
+\def\::ref{\protect\T@ref}
+\def\T@ref#1{%
+  \@safe@activestrue
+  \let\::ref \T:ref
+  \expandafter\@setref\csname r@#1\endcsname\@firstoffive{#1}%
+  \def\::ref{\protect\T@ref}%
+  \@safe@activesfalse
+}
+
+   \Configure{newlabel}
+   {\cur:th \:currentlabel}
+   {\string\csname\space
+    :autoref\string\endcsname {\@currentlabelname}#1}
+\ifx \@currentlabelname\:UnDef
+   \let\@currentlabelname\empty
+\fi
+\append:defI\refstepcounter{\def\@currentlabelname{#1}}
+\pend:def\eqnarray{\def\@currentlabelname{equation}}
+\pend:def\equation{\def\@currentlabelname{equation}}
+\ifx \figure\:UnDef \else
+  \pend:def\figure{\def\@currentlabelname{figure}}
+  \expandafter\pend:def\csname
+     figure*\endcsname{\def\@currentlabelname{figure}}
+\fi
+\pend:defII\:thm{\def\@currentlabelname{##1}}
+
+\Hinput{nameref}
+\endinput
+

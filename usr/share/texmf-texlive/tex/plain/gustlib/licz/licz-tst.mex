@@ -1,0 +1,101 @@
+% Test zestawu makr LICZ (Mazovia)
+% wersja 4.0
+% 27.04.96 19:49
+
+\input licz.mex
+
+
+\let\ad\advance
+
+\def\tl
+    % testline
+    #1%
+    {%
+    \edef\s’ownie{\licz{#1}}%
+    \item{\bf\number#1}(\s’ownie)\endgraf
+    \immediate\write16{\number#1}%
+    }
+
+\def\tloop
+    #1% from
+    #2% step
+    #3% to
+    {{%
+    \n #1\relax
+    \k #3\relax \ad\k1
+    \loop
+        \tl\n
+        \ad\n#2\relax
+    \ifnum\n<\k
+    \repeat
+    }}
+\newcount\n
+\newcount\k
+
+\let\rm\fiverm
+\font\bf plbx5
+\baselineskip7pt
+\rm
+\raggedright
+\nopagenumbers
+\raggedbottom
+\vsize9.9in
+\parindent1.5cm
+
+\def\test
+    {%
+    \liczspace{ }
+
+    \tl{1}
+    \tl{12}
+    \tl{20}
+    \tl{21}
+    \tl{34}
+    \tl{234}
+
+    \tl{123}
+    \tl{1234}
+    \tl{12345}
+    \tl{1234546}
+    \tl{12345678}
+    \tl{123456789}
+    \tl{1234567891}
+
+    \bigskip
+    najmniejsza liczba w \TeX-u:
+    \tl{-2147483647}
+    najwi‘ksza liczba w \TeX-u:
+    \tl{2147483647}
+
+    \bigskip
+    {%
+    \tloop
+        {1}
+        {1}
+        {250}
+    }
+
+    \bigskip
+    \liczspace{\=}
+    \tl{1001001001}
+    \tl{1000000001}
+    \tl{1000000000}
+    \tl{1000030000}
+
+    \bigskip
+    {\liczspace{\hrulefill}
+    \line{\licz{174568}}}
+
+    \liczspace{ }
+    \message{12345 = \licz{12345}}
+    \vfill
+    \eject
+    }
+
+\prefixing
+\test
+
+\nonprefixing
+\test
+
+\end

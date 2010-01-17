@@ -1,0 +1,298 @@
+% version 5.00 October 1992 updated jan 94
+\ifx\fonthdg\undefined\def\fonthdg{c}\fi  %  prefix to cmxxx fonts.
+\ifx\fonthdge\undefined\def\fonthdge{m}\fi  %  prefix to cmxxx fonts.
+                                          %   change to "d" for dmxxx fonts
+\font\cmmi=cmmi10 scaled \magstep1
+\font\cmbx=\fonthdg\fonthdge bx10 scaled \magstep1
+\font\smcmbx=\fonthdg\fonthdge bx10
+\font\cmex=cmex10
+\font\cmsy=cmsy10 scaled \magstep1
+\font\smcmsy=cmsy10
+\font\cmr=\fonthdg\fonthdge r10 scaled \magstep1
+\font\smcmr=\fonthdg\fonthdge r10
+\font\ttyeight=\fonthdg\fonthdge tt8
+\font\linew=linew10
+\font\circlew=circlew1
+%
+\catcode`\@=11\relax
+\def\q@u{\kern -0.70pt\cmsy\char"0F\kern 0.7pt}\def\qu@raise{-2.1pt}%
+\def\h@a{\kern-0.3pt\cmr\char"6F}\def\ha@raise{-2.1pt}%
+\def\w@h{\cmbx\char"6F}\def\wh@raise{-2.1pt}%
+%\check
+% petites notes
+\def\smq@u{\kern-0.70pt\smcmsy\char"0F\kern 0.7pt}%
+\def\smh@a{\kern-0.3pt\smcmr\char"6F}%
+\def\smw@h{\smcmbx\char"6F}%
+%
+\newbox\ch@box
+\newdimen\lthick
+\global\lthick=0.4pt\relax
+\newdimen\qn@width
+\newdimen\hn@width
+\newdimen\wn@width
+\newdimen\qd@skip
+\newdimen\hd@skip
+\newdimen\wd@skip
+\newcount\musicsize
+\def\computespecifics{\ifnum\musicsize=0\relax\musicsize=20\relax\fi
+\Interligne=\musicsize pt\divide\Interligne by 4\relax
+\def\ppff{\ppffsixteen}%
+\ifnum\musicsize=20\relax\def\meterfont{\moyen}\else\def\meterfont{\cmbx}%
+\def\ppff{\ppfftwenty}\fi%
+\interbeam=0.75\Interligne
+\wn@width=6pt\relax
+\hn@width=4.8pt\relax
+\qn@width=4.5pt       \relax
+\qd@skip=\qn@width\relax\advance\qd@skip by -\lthick\relax
+\hd@skip=\hn@width\relax\advance\qd@skip by -\lthick\relax
+\wd@skip=\wn@width\relax\advance\wd@skip by -\lthick\relax
+\setbox\ch@box=\hbox{\c@rochu}\relax\c@height=\ht\ch@box\relax
+}%
+%
+\def\s@oupir{\hbox{\kern 3pt\raise 5pt\hbox{\linew\char"42}\relax
+\kern -4pt\raise 12.5pt\hbox{\cmex\char"7C}\relax
+\kern 0.5pt\raise 14pt\hbox{\circlew\char"72}}}%
+\def\c@rochu{{\ttyeight\char"5C}}%
+\def\c@rochl{{\ttyeight\char"2F}}%
+\newdimen\c@height % hauteur d'un crochet de croche
+%\check
+\def\d@cr#1{%    % queue de #1 croche(s) vers le haut
+\global\advance\st@top by #1\Interligne\relax
+\global\advance\st@top by -\st@bot\global\advance\st@top by 2.5\Interligne\relax
+  \ifdim\st@top>1pt\relax
+  \global\advance\st@bot by -\altportee\relax
+  \raise\st@bot\rlap{\kern\stem@skip\vrule height\st@top width \lthick
+  \advance\st@top by -\c@height\relax
+  \ifnum #1>0\relax\raise\st@top\rlap{\c@rochu}\fi
+ \ifnum #1>1\relax\global\advance\st@top by -\Interligne\raise\st@top
+\rlap{\c@rochu}\fi
+ \ifnum #1>2\relax\global\advance\st@top by -\Interligne\raise\st@top
+\rlap{\c@rochu}\fi
+ \ifnum #1>3\relax\global\advance\st@top by -\Interligne\raise\st@top
+\rlap{\c@rochu}\fi
+  }\fi
+  \resetstem}%
+%\check
+\def\p@cr#1{%    % queue de #1 croche(s) vers le bas
+\global\advance\st@top by #1\Interligne\relax
+\global\advance\st@top by -\st@bot\global\advance\st@top by 2.5\Interligne\relax
+\global\advance\st@bot by -#1\Interligne\relax
+  \global\advance\st@bot by -2.5\Interligne\relax
+  \ifdim\st@top>1pt\relax
+  \global\advance\st@bot by -\altportee\relax
+  \raise\st@bot\llap{\relax
+   \ifnum #1>0\relax\rlap{\c@rochl}\fi
+   \ifnum #1>1\relax\raise\Interligne\rlap{\c@rochl}\fi
+   \ifnum #1>2\relax\raise 2\Interligne\rlap{\c@rochl}\fi
+   \ifnum #1>3\relax\raise 3\Interligne\rlap{\c@rochl}\fi
+   \vrule height\st@top width \lthick
+  \kern -\lthick}\fi
+  \resetstem}%
+%\check
+\def\s@harp{\cmmi\char"5D}\def\sh@raise{-2.5pt}%
+\def\f@lat{\cmmi\char"5B}\def\fl@raise{-2.5pt}%
+\def\n@at{{\cmmi\char"5C}}\def\na@raise{-2.5pt}%
+\def\balkuu{\char"20}\def\balkuuu{\char"21}\def\balkuuuu{\char"22}%
+\def\balku{\char"28}%
+\def\balkdd{\char"60}\def\balkddd{\char"61}\def\balkdddd{\char"62}%
+\def\balkd{\char"68}%
+\def\ds@harp{\cmbx\char"78\kern -0.4pt}\def\df@lat{\cmmi\char"5B\hskip
+ -1.5pt\char"5B\kern -0.8pt}%
+%\check
+\def\s@lopdefs{\q@antum=10pt\relax\def\s@lope{0.0}%
+\ifnum \b@p>1\relax\def\s@lope{0.15}\fi
+\ifnum \b@p>3\relax\def\s@lope{0.20}\fi
+\ifnum \b@p>5\relax\def\s@lope{0.40}\fi
+\ifnum \b@p>7\relax\def\s@lope{0.60}\fi
+\ifnum \b@p<-1\relax\def\s@lope{-0.15}\fi
+\ifnum \b@p<-3\relax\def\s@lope{-0.20}\fi
+\ifnum \b@p<-5\relax\def\s@lope{-0.40}\fi
+\ifnum \b@p<-7\relax\def\s@lope{-0.60}\fi
+}%
+\def\b@alkdefs{\q@antum=10pt\relax
+\ifnum \b@p>1\relax\def\b@alk{\balku}\fi
+\ifnum \b@p>3\relax\def\b@alk{\balkuu}\fi
+\ifnum \b@p>5\relax\def\b@alk{\balkuuu}\fi
+\ifnum \b@p>7\relax\def\b@alk{\balkuuuu}\fi
+\ifnum \b@p<-1\relax\def\b@alk{\balkd}\fi
+\ifnum \b@p<-3\relax\def\b@alk{\balkdd}\fi
+\ifnum \b@p<-5\relax\def\b@alk{\balkddd}\fi
+\ifnum \b@p<-7\relax\def\b@alk{\balkdddd}\fi
+}%
+%\check
+\def\p@outre{%    \y@ii : longueur,   \b@p : pente,  \y@i : altitude
+\ifnum \b@p=0\relax\raise \y@i\hbox{\vrule height 0.5\internote depth
+ 0.5\internote width \y@ii}\relax
+\else   \b@alkdefs\linew
+  \global\y@iv=0pt
+  \loop\ifdim\y@iv<\y@ii\relax
+    {\y@v=\y@ii\relax\advance\y@v by -\y@iv\relax\advance\y@v by -\q@antum\relax
+ \y@iii=\y@i\relax\advance\y@iii by \s@lope\y@iv\relax\advance\y@iii by
+ -0.5\internote
+    \ifnum \b@p<0\relax\advance\y@iii by \s@lope\q@antum\relax\fi
+    \ifdim\y@v<0pt\relax\advance\y@iii by \s@lope\y@v\relax\hskip\y@v\fi
+      \raise\y@iii\hbox to \z@ {\b@alk\hss}\advance\y@iii by 0.2\internote\relax
+      \raise\y@iii\hbox to \z@ {\b@alk\hss}\advance\y@iii by 0.2\internote\relax
+      \raise\y@iii\hbox to \z@ {\b@alk\hss}\advance\y@iii by 0.2\internote\relax
+ \raise\y@iii\hbox to \q@antum{\b@alk\hss}\global\advance\y@iv by \q@antum\relax
+    }\repeat
+\fi
+}%
+%\check
+\def\clefdefa{\hbox{\kern 1.5pt\circlew\raise 4\Interligne
+\rlap{\char7\char4\kern -6.8pt\char4}\relax
+\raise 3.1\Interligne\rlap{\kern 1.7pt\char"73}%
+\raise 2.5\Interligne\rlap{\kern 9pt\vrule height\Interligne width 1.6pt}%
+\kern 8.3pt\raise\Interligne
+\rlap{\char 13\kern  -15.2pt\char13}\kern 1.5pt\raise 2.5\Interligne
+\hbox{\moyen :}}}%
+%\check
+\def\clefdesolsymbol{\hbox{\circlew\kern 1pt \raise 11pt\rlap{\kern 4pt\char7\char8}%
+\raise10pt\rlap{\kern 4pt\char7\char8}%
+\raise 5pt\rlap{\kern -1pt\tenbf\char'050}%
+\raise \z@ \rlap{\kern \z@ \char 10\char9}%
+\raise -3pt\rlap{\kern 3.5pt\char"73}%
+\raise 9.5pt\rlap{\kern 1.20pt\linew\char"13}%
+\raise 12pt\rlap{\kern 1.55pt\linew\char"13}%
+\raise 3\Interligne\rlap{\linew\kern 4pt\char"45}%
+\raise \z@\rlap{\kern 7pt\linew\char"45}\raise 2\Interligne\rlap{\linew\kern
+ 5pt\char"45}%
+\raise -5pt\rlap{\kern 8pt\char 5}%
+\raise 27.5pt\rlap{\kern 3.8pt\char3\char0}%
+\raise 26.5pt\rlap{\kern 4pt\char3\char0}%
+\raise 22.2pt\rlap{\kern 6.4pt\eightbf\char'051}%
+\raise 21pt\rlap{\kern 6.4pt\eightbf\char'051}\relax
+\kern 12pt}}%
+%\check
+ \def\clefdutsymbol{\hbox{\kern2pt\vrule width 3pt height
+4\Interligne\kern1pt\vrule height 4\Interligne
+ \def\rempl{\hbox{\vrule width 1pt height 3pt}}%
+\kern 6pt\vbox to 4\Interligne{\offinterlineskip\rempl\hbox{\circlew
+\char"09}\kern -2\Interligne
+\hbox{\circlew\char"08}\rempl}}}%
+%
+\def\smallclefdut{\clefdutsymbol}%
+\def\smallclefdefa{\clefdefasymbol}%
+\def\smallclefdesol{\clefdesolsymbol}%
+%\check
+\def\allabreve{\meterfrac{2}{2}}%
+%\check
+\def\arp@elem{\vbox to 6pt{\vss\cmsy\char"6F}}%
+\def\Arp@elem{\arp@elem}%
+\def\d@soup{\raise\Interligne\hbox{\linew
+\kern 0.8\Interligne\char2\kern -\Interligne\raise 1.8\Interligne
+\hbox{\circlew\char"72}\kern -3pt\raise 7.5pt\hbox{\cmex
+\char"7D}}}
+\def\q@soup{\rlap{\d@soup}\kern 1pt\raise 4pt\hbox{\d@soup}}%
+\def\p@orgue{\hbox{\kern 0.5\qn@width\circlew\char"72\kern -10pt\raise
+ 6pt\rlap{\char11\char8}\raise
+ 7pt\hbox{\char11\char8}}}%
+\def\p@urgue{\hbox{\kern 0.5\qn@width\circlew\char"72\kern -10pt%
+\raise-6pt\rlap{\char10\char9}\raise-7pt\hbox{\char10\char9}}}%
+%
+\def\t@ilde{{\cmex\char"65}}%
+\def\trille#1{\hbox to #1{\leaders\hbox{\t@ilde\kern -0.8pt}\hfill}}%
+\def\Trille#1{\hbox to #1{\raise 1.2\Interligne\hbox{\it tr}\leaders
+\hbox{\t@ilde\kern -0.8pt}\hfill}}%
+%
+\def\st#1{\zcharnote{#1}{\raise -2pt          \rlap{\tt -}}}%
+\def\ppz#1{\zcharnote{#1}{\raise 2pt           \rlap{\tt \char13}}}%
+\def\pz#1{\zcharnote{#1}{\tenbf\kern 1.5pt .}}%
+\def\sforz#1{\zcharnote{#1}{\cmmi\char"3E}}%
+%
+% arpeges
+%
+\def\arpegesym#1{\hbox to \Interligne{\kern -1.2\Interligne\vbox to
+ #1{\parindent=\z@
+\offinterlineskip%  \ifdim #1>4\Interligne\Arp@elem\fi\hrule
+\cleaders\arp@elem\vfill\kern -\interligne}\hss}}%
+%
+\def\sh#1{\getn@i{#1}\global\n@raise=\sh@raise
+  \pl@llap{\s@harp\ifdim\small@test\relax\else\kern -0.20\Interligne\fi}%
+}%
+\def\na#1{\getn@i{#1}\global\n@raise=\na@raise
+  \pl@llap{\n@at\ifdim\small@test\relax\else\kern -0.20\Interligne\fi}%
+}%
+\def\fl#1{\getn@i{#1}\global\n@raise=\fl@raise
+  \pl@llap{\f@lat\ifdim\small@test\relax\else\kern -0.20\Interligne\fi}%
+}%
+\def\dsh#1{\getn@i{#1}\global\n@raise=\z@
+  \pl@llap{\ds@harp}}%
+%\check
+\def\dfl#1{\getn@i{#1}\global\n@raise=\fl@raise
+  \pl@llap{\df@lat}}%
+%
+% colons for repeat bars (:| |: :||:)
+%
+%
+%\check
+\def\w@coli{\selectinstr{\p@loop
+  \y@i=\altportee \n@portee
+  \advance\y@i by 1.4\Interligne
+  \raise\y@i\hbox to \z@{\hss\bf .\hss}%
+  \advance\y@i by \Interligne
+  \raise\y@i\hbox to \z@{\hss\bf .\hss}\repeat}}
+%
+\def\type@songsymbols{}
+%
+\def\ilegu#1#2{\selecttenue{#1}{\advance\locx@skip by -1.5\qn@width
+\i@tenu{#2}}}%
+\def\ilegl#1#2{\selecttenue{#1}{\advance\locx@skip by -1.5\qn@width
+\i@tenl{#2}}}%
+\def\t@ten{\y@i=\t@z\advance\y@i by -\altportee
+\y@ii=\locx@skip\advance\y@ii by -\t@x
+\ifnum\t@p>0\relax
+  \ifnum\t@s=2\relax
+    \raise\y@i\llap{\up@rleg}%
+  \else
+    \raise\y@i\llap{\up@leg}%
+  \fi
+\else
+  \ifnum\t@s=2\relax
+    \raise\y@i\llap{\lo@rleg}%
+  \else
+    \raise\y@i\llap{\lo@leg}%
+  \fi
+\fi
+\global\t@s=0\relax\@uptenubox}%
+%
+\def\c@ten{\y@ii=\x@skip\advance\y@ii by -\t@x
+\ifnum\t@s=1\relax
+  \ifnum\t@p>0\relax
+    \raise\t@z\llap{\up@les}\else
+    \raise\t@z\llap{\lo@les}\fi
+\else\ifnum\t@s=2\relax
+    \global\t@x=\t@z
+    \global\advance\t@x by \t@y
+    \kern -\y@ii\vrule height \t@x depth -\t@z width \y@ii
+    \fi
+\fi
+\global\t@x=-.8pt%<--
+\global\t@s=2\relax}%
+%
+\newdimen\k@ii
+\newdimen\k@iii
+\newdimen\k@iiii
+\newdimen\k@iiv
+\newdimen\k@iv
+\newdimen\k@ivi
+\newdimen\k@ivii
+\newdimen\k@iviii
+\newdimen\k@iix
+
+%
+% positions x et z de debut des tenues
+\newdimen\t@xi\newdimen\t@zi
+\newdimen\t@xii\newdimen\t@zii
+\newdimen\t@xiii\newdimen\t@ziii
+\newdimen\t@xiv\newdimen\t@ziv
+\newdimen\t@xv\newdimen\t@zv
+\newdimen\t@xvi\newdimen\t@zvi
+\newdimen\t@xvii\newdimen\t@zvii
+\newdimen\t@xviii\newdimen\t@zviii
+\newdimen\t@xix\newdimen\t@zix
+\newdimen\t@xx\newdimen\t@zx
+%
+\newdimen\nullthick % pour les parties sans portees (paroles)
+\newdimen\clef@skip
+

@@ -1,0 +1,48 @@
+% PICTURE PSIZZL - macros for making pictures
+%
+% see <GDUBOIS> frontpanel
+%
+\def\insertGRAY#1#2#3{%
+   \hbox{%
+      \translate{\z@}{#2}{\special{insert(#3)}}%
+      \blankbox{#1}{#2}%
+      }%
+   }%
+\def\insertimPRESS#1#2#3{%
+   \hbox{%
+      \translate{-0.50in}{-0.75in}{\special{mergeug(#3)}}%
+      \blankbox{#1}{#2}%
+      }%
+   }%
+\def\insertUGS#1#2#3{%
+   \hbox{\special{mergeug(#3)}\blankbox{#1}{#2}}%
+   }%
+\adddef\l@twrite{% define in macros
+   \let\insertGRAY\z@\let\insertimPRESS\z@\let\insertUGS\z@
+   }%
+\newdimen\b@xitkern\b@xitkern3pt
+\newdimen\b@xitrule\b@xitrule.4pt
+\def\boxit#1{%
+   \vbox{\hrule height\b@xitrule
+      \hbox{\vrule width\b@xitrule\kern\b@xitkern
+         \vbox{\kern\b@xitkern\hbox{#1}\kern\b@xitkern}%
+         \kern\b@xitkern\vrule width\b@xitrule
+         }%
+      \hrule height\b@xitrule
+      }%
+   }%
+\def\unraise{%
+   \dimen@-\b@xitkern\advance\dimen@-\dp\strutbox
+   \leavevmode\raise\dimen@
+   }%
+\def\blankbox#1#2{%
+   \vrule width\z@ depth\z@ height#2%
+   \vrule height\z@ depth\z@ width#1%
+   }%
+\newdimen\scalein\scalein 1in%
+\def\fr@methick{1pt}%
+\def\fr@me#1#2{\def\fr@mewidth{#1}\def\fr@meheight{#2}}%
+\def\blankp@c#1#2{\vbox{\hbox{\blankbox{#1}{#2}}}}%
+\def\picture#1#2{%
+   \boxit{\blankbox{#1}{#2}}%
+   }%

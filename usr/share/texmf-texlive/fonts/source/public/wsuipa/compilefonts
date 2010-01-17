@@ -1,0 +1,56 @@
+#! /bin/sh
+#
+#Here is a shell script, compilefonts, to call mf to generate a set of gf
+#fonts in the desired sizes, e.g. for a screen previewer or possibly for a
+#400 or 600 dpi printer, and then to call gftopk to convert to pk format
+#and finally to remove the gf fonts.  I have also included a help file,
+#mf.help.  Please feel free to edit these in any way you see fit.  I have
+#tested the script and can guarantee that it works.
+#
+#Chet Creider
+#<creider@csd.uwo.ca>
+#
+# Compile wusipa fonts for a previewer.
+sizes="10"
+fonts="wsuipa8 wsuipa9 wsuipa10 wsuipa11 wsuipa12 wsuipa17 \
+	wbxipa8 wbxipa9 wbxipa10 wbxipa11 wbxipa12 wbxipa17 \
+	wslipa8 wslipa9 wslipa10 wslipa11 wslipa12 wslipa17"
+	
+mode=OneTwoZero
+dpi=120
+
+for f in $fonts; do
+    for s in $sizes; do
+	virmf "&cm \\mode=$mode; mag=$s/10; batchmode; input $f" >/dev/null
+	mag=`expr $s \* $dpi / 10`
+	gftopk $f.${mag}gf >/dev/null
+	rm $f.${mag}gf
+    done
+done
+
+# ------------------------------------8<------------------------------------
+# The 300pk fonts in this directory should be sufficient for use with most
+# standard 300dpi laserprinters.  If you use a recent version of dvips, it
+# will call metafont on the fly to generate the fonts it needs as long as
+# it can find the .mf files.  If you use xdvi or maxview as your
+# previewer, the 300pk fonts should be sufficient.  For other previewers,
+# however, you will probably have to generate your own screen fonts.  The
+# easiest way to use metafont to do this is with the script, compilefonts,
+# based on a script, CompileFonts, by James Clark, the author of groff.
+# However, it is essential that the mode chosen be one which is in
+# /usr/local/lib/tex/mf/inputs/modes.mf (or wherever on one's installation
+# this file is kept).  E.g. for 120dpi fonts for dvipage under Sunview,
+# choose mode=OneTwoZero.  For 110dpi fonts for dvivga under Xenix, use
+# mode=IBMVGA and dpi=110.  If one is using dvivga under MS-DOS, it will
+# be necessary to rename the fonts because of filename limitations under
+# MS-DOS.  Use the directory structure and filenames in your dvivga
+# installation as a model.
+# 
+# Let me repeat again that the modes MUST be defined in modes.mf.  If
+# you need the above modes and they are not present, ask your system
+# administrator to obtain a more up-to-date modes.mf file.  (One should
+# always be available at a nearby CTAN archive site.)
+# 
+# It is recommended that compilefonts be invoked in the background as
+# the process can be lengthy (15 minutes on a Sun IPC).  To do this,
+# type "compilefonts &" at your Unix shell prompt.

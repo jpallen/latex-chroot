@@ -1,0 +1,115 @@
+% file: nuclproc.txs                              TeXsis version 2.15  
+% $Revision: 15.1 $  :  $Date: 92/06/30 14:31:53 $  :  $Author: myers $
+%======================================================================*
+% TeXsis - Nuclear Physics Proceedings : This file is a part ot TeXsis
+% (C) Copyright 1992 by Eric Myers and Frank E. Paige
+%======================================================================*
+% \nuclproc is a double column format with titles in upper case and left
+% justified, twelve point type, etc., for camera-ready copy.
+% Constructed following directions in ``Instructions for the Preparation
+% and Typing of Camera Ready Contributions'' by Mary Carpenter, Elsevier
+% Publishers.  
+
+\ATunlock
+
+\def\nuclproc{%         Nuclear Physics Proceedings style
+   \texsis                              % initialize
+   \emsg{\@comment\ nuclproc: Nuclear Physics Proceedings style}%
+   \setdoublecolumns{19.3cm}{26cm}{9cm}%
+   \advance\voffset by -1.2cm \relax    % as close to the top as possible
+   \advance\hoffset by -1.4cm \relax    % as close to the left as possible
+   \auxswitchtrue                       % save tags and labels in .aux file
+   \refswitchtrue                       % save references in .ref file
+   \def\Tbf{\fourteenpoint\fourteenss\uppercase}% Title typestyle (takes args!)
+   \def\tbf{\twelvepoint\it\uppercase}% % section head typestyle
+%
+   \twelvepoint                                 % twelve point type size
+   \twelvess                                    % but SANS SERIF font
+   \parindent=0.6cm                             % paragraph indent
+   \autoparens                                  % auto-sizing of parens
+   \quoteon                                     % automatic begin/end quotes
+   \nopagenumbers                               % don't print page numbers
+   \singlespaced\whitespaced                    % 1.25 percent spacing
+%
+   \def\titlepage{%                             % for \nuclproc
+      \hbox{\ }%                                % anchor to top of page
+      \vskip 0.50cm                             % whitespace above title
+      \begingroup                               % title material in group
+      \let\endmode=\relax                       % \endmode will end a field
+      \narrower\parindent=0pt}%                 %
+%
+   \def\endtitlepage{%                          % for \nuclproc
+      \endmode                                  % end any open field
+      \smallskip                                %
+      \endgroup                                 % end title material
+      \doublecolumns                            % text is in double columns
+   \singlespaced\whitespaced}                   % 1.25 percent spacing
+%
+   \def\title{%         begin title for \nuclproc
+      \endmode                                  % end previous field, if any
+      \mark{Title Page\NX\else Title Page}%     % so \HeadLine doesn't print
+      \bgroup                                   % begin title group
+      \def\endmode{\endtitle}%                  % how to end this mode
+      \widenspacing                             % a little wider spacing
+      \flushleft                                % left justified 
+      \Tbf{}%                                   %
+    }
+%
+   \def\endtitle{%      end the title for \nuclproc
+      \endflushleft                             %
+      \egroup                                   % end title group
+      \bigskip}%                                %
+%
+   \def\author{%        name of author for \nuclproc
+      \endmode                          % end any previous field
+      \bgroup\narrower                  % margins
+      \let\endmode=\endauthor           % set up ending
+      \flushleft                        % flush left
+      \NHgetauthor}%                    % get author's name from next line
+%
+   \def\endauthor{%     end \author for \nuclproc
+      \endflushleft                             % end flush left
+      \vskip\normalbaselineskip                 % skip one line
+      \egroup}%                                 % end author group
+%
+   \def\and{\smallskip{and}\smallskip}%         %
+%
+   \def\abstract{%                              % for \nuclproc
+      \endmode                                  % end any open field
+      \bigskip                                  % skip down some
+      \bgroup                                   % mode is local
+      \let\endmode=\endabstract                 % how to end this mode
+      \singlespaced\noindent}%                  %
+%
+   \def\endabstract{%   end \abstract for \nuclproc
+      \medskip\egroup\bigskip}%                 % 
+}
+
+
+% \NHgetauthor is like \getauthor but left justifies and skips 
+% one line after author's name.
+
+{\obeylines
+ \gdef\NHgetauthor#1
+    #2
+    {#1\vskip0pt\noindent{ #2}%              % author line
+    \def\\{\discretionary{}{}{,}}%             % , unless line breaks
+    \def\n{\break}%
+    \vskip\normalbaselineskip                   % blank line
+    \singlespaced}%         
+}
+
+
+\def\@longequation{
+   \enddoublecolumns
+   \leftcolrule
+   \def\endlongequation{\@endlongequation}}
+
+\def\@endlongequation{
+    \rightcolrule               % with the rule at top of right column
+    \doublecolumns}              % then back to double column mode
+
+
+\ATlock
+
+%>>> EOF nuclproc.txs <<<

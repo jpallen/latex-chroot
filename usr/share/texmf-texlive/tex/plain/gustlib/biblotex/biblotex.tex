@@ -1,0 +1,316 @@
+% 2 IX 1994
+% =========
+%
+% To jest:
+%                           BibloTeX ver.1.0
+%
+% system makr do generowania bibliografii w systemie plain-TeX
+%
+% adaptacja: B.Licho¤ski 1994
+%----------------------------------- begin BibloTeX ----------------------
+%% @texfile{
+%%   author = "Bogus/law Licho/nski",
+%%   version = "1.0",
+%%   date = "30 Mar 1994",
+%%   filename = "biblotex.tex",
+%%   address = "Gdynia ul. Kameliowa 17",
+%%   codetable = "ISO/ASCII",
+%%   supported = "yes",
+%%   docstring = "Definicje makr plain TeX dla programu BibTeX",
+%% }
+\edef\cite{\the\catcode`@}%
+\catcode`@ = 11
+\let\@oldatcatcode = \cite
+\chardef\@letter = 11
+\chardef\@other = 12
+\def\@innerdef#1#2{\edef#1{\expandafter\noexpand\csname #2\endcsname}}%
+\@innerdef\@innernewcount{newcount}%
+\@innerdef\@innernewdimen{newdimen}%
+\@innerdef\@innernewif{newif}%
+\@innerdef\@innernewwrite{newwrite}%
+\def\@gobble#1{}%
+\ifx\inputlineno\@undefined
+   \let\@linenumber = \empty % Pre-3.0.
+\else
+   \def\@linenumber{\the\inputlineno:\space}%
+\fi
+\def\@futurenonspacelet#1{\def\cs{#1}%
+   \afterassignment\@stepone\let\@nexttoken=
+}%
+\begingroup % The grouping here avoids stepping on an outside use of `\\'.
+\def\\{\global\let\@stoken= }%
+\\ % now \@stoken is a space token (\\ is a control symbol, so that
+   % space after it is seen).
+\endgroup
+\def\@stepone{\expandafter\futurelet\cs\@steptwo}%
+\def\@steptwo{\expandafter\ifx\cs\@stoken\let\@@next=\@stepthree
+   \else\let\@@next=\@nexttoken\fi \@@next}%
+\def\@stepthree{\afterassignment\@stepone\let\@@next= }%
+\def\@getoptionalarg#1{%
+   \let\@optionaltemp = #1%
+   \let\@optionalnext = \relax
+   \@futurenonspacelet\@optionalnext\@bracketcheck
+}%
+\def\@bracketcheck{%
+   \ifx [\@optionalnext
+      \expandafter\@@getoptionalarg
+   \else
+      \let\@optionalarg = \empty
+      \expandafter\@optionaltemp
+   \fi
+}%
+\def\@@getoptionalarg[#1]{%
+   \def\@optionalarg{#1}%
+   \@optionaltemp
+}%
+%
+% From LaTeX.
+%
+\def\@nnil{\@nil}%
+\def\@fornoop#1\@@#2#3{}%
+\def\@for#1:=#2\do#3{%
+   \edef\@fortmp{#2}%
+   \ifx\@fortmp\empty \else
+      \expandafter\@forloop#2,\@nil,\@nil\@@#1{#3}%
+   \fi
+}%
+\def\@forloop#1,#2,#3\@@#4#5{\def#4{#1}\ifx #4\@nnil \else
+       #5\def#4{#2}\ifx #4\@nnil \else#5\@iforloop #3\@@#4{#5}\fi\fi
+}%
+\def\@iforloop#1,#2\@@#3#4{\def#3{#1}\ifx #3\@nnil
+       \let\@nextwhile=\@fornoop \else
+      #4\relax\let\@nextwhile=\@iforloop\fi\@nextwhile#2\@@#3{#4}%
+}%
+\@innernewif\if@fileexists
+\def\@testfileexistence{\@getoptionalarg\@finishtestfileexistence}%
+\def\@finishtestfileexistence#1{%
+   \begingroup
+      \def\extension{#1}%
+      \immediate\openin0 =
+         \ifx\@optionalarg\empty\jobname\else\@optionalarg\fi
+         \ifx\extension\empty \else .#1\fi
+         \space
+      \ifeof 0
+         \global\@fileexistsfalse
+      \else
+         \global\@fileexiststrue
+      \fi
+      \immediate\closein0
+   \endgroup
+}%
+\toks0 = {%
+\def\bibliographystyle#1{%
+   \@readauxfile
+   \@writeaux{\string\bibstyle{#1}}%
+}%
+\let\bibstyle = \@gobble
+\let\bblfilebasename = \jobname
+\def\bibliography#1{%
+   \@readauxfile
+   \@writeaux{\string\bibdata{#1}}%
+   \@testfileexistence[\bblfilebasename]{bbl}%
+   \if@fileexists
+      \nobreak
+      \@readbblfile
+   \fi
+}%
+\let\bibdata = \@gobble
+\def\nocite#1{%
+   \@readauxfile
+   \@writeaux{\string\citation{#1}}%
+}%
+\@innernewif\if@notfirstcitation
+\def\cite{\@getoptionalarg\@cite}%
+\def\@cite#1{%
+   \let\@citenotetext = \@optionalarg
+   \printcitestart
+   \nocite{#1}%
+   \@notfirstcitationfalse
+   \@for \@citation :=#1\do
+   {%
+      \expandafter\@onecitation\@citation\@@
+   }%
+   \ifx\empty\@citenotetext\else
+      \printcitenote{\@citenotetext}%
+   \fi
+   \printcitefinish
+}%
+\def\@onecitation#1\@@{%
+   \if@notfirstcitation
+      \printbetweencitations
+   \fi
+   \expandafter \ifx \csname\@citelabel{#1}\endcsname \relax
+      \if@citewarning
+         \message{\@linenumber Undefined citation `#1'.}%
+      \fi
+      \expandafter\gdef\csname\@citelabel{#1}\endcsname{%
+         {\tt
+            \escapechar = -1
+            \nobreak\hskip0pt
+            \expandafter\string\csname#1\endcsname
+            \nobreak\hskip0pt
+         }%
+      }%
+   \fi
+   \csname\@citelabel{#1}\endcsname
+   \@notfirstcitationtrue
+}%
+\def\@citelabel#1{b@#1}%
+\def\@citedef#1#2{\expandafter\gdef\csname\@citelabel{#1}\endcsname{#2}}%
+\def\@readbblfile{%
+   \ifx\@itemnum\@undefined
+      \@innernewcount\@itemnum
+   \fi
+   \begingroup
+      \def\begin##1##2{%
+         \setbox0 = \hbox{\biblabelcontents{##2}}%
+         \biblabelwidth = \wd0
+      }%
+      \def\end##1{}% ##1 is `thebibliography' again.
+      \@itemnum = 0
+      \def\bibitem{\@getoptionalarg\@bibitem}%
+      \def\@bibitem{%
+         \ifx\@optionalarg\empty
+            \expandafter\@numberedbibitem
+         \else
+            \expandafter\@alphabibitem
+         \fi
+      }%
+      \def\@alphabibitem##1{%
+         \expandafter \xdef\csname\@citelabel{##1}\endcsname {\@optionalarg}%
+         \ifx\biblabelprecontents\@undefined
+            \let\biblabelprecontents = \relax
+         \fi
+         \ifx\biblabelpostcontents\@undefined
+            \let\biblabelpostcontents = \hss
+         \fi
+         \@finishbibitem{##1}%
+      }%
+      \def\@numberedbibitem##1{%
+         \advance\@itemnum by 1
+         \expandafter \xdef\csname\@citelabel{##1}\endcsname{\number\@itemnum}%
+         \ifx\biblabelprecontents\@undefined
+            \let\biblabelprecontents = \hss
+         \fi
+         \ifx\biblabelpostcontents\@undefined
+            \let\biblabelpostcontents = \relax
+         \fi
+         \@finishbibitem{##1}%
+      }%
+      \def\@finishbibitem##1{%
+         \biblabelprint{\csname\@citelabel{##1}\endcsname}%
+         \@writeaux{\string\@citedef{##1}{\csname\@citelabel{##1}\endcsname}}%
+         \ignorespaces
+      }%
+      \let\em = \bblem
+      \let\newblock = \bblnewblock
+      \let\sc = \bblsc
+      \frenchspacing
+      \clubpenalty = 4000 \widowpenalty = 4000
+      \tolerance = 10000 \hfuzz = .5pt
+      \everypar = {\hangindent = \biblabelwidth
+                      \advance\hangindent by \biblabelextraspace}%
+      \bblrm
+      \parskip = 1.5ex plus .5ex minus .5ex
+      \biblabelextraspace = .5em
+      \bblhook
+      \input \bblfilebasename.bbl
+   \endgroup
+}%
+\@innernewdimen\biblabelwidth
+\@innernewdimen\biblabelextraspace
+\def\biblabelprint#1{%
+   \noindent
+   \hbox to \biblabelwidth{%
+      \biblabelprecontents
+      \biblabelcontents{#1}%
+      \biblabelpostcontents
+   }%
+   \kern\biblabelextraspace
+}%
+\def\biblabelcontents#1{{\bblrm [#1]}}%
+\def\bblrm{\rm}%
+\def\bblem{\it}%
+\def\bblsc{\ifx\@scfont\@undefined
+              \font\@scfont = plcsc10
+           \fi
+           \@scfont
+}%
+\def\bblnewblock{\hskip .11em plus .33em minus .07em }%
+\let\bblhook = \empty
+\def\printcitestart{[}%         left bracket
+\def\printcitefinish{]}%        right bracket
+\def\printbetweencitations{, }% comma, space
+\def\printcitenote#1{, #1}%     comma, space, note (if it exists)
+\let\citation = \@gobble
+\@innernewcount\@numparams
+\def\newcommand#1{%
+   \def\@commandname{#1}%
+   \@getoptionalarg\@continuenewcommand
+}%
+\def\@continuenewcommand{%
+   \@numparams = \ifx\@optionalarg\empty 0\else\@optionalarg \fi \relax
+   \@newcommand
+}%
+\def\@newcommand#1{%
+   \def\@startdef{\expandafter\edef\@commandname}%
+   \ifnum\@numparams=0
+      \let\@paramdef = \empty
+   \else
+      \ifnum\@numparams>9
+         \errmessage{\the\@numparams\space is too many parameters}%
+      \else
+         \ifnum\@numparams<0
+            \errmessage{\the\@numparams\space is too few parameters}%
+         \else
+            \edef\@paramdef{%
+               \ifcase\@numparams
+                  \empty  No arguments.
+               \or ####1%
+               \or ####1####2%
+               \or ####1####2####3%
+               \or ####1####2####3####4%
+               \or ####1####2####3####4####5%
+               \or ####1####2####3####4####5####6%
+               \or ####1####2####3####4####5####6####7%
+               \or ####1####2####3####4####5####6####7####8%
+               \or ####1####2####3####4####5####6####7####8####9%
+               \fi
+            }%
+         \fi
+      \fi
+   \fi
+   \expandafter\@startdef\@paramdef{#1}%
+}%
+}%
+\ifx\nobibtex\@undefined \the\toks0 \fi
+\def\@readauxfile{%
+   \if@auxfiledone \else % remember: \@auxfiledonetrue if \noauxfile is defined
+      \global\@auxfiledonetrue
+      \@testfileexistence{aux}%
+      \if@fileexists
+         \begingroup
+            \endlinechar = -1
+            \catcode`@ = 11
+            \input \jobname.aux
+         \endgroup
+      \else
+         \message{\@undefinedmessage}%
+         \global\@citewarningfalse
+      \fi
+      \immediate\openout\@auxfile = \jobname.aux
+   \fi
+}%
+\newif\if@auxfiledone
+\ifx\noauxfile\@undefined \else \@auxfiledonetrue\fi
+\@innernewwrite\@auxfile
+\def\@writeaux#1{\ifx\noauxfile\@undefined \write\@auxfile{#1}\fi}%
+\ifx\@undefinedmessage\@undefined
+   \def\@undefinedmessage{No .aux file; I won't give you warnings about
+                          undefined citations.}%
+\fi
+\@innernewif\if@citewarning
+\ifx\noauxfile\@undefined \@citewarningtrue\fi
+\catcode`@ = \@oldatcatcode
+\prefixing
+%----------------------------------- end BibloTeX -------------------------

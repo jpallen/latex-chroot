@@ -1,0 +1,244 @@
+% LETTER PSIZZL - letter macros
+%
+% I am indebted to Louise Addis, SLAC, for help in designing the
+% style of the letter.
+%
+% The letter will print with your institution's letterhead.
+% You then take the letter and copy it on bond.
+% The original hardcopy becomes your file copy.
+%
+% \letterto{Name}{address}   Name will appear in the salutation.
+%                            note the comma or colon here.
+% e.g.,                      address will be the full address.
+% \letterto{John,}%          use \cr to separate lines.
+%    {Mr.@John Doe\cr%
+%     Physics Department\cr%
+%     University of California, Berkeley\cr%
+%     Berkeley, CA 94720\cr}%
+%
+% \letterfrom{signature}{mail stop}{initials}
+%                            initials will possibly appear at the foot of
+% e.g.,                      the letter
+% \letterfrom%               signature will appear in the close
+%    {Jane Doe\cr            address is incorporated in the letterhead
+%     Chief Honcho\cr}%
+%    {Bin 2}{JD}%
+%
+% \letterdate{date}          you may optionally specify the date of the
+%                            letter. The default date however, is today.
+% e.g., \letterdate{7 July 1983}%
+%
+% \salutation{Ave}%          here's how to modify the standard salutation
+%                            (default is Dear)
+%
+% \MyRef{text}%              specifies the writer's reference number for
+%                            this letter. Default is none.
+%                            If you use this you get Ref: <text> near
+%                            the top of the letter.
+%
+% \YourRef{text}%            similar to \MyRef. Specifies the reference
+%                            number of the addressee's letter to which
+%                            you're responding. Default is none.
+%
+% \copiesto{name\cr name\cr ...name\cr}%
+%                            specifies who gets copies of the letter
+%                            aside from the addressee. A list of names
+%                            will appear at the end of the letter.
+%                            Default is none
+%
+% \closing{Yours truly,}%    and how to modify the standard close
+%                            (default is Sincerely,)
+%
+% \everyletter{text}%        text to be inserted
+%                            at the end of every letter.
+%                            May be an entire letter body.
+%
+% \beginletter               the letter now begins on a new page
+%                            with date, address, salutation
+%
+% text                       now comes the text of the letter
+%
+% \endletter                 this puts out the closing
+%
+\newif\ifletter
+\newskip\lettertopskip\lettertopskip\z@ plus\z@ minus\z@
+\def\letterdate#1{%
+   \def\l@tterdate{#1}%
+   }\letterdate\d@te
+\def\salutation#1{%
+   \def\s@lutation{#1}%
+   }\salutation{Dear}%
+\def\closing#1{%
+   \def\cl@sing{#1}%
+   }\closing{Sincerely,}%
+\def\typist#1{%
+   \def\t@pist{:\lowercase{#1}}%
+   }\def\t@pist{}%
+\def\copiesto#1{%
+   \def\c@pies{%
+      \hbox{%
+         \vtop{\hbox{cc: }\vfil}%
+         \vtop{\singlespace
+            \halign{\vbox{\parindent\z@\hsize.8\hsize####}\hfil\cr
+               #1\crcr}%
+            }%
+         }%
+      \vskip\baselineskip
+      }%
+   }\def\c@pies{}%
+\def\postscript#1{%
+   \def\p@st{#1}%
+   }\def\p@st{}%
+\def\enclosure#1#2{%
+   \def\@ncl{%
+      {\par\parindent\z@#1\par\singlespace
+         \halign{%
+            \quad\vbox{\parindent\z@\hsize.8\hsize####}\hfil\cr
+            #2\crcr}\par
+         }%
+      }%
+   }\def\@ncl{}%
+\def\prescript#1{%
+   \def\pr@{#1}%
+   }\def\pr@{}%
+%
+\def\MyRef#1{%
+   \def\M@Ref{Ref: #1\cr}%
+   }\def\M@Ref{}%
+\def\YourRef#1{%
+   \def\Y@urRef{Your Ref: #1\cr}%
+   }\def\Y@urRef{}%
+%
+\def\breakletter{%
+   \par\vfil\eject
+   }% break the title page of a letter
+\def\letterto#1#2{%
+   \def\@ddressee{#1}\gdef\@ddress{#2}%
+   }\letterto{}{}%
+\def\letterfrom#1#2#3{%
+   \def\s@ndername{#1}\gdef\s@nderbin{#2}\gdef\s@nderinitials{#3}%
+   }\letterfrom{}{}{}%
+\def\letterstyle#1{%
+   \adddef\stylel@t{#1}%
+   }%
+\def\stylel@t{%
+   \let\bodynumbers=\topcentered
+   \vsize 8.3in
+   \raggedright
+   \p@geclear% set page number
+   \largetype\singlespace
+   \parindent 0em
+   \baselineskip 2.7ex
+   \parskip\medskipamount
+   }%
+\long\def\everyletter#1{\def\l@tterbody{#1}}\everyletter{}%
+\def\letter{%
+   \let\resd@c\resl@t
+   \let\pred@c\prel@t\let\styled@c\stylel@t\let\titd@c\titl@t
+   \let\frontd@c\frontl@t\let\endd@c\endl@t\lettertrue
+   }%
+\def\beginletter{\letter\begindocument}%
+\def\endletter{\enddocument}%
+\def\frontl@t{}%
+\def\resl@t{\endpage}%
+\def\prel@t{\beginbody}%
+\def\titl@t{%
+   \topinsert
+      \ifwindowenvelope
+         \translate{-.0in}{-1.5in}{%
+            \ifx\@ddress\empty\else
+               \vbox to 1.in{%
+                  \singlespace\baselineskip 2.7ex\vss
+                  \halign to 4.35in{\tabskip\z@
+                     ##\hss\tabskip\z@ plus 1fil\cr\@ddress\crcr
+                     }\vss
+                  }%
+               \fi
+            }%
+         \nointerlineskip
+         \fi
+      \l@tterhead
+      \endinsert
+   \fr@nttrue
+   \rightline{\l@tterdate}\vskip\the\baselineskip
+   \tempfalse
+   \ifx\M@Ref\empty\else\temptrue\fi\ifx\Y@urRef\empty\else\temptrue\fi
+   \iftemp
+      \rightline{%
+         \vbox{%
+            \singlespace\halign{##\hfil\cr\M@Ref\Y@urRef}%
+            }%
+         }%
+      \par
+      \fi
+   \vfil
+   \vskip\lettertopskip
+   \ifwindowenvelope\vskip1.20in\else
+      \ifx\@ddress\empty\else
+         {%\singlespace\indent
+            \hbox{\vbox{\halign{##\hfil\cr\@ddress\crcr}}}%
+            }%
+         \par
+         \vskip2\parskip
+         \fi
+      \fi
+   \par\pr@\par
+   \ifx\@ddressee\empty\else
+      \medskip\s@lutation\ \@ddressee\par\medskip
+      \fi
+   }%
+\def\endl@t{%
+   \l@tterbody
+   \par
+   \ifx\s@ndername\empty\else
+      \nobreak\vskip 4.5ex%
+      \line{%
+         \hbox to .51\hsize{\hfil}\hskip\z@ minus 1fil
+         \vbox{\singlespace\baselineskip 2.7ex%
+            \halign{##\hfil\cr\cl@sing\cr\noalign{\nobreak\vskip.4in}%
+               \s@ndername \crcr
+               }%
+            }%
+         \hskip\z@ plus 1fill
+         }%
+      \fi
+   {\normalbaselines
+      \ifx\s@nderinitials\empty\else
+         \par\s@nderinitials\t@pist\par
+         \fi
+      \@ncl
+      \c@pies
+      {\singlespace\p@st\par}%
+      }%
+   \vfil\eject
+   \gdef\t@pist{}\gdef\c@pies{}\gdef\M@Ref{}\gdef\Y@urRef{}%
+   \gdef\pr@{}\gdef\p@st{}%
+   \letterfalse
+   }%
+\newdimen\h@ght\h@ght=1in
+\newdimen\l@tterheadsize\l@tterheadsize\hsize
+\def\letterhead#1#2#3#4{%
+   \def\l@tterhead{%
+      \ifletterhead
+         \l@tterheadsize\hsize\advance\l@tterheadsize0in
+         \centerline{%
+            \vbox{\hsize\l@tterheadsize
+               \centerline{\vbox{\halign{####\hfil\cr#1\crcr}}}%
+               \line{%
+                  \singlespace\baselineskip 2.7ex%
+                  \vbox to \h@ght{\vss\halign{####\hfil\cr#2\crcr}\vss}%
+                  \hss
+                  \vbox to \h@ght{\vss\halign{####\hfil\cr#3\crcr}\vss}%
+                  }%
+               }%
+            }%
+         \else#4\fi
+      }%
+   }%
+\newif\ifletterhead\letterheadtrue
+\newif\ifstreetaddress
+\newif\ifwindowenvelope
+% review all of the \letterto's by typesetting them plus
+\def\p@genumberletter{%
+   \p@gebanner{\l@tterdate}{}{Page\qquad\numorroman\p@gecount}%
+   }%

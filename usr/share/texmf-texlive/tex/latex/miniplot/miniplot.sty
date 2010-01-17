@@ -1,0 +1,862 @@
+% This file supplies Figure Tools
+% (C) Tobias Wahl - 2001
+%
+% Caution: Mind the global variables created!
+%
+
+%------------------------------------------------------------------------
+% Contents of Commands:
+%
+% \includeEps[htpb]{path}{caption}{label}{scale factor for eps}         % include if plotFigures = 1
+% \includeEpsNow[htpb]{path}{caption}{label}{scale factor for eps}      % includes it even though plotFigures = 0
+%
+% \standardGraphScale                                                   % sets scale of standard graphs = 1, can be redefined to change scale
+% \includeStandardGraph[htpb]{path}{caption}{label}                     % include if plotFigures = 1
+% \includeStandardGraphNow[htpb]{path}{caption}                         % includes it even though plotFigures = 0
+%   with those commands you should include your standard graphs in eps-format
+%   which can then be centralized scaled. These could be graphs created by MathsPiC
+%
+% \includePicTeX[htpb]{path}{caption}{label}                            % include if plotFigures = 1
+% \includePicTeXNow[htpb]{path}{caption}{label}                         % includes it even though plotFigures = 0
+%
+%
+% \includeEpsWrap[nar. lin.]{position}{path}{caption}{label}{scale factor for eps}          % include if plotFigures = 1
+% \includeEpsWrapNow[nar. lin.]{position}{caption}{label}{scale factor for eps}             % includes it even though plotFigures = 0
+%                           % nar. lin. = narrow lines = see wrapfig documentation
+%                           % position = l,r,... = see wrapfig documentation
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+%------------------------------------------------------------------------
+% Contents of Environments:
+%
+%
+% 
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+
+%------------------------------------------------------------------------
+% Global Variables:
+%
+%
+% plotFigures           % 0 or 1
+%
+% plotGraphs            % 0 or 1
+%
+%
+%
+%
+%
+%
+%
+
+%========================================================================
+% PACKAGE START
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{miniplot}
+
+\RequirePackage{ifthen}
+\RequirePackage{calc}
+\RequirePackage{graphicx}
+\RequirePackage{epsfig}
+
+
+% \RequirePackage{wrapfig}      % would be nice to have it
+% \RequirePackage{subfigure}    % would be nice to have it
+% \RequirePackage{rotfloat}     % would be nice to have it
+
+
+
+
+
+%========================================================================
+% GENERAL
+
+%\newcommand{\miniplot}{MiniPlot\xspace}
+\newcommand{\miniplot}{MiniPlot\hspace{0pt}}
+
+
+%----------------------------------------------
+% \pointless{length in pt}                      % \myLength = 0.5pt, \pointless{\myLength} -> \mylength = 0.5
+% % creates macro (#1) using length (#2), Provided by Robin Fairbairns
+
+\makeatletter
+\def\pointless#1#2{\edef#1{\strip@pt#2}}        
+\makeatother
+
+
+%----------------------------------------------
+% \doextractminiplota{figures/file} -> file
+% extract filename from path, from Peter Schmitt
+
+\def\doextractminiplota #1/#2\\{\ifx|#2|#1\else\doextractminiplota#2\\\fi}
+\def\extractminiplota #1{\doextractminiplota#1/\\}
+
+
+
+
+%========================================================================
+% FIGURE SPECIFIC
+
+
+\newlength{\figWidth}               % width of eps figure to include
+\newlength{\figHeight}              % height of eps figure to include
+
+\newlength{\figTabWidth}            % width of table to include in frame as big as the eps figure
+\newlength{\figTabMiddle}           % height in the frame where the table middle is placed
+
+\newcounter{printCaption}           % prints caption in info table {1} or not {0}
+\setcounter{printCaption}{1}
+
+\newlength{\captionHeight}          % measures the height of the caption
+\newlength{\captionSpace}           % provides the space available for the caption,
+                                    % if \captionSpace < \captionHeight then the caption will not be plotted
+                                    % the calculation of this variable is not very sophisticated and further work needs to be done
+
+\newlength{\extraWrapWidth}         % used to give wraped figures extra space on the side
+\setlength{\extraWrapWidth}{2mm}    % default value = 2mm, can be redefined in text
+
+\newlength{\aboveWrapFigureSpace}   % determines the extra space above the wraped figure to the top
+\setlength{\aboveWrapFigureSpace}{0mm}
+
+
+\newcommand{\standardGraphScale}{1} % This value specifies the scaling factor by which the standard graph is scaled
+
+\newcounter{scaleToStandardFigureWidth}     % 1 = scales figure to \myStandardFigureWidth
+\setcounter{scaleToStandardFigureWidth}{1}
+
+\newcounter{isFirstStandardFigure}          % used as a counter to determine if the current figure is the first standard figure to set the scaling factor accordingly
+\setcounter{isFirstStandardFigure}{1}
+
+
+\newcounter{scaleFigureIndividual}          % whether to use the first figure to scale the remaining ones or to scale each figure individualy
+\setcounter{scaleFigureIndividual}{1}
+
+\newlength{\frameBoxPenalty}                % accounts for the extra space needed by drwing the framebox around the picture environment
+\setlength{\frameBoxPenalty}{2.4mm}
+
+
+
+
+% SUBFIGURE
+
+\newlength{\myStandardFigureWidth}                              % This is suppoded to be width all standard figures should have
+\setlength{\myStandardFigureWidth}{\linewidth}                  % sets the width of all standard figures, can be redefined
+
+\newlength{\myStandardSubFigureWidth}                           % This is suppoded to be width all standard sub figures should have
+\setlength{\myStandardSubFigureWidth}{\myStandardFigureWidth}   % sets the width of all standard sub figures, is adjusted automatically
+                                                                %
+                                                                % The mySubfigure environment creates columns and subcolumns, This is the length
+                                                                % of the columns.
+
+\newlength{\myStandardSideWaysFigureWidth}                      % width for standard side ways figure
+\setlength{\myStandardSideWaysFigureWidth}{\textheight}
+
+
+\newlength{\subFigScaleLength}                      % scale luped sub-figures to achieve width equals \myFigureWidth
+
+\newcommand{\myCaptionText}{no text yet}            % used to store the caption when passed on in selfdefined environments
+\newcommand{\myLabel}{no_label_yet}                 % used to store the label when passed on in selfdefined environments
+
+
+\newcommand{\numSubFigCol}{}                        % command used to store informnation about the number of columns in lumped sub figure
+\newcommand{\numSubSubFigCol}{}                     % command used to store informnation about the number of columns in lumped sub sub figure
+
+\newcommand{\isFirstSubFig}{false}                  % boolean value to calculate the subFigScale only the first time one calls \subFig[]{}
+
+
+\newlength{\subFigPenalty}                          % This value is used to substract from \myStandardFigureWidth in order to
+\setlength{\subFigPenalty}{0mm}                    % let subfigure.sty arrage all subfigures in the avaiable space
+                                                    % if one finds the lumped subfigures arranged in 3 columns even though
+                                                    % one asked to have them in 4 then this value needs to be increased.
+                                                    % accounts for rounding errors due to calculation
+
+\newlength{\subSubFigPenalty}                       % This value is used to substract from \myStandardFigureWidth in order to
+\setlength{\subSubFigPenalty}{0.001mm}               % let subfigure.sty arrage all subfigures in the avaiable space
+                                                    % if one finds the lumped subfigures arranged in 3 columns even though
+                                                    % one asked to have them in 4 then this value needs to be increased.
+                                                    % accounts for rounding errors due to calculation
+
+\newlength{\interSubFigSpace}                       % determines the space bewteen separate subfigures
+\setlength{\interSubFigSpace}{8mm}
+
+\newlength{\interSubSubFigSpace}                    % determines the space bewteen separate sub subfigures
+\setlength{\interSubSubFigSpace}{2.5mm}
+
+
+\newlength{\subFigureAboveCaptionSpaceDefaultOffset}            % used to remove offset from above caption space so that the user can enter more accessible value in \neSubFig[length]{...
+\setlength{\subFigureAboveCaptionSpaceDefaultOffset}{0mm}
+
+\newlength{\subFigureAboveCaptionSpaceDefault}      % determines the default space above the separate sub figure captions
+\setlength{\subFigureAboveCaptionSpaceDefault}{0mm} % use this to equal out spaces due to different number of lines of
+                                                    % sub sub captions
+
+\newlength{\subFigureAboveCaptionSpace}             % determines the space above the separate sub figure captions
+\setlength{\subFigureAboveCaptionSpace}{\subFigureAboveCaptionSpaceDefault + \subFigureAboveCaptionSpaceDefaultOffset}
+                                                    % use this to equal out spaces due to different number of lines of
+                                                    % sub sub captions
+
+\newlength{\horizontalSubSubFigSpace}               % used to equalize space between rows of sub-sub-figures
+\setlength{\horizontalSubSubFigSpace}{0mm}
+
+\newlength{\subFigureBelowCaptionSpace}             % determines the space below the sub figure caption: Figure ...
+\setlength{\subFigureBelowCaptionSpace}{3mm}
+
+\newlength{\subCaptionPenalty}                      % used to move sub-sub-caption into middle of subsubfigure
+\setlength{\subCaptionPenalty}{0mm}
+
+
+\newcounter{plotFigures}
+\setcounter{plotFigures}{1}             % plot figures {1} or not {0}
+
+
+
+%========================================================================
+%
+
+%-----------------------------------------------------------
+% \includeEps[htpb]{path}{caption}{label}{scaling}         % includes eps figure
+%
+
+
+
+\newcommand{\includeEps}[5][htpb]%                      % idea for code from verbatim manual page 3
+    {%
+    \ifthenelse{\value{plotFigures}>0}%%
+        {%
+        \includeEpsNow[#1]{#2}{#3}{#4}{#5}%%
+        }%
+        {%
+        \settowidth{\figWidth}{\epsfig{file={#2},scale = #5}}%              % obtain eps figure width
+        \settoheight{\figHeight}{\epsfig{file={#2},scale = #5}}%            % obtain eps figure height
+        %\the\figHeight%                                                    % used to tune the scaling factor for \captionSpace, also see captionSpace.xls
+        %
+        \setlength{\figTabWidth}{\figWidth - 31mm}%                         % calculate width of table in frame
+        %
+        \setlength{\figTabMiddle}{\figHeight / 2}%                          % calculate middle of figure height
+        %
+        \settoheight{\captionHeight}{\parbox{\figTabWidth}{#3}}%            % calculate height of caption in table
+        \setlength{\captionSpace}{\figHeight - (\figHeight / 1000 * 198)}%  % calculate height for caption available in table
+        %                                                                   % 25mm for small figures, 44mm for standard 7cm high graphs, 51mm for large figures
+        %
+        \bigskip\medskip%%
+        \begin{figure}[#1]%%
+            \begin{center}%%
+                \centerline{\framebox{%
+                    %
+                    \setlength{\figWidth}{\figWidth - \frameBoxPenalty}%
+                    \setlength{\figHeight}{\figHeight - \frameBoxPenalty}%
+                    %
+                    \setlength{\unitlength}{1sp}%%         % 1sp = 0.0000152587890625pt = 1/65536pt
+                    \begin{picture}(\number\figWidth,\number\figHeight)%%
+                    \put(655360,\number\figTabMiddle)%%
+                        {%
+                        \begin{tabular}{lp{\the\figTabWidth}}%
+                            \emph{Source:} & #2.eps \\%%
+                            \emph{Scaling:} & #5 \\%%
+                            \ifthenelse{\value{printCaption}=1}{\ifthenelse{\lengthtest{\captionSpace > \captionHeight}}{\emph{Caption:} & #3 \\}{}}{}%%
+                            \emph{Label:} & fig:#4 \\%%
+                            \emph{Position:} & #1 \\%%
+                        \end{tabular}%
+                        }%
+                    \end{picture}%%
+                    }}%
+                \caption{#3}%%
+                \label{fig:#4}%%
+            \end{center}%%
+        \end{figure}%%
+        }%
+    }%
+
+
+\newcommand{\includeEpsNow}[5][htpb]%                      % as \includeEps but plots the figure in any case
+    {%
+    \bigskip\medskip%%
+    \begin{figure}[#1]%%
+        \begin{center}%%
+            \centerline{\epsfig{file={#2},scale = #5}}%%
+            \caption{#3}%%
+            \label{fig:#4}%%
+        \end{center}%%
+    \end{figure}%%
+    }%
+
+%----------------------------------------
+
+
+\newcommand{\includeStandardGraph}[4][htpb]%
+    {%
+    %
+    \ifthenelse{\value{scaleToStandardFigureWidth}=1}%
+        {%
+        \ifthenelse{\value{scaleFigureIndividual}=1}%
+            {%
+            \setSubFigScale{#2}{\myStandardFigureWidth}{1}%                          % calculate \subFigScale for standard eps figure
+            \renewcommand{\standardGraphScale}{\subFigScale}%            % This value specifies the scaling factor by which the standard graph is scaled
+            \setlength{\subFigScaleLength}{0pt}%                         % reset \subFigScale
+            }%
+            {%
+            \ifthenelse{\value{isFirstStandardFigure}=1}%
+                {%
+                \setSubFigScale{#2}{\myStandardFigureWidth}{1}%                          % calculate \subFigScale for standard eps figure
+                \renewcommand{\standardGraphScale}{\subFigScale}%            % This value specifies the scaling factor by which the standard graph is scaled
+                \setlength{\subFigScaleLength}{0pt}%                         % reset \subFigScale
+                \setcounter{isFirstStandardFigure}{0}%
+                }{}%
+            }%
+        }{}%
+    %
+    \includeEps[#1]{#2}{#3}{#4}{\standardGraphScale}%
+    }%
+
+\newcommand{\includeStandardGraphNow}[4][htpb]%
+    {%
+    %
+    \ifthenelse{\value{scaleToStandardFigureWidth}=1}%
+        {%
+        \ifthenelse{\value{scaleFigureIndividual}=1}%
+            {%
+            \setSubFigScale{#2}{\myStandardFigureWidth}{1}%                          % calculate \subFigScale for standard eps figure
+            \renewcommand{\standardGraphScale}{\subFigScale}%            % This value specifies the scaling factor by which the standard graph is scaled
+            \setlength{\subFigScaleLength}{0pt}%                         % reset \subFigScale
+            }%
+            {%
+            \ifthenelse{\value{isFirstStandardFigure}=1}%
+                {%
+                \setSubFigScale{#2}{\myStandardFigureWidth}{1}%                          % calculate \subFigScale for standard eps figure
+                \renewcommand{\standardGraphScale}{\subFigScale}%            % This value specifies the scaling factor by which the standard graph is scaled
+                \setlength{\subFigScaleLength}{0pt}%                         % reset \subFigScale
+                \setcounter{isFirstStandardFigure}{0}%
+                }{}%
+            }%
+        }{}%
+    %
+    \includeEpsNow[#1]{#2}{#3}{#4}{\standardGraphScale}%
+    }%
+
+
+
+
+%========================================================================
+% INSERT SIDE WAYS EPSFIG AND STANDARD GRAPH
+
+
+
+
+\newcommand{\includeSideWaysEps}[5][htpb]%                      % idea for code from verbatim manual page 3
+    {%
+    \ifthenelse{\value{plotFigures}>0}%%
+        {%
+        \includeSideWaysEpsNow[#1]{#2}{#3}{#4}{#5}%%
+        }%
+        {%
+        \settowidth{\figWidth}{\epsfig{file={#2},scale = #5}}%              % obtain eps figure width
+        \settoheight{\figHeight}{\epsfig{file={#2},scale = #5}}%            % obtain eps figure height
+        %\the\figHeight%                                                    % used to tune the scaling factor for \captionSpace, also see captionSpace.xls
+        %
+        \setlength{\figTabWidth}{\figWidth - 31mm}%                         % calculate width of table in frame
+        %
+        \setlength{\figTabMiddle}{\figHeight / 2}%                          % calculate middle of figure height
+        %
+        \settoheight{\captionHeight}{\parbox{\figTabWidth}{#3}}%            % calculate height of caption in table
+        \setlength{\captionSpace}{\figHeight - (\figHeight / 1000 * 198)}%  % calculate height for caption available in table
+        %                                                                   % 25mm for small figures, 44mm for standard 7cm high graphs, 51mm for large figures
+        %
+        \bigskip\medskip%%
+        \begin{sidewaysfigure}[#1]%%
+            \begin{center}%%
+                \centerline{\framebox{%
+                    %
+                    \setlength{\figWidth}{\figWidth - \frameBoxPenalty}%
+                    \setlength{\figHeight}{\figHeight - \frameBoxPenalty}%
+                    %
+                    \setlength{\unitlength}{1sp}%%         % 1sp = 0.0000152587890625pt = 1/65536pt
+                    \begin{picture}(\number\figWidth,\number\figHeight)%%
+                    \put(655360,\number\figTabMiddle)%%
+                        {%
+                        \begin{tabular}{lp{\the\figTabWidth}}%
+                            \emph{Source:} & #2.eps \\%%
+                            \emph{Scaling:} & #5 \\%%
+                            \ifthenelse{\value{printCaption}=1}{\ifthenelse{\lengthtest{\captionSpace > \captionHeight}}{\emph{Caption:} & #3 \\}{}}{}%%
+                            \emph{Label:} & fig:#4 \\%%
+                            \emph{Position:} & #1 \\%%
+                        \end{tabular}%
+                        }%
+                    \end{picture}%%
+                    }}%
+                \caption{#3}%%
+                \label{fig:#4}%%
+            \end{center}%%
+        \end{sidewaysfigure}%%
+        }%
+    }%
+
+
+\newcommand{\includeSideWaysEpsNow}[5][htpb]%                      % as \includeEps but plots the figure in any case
+    {%
+    \bigskip\medskip%%
+    \begin{sidewaysfigure}[#1]%%
+        \begin{center}%%
+            \centerline{\epsfig{file={#2},scale = #5}}%%
+            \caption{#3}%%
+            \label{fig:#4}%%
+        \end{center}%%
+    \end{sidewaysfigure}%%
+    }%
+
+%----------------------------------------
+
+
+\newcommand{\includeStandardSideWaysGraph}[4][htpb]%
+    {%
+    %
+    \ifthenelse{\value{scaleToStandardFigureWidth}=1}%
+        {%
+        \ifthenelse{\value{scaleFigureIndividual}=1}%
+            {%
+            \setSubFigScale{#2}{\myStandardSideWaysFigureWidth}{1}%      % calculate \subFigScale for standard eps figure
+            \renewcommand{\standardGraphScale}{\subFigScale}%            % This value specifies the scaling factor by which the standard graph is scaled
+            \setlength{\subFigScaleLength}{0pt}%                         % reset \subFigScale
+            }%
+            {%
+            \ifthenelse{\value{isFirstStandardFigure}=1}%
+                {%
+                \setSubFigScale{#2}{\myStandardSideWaysFigureWidth}{1}%      % calculate \subFigScale for standard eps figure
+                \renewcommand{\standardGraphScale}{\subFigScale}%            % This value specifies the scaling factor by which the standard graph is scaled
+                \setlength{\subFigScaleLength}{0pt}%                         % reset \subFigScale
+                \setcounter{isFirstStandardFigure}{0}%
+                }{}%
+            }%
+        }{}%
+    %
+    \includeSideWaysEps[#1]{#2}{#3}{#4}{\standardGraphScale}%
+    }%
+
+\newcommand{\includeStandardSideWaysGraphNow}[4][htpb]%
+    {%
+    %
+    \ifthenelse{\value{scaleToStandardFigureWidth}=1}%
+        {%
+        \ifthenelse{\value{scaleFigureIndividual}=1}%
+            {%
+            \setSubFigScale{#2}{\myStandardSideWaysFigureWidth}{1}%      % calculate \subFigScale for standard eps figure
+            \renewcommand{\standardGraphScale}{\subFigScale}%            % This value specifies the scaling factor by which the standard graph is scaled
+            \setlength{\subFigScaleLength}{0pt}%                         % reset \subFigScale
+            }%
+            {%
+            \ifthenelse{\value{isFirstStandardFigure}=1}%
+                {%
+                \setSubFigScale{#2}{\myStandardSideWaysFigureWidth}{1}%      % calculate \subFigScale for standard eps figure
+                \renewcommand{\standardGraphScale}{\subFigScale}%            % This value specifies the scaling factor by which the standard graph is scaled
+                \setlength{\subFigScaleLength}{0pt}%                         % reset \subFigScale
+                \setcounter{isFirstStandardFigure}{0}%
+                }{}%
+            }%
+        }{}%
+    %
+    \includeSideWaysEpsNow[#1]{#2}{#3}{#4}{\standardGraphScale}%
+    }%
+
+
+%========================================================================
+% INSERT WRAPED FIGURES
+
+
+\newcommand{\includeEpsWrap}[6][noPar]%
+    {%
+    \ifthenelse{\value{plotFigures}>0}%%
+        {%
+        \includeEpsWrapNow[#1]{#2}{#3}{#4}{#5}{#6}%%
+        }%
+        {%
+        \settowidth{\figWidth}{\epsfig{file={#3},scale = #6}}%              % obtain eps figure width
+        \settoheight{\figHeight}{\epsfig{file={#3},scale = #6}}%            % obtain eps figure height
+        %\the\figHeight%                                                    % used to tune the scaling factor for \captionSpace, also see captionSpace.xls
+        %
+        \setlength{\figTabWidth}{\figHeight - 31mm}%                         % calculate width of table in frame
+        %
+        %\setlength{\figTabMiddle}{\figWidth / 2}%                          % calculate middle of figure height
+        \setlength{\figTabMiddle}{7mm}%                          % calculate middle of figure height
+        %
+        \settoheight{\captionHeight}{\parbox{\figTabWidth}{#4}}%            % calculate height of caption in table
+        \setlength{\captionSpace}{\figHeight - (\figHeight / 1000 * 198)}%  % calculate height for caption available in table
+        %                                                                   % 25mm for small figures, 44mm for standard 7cm high graphs, 51mm for large figures
+        %
+        \ifthenelse{\equal{#1}{noPar}}%
+            {%
+            \begin{wrapfigure}{#2}{\figWidth+\extraWrapWidth}%%
+                %
+                \vspace{\aboveWrapFigureSpace}%
+                %
+                \framebox{%
+                    %
+                    \setlength{\figWidth}{\figWidth - \frameBoxPenalty}%
+                    \setlength{\figHeight}{\figHeight - \frameBoxPenalty}%
+                    %
+                    \setlength{\unitlength}{1sp}%%         % 1sp = 0.0000152587890625pt = 1/65536pt
+                    \begin{picture}(\number\figWidth,\number\figHeight)%%
+                    \put(\number\figTabMiddle,655360)%%
+                        {%
+                        \tiny%
+                        \rotatebox{90}{%
+                            \begin{tabular}{lp{\the\figTabWidth}}%
+                                \emph{Source:} & #3.eps \\%%
+                                \emph{Scaling:} & #6 \\%%
+                                \ifthenelse{\value{printCaption}=1}{\ifthenelse{\lengthtest{\captionSpace > \captionHeight}}{\emph{Caption:} & #4 \\}{}}{}%%
+                                \emph{Label:} & fig:#5 \\%%
+                            \end{tabular}%
+                            }%
+                        \textnormal%
+                        }%
+                    \end{picture}%%
+                    }%
+                \caption{#4}%%
+                \label{fig:#5}%%
+            \end{wrapfigure}%%
+            }%
+            {%
+            \begin{wrapfigure}[#1]{#2}{\figWidth+\extraWrapWidth}%%
+                %
+                \vspace{\aboveWrapFigureSpace}%
+                %
+                \framebox{%
+                    %
+                    \setlength{\figWidth}{\figWidth - \frameBoxPenalty}%
+                    \setlength{\figHeight}{\figHeight - \frameBoxPenalty}%
+                    %
+                    \setlength{\unitlength}{1sp}%%         % 1sp = 0.0000152587890625pt = 1/65536pt
+                    \begin{picture}(\number\figWidth,\number\figHeight)%%
+                    \put(\number\figTabMiddle,655360)%%
+                        {%
+                        \tiny%
+                        \rotatebox{90}{%
+                            \begin{tabular}{lp{\the\figTabWidth}}%
+                                \emph{Source:} & #3.eps \\%%
+                                \emph{Scaling:} & #6 \\%%
+                                \ifthenelse{\value{printCaption}=1}{\ifthenelse{\lengthtest{\captionSpace > \captionHeight}}{\emph{Caption:} & #4 \\}{}}{}%%
+                                \emph{Label:} & fig:#5 \\%%
+                            \end{tabular}%
+                            }%
+                        \textnormal%
+                        }%
+                    \end{picture}%%
+                    }%
+                \caption{#4}%%
+                \label{fig:#5}%%
+            \end{wrapfigure}%%
+            }%
+        }%
+    }%
+
+
+\newcommand{\includeEpsWrapNow}[6][noPar]%
+    {%
+    \settowidth{\figWidth}{\epsfig{file={#3},scale = #6}}%              % obtain eps figure width
+    \ifthenelse{\equal{#1}{noPar}}%
+        {%
+        \begin{wrapfigure}{#2}{\figWidth+\extraWrapWidth}%
+            \vspace{\aboveWrapFigureSpace}%
+            \epsfig{file=#3,scale=#6}%
+            \caption{#4}%%
+            \label{fig:#5}%%
+        \end{wrapfigure}%
+        }%
+        {%
+        \begin{wrapfigure}[#1]{#2}{\figWidth+\extraWrapWidth}%
+            \vspace{\aboveWrapFigureSpace}%
+            \epsfig{file=#3,scale=#6}%
+            \caption{#4}%%
+            \label{fig:#5}%%
+        \end{wrapfigure}%
+        }%
+    }%
+
+
+
+
+
+
+%========================================================================
+% INSERT LUMPED FIGURES
+
+
+
+\newcommand{\setSubFigScale}[3]%
+    {%
+    %
+    \settowidth{\figWidth}{\epsfig{file={#1},scale = 1}}%                                                                                                               % calculate overall width of one figure
+    \setlength{\figWidth}{\figWidth * #3}%                                                                                                                              % calculate overall width of all figures
+    \setlength{\subFigScaleLength}{(1pt*\ratio{#2 - \interSubSubFigSpace * #3  + \interSubSubFigSpace - \subSubFigPenalty * #3 + \subSubFigPenalty}{\figWidth})}%       % the last term is a correction term to make it slightly smaller
+    \setlength{\subFigScaleLength}{\subFigScaleLength}%                                                                                                                 % the last term is a correction term to make it slightly smaller
+    \pointless{\subFigScale}{\subFigScaleLength}%                                                                                                                       % \subFigScale = 0.5pt -> \subFigScale = 0.5
+    %
+    }%
+
+
+%\newcommand{\printLabel}[1]{; \large\textsc{Label}$\blacktriangleright\mathrm{fig\hspace{-1mm}:\hspace{-1mm}#1}$}  % _ is allowed in label
+%\newcommand{\printLabel}[1]{; \large\textsc{Label}$\blacktriangleright$\texttt{fig:#1}}                             % don't use _ in your label
+\newcommand{\printLabel}[1]{; \large\textsc{Label}$\Rightarrow$\texttt{fig:#1}}                             % don't use _ in your label
+
+
+\newcommand{\aboveCaptionSpace}[1]{\setlength{\subFigureAboveCaptionSpace}{#1 + \subFigureAboveCaptionSpaceDefaultOffset}}
+
+
+\newcommand{\newSubFig}[3][\subFigureAboveCaptionSpaceDefault]%
+    {%
+    \vspace{\subFigureAboveCaptionSpace}%
+    \ifthenelse{\value{plotFigures}>0}%
+        {\caption{\myCaptionText}}%
+        {\caption{\myCaptionText\printLabel{\myLabel}}}%
+    \label{fig:\myLabel}%
+    \end{minipage}%
+    \renewcommand{\myCaptionText}{#3}%                                                   % assign caption
+    \renewcommand{\myLabel}{#2}%                                                                % assign label
+    \vspace{\subFigureBelowCaptionSpace}%
+    \hspace{\interSubFigSpace}%
+    \begin{minipage}{\myStandardSubFigureWidth}%
+    \aboveCaptionSpace{#1}%
+    }%
+
+
+\newcommand{\subFig}[2][.]%
+    {%
+    %
+    \ifthenelse{\value{scaleFigureIndividual}=1}%
+        {%
+        \setSubFigScale{#2}{\myStandardSubFigureWidth}{\numSubSubFigCol}%
+        }%
+        {%
+        \ifthenelse{\equal{\isFirstSubFig}{true}}%
+            {%
+            \setSubFigScale{#2}{\myStandardSubFigureWidth}{\numSubSubFigCol}%
+            \renewcommand{\isFirstSubFig}{false}%
+            }{}%
+        }%
+    %
+    \ifthenelse{\equal{#1}{}}%
+        {\renewcommand{\subfigcapmargin}{\figTabMiddle}}%
+        {\renewcommand{\subfigcapmargin}{10pt}}%                        % default value by subfigure.sty
+    \ifthenelse{\value{plotFigures}>0}%%
+        {%
+        \ifthenelse{\equal{#1}{.}}%
+            {\subfigure{\epsfig{file={#2},scale=\subFigScale}}}%
+            {\subfigure[#1]{\epsfig{file={#2},scale=\subFigScale}}}%
+        }%
+        {%
+        \settowidth{\figWidth}{\epsfig{file={#2},scale = \subFigScale}}%
+        \settoheight{\figHeight}{\epsfig{file={#2},scale = \subFigScale}}%
+        %
+        \setlength{\figWidth}{\figWidth - \frameBoxPenalty}%
+        \setlength{\figHeight}{\figHeight - \frameBoxPenalty}%
+        %
+        \setlength{\figTabWidth}{\figWidth - 20mm}%
+        \setlength{\figTabMiddle}{\figHeight / 2}%
+        %
+        \ifthenelse{\equal{#1}{.}}%
+            {%
+            \subfigure{%
+                \framebox{%
+                    \setlength{\unitlength}{1sp}%
+                    \tiny%
+                    \begin{picture}(\number\figWidth,\number\figHeight)%
+                    \put(0,\number\figTabMiddle)%%
+                        {%
+                        \begin{tabular}{lp{\the\figTabWidth}}%
+                            \emph{Source:} & #2.eps \\%%
+                            \emph{Scaling:} & \subFigScale \\%%
+                            %\emph{Label:} & $\mathrm{\myLabel}$-\thesubfigure \\%%
+                            \emph{Label:} & -\thesubfigure \\%%
+                        \end{tabular}%
+                        }%
+                    \end{picture}%
+                    }%
+                }%
+            }%
+            {%
+            \subfigure[#1]{%
+                \framebox{%
+                    \setlength{\unitlength}{1sp}%
+                    \tiny%
+                    \begin{picture}(\number\figWidth,\number\figHeight)%
+                    \put(0,\number\figTabMiddle)%%
+                        {%
+                        \begin{tabular}{lp{\the\figTabWidth}}%
+                            \emph{Source:} & \extractminiplota{#2} \\%%
+                            \emph{Scaling:} & \subFigScale \\%%
+                            %\emph{Label:} & $\mathrm{\myLabel}$ \\%%
+                            \emph{Label:} & -\thesubfigure \\%%
+                        \end{tabular}%
+                        }%
+                    \end{picture}%
+                    }%
+                }%
+            }%
+        }%
+        %
+        \vspace{\horizontalSubSubFigSpace}%
+        \hspace{\interSubSubFigSpace}%
+        %
+    }%
+
+
+
+\newenvironment{arrangedFigure}[5][htpb]%
+    {%
+    \renewcommand{\myCaptionText}{#5}%                                                   % assign caption
+    \renewcommand{\myLabel}{#4}%                                                                % assign label
+    %
+    \setlength{\myStandardSubFigureWidth}{\myStandardFigureWidth / #2 - \interSubFigSpace + \interSubFigSpace / #2 - \subFigPenalty + \subFigPenalty / #2}%
+    %
+    \renewcommand{\numSubFigCol}{#2}%                                                           % assign number of columns to pass on to calculation of width
+    \renewcommand{\numSubSubFigCol}{#3}%                                                        % assign number of columns to pass on to calculation of width
+    \renewcommand{\isFirstSubFig}{true}%                                                        % initialize variable to calculate figure width for first subfigure listed
+    %
+    \setlength{\figTabMiddle}{\myStandardSubFigureWidth / #3 / 2 - \subSubFigPenalty / 2 + \subSubFigPenalty / #3 / 2 + \subCaptionPenalty}%                              % calculate middle of figure width to place subCaption in the middle of the subFigure
+    \renewcommand{\subfigcapmargin}{\figTabMiddle}%                                             % assign Value
+    %
+    \begin{figure}[#1]%
+        %\begin{center}%
+            %\centerline{%
+                \begin{minipage}{\myStandardFigureWidth}%
+                    \begin{minipage}{\myStandardSubFigureWidth}%
+    }%
+    {%
+                        \vspace{\subFigureAboveCaptionSpace}%
+                        \ifthenelse{\value{plotFigures}>0}%
+                            {\caption{\myCaptionText}}%
+                            {\caption{\myCaptionText\printLabel{\myLabel}}}%
+                        \label{fig:\myLabel}%
+                    \end{minipage}%
+                \end{minipage}%
+            %}%
+        %\end{center}%
+    \end{figure}%
+    %
+    \setlength{\subFigScaleLength}{0pt}%
+    }%
+
+
+
+
+
+\newenvironment{arrangedFigureNow}[5][htpb]%
+    {%
+    \ifthenelse{\value{plotFigures}=0}%
+        {\setcounter{plotFigures}{1}}%
+        {\setcounter{plotFigures}{2}}%
+    \begin{arrangedFigure}[#1]{#2}{#3}{#4}{#5}%
+    }%
+    {%
+    \end{arrangedFigure}%
+    \ifthenelse{\value{plotFigures}=2}%
+        {\setcounter{plotFigures}{1}}%
+        {\setcounter{plotFigures}{0}}%
+    }%
+
+
+%-----------------------------------------------------------
+% SIDE WAYS SUB FIGURE
+
+
+
+\newenvironment{arrangedSideWaysFigure}[5][htpb]%
+    {%
+    \renewcommand{\myCaptionText}{#5}%                                                   % assign caption
+    \renewcommand{\myLabel}{#4}%                                                                % assign label
+    %
+    \setlength{\myStandardSubFigureWidth}{\myStandardSideWaysFigureWidth / #2 - \interSubFigSpace + \interSubFigSpace / #2 - \subFigPenalty}%
+    %
+    \renewcommand{\numSubFigCol}{#2}%                                                           % assign number of columns to pass on to calculation of width
+    \renewcommand{\numSubSubFigCol}{#3}%                                                        % assign number of columns to pass on to calculation of width
+    \renewcommand{\isFirstSubFig}{true}%                                                        % initialize variable to calculate figure width for first subfigure listed
+    %
+    \setlength{\figTabMiddle}{\myStandardSubFigureWidth / #3 / 2 - \subSubFigPenalty / 2 + \subSubFigPenalty / #3 / 2 + \subCaptionPenalty}%                              % calculate middle of figure width to place subCaption in the middle of the subFigure
+    \renewcommand{\subfigcapmargin}{\figTabMiddle}%                                             % assign Value
+    %
+    \begin{sidewaysfigure}[#1]%
+        %\begin{center}%
+            %\centerline{%
+                \begin{minipage}{\myStandardSideWaysFigureWidth}%
+                    \begin{minipage}{\myStandardSubFigureWidth}%
+    }%
+    {%
+                        \vspace{\subFigureAboveCaptionSpace}%
+                        \ifthenelse{\value{plotFigures}>0}%
+                            {\caption{\myCaptionText}}%
+                            {\caption{\myCaptionText\printLabel{\myLabel}}}%
+                        \label{fig:\myLabel}%
+                    \end{minipage}%
+                \end{minipage}%
+            %}%
+        %\end{center}%
+    \end{sidewaysfigure}%
+    %
+    \setlength{\subFigScaleLength}{0pt}%
+    }%
+
+
+
+
+
+\newenvironment{arrangedSideWaysFigureNow}[5][htpb]%
+    {%
+    \ifthenelse{\value{plotFigures}=0}%
+        {\setcounter{plotFigures}{1}}%
+        {\setcounter{plotFigures}{2}}%
+    \begin{arrangedSideWaysFigure}[#1]{#2}{#3}{#4}{#5}%
+    }%
+    {%
+    \end{arrangedSideWaysFigure}%
+    \ifthenelse{\value{plotFigures}=2}%
+        {\setcounter{plotFigures}{1}}%
+        {\setcounter{plotFigures}{0}}%
+    }%
+
+
+%========================================================================
+% RESET MINI PLOT
+
+
+\newcommand{\resetMiniPlot}%
+    {%
+    \setcounter{printCaption}{1}
+    \setlength{\extraWrapWidth}{2mm}    % default value = 2mm, can be redefined in text
+    \setlength{\aboveWrapFigureSpace}{0mm}
+    \renewcommand{\standardGraphScale}{1} % This value specifies the scaling factor by which the standard graph is scaled
+    \setcounter{scaleToStandardFigureWidth}{1}
+    \setcounter{isFirstStandardFigure}{1}
+    \setcounter{scaleFigureIndividual}{1}
+    \setlength{\frameBoxPenalty}{2.4mm}
+    \setlength{\myStandardFigureWidth}{\linewidth}                  % sets the width of all standard figures, can be redefined
+    \setlength{\myStandardSubFigureWidth}{\myStandardFigureWidth}   % sets the width of all standard sub figures, is adjusted automatically
+    \setlength{\myStandardSideWaysFigureWidth}{\textheight}
+    \renewcommand{\isFirstSubFig}{false}                  % boolean value to calculate the subFigScale only the first time one calls \subFig[]{}
+    \setlength{\subFigPenalty}{0mm}                    % let subfigure.sty arrage all subfigures in the avaiable space
+    \setlength{\subSubFigPenalty}{0.001mm}               % let subfigure.sty arrage all subfigures in the avaiable space
+    \setlength{\interSubFigSpace}{8mm}
+    \setlength{\interSubSubFigSpace}{2.5mm}
+    \setlength{\subFigureAboveCaptionSpaceDefaultOffset}{0mm}
+    \setlength{\subFigureAboveCaptionSpaceDefault}{0mm} % use this to equal out spaces due to different number of lines of
+    \setlength{\subFigureAboveCaptionSpace}{\subFigureAboveCaptionSpaceDefault + \subFigureAboveCaptionSpaceDefaultOffset}
+    \setlength{\horizontalSubSubFigSpace}{0mm}
+    \setlength{\subFigureBelowCaptionSpace}{3mm}
+    \setlength{\subCaptionPenalty}{0mm}
+    %\setcounter{plotFigures}{1}             % plot figures {1} or not {0}
+    }%

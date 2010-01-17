@@ -1,0 +1,67 @@
+%% This file is a part of the ArmTeX 2.0
+%% [1999/06/01 v2.0 ot6enc.def (OT6 encoding definition file)]
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%% Double input protection.
+%%
+\expandafter\ifx\csname ArmTeX@EncDefLoaded\endcsname\relax
+\let\ArmTeX@EncDefLoaded\null\else\endinput\fi
+
+
+%% Begining of the code.
+%%
+\ProvidesFile{ot6enc.def}
+  [1999/06/01 v2.0 ot6enc.def (OT6 encoding definition file)]
+
+
+%% Declaring the encoding.
+%%
+\DeclareFontEncoding{OT6}{}{}
+
+
+%% Loading Font definition files.
+%%
+\newcommand{\ArmTeX@LoadFd}[1]{%
+  \InputIfFileExists{ot6#1.fd}{}
+    {\PackageError{ArmTeX}
+      {Font definition file `ot6#1.fd' not found.\MessageBreak
+       Check your installation}
+      {It seems that there is a problem with your installation.\MessageBreak
+       Normally the file `ot6#1.fd' should have been present on your system.\MessageBreak
+       But apparently it isn't !!!\MessageBreak
+       It is better to stop at this point and to check your installation.}}}
+\ArmTeX@LoadFd{cmr}
+\ArmTeX@LoadFd{cmss}
+
+
+%% Declaring default font substitution.
+%%
+\DeclareFontSubstitution{OT6}{cmr}{m}{n}
+
+
+%% Encoding specific definitions.
+%%
+
+%% The LaTeX macros "\{", "\}" and "\$" use "\text..." commands, so adjusted automaticaly.
+\DeclareTextSymbol{\textbraceleft}{OT6}{94}
+\DeclareTextSymbol{\textbraceright}{OT6}{95}
+\DeclareTextSymbol{\textdollar}{OT6}{36}
+
+%% The LaTeX macros "\#", "\%" and "\&" use current font, so not need to be adjusted.
+\DeclareTextSymbol{\texthash}{OT6}{35}
+\DeclareTextSymbol{\textpercent}{OT6}{37}
+\DeclareTextSymbol{\textand}{OT6}{38}
+
+%% The LaTeX macros "\!", "\?", "\|" and "\*" will be (re)defined.
+\DeclareTextSymbol{\textexclam}{OT6}{126}
+\DeclareTextSymbol{\textquestion}{OT6}{127}
+\DeclareTextCommand{\textanjgic}{OT6}{\leavevmode
+    \kern0.02em\vrule height0.4ex depth-0.25ex width0.8em\kern0.02em\relax}
+\DeclareTextCommand{\textbreaklig}{OT6}{{\kern0pt}}
+
+
+%% That's all, Folks!
+%%
+\endinput

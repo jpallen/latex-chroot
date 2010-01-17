@@ -1,0 +1,164 @@
+% This is ITALA.MF 
+% Version 1.0a 
+% Date 8-SEP-1991
+% 
+% (c) 1991 by J"org Knappen. See fc.rme for copying conditions
+% This file is part of the fc-package 
+% See fc.rme for more information
+%
+% J"org Knappen
+% Institut f"ur Kernphysik
+% Postfach 39 80
+% D-W 6500 Mainz
+% knappen@vkpmzd.kph.uni-mainz.de
+
+% Contents:
+%
+% The following characters are generated without condition:
+%
+% a
+%
+% And the following on demand, i. e. if their code is known:
+%
+% a_grave, a_acute, a_hat, a_tilde, a_umlaut, ae_lig (\ae)
+%
+% Higher versions of this file might include more characters.
+
+cmchar "Italic letter a";
+beginchar("a",9u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(0,0); pickup fine.nib;
+pos0(hair,0); pos1(vair,90); pos2(curve,180); pos3(vair,270);
+pos4(stem,0); x4=x0; y4+.5stem=vround .98h;
+x1=x3=.5[x0,x2]; lft x2r=hround(1.5u-.5curve);
+rt x4r=hround(w-2.5u+.5stem);
+top y1r=h+oo; bot y3r=-oo; y0=y2=.5[y1,y3];
+filldraw stroke super_arc.e(0,1) & pulled_arc.e(1,2)
+ & pulled_arc.e(2,3) & super_arc.e(3,0);  % bowl
+x5=x4; x7=w; hook_out(5,6,7);  % closing hook
+filldraw circ_stroke z4e--z5e;  % stem
+picture savedpicture;
+savedpicture:=currentpicture;
+math_fit(-.3x_height#*slant+.5curve#-u#,ic#);
+penlabels(0,1,2,3,4,5,6,7); endchar;
+
+iff known a_umlaut:
+cmchar "The letter a with trema";
+beginchar(a_umlaut,9u#,min(asc_height#,10/7x_height#+.5flare#),0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+currentpicture:=savedpicture;
+pickup tiny.nib; pos1(flare,0); pos2(flare,90);
+x1=x2=good.x(.5w-1.75u); top y2r=h+1;
+if bot y2l<x_height+o+slab: y2l:=min(y2r-eps,x_height+o+slab+.5tiny); fi
+y1=.5[y2l,y2r]; dot(1,2);  % left dot
+pos3(flare,0); penpos4(y2r-y2l,90); y3=y4=y1; x3=x4=good.x(.5w+1.75u);
+dot(3,4);  % right dot
+penlabels(1,2,3,4); endchar;
+
+iff known a_tilde:
+cmchar "The letter a with tilde";
+beginchar(a_tilde,9u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+currentpicture:=savedpicture;
+if serifs: numeric theta; theta=angle(1/6(6u-vair),1/4(h-x_height));
+ pickup crisp.nib; numeric mid_width; mid_width=.4[vair,stem];
+ pos1(vair,theta+90); pos2(vair,theta+90);
+ pos3(vair,theta+90); pos4(vair,theta+90);
+ z2-z1=z4-z3=(mid_width-crisp)*dir theta;
+ lft x1r=hround(1/6w);rt x4l=hround(3/4w); top y4r=h;
+ bot y1l=vround(bot y1l+min(2/3[x_height,h],y3l-.25vair)-top y1r);
+ pair delta; ypart delta=3(y3l-y1l); delta=whatever*dir theta;
+ filldraw z1l..controls(z1l+delta)and(z3l-delta)..z3l..z4l
+  --z4r..controls(z4r-delta)and(z2r+delta)..z2r..z1r--cycle;  % stroke
+else: pickup fine.nib; pos1(vair,180); pos2(vair,90);
+ pos3(.5[vair,slab],90); pos4(vair,90); pos5(vair,180);
+ lft x1r=hround(1/6w);rt x5l=hround(5/6w); x2-x1=x3-x2=x4-x3=x5-x4;
+ bot y1=bot y4l=vround(.75[x_height,h]-vair);
+ top y2r=top y5=h; y3=.5[y2,y4];
+ filldraw stroke z1e{up}...z2e{right}..z3e..{right}z4e...{up}z5e; fi % stroke
+penlabels(1,2,3,4,5); endchar;
+
+iff known a_grave:
+cmchar "The letter a with gravis";
+beginchar(a_grave,9u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+currentpicture:=savedpicture;
+if serifs: pickup crisp.nib; x1=hround(.5w-2.5u+.5stem); 
+  x2=hround(.5w+5/6u);
+ y1+.5stem=h+eps; y2=max(2/3[h,x_height],x_height+o+hair);
+ numeric theta; theta=angle(z2-z1)+90;
+ pos1(stem,theta); pos2(hair,theta);
+ filldraw circ_stroke z1e--z2e;  % diagonal
+else: pickup fine.nib; pos1(stem,0); pos2(vair,0);
+ lft x1l=hround(.5w-3u); rt x2r=hround(.5w+.25u+.5vair);
+ top y1=h; bot y2=vround 2/3[h,x_height];
+ filldraw stroke z1e--z2e; fi  % diagonal
+penlabels(1,2); endchar;
+
+iff known a_acute:
+cmchar "The letter a with acute";
+beginchar(a_acute,9u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+currentpicture:=savedpicture;
+if serifs: pickup crisp.nib; x1=hround(.5w+2.5u-.5stem); 
+  x2=hround(.5w-5/6u);
+ y1+.5stem=h+eps; y2=max(2/3[h,x_height],x_height+o+hair);
+ numeric theta; theta=angle(z2-z1)+90;
+ pos1(stem,theta); pos2(hair,theta);
+ filldraw circ_stroke z1e--z2e;  % diagonal
+else: pickup fine.nib; pos1(stem,0); pos2(vair,0);
+ rt x1r=hround(.5w+3u); lft x2l=hround(.5w-.25u-.5vair);
+ top y1=h; bot y2=vround 2/3[h,x_height];
+ filldraw stroke z1e--z2e; fi  % diagonal
+penlabels(1,2); endchar;
+
+iff known a_hat:
+cmchar "The letter a with circumflex";
+beginchar(a_hat,9u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+currentpicture:=savedpicture;
+if serifs: 
+ pickup crisp.nib; pos2(.5[vair,curve],90); top y2r=h; x2=.5w;
+ x1=good.x(.5w-2.25u); x3=good.x(.5w+2.25u); y1=y3=.5[x_height,y2];
+ pos1(hair,angle(z2-z1)+90); pos3(hair,angle(z3-z2)+90);
+ filldraw stroke z1e--z2e--z3e;  % diagonals
+else:
+ pickup fine.nib; pos1(vair,0); pos3(vair,0);
+ pos2(stem,0); top y2=h; x2=.5w; bot y1=bot y3=vround 2/3[h,x_height]-eps;
+ rt x3r=hround(lft x2l+3.25u+.5vair);
+ lft x1l=hround(rt x2r-3.25u-.5vair); % same slope as in the acute accent
+ z0=whatever[z1r,z2r]=whatever[z2l,z3l];
+ y4l=y4r=y2; x4l=good.x .2[x2l,x2]; x4r=good.x(.2[x2r,x2]);
+ filldraw z4l--z1l--z1r--z0--z3l--z3r--z4r--cycle; fi  % diagonals
+penlabels(0,1,2,3,4); endchar;
+
+savedpicture:=nullpicture;
+
+iff known ae_lig:
+cmchar "Italic ligature ae";
+beginchar(ae_lig,13u#,x_height#,0);
+italcorr max(1/3x_height#*slant,x_height#*slant+.5(.2[hair#,stem#])-u#);
+adjust_fit(if monospace:-u#,-u# else: 0,0 fi); pickup fine.nib;
+forsuffixes $=hair,stem: shaved$:=mfudged$; save $; $=shaved$; endfor
+numeric heavy_hair; heavy_hair=hround .2[hair,stem];
+numeric light_stem; light_stem=hround .75[hair,stem];
+pos0(vair,-90); pos1(heavy_hair,0); pos2(vair,90);
+pos3(light_stem,180); pos4(vair,270); pos5(hair,320);
+x0=rt x3l; rt x1r=hround(w-1.5u+.5heavy_hair); x2=x4=.5(w+6u);
+lft x3r=hround(.5w-.5light_stem); x5r=good.x(w-.5u); x6=x5;
+y0=y3=y6=bar_height; y1=.5[y0,y2]; top y2r=h+oo; bot y4r=-oo;
+top y5l=vround(.5bar_height+.5); path p; p=z4{right}..z5..z6;
+filldraw stroke z0e{right}...z1e{up}...pulled_arc.e(2,3)
+ & pulled_arc.e(3,4)...{direction 1 of p}z5e;  % arc of e
+pos7(light_stem,0); pos8(light_stem,0);
+x7=x8=x3; y7+.5light_stem=h+oo; y8-.5light_stem=-oo;
+pos7'(vair,-225); pos11(curve,-180); z7'=z7;
+pos12(vair,-90); pos3'(hair,0); z3'=z3;
+lft x11r=hround(1.5u-.5curve); x12=.5[x11,x3];
+y11=.3[y12,y7]; bot y12r=-oo;
+filldraw stroke z7'e{3(x11-x7),y11-y7}...pulled_arc.e(11,12)
+ & pulled_arc.e(12,3');  %  bowl of a
+filldraw z7l---z8l..z8r---z7r..cycle;  % stem
+penlabels(0,1,2,3,4,5,6,7,8,11,12); endchar;
+
+  endinput;

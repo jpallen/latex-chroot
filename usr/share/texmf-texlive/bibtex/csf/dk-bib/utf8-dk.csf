@@ -1,0 +1,127 @@
+%%% utf8-dk.csf --- Danish UTF-8 sorting order file for bibtex8
+
+%% Copyright (C) 2005 Arne Jorgensen
+
+%% Author: Arne Jorgensen <arne.jorgensen@tug.dk>
+%% Version: $Id: utf8-dk.csf 71 2005-08-05 22:44:05Z arne $
+
+%% This file is free software; you can redistribute it and/or modify
+%% it under the terms of the GNU General Public License as published
+%% by the Free Software Foundation; either version 2 of the License,
+%% or (at your option) any later version.
+
+%% This file is distributed in the hope that it will be useful, but
+%% WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+%% General Public License for more details.
+
+%% You should have received a copy of the GNU General Public License
+%% along with this file; if not, write to the Free Software
+%% Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+%% 02110-1301, USA.
+
+%%% Commentary:
+
+%% This is a VERY EXPERIMENTAL shot at making a sorting order file for
+%% the Danish language and the UTF-8 character set.
+
+%% Generally it should not be possible to fit a sorting of the UTF-8
+%% character set into bibtex8's scheme, but we try to use some hacks
+%% and unexplained behaviour to fit it in anyway.
+
+%% As we said VERY EXPERIMENTAL.
+
+%% Please report any experiences to the author.
+
+%%% Code:
+
+%%% Character Set:
+
+%%  Whether this really works for UTF-8 is a big question. Please
+%%  report expriences with it.
+
+\lowupcase{
+    ^^a0 ^^80         % \`{a}    \`{A}
+    ^^a1 ^^81         % \'{a}    \'{A}
+    ^^a2 ^^82         % \^{a}    \^{A}
+    ^^a3 ^^83         % \~{a}    \~{A}
+    ^^a4 ^^84         % \"{a}    \"{A}
+    ^^a5 ^^85         % \ring{a} \ring{A}
+    ^^a6 ^^86         % \ae      \AE
+    ^^a7 ^^87         % \c{c}    \c{C}
+    ^^a8 ^^88         % \`{e}    \`{E}
+    ^^a9 ^^89         % \'{e}    \'{E}
+    ^^aa ^^8a         % \^{e}    \^{E}
+    ^^ab ^^8b         % \"{e}    \"{E}
+    ^^ac ^^8c         % \`{\i}   \`{I}
+    ^^ad ^^8d         % \'{\i}   \'{I}
+    ^^ae ^^8e         % \^{\i}   \^{I}
+    ^^af ^^8f         % \"{\i}   \"{I}
+    ^^b0 ^^90         % eth      ETH
+    ^^b1 ^^91         % \~{n}    \~{N}
+    ^^b2 ^^92         % \`{o}    \`{O}
+    ^^b3 ^^93         % \'{o}    \'{O}
+    ^^b4 ^^94         % \^{o}    \^{O}
+    ^^b5 ^^95         % \~{o}    \~{O}
+    ^^b6 ^^96         % \"{o}    \"{O}
+    ^^b8 ^^98         % \o       \O
+    ^^b9 ^^99         % \`{u}    \`{U}
+    ^^ba ^^9a         % \'{u}    \'{U}
+    ^^bb ^^9b         % \^{u}    \^{U}
+    ^^bc ^^9c         % \"{u}    \"{U}
+    ^^bd ^^9d         % \'{y}    \'{Y}
+    ^^be ^^9e         % thorn    THORN
+}
+
+%%% Sorting Order:
+
+%% For sorting we rely on the fact that the most used and relevant
+%% parts of the special characters in Danish in UTF-8 is encoded as
+%% the two-byte combination of a ^^c3 and a second byte which is
+%% placed above value ^^7f and thus does not collide with the normal
+%% character ranges.
+
+%% So we leave out ^^c3 of the sorting order and there by ignoring
+%% it's presence (it shouldn't be ignored, but sorted last, but it
+%% actually IS ignored) and let the second byte decide the order of
+%% the character.
+
+\order{
+    0-9                                              % 0-9
+    A ^^81 ^^80 ^^82 ^^83 a ^^a1 ^^a0 ^^a2 ^^a3      % A \'{A} \`{A} \^{A} \~{A} a \'{a} \`{a} \^{a} \~{a}
+    B b                                              % B b
+    C ^^87 c ^^a7                                    % C \c{C} c \c{c}
+    D ^^90 d ^^b0                                    % D ETH d eth
+    E ^^89 ^^88 ^^8b ^^8a e ^^a9 ^^a8 ^^ab ^^aa      % E \'{E} \`{E} \"{E} \^{E} e \'{e} \`{e} \"{e} \^{e}
+    F f                                              % F f
+    G g                                              % G g
+    H h                                              % H h
+    I ^^8d ^^8c ^^8f ^^8e i ^^ad ^^ac ^^af ^^ae      % I \'{I} \`{I} \"{I} \^{I} i \'{\i} \`{\i} \"{\i} \^{\i}
+    J j                                              % J j
+    K k                                              % K k
+    L l                                              % L l
+    M m                                              % M m
+    N ^^91 n ^^b1                                    % N \~{N} n \~{n}
+    O ^^93 ^^92 ^^94 ^^95 o ^^b3 ^^b2 ^^b4 ^^b5      % O \'{O} \`{O} \^{O} \~{O} o \'{o} \`{o} \^{o} \~{o}
+    P p                                              % P p
+    Q q                                              % Q q
+    R r                                              % R r
+    S s                                              % S s
+    T ^^9e t ^^be                                    % T THORN t thorn
+    U ^^9a ^^99 ^^9b u ^^ba ^^b9 ^^bb                % U \'{U} \`{U} \^{U} u \'{u} \`{u} \^{u}
+    V v                                              % V v
+    W w                                              % W w
+    X x                                              % X x
+    Y ^^9c ^^9d y ^^bc ^^bd ^^bf                     % Y \"{U} \'{Y} y \"{u} \'{y} \"{y}
+    Z z                                              % Z z
+    ^^86 ^^84 ^^a6 ^^a4                              % \AE \"{A} \ae \"{a}
+    ^^98 ^^96 ^^b8 ^^b6                              % \O \"{O} \o \"{o}
+    ^^85 ^^a5                                        % \ring{A} \ring{a}
+}
+
+%% Local Variables:
+%% coding: raw-text
+%% comment-start: "%% "
+%% End:
+
+%%% utf8-dk.csf ends here

@@ -1,0 +1,249 @@
+% morehelp.eng version 0.1       1997 by Olaf Kummer
+%
+% see morehelp.README for explanations
+%
+% It contains a list of the error messages for which we can provide
+% a more elaborate description. \morehelp@try{prefix}{message}
+% suggests that the message might be output, if the current
+% error text starts with the prefix. It is sometimes
+% impossible to match the complete error message as there
+% might be variable parts. It might be useful to parse
+% the variable parts to get a more detailed picture of the
+% error.
+%
+% \morehelp@try@expand will expand its second argument
+% for checking conditions like math mode etc.
+%
+% These error messages are sorted according to the
+% alphabetic characters of the message, ignoring any
+% backslashes or other special characters.
+%
+% Great care must be taken so that no spurious spaces
+% are present in this text.
+%
+\morehelp@try{Bad \protect\line\space or \protect\vector\space argument}{%
+  You were using a picture environment and LaTeX did not like
+  your syntax of the line drawing commands. Check the source}%
+%
+\morehelp@try@expand{Bad math environment delimiter}{%
+  \ifmmode
+    You probably used \noexpand\protect\noexpand\( or
+    \noexpand\protect\noexpand\[ at a point where you were^^J%
+    already in math mode. Maybe you failed to close math mode^^J%
+    earlier on\if@additional@error, or TeX was confused by an error and^^J%
+    wrongly switched to math mode\fi.\MessageBreak
+    ^^J%
+    On the other hand, you might be in math mode, but you started^^J% 
+    math mode with \noexpand\protect\noexpand\[ and stopped with
+    \noexpand\protect\noexpand\) or vice versa%
+  \else
+    You probably used \noexpand\protect\noexpand\) or
+    \noexpand\protect\noexpand\] at a point where you were^^J%
+    not in math mode. Either you failed to start math mode^^J%
+    earlier on, or TeX was confused by an error and^^J%
+    wrongly switched to math mode%
+  \fi}%
+%
+\morehelp@try{Can be used only in preamble}{%
+  You issued a command like \protect\documentclass,^^J%
+  \protect\includeonly, \protect\makeindex, \protect\makeglossary, or^^J%
+  \protect\nofiles\space after LaTeX started the body of the^^J%
+  document. Move it where it belongs}%
+%
+\morehelp@try{Command \@backslashchar\reserved@a\space already defined}{%
+  You have probably declared a command using \protect\newcommand.^^J%
+  The name you chose was already in use, so LaTeX complained.^^J%
+  Choose a different name for your macro, or use^^J%
+  \protect\renewcommand\space if you absolutely have to redefine^^J%
+  this command}%
+%
+% The next two cannot be distiguished by the current means.
+\morehelp@try@expand{Command \protect}{% ... invalid in math mode
+                                       % ... unavailable in encoding ...
+  \ifmmode
+    You probably used a text command in math mode. If you^^J%
+    switched to math mode without wanting to, correct^^J%
+    that error first. If you wanted to use this command^^J%
+    in math mode, temporarily switch to text mode using a box^^J%
+    or find some suitable math mode macro as a replacement.^^J%
+    ^^J%
+    There is an off chance that you issued the offending^^J%
+    command from within the wrong font encoding%
+  \else
+    You used an enconding specific command from within the^^J%
+    wrong encoding%
+  \fi}%
+%
+\morehelp@try{Counter too large}{%
+  You tried to print the content of a counter as a letter and^^J%
+  the counter was greater than 26. This might happen if^^J%
+  you have too many appendices, extremely long enumerations, or too^^J%
+  many footnotes on a minipage. This is usually an indicator^^J%
+  that the document structure should be improved. If you^^J%
+  absolutely need it this way, use numbers instead of letters}%
+%
+%\morehelp@try{Environment}{% ... undefined
+%}%
+% can be caused by \renewenvironment and by \begin.
+% This requires entirely different error messages.
+% As the ordinary messages are pretty clear, I will not
+% try to make any guesses.
+%
+\morehelp@try{Float(s) lost}{%
+  You used a floating object (a \protect\marginpar, a figure, or^^J%
+  a table) within a vertical box (a minipage, a parbox, or^^J%
+  even a footnote). The error is probably much earlier in the^^J%
+  document. Look at the output to determine which float was lost}%
+%
+\morehelp@try{\ifcase }% Illegal character\or
+  % Missing @-exp\or Missing p-arg\fi\space in array arg
+{%
+  In the formating parameter of a tabular or a multicolumn^^J%
+  command you did not adhere to the right syntax.^^J%
+  Maybe you left out a mandatory argument or you specified^^J%
+  an illegal format character}%
+%
+\morehelp@try{\string\<\space in mid line}{%
+  You used the command \protect\<\space when you were not^^J%
+  at the beginning of a line in your tabbing environment.^^J%
+  Either you forgot a line break or you wanted to use a different^^J%
+  command (like \protect\>) or you missed another command somewhere}%
+%
+\morehelp@try{Lonely \string\item--perhaps a missing list environment}{%
+  If you did specify a list and if the offending \protect\item^^J%
+  command is indeed inside the list, maybe the list was^^J%
+  terminated too early by a different \protect\end\space command}%
+%
+\morehelp@try{Missing \protect\begin}{% ...{document}
+  Somehow LaTeX began the actual typesetting process^^J%
+  before it encountered the \protect\begin{document}^^J%
+  command. If there were other errors before, try to tackle^^J%
+  those first.^^J%
+  ^^J%
+  But maybe you forgot a comment sign somewhere? Or you^^J%
+  forgot a \protect\ so that LaTeX treated a command name^^J%
+  as text? Perhaps you really typed text in the preamble?^^J%
+  Did you invoke a command like \protect\tableofcontents\space in the^^J%
+  preamble? It belongs in the text body. However improbable,^^J%
+  it is possible that you left out the \protect\begin{document}}%
+%
+\morehelp@try{No counter}{% ... defined
+  LaTeX tried to access a counter that is unknown.^^J%
+  Either you misspelled the name, or you misspelled the name^^J%
+  during the definition. Or maybe you tried to reference^^J%
+  a counter like chapter that does not exist in all^^J%
+  document classes}%
+%
+\morehelp@try{\noexpand}{% ... undefined
+  You were applying \protect\renewcommand^^J%
+  to a command that has not been defined before. Check your^^J%
+  spelling. If that is right, use \protect\newcommand\space or^^J%
+  \protect\providecommand}%
+%
+\morehelp@try{\noexpand\verb ended by end of line}{%
+  The argument of a \protect\verb\space command must not span^^J%
+  multiple lines. And by the way, it is not delimited^^J%
+  by braces, but by two identical characters to the left^^J%
+  and to the right}%
+%
+\morehelp@try{\noexpand\verb illegal in command argument}{%
+  \protect\verb\space must not be used inside the arguments of other^^J%
+  commands. Move the \protect\verb\space outside the offending^^J% 
+  command or try to replace it by an environment}%
+%
+\morehelp@try{Not in outer par mode}{%
+  You inserted a floating item like a \protect\marginpar\space command,^^J%
+  a figure, or a table, but you were inside another^^J%
+  box construction. Move the floating item to a place^^J%
+  where you are typesetting ordinary text. You will probably^^J%
+  get some more errors due to this one}%
+%
+\morehelp@try{\protect\begin}{% {...} ended by \end{...}
+  Your environments are not properly nested. Maybe you^^J%
+  forgot to terminate a previous environment? Or you^^J%
+  changed an environment (like enumerate and itemize)^^J%
+  and forgot to adapt the end?^^J%
+  ^^J%
+  You might want to look at the output to determine which^^J%
+  environment caused the trouble. If you cannot spot^^J%
+  the error, try to uncomment parts of your document}%
+%
+\morehelp@try{\protect\pushtabs\space and \protect\poptabs
+  \space don't match}%
+{%
+  In a tabbing environment you did not match every^^J%
+  \protect\pushtab\space by a \protect\poptab, or there were too many^^J%
+  \protect\pushtab\space commands. Look at the source and count}%
+%
+\morehelp@try{Something's wrong--perhaps a missing \protect\item}{%
+  Usually you left out an \protect\item\space in a list environment.^^J%
+  Note that the problem is reported a bit too late, namely at^^J%
+  the end of the list or just after the first \protect\item\space that you^^J%
+  have actually inserted. It is even possible that a wrongly^^J%
+  placed \protect\item\space triggers this error.^^J%
+  ^^J%
+  It might also be that you used the command \protect\addvspace^^J%
+  in the middle of a paragraph. It must only be used between^^J%
+  two paragraphs}%
+%
+\morehelp@try{\string\include\space cannot be nested}{%
+  You tried to use \protect\include in a file that was^^J%
+  itself included by \protect\include. Perhaps you meant^^J%
+  to use \protect\input instead? If not, restructure^^J%
+  your document}%
+%
+\morehelp@try{Tab overflow}{%
+  Possibly the tabbing environment that is currently processed is^^J%
+  simply too complex. You might consider a different structure of^^J%
+  your table, but first look at the source to see if the syntax^^J%
+  was used correctly}%
+%
+\morehelp@try{There's no line here to end}{%
+  You used \protect\newline, \protect\linebreak, \protect\\ or^^J%
+  the like, but you did not start a paragraph yet. If^^J%
+  you want to insert text later, better leave out the^^J%
+  offending command until then. If you wanted to achieve^^J%
+  a vertical spacing effect, better use \protect\bigskip,^^J%
+  \protect\vspace, and the related commands}%
+%
+\morehelp@try{This may be a LaTeX bug}{%
+  Probably this isn't a LaTeX bug. Maybe LaTeX got screwed^^J%
+  up by earlier errors. Maybe you redefined an internal ^^J%
+  macro of LaTeX. If this isn't the case, look at the output^^J% 
+  and call a wizard}%
+%
+\morehelp@try{Too deeply nested}{%
+  You used too many lists (list, enumerate, itemize)^^J%
+  nested within each other. Maybe you forgot to terminate^^J%
+  a previous list? If you did not, you might have to rethink^^J%
+  the document structure in order to reduce the depth of the^^J%
+  nesting}%
+%
+\morehelp@try{Too many columns in eqnarray environment}{%
+  Usually exactly three columns should be used in an^^J%
+  eqnarray environment. Maybe you forgot a line break?^^J%
+  If you need more than three columns, try the array^^J%
+  environment}%
+%
+\morehelp@try{Too many unprocessed floats}{%
+  LaTeX has accumulated a lot of floating items and can only^^J%
+  proceed by forgetting some of them. Floating items might be^^J%
+  \protect\marginpars, figures, or tables. ^^J%
+  ^^J%
+  If you do not use \protect\marginpars, see if you issue many figure ^^J%
+  environments in quick succession, possibly without any interleaving^^J%
+  text. In that case, you might first try to add a \protect\clearpage^^J%
+  now and then.^^J%
+  ^^J%
+  On the other hand, you might have enough ordinary text, but some of^^J%
+  your figures cannot be placed appropriately, such figures will be ^^J%
+  delayed by LaTeX until the very end of a chapter. Overly restrictive^^J%
+  placement arguments, e.g. [h], might also cause this problem}%
+%
+\morehelp@try{Undefined tab position}{%
+  You were using a tabbing environment and tried to access a tab mark^^J%
+  that was not specified. Maybe you even left out a line break}%
+%
+\endinput
+%
+

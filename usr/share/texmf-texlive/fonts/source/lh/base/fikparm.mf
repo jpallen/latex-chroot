@@ -1,0 +1,296 @@
+%
+% fikparm.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+%
+% Content:
+%
+% File with modified macros for font startup from polish fik_mik.mf
+%   (Bogus\l{}aw Jackowski and Marek Ry\'cko)
+% and
+% start of Lig & kerns block from lkligtbl.mf (Alexander Berdnikov)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Contents:
+%
+% |LHver_check| like exbase's |version_check|
+% If unknown fonteq: def fonteq
+% If unknown genmode: set genmode
+% Set param_base (it could be reset in fontbegin file)
+% Set flags for input glyph files (they could be reset in fontbegin file)
+% Set flags for letter shapes: not supported by current version (-"-)
+% Input fontbegin file (if necessary)
+% Defining boolean altcoding
+% Input cmbase and lcyrbeg (file with macros for ec param file)
+% input lkligtbl.mf (ligs & kerns block of A.Berdnikov)
+% Redefining `generate' macro
+% Use_driver macro:
+%  input parameter file
+%  set font_identifier (and gensize for ec)
+%  input coding file
+%  input Cyrillic definitions file
+%  input driver file
+%
+% FINAL: START FONT -- use_driver(fonteq)
+%
+
+
+% defining LHver_check 3.5
+%
+lh_maj_ver:=3; lh_min_ver:=5; % version identification
+def LHver_check(expr e,f)=
+ if     e>lh_maj_ver: message "LH font warning: Obsolete base";
+ elseif e<lh_maj_ver: message "LH font warning: File from old release found";
+ else: % e=lh_maj_ver: OK
+   if     f>lh_min_ver: message "LH font warning: Obsolete base";
+   elseif f<lh_min_ver: message "LH font warning: File from old release found";
+   else: % f=lh_min_ver: LH version is OK
+   fi
+ fi
+enddef;
+
+% changed fonteq with genmode must precede fikparm:
+
+% -- set value of first letters to change
+if unknown fonteq:
+   def fonteq=2 enddef;
+fi
+
+% -- set boolean for cmbright fonts (vvv)
+if unknown cmbright: boolean cmbright;
+  if unknown ebbase:
+     cmbright:=false;
+     ebbase:=0; 
+  else: cmbright:=true;
+  fi;
+fi
+
+% -- set genmode string: the name of first letters
+if unknown genmode:
+   string genmode; genmode:="cm";
+fi
+if genmode="dc": genmode:="ec";
+   message "We use ec fonts only";  message "";
+fi
+
+% -- |param_base| can be changed only in begin file
+string param_base; param_base:=jobname;
+
+% -- selfhelp
+% fonteq     -- *number* of  first (two, three or even four) letters from
+%   current font which are changed to letters from a standard/popular font
+%   header to input necessary parameters; it's entered *only* in font headers;
+% genmode    -- *the name* of first two, three or even four letters from
+%   a standard/popular font header to input necessary parameters;
+%   it's entered both in font headers and in fontbegin file (if fonteq wasn't
+%   changed); it must consist of *fonteq* letters,
+% param_base -- default: *jobname*;
+%   one may use encoding and kern&ligs data from another font data in case of
+%   changing param_base to necessary name (e.g. ll* virtual fonts use
+%   lh* 8-bit font data with `vfcoding:=true;' command); param_base must
+%   be changed *in fontbegin file only*.
+%
+
+% -- name of encoding for T2/X2
+string enc_name;
+
+% next booleans are used in ??begin files:
+
+% -- set booleans for font stuff
+boolean wncoding,vfcoding,roman_ec;
+wncoding:=false;
+vfcoding:=false;
+roman_ec:=false;
+
+% -- set flags for Cyrillic letter assortment
+boolean more_letters,old_cyr,other_cyr,unic;
+more_letters:=false;
+old_cyr:=false;
+other_cyr:=false;
+unic:=false;
+
+% -- set flags for letter shapes
+% - put ogoneks instead of descenders?
+boolean is_ogonek;     is_ogonek=false;
+
+% -- `true' not supported in current version
+if unknown concrete:
+   boolean concrete; concrete:=false;
+fi
+if unknown specific:
+   boolean specific; specific:=false;
+fi
+if unknown kapitel:
+   boolean kapitel; kapitel:=false;
+fi
+
+% -- set flags for ligature and kerning stuff
+boolean	TITLEfont,SmallCapsfont,ROMANfont;
+
+% there must stay jobname because data is read from started font header
+% to check whether is the "standard LH" font;
+if substring(fonteq-2,fonteq) of jobname = "lh":
+       % lh* fonts have not any additional parameters
+       enc_name:="LCY";
+   elseif substring(fonteq-2,fonteq) of jobname = "ll":
+       param_base:="lh" & (substring(fonteq,length(jobname)) of jobname);
+       vfcoding:=true;
+       enc_name:="LCY";
+   elseif substring(fonteq-2,fonteq) of jobname = "wn":
+       more_letters:=true; wncoding:=true;
+       enc_name:="WNCYR";
+   elseif substring(fonteq-2,fonteq) of jobname = "la":
+       roman_ec:=true; more_letters:=true;
+       genmode:="ex"; enc_name:="T2A";
+   elseif substring(fonteq-2,fonteq) of jobname = "lb":
+       roman_ec:=true; more_letters:=true;
+       genmode:="ex"; enc_name:="T2B";
+   elseif substring(fonteq-2,fonteq) of jobname = "lc":
+       roman_ec:=true; more_letters:=true;
+       genmode:="ex"; enc_name:="T2C";
+   elseif substring(fonteq-2,fonteq) of jobname = "ld":
+       roman_ec:=true; more_letters:=true; old_cyr:=true;
+       genmode:="ex"; enc_name:="T2D";
+   elseif substring(fonteq-2,fonteq) of jobname = "rx":
+       more_letters:=true;
+       genmode:="ex"; enc_name:="X2";
+%   elseif substring(fonteq-2,fonteq) of jobname = "rs":
+%       more_letters:=true; old_cyr:=true;
+%       genmode:="ex"; enc_name:="XS";
+   else: % for another non-standard fonts
+       enc_name:="Unknown"; % should be changed in fontbegin file
+       scantokens("input "
+       & substring(fonteq-2,fonteq) of jobname & "begin.mf");
+fi
+
+% -- must go after redefined booleans wncoding and vfcoding in ??begin.mf
+boolean altcoding;
+  altcoding:= if wncoding or vfcoding: false else: true fi;
+
+% -- start base file: 
+%    exbase won't loaded for run in small memory systems
+if unknown cmbase: input cmbase; fi
+
+% -- additional macros for ec compatible mode
+input lcyrbeg;
+
+% -- if TFMonly: "kill" cmbase's drawing macros
+if known TFMonly: input nodraw; fi %  Only build TFM
+
+% -- start macros for ligatures and kerning
+input lkligtbl;
+
+string driver_name,ss; numeric ii;
+
+% -- set additional extra_endchar for SliTeX invisible fonts
+% !!! WARNING:
+% in icmcsc10.mf the line "extra_endchar:=..." must stay BEFORE "generate csc"
+ss:=substring(0,fonteq-2) of param_base;
+if (ss="i") or (ss="il"): extra_endchar := extra_endchar & "clearit;"; fi
+
+% -- reset slitex boolean for SliTeX fonts
+ss:=substring(0,fonteq-2) of param_base;
+if (ss="l") or (ss="il"): slitex := true; fi
+
+vardef generate @# = driver_name:=str @#; endgroup enddef;
+
+% -- input parameter file
+%    set font_identfier
+%    then driver file
+vardef use_driver @# (expr fonteq) =
+%
+% Start values
+ ii:=0;
+ forever: ii:=ii+1;
+    ss:=substring(length(param_base)-ii,length(param_base)-ii+1) of param_base;
+    exitif (ss<"0") or (ss>"9") or (ii>=length(param_base));
+ endfor;
+%
+% - input parameter file
+ ii:=ii-1;
+ ss:=substring(length(param_base)-ii,length(param_base)) of param_base;
+ if (genmode="ex") or (genmode="ec"):
+   exbase:=1; %!!! THAT'S TRICK: we don't need exbase at all
+% added flag for concrete
+   if concrete:
+      gensize:=scantokens(ss);
+      ss:="input eo"& (substring(fonteq+1,length(param_base)) of param_base);
+   elseif cmbright:
+      exbase:=1; %!!! THAT'S TRICK: we don't need exbase at all
+      gensize:=scantokens(ss); 
+      ss:="input eb"& (substring(fonteq+1,length(param_base)) of param_base);
+   else:
+% - set gensize for ec parameter files
+     if (ss="8") or (ss="10"): % for EC slitex fonts
+        gensize:=scantokens(ss);
+        ss:="input "& (substring(0,fonteq-2) of param_base) & "ec"
+                    & (substring(fonteq,length(param_base)) of param_base);
+     else:
+        gensize:=scantokens(ss)/100;
+        ss:="input ec" & (substring(fonteq,length(param_base)-ii) of param_base);
+     fi
+   fi
+ else:
+% - set gensize for cm parameter files
+   gensize:=scantokens(ss);
+% added flag for concrete
+   if concrete:
+      ss:="input cc"& (substring(fonteq+1,length(param_base)) of param_base);
+   else:
+% HERE could be cm genmode:                                 vvvvvvv
+      ss:="input "& (substring(0,fonteq-2) of param_base) & genmode
+                  & (substring(fonteq,length(param_base)) of param_base);
+   fi
+ fi
+ show gensize,ss;
+%
+% - set font_identifier
+ numeric true_pt#; true_pt#=pt#;
+ pt#:=true_pt#; scantokens(ss); pt#:=true_pt#;
+ font_identifier:=substring(0,length(param_base)-ii) of param_base;
+%
+% - input encoding file
+ scantokens ("input "& (substring(fonteq-2,fonteq) of param_base) & "codes");
+% - input Cyrillic definitions file
+ scantokens "input lcyrdefs";
+%
+% - input driver file
+ scantokens("input "&
+  if genmode="ex":
+     if driver_name=		"exroman" :	"leroman"  % also cmbright&ec (vvv)
+        elseif driver_name=	"ebroman" :	"lebroman" % cmbright&ec (vvv)
+        elseif driver_name=	"extextit":	"letextit"
+        elseif driver_name=	"excsc"   : 	"lecsc"
+        else:  driver_name fi
+  elseif genmode="ec":
+     if driver_name=		"exroman" :	"ldroman"
+        elseif driver_name=	"extextit":	"ldtextit"
+        elseif driver_name=	"excsc"   : 	"ldcsc"
+        else:  driver_name fi
+  else:
+     if driver_name=		"roman"   :	"ldroman"
+        elseif driver_name=	"sroman"  :	"ldroman"  % slitex must be true
+        elseif driver_name=	"broman"  :	"ldbroman" % cmbright (vvv)
+        elseif driver_name=	"textit"  :	"ldtextit"
+        elseif driver_name=	"title"   :	"ldtitle"
+        elseif driver_name=	"csc"     :	"ldcsc"
+        elseif driver_name=	"texset"  :	"ldtexset"
+        else:  driver_name fi fi);
+enddef;
+
+% START FONT
+use_driver(fonteq);
+
+endinput;
+%end of file

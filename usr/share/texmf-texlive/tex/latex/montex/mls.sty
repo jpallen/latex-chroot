@@ -1,0 +1,752 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%        File: mls.sty
+%      Author: Oliver Corff
+%        Date: November 15th, 2001
+%     Version: \VersionRelease
+%   Copyright: Ulaanbaatar, Beijing, Berlin
+%
+% Description: The mls style file providing access to all
+%		commands necessary for writing Mongolian.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------------     identification     -------------------
+%
+\newcommand{\VersionDate}{2002/07/01}%
+\newcommand{\ImplementationLevel}{IVu}%
+\newcommand{\VersionKirill}{04}%
+\newcommand{\VersionMongol}{092}%
+\newcommand{\VersionRelease}{%
+	\ImplementationLevel.\VersionKirill.\VersionMongol}%
+%
+\NeedsTeXFormat{LaTeX2e}%
+\ProvidesPackage{mls}[2002/07/01 IVu.04.092 Mongolian for LaTeX2e]%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------------      initial code      -------------------
+%
+\RequirePackage{ifthen}%
+\RequirePackage{diagnose}%
+
+\PackageDiagnostics{lgrenc.def}%
+	{GreekGammaAvailable}%
+	{Greek Gamma Support Available!}%
+	{No Beautiful Gamma without Modern Greek Support!}%
+%
+\PackageDiagnostics{rotating.sty}%
+	{PostScriptAvailable}%
+	{PostScript Support Available!}%
+	{No Vertical Text without PostScript Support!}%
+%
+\PackageDiagnostics{lscape.sty}%
+	{LandscapeAvailable}%
+	{Support for Vertical Pages Available!}%
+	{No Vertical Pages without lscape.sty's Landscape Support!}%
+%
+\TokenDiagnostics{\TeXXeTstate}%
+	{TeXXeTAvailable}%
+	{Support for Bicig/Bithe Full Text Available!}%
+	{No Bicig/Bithe Full Text without eLaTeX!}%
+%
+%
+% The retransliteration and pretty-spell engines are loaded here:
+%
+\input mlstrans.tex
+\input mlsgalig.tex
+%
+%
+% The Mongolian suffix separator, which, to the authors esteem,
+% lacks the correct properties in Unicode. In Mongolian its 
+% behaviour is: separate stem and suffix, let stem end in final
+% letter form, let suffix begin with special letter shape.
+%
+\gdef\minus{-}%
+%
+{\catcode`-\active%
+	\gdef\mnhyphenon{\catcode`-13 \def-{\hskip.75em\relax\minus}}%
+	\gdef\mnhyphenoff{\catcode`-12 \relax}}	% Correct bicig
+						% morpheme treatment
+{\catcode`G\active%
+	\gdef\mgammaon{\catcode`G13 \defG{\g}}%
+	\gdef\mgammaoff{\catcode`G11 \relax}}	% Correct bicig
+						% gamma treatment
+%
+% The following definition of a double
+% hyphen was offered by Donald Arseneau.
+%
+{\catcode`=\active%
+	\gdef\mdoublehyphenon{\catcode`=13
+	\def={\mbox{\raise.2ex\rlap{-}\raise-.2ex\hbox{-}}}}%
+	\gdef\mdoublehyphenoff{\catcode`=12 \relax}}	% Correct bicig
+						% doube-hyphen treatment
+%
+% Check if we really need this:
+%
+\let\orgv\v
+\let\orgd\=
+%
+{\gdef\@sv#1{\expandafter\ifx\csname #1\endcsname\s s'\else\orgv#1\fi}}%
+{\gdef\@sd#1{\expandafter\ifx\csname #1\endcsname\u v\else\orgd#1\fi}}%
+%
+\let\v\@sv
+\let\=\@sd
+%
+%
+% One variable needed later:
+%
+\newif\ifRtoL
+\RtoLfalse	% At the moment RL capabilities are deactivated...
+%
+% By accident, Latin1 input encoding is wired into the Cork T1
+% package.
+%
+% We declare, by convenience, the other necessary encodings here,
+% together with necessary ASCII -> target encoding definitions.
+%
+% We need our local Mongolian encodings
+% (C: Cyrillic,
+%  S: (Mongol) Script (glyph mode),
+%  O: Mongolian (ligature mode),
+%  A: Manju (ligature mode),
+%  U: Mongolian and Manju glyph container, heading towards Unicode
+%  T: Traditional or Tibetan style) as standard encodings ...
+%
+% Latin output encoding is T1 (Cork encoding, copied from
+% t1enc.sty), and Mongolian Cyrillic Encoding is LMC.
+%
+% The various encodings show different degrees of awareness
+% towards transliterated input. 
+%
+%  LMC understands romanized Cyrillic and outputs proper Cyrillic
+%
+%  LMS doesn't understand really anything and needs the retrans-
+%      literation engine of mlstrans.tex. It does not make sense
+%      to encode complete documents in this encodings; hence there
+%      is no associated \SetDocumentEncoding... command to go with.
+%
+%  LMO is intelligent enough to accept a moderately simplified
+%      input of Classical Mongolian (e.g.: munggul bicik) and
+%      converts that into the proper writing; perhaps one day
+%      it will also understand broad romanizations. The asso-
+%      ciated command is \SetDocumentEncodingBicig. It will
+%      certainly also be the container of utf8-represented
+%      Unicode Mongolian.
+%
+%  LMA enjoys mental capacities comparable to those of LMO; it
+%      accepts transliterated Manju (e.g.: manju bithe) and
+%      converts this into proper Manju writing The associated
+%      command is \SetDocumentEncodingBithe.
+%
+%  LMT isn't really defined yet; regard it as a "reserved"
+%      encoding; but surely it will accept significantly
+%      straightforward romanizations of Soyombo and Xäwtää
+%      Dörwöljin. There is not yet an associated Document
+%      Encoding command.
+%
+%  LMU is a container for all Mongolian and Manju glyphs (basic,
+%      context-dependant and ligatures) which has only half-hearted
+%      support at the moment. It may be home to the Unicode
+%      Initiative, though. Or should I define a better name for it?
+%      
+%  LMX (at present) Xäwtää Dörwöljin. There is not yet an associated
+%      Document Encoding command.
+%
+\newcommand{\SetDocumentEncodingNeutral}{%
+	\renewcommand{\encodingdefault}{T1}%
+	\fontencoding{T1}%
+	\selectfont
+	\mnhyphenoff
+	}%
+%
+\newcommand{\SetDocumentEncodingLMC}{%
+	\renewcommand{\encodingdefault}{LMC}%
+	\fontencoding{LMC}%
+	\selectfont
+	\mnhyphenoff
+	}%
+%
+\newcommand{\SetDocumentEncodingBicig}{%
+	\ifRtoL
+		\renewcommand{\rmdefault}{bcgvs}%
+		\renewcommand{\sfdefault}{bcgvw}%
+	\else
+		\renewcommand{\rmdefault}{bcghs}%
+		\renewcommand{\sfdefault}{bcghw}%
+	\fi
+	\renewcommand{\encodingdefault}{LMO}%
+	\fontencoding{LMO}%
+	%\fontfamily{\ifRtoL bcgvs\else bcghs\fi}%
+	\selectfont
+  	\mnhyphenon
+	}%
+%
+\newcommand{\SetDocumentEncodingBithe}{%
+	\ifRtoL
+		\renewcommand{\rmdefault}{bthvs}%
+		\renewcommand{\sfdefault}{bthvw}%
+	\else
+		\renewcommand{\rmdefault}{bthhs}%
+		\renewcommand{\sfdefault}{bthhw}%
+	\fi
+	\renewcommand{\encodingdefault}{LMA}%
+	\fontencoding{LMA}%
+	%\fontfamily{\ifRtoL bthv\else bthh\fi}%
+	\selectfont
+	}%
+%
+\newcommand{\mnr}{%
+	\fontencoding{LMC}\selectfont
+	}%
+\newcommand{\bithevfont}{%
+	\renewcommand{\rmdefault}{bthvs}%
+	\renewcommand{\sfdefault}{bthvw}%
+	\fontencoding{LMA}%
+	\fontfamily{\familydefault}%
+	\selectfont
+	}%
+\newcommand{\bithehfont}{%
+	\renewcommand{\rmdefault}{bthhs}%
+	\renewcommand{\sfdefault}{bthhw}%
+	\fontencoding{LMA}%
+	\fontfamily{\familydefault}%
+	\selectfont
+	}%
+\newcommand{\bicigvfont}{%
+	\renewcommand{\rmdefault}{bcgvs}%
+	\renewcommand{\sfdefault}{bcgvw}%
+	\fontencoding{LMO}%
+	\fontfamily{\familydefault}%
+	\selectfont
+	}%
+\newcommand{\bicighfont}{%
+	\renewcommand{\rmdefault}{bcghs}%
+	\renewcommand{\sfdefault}{bcghw}%
+	\fontencoding{LMO}%
+	\fontfamily{\familydefault}%
+	\selectfont
+	}%
+\newcommand{\bicigmlsvfont}{%
+	\fontencoding{LMS}%
+	\fontfamily{bcgv}%
+	\selectfont
+	}%
+\newcommand{\bicigmlshfont}{%
+	\fontencoding{LMS}%
+	\fontfamily{bcgh}%
+	\selectfont
+	}%
+\newcommand{\rnm}{%
+	\fontencoding{T1}%
+	\selectfont
+	}%
+%
+%
+% Finally we define the captions:
+%
+\input buryat.def
+\input english.def
+\input russian.def
+\input xalx.def
+\mnhyphenon
+ \input bicig.def
+\mnhyphenoff
+\input bithe.def
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ------------------- declaration of options -------------------
+%
+%	As long as we have no hyphenation for
+%	Buryat we take Mongolian instead.
+%
+\DeclareOption{buryat}{%
+	\captionsburyat%
+	\language\number\l@mongolian%
+	\renewcommand{\today}{\BuryatToday}}%
+%
+\DeclareOption{xalx}{%
+	\captionsxalx%
+	\language\number\l@mongolian%
+	\renewcommand{\today}{\XalxToday}}%
+%
+\DeclareOption{kazakh}{%
+	\captionskazakh%
+	\language\number\l@kazakh%
+	\renewcommand{\today}{\KazakhToday}}%
+%
+\DeclareOption{russian}{%
+	\captionsrussian%
+	\language\number\l@russian%
+	\renewcommand{\today}{\RussianToday}}%
+%
+\DeclareOption{english}{%
+	\captionsenglish%
+	\language0%
+	%\renewcommand{\today}{\EnglishToday}%
+	}%
+%
+\DeclareOption{bicig}{%
+	%
+	% Makes the document Mongolian. This implies:
+	% 1. bicig captions	-> \captionsbicig
+	% 2. bicig date		-> \BicigToday
+	% 3. vertical lines,	-> \begin{bicigpage}
+	% 4. bicig font,	-> \SetDocumentEncodingBicig
+	% 5. active hyphen	-> \mnyphenon
+	%
+	\captionsbicig%
+	\renewcommand{\today}{\BicigToday}%
+	%
+	% The following two lines are a replacement for
+	% \AtBeginDocument{\begin{bicigpage}}
+	% which does not work this way with PDFLaTeX
+	% because \mnhyphenon is activated before PDFLaTeX
+	% has finished its job. The supp-... files cannot
+	% be loaded properly. The following lines simulate
+	% \begin{document}
+	% \begin{bicigpage}
+	%
+	\let\original@document\document
+	\def\document{\original@document\begin{bicigpage}}%
+	\AtEndDocument{%
+		\ifbithepage\end{bithepage}\fi
+		\ifbithetext\end{bithetext}\fi
+		\ifbicigpage\end{bicigpage}\fi
+		\ifbicigtext\end{bicigtext}\fi
+		\ifneutraltext\end{neutraltext}\fi
+	}%
+}%
+%
+\DeclareOption{bithe}{%
+	%
+	% Makes the document Manju. This implies:
+	% 1. bithe captions	-> \captionsbithe
+	% 2. bithe date		-> \BitheToday
+	% 3. vertical lines,	-> \begin{bithepage}
+	% 4. bithe font,	-> +- \SetDocumentEncodingBithe
+	%
+	\captionsbithe%
+	\renewcommand{\today}{\BitheToday}%
+	\AtBeginDocument{\begin{bithepage}}%
+	\AtEndDocument{%
+		\ifbithepage\end{bithepage}\fi
+		\ifbithetext\end{bithetext}\fi
+		\ifbicigpage\end{bicigpage}\fi
+		\ifbicigtext\end{bicigtext}\fi
+		\ifneutraltext\end{neutraltext}\fi
+		}%
+}%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------- Loading of various codepage definitions -------------
+%
+% Input encodings supplied by MonTeX
+%
+\DeclareOption{mls}{\PassOptionsToPackage{cpmls}{inputenc}}%
+\DeclareOption{ncc}{\PassOptionsToPackage{cpncc}{inputenc}}%
+\DeclareOption{mos}{\PassOptionsToPackage{cpmos}{inputenc}}%
+\DeclareOption{mnk}{\PassOptionsToPackage{cpmnk}{inputenc}}%
+\DeclareOption{dbk}{\PassOptionsToPackage{cpdbk}{inputenc}}%
+\DeclareOption{ibmrus}{\PassOptionsToPackage{cpibmrus}{inputenc}}%
+\DeclareOption{koi}{\PassOptionsToPackage{cpkoi}{inputenc}}%
+\DeclareOption{ctt}{\PassOptionsToPackage{cpctt}{inputenc}}%
+%
+% Initial Unicode Mongolian utf-8 support. Experimental
+%
+\DeclareOption{utf8}{\PassOptionsToPackage{utf8}{inputenc}}%
+%
+% Input encodings supplied by standard installations
+%
+\DeclareOption{1250}{\PassOptionsToPackage{cp1250}{inputenc}}%
+\DeclareOption{1252}{\PassOptionsToPackage{cp1252}{inputenc}}%
+\DeclareOption{437de}{\PassOptionsToPackage{cp437de}{inputenc}}%
+\DeclareOption{437}{\PassOptionsToPackage{cp437}{inputenc}}%
+\DeclareOption{850}{\PassOptionsToPackage{cp850}{inputenc}}%
+\DeclareOption{852}{\PassOptionsToPackage{cp852}{inputenc}}%
+\DeclareOption{865}{\PassOptionsToPackage{cp865}{inputenc}}%
+\DeclareOption{cp1250}{\PassOptionsToPackage{cp1250}{inputenc}}%
+\DeclareOption{cp1252}{\PassOptionsToPackage{cp1252}{inputenc}}%
+\DeclareOption{cp437de}{\PassOptionsToPackage{cp437de}{inputenc}}%
+\DeclareOption{cp437}{\PassOptionsToPackage{cp437}{inputenc}}%
+\DeclareOption{cp850}{\PassOptionsToPackage{cp850}{inputenc}}%
+\DeclareOption{cp852}{\PassOptionsToPackage{cp852}{inputenc}}%
+\DeclareOption{cp865}{\PassOptionsToPackage{cp865}{inputenc}}%
+\DeclareOption{ansinew}{\PassOptionsToPackage{ansinew}{inputenc}}%
+\DeclareOption{applemac}{\PassOptionsToPackage{applemac}{inputenc}}%
+\DeclareOption{ascii}{\PassOptionsToPackage{ascii}{inputenc}}%
+\DeclareOption{atari}{\PassOptionsToPackage{atari}{inputenc}}%
+\DeclareOption{decmulti}{\PassOptionsToPackage{decmulti}{inputenc}}%
+\DeclareOption{isolatin}{\PassOptionsToPackage{isolatin}{inputenc}}%
+\DeclareOption{latin1}{\PassOptionsToPackage{latin1}{inputenc}}%
+\DeclareOption{latin2}{\PassOptionsToPackage{latin2}{inputenc}}%
+\DeclareOption{latin3}{\PassOptionsToPackage{latin3}{inputenc}}%
+\DeclareOption{latin5}{\PassOptionsToPackage{latin5}{inputenc}}%
+\DeclareOption{mac}{\PassOptionsToPackage{mac}{inputenc}}%
+\DeclareOption{next}{\PassOptionsToPackage{next}{inputenc}}%
+\DeclareOption{pc850}{\PassOptionsToPackage{pc850}{inputenc}}%
+\DeclareOption{roman8}{\PassOptionsToPackage{roman8}{inputenc}}%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------------  execution of options  -------------------
+%
+\ProcessOptions
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ---------------  conditional package loading  ----------------
+%
+\ifnum\theTeXXeTAvailable=1
+	\RequirePackage{rlbicig}%
+\else
+	\relax
+	% Some conditional no-ops may go here, so as not to upset
+	% command definitions which rely on material in rlbicig.
+\fi
+%
+\ifnum\theGreekGammaAvailable=1
+	\relax
+	\def\LGR{LGR,}%
+\else
+	\def\LGR{}%
+\fi
+%
+\RequirePackage[,\LGR LMS,LMO,LMA,LMC,T1]{fontenc}%
+%
+\ifnum\theTeXXeTAvailable=0
+	\DeclareFontSubstitution{LMA}{bthhs}{m}{n}%
+	\DeclareFontSubstitution{LMO}{bcghs}{m}{n}%
+\fi
+%
+\RequirePackage{inputenc}%
+%
+% PostScript detection; necessary for user-friendly
+% execution of vertical capsules
+%
+\ifnum\thePostScriptAvailable=1
+	\RequirePackage{rotating}%
+	%
+	\ifnum\theLandscapeAvailable=1
+		\RequirePackage{lscape}%
+	\fi
+\fi
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------------       Main Code        -------------------
+%
+\renewcommand{\selectlanguage}[1]{%
+	\ifthenelse{\equal{#1}{buryat}}{%
+		\SetDocumentEncodingLMC
+		\captionsburyat}{}%
+	\ifthenelse{\equal{#1}{xalx}}{%
+		\SetDocumentEncodingLMC
+		\let\oldlanguage\language
+		\language\number\l@mongolian
+		\captionsxalx}{}%
+	\ifthenelse{\equal{#1}{bicig}}{%
+		\begin{bicigpage}%
+		\captionsbicig}{}%
+	\ifthenelse{\equal{#1}{bithe}}{%
+		\begin{bithepage}%
+		\captionsbithe}{}%
+	\ifthenelse{\equal{#1}{english}}{%
+		\SetDocumentEncodingNeutral
+		\language0
+		\captionsenglish}{}%
+}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------      bicig/bithe-related code      -------------
+%
+% Font switching commands; influence both
+% document conventions and document encoding
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ------------------ mls-bicig-related code --------------------
+%
+% Stuff in this area is pretty much deprecated and remains only
+% for maintaining backward compatibility.
+%
+\newcommand{\bcg}[1]{%			% This one accepts input
+	{\ifRtoL\bicigmlsvfont		% in broad romanization
+	 \else\bicigmlshfont\fi		% and generates Mongol Bicig.
+	 \protect\my@galig{#1}}}	% Only useful for capsules.
+%
+\newcommand{\glyphbcg}[1]{%		% This one is helpful
+	{\ifRtoL\bicigmlsvfont		% in generating
+	 \else\bicigmlshfont\fi#1}}	% ligature-free glyphs
+%
+\newcommand{\PrettyMLS}[1]{%		% Transform TeX-ified MLS
+	{\my@mls@galig{#1}}}		% transliteration back to
+					% user-friendly transliteration
+%
+% ------------------ mls-bicig-related code --------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcommand{\bicig}{\bgroup\mnhyphenon\bicig@font}%
+%
+\newcommand{\bicig@font}[1]{\ifRtoL
+				\bicigvfont
+			\else
+				\bicighfont
+			\fi
+	#1\egroup}%
+%
+\newcommand{\bithe}[1]{%
+	{\ifRtoL\bithevfont\else\bithehfont\fi#1}}%
+%
+\newcommand{\bosoo}[1]{%
+	\ifnum\thePostScriptAvailable=1%
+		\relax
+		\raisebox{1.25ex}{%
+		\begin{turn}{270}%
+			#1%
+		\end{turn}}%
+	\else
+		#1%
+	\fi 
+}%
+%
+\newcommand{\mbosoo}[1]{\bosoo{\bcg{#1}}}%
+%
+\newcommand{\mobosoo}{\bgroup\mnhyphenon\mo@bosoo}%
+\newcommand{\mo@bosoo}[1]{\bosoo{\bicighfont#1}\egroup}%
+%
+\newcommand{\mabosoo}[1]{\bosoo{\bithehfont#1}}%
+%
+% All ...page and ...text environments check whether
+% RL support is available. Only then will they switch
+% to the appropriate direction. The document encoding
+% and the puge numbering have to be specified, too.
+%
+\newif\ifbicigpage	% Needed for detection of environments
+\newif\ifbithepage
+\newif\ifbicigtext
+\newif\ifbithetext
+\newif\ifneutraltext
+\newenvironment{bicigpage}%
+	{\landscape
+	 \ifnum\theTeXXeTAvailable=1%
+	 	\relax
+		\TeXXeTstate=1%
+		\setRtoL
+		\everyhbox{\ifRtoL\relax\else\setRtoL\fi}
+		\par
+	 \fi
+	 \SetDocumentEncodingBicig
+	 \bicigpagetrue
+	 \renewcommand{\thepage}{%
+		{\fontencoding{T1}\selectfont
+		 \arabic{page}}}%
+	 \renewcommand{\theenumii}{%
+		\arabic{enumii}}%
+	}%
+	{\par
+	 \everyhbox{}
+	 \ifnum\theTeXXeTAvailable=1%
+	 	\relax
+		\TeXXeTstate=0%
+	 \fi
+	 \endlandscape
+	 \bicigpagefalse}%
+%
+\newenvironment{bicigtext}%
+	{\ifnum\theTeXXeTAvailable=1%
+	 	\relax
+		\TeXXeTstate=1%
+		\setRtoL
+		\everyhbox{\setRtoL}
+		\par
+	 \fi
+	 \SetDocumentEncodingBicig
+	 \bicigtexttrue
+	 \renewcommand{\thepage}{
+		{\fontencoding{T1}\selectfont
+		 \arabic{page}}}%
+	 \renewcommand{\theenumii}{%
+		\arabic{enumii}}%
+	}%
+	{\par
+	 \everyhbox{}
+	 \ifnum\theTeXXeTAvailable=1%
+	 	\relax
+		\TeXXeTstate=0%
+	 \fi
+	 \bicigtextfalse}%
+%
+\newenvironment{bithepage}%
+	{\landscape
+	 \ifnum\theTeXXeTAvailable=1%
+	 	\relax
+		\TeXXeTstate=1%
+		\setRtoL
+		\everyhbox{\setRtoL}
+		\par
+	 \fi
+	 \SetDocumentEncodingBithe
+	 \bithepagetrue
+	 \let\v\@sv
+	 \let\=\@sd
+	 \renewcommand{\thepage}{%
+		{\fontencoding{T1}\selectfont
+		 \arabic{page}}}%
+	 \renewcommand{\theenumii}{%
+		\arabic{enumii}}%
+	 }%
+	 {\par
+	 \everyhbox{}
+	 \ifnum\theTeXXeTAvailable=1%
+		 \relax
+		 \TeXXeTstate=0%
+	 \fi
+	 \endlandscape
+	 \bithepagefalse}%
+%
+\newenvironment{bithetext}%
+	{\ifnum\theTeXXeTAvailable=1%
+	 	\relax
+		\TeXXeTstate=1%
+		\setRtoL
+		\everyhbox{\setRtoL}
+		\par
+	 \fi
+	 \SetDocumentEncodingBithe
+	 \bithetexttrue
+	 \let\v\@sv
+	 \let\=\@sd
+	 \renewcommand{\thepage}{%
+		{\fontencoding{T1}\selectfont
+		 \arabic{page}}}%
+	 \renewcommand{\theenumii}{%
+		\arabic{enumii}}%
+	}%
+	{\par
+	 \everyhbox{}
+	 \ifnum\theTeXXeTAvailable=1%
+		 \relax
+		 \TeXXeTstate=0%
+	 \fi
+	 \bithetextfalse}%
+%
+\newenvironment{neutraltext}%
+	{\ifnum\theTeXXeTAvailable=1%
+		 \relax
+		 \setLtoR
+		 \everyhbox{}
+		 \par
+		 \TeXXeTstate=0%
+	 \fi
+	 \SetDocumentEncodingNeutral
+	 \neutraltexttrue
+	 \mnhyphenoff
+	 }%
+	{
+	\neutraltextfalse}%
+%
+\newsavebox{\moma@box}%
+%
+\newcommand{\mobox}{\bgroup\mnhyphenon\mo@box}%
+\newcommand{\mo@box}[2]{%
+	\savebox{\moma@box}{\parbox{#1}{%
+		\begin{bicigtext}%
+			#2%
+		\end{bicigtext}%
+	}}%
+	\begin{turn}{90}\usebox{\moma@box}\end{turn}%
+	\egroup}%
+%
+\newcommand{\mabox}[2]{%
+	\savebox{\moma@box}{\parbox{#1}{%
+		\begin{bithetext}%
+			#2%
+		\end{bithetext}%
+	}}%
+	\begin{turn}{90}\usebox{\moma@box}\end{turn}%
+	}%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ------------------  Cyrillic-related code --------------------
+%
+\newcommand{\xalx}[1]{%	Encapsulates Cyrillic texts
+	{\mnr#1}}%
+%	
+\newcommand{\lat}[1]{%	Encapsulates Latin texts
+	{\rnm#1}}%
+%
+\newcommand{\krm}[1]{{\mnr\textrm{#1}}}%
+\newcommand{\kbf}[1]{{\mnr\textbf{#1}}}%
+\newcommand{\kit}[1]{{\mnr\textit{#1}}}%
+\newcommand{\ksl}[1]{{\mnr\textsl{#1}}}%
+\newcommand{\ksf}[1]{{\mnr\textsf{#1}}}%
+\newcommand{\ksc}[1]{{\mnr\textsc{#1}}}%
+\newcommand{\ktt}[1]{{\mnr\texttt{#1}}}%
+%
+\newcommand{\lrm}[1]{{\rnm\textrm{#1}}}%
+\newcommand{\lbf}[1]{{\rnm\textbf{#1}}}%
+\newcommand{\lit}[1]{{\rnm\textit{#1}}}%
+\newcommand{\lsl}[1]{{\rnm\textsl{#1}}}%
+\newcommand{\lsf}[1]{{\rnm\textsf{#1}}}%
+\newcommand{\lsc}[1]{{\rnm\textsc{#1}}}%
+\newcommand{\ltt}[1]{{\rnm\texttt{#1}}}%
+%
+\newcommand{\Togrog}{\textsf{\MyTogrog}}%
+\newcommand{\togrog}{\textsf{\mytogrog}}%
+%
+%
+% Assign the kminch font outside the NFSS system since NFSS
+% goofs the size of it.
+%
+\font\kminch=kminch
+\font\cminch=cminch
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ------------------   Miscellaneous Code   --------------------
+%
+% \MonTeX creates the MonTeX logo
+%
+\newcommand{\MonTeX}{Mon\TeX}%
+%
+% If the Greek Gamma is available then we use LGR Greek,
+% otherwise we use the ordinary math mode gamma, which
+% does not look as beautiful.
+%
+\ifthenelse{\value{GreekGammaAvailable}=1}{%
+	\newcommand{\g}{%
+		{\fontencoding{LGR}\selectfont g}}%
+	\newcommand{\G}{%
+		{\fontencoding{LGR}\selectfont G}}}%
+	{%
+	 \newcommand{\g}{\(\gamma\)}%
+	 \newcommand{\G}{\(\Gamma\)}%
+	}%
+%
+%
+% Some definitions for writing transliterated
+% texts, useful mainly in Latin enviroments:
+%
+\def\UU{\={U}}%
+\def\uu{\={u}}%
+%
+\DeclareTextCommand{\om}{LMO}{\char"060 }%
+%
+\DeclareTextCommand{\ch}{T1}{\char"0A3 }%
+\DeclareTextCommand{\Ch}{T1}{\char"083 }%
+\DeclareTextCommand{\jh}{T1}{{\v \j}}%
+\DeclareTextCommand{\Jh}{T1}{{\v J}}%
+\DeclareTextCommand{\zh}{T1}{\char"0BA }%
+\DeclareTextCommand{\Zh}{T1}{\char"09A }%
+\DeclareTextCommand{\sh}{T1}{\char"0B2 }%
+\DeclareTextCommand{\Sh}{T1}{\char"092 }%
+\DeclareTextCommand{\ng}{T1}{\char"0AD }%
+\DeclareTextCommand{\Ng}{T1}{\char"08D }%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% --------------   Final Steps before Leaving   ----------------
+%
+%
+% In any case, start with a clean document environment!
+%
+%\AtBeginDocument{}%
+%
+% In any case,  and we end with a clean document environment!
+%
+%\AtEndDocument{}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The \packagename\ package ends here.

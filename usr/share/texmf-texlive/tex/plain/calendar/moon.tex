@@ -1,0 +1,89 @@
+%%
+%%    FILE moon.tex
+%%
+\loadadvanced
+\newcount\moonno
+\def\firstmoon{\moonno=\Year
+ \multiply\moonno by123685 
+ \divide\moonno by10000
+ \multiply\moonno by4\advance\moonno by-1
+ \loop\moondate\ifnum\date<\yearbase
+ \advance\moonno by1\repeat}
+% Compute date for cycle quarter MOONNO
+\def\moondate{{\count0=\moonno
+ \lin 202.126.369+0.\count0=\count1
+ \count6=0
+ \lin 0.2.319+2907.\Sin\fac{3}
+ \divide\count6  by1000
+ \lin 365.249.86+7593.\id\fac{1}
+ \divide\count6 by10\count7 =\count6
+ \ifodd\moonno\quarters
+ \else\fullornew\fi\global\date=\count7}
+ \JDTtoL\message{\the\date}}
+% Correction for full and new moon
+\def\fullornew{\count6=0
+ \lin -393.0.0+0.
+ \divide\count1 by100000000 
+ \advance\count6  by\count1
+ \lin 0.628.300+6269.\Sin 
+ \multiply\count6  by\count4
+ \lin -7.-700.-369+  928.\Sin\fac{  -74}
+ \lin  0. 628. 300+ 6269.\Sin\fac{ 1734}
+ \lin  1. 256. 600+12539.\Sin\fac{   21}
+ \lin  8. 328. 670+ 5341.\Sin\fac{-4068}
+ \lin  8. 538. 220+-4597.\Sin\fac{   10}
+ \lin  8. 956. 970+11610.\Sin\fac{  -51}
+ \lin 16. 238. 589+-5526.\Sin\fac{   -4}
+ \lin 16. 657. 340+10682.\Sin\fac{  161}
+ \lin 16. 866. 890+  743.\Sin\fac{  104}
+ \lin 17. 285. 640+16951.\Sin\fac{   50}
+ \lin 17. 495. 190+ 7013.\Sin\fac{    4}
+ \lin 24. 986.  10+16023.\Sin\fac{   -4}
+ \lin 25. 195. 560+ 6084.\Sin\fac{   -6}
+ \divide\count6  by10000
+ \advance\count7 by\count6 }
+% Correction for quarters
+\def\quarters{\lin -393.0.0+0.
+ \divide\count1  by100000000 
+ \count6 =\count1  \lin 0.628.300+6269.
+ \Sin\multiply\count6  by\count4 
+ \lin -16. -29. -40+-4413.\Sin\fac{   40}
+ \lin  -7.-700.-369+  928.\Sin\fac{  -47}
+ \lin  -7. -72. -69+ 7198.\Sin\fac{  -30}
+ \lin   0. 628. 300+ 6270.\Sin\fac{ 1721}
+ \lin   1. 256. 600+12539.\Sin\fac{   21}
+ \lin   8. 328. 670+ 5341.\Sin\fac{-6280}
+ \lin   8. 538. 220+-4598.\Sin\fac{   21}
+ \lin   8. 956. 970+11611.\Sin\fac{ -119}
+ \lin  16. 238. 589+-5526.\Sin\fac{   -4}
+ \lin  16. 657. 340+10682.\Sin\fac{   89}
+ \lin  16. 866. 890+  743.\Sin\fac{   79}
+ \lin  17. 285. 640+16952.\Sin\fac{    3}
+ \lin  17. 495. 190+ 7013.\Sin\fac{    3}
+ \lin  24. 986.  10+16023.\Sin\fac{   -4}
+ \lin  25. 195. 560+ 6085.\Sin\fac{   -6}
+ \count8=\count6\count6=28000
+ \lin 628. 300. 373+ 6270.\Cos\fac{   -4}
+ \lin   8. 328. 670+ 5341.\Cos\fac{    3}
+ \count2=\moonno
+ \advance\count2 by-1\divide\count2 by2
+ \ifodd\count2\multiply\count6  by-1 \fi
+ \advance\count6 by\count8
+ \divide\count6  by10000
+ \advance\count7  by\count6 }
+% Events for phases.
+% Uses PHASE (local).
+\def\includemoons{\message{Including moons}
+ {\firstmoon
+\Month=12\Day=31\dayno\advance\date by1
+ \count1=\date
+ \loop\moondate\phase\ifnum\date<\count1
+  \evday[\themoon]\advance\moonno by1
+ \repeat}}
+\def\phase{{\count0=\moonno
+ \count1=\moonno
+ \divide\count0 by4\multiply\count0 by4
+ \advance\count1 by-\count0\relax
+ \global\edef\themoon{\ifcase\count1
+  New moon\or First quarter\or
+  Full Moon\or Last quarter\fi}}}

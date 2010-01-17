@@ -1,0 +1,2440 @@
+%
+ % THIS is MusicTeX
+\def\mcversion{5.18} 
+\message{Version \mcversion\space -- August 26th, 1996}%
+
+\edef\catcodeat{\the\catcode`\@}\catcode`\@=11
+
+\newif\ifcatcodesmusic
+
+\def\catcodesmusic{\ifcatcodesmusic\relax
+ \else
+ \edef\catcode@gt{\the\catcode`\>}\catcode`\>=12%
+ \edef\catcode@lt{\the\catcode`\<}\catcode`\<=12%
+ \edef\catcode@vert{\the\catcode`\|}\catcode`\|=13%
+ \edef\catcode@and{\the\catcode`\&}\catcode`\&=13%
+ \edef\catcode@excl{\the\catcode`\!}\catcode`\!=12%
+ \edef\catcode@star{\the\catcode`\*}\catcode`\*=12%
+ \edef\catcode@pt{\the\catcode`\.}\catcode`\.=12%
+ \edef\catcode@sc{\the\catcode`\:}\catcode`\:=12%
+ \fi\catcodesmusictrue}
+
+ \catcodesmusic
+
+ %  PARAMETERS DIFFERENT THAN IN PLAIN
+ %
+\normallineskiplimit=\p@
+\parindent 10mm
+ %
+ % EXTRA FONTS NEEDED
+ %
+\font\enorme=\fonthdg\fonthdge bx12 scaled \magstep4
+\font\moyen=\fonthdg\fonthdge bx12 scaled \magstep1
+\font\tentt=\fonthdg\fonthdge tt10
+\font\ppffsixteen=\fonthdg\fonthdge bxti10
+\font\ppfftwenty=\fonthdg\fonthdge bxti10 scaled \magstep1
+ %
+\tolerance=10000\relax
+ %  procedures speciales D. taupin
+ % **** \hsize 16cm \vsize 24cm
+ %
+\let\@plainwlog=\wlog
+\def\wlog#1{}%
+ %
+ %\check
+ %
+\raggedbottom
+\def\p@t{\kern 1.5pt\pointfont\char"2E}%
+\def\P@t{\pt@raise\hbox{\p@t}}%
+\def\PP@t{\pt@raise\hbox{\p@t\char"2E}}%
+\def\PPP@t{\pt@raise\hbox{\p@t\char"2E\char"2E}}%
+ %
+ %\check
+ %
+\def\f@tok#1#2\af@tok{#1}%
+\def\s@tok#1#2\af@tok{#2}%
+ %
+\def\gl@au#1{\ifnum #1<0\relax\global\advance #1 by -1\relax\fi
+                 \ifnum #1>0\relax\global\advance #1 by 1\relax\fi}%
+\def\gl@de#1{\ifnum #1<0\relax\global\advance #1 by 1\relax\fi
+                 \ifnum #1>0\relax\global\advance #1 by -1\relax\fi}%
+ %
+ %
+ % Amount of skip needed at bar lines
+\newskip\tempsskip
+\newdimen\brace@w
+\newdimen\afterruleskip
+\newdimen\pt@up % offset point de notes pointees
+\newdimen\noteskip
+\newdimen\elemskip
+\newdimen\q@antum
+\newdimen\n@raise
+\newdimen\n@width
+\newdimen\stem@skip
+\newdimen\interligne % entre les lignes
+ %%%% \newdimen\nullthick % pour les parties sans portees (paroles)
+\newdimen\staffbotmarg % marge au-dessous des portees
+\newdimen\stafftopmarg % au-dessus des portees
+\newdimen\Internote % la moitie de \Interligne
+\def\internote{\Internote}%
+\newdimen\interbeam % distance entre poutres
+\newdimen\Interligne % de la base d'une ligne a l'autre
+\newdimen\interportee % distance between staffs of the same instrument (incl)
+\newdimen\Interportee % distance between staffs of the same instrument (excl)
+\newdimen\interinstrument % distance between instruments (added to \interportee)
+\newdimen\systemheight
+ %
+\newdimen\altplancher
+\newdimen\altportee
+\newdimen\line@width
+\newdimen\x@skip
+\newdimen\locx@skip
+\newdimen\st@bot  %  note stem bottom
+\newdimen\st@top     %  note stem top
+ %
+ % positions x et z de debut des tenues
+\newdimen\t@xi\newdimen\t@zi
+\newdimen\t@xii\newdimen\t@zii
+\newdimen\t@xiii\newdimen\t@ziii
+\newdimen\t@xiv\newdimen\t@ziv
+\newdimen\t@xv\newdimen\t@zv
+\newdimen\t@xvi\newdimen\t@zvi
+ %
+\newdimen\t@y
+ %
+ % signes des tenues ( \t@p: entier de -1 a +1 )
+ % etat des tenues ( \t@s: 0= inactive, 1= actif, 2= continuation )
+ %
+\newcount\t@pi\newcount\t@si
+\newcount\t@pii\newcount\t@sii
+\newcount\t@piii\newcount\t@siii
+\newcount\t@piv\newcount\t@siv
+\newcount\t@pv\newcount\t@sv
+\newcount\t@pvi\newcount\t@svi
+ %
+ % positions x et z de debut des poutres
+\newdimen\b@xi\newdimen\b@zi
+\newdimen\b@xii\newdimen\b@zii
+\newdimen\b@xiii\newdimen\b@ziii
+\newdimen\b@xiv\newdimen\b@ziv
+\newdimen\b@xv\newdimen\b@zv
+\newdimen\b@xvi\newdimen\b@zvi
+ %
+\newdimen\bb@xi\newdimen\bb@zi
+\newdimen\bb@xii\newdimen\bb@zii
+\newdimen\bb@xiii\newdimen\bb@ziii
+\newdimen\bb@xiv\newdimen\bb@ziv
+\newdimen\bb@xv\newdimen\bb@zv
+\newdimen\bb@xvi\newdimen\bb@zvi
+ %
+\newdimen\bbb@xi\newdimen\bbb@zi
+\newdimen\bbb@xii\newdimen\bbb@zii
+\newdimen\bbb@xiii\newdimen\bbb@ziii
+\newdimen\bbb@xiv\newdimen\bbb@ziv
+\newdimen\bbb@xv\newdimen\bbb@zv
+\newdimen\bbb@xvi\newdimen\bbb@zvi
+ %
+\newdimen\bbbb@zi
+\newdimen\bbbb@zii
+\newdimen\bbbb@ziii
+\newdimen\bbbb@ziv
+\newdimen\bbbb@zv
+\newdimen\bbbb@zvi
+ %
+\newdimen\bbbbb@zi
+\newdimen\bbbbb@zii
+\newdimen\bbbbb@ziii
+\newdimen\bbbbb@ziv
+\newdimen\bbbbb@zv
+\newdimen\bbbbb@zvi
+ %
+ % pentes des poutres ( entier de -3 a +3 )
+ % multiplicite des poutres ( de -5 a +5 .   0= inactive )
+ %
+\newcount\b@pi\newcount\b@ni
+\newcount\b@pii\newcount\b@nii
+\newcount\b@piii\newcount\b@niii
+\newcount\b@piv\newcount\b@niv
+\newcount\b@pv\newcount\b@nv
+\newcount\b@pvi\newcount\b@nvi
+ %
+\newif\ifraggedlines
+ %
+\newcount\barno
+\newcount\lastbarno
+\newcount\notes@open
+\def\check@nopen{\ifnum\notes@open>0\relax\enotes\errmessage{ missing
+ \noexpand\enotes\ mesure \the\barno}\fi}%
+ %
+ % altitudes des portees de chaque instrument
+ %
+\newcount\ut@ref
+\newcount\noportee
+\newcount\noinstrument
+ %
+\newcount\nbporteesi
+\newcount\nbporteesii
+\newcount\nbporteesiii
+\newcount\nbporteesiv
+\newcount\nbporteesv
+\newcount\nbporteesvi
+ %
+\newcount\signi
+\newcount\signii
+\newcount\signiii
+\newcount\signiv
+\newcount\signv
+\newcount\signvi
+ %
+\newif\ifadvance\advancetrue
+\newcount\transpose
+\newcount\normaltranspose
+\newcount\o@signi
+\newcount\o@signii
+\newcount\o@signiii
+\newcount\o@signiv
+\newcount\o@signv
+\newcount\o@signvi
+ %
+\newtoks\cleftoksi
+\newtoks\cleftoksii
+\newtoks\cleftoksiii
+\newtoks\cleftoksiv
+\newtoks\cleftoksv
+\newtoks\cleftoksvi
+ %
+\newtoks\o@cksi
+\newtoks\o@cksii
+\newtoks\o@cksiii
+\newtoks\o@cksiv
+\newtoks\o@cksv
+\newtoks\o@cksvi
+ %
+\newtoks\metertoksi
+\newtoks\metertoksii
+\newtoks\metertoksiii
+\newtoks\metertoksiv
+\newtoks\metertoksv
+\newtoks\metertoksvi
+ %
+\global\nbporteesi=1%
+\global\nbporteesii=1%
+\global\nbporteesiii=1%
+\global\nbporteesiv=1%
+\global\nbporteesv=1%
+\global\nbporteesvi=1%
+\global\cleftoksi={{0}{0}{0}{0}}%
+\global\cleftoksii={{0}{0}{0}{0}}%
+\global\cleftoksiii={{0}{0}{0}{0}}%
+\global\cleftoksiv={{0}{0}{0}{0}}%
+\global\cleftoksv={{0}{0}{0}{0}}%
+\global\cleftoksvi={{0}{0}{0}{0}}%
+ %
+ %\check
+ %
+\def\n@advance{\global\advance\noinstrument by 1\relax}%
+\def\n@loop{\global\noinstrument=0\relax\loop
+  \ifnum\noinstrument<\nbinstruments\relax\n@advance
+  \selectinstr}%
+\def\m@loop{\global\noinstrument=0\relax\loop
+  \ifnum\noinstrument<\maxinstruments\relax\n@advance
+  \selectinstr}%
+ %
+\def\savemeters{\savemeter}%
+\def\savemeter{\m@loop\global\metertoks={{}{}{}{}}\repeat}%
+ %\check
+\def\maxinstruments{6}%
+
+\def\setclef#1{\noinstrument #1\relax\selectinstr \cleftoks}
+\let\setclefs\setclef
+
+\def\setstaffs#1{\noinstrument #1\relax\selectinstr \nbportees}
+
+\def\setinterinstrument#1#2{\noinstrument #1\relax
+  \expandafter\def\csname interinstrument\romannumeral\noinstrument\endcsname{#2}}
+
+ %
+\def\selectinstr{%
+\xdef\altitude{\csname k@i\romannumeral\noinstrument\endcsname}%
+\xdef\nbportees{\csname nbportees\romannumeral\noinstrument\endcsname}%
+\xdef\staffspacing{\csname staffspacing\romannumeral\noinstrument\endcsname}%
+\xdef\stafflinesnb{\csname stafflinesnb\romannumeral\noinstrument\endcsname}%
+\xdef\clefdut{\csname clefdut\romannumeral\noinstrument\endcsname}%
+\xdef\clefdefa{\csname clefdefa\romannumeral\noinstrument\endcsname}%
+\xdef\clefdesol{\csname clefdesol\romannumeral\noinstrument\endcsname}%
+\xdef\internote{\csname internote\romannumeral\noinstrument\endcsname}%
+\xdef\sign{\csname sign\romannumeral\noinstrument\endcsname}%
+\xdef\o@sign{\csname o@sign\romannumeral\noinstrument\endcsname}%
+\xdef\cleftoks{\csname cleftoks\romannumeral\noinstrument\endcsname}%
+\xdef\metertoks{\csname metertoks\romannumeral\noinstrument\endcsname}%
+\xdef\o@cks{\csname o@cks\romannumeral\noinstrument\endcsname}%
+\interportee=\interfacteur\internote
+\interportee=2\interportee
+\Interportee=\interportee
+\advance\Interportee by -\stafflinesnb\internote
+\advance\Interportee by -\stafflinesnb\internote
+\advance\Interportee by 2\internote
+}
+ %\check
+ %
+ % compteurs de travail
+ %
+\newcount\n@i
+\newcount\n@ii
+\newcount\n@iii
+ %
+ % registres de travail
+ %
+\newbox\toks@box
+\newbox\w@rkbox
+\newbox\n@otebox
+ %
+ %%%%\newdimen\clef@skip
+\newdimen\sign@skip
+ %
+\newdimen\y@
+\newdimen\y@i
+\newdimen\y@ii
+\newdimen\y@iii
+\newdimen\y@iv
+\newdimen\y@v
+ %
+\newtoks\arg@suite
+\def\hlthick{0.5\lthick}
+\def\vdlthick{\vrule depth \hlthick} 
+ %
+ % fabrique un jeu complet (ou systeme complet de portees)
+ % en fonction de \nbinstruments
+\def\null@portee{\global\advance\y@ by \nullthick
+    \ifdim\systemheight>\p@\global\advance\systemheight by \nullthick
+    \else
+     \global\advance\altplancher by \nullthick
+    \fi
+}%
+ %
+ %\check
+ %
+\ifx\mult@portee\undefined
+ \def\mult@portee{\y@ii=\nbportees\interportee
+    \advance\y@ii by -\Interportee
+    \advance\y@ii by \nbportees\lthick
+    \advance\y@ii by -\lthick
+ \raise\y@\llap{\cmex\raise 8\p@\rlap{\char'072}\raise\y@ii\rlap{\char
+'070}\divide\y@ii by 2\relax{\advance\y@ii by 8\p@\raise\y@ii\rlap{\char
+'074}}\y@v=\y@ii\relax\advance\y@v by -5\p@
+    \kern 3.8\p@
+    \vrule depth -5\p@ height \y@v width 1.2\p@ \kern -1.2\p@
+    \advance\y@v by \y@ii
+    \advance\y@ii by 5\p@
+    \vrule depth -\y@ii height \y@v width 1.2\p@
+    \kern 2.5\p@}}%
+\fi % end \ifx \mult@portee    
+ %
+ %\check
+ %
+\def\n@portee{\global\advance\noportee by 1\relax}%
+\def\p@loop{\global\noportee=0\relax
+   \loop\ifnum\noportee<\nbportees\relax\alt@comp}%
+ %
+ %\check
+ %
+\def\alt@comp{\altportee=\altitude
+  \advance\altportee by \noportee\interportee}%
+ %
+\def\lowersonginstrum{99}  % to be used to make heavy bars at staff left
+\def\uppersonginstrum{0}   % to be used to make heavy bars at staff left
+\newdimen\lowersongalt
+\newdimen\uppersongalt
+ %
+\def\portees{\rlap{\global\y@=\staffbotmarg
+ %
+\lowersongalt=\z@
+\uppersongalt=\z@
+\global\systemheight=\z@
+\global\altplancher=\y@
+\n@loop
+ %
+  \global\noportee=0\relax
+  \global\altitude=\y@
+  \ifnum\noinstrument=\lowersonginstrum\relax
+       \lowersongalt=\altitude
+  \fi
+ %
+  \ifnum\nbportees=0\relax
+     \null@portee
+  \else
+    \ifnum\nbportees>1\relax
+      \mult@portee
+    \fi
+    {\loop \raise\y@\portee
+      \n@portee \global\advance\y@ by \interportee
+	  \global\advance\systemheight by \interportee
+	  \ifnum\noportee<\nbportees
+     \repeat}\fi % fin du \else pour 0 portees=chant
+  \ifnum\noinstrument=\uppersonginstrum\relax\uppersongalt=\y@
+    \advance\uppersongalt by -\Interportee
+    \advance\uppersongalt by \hlthick
+  \fi
+  \ifnum\noinstrument<\nbinstruments   
+    \xdef\interinstrum{\csname interinstrument\romannumeral\noinstrument
+                     \endcsname}%
+    \expandafter\ifx\interinstrum\relax\xdef\interinstrum{\interinstrument}\fi
+    \global\advance\systemheight by \interinstrum
+    \global\advance\y@ by \interinstrum
+  \fi  
+\repeat
+\global\advance\systemheight by -\Interportee
+\global\advance\systemheight by \hlthick
+ %
+\raise\altplancher\rlap{\vdlthick height \systemheight}%
+\ifnum\uppersonginstrum>\lowersonginstrum\relax
+  \advance\uppersongalt by -\lowersongalt
+  \raise\lowersongalt
+    \llap{\vdlthick height \uppersongalt width 0.6\Interligne
+          \kern 0.3\Interligne
+          \vdlthick height \uppersongalt width \lthick}\type@songsymbols
+\fi  
+{\advance\stafftopmarg by \staffbotmarg
+\raise \stafftopmarg\hbox{\vdlthick height \systemheight width \z@}}}}%
+ %
+ %\check
+ % portee simple
+\def\staffline{\kern\internote\kern\internote\kern -\lthick
+\hrule width \line@width height \hlthick depth \hlthick
+}
+\def\portee{\rlap{\vbox to \z@ {\vss
+\ifnum\stafflinesnb>5\staffline\fi
+\ifnum\stafflinesnb>4\staffline\fi
+\ifnum\stafflinesnb>3\staffline\fi
+\ifnum\stafflinesnb>2\staffline\fi
+\ifnum\stafflinesnb>1\staffline\fi
+\ifnum\stafflinesnb>0\staffline\fi\kern -\hlthick
+}}}%
+ %\check
+ %
+ % initialisations des dimensions etc...
+ %
+ %*************** definition des titres des instruments
+ % ***********************
+ %
+\def\instrumenti{}%
+\def\instrumentii{}%
+\def\instrumentiii{}%
+\def\instrumentiv{}%
+\def\instrumentv{}%
+\def\instrumentvi{}%
+ %\check
+ %
+\def\maxlegatenuti{6}%
+\def\ten@loop{\global\n@l=0\relax\loop\ifnum\n@l<\maxlegatenuti\relax
+  \selecttenue{\n@l}}%
+ %
+\def\resettens{\resetlegs}%
+\newcount\n@l
+\def\resetlegs{\global\setbox\@tenubox
+  \hbox{\kern\tenboxwidth}\ten@loop \global\t@p=0\relax \global\t@s=0\relax
+  \global\advance\n@l by 1\relax
+  \repeat}%
+ %
+ %\check
+ %
+\def\piece@begina{\barno=1\relax\global\barsinline=0\relax
+\frenchspacing\ifnum1>\nbinstruments\errmessage{\noexpand\nbinstruments
+ not defined !}\fi
+\def\barvrule{\thinvrule}\resetlegs
+\savesignature\computewidths}%
+ %
+\def\debutmorceau{\catcodesmusic\leavevmode\piece@begina
+\advance\line@width by -\parindent
+\portees\instrumentnames
+\advance\line@width by \parindent
+\tempsskip=2pt  plus \gluemaxskip minus 2pt
+\zglueskip=0pt plus \gluemaxskip minus .5pt%
+\piece@beginb\setnormalhyphen}%
+ %
+\def\piece@beginb{\writeclefs\everystaff
+\writesignatures\writemeters
+\save@all\currenthyphenpenalty}%
+ %
+\def\save@all{\saveclefs\savesignature\savemeters}%
+ %
+\def\debutextrait{\catcodesmusic\piece@begina
+\setbox\w@rkbox=\hbox{\portees}% to compute heights
+\setbox\w@rkbox=\hbox\bgroup
+\def\barre{\xbarre}\piece@beginb}%
+ %\check
+\def\zfinextrait{\def\suspmorceau{\zsuspmorceau}\finextrait}
+\def\finextrait{\def\z@suspend{}\suspmorceau\egroup
+\line@width=\wd\w@rkbox
+\centerline{\instrumentnames\portees\unhbox\w@rkbox}\endcatcodesmusic}%
+ %
+ % saving penalties to be able to restore them at the end of music
+ %
+\def\savepenalties{\edef\restorepenalties{%
+\noexpand\linepenalty=\the\linepenalty\noexpand\relax
+\noexpand\interlinepenalty=\the\interlinepenalty\noexpand\relax
+\noexpand\hyphenpenalty=\the\hyphenpenalty\noexpand\relax
+\noexpand\exhyphenpenalty=\the\exhyphenpenalty\noexpand\relax
+\noexpand\finalhyphendemerits=\the\finalhyphendemerits\noexpand\relax
+\noexpand\doublehyphendemerits=\the\doublehyphendemerits\noexpand\relax
+\noexpand\adjdemerits=\the\adjdemerits\noexpand\relax
+\noexpand\pretolerance=\the\pretolerance\noexpand\relax
+}}%
+ %\check
+\def\computewidths{\computespecifics
+\interportee=\interfacteur\Interligne
+\Interportee=\interportee\advance\Interportee by -8\internote
+\ifdim\stafftopmarg<\p@ \stafftopmarg=\topfacteur\Interligne\fi
+\ifdim\staffbotmarg<\p@ \staffbotmarg=\bottomfacteur\Interligne\fi
+\global\interligne=\Interligne
+\global\Internote=0.5\Interligne
+ %
+\ifx\internotei\undefined\relax\else
+  \n@loop
+  % decide staffspacing
+    \expandafter\ifx\staffspacing \undefined\global\internote=\Internote
+    \else
+    \expandafter\ifx\staffspacing \relax\global\internote=\Internote
+          \else\global\internote=\staffspacing\Internote
+    \fi\fi
+  \repeat
+\fi
+ %
+\ifdim\nullthick<\p@ \global\nullthick=4\Interligne\fi
+\global\advance\interligne by -\lthick
+ %
+\afterruleskip=\stdafterruleskip
+\global\line@width=\hsize}%
+ %
+\def\stdafterruleskip{4\Internote}%
+ %
+ %\check
+ %
+\def\n@alaligne{\n@suspmorceau\lreprmorceau}%
+\def\n@zalaligne{\n@zsuspmorceau\lreprmorceau}%
+\def\lreprmorceau{\reprmorceau}%
+\def\n@suspmorceau{\check@nopen\gluebrule\newbar\z@suspend}%
+\def\n@Suspmorceau{\n@suspmorceau}
+\def\n@zsuspmorceau{\check@nopen\termskip\z@suspend}%
+\def\z@suspend{\ifraggedlines\else\hfilneg\ \fi
+  \adv@bottom\par\removelastskip\endcatcodesmusic}%
+\def\alapage{\suspmorceau\preprmorceau}%
+\def\zalapage{\zsuspmorceau\preprmorceau}%
+\def\preprmorceau{\eject\global\linesinpage=0\relax\reprmorceau}%
+\def\reprmorceau{\catcodesmusic\atnextline\computewidths\noindent\leavevmode
+\global\barsinline=0\relax{\advance\linesinpage by 1\relax\message{Line \the
+\linesinpage:}}\relax
+\adv@bottom\portees\writeclefs\kern 0.5\Interligne\wbarno@x
+\kern -0.5\Interligne\everystaff
+\writesignatures\writemeters\zgluearule
+\save@all\currenthyphenpenalty\def\atnextline{}}%
+ %
+\def\everystaff{}\def\atnextline{}%
+ %\check
+ %
+\def\resetsignatures{\generalsignature{0}\savesignature}%
+ %
+\def\savesignature{\m@loop\o@sign=\sign\repeat}%
+ %\check
+\def\saveclefs{\m@loop\global\o@cks=\cleftoks\repeat}
+ %\check
+ %
+ % definitions en fonction du numero de l'instriment
+ %
+\newskip\zglueskip
+ %
+\def\meterfrac#1#2{\setbox\w@rkbox=\vbox{\hbox{\ \meterfont
+ #1}\hbox{\ \meterfont #2}}%
+\vbox to 8\internote{\offinterlineskip\vss\hbox to \wd\w@rkbox{\hss
+\meterfont #1\hss}\vss
+\vss\hbox to \wd\w@rkbox{\hss\meterfont #2\hss}\vss}}%
+ %\check
+\newtoks\t@gene
+\def\generalmeter#1{\t@gene={{#1}{#1}{#1}{#1}}\m@loop
+\global\metertoks=\t@gene\repeat}%
+ %\check
+\def\signaturegenerale{\generalsignature}%
+\def\generalsignature#1{\m@loop\sign=#1\relax\repeat}%
+ %
+ % compteurs de travail
+ %
+ % a completer pour fermer les poutres
+\def\zglu{\zglue}%
+\def\zglue{\nobreak\@tenleader{\zglueskip}\nobreak}%
+ %
+\def\n@skmb{\nobreak\global\advance\n@skip by -\brace@w}%
+ %
+\def\temps{\n@skmb\termskip\nobreak\zglu\nobreak\skip@b}%
+\def\changesignatures{\changesignature}%
+\def\changesignature{\n@skmb\termskip\nobreak\zglu\nobreak
+   \skip@b\writenewsignatures}%
+\def\z@barre{\n@skmb\termskip\nobreak\skip@b\-\hskip\zglueskip\nobreak}%
+
+\def\xz@barre{\temps}%
+ %
+\def\newbar{\barvrule\def\barvrule{\thinvrule}\message{bar \the\barno}%
+\global\advance\barno by 1\relax}%
+ %
+\def\w@barno{\global\n@iii=\barno\global\divide\n@iii by \freqbarno\relax
+\ifnum\n@iii=\lastbarno\relax
+\else{\y@i=\altplancher\advance\y@i by \systemheight
+\advance\y@i by 2\internote\raise\y@i\llap{\it \number\barno
+   \kern -6\p@}}\fi\global\lastbarno=\n@iii
+}%
+\newif\ifprimavolta
+\newif\ifsecondavolta
+\def\freqbarno{1}\def\wbarno{\w@barno}
+\def\wbarno@x{\ifprimavolta\make@prima 1\else
+              \ifsecondavolta\make@prima 2\else
+              \wbarno
+              \fi\fi
+   \primavoltafalse\secondavoltafalse
+   \global\n@iii=\barno\global\divide\n@iii by \freqbarno\relax
+   \global\lastbarno=\n@iii}
+%
+ \def\Setprimavolta#1#2{\primavoltatrue\def\up@volta{#1}\def\lg@volta{#2}}
+ \def\setprimavolta{\Setprimavolta{2\Interligne}{1cm}}
+
+ \def\Setsecondavolta#1#2{\secondavoltatrue\def\up@volta{#1}\def\lg@volta{#2}}
+ \def\setsecondavolta{\Setsecondavolta{2\Interligne}{1cm}}
+
+\def\make@prima#1{{\y@i=\altplancher\advance\y@i by \systemheight
+\advance\y@i by \up@volta
+  \raise\y@i\rlap{\vrule height 2\Interligne\rm\ #1.}\advance\y@i 2\Interligne
+  \raise\y@i\rlap{\vrule height \z@ depth \lthick width \lg@volta}%
+   }}
+\def\up@volta{2\Interligne}\def\lg@volta{1cm}   
+ %
+ % discretionary line breaking
+ %
+\def\noautolines{\def\barre{\n@barre}\def\zbarre{\z@barre}%
+\def\alaligne{\c@ountline\n@alaligne}\def\zalaligne{\n@zalaligne}%
+\def\suspmorceau{\c@ountline\n@suspmorceau}\def\zsuspmorceau{\c@ountline\n@zsuspmorceau}%
+\def\Suspmorceau{\n@Suspmorceau}
+\def\currenthyphenpenalty{\setnohyphenpenalty}%
+\def\updatecontext{\n@updatecon}%
+\def\leftrepeat{\n@leftrepeat}%
+\def\leftrightrepeat{\n@leftrightrepeat}%
+\setnohyphenpenalty}%
+ %
+\def\setnohyphenpenalty{\linepenalty=500\pretolerance=-1%
+\finalhyphendemerits=-10\hyphenpenalty=-10%
+\exhyphenpenalty=0\doublehyphendemerits=0%
+\adjdemerits=0\interlinepenalty=0}%
+ %
+\def\sethyphenpenalty{\linepenalty=500\pretolerance=-1%
+\finalhyphendemerits=1000\hyphenpenalty=1000%
+\exhyphenpenalty=0\doublehyphendemerits=0%
+\adjdemerits=0\interlinepenalty=1000}%
+ %
+\newcount\barsinline
+\newcount\linesinpage
+\newcount\maxbarsinline
+\newcount\maxlinesinpage
+\def\c@ountbar{\global\advance\barsinline by 1\relax}%
+\def\c@ountline{\global\advance\linesinpage by 1\relax}%
+ %
+\def\autolines#1#2#3{% #1 nombre d'elemskip par mesure,
+ %                      #2 nombre de mesures par ligne,
+ %                      #3 nb lignes par page
+\global\maxbarsinline=#2\relax
+\global\maxlinesinpage=#3\relax
+\global\elemskip=\line@width\global\advance\elemskip by -10\Internote
+\global\divide\elemskip by \maxbarsinline\relax
+\global\advance\elemskip by -6\Internote\global\divide\elemskip by #1\relax
+\def\barre{\t@barre}\def\updatecontext{\t@updatecon}\def\zbarre{\t@zbarre}%
+\def\alaligne{\t@alaligne}\def\zalaligne{\t@zalaligne}%
+\def\suspmorceau{\t@suspmorceau}\def\zsuspmorceau{\t@zsuspmorceau}%
+\def\Suspmorceau{\t@Suspmorceau}%
+\def\leftrepeat{\t@leftrepeat}%
+\def\leftrightrepeat{\t@leftrightrepeat}%
+\def\currenthyphpenalsty{\sethyphenpenalty}\sethyphenpenalty}%
+ %
+\def\t@barre{\c@ountbar
+\ifnum\barsinline<\maxbarsinline\relax\x@barre
+\else\t@alaligne
+\fi}%
+\def\t@zbarre{\c@ountbar
+\ifnum\barsinline<\maxbarsinline\relax\xz@barre
+\else\t@zalaligne
+\fi}%
+ %
+\def\t@alaligne{\c@ountline
+\ifnum\linesinpage<\maxlinesinpage\relax\n@alaligne
+\else\alapage
+\fi}
+ %
+\def\t@suspmorceau{\c@ountline\n@suspmorceau
+\ifnum\linesinpage<\maxlinesinpage\relax
+\else\eject\global\linesinpage=0\relax
+\fi}
+ %
+\def\t@zalaligne{\c@ountline
+\ifnum\linesinpage<\maxlinesinpage\relax\n@zalaligne
+\else\zalapage
+\fi}%
+ %
+\def\t@zsuspmorceau{\c@ountline\n@zsuspmorceau
+\ifnum\linesinpage<\maxlinesinpage\relax
+\else\eject\global\linesinpage=0\relax
+\fi}%
+ %
+\def\t@Suspmorceau{\setdoubleBAR\t@suspmorceau}
+ %
+ %
+\def\tz@barre{\c@ountbar
+\ifnum\barsinline<\maxbarsinline\relax\z@barre
+\else
+ \c@ountline
+ \ifnum\linesinpage<\maxlinesinpage\relax\zalaligne
+ \global\advance\linesinpage by -1\relax % car \alaligne aura aussi augmente
+ \else\zalapage
+\fi\fi}%
+ %
+\def\t@updatecon{\c@ountbar
+  \ifnum\barsinline<\maxbarsinline\relax\x@updatecon
+\else
+ \c@ountline
+ \ifnum\linesinpage<\maxlinesinpage\l@updatecon
+ \else\p@updatecon
+\fi\fi}%
+ %\check
+ %
+\noautolines
+ %
+\def\n@barre{\gluebrule\newbar\gluearule}%   barre de mesure
+\def\xbarre{\c@ountbar\x@barre}
+\def\xbeambarre{\notes\charnote0{\hss\altplancher=\z@\newbar\wbarno@x}\enotes}
+\def\x@barre{\gluebrule\newbar\zgluearule}%  barre de mesure
+                                          % sans possibilite de saut
+ %
+\def\d@oubleBAR{\thinvrule\nobreak\hskip
+0.6\Internote\global\advance\x@skip0.6\Internote
+\nobreak\thickvrule}%
+ %
+\def\addspace#1{\kern#1\global\advance\x@skip#1}
+ %
+\def\d@oublebar{\thinvrule\nobreak\hskip 0.8\Internote
+\global\advance\x@skip0.8\Internote
+\nobreak\thinvrule}%
+ %
+\def\r@ightrepeat{\hbox{\w@colons\d@oubleBAR}\global\advance\x@skip
+   7.12\Internote}
+\def\l@eftrepeat{\hbox{\thickvrule\kern 0.6\Internote\thinvrule\w@colons
+}\global\advance\x@skip7.12\Internote}
+\def\l@eftrightrepeat{\hbox{\w@colons\thickvrule
+    \kern 0.6\Internote\thickvrule\w@colons}\global\advance\x@skip
+   6.2\Internote}
+ %
+ %\check
+ %
+\def\leftrightrepeatsymbol{\gluebrule\l@eftrightrepeat\glueaftersymbol}
+\def\glueaftersymbol{{\def\wbarno{}\afterruleskip=\Internote\zgluearule}}%
+\def\leftrepeatsymbol{\gluebrule\l@eftrepeat\glueaftersymbol}%
+\def\rightrepeatsymbol{\gluebrule\r@ightrepeat\glueaftersymbol}%
+ %
+ %\check
+ %
+\def\doublebarre{\setdoublebar\barre}% double barre de mesure
+\def\setdoublebar{\def\barvrule{\d@oublebar}}%
+\def\setemptybar{\def\barvrule{\relax}}%
+\def\setdoubleBAR{\def\barvrule{\d@oubleBAR}}%
+\def\rightrepeat{\setrightrepeat\barre}%
+\def\finrightrepeat{\setrightrepeat\suspmorceau}%
+ %
+\def\setrightrepeat{\def\barvrule{\r@ightrepeat}}%
+\def\setleftrepeat{\def\barvrule{\l@eftrepeat}}%
+\def\setleftrightrepeat{\def\barvrule{\l@eftrightrepeat}}%
+ %
+\def\think@vrule@f#1{\raise\altplancher\hbox{\vdlthick height\systemheight width
+ #1}\global\advance\x@skip by #1}%
+
+\def\stdbarrules{\def\think@vrule{\think@vrule@f}} % standard v rules over all instruments
+\stdbarrules
+
+\def\sepbarrules{\def\think@vrule{\think@vrule@s}} % standard v rules over all instruments
+ %
+\def\think@vrule@s#1{\n@loop \selectinstr
+  \y@v=\nbportees\interportee \advance\y@v -\Interportee \advance\y@v \lthick
+  \raise\altitude  \hbox to \z@{\vdlthick width #1 height
+ \y@v\hss}\repeat
+ \global\advance\x@skip by #1\kern #1} % separated vrules par instrum
+
+ %\check
+\def\vrule@inst#1{\selectinstr{\p@loop\raise\altportee
+  \hbox to \z@{\vrule width #1 height 8\internote\hss}\n@portee\repeat}}%
+ %
+ %
+\def\thinvrule{\think@vrule{\lthick}}%
+\def\thickvrule{\think@vrule{1.2\Internote}}%
+ %
+\def\finmorceau{\setdoubleBAR\finpartition}%
+\def\zfinmorceau{\setemptybar\finpartition}%
+\def\finpartition{\n@suspmorceau}%
+ %\check
+ %
+\def\c@other{}% void, but possibly changed by lines.tex... and others
+\def\gluearule{\-\zgluearule}%
+\def\zgluearule{\nobreak\wbarno@x\ygluearule}%
+\def\ygluearule{\nobreak\kern\afterruleskip\nobreak
+ \global\advance\x@skip\afterruleskip\global\n@skip=\z@}%
+ % terminate skips and continue slurs and ties if any
+\def\termskip{\upd@sk
+  \ten@loop\ifnum\t@s=0\relax
+            \else\c@ten
+            \fi
+    \global\advance\n@l by 1\relax
+  \repeat\nobreak
+  \c@other\nobreak
+\global\n@skip=\z@\global\x@skip=\z@}%
+ %
+\def\gluebrule{\nobreak\termskip\@tenleader{\tempsskip}\nobreak}%
+ %
+\def\writesignatures{\global\sign@skip=\z@
+\w@ritesigns
+\global\advance\sign@skip by 0.4\Internote \nobreak\hskip\sign@skip
+}%
+\def\Writesignatures{\global\sign@skip=\z@
+\w@ritesigns
+\nobreak\advance\sign@skip by 1.2\Internote\kern\sign@skip\nobreak}%
+ %
+\def\w@ritesigns{\n@loop\writesigni\repeat}%
+ %
+ %\check
+\def\instrumentnames{\n@loop\writeinsname\repeat}%
+ %
+ %\check
+\def\writenewsignatures{\global\sign@skip=\z@
+  \n@loop\writenewsigni\repeat
+  \nobreak\ifdim\sign@skip>0.1pt\global\advance\sign@skip by 1.2\Internote
+  \nobreak\global\n@skip=\sign@skip\termskip
+  \fi
+  \nobreak}%
+ %
+ %\check
+ %
+ % normal hyphenation process when \noautolines
+ %
+\def\setnormalhyphen{\edef\-{\noexpand\discretionary{}%
+ %\check 2
+{\noexpand\hbox{\noexpand\portees\noexpand\writeclefs
+\noexpand\everystaff}%
+\noexpand\hbox{\noexpand\writesignatures}%
+}%
+ %\check 2
+{}}}%   fin du def \setnormalhyphen
+ %\check
+ %    ecrire toutes les indications de mesure sur toutes les portees
+\def\writemeters{\global\n@skip=\z@
+\n@loop\writemeteri\repeat\nobreak
+\ifdim\n@skip>\z@\advance\n@skip by 1.2\Internote
+  \global\n@skip=\n@skip\termskip
+\fi\nobreak}%
+ %
+ %\check
+\def\writemeteri{\nobreak\selectinstr{\p@loop
+ \edef\w@call{\noexpand\writemeterp{\noexpand\noportee}\the\metertoks}\relax
+  \setbox\toks@box=\hbox{\w@call{}{}{}{}}\relax
+  \ifdim\n@skip<\wd\toks@box\global\n@skip=\wd\toks@box\fi
+  \raise\altportee\rlap {\box\toks@box}\n@portee
+  \repeat}}%
+ %\check
+\def\writeclefs{%    ecrire toutes les clefs sur toutes les portees
+\global\clef@skip=\z@
+\w@riteclefs
+\kern\clef@skip}%
+ %
+\def\w@riteclefs{\n@loop\writeclefi\repeat}%
+ %
+ %\check
+\def\writenewclefs{% ecrire toutes les nouvelles clefs sur toutes les
+ %                   portees
+\global\clef@skip=\z@
+\w@ritenewclefi
+\kern\clef@skip\global\advance\x@skip\clef@skip\nobreak}%
+ %
+ %\check
+\def\zwritenewclefs{% ecrire toutes les nouvelles clefs sur toutes les
+ %                    portees, a gauche et sans espacement
+\global\clef@skip=\z@
+\setbox\w@rkbox\hbox{\w@ritenewclefi}\kern -\clef@skip\box\w@rkbox
+\kern\clef@skip\nobreak}%
+ %
+\def\w@ritenewclefi{\n@loop\writenewclefi\repeat}%
+ %
+ %\check
+\def\writesigni{\selectinstr\def\o@test{999}\w@ritenewsigni}%
+\def\writenewsigni{\selectinstr\def\o@test{\o@sign}\w@ritenewsigni}%
+\def\w@ritenewsigni{{\p@loop
+  \n@portee
+  \ifnum\o@test=\sign\relax\else
+    \edef\get@ref{\noexpand\get@refs\the\cleftoks{}{}{}{}}%
+    \setbox\toks@box=\hbox{\kern 0.4\Internote\get@ref\compnwsign
+         \kern 0.4\Internote}%
+    \ifdim\sign@skip<\wd\toks@box \global\sign@skip=\wd\toks@box\fi
+    \raise\altportee\rlap{\box\toks@box}%
+  \fi
+\repeat}%
+}%
+ %\check
+\def\writeinsname{\selectinstr
+\xdef\instrument{\csname instrument\romannumeral
+\noinstrument\endcsname}%
+\altportee=\altitude
+\ifnum\nbportees>0\relax\advance\altportee by \nbportees\interportee
+  \advance\altportee by -\Interportee
+  \advance\altportee by \altitude\divide\altportee by 2\relax
+\fi
+ \setbox\n@otebox=\llap{\vbox{\hsize=\parindent\advance\hsize by
+ -0.8\Internote \centerline{\instrument}}\
+  \kern 2\p@}\advance\altportee by -0.5\ht\n@otebox
+  \raise\altportee\box\n@otebox
+}%
+ %\check
+\def\get@refs#1#2#3#4{%   #1-#4: cle correspondante 0=sol, 6=fa, 1-4=ut  .
+\ifcase\noportee\relax\global\ut@ref=0\relax
+\or\global\ut@ref=#1\relax
+\or\global\ut@ref=#2\relax
+\or\global\ut@ref=#3\relax
+\or\global\ut@ref=#4\relax
+\fi}
+\def\compnwsign{\ifnum\o@sign=0\relax
+                \else\ifnum\sign=0\relax
+                     \else\kern 0.4\Internote
+                     \fi
+                \fi
+   \ifnum\o@sign<0\relax\w@flats\w@sharps
+   \else\w@sharps\w@flats
+   \fi}%
+ %
+ %\check
+\def\w@flats{%
+\ifnum\sign<0\relax\s@bemol{6}\else\ifnum\o@sign<0\relax\s@becarre{6}\fi\fi
+\ifnum\sign<-1\relax\s@bemol{9}\else\ifnum\o@sign<-1\relax\s@becarre{9}\fi
+\fi
+\ifnum\sign<-2\relax\s@bemol{5}\else\ifnum\o@sign<-2\relax\s@becarre{5}\fi
+\fi
+\ifnum\sign<-3\relax\s@bemol{8}\else\ifnum\o@sign<-3\relax\s@becarre{8}\fi
+\fi
+\ifnum\sign<-4\relax\s@bemol{4}\else\ifnum\o@sign<-4\relax\s@becarre{4}\fi
+\fi
+\ifnum\sign<-5\relax\s@bemol{7}\else\ifnum\o@sign<-5\relax\s@becarre{7}\fi
+\fi
+\ifnum\sign<-6\relax\s@bemol{3}\else\ifnum\o@sign<-6\relax\s@becarre{3}\fi
+\fi
+}%
+ %\check
+\def\w@sharps{%
+\ifnum\sign>0\relax\s@dieze{10}\else\ifnum\o@sign>0\relax\s@becarre{10}\fi
+\fi
+\ifnum\sign>1\relax\s@dieze{7}\else\ifnum\o@sign>1\relax\s@becarre{7}\fi\fi
+\ifnum\sign>2\relax\s@dieze{11}\else\ifnum\o@sign>2\relax\s@becarre{11}\fi
+\fi
+\ifnum\sign>3\relax\s@dieze{8}\else\ifnum\o@sign>3\relax\s@becarre{8}\fi\fi
+\ifnum\sign>4\relax\s@dieze{5}\else\ifnum\o@sign>4\relax\s@becarre{5}\fi\fi
+\ifnum\sign>5\relax\s@dieze{9}\else\ifnum\o@sign>5\relax\s@becarre{9}\fi\fi
+\ifnum\sign>6\relax\s@dieze{6}\else\ifnum\o@sign>6\relax\s@becarre{6}\fi\fi
+}%
+ %\check
+\def\s@bemol#1{\global\n@iii=#1\relax
+ \p@bedieze\global\advance\y@iii by \fl@raise\raise\y@iii\hbox to
+ 2.08\internote{\def\musicnfont{\musickeyfont}\hss\f@lat\hss}%
+}%
+\def\s@becarre#1{\global\n@iii=#1\relax
+ \p@bedieze\global\advance\y@iii by \na@raise\raise\y@iii\hbox to
+ 2.08\internote{\def\musicnfont{\musickeyfont}\hss\n@at\hss}%
+}%
+\def\s@dieze#1{\global\n@iii=#1\relax
+ \p@bedieze\global\advance\y@iii by \sh@raise\raise\y@iii\hbox to
+ 2.16\internote{\def\musicnfont{\musickeyfont}\hss\s@harp\hss}%
+}%
+ %
+\def\p@bedieze{\global\advance\n@iii by \ut@ref\relax
+   \global\advance\n@iii by \ut@ref\relax
+ %   cas de la cle de fa
+   \ifnum\ut@ref=6\global\advance\n@iii by -14\relax\else
+   \ifnum\ut@ref>0\global\advance\n@iii by -7\relax\fi\fi
+   \ifnum\n@iii<1\relax\global\advance\n@iii by 7\relax\fi
+   \ifnum\n@iii<1\relax\global\advance\n@iii by 7\relax\fi
+   \ifnum\n@iii>11\relax\global\advance\n@iii by -7\relax\fi
+   \ifnum\n@iii>11\relax\global\advance\n@iii by -7\relax\fi
+   \global\y@iii=\n@iii\internote
+   \global\advance\y@iii by -2\internote
+}
+ %\check
+ %
+ %\check
+ %
+\def\writeclefp#1#2#3#4#5{%
+\n@i=#1\relax
+\ifcase\n@i\singleclef{#2}%
+\or\singleclef{#3}\or\singleclef{#4}\or\singleclef{#5}\fi
+}%
+ %
+ %\check
+\def\writemeterp#1#2#3#4#5{%
+\n@i=#1\relax
+\ifcase\n@i\hbox{#2}\or\hbox{#3}\or\hbox{#4}\or\hbox{#5}\fi
+}%
+ %
+ %\check
+\def\writenewclefp#1#2#3#4#5#6#7#8#9{%
+\n@i=#1\relax
+\ifcase\n@i\newsingleclef{#2}{#6}%
+\or\newsingleclef{#3}{#7}\or\newsingleclef{#4}{#8}\or
+\newsingleclef{#5}{#9}\fi
+}%
+ %\check
+ %
+\def\singleclef#1{%
+\global\n@iii=#1\relax
+\charclef
+}%
+ %\check
+ %
+\def\Clefdut{\global\advance\n@iii by -3\relax\raise\n@iii\Interligne\clefdut}%
+\def\Clefdefa{\global\advance\n@iii by -6\relax
+\raise\n@iii\Interligne\clefdefa}
+ %
+\def\charclef{%
+\ifdim\clef@skip<4.8\Internote\global\clef@skip=4.8\Internote\fi
+\ifcase\n@iii\relax\clefdesol\relax
+\or{\Clefdut}%
+\or{\Clefdut}%
+\or{\Clefdut}%
+\or{\Clefdut}%
+\or{\Clefdefa}%
+\or{\Clefdefa}%
+\fi}%
+ %\check
+ %
+\def\smallClefdut{\global\advance\n@iii by -3\relax\raise\n@iii
+\Interligne\smallclefdut}%
+\def\smallClefdefa{\global\advance\n@iii by -6\relax\raise\n@iii
+\Interligne\smallclefdefa}%
+\def\smallcharclef{%
+\ifdim\clef@skip<4.8\Internote\global\clef@skip=4.8\Internote\fi
+\ifcase\n@iii\relax\smallclefdesol\relax
+\or{\smallClefdut}%
+\or{\smallClefdut}%
+\or{\smallClefdut}%
+\or{\smallClefdut}%
+\or{\smallClefdefa}%
+\or{\smallClefdefa}%
+\fi}%
+ %\check
+\def\newsingleclef#1#2{%
+\global\n@iii=#1\relax
+\n@ii=#2\relax
+\ifnum\n@ii=\n@iii\relax\else\smallcharclef
+\fi}%
+ %\check
+\def\writeclefi{\selectinstr
+{\p@loop
+  \edef\w@call{\noexpand\writeclefp{\noexpand\noportee}\the\cleftoks}%
+  \setbox\toks@box=\hbox{\w@call{}{}{}{}}%
+  \ifdim\clef@skip<\wd\toks@box \global\clef@skip=\wd\toks@box\fi
+  \raise\altportee\rlap{\box\toks@box}\n@portee
+  \repeat}%
+}%
+ %\check
+\def\writenewclefi{\selectinstr{\p@loop
+ \edef\w@call{\noexpand\writenewclefp{\noexpand\noportee}\the\cleftoks\the
+\o@cks}%
+\setbox\toks@box=\hbox{\w@call{}{}{}{}}%
+\ifdim\clef@skip<\wd\toks@box \global\clef@skip=\wd\toks@box\fi
+  \raise\altportee\rlap{\box\toks@box}\n@portee\repeat}%
+}%
+ %\check
+ % minuscule: une seule barre
+ % majuscule: double barre
+\def\changecontexte{\changecontext}%
+\def\Changecontexte{\Changecontext}%
+ %
+\def\changecontext{\gluebrule\newbar\nobreak\updatecontext}%
+\def\pchangecontext{\gluebrule\newbar\nobreak\p@updatecon}%
+\def\lchangecontext{\gluebrule\newbar\nobreak\l@updatecon}%
+ %\check
+\def\Changecontext{\setdoublebar\changecontext}%
+\def\pChangecontext{\setdoublebar\pchangecontext}%
+\def\lChangecontext{\setdoublebar\lchangecontext}%
+ %
+ % write colons on all staffs (a part of [left][right]repeat symbols
+ %
+\def\wrcolons{\w@colons}%
+\def\w@colons{\nobreak\hskip 0.8\Internote\nobreak
+  \n@loop \w@coli\repeat
+  \nobreak\hskip 0.8\Internote\nobreak}%
+ %
+ %\check
+ %
+\def\n@updatecon{%  imprime tout ce qui est nouveau
+\nobreak\writenewclefs
+\nobreak\writenewsignatures\nobreak\setnormalhyphen\-\writemeters\zgluearule
+\save@all}%
+ %
+\def\x@updatecon{%  imprime tout ce qui est nouveau
+\nobreak\writenewclefs\nobreak\wbarno@x
+\nobreak\writenewsignatures\nobreak\writemeters\ygluearule
+\save@all}%
+ %
+\def\l@updatecon{\nobreak\writenewclefs\nobreak\writenewsignatures
+\z@suspend\reprmorceau}%
+ %
+\def\p@updatecon{\nobreak\writenewclefs\nobreak\writenewsignatures
+\z@suspend\preprmorceau}%
+ %
+ %\check
+ %
+\def\n@leftrepeat{\gluebrule
+\nobreak\writenewclefs
+\discretionary{\newbar}%
+ %\check 1
+{\hbox{\portees\writeclefs\everystaff\Writesignatures}%
+\l@eftrepeat\hbox{\writemeters}}%
+ %\check 1
+{\l@eftrepeat}\nobreak\writemeters\zgluearule
+\save@all\setnormalhyphen}%
+ %
+ %\check
+ %
+\def\n@leftrightrepeat{\gluebrule
+\nobreak\writenewclefs
+ %
+\discretionary{\setrightrepeat\newbar}%
+ %\check 1
+{\hbox{\portees\writeclefs\everystaff\Writesignatures
+\l@eftrepeat\writemeters}}%
+ %\check 1
+{\l@eftrightrepeat}\nobreak\writemeters\zgluearule
+\save@all\setnormalhyphen}%
+ %
+\def\t@leftrepeat{\c@ountbar
+  \ifnum\barsinline<\maxbarsinline\relax\setleftrepeat\x@barre
+\else
+ \c@ountline
+ \ifnum\linesinpage<\maxlinesinpage\l@leftrepeat
+ \else\p@leftrepeat
+\fi\fi}%
+ %
+ %\check
+ %
+\def\t@leftrightrepeat{\c@ountbar
+  \ifnum\barsinline<\maxbarsinline\relax\setleftrightrepeat\x@barre
+\else
+ \c@ountline
+ \ifnum\linesinpage<\maxlinesinpage\l@leftrightrepeat
+ \else\p@leftrightrepeat
+\fi\fi}%
+ %
+ %\check
+ %
+\def\l@leftrepeat{\suspmorceau
+  \reprmorceau\l@eftrepeat}%
+ %
+\def\p@leftrepeat{\suspmorceau
+  \preprmorceau\l@eftrepeat}%
+ %
+ %\check
+ %
+\def\l@leftrightrepeat{\setrightrepeat\suspmorceau
+  \reprmorceau\l@eftrepeat}%
+ %
+\def\p@leftrightrepeat{\setrightrepeat\suspmorceau
+  \preprmorceau\l@eftrepeat}%
+ %
+\def\Changeclef{\Changeclefs}\def\Changeclefs{%
+\gluebrule\thinvrule\nobreak\hskip 1.2\Internote\nobreak\newbar
+\nobreak\writenewclefs\saveclefs}%
+ %\check
+\def\changeclefs{\termskip\writenewclefs\saveclefs}%
+\def\zchangeclefs{\termskip\zwritenewclefs\saveclefs}%
+ %\check
+ %**************************************************************************
+ %                    les notes proprement dites
+ %**************************************************************************
+\def\vnotes#1\elemskip{\noteskip=#1\elemskip \n@otes}%
+\def\hardnotes#1\notes{\noteskip=#1\relax \n@otes}
+\def\znotes{\noteskip=\z@\n@otes}%
+\def\multnoteskip#1{\noteskip=#1\noteskip\relax}%
+\def\scalenoteskip{1.0}%
+ %
+ %\check
+ %
+\def\enotes{\e@notes}%
+ %
+\newdimen\n@skip
+\def\skip@n{\hskip \n@skip}%
+\def\skip@b{\hskip \brace@w\global\advance\x@skip by\brace@w}%
+ %
+\def\upd@sk{\nobreak\skip@n\global\advance\x@skip by\n@skip\nobreak}%
+ %
+\def\nextstaff{\endstaff\beginstaff}%
+\def\nextinstrument{\endinstrument\begininstrument}%
+ %
+\def\n@otes{\def|{\nextstaff}\def&{\nextinstrument}\normaltranspose=\transpose
+\multnoteskip{\scalenoteskip}\check@nopen
+\global\advance\notes@open by 1\relax\upd@sk
+\def\rq{\rq@}\def\lq{\lq@}\def\ds{\demisoupir}\relax
+\locx@skip=\x@skip
+\global\n@skip=\noteskip
+\global\noinstrument=0\relax
+\begininstrument}%
+ %
+ %\check
+\def\begininstrument{\global\advance\noinstrument by 1\relax
+\selectinstr\resetstem
+\ifdim\internote<0.76\Internote\csname set@tinynotesize\endcsname
+  \computespecifics
+\else\ifdim\internote<0.95\Internote\csname set@smallnotesize\endcsname
+           \computespecifics
+     \else\csname currentsize\endcsname\fi
+\fi     
+\global\noportee=0\relax\beginstaff
+}%
+ %\check
+ %
+\def\endinstrument{\endstaff}%
+ %\check
+ %
+\def\beginstaff{\alt@comp
+  \n@portee
+  \edef\get@ref{\noexpand\get@refs\the\cleftoks{}{}{}{}}\relax\get@ref
+  \setbox\n@otebox=\hbox\bgroup\computeqn@w
+  \locx@skip=\x@skip }%
+ %\check
+ %
+\def\endstaff{\egroup
+  \ifdim\n@skip<\wd\n@otebox \global\n@skip=\wd\n@otebox
+  \fi
+  \nobreak\raise\altportee\rlap{\unhbox\n@otebox}\nobreak}%
+ %
+ %\check
+ %
+\def\e@notes{\global\notes@open=0\relax\endinstrument
+\ifdim\n@skip<\noteskip \showthe\noteskip\showthe\n@skip
+\global\n@skip=\noteskip
+\fi}%
+ %
+ %\check
+ %
+\def\shortstems{\def\stemfactor{4.00}}
+\def\normalstems{\def\stemfactor{4.66}}
+\normalstems
+ % queue de note vers le bas
+\def\p@tail{\global\advance\st@bot by -\stemfactor\interbeam\global\stem@skip=\z@
+\minst@bot\pd@tail}%
+ % queue de note vers le haut
+\def\d@tail{\global\advance\st@top by \stemfactor\interbeam\maxst@top\pd@tail}%
+\def\minst@bot{\global\advance\st@bot by -\altportee
+  \ifdim\st@bot>2\Interligne \global\st@bot=2\Interligne\fi
+  \global\advance\st@bot by \altportee}
+\def\maxst@top{\global\advance\st@top by -\altportee
+  \ifdim\st@top<2\Interligne \global\st@top=2\Interligne\fi
+  \global\advance\st@top by \altportee}
+ %
+ %\check
+ %\def\pd@tail{\global\advance\st@top by -\st@bot
+ %  \ifdim\st@top>\p@\global\advance\st@bot by -\altportee
+ %  \raise\st@bot\rlap{\kern\stem@skip\vrule height\st@top width \lthick}\fi
+ %  \resetstem}%
+ %\check
+\def\pd@tail{\ifdim\st@top>\st@bot
+   \global\advance\st@bot by -\altportee
+   \global\advance\st@top by -\altportee
+   \kern\stem@skip
+   \vrule height\st@top depth -\st@bot width \lthick
+   \kern-\stem@skip
+   \kern-\lthick
+\fi \resetstem}%
+ %\check
+\def\resetstem{\global\st@bot=99cm\global\st@top=-\st@bot}%
+ %
+\def\setstem{{\advance\y@i by -\n@raise  \advance\y@i by \altportee
+\ifdim\st@bot>\y@i\global\st@bot=\y@i\fi
+\ifdim\st@top<\y@i\global\st@top=\y@i\fi}}%
+ %
+ %\check
+ %
+ %  sequence de placement d'un caractere a une position dans la portee
+\def\pl@note{\pl@base  \advance\y@i by \n@raise}%
+\def\pl@base{\y@i=\n@i\internote}%
+ %
+ % lignes supplementaires pour \n@i (position)
+ %
+\newcount\h@lnlv
+\newdimen\hlp@width
+\newdimen\h@lineup
+\newdimen\h@linedn
+ %\def\h@linei{\raise\h@lnlv\internote
+ %  \llap{\vdlthick width 1.6\hlp@width height \hlthick
+ %  \kern -1.3\hlp@width}}%
+\def\h@linei{\h@lineup=\h@lnlv\internote
+\h@linedn=\h@lineup
+\advance\h@lineup by \hlthick
+\advance\h@linedn by -\hlthick
+\kern -0.3\hlp@width
+\vrule height \h@lineup depth -\h@linedn width 1.6\hlp@width
+\kern -1.3\hlp@width}%
+ %\check
+ %
+\def\h@linesqn{\h@lines{\qn@width}}%
+\def\adv@locx@mqn{\advance\locx@skip by -\qn@width}%
+ %
+\def\h@lines#1{%
+\ifnum\stafflinesnb>3 % no help lines for percussion instruments
+  \hlp@width=#1\h@lnlv=0\relax
+  \loop\advance\h@lnlv by -1\relax
+  \ifnum\n@i<\h@lnlv\relax\advance\h@lnlv by -1\relax
+  \ifnum\h@lnlv<-20\relax\showthe\h@lnlv\fi
+  \h@linei\repeat
+% \h@lnlv=8\relax
+\h@lnlv=\stafflinesnb\relax
+\advance\h@lnlv\stafflinesnb\relax
+\advance\h@lnlv  -2\relax
+\loop\advance\h@lnlv by 1\relax
+  \ifnum\n@i>\h@lnlv\relax\advance\h@lnlv by 1\relax
+  \ifnum\h@lnlv>30\relax\showthe\h@lnlv\fi
+  \h@linei\repeat
+\fi}%
+ %\check
+ % *********** les symboles de notes ou assimiles ****************
+ %
+ % placement
+ %
+\newcount\inh@alt
+\def\getn@i{\global\inh@alt=0\relax\xgetn@i}%
+ %
+\def\inhgetn@i{\global\inh@alt=1\relax\xgetn@i}%
+ %
+\def\xgetn@i#1{\n@i=9999\relax   % par defaut
+\edef\t@ruc{\f@tok #1\noexpand\relax\af@tok}\ifcat a\t@ruc\relax
+\getn@iletter{#1}%
+\else\getn@inonlet{#1}% \ifcat pas lettre
+\fi\global\n@raise=\z@}% %
+\def\getn@inonlet#1{\edef\ss@uite{}\edef\s@uite{\s@tok #1{}\af@tok}%
+\edef\alt@suite{}\ifcat 1\t@ruc\relax
+\t@rucfig{#1}%   cas active character dont  chiffre
+\else\t@rucexpcar{#1}%
+\fi\alt@suite}% fi du \ifcat 1
+ %\check
+ % analysis of accidentals within collective note coding
+\def\absoluteaccidentals{\def\Xna{\na}\def\Xsh{\sh}\def\Xfl{\fl}%
+\def\Xdsh{\dsh}\def\Xdfl{\dfl}}%
+\absoluteaccidentals
+ %
+\def\t@rucexpcar#1{\if ^\t@ruc\relax
+        \edef\alt@suite{\ifnum
+           \inh@alt=0\relax\noexpand\Xsh{\s@uite}\fi
+        \noexpand\getn@i{\s@uite}}\fi
+      \if _\t@ruc\relax
+        \edef\alt@suite{\ifnum
+           \inh@alt=0\relax\noexpand\Xfl{\s@uite}\fi
+        \noexpand\getn@i{\s@uite}}\fi}%
+ %\check
+\def\t@rucfig#1{\if=\t@ruc\relax
+        \edef\alt@suite{\ifnum
+           \inh@alt=0\relax\noexpand\Xna{\s@uite}\fi
+        \noexpand\getn@i{\s@uite}}\fi
+\if*\t@ruc\relax
+        \sk
+        \edef\alt@suite{\noexpand\getn@i{\s@uite}}\fi
+\if.\t@ruc\relax
+        \edef\alt@suite{\ifnum
+           \inh@alt=0\relax\noexpand\pt{\s@uite}\fi
+        \noexpand\getn@i{\s@uite}}\fi
+\if>\t@ruc\relax
+        \edef\alt@suite{\ifnum
+           \inh@alt=0\relax\noexpand\Xdsh{\s@uite}\fi
+        \noexpand\getn@i{\s@uite}}\fi
+\if<\t@ruc\relax
+        \edef\alt@suite{\ifnum
+           \inh@alt=0\relax\noexpand\Xdfl{\s@uite}\fi
+        \noexpand\getn@i{\s@uite}}\fi
+\if!\t@ruc\relax
+        \transpose=\normaltranspose\relax
+         \edef\alt@suite{\noexpand\getn@i{\s@uite}}\fi
+\if'\t@ruc\relax
+        \advance\transpose by 7\relax
+        \edef\alt@suite{\noexpand\getn@i{\s@uite}}\fi
+\if`\t@ruc\relax
+        \advance\transpose by -7\relax
+        \edef\alt@suite{\noexpand\getn@i{\s@uite}}%
+\else \if -\t@ruc\relax\n@i=#1\relax\fi
+      \if 1\t@ruc\relax\n@i=#1\relax\fi
+      \if 2\t@ruc\relax\n@i=#1\relax\fi
+      \if 3\t@ruc\relax\n@i=#1\relax\fi
+      \if 4\t@ruc\relax\n@i=#1\relax\fi
+      \if 5\t@ruc\relax\n@i=#1\relax\fi
+      \if 6\t@ruc\relax\n@i=#1\relax\fi
+      \if 7\t@ruc\relax\n@i=#1\relax\fi
+      \if 8\t@ruc\relax\n@i=#1\relax\fi
+      \if 9\t@ruc\relax\n@i=#1\relax\fi
+      \if 0\t@ruc\relax\n@i=#1\relax\fi
+\fi}%
+ %\check
+ %
+\def\getn@iletter#1{\n@i=\expandafter`\t@ruc\relax
+\ifnum\n@i >96\relax \advance\n@i by -101\relax % ramener au E (position
+ % zero en clef de sol, ut@ref=0)
+\else\advance\n@i by -83\relax % ramener au S= E + 14
+\fi
+\advance\n@i by \ut@ref\relax
+\advance\n@i by \ut@ref\relax
+\advance\n@i by \transpose\relax
+\edef\s@uite{\s@tok #1{}\af@tok}\edef\ss@uite{\noexpand\n@fon{\s@uite}}}%
+ %\check
+ %
+\def\pt@raise{\ifodd\n@i\relax\pt@up=-0.1\Interligne\else\pt@up
+=0.3\Interligne\fi
+\advance\pt@up by -\n@raise\raise\pt@up}%
+ %
+\def\lcharnote#1#2{\getn@i{#1}\pl@llap{#2}}%
+\def\ccharnote#1#2{\getn@i{#1}\pl@lrlap{#2}}%
+ %
+\def\bigaccid{\def\small@test{\noteskip>-1\p@}}%
+\def\smallaccid{\def\small@test{\noteskip>9999\p@}}%
+\def\varaccid{\def\small@test{\noteskip>1.9\qn@width}}%
+\def\k@eiqdskip{\kern 0.8\qd@skip}
+\def\k@meiqdskip{\kern -0.8\qd@skip}
+ %
+\varaccid % accidents de taille variable
+ %\check
+\def\lfl#1{\getn@i{#1}\global\n@raise=\fl@raise
+  \pl@llap{\ifdim\small@test\f@lat\else\smallf@lat\fi\k@eiqdskip}}%
+ %\check
+\def\ldfl#1{\getn@i{#1}\global\n@raise=\fl@raise
+  \pl@llap{\ifdim\small@test\df@lat\else\smalldf@lt\fi\k@eiqdskip}}%
+ %\check
+\def\lsh#1{\getn@i{#1}\global\n@raise=\sh@raise
+  \pl@llap{\ifdim\small@test\s@harp\else\smalls@harp\fi\k@eiqdskip}}%
+\def\ldsh#1{\getn@i{#1}\global\n@raise=\z@
+  \pl@llap{\ifdim\small@test\ds@harp\else\smallds@harp\fi\k@eiqdskip}}%
+ %\check
+\def\lna#1{\getn@i{#1}\global\n@raise=\na@raise
+  \pl@llap{\ifdim\small@test\n@at\else\smalln@at\fi\k@eiqdskip}}%
+ %\check
+\def\pl@llap{\pl@note\raise\y@i\llap}%
+\def\pl@lrlap{\pl@note\raise\y@i\lrlap}%
+\def\lrlap#1{\rlap{\hss#1}}%
+\def\uplap#1{\vbox to\z@{\vss#1}}
+ %**************** notes (sans queue) *******************
+ %
+\def\xcharnote#1#2#3{\getn@i{#2}\pl@base
+  \raise\y@i\hbox to #1{#3\hss}\advance\locx@skip by #1\relax}%
+ %\check
+ %
+\def\raise@note{\advance\locx@skip by\noteskip\raise\y@i\hbox to \noteskip}%
+ %
+ % rondes sous diverses formes
+ %
+ % ronde decalee a gauche (sans avance)
+\def\lw#1{\kern -\wd@skip\zw{#1}\kern \wd@skip}%
+ %
+ % ronde decalee a droite (sans avance)
+\def\rw#1{\kern \wd@skip\zw{#1}\kern -\wd@skip}%
+ %\check
+ % ronde sans avance
+\def\zw#1{\getn@i{#1}\def\n@fon{\zw}\def\n@sym{\w@h}\g@zw}%
+\def\zwp#1{\getn@i{#1}\def\n@fon{\zwp}\def\n@sym{\w@hp}\g@zw}%
+\def\zwpp#1{\getn@i{#1}\def\n@fon{\zwpp}\def\n@sym{\w@hpp}\g@zw}%
+\def\zwppp#1{\getn@i{#1}\def\n@fon{\zwppp}\def\n@sym{\w@hppp}\g@zw}%
+\def\g@zw{\advancefalse\g@w}%
+ %\check
+ %
+\def\phpause{\hbox to \noteskip{\vrule width
+ 1.2\qn@width height \internote\hss}}%
+\def\pause{\hbox{\raise 5\internote\phpause}\advance\locx@skip by \noteskip}%
+\def\hpause{\hbox{\raise 4\internote\phpause}\advance\locx@skip by \noteskip}%
+\def\demisoupir{\hbox to \noteskip{\d@soup\hss}\advance\locx@skip by \noteskip}%
+\def\qp{\hbox to \noteskip{\s@oupir\hss}\advance\locx@skip by \noteskip}%
+\def\soupir{\qp}%
+\def\dsoupir{\demisoupir}%
+ % quart de soupir
+\def\qs{\hbox to \noteskip{\q@soup\hss}%
+\advance\locx@skip by \noteskip}%
+\def\qsoupir{\qs}%
+\def\quartsoupir{\qs}%
+ % huitieme de soupir
+\def\hs{\hbox to \noteskip{\h@soup\hss}%
+\advance\locx@skip by \noteskip}%
+\def\hsoupir{\hs}%
+\def\huitsoupir{\hs}%
+ % seizieme de soupir
+\def\qqs{\hbox to \noteskip{\s@soup\hss}%
+\advance\locx@skip by \noteskip}%
+\def\seizsoupir{\qqs}%
+ %\check
+\def\pl@noteq{\pl@note  \setstem
+  \ifdim\noteskip>\z@
+    \ifdim\st@bot<29cm
+      \s@tem
+    \fi
+  \fi
+}%
+ %
+\def\Ped{{\cmsy P\kern -1\p@\it ed.}}%
+\def\PED{\rlap{\zcharnote{-5}{\kern -2\p@\Ped}}}%
+\def\DEP{\rlap{\zcharnote{-7}{\kern 0.5\noteskip\kern -4\p@\moyen *}}}%
+ %\check
+\def\pl#1{\zcharnote{#1}{\raise 2\p@ \rlap{\ttyeight +}}}%
+\def\pointdorgue#1{\zcharnote{#1}{\raise \Interligne\p@orgue}}%
+\def\pointdurgue#1{\zcharnote{#1}{\raise-\Interligne\p@urgue}}%
+\def\ntrille#1#2{\zcharnote{#1}{\trille{#2\elemskip}}}%
+\def\nTrille#1#2{\zcharnote{#1}{\Trille{#2\elemskip}}}%
+\def\xtrille#1#2{\zcharnote{#1}{\trille{#2}}}%
+\def\xTrille#1#2{\zcharnote{#1}{\Trille{#2}}}%
+ %
+\def\pt#1{\inhgetn@i{#1}\def\n@fon{\pt}\def\n@sym{\z@p}\g@pt}
+\def\ppt#1{\inhgetn@i{#1}\def\n@fon{\ppt}\def\n@sym{\z@pp}\g@pt}
+\def\pppt#1{\inhgetn@i{#1}\def\n@fon{\pppt}\def\n@sym{\z@ppp}\g@pt}
+\def\g@pt{\n@raiseq \pl@note\raise\y@i\rlap{\n@sym}\fi}%
+ %
+\def\n@raiseq{\global\n@raise=\qu@raise\ifnum\n@i<100\relax}
+ %
+ %\check
+ %
+ % blanche sans queue decalee a gauche
+ % blanche pointee sans queue
+ % blanche decalee a gauche
+\def\lh#1{\kern -\hd@skip\zh{#1}\kern \hd@skip}%
+ % blanche decalee a droite sans queue
+\def\rh#1{\kern \hd@skip\zh{#1}\kern -\hd@skip}%
+ % blanche sans queue ni avance
+\def\zh#1{\getn@i{#1}\def\n@fon{\zh}\def\n@sym{\h@a}\g@zh}
+\def\zhp#1{\getn@i{#1}\def\n@fon{\zhp}\def\n@sym{\h@ap}\g@zh}
+\def\zhpp#1{\getn@i{#1}\def\n@fon{\zhpp}\def\n@sym{\h@app}\g@zh}
+\def\zhppp#1{\getn@i{#1}\def\n@fon{\zhppp}\def\n@sym{\h@appp}\g@zh}
+\def\g@zh{\global\n@raise=\ha@raise\global\n@width=\hn@width\g@z}%
+\def\g@z{\ifnum\n@i<100\relax
+  \h@lines{\n@width}\pl@note\setstem\rlap@symss\fi}%
+ %
+ % noires sans queues
+ %
+\def\zq#1{\getn@i{#1}\def\n@fon{\zq}\def\n@sym{\q@u}\g@zq}
+\def\zqp#1{\getn@i{#1}\def\n@fon{\zqp}\def\n@sym{\q@up}\g@zq}
+\def\zqpp#1{\getn@i{#1}\def\n@fon{\zqpp}\def\n@sym{\q@upp}\g@zq}
+\def\zqppp#1{\getn@i{#1}\def\n@fon{\zqppp}\def\n@sym{\q@uppp}\g@zq}
+\def\g@zq{\global\n@raise=\qu@raise\global\n@width=\qn@width\g@z}%
+ %
+ %\check
+\def\rq@#1{\kern \qd@skip\zq{#1}\kern -\qd@skip}%
+\def\lq@#1{\kern -\qd@skip\zq{#1}\kern \qd@skip}%
+ % *********************** notes avec queue **********************
+ %
+ %\check
+\def\qu{\advancetrue\qu@z}%
+\def\qup{\advancetrue\qup@z}%
+\def\qupp{\advancetrue\qupp@z}%
+\def\quppp{\advancetrue\quppp@z}%
+\def\qu@z#1{\getn@i{#1}\def\n@fon{\qu}\def\n@sym{\q@u}\g@qu}%
+\def\qup@z#1{\getn@i{#1}\def\n@fon{\qup}\def\n@sym{\q@up}\g@qu}%
+\def\qupp@z#1{\getn@i{#1}\def\n@fon{\qupp}\def\n@sym{\q@upp}\g@qu}%
+\def\quppp@z#1{\getn@i{#1}\def\n@fon{\quppp}\def\n@sym{\q@uppp}\g@qu}%
+ %\check
+\def\g@qu{\n@raiseq
+  \global\stem@skip=\qd@skip\def\s@tem{\d@tail}\g@qbh@\fi}%
+ %
+\def\q@up{\hbox to \qn@width{\q@u\hss}\P@t}%
+\def\q@upp{\hbox to \qn@width{\q@u\hss}\PP@t}%
+\def\q@uppp{\hbox to \qn@width{\q@u\hss}\PPP@t}%
+\def\h@ap{\hbox to \hn@width{\h@a\hss}\P@t}%
+\def\h@app{\hbox to \hn@width{\h@a\hss}\PP@t}%
+\def\h@appp{\hbox to \hn@width{\h@a\hss}\PPP@t}%
+\def\w@hp{\hbox to \wn@width{\w@h\hss}\P@t}%
+\def\w@hpp{\hbox to \wn@width{\w@h\hss}\PP@t}%
+\def\w@hppp{\hbox to \wn@width{\w@h\hss}\PPP@t}%
+ %
+\def\z@p{\kern \qn@width\P@t}\def\z@pp{\kern \qn@width\PP@t}%
+\def\z@ppp{\kern \qn@width \PPP@t}%
+ %\check
+\def\rqu#1{\getn@i{#1}\def\n@fon{\qu}\def\n@sym{\kern \qd@skip\q@u}%
+  \n@raiseq
+  \kern \qd@skip  \h@linesqn\kern -\qd@skip
+  \global\stem@skip=\qd@skip\def\s@tem{\d@tail}\pl@symss\fi}%
+ %\check
+ % noire queue en haut sans avance
+\def\zqu{\advancefalse\qu@z}%
+\def\zqup{\advancefalse\qup@z}%
+\def\zqupp{\advancefalse\qupp@z}%
+\def\zquppp{\advancefalse\quppp@z}%
+ %
+ % espace vide d'une note
+\def\off#1{\advance\locx@skip by #1\kern #1}%
+\def\sk{\off\noteskip}%
+\def\qsk{\off\qn@width}%
+\def\hqsk{\off{0.5\qn@width}}%
+\def\hsk{\off\hn@width}%
+ \def\offs@t#1{\off{-\s@o@}#1\off\s@o@}
+\def\loffset#1{\edef\s@o@{#1\qn@width}\offs@t}
+\def\roffset#1{\edef\s@o@{-#1\qn@width}\offs@t}
+\def\roff{\roffset 1}
+\def\loff{\loffset 1}
+%\check
+\def\lqu#1{\kern -\qd@skip\zqu{#1}\kern \qd@skip}%
+ %\check
+ % noires queue en base
+\def\ql{\advancetrue\ql@z}%
+\def\qlp{\advancetrue\qlp@z}%
+\def\qlpp{\advancetrue\qlpp@z}%
+\def\qlppp{\advancetrue\qlppp@z}%
+\def\ql@z#1{\getn@i{#1}\def\n@fon{\ql}\def\n@sym{\q@u}\g@ql}%
+\def\qlp@z#1{\getn@i{#1}\def\n@fon{\qlp}\def\n@sym{\q@up}\g@ql}%
+\def\qlpp@z#1{\getn@i{#1}\def\n@fon{\qlpp}\def\n@sym{\q@upp}\g@ql}%
+\def\qlppp@z#1{\getn@i{#1}\def\n@fon{\qlppp}\def\n@sym{\q@uppp}\g@ql}%
+\def\g@ql{\n@raiseq
+  \def\s@tem{\p@tail}\g@qbh@\fi}%
+ %
+ % la meme sans avance
+\def\zql{\advancefalse\ql@z}%
+\def\zqlp{\advancefalse\qlp@z}%
+\def\zqlpp{\advancefalse\qlpp@z}%
+\def\zqlppp#1{\advancefalse\qlppp@z}%
+ %\check
+ % decalees a gauche et a droite
+\def\lql#1{\kern -\qd@skip\zql{#1}\kern \qd@skip}%
+\def\rql#1{\kern \qd@skip\zql{#1}\kern -\qd@skip}%
+ %
+ % croches, doubles croches, triples croches, quadruple croches queue en
+ % haut et en bas
+ %
+\def\clp{\advancetrue\mclp1}\def\cup{\advancetrue\mcup1}%
+\def\clpp{\advancetrue\mclpp1}\def\cupp{\advancetrue\mcupp1}%
+\def\clppp{\advancetrue\mclppp1}\def\cuppp{\advancetrue\mcuppp1}%
+ %
+\def\zclp{\advancefalse\mclp1}\def\zcup{\advancefalse\mcup1}%
+\def\zclpp{\advancefalse\mclpp1}\def\zcupp{\advancefalse\mcupp1}%
+\def\zclppp{\advancefalse\mclppp1}\def\zcuppp{\advancefalse\mcuppp1}%
+ %
+\def\cu{\advancetrue\mcu1}\def\ccu{\advancetrue\mcu2}
+\def\cccu{\advancetrue\mcu3}\def\ccccu{\advancetrue\mcu4}%
+\def\cl{\advancetrue\mcl1}\def\ccl{\advancetrue\mcl2}
+\def\cccl{\advancetrue\mcl3}\def\ccccl{\advancetrue\mcl4}%
+ %
+\def\zcu{\advancefalse\mcu1}\def\zccu{\advancefalse\mcu2}%
+\def\zcccu{\advancefalse\mcu3}\def\zccccu{\advancefalse\mcu4}%
+\def\zcl{\advancefalse\mcl1}\def\zccl{\advancefalse\mcl2}%
+\def\zcccl{\advancefalse\mcl3}\def\zccccl{\advancefalse\mcl4}%
+ %
+\def\mcu#1#2{\getn@i{#2}\def\n@sym{\q@u}%
+\edef\n@fon{\noexpand\mcu #1}\g@cu{#1}}
+\def\mcup#1#2{\getn@i{#2}\def\n@sym{\q@up}%
+\edef\n@fon{\noexpand\mcup #1}\g@cu{#1}}
+\def\mcupp#1#2{\getn@i{#2}\def\n@sym{\q@upp}%
+\edef\n@fon{\noexpand\mcupp #1}\g@cu{#1}}
+\def\mcuppp#1#2{\getn@i{#2}\def\n@sym{\q@uppp}%
+\edef\n@fon{\noexpand\mcupp #1}\g@cu{#1}}
+\def\g@cu#1{\n@raiseq
+  \h@linesqn\global\stem@skip=\qd@skip
+  \def\s@tem{\d@cr#1}\pl@symssq\fi}%
+\def\mcl#1#2{\getn@i{#2}\def\n@sym{\q@u}%
+\edef\n@fon{\noexpand\mcl #1}\g@cl{#1}}
+\def\mclp#1#2{\getn@i{#2}\def\n@sym{\q@up}%
+\edef\n@fon{\noexpand\mclp #1}\g@cl{#1}}
+\def\mclpp#1#2{\getn@i{#2}\def\n@sym{\q@upp}%
+\edef\n@fon{\noexpand\mclpp #1}\g@cl{#1}}
+\def\mclppp#1#2{\getn@i{#2}\def\n@sym{\q@uppp}%
+\edef\n@fon{\noexpand\mclppp #1}\g@cl{#1}}
+\def\g@cl#1{\n@raiseq
+  \h@linesqn\def\s@tem{\p@cr#1}\pl@symssq\fi}%
+ %
+ % ronde
+\def\wh#1{\getn@i{#1}\def\n@fon{\wh}\def\n@sym{\w@h}\g@wh}%
+\def\whp#1{\getn@i{#1}\def\n@fon{\whp}\def\n@sym{\w@hp}\g@wh}%
+\def\whpp#1{\getn@i{#1}\def\n@fon{\whpp}\def\n@sym{\w@hpp}\g@wh}%
+\def\whppp#1{\getn@i{#1}\def\n@fon{\whppp}\def\n@sym{\w@hppp}\g@wh}%
+\def\g@wh{\advancetrue\g@w}%
+\def\g@w{\global\n@raise=\wh@raise\ifnum\n@i<100\relax
+  \h@lines{\wn@width}\def\s@tem{\resetstem}\pl@symssq\fi}%
+ %\check
+\def\zwh#1{\getn@i{#1}\def\n@fon{\wh}\def\n@sym{\w@h}\rlap{\g@wh}}%
+ %
+ % blanche sans queue isolee
+\def\nh#1{\getn@i{#1}\def\n@fon{\nh}\def\n@sym{\h@a}\g@nh}%
+\def\g@nh{\advancetrue\g@nhz}%
+\def\g@nhz{\global\n@raise=\ha@raise\ifnum\n@i<100\relax
+  \h@lines{\hn@width}\def\s@tem{\resetstem}\pl@symssq\fi}%
+\def\znh#1{\getn@i{#1}\def\n@fon{\nh}\def\n@sym{\h@a}\rlap{\g@nhz}}%
+ %
+ % noiree sans queue isolee
+\def\nq#1{\getn@i{#1}\def\n@fon{\nq}\def\n@sym{\q@u}\g@nq}%
+\def\g@nq{\advancetrue\g@nqz}%
+\def\g@nqz{\global\n@raise=\qu@raise\ifnum\n@i<100\relax
+  \h@lines{\hn@width}\def\s@tem{\resetstem}\pl@symssq\fi}%
+\def\znq#1{\getn@i{#1}\def\n@fon{\nq}\def\n@sym{\q@u}\rlap{\g@nqz}}%
+ %
+ % blanche avec queue
+\def\ha{\hu}%
+\def\hu#1{\getn@i{#1}\def\n@fon{\hu}\def\n@sym{\h@a}\g@hu}%
+\def\hup#1{\getn@i{#1}\def\n@fon{\hup}\def\n@sym{\h@ap}\g@hu}%
+\def\hupp#1{\getn@i{#1}\def\n@fon{\hupp}\def\n@sym{\h@app}\g@hu}%
+\def\huppp#1{\getn@i{#1}\def\n@fon{\huppp}\def\n@sym{\h@appp}\g@hu}%
+\def\g@hu{\advancetrue\g@huz}%
+\def\g@huz{\global\n@raise=\ha@raise\ifnum\n@i<100\relax
+ \h@lines{\hn@width}\global\stem@skip=\hd@skip
+ \def\s@tem{\d@tail}\pl@symssq\fi}%
+ %
+ %\check
+\def\rhu#1{\getn@i{#1}\def\n@fon{\hu}\global\n@raise=\ha@raise
+\def\n@sym{\kern \hd@skip\h@a}%
+\ifnum\n@i<100\relax
+  \kern \hd@skip
+  \h@lines{\hn@width}\kern -\hd@skip
+  \global\stem@skip=\hd@skip\def\s@tem{\d@tail}\pl@symss\fi}%
+ %\check
+ % blanche avec queue sans avance
+\def\zhu#1{\getn@i{#1}\def\n@fon{\hu}\def\n@sym{\h@a}\g@zhu}%
+\def\zhup#1{\getn@i{#1}\def\n@fon{\hup}\def\n@sym{\h@ap}\g@zhu}%
+\def\zhupp#1{\getn@i{#1}\def\n@fon{\hupp}\def\n@sym{\h@app}\g@zhu}%
+\def\zhuppp#1{\getn@i{#1}\def\n@fon{\huppp}\def\n@sym{\h@appp}\g@zhu}%
+\def\g@zhu{\advancefalse\g@huz}%
+ %\check
+\def\lhu#1{\kern -\hn@width\zhu{#1}\kern \hn@width}%
+ %
+ %
+ % blanches queue en bas
+\def\hl#1{\getn@i{#1}\def\n@fon{\hl}\def\n@sym{\h@a}\g@hl}%
+\def\hlp#1{\getn@i{#1}\def\n@fon{\hlp}\def\n@sym{\h@ap}\g@hl}%
+\def\hlpp#1{\getn@i{#1}\def\n@fon{\hlpp}\def\n@sym{\h@app}\g@hl}%
+\def\hlppp#1{\getn@i{#1}\def\n@fon{\hlppp}\def\n@sym{\h@appp}\g@hl}%
+\def\g@hl{\advancetrue\g@hlz}%
+\def\g@hlz{\global\n@raise=\ha@raise\ifnum\n@i<100\relax
+  \h@lines{\hn@width}\def\s@tem{\p@tail}\pl@symssq\fi}%
+ %\check
+\def\zhl#1{\getn@i{#1}\def\n@fon{\hl}\def\n@sym{\h@a}\rlap{\g@zhl}}%
+\def\zhlp#1{\getn@i{#1}\def\n@fon{\hlp}\def\n@sym{\h@ap}\rlap{\g@zhl}}%
+\def\zhlpp#1{\getn@i{#1}\def\n@fon{\hlpp}\def\n@sym{\h@app}\rlap{\g@zhl}}%
+\def\zhlppp#1{\getn@i{#1}\def\n@fon{\hlppp}\def\n@sym{\h@appp}\rlap{\g@zhl}}%
+\def\g@zhl{\advancefalse\g@hlz}%
+ %\check
+\def\rhl#1{\kern \hd@skip\zhl{#1}\kern -\hd@skip}%
+\def\lhl#1{\kern -\hn@width\zhl{#1}\kern \hn@width}%
+ %\check
+ %**************** initialisation de poutres ******************
+ % \ibu{0<numero<10}{altitude~note}{pente de -9 a +9}
+ % \ibl{0<numero<10}{altitude~note}{pente de -9 a +9}
+ %
+\def\selectpoutre#1{{\n@i=#1\relax
+  \ifnum\n@i<0\relax\n@i=29\relax\fi
+  \advance\n@i by 1\relax
+\xdef\b@x{\csname b@x\romannumeral\n@i\endcsname}%
+\xdef\b@z{\csname b@z\romannumeral\n@i\endcsname}%
+\xdef\bb@x{\csname bb@x\romannumeral\n@i\endcsname}%
+\xdef\bb@z{\csname bb@z\romannumeral\n@i\endcsname}%
+\xdef\bbb@x{\csname bbb@x\romannumeral\n@i\endcsname}%
+\xdef\bbb@z{\csname bbb@z\romannumeral\n@i\endcsname}%
+\xdef\bbbb@x{\csname bbbb@x\romannumeral\n@i\endcsname}%
+\xdef\bbbb@z{\csname bbbb@z\romannumeral\n@i\endcsname}%
+\xdef\bbbbb@x{\csname bbbbb@x\romannumeral\n@i\endcsname}%
+\xdef\bbbbb@z{\csname bbbbb@z\romannumeral\n@i\endcsname}%
+\xdef\b@n{\csname b@n\romannumeral\n@i\endcsname}%
+\xdef\b@p{\csname b@p\romannumeral\n@i\endcsname}}\s@lopdefs}%
+ % fin selectpoutre
+ %
+\def\ibu#1{\selectpoutre{#1}\i@bu}%
+\def\i@bu#1#2{\ifnum\b@n=0\relax\else\t@bu\fi
+  \global\b@n=-1\relax
+  \global\b@x=\locx@skip
+  \global\advance\b@x by \qd@skip\inhgetn@i{#1}\pl@base
+  \global\b@z=\y@i\global\advance\b@z by\altportee\global\b@p=#2\relax
+  \global\advance\b@z by 4.333\interbeam}%
+ %
+\def\ibl#1{\selectpoutre{#1}\i@bl}%
+\def\i@bl#1#2{\ifnum\b@n=0\relax\else\t@bl\fi
+  \global\b@n=1\relax
+  \global\b@x=\locx@skip\inhgetn@i{#1}\pl@base
+  \global\b@z=\y@i\global\advance\b@z by \altportee\global\b@p=#2\relax
+  \global\advance\b@z by -4.333\interbeam}%
+ %\check
+\def\ibbu#1{\selectpoutre{#1}\i@bbu}%
+\def\ibbl#1{\selectpoutre{#1}\i@bbl}%
+\def\i@bbu#1#2{\ifnum\b@n=0\relax\i@bu{#1}{#2}\relax\global\advance\b@z by
+ \interbeam\fi\n@bbu\relax}%
+\def\i@bbl#1#2{\ifnum\b@n=0\relax\i@bl{#1}{#2}\relax\global\advance\b@z by
+ -\interbeam\fi\n@bbl\relax}%
+\def\nbbu#1{\selectpoutre{#1}\ifnum\b@n>-2\relax\ifnum\b@n<2\relax\n@bbu\fi
+\fi}%
+\def\nbbl#1{\selectpoutre{#1}\ifnum\b@n>-2\relax\ifnum\b@n<2\relax\n@bbl\fi
+\fi}%
+\def\n@bbu{\gl@au{\b@n}\global\bb@z=\b@z
+ \ifnum\b@n<0\relax\global\advance\bb@z by -\interbeam
+ \else \global\advance\bb@z by \interbeam
+                         \fi
+ {\advance\locx@skip by \qd@skip \global\bb@x=\locx@skip
+  \advance\locx@skip by -\b@x
+  \global\advance\bb@z by \s@lope\locx@skip }}%
+ %
+\def\n@bbl{\gl@au{\b@n}\global\bb@x=\locx@skip
+  \global\advance\bb@x by \lthick
+ \global\bb@z=\b@z\ifnum\b@n<0\relax\global\advance\bb@z by -\interbeam
+ \else \global\advance\bb@z by \interbeam \fi
+  {\advance\locx@skip by -\b@x
+\global\advance\bb@z by \s@lope\locx@skip }}%
+ %\check
+\def\ibbbu#1{\selectpoutre{#1}\i@bbbu}%
+\def\ibbbl#1{\selectpoutre{#1}\i@bbbl}%
+\def\i@bbbu#1#2{\ifnum\b@n=0\relax\i@bbu{#1}{#2}%
+\global\advance\b@z by \interbeam
+\global\advance\bb@z by \interbeam
+\fi\n@bbbu}%
+\def\i@bbbl#1#2{\ifnum\b@n=0\relax\i@bbl{#1}{#2}%
+\global\advance\b@z by -\interbeam
+\global\advance\bb@z by -\interbeam
+\fi\n@bbbl}%
+\def\nbbbu#1{\selectpoutre{#1}\ifnum\b@n=-1\relax\n@bbu\fi\ifnum\b@n
+=1\relax\n@bbu\fi
+ \ifnum\b@n=-2\relax\n@bbbu\fi\ifnum\b@n=2\relax\n@bbbu\fi
+}%
+\def\nbbbl#1{\selectpoutre{#1}\ifnum\b@n=-1\relax\n@bbl\fi\ifnum\b@n
+=1\relax\n@bbl\fi
+ \ifnum\b@n=-2\relax\n@bbbl\fi\ifnum\b@n=2\relax\n@bbbl\fi
+}%
+\def\n@bbbu{\gl@au{\b@n}\global\bbb@z=\b@z
+ \ifnum\b@n<0\relax\global\advance\bbb@z by -2\interbeam
+ \else \global\advance\bbb@z by 2\interbeam
+                         \fi
+ {\advance\locx@skip by \qd@skip\global\bbb@x=\locx@skip
+  \advance\locx@skip by -\b@x
+  \global\advance\bbb@z by \s@lope\locx@skip }}%
+ %
+\def\n@bbbl{\gl@au{\b@n}\global\bbb@x=\locx@skip
+  \global\advance\bbb@x by \lthick
+ \global\bbb@z=\b@z\ifnum\b@n<0\relax\global\advance\bbb@z by
+ -2\interbeam
+ \else \global\advance\bbb@z by 2\interbeam
+                         \fi
+ {\advance\locx@skip by -\b@x\global\advance\bbb@z by \s@lope\locx@skip }}%
+ %\check
+ %
+\def\ibbbbu#1{\selectpoutre{#1}\i@bbbbu}%
+\def\ibbbbl#1{\selectpoutre{#1}\i@bbbbl}%
+\def\i@bbbbu#1#2{\ifnum\b@n=0\relax\i@bbbu{#1}{#2}%
+\global\advance\b@z by \interbeam
+\global\advance\bb@z by \interbeam
+\global\advance\bbb@z by \interbeam
+\fi\n@bbbbu}%
+\def\i@bbbbl#1#2{\ifnum\b@n=0\relax\i@bbbl{#1}{#2}%
+\global\advance\b@z by -\interbeam
+\global\advance\bb@z by -\interbeam
+\global\advance\bbb@z by -\interbeam
+\fi\n@bbbbl}%
+\def\nbbbbu#1{\selectpoutre{#1}%
+ \ifnum\b@n=-1\relax\n@bbu\fi\ifnum\b@n=1\relax\n@bbu\fi
+ \ifnum\b@n=-2\relax\n@bbbu\fi\ifnum\b@n=2\relax\n@bbbu\fi
+ \ifnum\b@n=-3\relax\n@bbbbu\fi\ifnum\b@n=3\relax\n@bbbbu\fi
+}%
+\def\nbbbbl#1{\selectpoutre{#1}%
+ \ifnum\b@n=-1\relax\n@bbl\fi\ifnum\b@n=1\relax\n@bbl\fi
+ \ifnum\b@n=-2\relax\n@bbbl\fi\ifnum\b@n=2\relax\n@bbbl\fi
+ \ifnum\b@n=-3\relax\n@bbbbl\fi\ifnum\b@n=3\relax\n@bbbbl\fi
+}%
+\def\n@bbbbu{\gl@au{\b@n}\global\bbbb@z=\b@z
+  \ifnum\b@n<0\relax\global\advance\bbbb@z by -3\interbeam
+  \else \global\advance\bbbb@z by 3\interbeam
+                         \fi
+ {\advance\locx@skip by \qd@skip \global\bbbb@x=\locx@skip
+  \advance\locx@skip by -\b@x
+  \global\advance\bbbb@z by \s@lope\locx@skip }}%
+ %
+\def\n@bbbbl{\gl@au{\b@n}{\advance\locx@skip by \lthick
+  \global\bbbb@x=\locx@skip}\global\bbbb@z=\b@z
+  \ifnum\b@n<0\relax\global\advance\bbbb@z by -3\interbeam
+  \else \global\advance\bbbb@z by 3\interbeam
+                         \fi
+ {\advance\locx@skip by -\b@x\global\advance\bbbb@z by \s@lope\locx@skip }}%
+ %\check
+ %
+ %
+\def\ibbbbbu#1{\selectpoutre{#1}\i@bbbbbu}%
+\def\ibbbbbl#1{\selectpoutre{#1}\i@bbbbbl}%
+\def\i@bbbbbu#1#2{\ifnum\b@n=0\relax\i@bbbbu{#1}{#2}%
+\global\advance\b@z by \interbeam
+\global\advance\bb@z by \interbeam
+\global\advance\bbb@z by \interbeam
+\global\advance\bbbb@z by \interbeam
+\fi\n@bbbbbu}%
+\def\i@bbbbbl#1#2{\ifnum\b@n=0\relax\i@bbbbl{#1}{#2}%
+\global\advance\b@z by -\interbeam
+\global\advance\bb@z by -\interbeam
+\global\advance\bbb@z by -\interbeam
+\global\advance\bbbb@z by -\interbeam
+\fi\n@bbbbbl}%
+\def\nbbbbbu#1{\selectpoutre{#1}\ifnum\b@n=-1\relax\n@bbu\fi\ifnum\b@n
+=1\relax\n@bbu\fi
+ \ifnum\b@n=-2\relax\n@bbbu\fi\ifnum\b@n=2\relax\n@bbbu\fi
+ \ifnum\b@n=-3\relax\n@bbbbu\fi\ifnum\b@n=3\relax\n@bbbbu\fi
+ \ifnum\b@n=-4\relax\n@bbbbbu\fi\ifnum\b@n=4\relax\n@bbbbbu\fi
+}%
+\def\nbbbbbl#1{\selectpoutre{#1}\ifnum\b@n=-1\relax\n@bbl\fi\ifnum\b@n
+=1\relax\n@bbl\fi
+ \ifnum\b@n=-2\relax\n@bbbl\fi\ifnum\b@n=2\relax\n@bbbl\fi
+ \ifnum\b@n=-3\relax\n@bbbbl\fi\ifnum\b@n=3\relax\n@bbbbl\fi  
+ \ifnum\b@n=-4\relax\n@bbbbbl\fi\ifnum\b@n=4\relax\n@bbbbbl\fi
+}%
+\def\n@bbbbbu{\gl@au{\b@n}\global\bbbbb@z=\b@z
+  \ifnum\b@n<0\relax\global\advance\bbbbb@z by -4\interbeam
+  \else \global\advance\bbbbb@z by 4\interbeam
+                         \fi
+ {\advance\locx@skip by \qd@skip \global\bbbbb@x=\locx@skip
+  \advance\locx@skip by -\b@x
+  \global\advance\bbbbb@z by \s@lope\locx@skip }}%
+ %
+\def\n@bbbbbl{\gl@au{\b@n}{\advance\locx@skip by \lthick
+  \global\bbbbb@x=\locx@skip}\global\bbbbb@z=\b@z
+  \ifnum\b@n<0\relax\global\advance\bbbbb@z by -4\interbeam
+  \else \global\advance\bbbbb@z by 4\interbeam
+                         \fi
+ {\advance\locx@skip by -\b@x\global\advance\bbbbb@z by \s@lope\locx@skip }}%
+ %\check
+ %
+ % terminaison de toutes les poutres en suspens
+ %
+ %***** terminer une poutre superieure ****************
+ %\check
+ %
+\def\tbu#1{\selectpoutre{#1}\t@bu}%
+\def\tqh#1{\selectpoutre{#1}\t@qh}%
+\def\tbbu#1{\selectpoutre{#1}\t@bbu}%
+\def\tbbbu#1{\selectpoutre{#1}\t@bbbu}%
+\def\tbbbbu#1{\selectpoutre{#1}\t@bbbbu}%
+\def\tbbbbbu#1{\selectpoutre{#1}\t@bbbbbu}%
+ %\check
+\def\t@qh{\t@bu\qh@}%
+\def\t@bu{\ifnum\b@n<-1\relax\t@bbu\fi
+\ifnum\b@n>1\relax\t@bbu\fi
+\y@i=\b@z
+\advance\y@i by -\altportee
+\y@ii=\locx@skip
+\advance\y@ii by \qn@width
+\advance\y@ii by -\b@x
+\llap{\p@outre\hskip -\qn@width}%
+\global\b@n=0\relax}%
+ %
+ %\check
+\def\t@bbu{\ifnum\b@n<-2\relax\t@bbbu\fi
+           \ifnum\b@n>2\relax\t@bbbu\fi
+\ifnum\b@n=1\relax{\adv@locx@mqn\n@bbu}\fi
+\ifnum\b@n=-1\relax{\adv@locx@mqn\n@bbu}\fi
+\y@i=\bb@z\y@ii=-\bb@x\t@xbu}%
+ %\check
+\def\t@xbu{\advance\y@i by -\altportee
+\advance\y@ii by \locx@skip \advance\y@ii by \qn@width
+\llap{\p@outre\hskip -\qn@width}%
+\ifnum\b@n>0\relax
+\advance\y@i by \s@lope\y@ii\raise\y@i\rlap{\kern\qn@width
+\kern -\lthick\vrule height \z@ depth 1.8\internote width \lthick}\fi
+\gl@de{\b@n}}%
+ %\check
+\def\t@bbbu{\ifnum\b@n<-3\relax\t@bbbbu\fi
+            \ifnum\b@n>3\relax\t@bbbbu\fi
+\ifnum\b@n=1\relax{\adv@locx@mqn\n@bbu}\fi
+\ifnum\b@n=-1\relax{\adv@locx@mqn\n@bbu}\fi
+\ifnum\b@n=2\relax{\adv@locx@mqn\n@bbbu}\fi
+\ifnum\b@n=-2\relax{\adv@locx@mqn\n@bbbu}\fi
+\y@i=\bbb@z\y@ii=-\bbb@x\t@xbu}%
+ %
+ %\check
+\def\t@bbbbu{\ifnum\b@n<-4\relax\t@bbbbbu\fi
+             \ifnum\b@n>4\relax\t@bbbbbu\fi
+\ifnum\b@n=1\relax{\adv@locx@mqn\n@bbu}\fi
+\ifnum\b@n=-1\relax{\adv@locx@mqn\n@bbu}\fi
+\ifnum\b@n=2\relax{\adv@locx@mqn\n@bbbu}\fi
+\ifnum\b@n=-2\relax{\adv@locx@mqn\n@bbbu}\fi
+\ifnum\b@n=3\relax{\adv@locx@mqn\n@bbbbu}\fi
+\ifnum\b@n=-3\relax{\adv@locx@mqn\n@bbbbu}\fi
+\y@i=\bbbb@z\y@ii=-\bbbb@x\t@xbu}%
+ %\check
+\def\t@bbbbbu{\ifnum\b@n<-5\relax\showthe\b@n\global\b@n=-5\relax\fi
+\ifnum\b@n>5\relax\showthe\b@n\global\b@n=5\relax\fi
+\ifnum\b@n=1\relax{\adv@locx@mqn\n@bbu}\fi
+\ifnum\b@n=-1\relax{\adv@locx@mqn\n@bbu}\fi
+\ifnum\b@n=2\relax{\adv@locx@mqn\n@bbbu}\fi
+\ifnum\b@n=-2\relax{\adv@locx@mqn\n@bbbu}\fi
+\ifnum\b@n=3\relax{\adv@locx@mqn\n@bbbbu}\fi
+\ifnum\b@n=-3\relax{\adv@locx@mqn\n@bbbbu}\fi
+\ifnum\b@n=4\relax{\adv@locx@mqn\n@bbbbbu}\fi
+\ifnum\b@n=-4\relax{\adv@locx@mqn\n@bbbbbu}\fi
+\y@i=\bbbbb@z\y@ii=-\bbbbb@x\t@xbu}%
+ %***** terminer une poutre inferieure****************
+\def\tbl#1{\selectpoutre{#1}\t@bl}%
+\def\tqb#1{\selectpoutre{#1}\t@qb}%
+\def\tbbl#1{\selectpoutre{#1}\t@bbl}%
+\def\tbbbl#1{\selectpoutre{#1}\t@bbbl}%
+\def\tbbbbl#1{\selectpoutre{#1}\t@bbbbl}%
+\def\tbbbbbl#1{\selectpoutre{#1}\t@bbbbbl}%
+ % provisoire
+\def\t@qb{\t@bl\qb@}%
+\def\t@bl{\relax
+\ifnum\b@n<-1\relax\t@bbl\fi
+\ifnum\b@n>1\relax\t@bbl\fi
+\y@i=\b@z
+\advance\y@i by -\altportee
+\y@ii=\locx@skip
+\advance\y@ii by \lthick
+\advance\y@ii by -\b@x
+\kern\lthick\llap{\p@outre}\kern -\lthick
+\global\b@n=0\relax}%
+ %\check
+ %
+\def\t@bbl{\relax
+\ifnum\b@n<-2\relax\t@bbbl\fi
+\ifnum\b@n>2\relax\t@bbbl\fi
+\ifnum\b@n=1\relax{\adv@locx@mqn\n@bbl}\fi
+\ifnum\b@n=-1\relax{\adv@locx@mqn\n@bbl}\fi
+\y@i=\bb@z\y@ii=-\bb@x\t@xbl}%
+ %
+\def\t@xbl{\advance\y@i by -\altportee
+\advance\y@ii by \locx@skip
+\advance\y@ii by \lthick
+\kern\lthick\llap{\p@outre}\kern-\lthick
+\ifnum\b@n<0\relax\advance\y@i by \s@lope\y@ii
+\raise\y@i\rlap{\vrule height \interbeam width \lthick}\fi
+\gl@de{\b@n}}%
+ %\check
+\def\t@bbbl{\ifnum\b@n<-3\relax\t@bbbbl\fi
+            \ifnum\b@n>3\relax\t@bbbbl\fi
+\ifnum\b@n=1\relax{\adv@locx@mqn\n@bbl}\fi
+\ifnum\b@n=-1\relax{\adv@locx@mqn\n@bbl}\fi
+\ifnum\b@n=2\relax{\adv@locx@mqn\n@bbbl}\fi
+\ifnum\b@n=-2\relax{\adv@locx@mqn\n@bbbl}\fi
+\y@i=\bbb@z\y@ii=-\bbb@x\t@xbl}%
+ %\check
+\def\t@bbbbl{\ifnum\b@n<-4\relax\t@bbbbbl\fi
+             \ifnum\b@n>4\relax\t@bbbbbl\fi
+\ifnum\b@n=1\relax{\adv@locx@mqn\n@bbl}\fi
+\ifnum\b@n=-1\relax{\adv@locx@mqn\n@bbl}\fi
+\ifnum\b@n=2\relax{\adv@locx@mqn\n@bbbl}\fi
+\ifnum\b@n=-2\relax{\adv@locx@mqn\n@bbbl}\fi
+\ifnum\b@n=3\relax{\adv@locx@mqn\n@bbbbl}\fi
+\ifnum\b@n=-3\relax{\adv@locx@mqn\n@bbbbl}\fi
+\y@i=\bbbb@z\y@ii=-\bbbb@x\t@xbl}%
+ %\check
+\def\t@bbbbbl{\relax
+\ifnum\b@n<-5\relax\showthe\b@n\global\b@n=-5\relax\fi
+\ifnum\b@n>5\relax\showthe\b@n\global\b@n=5\relax\fi
+\ifnum\b@n=1\relax{\adv@locx@mqn\n@bbl}\fi
+\ifnum\b@n=-1\relax{\adv@locx@mqn\n@bbl}\fi
+\ifnum\b@n=2\relax{\adv@locx@mqn\n@bbbl}\fi
+\ifnum\b@n=-2\relax{\adv@locx@mqn\n@bbbl}\fi
+\ifnum\b@n=3\relax{\adv@locx@mqn\n@bbbbl}\fi
+\ifnum\b@n=-3\relax{\adv@locx@mqn\n@bbbbl}\fi
+\ifnum\b@n=4\relax{\adv@locx@mqn\n@bbbbbl}\fi
+\ifnum\b@n=-4\relax{\adv@locx@mqn\n@bbbbbl}\fi
+\y@i=\bbbbb@z\y@ii=-\bbbbb@x\t@xbl}%
+ %******************** notes accrchees aux poutres
+ % ************************************
+ %
+\def\zqh#1{\selectpoutre{#1}\advancefalse\qh@}%
+\def\zqb#1{\selectpoutre{#1}\advancefalse\qb@}%
+\def\zqhp#1{\selectpoutre{#1}\advancefalse\qhp@}%
+\def\zqbp#1{\selectpoutre{#1}\advancefalse\qbp@}%
+\def\zqhpp#1{\selectpoutre{#1}\advancefalse\qhpp@}%
+\def\zqbpp#1{\selectpoutre{#1}\advancefalse\qbpp@}%
+ %
+\def\qh#1{\selectpoutre{#1}\qh@}%
+\def\hh#1{\selectpoutre{#1}\hh@}%
+\def\qhp#1{\selectpoutre{#1}\qhp@}%
+\def\qhpp#1{\selectpoutre{#1}\qhpp@}%
+\def\qhppp#1{\selectpoutre{#1}\qhppp@}%
+\def\qh@#1{\getn@i{#1}\def\n@fon{\qh@}\def\n@sym{\q@u}\g@qh@}% % position
+\def\hh@#1{\getn@i{#1}\def\n@fon{\hh@}\def\n@sym{\h@a}\g@qh@}% % position
+\def\qhp@#1{\getn@i{#1}\def\n@fon{\qhp@}\def\n@sym{\q@up}\g@qh@}% % position
+\def\qhpp@#1{\getn@i{#1}\def\n@fon{\qhpp@}\def\n@sym{\q@upp}\g@qh@}% % position
+\def\qhppp@#1{\getn@i{#1}\def\n@fon{\qhppp@}\def\n@sym{\q@uppp}\g@qh@}% %
+ % position
+\def\qb#1{\selectpoutre{#1}\qb@}%
+\def\hb#1{\selectpoutre{#1}\hb@}%
+\def\qbp#1{\selectpoutre{#1}\qbp@}%
+\def\qbpp#1{\selectpoutre{#1}\qbpp@}%
+\def\qbppp#1{\selectpoutre{#1}\qbppp@}%
+\def\qb@#1{\getn@i{#1}\def\n@fon{\qb@}\def\n@sym{\q@u}\g@qb@} % #1 position
+\def\hb@#1{\getn@i{#1}\def\n@fon{\hb@}\def\n@sym{\h@a}\g@qb@} % #1 position
+\def\qbp@#1{\getn@i{#1}\def\n@fon{\qbp@}\def\n@sym{\q@up}\g@qb@} % #1 position
+\def\qbpp@#1{\getn@i{#1}\def\n@fon{\qbpp@}\def\n@sym{\q@upp}\g@qb@} % #1
+ % position
+\def\qbppp@#1{\getn@i{#1}\def\n@fon{\qbppp@}\def\n@sym{\q@uppp}\g@qb@} % #1
+ % position
+\def\g@qb@{\n@raiseq
+  \global\stem@skip=\z@\def\s@tem{\d@balk}\g@qbh@\fi}%
+ %
+\def\g@qh@{\n@raiseq
+  \global\stem@skip=\qd@skip\def\s@tem{\d@balk}\g@qbh@\fi}%
+ %
+\def\g@qbh@{\h@linesqn\pl@symssq}%
+ %
+\def\pl@symss{\pl@noteq\raise@note{\n@sym\hss}\ss@uite}%
+\def\pl@symssq{\ifadvance\pl@symss\else\plap@symss\fi\advancetrue}%
+ %
+\def\rlap@symss{\raise\y@i\rlap{\n@sym}\ss@uite}%
+\def\plap@symss{\pl@noteq\rlap@symss}%
+ %
+\def\d@balk{%    % queue de note vers une poutre
+\y@ii=\b@z                     % a augmenter avec la pente
+\y@v=\locx@skip\advance\y@v by \stem@skip\advance\y@v by -\b@x
+\advance\y@ii by \s@lope\y@v
+\ifdim\y@ii>\st@top % la poutre est au-dessus
+  \ifnum\b@n>0\relax\advance\y@ii by \b@n\interbeam
+    \advance\y@ii by -\interbeam
+  \fi\global\st@top=\y@ii  %  a mettre a jour avec la pente ulterieurement
+\else
+  \ifdim\y@ii<\st@bot
+  \ifnum\b@n<0\relax\advance\y@ii by \b@n\interbeam
+    \advance\y@ii by \interbeam
+  \fi\global\st@bot=\y@ii
+\fi\fi\pd@tail}%
+ %
+ %*********************************** notes sans avancement (accords)
+\def\zha#1{{\noteskip=\z@\ha{#1}}}%
+ %
+\def\charnote{\xcharnote{\noteskip}}%
+\let\hcharnote\charnote
+\def\zcharnote{\xcharnote{\z@}}%
+
+\def\zchar#1#2{\raise#1\internote\rlap{#2}}
+\def\lchar#1#2{\raise#1\internote\llap{#2}}
+\def\cchar#1#2{\raise#1\internote\lrlap{#2}}
+\let\hchar\zchar
+
+ %\check
+ %
+ %************************* liaisons horizontales **************************
+ % Tie Fixes.
+ % I have rewritten several tie macros to eliminate those annoying gaps which
+ % often appear. The new macros cause ties to be extended with leader, rather
+ % than lines whose length has to be guessed. TeX cannot make multiple
+ % horizontal lines with \leaders, so instead I use an \hbox containing
+ % several short fragments of lines. Each line fragment is of length
+ % \tenboxwidth, which is initially .75pt.
+ % In order for the new ties to work properly, every horizontal space must be
+ % recorded. I have had to amend some macros so that they record the space
+ % which they produce.
+ %
+\newbox\@tenubox \newskip\@tenuskip \newdimen\tenboxwidth \tenboxwidth.75pt
+ %
+ % -macros to maintain a box of tie extenders which is used in the leaders
+\global\setbox\@tenubox\hbox{\kern\tenboxwidth}
+\def\@uptenubox{\global\setbox\@tenubox
+  \hbox{\kern\tenboxwidth}\ten@loop
+  \ifnum\t@s=0\relax\else\up@tenbox\fi
+  \global\advance\n@l by 1\relax\repeat}%
+\def\up@tenbox{\y@ii\t@z\advance\y@ii by \t@y
+    \global\setbox\@tenubox\hbox{\unhbox\@tenubox
+    \kern-\tenboxwidth\vrule width\tenboxwidth height\y@ii depth-\t@z}}
+ %
+ % -This macro makes the leaders. #1 is the amount of skip. It is extended
+ %  by \tenboxwidth on each side in order to get the lines to join up.
+\def\@tenleader#1{\@tenuskip=#1\advance\@tenuskip by2\tenboxwidth\relax
+\nobreak\kern-\tenboxwidth\nobreak\cleaders\copy\@tenubox\hskip\@tenuskip
+\kern-\tenboxwidth\nobreak}
+ %
+\def\selecttenue#1{{\n@i=#1\relax
+\ifnum\n@i<0\relax\n@i=29\fi
+  \advance\n@i by 1\relax
+\xdef\t@x{\csname t@x\romannumeral\n@i\endcsname}%
+\xdef\t@z{\csname t@z\romannumeral\n@i\endcsname}%
+\xdef\t@p{\csname t@p\romannumeral\n@i\endcsname}%
+\xdef\t@s{\csname t@s\romannumeral\n@i\endcsname}%
+\xdef\t@w{\csname t@w\romannumeral\n@i\endcsname}}%
+\ifnum\t@w=0\relax
+  \global\t@y=1.2\p@
+\else
+  \global\t@y= 0.2\Interligne
+\fi
+}%   fin selecttenue
+ %
+ %\check
+ % mise a jour marge inferieure et correction d'altitude de tenues
+ %
+\newdimen\bottom@adv
+\def\advancebottom#1{\global\bottom@adv=#1\relax}%
+\def\adv@bottom{\global\advance\staffbotmarg by \bottom@adv
+  \ten@loop \global\advance\t@z by \bottom@adv\relax
+    \global\advance\n@l by 1\relax
+  \repeat   \@uptenubox
+  \global\bottom@adv=\z@}%
+ %
+ %\check
+ %
+\def\lu@slur{\cmex\char"7A}\def\ru@slur{\cmex\char"7B}%
+\def\ll@slur{\cmex\char"7C}\def\rl@slur{\cmex\char"7D}%
+\setbox\n@otebox=\hbox{\lu@slur}\brace@w=\wd\n@otebox
+ %
+\def\leg@hrule{\leaders\hrule height \t@y\hfill}%
+ %
+ % complete slur of length #1 (up and down)
+\def\up@leg{%    longueur y@ii
+\hbox to \y@ii{\lu@slur\ifdim \y@ii>2\brace@w\leg@hrule
+\else\hss\fi\ru@slur}}%
+ %
+\def\lo@leg{%    longueur y@ii
+\hbox to \y@ii{\ll@slur\ifdim \y@ii>2\brace@w\leg@hrule
+\else\hss\fi\rl@slur}}%
+ %
+ % slur termination of length #1 (up and down)
+\def\up@rleg{%    longueur y@ii
+\hbox to \y@ii{\ifdim \y@ii>\brace@w\leg@hrule
+\else\hss\fi\ru@slur}}%
+ %
+\def\lo@rleg{%    longueur y@ii
+\hbox to \y@ii{\ifdim \y@ii>\brace@w\leg@hrule
+\else\hss\fi\rl@slur}}%
+ %\check
+ %
+ % slur beginning (left) (up and down)
+\def\up@les{%    longueur y@ii
+\hbox to \y@ii{\lu@slur\ifdim \y@ii>\brace@w\leg@hrule
+\else\hss\fi}}%
+ %
+\def\lo@les{%    longueur y@ii
+\hbox to \y@ii{\ll@slur\ifdim \y@ii>\brace@w\leg@hrule
+\else\hss\fi}}%
+ %\check
+ %
+ % noter un debut de tenue
+ %
+\def\itenu#1{\selecttenue{#1}\i@tenu}%
+ % \rtenu starts a 'tenuto' one note head on the right
+\def\rtenu#1#2{\selecttenue{#1}\i@tenu{#2}\global\advance\t@x by \wn@width}%
+ %
+\def\check@tenvoid{\ifnum\t@s=0\relax\else\errmessage{Attemt to re-open an
+opened slur/tie}\fi} 
+\def\check@tenopen{\ifnum\t@s=0\errmessage{Attemt to close an
+unopened slur/tie}\fi} 
+ %
+\def\i@tenu#1{\check@tenvoid\global\t@p=1\relax % sens=1
+  \global\t@s=1\relax % etat en cours
+  \global\t@x=\locx@skip
+  \global\advance\t@x by \qd@skip
+  \inhgetn@i{#1}\pl@base\global\t@z=\y@i\global\advance\t@z by\altportee
+  \global\advance\t@z by 3.7\p@
+  \global\t@y=1.2\p@
+  \global\t@w=0\relax
+  \up@tenbox}%
+ %
+\def\itenl#1{\selecttenue{#1}\i@tenl}%
+\def\minternote{-\internote}%
+ % \rtenl starts a 'tenuto' one note head on the right
+\def\rtenl#1#2{\selecttenue{#1}\i@tenl{#2}\global\advance\t@x by \wn@width}%
+\def\i@tenl#1{\check@tenvoid\global\t@p=-1\relax % sens= -1
+  \global\t@s=1\relax % actif
+  \global\t@x=\locx@skip
+  \global\advance\t@x by \qd@skip
+  \inhgetn@i{#1}\pl@base\global\t@z=\y@i\global\advance\t@z by \altportee
+  \global\advance\t@z by -4.5\p@\relax
+  \global\t@y=1.2\p@
+  \global\t@w=0\relax
+  \up@tenbox}%
+ %\check
+\def\tten#1{\selecttenue{#1}\t@ten}%
+\def\tleg#1{\selecttenue{#1}\check@tenopen{\advance\locx@skip by
+ 1.5\qn@width\kern 1.5\qn@width\t@ten\kern -1.5\qn@width}}%
+
+\def\liftslur#1{\selecttenue{#1}\l@iftslur}%
+\def\l@iftslur#1{\global\advance\t@z by #1\relax}%
+ %
+ %\check
+ %
+ %********************** ponctuations speciales ****************************
+ %
+\def\breath{\raise 3\Interligne\hbox{\enorme'}}%
+\def\zbreath{\raise 3\Interligne\rlap{\enorme'}}%
+\def\cbreath{\charnote0{\raise 3\Interligne
+  \hbox to \noteskip{\hss\enorme'\hss}}}%
+\def\uptext#1{\resetstem\raise 5\Interligne\rlap{#1}}%
+\def\Uptext#1{\resetstem\raise 7\Interligne\rlap{#1}}%
+\def\text@sp{\vrule width \z@ height 8.5\p@ depth 3.5\p@}
+\def\f{{\ppff {f}}}
+\def\ff{{\ppff {f}\kern -0.1ex{f}}}
+\def\fff{{\ppff {f}\kern -0.1ex{f}\kern -0.1ex{f}}}
+\def\ffff{{\ppff {f}\kern -0.1ex{f}\kern -0.1ex{f}\kern -0.1ex{f}}}
+\def\m@idcomp{\y@v=\interportee\advance\y@v by 4\Interligne\divide\y@v by
+ %%\def\m@idcomp{\y@v=\Interportee\divide\y@v by
+ 2\relax
+\raise\y@v\vbox to \z@}%
+ %
+\def\midtwotext#1{{\m@idcomp
+{\vss\hbox to \noteskip{\hss\text@sp #1\hss}\vss}}}%
+\def\rmidtwotext#1{{\m@idcomp
+{\vss\hbox to \noteskip{\text@sp #1\hss}\vss}}}%
+\def\zmidtwotext#1{{\m@idcomp
+{\vss\rlap{\text@sp #1}\vss}}}%
+\def\lmidtwotext#1{{\m@idcomp
+{\vss\hbox to \noteskip{\hss\text@sp #1}\vss}}}%
+ %\check
+\def\metron#1#2{{\shortstems\noteskip 10\p@ #1 1\ = #2}}%
+ %\check
+ %
+ %**************************************************************************
+ % definition standard, modifiables par l'usager
+ %**************************************************************************
+ %
+\def\resetfacteurs{\stafftopmarg=\z@\staffbotmarg=\z@\nullthick=8\Internote
+ %
+\def\stafflinesnbi{5}%
+\def\stafflinesnbii{5}%
+\def\stafflinesnbiii{5}%
+\def\stafflinesnbiv{5}%
+\def\stafflinesnbv{5}%
+\def\stafflinesnbvi{5}%
+ %
+\def\clefduti{\clefdutsymbol}%
+\def\clefdutii{\clefdutsymbol}%
+\def\clefdutiii{\clefdutsymbol}%
+\def\clefdutiv{\clefdutsymbol}%
+\def\clefdutv{\clefdutsymbol}%
+\def\clefdutvi{\clefdutsymbol}%
+ %
+\def\clefdefai{\clefdefasymbol}%
+\def\clefdefaii{\clefdefasymbol}%
+\def\clefdefaiii{\clefdefasymbol}%
+\def\clefdefaiv{\clefdefasymbol}%
+\def\clefdefav{\clefdefasymbol}%
+\def\clefdefavi{\clefdefasymbol}%
+ %
+\def\clefdesoli{\clefdesolsymbol}%
+\def\clefdesolii{\clefdesolsymbol}%
+\def\clefdesoliii{\clefdesolsymbol}%
+\def\clefdesoliv{\clefdesolsymbol}%
+\def\clefdesolv{\clefdesolsymbol}%
+\def\clefdesolvi{\clefdesolsymbol}%
+ %
+\def\interfacteur{9}%
+\def\bottomfacteur{3}%
+\def\topfacteur{3}%
+\elemskip=4\Internote
+\def\gluemaxskip{0.1\line@width}%
+\zglueskip=0pt plus \gluemaxskip minus .5pt%
+\tempsskip=2pt  plus \gluemaxskip minus 2pt
+}%
+\resetfacteurs
+ %\check
+\def\normal{\ifdim\Interligne<\p@\computewidths\fi
+\def\scalenoteskip{1.0}\elemskip=4\Internote
+\def\notes{\vnotes 1.0\elemskip }%  double croches
+\def\Notes{\vnotes 1.4\elemskip }%  croches
+\def\NOtes{\vnotes 2.0\elemskip }%  croches pointees
+\def\NOTes{\vnotes 2.8\elemskip }%  noires
+\def\NOTEs{\vnotes 4.0\elemskip }%
+\def\NOTES{\vnotes 5.6\elemskip }%
+}%
+ %
+\ifx\large\undefined
+  \def\large{\normal\elemskip=4.8\Internote}\fi
+ %
+\def\etroit{\normal
+\def\Notes{\vnotes 1.3\elemskip }%  croches
+\def\NOtes{\vnotes 1.8\elemskip }%  croches pointees
+\def\NOTes{\vnotes 2.6\elemskip }%  noires
+\def\NOTEs{\vnotes 3.6\elemskip }%
+\def\NOTES{\vnotes 5.2\elemskip }%
+}%
+ %\check
+\def\testseq{}%
+\def\nspace{\vnotes 0.2\elemskip\sk\enotes}%
+ %
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\barfill{\leaders\hbox{ --}\hfill}%
+\def\octnvrule{\vrule width \z@ height 3\p@ depth 3\p@}%
+\def\octvrule{\vrule width \lthick height 3\p@ depth 3\p@}%
+\def\octsup#1#2{\zcharnote{#1}{\hbox to #2\noteskip
+{\llap{\rm 8}\barfill\octnvrule}}}%
+\def\Octsup#1#2{\zcharnote{#1}{\hbox to #2{\rm 8\barfill\octnvrule}}}%
+ %\check
+\def\octfin#1#2{\zcharnote{#1}{\hbox to #2\noteskip{\llap{\rm 8}\barfill
+--\octvrule}}}%
+\def\Octfin#1#2{\zcharnote{#1}{\hbox to #2{\rm 8\barfill
+--\octvrule}}}%
+\def\octline#1{\zcharnote{#1}{\hbox to \line@width{\llap{\rm 8}\barfill
+\octnvrule\hskip 12\Internote}}}%
+\def\Octline#1{\zcharnote{#1}{\hbox to \line@width{\rm 8\barfill
+\octnvrule\hskip 8\Internote}}}%
+ %\check
+\def\xtuplet#1#2{\global\n@l=#1\relax\global\advance\n@l by -1\relax
+{\divide\noteskip by \n@l\relax\zcharnote{#2}{\kern\n@l\noteskip
+ \hbox to\z@{\hss\it #1\hss}}}}%
+\def\triolet{\xtuplet3}%
+ %\check
+ \let\thelyrics\empty
+\def\hardlyrics#1\notes{\let\save@noteskip\noteskip
+  \def\noteskip{\z@\relax\errmessage{You cannot use \noexpand\noteskip
+     in \noexpand\hardlyrics's 1st argument!}}%
+\def\thelyrics{\hbox{#1}}%
+\wd\ch@box\z@  \setbox\ch@box\thelyrics \let\noteskip\save@noteskip
+ \noteskip\wd\ch@box \n@otes}
+ %\check
+
+
+%\def\setsongraise#1#2{\n@v#1\relax % select instrument
+%  \expandafter\def\csname T@R\romannumeral\n@v\endcsname{#2}}
+\def\setsongraise#1#2{\noinstrument#1\relax % select instrument
+  \expandafter\def\csname T@R\romannumeral\noinstrument\endcsname{#2}}
+
+\let\T@Ri\z@
+\let\T@Rii\z@
+\let\T@Riii\z@
+\let\T@Riv\z@
+\let\T@Rv\z@
+\let\T@Rvi\z@
+
+\def\zsong{\let\@Ti\rlap \C@t}
+\def\lsong{\let\@Ti\llap \C@t}
+\def\csong{\let\@Ti\lrlap \C@t}
+\def\hsong{\let\@Ti\hard@box \C@t}
+\def\dhsong{\let\@Ti\dhard@box \C@t}
+\def\thsong{\let\@Ti\thard@box \C@t}
+
+\def\C@t#1{\C@tx{\@Ti{\strut#1}\vss}}
+\def\lrlap#1{\rlap{\hss#1}}
+\def\hard@box#1{\rlap{\hbox to\noteskip{#1\hfil}}}
+\def\dhard@box#1{\rlap{\hbox to 2\noteskip{#1\hfil}}}
+\def\thard@box#1{\rlap{\hbox to 3\noteskip{#1\hfil}}}
+
+\def\C@tx{\edef\savenu@iv{\the\y@iv}%
+  \ifnum\noinstrument= 1 \y@iv\staffbotmarg
+  \else
+    \advance\noinstrument -1\relax
+    \y@iv\csname interinstrument\romannumeral\noinstrument\endcsname
+    \C@Inter \advance\y@iv\stem@skip \divide\y@iv 2
+    \advance\noinstrument 1
+  \fi
+  \advance\y@iv-\csname T@R\romannumeral\noinstrument\endcsname
+%%    \advance\noinstrument 1 \fi
+  \edef\lower@dim{\the\y@iv}\relax \y@iv\savenu@iv\relax
+  \lower\lower@dim\uplap}
+
+\def\C@Inter{\stem@skip\interportee \advance\stem@skip-8\internote
+  \ifnum\stafflinesnb=4 \advance\stem@skip 2\internote \fi
+  \ifnum\stafflinesnb=6  \advance\stem@skip-2\internote \fi}
+ 
+
+ %
+\let\wlog=\@plainwlog
+ %
+\def\interfacteur{1}%
+\csname musicnorfont\endcsname
+\def\nbinstruments{\maxinstruments}\savemeter
+\csname normalnotesize\endcsname
+\normal  % to get \notes correctly defined
+\resetfacteurs
+\def\nbinstruments{0}%
+ %
+\def\magstep#1{\ifcase#1 \@m\or 1200\or 1440\or 1728\or 2074\or
+ 2488\or 2986\or 3583\or 4300\or 5160\fi\relax}
+ %
+
+\def\endcatcodesmusic{\catcode`\&=\catcode@and
+\catcode`\|=\catcode@vert
+\catcode`\>=\catcode@gt
+\catcode`\<=\catcode@lt
+\catcode`\!=\catcode@excl
+\catcode`\*=\catcode@star
+\catcode`\:=\catcode@sc
+\catcode`\.=\catcode@pt
+\catcodesmusicfalse}
+
+\endcatcodesmusic
+
+\catcode`\@=\catcodeat
+\def\musictexactive{\relax}
+\endinput
+

@@ -1,0 +1,45 @@
+%%
+%%    FILE a5.sty
+%%    
+\newcount\daysinpage
+\newdimen\cellheight
+\vsize=17.5cm\voffset=-0.5in
+\hsize=11cm\hoffset=-0.6in
+\cellheight=\vsize
+\divide\cellheight by7
+\advance\cellheight by-0.4pt
+\parindent=0pt
+\font\Rm=cmr10 at 14pt
+\font\Bf=cmbx10 at 14pt
+\font\rm=cmr10
+\footline={\Bf\ifodd\pageno\hfill\botmark
+ \else\botmark\hfill\fi}
+\def\newpage{\vfill\penalty-10000}
+\def\beginday{\ifnum\daysinpage>0\hrule\fi
+ \mark{\themonth} % Outside any box
+ \setbox2=\vbox\bgroup
+  \ifodd\pageno
+   \rightskip=3cm plus 1fill
+  \else
+   \leftskip=3cm plus 1fill\fi\rm}
+\def\endday{\egroup
+ \vbox to\cellheight{\vglue2pt
+  \setbox0=\hbox to\hsize{%
+   \ifodd\pageno
+    \hfill{\Rm\theweekday\ \ifholy\Bf\fi\the\Day}
+   \else
+    {\Rm{\ifholy\Bf\fi\the\Day}\ \theweekday}%
+    \hfill\fi}
+  \copy0\kern-\ht0\box2\vfill}
+ \advance\daysinpage by1
+ \ifnum\daysinpage=7 \daysinpage=0
+ \newpage\fi}
+%
+% Local: from monday ...
+\Day=1 \Month=9\dayno\nextday1\currentdate=\date
+% Local: ... to sunday.
+{\nextyear\Day=31 \Month=5\dayno\nextday0
+ \global\lastdate=\date}
+\leftskip=0pt\rightskip=0pt
+\daysinpage=0
+\def\epilog{}

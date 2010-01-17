@@ -1,0 +1,119 @@
+%
+% utf8-pl.tex
+%
+% This file implements the conversion from UTF8 to PL
+% encoding (used by PLR fonts).
+%
+% Copyright (C) 2004 Wlodek Bzyl, <matwb@univ.gda.pl>
+%
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program; if not, write to the Free Software
+% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+\ifx\mubyte\undefined
+   \errhelp{Sorry, you can't use this file without encTeX ver. Jun. 2004.}
+   \errmessage{The encTeX extension of TeX is not found}
+   \endinput \fi
+
+% first, we set the identity mapping in xord/xchr:
+
+\count255=128
+\loop \xordcode\count255=\count255
+      \xchrcode\count255=\count255
+      \advance\count255 by 1
+\ifnum \count255<256 \repeat
+
+
+% next, we remove the current conversion table, if exists:
+
+{\catcode`\^^@=12
+\gdef\clearmubytes{\bgroup \count255=1
+   \loop \uccode`X=\count255
+       \uppercase{\mubyte XX\endmubyte}%
+       \advance\count255 by1
+       \ifnum\count255<256 \repeat
+   \mubyte ^^@^^@\endmubyte
+   \egroup}
+}
+\clearmubytes
+
+
+% include these files first, so we can redefine some characters later
+
+\input utf8math
+\input utf8unkn
+\input utf8plsq
+
+
+% create the conversion table:
+
+
+% uppercase letters
+
+\mubyte ^^81 ^^c4^^84\endmubyte % Aogonek
+\mubyte ^^82 ^^c4^^86\endmubyte % Cacute
+\mubyte ^^86 ^^c4^^98\endmubyte % Eogonek
+\mubyte ^^8a ^^c5^^81\endmubyte % Lslash
+\mubyte ^^8b ^^c5^^83\endmubyte % Nacute
+\mubyte ^^d3 ^^c3^^93\endmubyte % Oacute
+\mubyte ^^91 ^^c5^^9a\endmubyte % Sacute
+\mubyte ^^9b ^^c5^^bb\endmubyte % Zdotaccent
+\mubyte ^^99 ^^c5^^b9\endmubyte % Zacute
+
+% lowercase letters
+
+\mubyte ^^a1 ^^c4^^85\endmubyte % aogonek
+\mubyte ^^a2 ^^c4^^87\endmubyte % cacute
+\mubyte ^^a6 ^^c4^^99\endmubyte % eogonek
+\mubyte ^^aa ^^c5^^82\endmubyte % lslash
+\mubyte ^^ab ^^c5^^84\endmubyte % nacute
+\mubyte ^^f3 ^^c3^^b3\endmubyte % oacute
+\mubyte ^^b1 ^^c5^^9b\endmubyte % sacute
+\mubyte ^^bb ^^c5^^bc\endmubyte % zdotaccent
+\mubyte ^^b9 ^^c5^^ba\endmubyte % zacute
+
+% non-characters
+
+\chardef\erq="27
+\mubyte \erq ^^e2^^80^^99\endmubyte % right single quotation mark
+
+% there's no \elqq, \elq, they are the same 
+% Unicode character as \crqq, \crq
+
+\chardef\endash="7B
+\chardef\emdash="7C
+\mubyte \endash ^^e2^^80^^93\endmubyte % en dash
+\mubyte \emdash ^^e2^^80^^94\endmubyte % em dash
+
+\chardef\utfinvexclamation="3C
+\chardef\utfinvquestion="3E
+\mubyte \utfinvexclamation ^^c2^^a1\endmubyte % inverted exclamation mark
+\mubyte \utfinvquestion ^^c2^^bf\endmubyte % inverted question mark
+
+\chardef\utfligatureff="0B
+\chardef\utfligaturefi="0C
+\chardef\utfligaturefl="0D
+\chardef\utfligatureffi="0E
+\chardef\utfligatureffl="0F
+\mubyte \utfligatureff ^^ef^^ac^^80\endmubyte % latin small ligature ff
+\mubyte \utfligaturefi ^^ef^^ac^^81\endmubyte % latin small ligature fi
+\mubyte \utfligaturefl ^^ef^^ac^^82\endmubyte % latin small ligature fl
+\mubyte \utfligatureffi ^^ef^^ac^^83\endmubyte % latin small ligature ffi
+\mubyte \utfligatureffl ^^ef^^ac^^84\endmubyte % latin small ligature ffl
+
+
+% finally, make the tables work
+
+\mubytein=1 \mubyteout=3
+
+\endinput

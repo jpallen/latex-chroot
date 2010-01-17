@@ -1,0 +1,38 @@
+\needsfontinstversion{1.926}
+\fontinstcc
+
+\let\charnameprefix\empty
+\def\charnamealias#1{%
+  \@ifundefined{GN@\charnameprefix#1}%
+    {\@ifundefined{GN@#1}{#1}{\csname GN@#1\endcsname}}% was just {#1}
+    {\csname GN@\charnameprefix#1\endcsname}}
+\def\init_cc#1{%
+   \out_line{\string\setglyph{\charnamealias{#1}}}
+   \edef\char_name{\charnamealias{#1}}
+}
+\list_def{N}(#1){\edef\char_name{\charnamealias{#1}}}
+\afm_def{KP}(#1~#2~#3~#4){
+   \if\first_char#1=.\else
+   \if\first_char#2=.\else
+      \afm_length\a_count{#3}
+      \ifnum \a_count>\minimum_kern
+         \out_line{\string\setkern{\charnamealias{#1}}{\charnamealias{#2}}{\the\a_count}}
+      \else\ifnum \a_count<-\minimum_kern
+         \out_line{\string\setkern{\charnamealias{#1}}{\charnamealias{#2}}{\the\a_count}}
+      \fi\fi
+   \fi\fi
+}
+\afm_let{KPX}{KP}
+
+\def\galias#1#2{\def\temp@a{#1}%
+  \@for\temp@b:=#2\do{\expandafter\let\csname GN@\temp@b\endcsname\temp@a}}
+\def\aliasfonts#1#2#3{%
+  \def\charnameprefix{#1}%
+  \@for\temp@font:=#3\do
+  {\afmtomtx{#2\temp@font}{#2\temp@font}\mtxtopl{#2\temp@font}{#2\temp@font}}%
+  \let\charnameprefix\empty
+}
+
+\normalcc
+
+\endinput

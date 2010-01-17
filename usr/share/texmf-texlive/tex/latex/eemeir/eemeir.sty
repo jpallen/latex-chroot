@@ -1,0 +1,93 @@
+%%
+%% This is file `eemeir.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% eemeir.dtx  (with options: `package')
+%%    The eemeir package
+%%    Copyright 2003 by Mogens Lemvig Hansen
+%%    mlhansen@uniserve.com
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{eemeir}[2003/4/22 v1.0 E-Em-Eir package]
+\newcommand{\@eemeir}{\relax}
+\newcommand{\@eemeirM}{\relax}
+\newcommand{\@eemeirF}{\relax}
+\DeclareOption{male}  {\def\@eemeir{\male[]}}
+\DeclareOption{female}{\def\@eemeir{\female[]}}
+\DeclareOption{ask}   {\def\@eemeir{\askforgender[]}}
+\ExecuteOptions{ask}
+\ProcessOptions
+\RequirePackage{xspace}
+\newcommand{\male}[1][]{%
+   \@bsphack
+   \@ifundefined{ifmale#1}
+      {\expandafter\newif\csname ifmale#1\endcsname}
+      {\relax}%
+   \csname male#1true\endcsname
+   \@esphack}
+\newcommand{\female}[1][]{%
+   \@bsphack
+   \@ifundefined{ifmale#1}
+      {\expandafter\newif\csname ifmale#1\endcsname}
+      {\relax}%
+   \csname male#1false\endcsname
+   \@esphack}
+\newcommand{\askforgender}[1][]{%
+   \@bsphack
+   \@ifundefined{ifmale#1}
+      {\expandafter\newif\csname ifmale#1\endcsname}
+      {\relax}%
+   \def\@eemeir{#1}%
+   \ifx\@eemeir\@empty\def\@eemeir{main}\fi
+   \typein[\@eemeir]{Specify the \@eemeir\space gender:%
+      \space\space male\space\space or\space\space female}%
+   \def\@eemeirM{male}%
+   \def\@eemeirF{female}%
+   \ifx\@eemeir\@eemeirM\male[#1]%
+   \else\ifx\@eemeir\@eemeirF\female[#1]%
+   \else\PackageError{eemeir}
+      {I'll ignore that}
+      {You should have typed either\space\space male\space\space
+         or\space\space female}%
+   \fi\fi
+   \@esphack
+}
+\newenvironment{swapgender}[1][]{%
+   \@bsphack
+   \@ifundefined{ifmale#1}
+      {\PackageError{eemeir}{unknown gender: #1}
+         {You must set the #1 gender with \string\male\space
+            (or...) first.}}
+      {\csname ifmale#1\endcsname\csname male#1false\endcsname
+       \else\csname male#1true\endcsname\fi}%
+   \@esphack}
+   {\@bsphack\@Esphack}
+\newcommand{\newwordpair}  {\@newwordpair\newcommand}
+\newcommand{\renewwordpair}{\@newwordpair\renewcommand}
+\newcommand{\@newwordpair}[4]{%
+   #1{#2}{\@ifstar
+      {\def\@eemeirM{\MakeUppercase#3}%
+       \def\@eemeirF{\MakeUppercase#4}%
+       \@eemeirword}
+      {\def\@eemeirM{#3}%
+       \def\@eemeirF{#4}%
+       \@eemeirword}}%
+}
+\newcommand{\@eemeirword}[1][]{%
+   \@ifundefined{ifmale#1}
+      {\PackageWarning{eemeir}
+         {You should set the #1 gender before using\MessageBreak it}%
+       \askforgender[#1]}
+      {\relax}%
+   \csname ifmale#1\endcsname\@eemeirM\else\@eemeirF\fi
+   \xspace
+}
+\newwordpair{\E}{he}{she}
+\newwordpair{\Em}{him}{her}
+\newwordpair{\Eir}{his}{her}
+\newwordpair{\Eirs}{his}{hers}
+\@eemeir
+\endinput
+%%
+%% End of file `eemeir.sty'.

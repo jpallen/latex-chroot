@@ -1,0 +1,896 @@
+% This file is part of the KannadaTeX Software Package.
+%Copyright (c) 1991 G.S. Jagadeesh & Venkatesh. Gopinath.
+%
+%Author: Modified from TeluguTex by, GS. Jagadeesh.
+%The KannadaTeX Software Package is distributed in the hope that
+%it will be useful,but WITHOUT ANY WARRANTY.  No author or distributor
+%accepts responsibility to anyone for the consequences of using it
+%or for whether it serves any particular purpose or works at all,
+%unless he says so in writing.  Refer to the KannadaTeX Software Package
+%General Public License for full details.
+%
+%Everyone is granted permission to copy, modify and redistribute
+%the KannadaTeX Software Package, but only under the conditions described in the
+%KannadaTeX Software Package General Public License.   A copy of this license is
+%supposed to have been given to you along with KannadaTeX Software Package so you
+%can know your rights and responsibilities.  It should be in a
+%file named CopyrightLong.  Among other things, the copyright notice
+%and this notice must be preserved on all copies.  
+%%%%%
+
+% This file contains several macros. These are used for setting
+%  up the environment and character generation. Before you change
+%  anything in this file you should be very clear about the impact
+%  of the change.
+%
+ % when testing is false all symbols in the font are 
+ %    generated automatically else when testing is true
+ %    only selected symbols will be generated.
+
+
+if unknown testing:boolean testing; testing:=false; fi
+showstopping := 1;  % for debugging only
+let kanchar=\;
+let generate=input;  
+let sketch=draw;
+let pos=penpos;
+let stop=bye;
+string tl_symname,tl_stra,tl_strb,tl_strc,tl_strw,tl_strx,tl_stry;
+       % contains the name of the symbol being created
+tl_symname:="";     % used for creating substitute commands on log file
+tl_stra:="OFFSETA{"; tl_strb:="OFFSETB{"; tl_strc:="OFFSETC{";
+tl_strw:="CODE{";
+tl_strx:="\def\";tl_stry:="}%";
+
+
+if testing:
+        %To test different characters use following definitions of
+        %   stest and etest.
+           def stest (text s) =
+             quote def s =
+           enddef;
+           let etest=enddef;
+else:
+        %To generate all the characters use following definitions of
+        %  stest and etest.
+         def stest (text s) =
+	      tl_symname := str s;% symbol name - used in various messages
+         enddef;
+         let etest=;;
+fi;
+
+let ee:=end;
+
+%  We should be very careful about implications of currenttransform
+%  (particularly 'slanted' transform). When a path is drawn/filled 
+%  currenttransform is applied. When a transform is applied to
+%  currentpicture, the transform is really applied to slanted (or
+%  whatever currenttransform is) path.
+def font_setup = 
+	let adjust_fit = normal_adjust_fit;
+        currenttransform := currenttransform  slanted slant;   
+	define_pixels(u,v,uh,asc_height,des_depth,x_height);
+	define_pixels(pen_width,ul,ur,em_width);
+
+	define_pixels(pen_thick,ul,ur,em_width);
+
+	define_pixels(bot_depth,top_height);
+        define_pixels(fig_height,kfig_height,kfig_width);
+        define_pixels(ascunit,vmwidth);  
+	define_pixels(top_accent,bot_accent);
+        define_pixels(bot_cc_ceiling,bot_cc_floor,bot_cc_width,ccwidth);  
+ 	define_pixels(c_height,w_height,j_height);
+        define_pixels(asc_height1,asc_height2);
+        define_pixels(dot_radius,wedge_height,wedge_depth);
+        define_pixels(half_plus_width,sc_height);
+
+	define_pixels(v_a_width,v_e_width,v_u_width, v_uu_width);
+	define_pixels(v_ro_width,v_ea_width,v_i_width);
+
+	define_pixels(vm_a_width,vm_aa_width,vm_e_width,vm_ee_width,vm_e_height1);
+	define_pixels(vm_e_height2,vm_e_heightx,vm_e_heightj, vm_u_width, vm_uu_width);
+	define_pixels(vm_ro_width,vm_y_width,vm_bar_width, vm_ao_width,vm_aoo_width);
+	define_pixels(vm_ea_width, vm_ea_height, vm_ea1_width, vm_ah_height, vm_ah_width, vm_au_width);
+
+	define_pixels(cb_ka_width,cb_kha_width,cb_ga_width,cb_cha_width);
+	define_pixels(cb_ja_width,cb_tta_width,cb_nna_width);
+	define_pixels(cb_ta_width,cb_da_width,cb_na_width);
+	define_pixels(cb_ba_width,cb_ya_width,cb_ra_width, cb_rra_width);
+	define_pixels(cb_la_width,cb_lla_width,cb_pa_width,cb_ca_width);
+	define_pixels(cb_sha_width,cb_ksha_width);
+	define_pixels(cb_ksha_depth);
+	define_pixels(cb_np_width,cb_vg_width, cb_ha_width);
+
+        define_pixels(cv_pu_width,cv_pu_depth);
+
+	define_pixels(p_comma_width);
+
+        %define pen
+        if unknown special_kanpen:
+         pickup pencircle scaled pen_width;
+		 %pickup pencircle xscaled 1/2pt yscaled 1/3 rotated -35;
+		 %pickup pencircle yscaled pen_width  xscaled pen_thick  rotated 30 ;
+         kanpen:=savepen;
+        else:
+         special_kanpen;
+         kanpen:=savepen;
+        fi;
+
+        %print titles if generating font
+        if unknown offsets_only:
+          tracingtitles:=1;
+        fi;
+enddef;
+
+newinternal l,r;                    %adjustment to spacing
+
+def normal_adjust_fit(expr left_adjustment,right_adjustment) =
+	l := -hround(left_adjustment*hppp); 
+	interim xoffset := -l;
+	charwd := charwd + left_adjustment + right_adjustment;
+	r := l+hround(charwd*hppp) ;
+	w := r - hround(right_adjustment*hppp) ;
+enddef;
+
+def makebox(text rule) =
+	for y=0,asc_height,-des_depth,x_height,-bot_depth,
+		top_height,w_height,c_height,
+                  j_height: rule((l,y)t_,(r,y)t_);      % horizontal rules
+	endfor;
+	rule((0,h),(r+pen_width,h)); rule((0,-d),(r+pen_width,-d));%height,depth markers
+	for x=l,r:rule((x,-bot_depth)t_,(x,top_height)t_); % vertical
+	endfor;
+	for x=u*(1+floor(l/u)) step u until r-1:
+		rule((x,-bot_depth)t_,(x,top_height)t_);
+	  endfor;                                  % vertical lines at each u
+	if charic <> 0:
+		rule((r+charic*pt,h.o_),(r+charic*pt,.5h.o_));
+	  fi                                       % italic correction
+enddef;
+
+rulepen := pensquare;
+
+def begintchar(expr a,b,c,d,e,f,g) =
+  beginchar(a,b,c,d);
+  italcorr e;
+  if known offsets_only:
+      message tl_strx&tl_symname&tl_strw&decimal(a)&tl_stry;
+  fi;
+  numeric left_space,right_space,l_s,r_s;
+	  l_s:=f; r_s:=g;
+	  left_space:=hround(hppp*f); right_space:=hround(hppp*g);
+  pickup kanpen;
+ enddef;
+
+extra_endchar := extra_endchar&"w:=r-l;";
+
+def endtchar =
+ charwd:=w/hppp; charht:= h/vppp;  chardp:= d/vppp;
+ adjust_fit(l_s,r_s);
+ penlabels(range 1 thru 20);
+ message "";
+ % If any special effects are needed then those should be
+ % defined as special_effects macro.
+ if known special_effects: special_effects; fi;
+ endchar;
+ enddef;
+
+% pivot_message macro is used to print offsets to certain points
+% in the symbol being generated. These offsets are used by syllable
+% building macros to allign vowel modifiers/consonant conjuncts.
+% Unlike in english where all symbols stand alone, in Kannada
+% various symbols in the font combine to form text.
+% For consonant bases two/three offsets are identified. One is used to place
+% vowel modifiers and the other is used to place consonant conjuncts(excluding
+% those that appear on side). Third offset is used in attaching vowel modifiers
+% in some special cases. Offsets have suffixes A,B and C.
+% Vowel modifiers, accents and consonant 
+% conjuncts that appear above/below base consonant indicate one offset value.
+% Same macro works in all cases.
+% The messages are in the form of TeX macros.
+% The log file contains TeX macros mixed with other messages. Use
+% some pattern matching program like grep to eliminate all lines containing
+% not begining with a \ sign. Name this file tloffsets.
+%     grep '^\\' xxxxx.log>tloffsets.tex
+% The offsets are in em units. So the offsets would be same for any designsize
+% and pen width combination. 
+% Print the offsets only when offsets are being generated.
+if unknown offsets_only: % do not print offsets
+   def pivot_message (text t) =
+   enddef;
+else: %print offsets
+ def pivot_message (text t) =
+ numeric count,piv[],index;
+ % count indicates the number of arguments
+ count:=0;
+ for index=t: count:=count+1; piv[count]:=index; endfor;
+ if count=1:
+  message tl_strx&tl_symname&tl_stra&decimal((piv[1]+left_space)/em_width)&tl_stry;
+ elseif count=2:
+  message tl_strx&tl_symname&tl_stra&decimal((piv[1]+left_space)/em_width)&tl_stry;
+  message tl_strx&tl_symname&tl_strb&decimal((piv[2]+left_space)/em_width)&tl_stry;
+ else:
+  message tl_strx&tl_symname&tl_stra&decimal((piv[1]+left_space)/em_width)&tl_stry;
+  message tl_strx&tl_symname&tl_strb&decimal((piv[2]+left_space)/em_width)&tl_stry;
+  message tl_strx&tl_symname&tl_strc&decimal((piv[3]+left_space)/em_width)&tl_stry;
+
+ fi;
+ enddef;
+fi;%end of if unknown offsets 
+
+def fill_dot(suffix $) =
+	z$t = (x$,y$+dot_radius);
+	z$l = (x$-dot_radius,y$);
+	z$b = (x$,y$-dot_radius);
+	z$r = (x$+dot_radius,y$);
+  path fill_dot_p;
+  fill_dot_p = z$t..z$l..z$b..z$r..cycle;
+  fill fill_dot_p;
+  penlabels($t,$l,$b,$r);
+  enddef;
+
+def fill_dotb(suffix $) =
+	z$t = (x$,y$+.75dot_radius);
+	z$l = (x$-.75dot_radius,y$);
+	z$b = (x$,y$-.75dot_radius);
+	z$r = (x$+.75dot_radius,y$);
+  path fill_dot_p;
+  fill_dot_p = z$t..z$l..z$b..z$r..cycle;
+  fill fill_dot_p;
+  penlabels($t,$l,$b,$r);
+  enddef;
+
+def lit_cir_form =
+	lft z61l = (0,c_height/2); top z61t = (c_height/2,c_height);
+	rt z61 = (c_height,c_height/2); bot z61b = (c_height/2,0);
+	path lit_cir_p;
+        lit_cir_p = z61..z61t..z61l..z61b..cycle;
+	sketch lit_cir_p;
+ penlabels(61t,61l,61b);
+ enddef;
+
+def barandhook_formk (suffix $)(expr bar_width,t) =
+ z$a=(x$+bar_width-u,y$); rt z$b=(x$a+u,y$-uh);
+ bot z$c =(x$b-u,y$-2uh); lft z$d=(x$b-2u,y$b);
+ top z$e=(x$a-u,y$); rt z$f=(x$b,y$+1.5uh);
+ top z$g=(x$a,y$f+uh); z$h=(x$d,y$f);
+path barandhook_p;
+barandhook_p= subpath(0,t) of (rt z$--z$a..z$b..z$c..z$d..z$e..z$f..z$g..z$h);
+sketch  barandhook_p;
+penlabels($a,$b,$c,$d);
+enddef;
+
+def wedge(suffix $) =
+bot z$w=(x$,-wedge_depth);
+  path wedge_p;
+ wedge_p = z$--z$w;
+ sketch wedge_p;
+ penlabels($u,$v,$w,$x,$y);
+  enddef;
+
+
+def vm_hook_form (suffix $)(expr t) =
+	 z$a = (x$,y$+1.5ascunit);
+	 z$b = (x$+u,y$+3ascunit);
+	 z$c = (x$+2u,y$+1.5ascunit);
+  sketch subpath (0,t) of (z$..z$a..z$b..z$c);
+  penlabels ($a,$b,$c);
+  h:=top y$b;
+enddef;
+
+ def v_a_form =
+ top z1=(1/4v_a_width,x_height);
+ z10=(x1-u,y1-uh); z11=(x1,y1-2(y1-y10));
+ lft z3=(0,2/3x_height); bot z4=(1/2v_a_width,0);
+ rt z5=(v_a_width,2/3x_height); top z6=(v_a_width-1.5u,x_height);
+ z7=(3.5/5x5,1/2x_height); z8=(1/4w,1/2x_height);
+ z12=(.65v_a_width,5/6x_height); rt z2=(v_a_width,1/2x_height);
+ enddef;
+
+def v_e_form =    
+ lft z1=(0,j_height); top z2=(1/5v_e_width,x_height);
+ z3=(2/5v_e_width,1.2j_height); top z4=(3/5v_e_width,x_height);
+ rt z5=(v_e_width,1/2x_height); z6=(4/5v_e_width,1/5x_height);
+ bot z7=(1/2v_e_width,0); z8=(1/5v_e_width,1/4x_height);
+ z9=(1/2v_e_width,1/2x_height); rt z10=(v_e_width,-1/5des_depth);
+ path v_e_p;
+ v_e_p =  z1..z2..tension 1.2..z3&z3..tension 1.2..z4..z5..z6..z7..z8..z9..z10;
+ sketch v_e_p;
+ enddef;
+
+def v_u_form =
+ z1=(v_u_width-1/2w_height,1/2w_height); z2=(v_u_width-u,w_height);
+ rt z3=(v_u_width,1/6x_height); bot z4=(3/4v_u_width,0);
+ z5=(1/2v_u_width,w_height); bot z6=(1/3v_u_width,0);
+ lft z7=(0,1/2x_height); top z8=(1/2v_u_width,x_height);
+ top z9=(v_u_width-w_height,x_height);
+path v_u_p;
+v_u_p=z1..z2..z3..z4..tension 1.2..z5&z5..tension 1.2..z6..z7..z8..z9;
+sketch v_u_p;
+ enddef;
+
+def v_lo_form =
+ lft z1=(0,j_height); top z2=(v_lo_width/5,x_height);
+ z3=(2/5v_lo_width,j_height); top z4=(3/5v_lo_width,x_height);
+ z5=(4/5v_lo_width,j_height); z6=(3/5v_lo_width,w_height);
+ bot z7=(4/5v_lo_width,0); rt z8=(v_lo_width,1/2x_height);
+ top z9=(9/10v_lo_width,x_height);
+ path v_lo_p;
+v_lo_p= z1..z2..z3&z3..z4..z5..z6..z7..z8..z9;
+sketch v_lo_p;
+ enddef;
+
+def v_ea_form = 
+  lit_cir_form;
+ bot z2=(2/3v_ea_width,0); rt z3=(v_ea_width,1/3x_height);
+ z4=(2/3v_ea_width,4/5x_height);top z5=(1/3v_ea_width,x_height);
+sketch z1..z2..z3..z4..z5;
+ enddef;
+
+ def vm_a_form (suffix $) =
+  path vm_a_p ;
+  top lft z$a=(x$-2/5vm_a_width,asc_height1);
+  top rt z$b=(x$+3/5vm_a_width,asc_height);
+  z$c = z$;
+  vm_a_p = z$a..tension 6..z$c..tension 16..z$b;
+  sketch vm_a_p;
+  penlabels($a,$b,$c);
+  enddef;  
+
+def vm_e_form =
+	 lft z1 = (0,x_height+1.2ascunit);
+	    top z2 = (1/2vm_e_width,x_height);
+	 rt z3 = (vm_e_width,x_height+2ascunit);
+	 lft z5 = (0,x_height+3ascunit);
+	 z6 = (1/2vm_e_width,y5);
+	 top z7=(1/2vm_e_width,vm_e_height1+ascunit);
+ sketch subpath (0.4,1) of  z1{down}..{right}z2..z3..z7..z5..z6;
+		  % hook can be attached at z7
+enddef;
+
+def vm_e_form_a (expr xcoord) =
+%    used for vowel modifier e for some consonants (eg. khe, che, ne etc)
+%    999 was chosen arbitrarily. we needed something not used elsewhere!
+%    same suffix should be used by vm_ee_form_a.
+     top z999=(xcoord,vm_e_height1); rt z999i=((lft x999)-1.8u,(y999+y999j)/2);
+     top z999j=(x999,asc_height1); 
+      path vm_e_pa;
+      vm_e_pa=z999..z999i..z999j..cycle; h:= (top y999)+pen_width;
+      penlabels(z999,z999i,z999j);
+enddef;
+
+def vm_ee_form_a (expr xcoord) =
+%    used for vowel modifier ee for some consonants (eg. khee, chee, nee etc)
+%    999 was chosen arbitrarily. we needed something not used elsewhere!
+%    same suffix should be used by vm_e_form_a.
+      vm_e_form_a(xcoord); vm_hook_form(999,3);
+enddef;
+
+def vm_u_form (suffix $) =
+	bot z$a = (x$+vm_u_width/2,0);
+	rt z$b = (x$+vm_u_width,y$);
+	z$c = (x$+3/4vm_u_width,3/4x_height);
+	top z$d = (x$+.55vm_u_width,x_height);
+path vm_u_p;
+ vm_u_p=z$..z$a..z$b..z$c..z$d;
+ sketch vm_u_p;
+ penlabels($a,$b,$c,$d);
+ enddef;
+
+def vm_ro_form =
+     z1 = (1/3vm_ro_width,-1/2des_depth);
+     z2 = (1/2vm_ro_width,-1/2des_depth);
+     z3 = (1/3vm_ro_width,0);
+     lft z4 = (0,-1/2des_depth);
+     bot z5 = (1/2vm_ro_width,-des_depth);
+     rt z6 = (vm_ro_width,(y5+y7)/2);
+     top z7 = (1/2vm_ro_width,x_height);
+sketch z1..z2..z3..z4..z5..z6..z7;
+enddef;
+
+def vm_ea_form(suffix $) (expr bar_width) =
+     z$a=(5/7bar_width,y$);
+     z$b=(x$a,asc_height2);
+     lft z$c=(0,y$b);
+     rt z$d=(bar_width,(y$+y$b)/2);
+penlabels ($a,$b,$c,$d);
+ sketch z$c--z$b..z$d..z$a--z$;
+enddef;
+
+def vm_ao_form(suffix $)(expr x_offset) =
+            z$a = (1/6vm_ao_width+x_offset,x_height);
+      lft z$b = (0+x_offset,asc_height1);
+      z$c = (1/6vm_ao_width+x_offset,asc_height2);
+      z$d = (2/6vm_ao_width+x_offset,asc_height1);
+      z$e = (3/6vm_ao_width+x_offset,asc_height2);
+      z$f = (5/6vm_ao_width+x_offset,asc_height2);
+      rt z$g = (vm_ao_width+x_offset,1/2(asc_height1+asc_height2));
+      top z$h = (5/6vm_ao_width+x_offset,asc_height1);
+      z$i = (4/6vm_ao_width+x_offset,asc_height2);
+      top z$j = (5/6vm_ao_width+x_offset,asc_height);
+      top z$k = (vm_aoo_width+x_offset-1.5u,asc_height);
+      rt z$l = (vm_aoo_width+x_offset,asc_height2);
+      %rt z$l = (vm_aoo_width+x_offset,1/2(asc_height+asc_height2));
+      %rt z$k = (vm_ao_width+x_offset,1/2(asc_height+asc_height2));
+      path vm_ao_pa,vm_ao_pb;
+      vm_ao_pa =  z$a..z$b..z$c..tension1.2..z$d;
+   vm_ao_pb= z$d..tension1.2..z$e..tension 1.8..z$f..z$g..z$h..z$i..z$j..tension 1.8..z$k..z$l;
+      w:= rt x$g; h:= top y$c;
+      penlabels ($a,$b,$c,$d,$e,$f,$g,$h,$i,$j,$k,$l);
+enddef;
+
+%        b---------c--------------d
+%                  |            |_|
+%           $------a 	   
+def vm_au_form (suffix $)(expr bar_width) =  % see the above diagram
+    numeric na;
+          top  z$e=z$;
+    z$a = (x$e+2/10(bar_width-u),y$e);
+    z1000 = (x$-u,asc_height2);
+                % 1000 was chosen arbitrarily
+		% we needed some suffix not used by any user of
+		% this macro
+    barandhook_form(1000,bar_width,5);
+    z$d=z1000a;
+    %next two statements solve for c
+    x$c = x$a;
+    z$c = whatever[z1000,z$d];
+    na:=x$c+(x1000a-x$c)/3; % used for alligning pa,pha,sha..
+    sketch  z$e--z$a{right}..{left}z$c;
+    penlabels($a,$b,$c,$d,$e,1000);
+enddef;
+
+def cb_ka_form =
+rt x1=rt x5=cb_ka_width; y1=8/10x_height; y5=1/4x_height;
+x2=x4=x6=1/2cb_ka_width; top y2=x_height; y4=1/2x_height; bot y6=0;
+lft x3=lft x7=0; y3=3/4x_height; y7=x_height-y1;
+path cb_ka_p;
+%cb_ka_p=z7..z6..z5..z4..z3..z2..z1..cycle;
+% added a .. cycle to make a kannada "ka"
+cb_ka_p=z7..z6..z5..z4..z3..z2..z1..cycle;
+enddef;
+
+def cb_kha_form =
+z1=(4/15cb_kha_width,5/6x_height);z2=(2/15cb_kha_width,y1-uh);
+lft z3=(0,y1); top z4=(x6,x_height);
+z5=(5/12cb_kha_width,1/8x_height); bot z6=(1/4cb_kha_width,0);
+lft z7=(0,1/4x_height); z8=(1/4cb_kha_width,1/3x_height);
+bot z9=(3/4cb_kha_width,0); rt z10=(cb_kha_width,1/3x_height);
+top z11=(x9,x_height);
+path cb_kha_p;
+cb_kha_p=z1..z2..z3..z4..z5..z6..z7..z8..z9..z10..z11;
+sketch cb_kha_p;
+numeric a,b;
+(a,b)=(subpath (3,5) of cb_kha_p) intersectiontimes
+          subpath (6,9) of cb_kha_p;
+z15 = point a of (subpath (3,5) of cb_kha_p); wedge(15);
+enddef; 
+
+def cb_ga_form =
+bot z1=(u,0); x5=cb_ga_width-x1; bot y5=0;
+y2=y4=1/3x_height; lft x2=0; rt x4=cb_ga_width;
+top z3=(1/2cb_ga_width,x_height);
+path cb_ga_p,cv_ge_p;
+ cb_ga_p=z1..z2..z3..z4..z5;
+ sketch cb_ga_p;
+        numeric na,nb,nc,nd;
+       (na,nb)= cb_ga_p intersectiontimes
+                  ((0,vm_e_height2)--(1/2cb_ga_width,vm_e_height2));
+        z30= point na of cb_ga_p;
+       (nc,nd)= cb_ga_p intersectiontimes
+                  ((1/2cb_ga_width,vm_e_height2)--(cb_ga_width,vm_e_height2));
+        z32= point nc of cb_ga_p;
+        top z31=(1/2cb_ga_width,vm_e_height3);
+       cv_ge_p=z30..z31..z32;
+enddef; 
+
+def cb_cha_form =
+ lft z1=(0,x_height/2); z2=(cb_cha_width/3,x_height/2);
+ z3=(cb_cha_width/6,w_height); bot z4=(cb_cha_width/4,0);
+z5=(cb_cha_width/2,w_height); bot z6=(3/4cb_cha_width,0);
+ rt z7=(cb_cha_width,w_height); top z8=(cb_cha_width/2,x_height);
+ path cb_cha_p;
+ cb_cha_p=z1--z2..z3..z4..tension1.2..z5&z5..tension1.2..z6..z7..z8;
+ sketch cb_cha_p;
+ enddef;
+
+def cb_ja_form =
+   lft z1 = (0,j_height); top z2 = (cb_ja_width/4,x_height);
+   z3 = (cb_ja_width/2,j_height); z4 = (cb_ja_width/4,x_height/2);
+   lft z5 = (0,w_height); bot z6 = (cb_ja_width/4,0);
+   z7 = (cb_ja_width/2,w_height); bot z8 = (3/4cb_ja_width,0);
+   rt z9 = (cb_ja_width,w_height);
+   %following are useful for defining a bowl at the top
+   bot lft  z3w=top z3; z3x=(x8,y1); rt z3y=(w,5/6x_height);
+   top z3z=(4/5w,x_height);
+   path cb_ja_pa,cb_ja_pb;
+   cb_ja_pa=z1..z2..z3..z4..z5..z6..tension1.2..z7&z7..tension1.2..z8..z9;
+   cb_ja_pb=z3w..z3x..z3y..z3z;
+   sketch cb_ja_pa;
+   penlabels(3w,3x,3y,3z);
+ enddef;
+
+def cb_tta_form =
+ top z1=(1/4cb_tta_width,x_height);
+ y2=y6=1/2x_height;
+ lft x2=0; rt x6=cb_tta_width;
+ x3=x1; x5=cb_tta_width-x3;
+ bot y3=bot y5=0;
+ top z4=(1/2cb_tta_width,w_height);
+ top z7=(cb_tta_width-x1,x_height);
+ z11=(x1+1.5u,y1-1.45uh);
+ path cb_tta_p,cb_tta_pa,cb_tta_pb;
+ cb_tta_pb=z1..z2..z3..tension1.2..z4&z4..tension1.2..z5..z6..z7;
+        numeric na,nb,nc,nd;
+       (na,nb)= cb_tta_pb intersectiontimes
+                  ((0,5/6x_height)--(1/2cb_tta_width,5/6x_height));
+  z8=point na of cb_tta_pb;
+       (nc,nd)= cb_tta_pb intersectiontimes
+                  ((0.6cb_tta_width,w_height)--(cb_tta_width,w_height));
+  z20=point nc of cb_tta_pb;
+  z19=rt z20;
+ cb_tta_pa=bot z8..z11..z1;
+ cb_tta_p=cb_tta_pa..cb_tta_pb;
+ bot lft z18= z1;% used for placing a vertical line
+ enddef;
+ 
+def cb_nna_form =
+z1a=(1/3cb_nna_width,1/2sc_height);
+bot z1=(1/4cb_nna_width,0); lft z2=(0,1/4x_height);
+z3=(1/6cb_nna_width,1/2x_height); lft z4=(0,3/4x_height);
+top z5=(1/4cb_nna_width,x_height); z6=(1/2cb_nna_width,j_height);
+top z7=(5/8cb_nna_width,x_height); rt z8=(cb_nna_width,1/2x_height);
+bot z9=(2/3cb_nna_width,0); z10=(x9-1/2sc_height,sc_height);
+z11=(x9,3/2sc_height); z12=(x9+1/2sc_height,sc_height);
+ path cb_nna_p;
+cb_nna_p= z1a..z1..z2..z3&z3..z4..z5..z6&z6..z7..z8..z9..z10..z11..z12;
+sketch cb_nna_p;
+ penlabels(1a);
+enddef; 
+
+def cb_ta_form =
+lft z1=(0,1/2x_height);
+z2=(x1+u,y1-uh); z3=(x1+2u,y1); z4=(x2,y1+uh);
+bot z5=(1/2cb_ta_width,0); rt z6=(cb_ta_width,1/2x_height);
+z7=(x6-u,y6+uh); z8=(x6-2u,y6); z9=(x7,y6-uh);
+top z10=(1/2cb_ta_width,x_height);      
+ path cb_ta_p;
+ cb_ta_p = z1..z2..z3..z4..z1..z5..z6..z7..z8..z9..z6..{left}z10;
+enddef;
+
+def cb_da_form =
+ top z1=(1/2cb_da_width,x_height); lft z2=(0,w_height);
+ bot z3=(1/3cb_da_width,0);z4=(1/2cb_da_width,w_height);
+ bot z5=(2/3cb_da_width,0);rt z6=(cb_da_width,1/2x_height);
+ path cb_da_p,cv_de_p;  
+ cb_da_p= z4..tension 1.2..z5..z6..z1..z2..z3..tension 1.2..z4;
+ sketch cb_da_p;
+        numeric na,nb,nc,nd;
+       (na,nb)= cb_da_p intersectiontimes
+                  ((0,vm_e_height2)--(1/2cb_da_width,vm_e_height2));
+        z30= point na of cb_da_p;
+       (nc,nd)= cb_da_p intersectiontimes
+                  ((1/2cb_da_width,vm_e_height2)--(cb_da_width,vm_e_height2));
+        z32= point nc of cb_da_p;
+        top z31=(1/2cb_da_width,vm_e_height3);
+       cv_de_p=z30..z31..z32;
+ enddef;
+
+def cb_na_form =
+ bot lft z1=(0,0); lft z2=(0,1/2w_height);
+ z3=(1/3cb_na_width,w_height); bot z4=(2/3cb_na_width,0);
+ rt z5=(cb_na_width,1/3x_height); top z6=(1/2cb_na_width,x_height);
+ path cb_na_p;
+ cb_na_p=z1..z2..z3..z4..z5..z6;
+ enddef; 
+
+def cb_ba_form =
+	lft z1 = (u/2,j_height); top z2 = (cb_ba_width/5,x_height);
+	z3 = (cb_ba_width/3,j_height); lft z4 = (0,w_height);
+	bot z5 = (cb_ba_width/4,0); bot z6 = (cb_ba_width/2,w_height);
+	bot z7 = (3/4cb_ba_width,0);
+	rt z8 = (cb_ba_width,w_height); %z8  contact point
+	top z9 = (2/3cb_ba_width,x_height); % z9 another contact point
+	path cb_ba_p;
+	cb_ba_p = z1..z2..z3..z4..z5..tension 1.2..z6&z6..tension 1.2..z7..z8..z9;
+	sketch cb_ba_p;
+ enddef;
+
+def cb_ya_form =
+     lft z1 = (0,2/5x_height);
+     top z2 = (3/10cb_ya_width,8/10x_height);
+     rt z3 = (3/5cb_ya_width,y1);
+     bot z4 = (x2,0);
+     bot z5 = (4/5cb_ya_width,0);
+     rt z6 = (cb_ya_width,w_height);
+     z7 = ((x5+x6)/2,7.3/10x_height);
+     top z8 = (9/20cb_ya_width,x_height);
+enddef;
+ 
+def cb_ra_form =
+	top z1=(cb_ra_width/2,x_height);
+	lft z2 = (0,w_height);
+	bot z3 = (cb_ra_width/2,0);
+	rt z4 = (cb_ra_width,y2);
+	path cb_ra_p,cv_re_p;
+   cb_ra_p =  z1..z2..z3..z4..cycle; 
+   sketch  cb_ra_p; 
+        numeric na,nb,nc,nd;
+       (na,nb)= cb_ra_p intersectiontimes
+                  ((0,vm_e_height2)--(1/2cb_ra_width,vm_e_height2));
+        z30= point na of cb_ra_p;
+       (nc,nd)= cb_ra_p intersectiontimes
+                  ((1/2cb_ra_width,vm_e_height2)--(cb_ra_width,vm_e_height2));
+        z32= point nc of cb_ra_p;
+        top z31=(1/2cb_ra_width,vm_e_height3);
+       cv_re_p=z30..z31..z32;
+  enddef;
+
+def cb_rra_form =
+cb_tta_form;
+z14=(cb_tta_width-1.5x1,x_height-sc_height);
+z15=(x7,1/2x_height);z16=(x1,y15);
+ path cb_rra_p;
+ cb_rra_p= cb_tta_p..z14..z15--z16;
+ sketch cb_rra_p;
+enddef; 
+
+def cb_la_form =
+top z1=(1/4cb_la_width,x_height);
+lft z2=(0,x_height/2); bot z3=(1/2cb_la_width,0);
+rt z4=(cb_la_width,y2); top z5=(cb_la_width-x1,x_height);
+z7=(x1+1.5u,2/3x_height);
+ path cb_la_pa,cb_la_pb,cb_la_p;
+ cb_la_pb=z1..z2..z3..z4..z5;
+z6=point 0.35 of cb_la_pb;
+ cb_la_pa= bot rt z6..z7..z1;
+ cb_la_p=cb_la_pa..cb_la_pb;
+% z8 is useful for la+u and la+uu
+numeric na,nb;
+(na,nb)=cb_la_pb intersectiontimes
+       ((cb_la_width/2,w_height)..(cb_la_width,w_height));
+z9=point na of cb_la_pb;
+z8=rt z9;
+enddef;
+
+def cb_lla_form =
+top z1=(cb_lla_width/2,w_height);
+bot z2 =(x1,0);
+z6=(1/3cb_lla_width,x_height-2uh); z3=(x6+u/2,y6-uh);
+z4=(x6,.6x_height); z5=(x6+u/2,y3); lft z7=(0,2/3x_height);
+bot z8=top z1; rt z9=(cb_lla_width,y7); top z10=(1/2cb_lla_width,x_height);
+path cb_lla_pa,cb_lla_pb;
+cb_lla_pa=z3..z4..z5..z6..z7..z8..z9..z10;
+cb_lla_pb=z1..z2..cycle;
+sketch cb_lla_pa;
+sketch cb_lla_pb;
+% z12 is useful for lla+u and lla+uu
+numeric na,nb;
+(na,nb)=cb_lla_pa intersectiontimes
+       ((cb_lla_width/2,x_height/2)..(cb_lla_width,x_height/2));
+z13=point na of cb_lla_pa;
+z12=rt z13;
+enddef; 
+
+def cb_va_form  =
+    lit_cir_form;
+	bot z62 = (3/5cb_pa_width,0); rt z63 = (cb_pa_width,w_height);
+	z64 = (7/8cb_pa_width,j_height); top lft z65 = (x1,x_height);
+path cb_va_p,cv_paa_p;
+cb_va_p=z61..z62..z63..z64..z65;
+top z20=(cb_pa_width/2,h);
+cv_paa_p=subpath(0,2) of cb_va_p{up}..z20;
+% z22 is useful for alligning au modifier
+numeric na,nb;
+(na,nb)=cv_paa_p intersectiontimes
+       ((cb_pa_width/2,asc_height2)..(cb_pa_width,asc_height2));
+z22=point na of cv_paa_p;
+ enddef;
+
+def cb_ca_form =
+lft z1=(0,1/2x_height); z2=(1/3cb_ca_width,6/8x_height);
+bot z3=(1/3cb_ca_width,0); z4=(3/4cb_ca_width,1/3x_height);
+rt z5=(cb_ca_width,2/3x_height); top z6=(1/2cb_ca_width,x_height);
+lft z7=(0,1/6x_height);
+path cb_ca_p,cb_ca_pa;
+cb_ca_p=z1..z2{right}..z4..z3..z7..z4..z5..z6;
+sketch cb_ca_p;
+% z10 is useful for ca+u and ca+uu
+cb_ca_pa=subpath(1,3) of cb_ca_p;
+numeric na,nb;
+(na,nb)=cb_ca_pa intersectiontimes
+       ((0,w_height)..(cb_ca_width,w_height));
+z11=point na of cb_ca_pa;
+z10=rt z11;
+enddef;
+
+def cb_ksha_form =
+ cb_ka_form;
+ top z11 = (1/5cb_ka_width,0);
+ lft z12 = (0,-1/2cb_ksha_depth);
+ bot z13 = (x11,-cb_ksha_depth);
+ z14 = (2/5cb_ka_width,-2/3cb_ksha_depth);
+ bot z15 = (3/5cb_ka_width,-cb_ksha_depth);
+ z16 = (4/5cb_ka_width,-1/2cb_ksha_depth);
+ top z17 = (x15,0);
+ bot rt z18 = (cb_ka_width,-cb_ksha_depth);
+ sketch z11..z12..z13..z14; sketch z14..z15..z16..z17;
+ sketch z16..z18;
+ enddef;
+
+
+def cc_clear =
+%erase all that is drawn so far.
+    clearit;
+    lft z99=(0,100);
+    left_spill := xpart(lft (z99 scaled cc_scale)) - xpart(lft z99);
+    bot z98=(100,0);
+    bot_spill := ypart(bot (z98 scaled cc_scale)) - ypart(bot  z98);
+    top((z97 scaled cc_scale)
+    shifted (0,-bot_accent-(x_height*cc_scale))
+    shifted (-left_spill,-bot_spill))=
+		    (w*cc_scale/2,x_height);
+enddef;
+
+def cc_transform(text t) =
+% used to obtain consonant conjuncts for some consonants and vowels lo&loo
+path cc_transformed_path;
+cc_transformed_path =  t  scaled cc_scale	
+	  shifted (0,-bot_accent-(x_height*cc_scale));
+sketch cc_transformed_path;
+enddef;
+
+def cc_my_transform(text t) =
+% used to obtain consonant conjuncts for some consonants and vowels lo&loo
+path cc_transformed_path;
+cc_transformed_path =  t  scaled cc_scale	
+	  shifted (0,-bot_accent-(x_height*cc_scale));
+sketch cc_transformed_path;
+enddef;
+
+def cc_f_transform(text t) =
+% used to obtain consonant conjuncts for some consonants and vowels lo&loo
+fill t  scaled cc_scale	
+	  shifted (0,-bot_accent-(x_height*cc_scale));
+enddef;
+
+def cc_whd (expr hh,dd) =
+%this macro sets w, h and d for accents that appear below baseline.
+% for some consonant conjuncts that result from transforming
+% consonant bases the height is not zero (eg. cha, ba ,pa etc)
+% for such symbols hh should be 1 and for others hh should be 0. 
+% Some consonant bases have wedges that hang below base line (eg. bha, pha
+% ddha etc. ). For these dd should be 1 and for others dd should be 0.
+%
+%When a picture is scaled, what really happens is the componant paths
+% are scaled and the picture is redrawn. Hence we need to adjust w,h and d.
+% Still consonant conjunct for nya needs special care( for d).
+w:=w*cc_scale-pen_width*cc_scale+pen_width;;
+h:=hh*x_height;
+d:=bot_accent+((x_height+(dd*wedge_depth))*cc_scale)+dd*bot_spill;
+% (x,y) slanted s shifted (a,b) is (x+sy+a,y+b)   whereas
+% (x,y) shifted (a,b) slanted s is (x+sy+a+ bs,y+b). Hence we
+% need to add the correction 'bs'. 'bs' is -bot_spill*slant
+currentpicture:=currentpicture shifted
+                (-left_spill+((-bot_spill)*slant),-bot_spill);
+enddef;
+
+def cv_ngu_form =
+  z1=(0,j_height); z2=(cb_ja_width/4,j_height-uh#);
+  rt z3=(cb_ja_width/2,5/6x_height); top z4=(4/10cb_ja_width,x_height);
+  sketch z1..z2..z3..z4;
+enddef;
+
+def cv_ju_form =
+  z1=(0,5/6x_height); z2=(cb_ja_width/4,j_height);
+  rt z3=(cb_ja_width/2,y1); top z4=(4/10cb_ja_width,x_height);
+  sketch z1..z2..z3..z4;
+enddef;
+
+def cv_pu_form =
+   top lft z1=(0,c_height/2); bot z2=(cv_pu_width/2,-cv_pu_depth);
+   rt z3=(cv_pu_width,h/2); top z4=(cv_pu_width-2u,x_height);
+   sketch z1..z2..z3..z4;
+enddef;
+
+def dr_sixnine_form =
+    path dr_sixnine_p;
+    top rt z1 = (w,fig_height);
+    z2 = (w/2+u,y1-uh);
+    bot z4 = (w/2,0);
+    rt z5 = (w,x4);
+    z6 = (x4,x5-x7);
+    lft z7 = (0,y5);
+ dr_sixnine_p =  z1..z2..z7..z4..z5..z6..z7;
+enddef;
+
+def cc_arkavattu=
+path dt_six_pa,dt_six_pb;
+     top z1=(w/5,h);  lft z2=(0,3h/4);  z3=(x1,h/2);
+     z4=(w/3,h/2); lft z5=(0,h/4);  bot z6=(x1,0);
+     bot rt z7=(w,0);
+arka_pa= flex(z1,z2,z3)& z3--z4;
+arka_pb=flex(z3,z5,z6)& z6--z7;
+enddef;
+
+
+def p_comma_form =
+path p_comma_p;
+    z1 = (dot_radius,dot_radius);
+    rt z2 = (p_comma_width,0);
+    bot lft  z3 = (x1-1/2dot_radius,-des_depth);
+fill_dot(1); p_comma_p= flex(z1,z2,z3);
+sketch p_comma_p;
+enddef;
+
+def p_bar_form =
+path p_bar_p;
+    bot lft z1 = (0,0);
+    top lft z2 = (0,x_height);
+p_bar_p= z1--z2;
+enddef;
+
+def p_slash_form =
+path p_slash_p;
+    bot lft z1 = (0,-des_depth);
+    top rt z2 = (6u,asc_height);
+p_slash_p= z1--z2;
+enddef;
+
+def p_lbracket_form =   % square bracket
+path p_lbracket_p;
+    top lft z1 = (0,top_height);
+    bot lft z2 = (0,-bot_depth);
+    rt z3 =  (w,y1);
+    rt z4 =  (w,y2);
+p_lbracket_p=z3--z1--z2--z4;
+enddef;
+     
+    
+def p_rparen_form =
+path p_rparen_p;
+    top lft z1 = (0,top_height);  bot lft z2 = (0,-bot_depth);
+    rt z3 = (w,(-d+h)/2);
+p_rparen_p= flex(z1,z3,z2);
+enddef;
+
+
+def p_lbrace_form =
+path p_lbrace_p;
+    top rt z1 = (w,h);  lft z4 = (0,(h-d)/2);
+	z2 = (w/2,-d+7/8(h+d));
+	z3 = (x2,-d+5/8(h+d));
+p_lbrace_p= z1..z2..z3..z4;
+p_lbrace_p:=(p_lbrace_p  reflectedabout (z4,z4+(w,0))  )..reverse(p_lbrace_p);
+enddef;
+
+
+def dk_five_form =
+  z1 = (.2w, .7h); lft z2 = (0, 3h/4);
+  top z3 = (1/4w, h) ; z4 = (.5w, .5h);
+  bot  z5 = (1/4w, 0) ; lft z6 = (0, 1/4 h);
+  z6a = (.45w, .45h) ;
+  z7 = (.5w, .5h); z8 = (.95w, .8h) ;
+  top z9 = (.9w, .96h); z10 = (.6w, .8h) ;
+  rt z11 = (w, 1/4h) ; bot z12 =  (.85w, 0) ;
+  sketch z1..z2..z3..z4..z5..z6..tension 1.3..z7..z8..z9..z10..z11..tension 1.2..z12;
+enddef;
+
+def dk_six_form =
+  lft top z1 = (.05w, h); lft z2 = (.12w, .8h);
+  z3 = (.25w, .45h); z4 = (x3, .65h) ;
+  z4a = (.4w, (y3+y4)/2);
+  lft z5 = (0, .25h) ; bot z6 = (.25w, 0) ;
+  rt bot z7 = (w, 0) ;
+  sketch z1..z2..z3..z4a..z4..tension 1.2..z5...z6--z7 ;
+
+enddef;
+
+def cb_dollar_form =
+  rt x1=rt x5=cb_ka_width; y1=8/10x_height; y5=1/4x_height;
+  x2=x4=x6=1/2cb_ka_width; top y2=x_height; y4=1/2x_height; bot y6=0;
+  lft x3=lft x7=0; y3=3/4x_height; y7=x_height-y1;
+  path dol_p;
+  dol_p = z1..z2..z3..z4..z5..z6..z7;
+enddef;
+

@@ -1,0 +1,110 @@
+%%
+% Fichier : chapterfolder.sty
+%
+% Auteur  : Boretti Mathieu
+%
+% Licence : lppl
+% This material is subject to the LaTeX Project Public License. See http://www.ctan.org/tex-archive/help/Catalogue/licenses.lppl.html  for the details of that license.
+%
+% revision, version 1.1
+%
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{chapterfolder}
+\RequirePackage{ifthen}
+%
+\newcommand{\@chapterfoldercurrentfolder}{}
+%
+\newcommand{\@partfoldercurrentfolder}{}
+%
+\newcommand{\@sectionfoldercurrentfolder}{}
+%
+\newcommand{\@subsectionfoldercurrentfolder}{}
+%
+\newcommand{\@chapterfolderfigure}{figure/}
+%
+\newcommand{\@chapterfolderlistings}{listings/}
+%
+%
+% \cfcurrentfolder
+\newcommand{\cfcurrentfolder}{\@partfoldercurrentfolder\@chapterfoldercurrentfolder\@sectionfoldercurrentfolder\@subsectionfoldercurrentfolder}
+% \cfcurrentfolderfigure
+\newcommand{\cfcurrentfolderfigure}{\cfcurrentfolder\@chapterfolderfigure}
+% \cfcurrentfolderlistings
+\newcommand{\cfcurrentfolderlistings}{\cfcurrentfolder\@chapterfolderlistings}
+%
+\newcommand{\@cfuppart}[1]{\renewcommand{\@partfoldercurrentfolder}{#1/}}
+\newcommand{\@cfupchapter}[1]{\renewcommand{\@chapterfoldercurrentfolder}{#1/}}
+\newcommand{\@cfupsection}[1]{\renewcommand{\@sectionfoldercurrentfolder}{#1/}}
+\newcommand{\@cfupsubsection}[1]{\renewcommand{\@subsectionfoldercurrentfolder}{#1/}}
+\newcommand{\@cfdownpart}{\renewcommand{\@partfoldercurrentfolder}{}}
+\newcommand{\@cfdownchapter}{\renewcommand{\@chapterfoldercurrentfolder}{}}
+\newcommand{\@cfdownsection}{\renewcommand{\@sectionfoldercurrentfolder}{}}
+\newcommand{\@cfdownsubsection}{\renewcommand{\@subsectionfoldercurrentfolder}{}}
+%
+% \cfinput{nom}
+\newcommand{\cfinput}[1]{\input{\cfcurrentfolder#1}}
+
+% \cfpart[name short]{name full}{folder}{file}
+\newcommand{\cfpart}[4][]{%
+\@cfuppart{#3}%
+\ifthenelse{\equal{#1}{}}{\part{#2}}{\part[#1]{#2}}%
+\cfinput{#4}%
+\@cfdownpart%
+}
+
+% \cfpartstar[name short]{name full}{folder}{file}
+\newcommand{\cfpartstar}[4][]{%
+\@cfuppart{#3}%
+\ifthenelse{\equal{#1}{}}{\part*{#2}}{\part[#1]{#2}}%
+\cfinput{#4}%
+\@cfdownpart%
+}
+
+% \cfchapter[name short]{name full}{folder}{file}
+\newcommand{\cfchapter}[4][]{%
+\@cfupchapter{#3}%
+\ifthenelse{\equal{#1}{}}{\chapter{#2}}{\chapter[#1]{#2}}%
+\cfinput{#4}%
+\@cfdownchapter%
+}
+
+% \cfchapterstar[name short]{name full}{folder}{file}
+\newcommand{\cfchapterstar}[4][]{%
+\@cfupchapter{#3}%
+\ifthenelse{\equal{#1}{}}{\chapter*{#2}}{\chapter*[#1]{#2}}%
+\cfinput{#4}%
+\@cfdownchapter%
+}
+
+% \cfsection[name short]{name full}{folder}{file}
+\newcommand{\cfsection}[4][]{%
+\@cfupsection{#3}%
+\ifthenelse{\equal{#1}{}}{\section{#2}}{\section[#1]{#2}}%
+\cfinput{#4}%
+\@cfdownsection%
+}
+
+% \cfsectionstar[name short]{name full}{folder}{file}
+\newcommand{\cfsectionstar}[4][]{%
+\@cfupsection{#3}%
+\ifthenelse{\equal{#1}{}}{\section*{#2}}{\section*[#1]{#2}}%
+\cfinput{#4}%
+\@cfdownsection%
+}
+
+% \cfsubsection[name short]{name full}{folder}{file}
+\newcommand{\cfsubsection}[4][]{%
+\@cfupsubsection{#3}%
+\ifthenelse{\equal{#1}{}}{\subsection{#2}}{\subsection[#1]{#2}}%
+\cfinput{#4}%
+\@cfdownsubsection%
+}
+
+% \cfsubsectionstar[name short]{name full}{folder}{file}
+\newcommand{\cfsubsectionstart}[4][]{%
+\@cfupsubsection{#3}%
+\ifthenelse{\equal{#1}{}}{\subsection*{#2}}{\subsection*[#1]{#2}}%
+\cfinput{#4}%
+\@cfdownsubsection%
+}

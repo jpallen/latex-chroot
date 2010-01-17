@@ -1,0 +1,702 @@
+mode_setup;
+
+define_pixels(size);
+define_pixels(line_thickness,border_line_thickness);
+define_pixels(dig_h,dig_w,dig_pen);
+
+picture digit[];
+picture white_circle;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+def digit_zero =
+  currentpicture := nullpicture;
+  pickup pencircle scaled dig_pen;
+  lft x1=0; y1=.5dig_h;
+  x2=.5dig_w; top y2=dig_h;
+  rt x3=dig_w; y3=.5dig_h;
+  x4=.5dig_w; bot y4=0;
+  draw z1...z2...z3...z4...cycle;
+  digit[0] := currentpicture;
+  clearxy; clearit; clearpen;
+enddef;
+
+def digit_one =
+  currentpicture := nullpicture;
+  pickup pencircle scaled dig_pen;
+  x1=.5dig_w; bot y1=0;
+  x2=.5dig_w; top y2=dig_h;
+  draw z1--z2;
+  digit[1] := currentpicture;
+  clearxy; clearit; clearpen;
+enddef;
+
+def digit_two =
+  currentpicture := nullpicture;
+  pickup pencircle scaled dig_pen;
+  lft x1=0; y1=.75dig_h;
+  x2=.5dig_w; top y2=dig_h;
+  rt x3=.8dig_w; y3=.9dig_h;
+  lft x4=0; bot y4=0;
+  draw z1{up}...z2...z3..{(-.8dig_w,-dig_h)}z4;
+  z5=z4;
+  rt x6=dig_w; bot y6=0;
+  draw z5--z6;
+  digit[2] := currentpicture;
+  clearxy; clearit; clearpen;
+enddef;
+
+def digit_three =
+  currentpicture := nullpicture;
+  pickup pencircle scaled dig_pen;
+  lft x1=.08dig_w; y1=.8dig_h;
+  x2=.5dig_w; top y2=dig_h;
+  rt x3=.92dig_w; y3=y1;
+  z4=(.5dig_w,.52dig_h);
+  rt x5=dig_w; y5=.2dig_h;
+  x6=.65dig_w; bot y6=0;
+  lft x7=0; y7=y5;
+  draw z1{up}..z2..z3..{left}z4{right}..z5..z6...{up}z7;
+  digit[3] := currentpicture;
+  clearxy; clearit; clearpen;
+enddef;
+
+def digit_four =
+  currentpicture := nullpicture;
+  pickup pencircle scaled dig_pen;
+  x1=.75dig_w; bot y1=0;
+  x2=x1; top y2=dig_h;
+  lft x3=0; y3=.3dig_h;
+  rt x4=dig_w; y4=y3;
+  draw z1--z2--z3--z4;
+  digit[4] := currentpicture;
+  clearxy; clearit; clearpen;
+enddef;
+
+def digit_five =
+  currentpicture := nullpicture;
+  pickup pencircle scaled dig_pen;
+  rt x1=.95dig_w; top y1=dig_h;
+  lft x2=.05dig_w; y2=y1;
+  lft x3=0; y3=.45dig_h;
+  z4=(.5dig_w,.6dig_h);
+  rt x5=dig_w; y5=.3dig_h;
+  x6=.65dig_w; bot y6=0;
+  lft x7=0; y7=.15dig_h;
+  draw z1--z2--z3{up}..z4..z5..z6...{up}z7;
+  digit[5] := currentpicture;
+  clearxy; clearit; clearpen;
+enddef;
+
+def digit_six =
+  currentpicture := nullpicture;
+  pickup pencircle scaled dig_pen;
+  rt x1=dig_w; y1=.8dig_h;
+  x2=.45dig_w; top y2=dig_h;
+  lft x3=0; y3=.5dig_h;
+  x4=.5dig_w; bot y4=0;
+  rt x5=dig_w; y5=.3dig_h;
+  z6=(.53dig_w,.55dig_h);
+  z7=(.03dig_w+.6dig_pen,.25dig_h);
+  draw z1{up}...z2...z3...z4...z5...{left}z6{left}...{(1,-10)}z7;
+  digit[6] := currentpicture;
+  clearxy; clearit; clearpen;
+enddef;
+
+def digit_seven =
+  currentpicture := nullpicture;
+  pickup pencircle scaled dig_pen;
+  lft x1=0; top y1=dig_h;
+  rt x2=dig_w; y2=y1;
+  lft x3=.2dig_w; bot y3=0;
+  draw z1--z2--z3;
+  digit[7] := currentpicture;
+  clearxy; clearit; clearpen;
+enddef;
+
+def digit_eight =
+  currentpicture := nullpicture;
+  pickup pencircle scaled dig_pen;
+  lft x1=.08dig_w; y1=.75dig_h;
+  x2=.5dig_w; top y2=dig_h;
+  rt x3=.92dig_w; y3=y1;
+  z4=(.5dig_w,.55dig_h);
+  rt x5=dig_w; y5=.25dig_h;
+  x6=.5dig_w; bot y6=0;
+  lft x7=0; y7=y5;
+  draw z1...z2...z3...z4...cycle;
+  draw z4...z5...z6...z7...cycle;
+  digit[8] := currentpicture;
+  clearxy; clearit; clearpen;
+enddef;
+
+def digit_nine =
+  currentpicture := nullpicture;
+  currentpicture := digit[6] rotated 180;
+  digit[9] := currentpicture shifted (dig_w,dig_h);
+  clearxy; clearit; clearpen;
+enddef;
+
+def letter_x =
+  currentpicture := nullpicture;
+  pickup pencircle scaled dig_pen;
+  draw (0.4dig_w,0.1dig_h)--(1.2dig_w,0.9dig_h);
+  draw (0.4dig_w,0.9dig_h)--(1.2dig_w,0.1dig_h);
+  digit[10] := currentpicture;
+  clearxy; clearit; clearpen;
+enddef;
+
+def letter_c =
+  currentpicture := nullpicture;
+  pickup pencircle scaled dig_pen;
+  draw (dig_w,0.3dig_h)..(0.85dig_w,0.1dig_h)..(0.3dig_w,0.5dig_h)..(0.85dig_w,0.9dig_h)..(dig_w,0.7dig_h);
+  digit[11] := currentpicture;
+  clearxy; clearit; clearpen;
+enddef;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+digit_zero; digit_one; digit_two; digit_three; digit_four;
+digit_five; digit_six; digit_seven; digit_eight;digit_nine;
+letter_x;letter_c;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar(0,24/22size#,23/22size#,1/22size#); "pion bialy";
+  pickup pencircle scaled line_thickness;
+  lft x1=13/24w; y1=-1/24w;
+  rt x2=35/24w; y2=-1/24w;
+  draw z1..z2..cycle;
+  white_circle := currentpicture;
+showit;
+endchar;
+
+% stop"";
+
+beginchar(1,24/22size#,23/22size#,1/22size#); "pion bialy z 1";
+  currentpicture := digit[1] shifted (1w-.5dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(2,24/22size#,23/22size#,1/22size#); "pion bialy z 2";
+  currentpicture := digit[2] shifted (1w-.5dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(3,24/22size#,23/22size#,1/22size#); "pion bialy z 3";
+  currentpicture := digit[3] shifted (1w-.5dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(4,24/22size#,23/22size#,1/22size#); "pion bialy z 4";
+  currentpicture := digit[4] shifted (1w-.6dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(5,24/22size#,23/22size#,1/22size#); "pion bialy z 5";
+  currentpicture := digit[5] shifted (1w-.5dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(6,24/22size#,23/22size#,1/22size#); "pion bialy z 6";
+  currentpicture := digit[6] shifted (1w-.5dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(7,24/22size#,23/22size#,1/22size#); "pion bialy z 7";
+  currentpicture := digit[7] shifted (1w-.5dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(8,24/22size#,23/22size#,1/22size#); "pion bialy z 8";
+  currentpicture := digit[8] shifted (1w-.5dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(9,24/22size#,23/22size#,1/22size#); "pion bialy z 9";
+  currentpicture := digit[9] shifted (1w-.5dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+dig_w := .7dig_w;
+dig_pen := .7dig_pen;
+
+digit_zero; digit_one; digit_two; digit_three; digit_four;
+digit_five; digit_six; digit_seven; digit_eight; digit_nine;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar(10,24/22size#,23/22size#,1/22size#); "pion bialy z 10";
+  currentpicture := digit[1] shifted (1w-1.2dig_w,-1/24w-.5dig_h)
+       + digit[0] shifted (1w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(11,24/22size#,23/22size#,1/22size#); "pion bialy z 11";
+  currentpicture := digit[1] shifted (1w-dig_w,-1/24w-.5dig_h)
+       + digit[1] shifted (1w+.2dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(12,24/22size#,23/22size#,1/22size#); "pion bialy z 12";
+  currentpicture := digit[1] shifted (1w-1.2dig_w,-1/24w-.5dig_h)
+       + digit[2] shifted (1w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(13,24/22size#,23/22size#,1/22size#); "pion czarny z 13";
+  currentpicture := digit[1] shifted (1w-1.2dig_w,-1/24w-.5dig_h)
+       + digit[3] shifted (1w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(14,24/22size#,23/22size#,1/22size#); "pion bialy z 14";
+  currentpicture := digit[1] shifted (1w-1.2dig_w,-1/24w-.5dig_h)
+       + digit[4] shifted (1w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(15,24/22size#,23/22size#,1/22size#); "pion czarny z 15";
+  currentpicture := digit[1] shifted (1w-1.2dig_w,-1/24w-.5dig_h)
+       + digit[5] shifted (1w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(16,24/22size#,23/22size#,1/22size#); "pion bialy z 16";
+  currentpicture := digit[1] shifted (1w-1.2dig_w,-1/24w-.5dig_h)
+       + digit[6] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(17,24/22size#,23/22size#,1/22size#); "pion czarny z 17";
+  currentpicture := digit[1] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[7] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(18,24/22size#,23/22size#,1/22size#); "pion bialy z 18";
+  currentpicture := digit[1] shifted (1w-1.2dig_w,-1/24w-.5dig_h)
+       + digit[8] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(19,24/22size#,23/22size#,1/22size#); "pion czarny z 19";
+  currentpicture := digit[1] shifted (1w-1.2dig_w,-1/24w-.5dig_h)
+       + digit[9] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(20,24/22size#,23/22size#,1/22size#); "pion bialy z 20";
+  currentpicture := digit[2] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[0] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(21,24/22size#,23/22size#,1/22size#); "pion czarny z 21";
+  currentpicture := digit[2] shifted (1w-.9dig_w,-1/24w-.5dig_h)
+       + digit[1] shifted (1w+.2dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(22,24/22size#,23/22size#,1/22size#); "pion bialy z 22";
+  currentpicture := digit[2] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[2] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(23,24/22size#,23/22size#,1/22size#); "pion czarny z 23";
+  currentpicture := digit[2] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[3] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(24,24/22size#,23/22size#,1/22size#); "pion bialy z 24";
+  currentpicture := digit[2] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[4] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(25,24/22size#,23/22size#,1/22size#); "pion czarny z 25";
+  currentpicture := digit[2] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[5] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(26,24/22size#,23/22size#,1/22size#); "pion bialy z 26";
+  currentpicture := digit[2] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[6] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(27,24/22size#,23/22size#,1/22size#); "pion czarny z 27";
+  currentpicture := digit[2] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[7] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(28,24/22size#,23/22size#,1/22size#); "pion bialy z 28";
+  currentpicture := digit[2] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[8] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(29,24/22size#,23/22size#,1/22size#); "pion czarny z 29";
+  currentpicture := digit[2] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[9] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(30,24/22size#,23/22size#,1/22size#); "pion bialy z 30";
+  currentpicture := digit[3] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[0] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(31,24/22size#,23/22size#,1/22size#); "pion czarny z 31";
+  currentpicture := digit[3] shifted (1w-.9dig_w,-1/24w-.5dig_h)
+       + digit[1] shifted (1w+.2dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(32,24/22size#,23/22size#,1/22size#); "pion bialy z 32";
+  currentpicture := digit[3] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[2] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(33,24/22size#,23/22size#,1/22size#); "pion czarny z 33";
+  currentpicture := digit[3] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[3] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(34,24/22size#,23/22size#,1/22size#); "pion bialy z 34";
+  currentpicture := digit[3] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[4] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(35,24/22size#,23/22size#,1/22size#); "pion czarny z 35";
+  currentpicture := digit[3] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[5] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(36,24/22size#,23/22size#,1/22size#); "pion bialy z 36";
+  currentpicture := digit[3] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[6] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(37,24/22size#,23/22size#,1/22size#); "pion czarny z 37";
+  currentpicture := digit[3] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[7] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(38,24/22size#,23/22size#,1/22size#); "pion bialy z 38";
+  currentpicture := digit[3] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[8] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(39,24/22size#,23/22size#,1/22size#); "pion czarny z 39";
+  currentpicture := digit[2] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[9] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(40,24/22size#,23/22size#,1/22size#); "pion bialy z 40";
+  currentpicture := digit[4] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[0] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(41,24/22size#,23/22size#,1/22size#); "pion czarny z 41";
+  currentpicture := digit[4] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[1] shifted (.5w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(42,24/22size#,23/22size#,1/22size#); "pion bialy z 42";
+  currentpicture := digit[4] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[2] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(43,24/22size#,23/22size#,1/22size#); "pion czarny z 43";
+  currentpicture := digit[4] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[3] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(44,24/22size#,23/22size#,1/22size#); "pion bialy z 44";
+  currentpicture := digit[4] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[4] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(45,24/22size#,23/22size#,1/22size#); "pion czarny z 45";
+  currentpicture := digit[4] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[5] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(46,24/22size#,23/22size#,1/22size#); "pion bialy z 46";
+  currentpicture := digit[4] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[6] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(47,24/22size#,23/22size#,1/22size#); "pion czarny z 47";
+  currentpicture := digit[4] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[7] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(48,24/22size#,23/22size#,1/22size#); "pion bialy z 48";
+  currentpicture := digit[4] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[8] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(49,24/22size#,23/22size#,1/22size#); "pion czarny z 49";
+  currentpicture := digit[4] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[9] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(50,24/22size#,23/22size#,1/22size#); "pion bialy z 50";
+  currentpicture := digit[5] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[0] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(51,24/22size#,23/22size#,1/22size#); "pion czarny z 51";
+  currentpicture := digit[5] shifted (1w-.9dig_w,-1/24w-.5dig_h)
+       + digit[1] shifted (1w+.2dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(52,24/22size#,23/22size#,1/22size#); "pion bialy z 52";
+  currentpicture := digit[5] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[2] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(53,24/22size#,23/22size#,1/22size#); "pion czarny z 53";
+  currentpicture := digit[5] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[3] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(54,24/22size#,23/22size#,1/22size#); "pion bialy z 54";
+  currentpicture := digit[5] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[4] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(55,24/22size#,23/22size#,1/22size#); "pion czarny z 55";
+  currentpicture := digit[5] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[5] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(56,24/22size#,23/22size#,1/22size#); "pion bialy z 56";
+  currentpicture := digit[5] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[6] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(57,24/22size#,23/22size#,1/22size#); "pion czarny z 57";
+  currentpicture := digit[5] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[7] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(58,24/22size#,23/22size#,1/22size#); "pion bialy z 58";
+  currentpicture := digit[5] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[8] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(59,24/22size#,23/22size#,1/22size#); "pion czarny z 59";
+  currentpicture := digit[5] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[9] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(60,24/22size#,23/22size#,1/22size#); "pion bialy z 60";
+  currentpicture := digit[6] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[0] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(61,24/22size#,23/22size#,1/22size#); "pion czarny z 61";
+  currentpicture := digit[6] shifted (1w-.9dig_w,-1/24w-.5dig_h)
+       + digit[1] shifted (1w+.2dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(62,24/22size#,23/22size#,1/22size#); "pion bialy z 62";
+  currentpicture := digit[6] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[2] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(63,24/22size#,23/22size#,1/22size#); "pion czarny z 63";
+  currentpicture := digit[6] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[3] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(64,24/22size#,23/22size#,1/22size#); "pion bialy z 64";
+  currentpicture := digit[6] shifted (1w-1.1dig_w,-1/24w-.5dig_h)
+       + digit[4] shifted (1w+.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(65,24/22size#,23/22size#,1/22size#); "pion bialy z X";
+  currentpicture := digit[10] shifted (1w-1.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+
+beginchar(66,24/22size#,23/22size#,1/22size#); "pion bialy z C";
+  currentpicture := digit[11] shifted (1w-1.1dig_w,-1/24w-.5dig_h);
+showit;
+endchar;
+
+% stop"";
+end;

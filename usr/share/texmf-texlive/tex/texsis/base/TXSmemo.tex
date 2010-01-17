@@ -1,0 +1,330 @@
+%% file: TXSmemo.tex - Memoranda - TeXsis version 2.18
+%% @(#) $Id: TXSmemo.tex,v 18.0 1999/07/09 17:24:29 myers Exp $
+%======================================================================*
+%  This is a set of TeX macros for producing simple memos.
+%  The sytnax is:
+%
+%       \MemoFormat     (or simply \memo in TeXsis)
+%       \to <name>
+%       \from <name>
+%       \subj <whatever the memo is about> or \re is same as \subj
+%       \date <date of memo>
+%       \text
+%          <text of memo>
+%       \bye
+%
+%----------------------------------------------------------------------*
+\message{Memo Format.}
+
+% ---------- Counters and such:
+
+\newdimen\memoindent    \memoindent=2.54cm      % indent for \to, \from, etc.
+\newdimen\firstheadoffset       % \headlineoffset for first page only
+\firstheadoffset=0pt            % start with headline down for \ORGANIZATION
+
+% ---------- Initialization: Memo document format for memoranda
+
+\def\Memo{\ContentsSwitchfalse%         % no table of contents
+   \texsis                              % initialize TeXsis
+   \refswitchfalse                      % no reference list
+   \MemoFormat                          % Setup using \MemoFormat
+   \memoheader}%                        % do header at top
+\def\memo{\Memo}                        % synonym
+
+\def\MemoFormat{% set up \Memo environment
+    \voffset=0.125truein                % top margin
+    \hsize=6.5truein                    % width of text
+    \raggedbottom                       %
+    \advance \vsize by -\voffset        % subtract \voffset from vertical size
+    \nopagenumbers                      % no footlines
+    \let\makeheadline=\makememhed       % alternate way of making
+    \headline={\MemoHeadline}%          %   headlines for memos
+    \RunningHeadstrue                   % default 
+    \headlineoffset=0.8cm               % raise all following headlines
+    \firstheadoffset=0pt                % start with headline down for
+    \def\subjectline{}%                 % start with this null
+    \def\nopagenumbers{\RunningHeadsfalse}% redefine \nopagenumbers 
+    \def\pagenumbers{\RunningHeadstrue}%%  and \pagenumbers for this document
+    \twelvepoint                        % default is 12pt
+    \quoteon                            % enable easy quotes
+    \def\annotations{\annotatememo}%    % annotations for memo
+    \def\cc{\ccmemo}%                   % carbon copy for memo
+    \def\Encl{\enclmemo}%               % enclosure for memo
+    \def\ps{\psmemo}%                   % post script for memo
+    \def\endmode{\relax}%               % for first item
+    \def\to{\ifmmode\rightarrow\else\To\fi}%
+    \let\text=\memotext                 % enable \text
+    \let\Text=\memotext                 % \Text is a synonym
+    \let\body=\memotext                 % \body is synonym for \text
+}
+
+
+%     \ORGANIZATION names your institution.  Replace it with whatever you
+% want for your own institution.
+
+\def\ORGANIZATION{}                     % change this in TXSsite.tex!
+
+%     \memoheader prints the word MEMORANDUM at the top of the page and
+% sets up for \to, \from, etc...
+
+\def\memoheader{%                       % banner for top of first page
+    \pageno=1                           % begin on page 1
+    \centerline{\fourteenpoint          % 14 pt type centered
+       M E M O R A N D U M}%            %
+    \bigskip\bigskip                    % space
+    \relax}%                            %
+
+%---------------------------------------
+% new def of \makeheadline for MEMOFORMAT, uses \firstheadoffset
+
+\def\makememhed{\vbox to 0pt{\vskip-22.5pt
+   \ifnum\pageno>1\vskip-\headlineoffset
+      \else\vskip-\firstheadoffset\fi
+   \line{\vbox to 8.5pt{}\the\headline}\vss}\nointerlineskip}
+
+% \MemoHeadline prints the subject and page number at the top of each page
+
+\def\MemoHeadline{%     headline for Memoranda
+   \ifnum\pageno>1                      % if not first page...
+     \ifRunningHeads                    % running headlines on top of page?
+       {\tenrm\subjectline\hfil Page~\folio}% % print subject line and page #
+     \else                              % no running headlines?  
+       {\hfil}%                         % then nothing  
+     \fi
+   \else                                % On the first page do header
+      {\hfil\twelvess\ORGANIZATION\hfil}% print name of organization
+   \fi}%
+
+%-----------------------------------------------------------------------
+% \memoitem is the basic template for each field
+
+\def\memoitem#1{\endmode                % end previous field
+    \begingroup                         % begin a new field
+    \def\endmode{\par\endgroup}%        % set up to end this field
+    \parskip=0pt                        % no \parskip
+    \singlespaced                       % no big space if several lines
+    \medskip\noindent                   % skip down a bit
+    \hangindent=\memoindent             % hanging indentation
+    \hangafter=1                        % after first line
+    \hbox to \memoindent{{\tenss #1}\hfil}% label the field
+    \nobreak}%                          % don't break after label
+
+\def\endmode{\relax}                    % for first item
+
+%---------------------------------------
+% TO: and FROM: and FAX:
+
+\def\To{\memoitem{TO:}}
+\def\TO:{\To}
+\def\From{\memoitem{FROM:}}
+\def\FROM:{\From}
+\def\from{\From}
+
+\def\FAX{\memoitem{FAX \#:}}            
+
+%---------------------------------------
+% CC: (Carbon Copies)
+
+\def\ccmemo{\endmode
+    \def\endmode{\vskip0pt\endgroup}%
+    \bigskip                            % skip down a bit
+    \begingroup\obeylines               % obey line ends
+    \parskip=0pt                        % no skip between items
+    \ccitem{cc:\ }%
+    }
+\def\CC{\cc}
+
+% ---------- \ccitem does the work for \cc and other end of memo fields
+
+\def\ccitem#1{\setbox0\hbox{#1\quad}%   % box0 = argument
+    \parindent=\wd0                     % get its width
+    \hang                               % hanging indentation
+    \rlap{\copy0}%                      % and write it
+    \vskip-\baselineskip\relax}%        % kill the skip
+
+% ---------- \Distribution is like CC (\obeyines format)
+
+\def\distribution{\endmode
+    \def\endmode{\vskip0pt\endgroup}%
+    \bigskip                            %
+    \begingroup\obeylines               % obey line ends
+    \def\n{\par}%                       % break lines at \n
+    \parskip=0pt                        %
+    \ccitem{Distribution:}%
+    }
+\def\Distribution{\distribution}%        % synonym
+
+% ---------- \enclmemo is also like \cc (obeylines format)
+
+\def\enclmemo{\endmode                  %
+    \def\endmode{\vskip0pt\endgroup}%   %
+    \bigskip                            % skip down a bit
+    \begingroup\obeylines               % obey line ends
+    \parskip=0pt                        % no skip between items
+    \ccitem{Encl:\ }%
+    }
+
+% ---------- \annotatememo is \annotations for memo format
+
+\def\annotatememo{\endmode              % end previous item
+   \def\endmode{\vskip0pt\endgroup}%    % set up new ending
+   \begingroup                          % changes local
+      \nobreak\bigskip\nobreak          % skip some
+      \parindent=0pt\parskip=0pt        % no indent or skip
+      \obeylines}%                      % obey line endings
+
+% ---------- \psmemo does \ps for a memo
+
+\def\psmemo{\endmode                    % end previous item
+   \def\endmode{\vskip0pt\endgroup}%    % set up ending
+   \begingroup                          % start a group
+      \nobreak\bigskip\nobreak          % skip some
+      \interlinepenalty 5000            % avoid breaks
+      \def\par{\endgraf\penalty 5000}}% % avoid breaks
+
+%---------------------------------------
+% SUBJECT: and RE: (saves first line in \subjectline for tops of pages)
+
+\def\subjectitem#1{\endmode     % close previous field
+    \def\endmode{\relax}%       % turn off \endmode before going to \memoitem
+    \gdef\@subjtype{#1}%        % label the field
+    \begingroup\obeylines       % obeylines is on to get first subject line
+    \getsubject}%               % get first line
+\def\Subj{\subjectitem{SUBJECT:}}%
+\def\SUBJ{\subjectitem{SUBJECT:}}%
+\def\subj{\subjectitem{SUBJECT:}}%
+\def\subject{\subjectitem{SUBJECT:}}%
+\def\Subject{\subjectitem{SUBJECT:}}%
+
+\def\re{\subjectitem{RE:}}%
+\def\RE{\subjectitem{RE:}}%
+
+% \getsubject gets the first line in the field in \subjectline
+% for use in the headline at the top of pages following
+
+{\obeylines\gdef\getsubject#1
+   {\endgroup\gdef\subjectline{#1}% \subjectline is first line of \subject
+ \memoitem{\@subjtype}\subjectline\space}% print SUBJECT: <text>
+}% close obeylines
+
+%---------------------------------------
+% \date takes what follows on the same line and uses it as the
+% date of the memo.  If nothing follows then today's date is used.
+% It is important for the date, if given, to be on the same line as \date.
+
+\def\Date{\endmode              % close previous field
+   \def\endmode{\relax}%        % turn off \endmode before going to \memoitem
+   \begingroup\obeylines        %
+   \getdate}                    % get the date, or use today's
+
+\def\DATE{\Date}                % synonym
+\def\date{\Date}
+
+% \getdate looks for a date up until the end of the line
+
+{\obeylines\gdef\getdate#1
+ {\endgroup                     %% close \obeylines
+ \ifx?#1?\relax\gdef\memodate{\today}% if no date given, use today's
+ \else\gdef\memodate{#1}\fi     %% if date is given, use it
+ \memoitem{DATE:}\memodate}%    %% print DATE: <date>
+}% close \obeylines for definitions
+
+\def\monthname#1{\ifcase #1 \errmessage{0 is not a month.}
+    \or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or
+     November\or December%
+     \else \errmessage{#1 is not a month.}\fi}
+
+%---------------------------------------
+% TEXT: \text sets up for text of memo
+
+\def\memotext{\endmode                  % close last item
+   \def\endmode{\bigskip\vfil}%         % \endmode is now blank space
+   \let\to\rightarrow                   % put \to back to normal        
+   \bigskip\bigskip                     % skip down for text
+   \parskip=\normalbaselineskip         % \parskip is one blank line
+   \noindent                            % like a letter
+   }
+\def\text{\memotext}                    % start with \text = \memotext
+\def\Text{\memotext}                    % \Text is a synonym
+
+% use \endmemo to end a memo, especially if you use \CC or similar.
+
+\def\endmemo{\endmode\vfill\eject\end}  % ends CC: etc, then quits
+
+%=======================================================================
+% FAX Memos:
+
+\def\faxmemo{\let\memoheader=\faxmemoheader
+   \memo\faxline
+   \vskip 2\baselineskip}
+
+\def\FaxNumber{}                        % Define your own return fax number
+
+% You can also use \faxline with \memo in other ways, so it's separate
+
+\def\faxline{\line{\tenrm Total pages: \hbox to 2cm{\hrulefill}\space
+            (including this page) \hfil Fax number: 
+        \ifx\FaxNumber\empty\theBlank{4cm}%
+        \else \tenrm \FaxNumber\fi}}
+
+\def\faxmemoheader{%                    % banner for top of first page
+    \pageno=1                           % begin on page 1
+    \centerline{\fourteenpoint\bf       % 14 pt type centered
+       FAX MEMORANDUM}%                 %
+    \bigskip\bigskip                    % space
+    \relax}%                            %
+
+%=======================================================================
+% Referee format for Referee Reports
+%
+\def\Referee{\ContentsSwitchfalse               % no table of contents
+   \texsis                                      % initialize
+   \auxswitchfalse                              % no need for an .AUX file
+   \refswitchfalse                              % no reference list
+   \RefReptFormat}                              % Setup using \MemoFormat
+\def\referee{\Referee}%                         % synonym
+
+\def\RefReptFormat{%
+    \voffset = 0.125 true in            % top margin
+    \hsize   = 6.5 true in              % width of text
+    \raggedbottom                       %
+    \advance \vsize by -\voffset        % subtract \voffset from vertical size
+    \nopagenumbers                      % no footlines
+    \headlineoffset=0.8cm               % raise all following headlines
+    \firstheadoffset=0pt                % start with headline down for
+    \let\makeheadline=\makememhed       %
+    \def\ORGANIZATION{{\fourteenpoint\bf Referee Report}}% change \ORGANIZATION
+    \def\subjectline{Referee Report}%   % running head is ``Referee Report''
+    \headline={\MemoHeadline}%          % just like a memo
+    \def\nopagenumbers{\RunningHeadsfalse}% redefine \nopagenumbers 
+    \def\pagenumbers{\RunningHeadstrue}%%  and \pagenumbers for this document
+    \twelvepoint                        % default is 12pt
+    \singlespaced\whitespaced           % widely spaced, but not double
+    \parskip=\baselineskip              % extra space between paragraphs
+    \def\endmode{\relax}%               % for first item
+    \quoteon                            % enable easy quotes
+    \def\to{\ifmmode\rightarrow\else\To\fi}%
+    \def\From{\RefFrom}%                % say something about \From
+    \let\text=\memotext                 %
+    \let\body=\memotext                 %
+    \def\authors{\memoitem{AUTHORS:}}%
+    \def\author{\memoitem{AUTHOR:}}%
+    \def\title{\subjectitem{TITLE:}}%
+    \def\MSref{\memoitem{MANUSCRIPT:}}%
+    \def\manuscript{\@obsolete\manuscript\MSref\memoitem{MANUSCRIPT:}}%
+    \def\Number{\memoitem{NUMBER:}}%
+    \hbox{\space}\bigskip}              % space down from top a bit.
+
+\def\RefFrom{\begingroup\obeylines      % obeylines to get first subject line
+    \getFrom}%                          % get first line
+
+{\obeylines                             %% look for line endings
+ \gdef\getFrom#1
+{\endgroup                              %%
+ \emsg{> Reminder: Referee Reports are usually anonymous.  This one says...}%
+ \emsg{FROM: #1}%                       % say something about FROM
+ \memoitem{From:}#1\space}%             % but do it anyway
+}                                       % close obeylines
+
+%>>> EOF TXSmemo.tex <<<

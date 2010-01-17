@@ -1,0 +1,687 @@
+%% file: TXSenvmt.tex - Special Text Environments - TeXsis version 2.18
+%% @(#) $Id: TXSenvmt.tex,v 18.0 1999/07/09 17:24:29 myers Exp $
+%=======================================================================*
+%
+%       These macros provide a variety of simple enviroments for arranging
+%   text in special ways. They are listed here and described in more
+%   detail below. Generally the syntax is \NAME... \endNAME.
+%
+%  The following "flush environments" arrange text in special ways:
+%
+%       \center         Center each line.
+%       \flushleft      Make each line flush left.
+%       \flushright     Make each line flush right.
+%       \raggedcenter   Make each line as long as possible and then
+%                       center it.
+%
+%  Use these in vertical mode.  For the horizontal mode equivalants
+%  are: \hcenter, \hflushleft, \hflushright 
+%
+%   The following are for making various sorts of lists:
+%
+%       \itemize        List of items, with a bullet in front of each.
+%                       Use \itm to begin each item.
+%       \enumerate      Makes a list of items, each of them numbered.
+%                       Use \itm to begin each item.
+%       \description    List of items and descriptions, with the form:
+%                         item1   text for item1, which may take
+%                                 more than one line
+%                         item2   text for item2
+%                               ...
+%                       Use \itm{item1}, etc... (see below).
+%
+%       The following display theorems and proofs in quasi-SIAM format
+% with automatic numbering:
+%
+%       \theorem
+%       \lemma
+%       \definition
+%       \proof
+%
+%       The following are designed for typing computer code, TeX examples ,
+%  and similar material:
+%
+%       \Listing        Prints text in \tt type, with \obeylines,
+%                       \obeyspaces, as appropriate for computer code
+%                       listings.
+%       \ListCodeFile{filename} to list source code from a file.
+%       \TeXquoteon     Makes | a TeX quote: everything in | ... | is
+%                       printed verbatim in \tt type.
+%       \TeXexample     Prints a TeX example verbatim in \tt type, with |
+%                       being the escape character and |endTeXexample
+%                       ending the enviroment. Can be used for examples
+%                       continuing over more than one page.
+%       \ttverbatim     Makes all characters ordinary and begins a group
+%                       using \tt type.
+%       \begintt        Example macro taken from The TeXbook.
+%       \beginlines     Example macro taken from The TeXbook.
+%
+%
+% Source: adapted from TechRpt's TechEnv and the TeXbook
+%
+% This file is a part of TeXsis.
+% (C) copyright 1991, 1997 by Eric Myers and Frank Paige.
+%========================================================================*
+\message{Environments.}
+\catcode`@=11                                   % make @ a letter for now
+\chardef\other=12
+     
+%==================================================*
+% CENTERING ENVIRONMENTS: 
+%       \center, \flushleft, \flushright, \raggedcenter
+% Note: these are all \obeylines environments
+     
+\def\center{% begin centering environment
+   \flushenv                            % general setup
+   \advance\leftskip \z@ plus 1fil      % add hfil glue on each
+   \advance\rightskip \z@ plus 1fil     % side
+   \obeylines\@eatpar}                  % obey line ends
+     
+\def\flushright{% begin flush right environment
+    \flushenv                           % general setup
+    \advance\leftskip \z@ plus 1fil     % hfil on left
+    \obeylines\@eatpar}                 % obey line ends
+     
+\def\flushleft{% begin flush left environment
+   \flushenv                            % general setup
+   \advance\rightskip \z@ plus 1fil     % hfil on right
+   \obeylines\@eatpar}                  % obey line ends
+     
+
+\def\flushenv{%  common startup for all flush/center environments
+    \vskip \z@                          % force vertical mode
+    \bgroup                             % begin grouping
+     \def\flushhmode{F}%                % flag: not hmode
+     \parindent=\z@  \parfillskip=\z@}  %
+     
+\def\endcenter{\endflushenv}
+\def\endflushleft{\endflushenv}
+\def\endflushright{\endflushenv}
+
+% \@eatpar gets rid of any \par that follows.  We have to use \futurelet
+% to avoid problems when what follows is a \def or somesuch.
+     
+\def\@eatpar{\futurelet\next\@testpar}
+\def\@testpar{\ifx\next\par\let\@next=\@@eatpar\else\let\@next=\relax\fi\@next}
+\long\def\@@eatpar#1{\relax}
+
+%---------------------------------*
+%    \raggedcenter centers ragged lines, e.g. for titles.  Each line will
+% be as long as possible, centered. Line breaks in the manuscript file are
+% ignored.
+
+
+\def\raggedcenter{%     center lines as long as they can be
+    \flushenv                           % do common stuff
+    \advance\leftskip\z@ plus4em        % add stretch to sides
+    \advance\rightskip\z@ plus 4em      % add stretch to sides
+    \spaceskip=.3333em \xspaceskip=.5em %
+    \pretolerance=9999 \tolerance=9999  %
+    \hyphenpenalty=9999 \exhyphenpenalty=9999   % no hyphens!
+    \@eatpar}                           %
+
+\def\endraggedcenter{\endflushenv}              % ends like all flushenv's
+
+%---------------------------------*
+%    \hcenter, \hflushleft, \hflushright are like the things above,
+% but are for use in horizontal mode. They put the results in a box of
+% size zero.  This is no longer automatic in \center and its variations,
+% to avoid confusion.
+% Notes: \vtop makes the TOPS of the items line up; \vbox would make the
+% bottoms (actually, the baselines) line up.
+
+     
+\def\hcenter{\hflushenv                         %
+   \advance\leftskip \z@ plus 1fil              %
+   \advance\rightskip \z@ plus 1fil             %
+   \obeylines\@eatpar}                          %
+
+\def\hflushright{\hflushenv                     %
+    \advance\leftskip \z@ plus 1fil             %
+    \obeylines\@eatpar}                         %
+     
+\def\hflushleft{\hflushenv                      %
+    \advance\rightskip \z@ plus 1fil            %
+    \obeylines\@eatpar}                         %
+     
+\def\hflushenv{% common startup for all hflush/hcenter environments:
+   \def\par{\endgraf\indent}%                   % for use in hmode
+   \hbox to \z@ \bgroup\hss\vtop                % start a box of size zero
+   \flushenv\def\flushhmode{T}}                 %
+
+\def\endflushenv{% common end to all flush/center environments
+   \ifhmode\endgraf\fi                          % if hmode, end \par
+   \if T\flushhmode \egroup\hss\fi              % close group and box, or
+   \egroup}                                     % end the grouping
+
+\def\flushhmode{U}     
+\def\endhcenter{\endflushenv}
+\def\endhflushleft{\endflushenv}
+\def\endhflushright{\endflushenv}
+     
+%==================================================*
+% LIST ENVIRONMENTS:
+%
+%       All 'list' environments are surrounded by a certain amount of skip.
+% These skips are: \EnvTopskip, \EnvBottomskip, \EnvLeftskip, \EnvRightskip
+% These are set here, but you may change them if you like.
+     
+\newskip\EnvTopskip     \EnvTopskip=\medskipamount      % skip before
+\newskip\EnvBottomskip  \EnvBottomskip=\medskipamount   % skip after
+\newskip\EnvLeftskip    \EnvLeftskip=2\parindent        % left indent
+\newskip\EnvRightskip   \EnvRightskip=\parindent        % right margin in too
+\newskip\EnvDelt@skip   \EnvDelt@skip=0pt               % nested skip amount
+\newcount\@envDepth     \@envDepth=\z@                  % depth of environments
+
+
+%       \beginEnv{<name>} does common processing for starting a 
+% list environment. \endEnv{<name>} does common end procesing, 
+% and checks the name to make sure that the environments balance.
+
+\def\beginEnv#1{%  begin a ``list'' environment
+   \begingroup                          % environment is inside a group
+     \def\@envname{#1}%                 % save envmt name, to check at end
+     \ifvmode\def\@isVmode{T}%          % remember existing V/H mode
+     \else\def\@isVmode{F}\vskip 0pt\fi % hmode: force vertical mode
+%
+     \ifnum\@envDepth=\@ne\parindent=\z@\fi % 1st envmt?  no parindent
+     \advance\@envDepth by \@ne         % increment level by one
+     \EnvDelt@skip=\baselineskip        % \EnvDelt@skip is \baselineskip
+     \advance\EnvDelt@skip by-\normalbaselineskip %  minus \normalbaselineskip
+     \@setenvmargins\EnvLeftskip\EnvRightskip % now adjust margins.
+     \setenvskip{\EnvTopskip}%          % get appropriate topskip
+     \vskip\skip@\penalty-500           % and do it (good place to break)
+   }
+     
+
+\def\endEnv#1{%         end a ``list'' environment
+   \ifnum\@envDepth<1                   % is there nothing open?
+      \emsg{> Tried to close ``#1'' environment, but no environment open!}%
+      \begingroup                       % \endgroup below would produce error
+   \else                                % No: there was an environment open
+      \def\test{#1}%                    % was right thing closed?
+      \ifx\test\@envname\else           % check that the names match
+         \emsg{> Miss-matched environments!}%
+         \emsg{> Should be closing ``\@envname'' instead of ``\test''}%
+      \fi
+   \fi
+%
+   \vskip 0pt                           % force vmode, finish any paragraph
+   \setenvskip\EnvBottomskip            % and skip a bottomskip which is
+   \vskip\skip@\penalty-500             %    appropriate here (good breakpoint)
+   \xdef\@envtemp{\@isVmode}%           % save \@isVmode for outside group
+   \endgroup                            % end grouping of environment
+   \if F\@envtemp\vskip-\parskip\par\noindent\fi % no indent if didn't start in vmode
+   }
+     
+
+%       \setenvskip chooses a skip amount based on the current \@envDepth,
+% and puts it into \skip@, which is a temporary skip register.
+     
+\def\setenvskip#1{\skip@=#1 \divide\skip@ by \@envDepth}
+     
+
+%       \@setenvmargins{<left amount>}{<right amount>} adjusts the area of
+%  the page to be used by changing \rightskip, \leftskip, and the display
+% sizes.  Values given should be skips.
+     
+\def\@setenvmargins#1#2{%       set left and right margins
+   \advance \leftskip  by #1    \advance \displaywidth by -#1   %
+   \advance \rightskip by #2    \advance \displaywidth by -#2   %
+   \advance \displayindent by #1}                               %
+     
+
+%------------------------------*
+% \itemize
+%
+%       \itemize puts a bullet (or whatever you define as \itemmark)
+% in front of each item.  Use \itm to begin a new item.
+     
+\def\itemize{\beginEnv{itemize}% itemized list of things
+   \let\itm=\itemizeitem                % define \itm 
+%%   \if F\@isVmode 
+      \vskip-\parskip
+%%   \fi    % if h-mode kill skip from first \itm
+   }
+
+\def\itemizeitem{%      \itm for \itemize
+   \par\noindent                                % start new paragraph
+   \hbox to 0pt{\hss\itemmark\space}}%          % put marker to left
+     
+\def\enditemize{\endEnv{itemize}}%              % terminate
+     
+\def\itemmark{$\bullet$}                        % default marker for \itemize
+
+%------------------------------*
+% \enumerate
+% 
+%       \enumerate makes a list of items, each of them numbered.  You can
+% nest \enumerate within \enumerate.  Begin each item with \itm.
+% Note the extensive use of local registers (only one \enumcnt is allocated;
+% TeX takes care of which one is currently needed.  \enumlead stores the
+% rest of the values only to print out item labels.) Note that \label
+% can be used to get the current value of an item label. 
+% Usage:
+%       \enumerate              % to start a list
+%       \itm  <text>            % for each numbered paragraph
+%           ...
+%       \endenumerate           % at end the list
+%
+
+\newcount\enumDepth     \enumDepth=\z@
+\newcount\enumcnt
+     
+\def\enumerate{\beginEnv{enumerate}%
+   \global\advance\enumDepth by \@ne            % start another level of nesting
+   \setenumlead                                 % set the leader
+   \enumcnt=\z@                                 % reset counter to zero
+   \let\itm=\enumerateitem                      % define \itm
+   \if F\@isVmode\vskip-\parskip\fi     % if h-mode kill skip from first \itm
+   }
+
+\def\enumerateitem{% \itm for \enumerate
+    \par\noindent                 
+    \advance\enumcnt by \@ne                    %
+    \edef\lab@l{\enumlead \enumcur}%            % for using \label
+    \hbox to \z@{\hss \lab@l \enummark          % number and punctuation
+       \hskip .5em\relax}%                      % and a skip
+    \ignorespaces}                              %
+     
+\def\endenumerate{%                             %
+   \global\advance\enumDepth by -\@ne           % pop out one level
+   \endEnv{enumerate}}%                         % end the environment
+
+%----------*
+% DIFFERENT STYLES OF EUMARATION: \enumpoints, \enumoutline,
+% \enumNumOutline, etc...  Design your own!
+%
+% The basic idea:  When \itm is invoked the item label is constructed
+% as  ``\enumlead\enumcur\enummark''  where \enumlead is the leading 
+% part of the label (which will be the same for all item in this level 
+% of the list), \enumcur is the appropriately formated value of \enumcnt, 
+% the item counter, and \enummark is the trailing punctuation (usually
+% a period, but could be a parenthesis).
+%
+% To define an enumeration style you must define \setnumlead, which
+% will in turn define \enumlead  when a list is begun by \enumerate.
+% You must also define \enumcur to put out the appropriate item label.  
+% Since lists can be contained within lists we use \enumDepth to keep track of
+% how deep we are in a sub-list.
+%
+% The styles \enumpoints, \enumoutline and \enumNumOutline should be 
+% considered as useful examples.  Be sure to call them BEFORE you say 
+% \enumerate.
+
+
+%       \enumpoints just numbers the items like so: "ii.jj.kk...."
+% Note the use of \edef in \setnumlead to get the CURRENT value
+% of \enumcur, whereas the value in the definition of \enumcur
+% is the value used later, when \itm is used.
+     
+\def\enumPoints{%  enumerate by numerical points
+   \def\setenumlead{\ifnum\enumDepth>1          % a list inside a list?
+          \edef\enumlead{\enumlead\enumcur.}%   % yes: lead is previous label
+      \else\def\enumlead{}\fi}%                 % no: just number at first
+   \def\enumcur{\number\enumcnt}%               %
+   }
+\def\enumpoints{\enumPoints}                    % backward compatability (2.13)
+
+
+%       \enumOutline lists the items in an outline form, using 
+% upper case roman numerals, upper case letters, lower case roman
+% numerals, lower case letters, arabic numbers, and finally bullets.
+% Note the use of \ifcase\enumDepth, and the macros \letterN and
+% \LetterN defined below.
+    
+\def\enumOutline{% enumerate a list in outline form, Roman Caps. first
+   \def\setenumlead{\def\enumlead{}}%           % no leading part of label
+   \def\enumcur{\ifcase\enumDepth               % For given level choose...
+     \or\uppercase{\XA\romannumeral\number\enumcnt}% 1)  UC Roman numeral
+     \or\LetterN{\the\enumcnt}%                 % 2) UC letter
+     \or\XA\romannumeral\number\enumcnt         % 3) LC Roman numeral
+     \or\letterN{\the\enumcnt}%                 % 4) LC letter
+     \or{\the\enumcnt}%                         % 5) arabic number
+     \else $\bullet$\space\fi}%                 % or a bullet
+   }
+\def\enumoutline{\enumOutline}                  % backward compatability (2.13)
+
+
+%       \enumNumOutline sets up an outline starting from arabic 
+% numbers numbers rather than Roman caps.
+     
+\def\enumNumOutline{%  enumerate a list in outline form, numbers first
+   \def\setenumlead{\def\enumlead{}}%           % no leading part of a label.
+   \def\enumcur{\ifcase\enumDepth               % for a given level choose...
+      \or{\XA\number\enumcnt}%                  % 1) arabic number
+      \or\letterN{\the\enumcnt}%                % 2) LC letter
+      \or{\XA\romannumeral\number\enumcnt}%     % 3) LC roman numeral
+      \else $\bullet$\space\fi}%                % or a bullet
+   }
+\def\enumnumoutline{\enumNumOutline}            % backward compatability (2.13)
+
+     
+% \LetterN{n} gives the nth letter in the uppercase alphabet
+% \letterN{n} gives the nth letter in the lowercase alphabet
+     
+\def\LetterN#1{\count@=#1 \advance\count@ 64 \XA\char\count@}
+\def\letterN#1{\count@=#1 \advance\count@ 96 \XA\char\count@}
+     
+
+% TeXsis Defaults:
+
+\def\enummark{.}                                % default punctuation
+\def\enumlead{}                                 % start with nothing in label
+\enumpoints                                     % default style
+     
+%------------------------------*
+% \description gives a list of items labeled by text, not numbers.
+%
+%       foo1    text, which may take
+%               more than one line
+%       foo2    more text
+%
+% Usage:
+%
+%       \description{amount to indent as \hbox contents}
+%       \itm{<name1>} text1
+%       \itm{<name2>} text2
+%       ...
+%       \enddescription
+% where <name...> is the text to label the item.  <name> may take more than
+% one line.
+%       Typically, the argument to \description is the longest single line
+% <name>.  You can also use \hskip if you want a particular distance.
+% NOTE that \parindent may be 0 inside an environment, so \hskip\parindent
+% probably won't do what you want.
+%
+% If the label text comes out wider than the indent space allowed 
+% the text will be broken into several lines.  Saying \singlelinetrue 
+% will instead put the label text on a line by itself above the 
+% item. \singlelinefalse is the default.
+     
+\newbox\@desbox                 % used to determine how far to shift text
+\newbox\@desline                % box for description line(s)
+\newdimen\@glodeswd             % used to get \wd\@desbox inside a group
+\newcount\@deslines             % used to count number of lines in description
+\newif\ifsingleline \singlelinefalse            % default is to break long labels
+     
+
+\def\description#1{\beginEnv{description}% ``description'' list environment
+   \setbox\@desbox=\hbox{#1}%                   % get template in a box
+   \@glodeswd=\wd\@desbox                       % get width of that box
+   \@setenvmargins{\@glodeswd}{0pt}%            % indent left margin
+   \let\itm=\descriptionitem                    % define \itm
+   \if F\@isVmode\vskip-\parskip\fi     % if h-mode kill \parskip from \itm
+  }%                                           % end of \description
+
+
+\def\descriptionitem#1{% definition of \itm for \description
+   \goodbreak\noindent                          % end old item, start next
+   \setbox\@desline=\vtop\bgroup                % get label text in a box
+      \hfuzz=100cm\hsize=\@glodeswd             % suppress overfull box msg
+      \rightskip=\z@ \leftskip=\z@              % no margins in this box
+      \raggedright                              % ragged right margin in box
+      \noindent{#1}\par                         % text of the label
+      \global\@deslines=\prevgraf               % get line count
+      \egroup                                   % end of \setbox
+%
+   \ifsingleline                                % long labels on their own line?
+     \ifnum\@deslines>1                         % Yes: are there several lines?
+        \@deslineitm{#1}%                       % Yes: put them on one line
+     \else                                      % one line might ll be too long
+        \setbox\@desline=\hbox{#1}%             % re-set in a box to get width
+        \ifdim \wd\@desline>\wd\@desbox         % is it too wide?
+            \@deslineitm{#1}%                   % Yes: set it on lone line
+        \else\@desitm\fi                        % else dump the label
+     \fi                                        %
+   \else                                        % else \singlelinefalse
+     \@desitm                                   % ...so just dump the label
+   \fi                                          % end \ifsingleline
+   \ignorespaces}
+
+\def\@desitm{% print \description item
+   \noindent
+   \hbox to \z@{\hskip-\@glodeswd               % go back for indent
+     \hbox to \@glodeswd{\vtop to \z@{\box\@desline\vss}% unbox it
+     \hss}\hss}}                                % some glue for a fit
+
+\def\@deslineitm#1{% \description item on a separate line
+   \hbox{\hskip-\@glodeswd {#1}\hss}%           % Yes: label all on one line
+   \vskip-\parskip\nobreak\noindent             %   then begin entry on next line
+   }
+
+\def\enddescription{\ifhmode\par\fi             % finish any existing \itm
+   \@setenvmargins{-\wd\@desbox}{0pt}%          % doing \@setenvmargins
+   \endEnv{description}}
+     
+%------------------------------*
+%   \example is a simple way to just indent some text.  It's like
+% the ``list'' environments but all it does is indent on the left
+% and the right and go to singlespacing.  Since this is often useful for
+% block quotes, \blockquote is a synonym.
+
+
+\def\example{\beginEnv{example}% 
+   \parskip=\z@ \parindent=\z@                  % set \par indentation to zero
+   \baselineskip=\normalbaselineskip            % singlespaced
+   }                                            %
+
+\def\endexample{\endEnv{example}%               % end environment
+   \noindent}%                                  % undo par
+
+\let\blockquote=\example                        % synonym
+\let\endblockquote=\endexample                  % synonym
+
+%------------------------------*
+%   \Listing is an environment for computer code listings.  It's
+% set in \tt type, with \obeylines and \obeyspaces and no justification.
+% { and } are just characters, so to get grouping use \bgroup ... \egroup
+% Indentation is controled as in the ``list'' environments.
+
+\def\Listing{%  environment for listing computer code verbatim in \tt
+   \beginEnv{Listing}%                          %
+   \vskip\EnvDelt@skip                          % do extra skip
+   \baselineskip=\normalbaselineskip            % singlespaced
+   \parskip=\z@ \parindent=\z@                  % set \par indentation to zero
+   \def\\##1{\char92##1}%                       % \ for macro names
+   \catcode`\{=\other \catcode`\}=\other        % { and } just characters
+   \catcode`\(=\other \catcode`\)=\other        % ( and ) just characters
+   \catcode`\"=\other \catcode`\|=\other        % " and | just characters
+   \catcode`\%=\other \catcode`\&=\other        % so %  and & are characters
+   \catcode`\-=\other \catcode`\==\other        % so -  and = are characters
+   \catcode`\$=\other \catcode`\#=\other        % so $  and # are characters
+   \catcode`\_=\other \catcode`\^=\other        % so _  and ^ are characters
+   \catcode`\~=\other                           % ~ is not active tie!
+   \obeylines                                   % obey line endings,
+   \tt\Listingtabs                              % spaces and tabs   
+   \everyListing}                               % user customization
+
+\def\endListing{\endEnv{Listing}}     % end \Listing
+
+%  Use \everyListing to customize your \Listing.  
+
+\def\everyListing{\relax}
+
+% Use \ListCodeFile{<filename>} to directly include a source file
+% in the document.  Use this INSTEAD of \Listing, not after it.
+% Nothing in this file is ``active,'' so you cannot have TeX commands
+% in the file.  Example:  \ListCodeFile{hello.c}
+
+\def\ListCodeFile#1{%  print the named file verbatim using \Listing
+   \Listing                             % invoke \Listing and read in file
+   \rightskip=\z@ plus 5cm		% room to stretch off the side
+   \catcode`\\=\other                   % \ is not active!
+   \input #1\relax                      % read in source file
+   \endListing}
+
+{\catcode`\^^I=\active\catcode`\ =\active% no spaces in any of this!
+\gdef\Listingtabs{\catcode`\^^I=\active\let^^I\@listingtab%
+\catcode`\ =\active\let \@listingspace}%
+}%\global\let^^I\@listingtab}%
+
+\def\@listingspace{\hskip 0.5em\relax}          % \tt space is 0.5em
+\def\@listingtab{\hskip 4em\relax}              % eight spaces per tab
+
+%------------------------------*
+%        \TeXexample is an environment for TeX examples. The only special
+% characters are <space>, which does the usual thing, and "|", which is the
+% escape character. To use a macro in this environment, begin the name with
+% "|" instead of "\". In particular, |char`|| gives a |. The enviroment is
+% ended with |endTeXexample, NOT \endTeXexample:
+%
+%       \TeXexample
+%           <TeX stuff>
+%       |endTeXexample
+%
+%  <TeX stuff> is printed in \tt type indented by \EnvLeftskip using
+%  \obeylines and \obeyspaces and single spaced.  If necessary, it will
+%  be split across pages.
+     
+\def\TeXexample{\beginEnv{TeXexample}%  % TeX examples
+   \vskip\EnvDelt@skip                  % add some extra skip above
+   \parskip=\z@ \parindent=\z@          % set \par indentation to zero
+   \baselineskip=\normalbaselineskip    % singlespaced
+   \def\par{\leavevmode\endgraf}%       % \par also gives \leavevmode
+   \obeylines                           % respect line endings
+   \catcode`|=\z@                       % make | the escape character
+   \ttverbatim                          % begin \tt type in a group
+   \@eatpar}%                           % eat initial \par
+
+\def\endTeXexample{%                    % end \TeXexample
+   \vskip 0pt                           % 
+   \endgroup                            % end \ttverbatim
+   \endEnv{TeXexample}}                 % end the environment
+     
+%------------------------------*
+% \ttverbatim makes everything except "|" into \other, then switches
+% into \tt type. "|" is made active by \TeXquoteon and is made the escape
+% character by \TeXexample and \begintt.
+     
+\def\ttverbatim{\begingroup                     % keep this in a group
+   \catcode`\(=\other \catcode`\)=\other        % make everything "\other"
+   \catcode`\"=\other \catcode`\[=\other 
+   \catcode`\]=\other \catcode`\~=\other
+   \let\do=\uncatcode \dospecials 
+   \obeyspaces\obeylines                        % obey line ends and spaces
+   \def\n{\vskip\baselineskip}%                 % |n gives a new line
+   \tt}                                         % switch to typewriter type
+     
+\def\uncatcode#1{\catcode`#1=\other}            % make a character "\other"
+     
+{\obeyspaces\gdef {\ }}                        % space gives "\ ", not \space
+     
+%-----------------------------------*
+%       \TeXquoteon makes "|" active and a TeX quote. Anything enclosed
+% in | ... | is printed verbatim in \tt type; ^^M's are ignored.
+% \TeXquoteoff restores the normal |.
+     
+\def\TeXquoteon{\catcode`\|=\active}            % turn on "TeX quotes"
+\let\TeXquoteson=\TeXquoteon                    % synonym
+\def\TeXquoteoff{\catcode`\|=\other}            % turn off "TeX quotes"
+\let\TeXquotesoff=\TeXquoteoff                  % synonym
+     
+% Note: to preserve comments when mtexsis is built use %% in \obeylines envmt.
+
+{\TeXquoteon\obeylines                          %% active "|" calls \ttverbatim
+   \gdef|{\ifmmode\vert\else                    %% | is \vert in math mode, but
+     \ttverbatim\spaceskip=\ttglue              %% to use \tt type
+     \let^^M=\ \relax                           %% and to ignore ^^M
+     \let|=\endgroup\fi}%                       %% next | turns it off
+}     
+
+%       \ttvert gives a vertical bar in \tt type.  Use anywhere.
+\def\ttvert{\hbox{\tt\char`\|}}
+     
+%-----------------------------------*
+%       \begintt is taken without modification from The TeXbook, p. 421.
+% Like \TeXexample, it prints a TeX example in \tt type, but it puts the
+% example in a \vbox so that it cannot be split; it is ended by \endtt,
+% not |endtt:
+%
+%       \begintt
+%       <TeX stuff>
+%       \endtt
+     
+\outer\def\begintt{$$\let\par=\endgraf \ttverbatim \parskip=0pt
+   \catcode`\|=0 \rightskip=-5pc \ttfinish}
+     
+{\catcode`\|=0 |catcode`|\=\other       %% | is temporary escape character
+   |obeylines                           %% end of line is active
+   |gdef|ttfinish#1^^M#2\endtt{#1|vbox{#2}|endgroup$$}%
+}
+     
+%       \beginlines is also taken without modification from The TeXbook,
+% p. 421 and is also used for TeX examples. Each line of the example
+% must be enclosed in TeX quotes, | ... |. Spacing can be inserted using
+% \smallbreak and similar commands. The syntax is
+%       \TeXquoteon
+%       \beginlines
+%       | <TeX stuff> |
+%       ...
+%       \endlines
+     
+\def\beginlines{\par\begingroup\nobreak\medskip\parindent=0pt
+   \hrule\kern1pt\nobreak \obeylines \everypar{\strut}}
+     
+\def\endlines{\kern1pt\hrule\endgroup\medbreak\noindent}
+
+%==================================================*
+%        \theorem, \lemma, \definition, \proof, etc..
+%
+% Quasi-SIAM format.  Theorem and Lemma have slanted typeface statements;
+% Definition does not.  Since Theorem and Lemma (and Corollary...) have
+% a similar structure, we define a general \beginproclaim and \endproclaim
+% (a'la PLAIN).
+%
+%       \beginproclaim{title}{countername}{font for text}{prefix}{tag}
+% does the general formatting, where the countername (excludes the \@
+% beginning the name) will be advanced.
+     
+\def\beginproclaim#1#2#3#4#5{\medbreak\vskip-\parskip   % space down
+   \global\XA\advance\csname #2\endcsname by \@ne       % advance counter
+   \edef\lab@l{\@chaptID\@sectID                        % get header plus
+      \number\csname #2\endcsname}%                     % counter number
+   \tag{#4#5}{\lab@l}%                                  % tag it
+   \noindent{\bf #1 \lab@l.\space}%                     % print number
+   \begingroup #3}                                      % begin group
+     
+\def\endproclaim{%
+   \par\endgroup\ifdim\lastskip<\medskipamount          % end group and
+   \removelastskip\penalty55\medskip\fi}                % fix spacing
+     
+%       \theorem{tag} defines a theorem. \Theorem{tag} refers to it in the
+% text as Theorem~number.
+\newcount\theoremnum           \theoremnum=\z@
+\def\theorem#1{\beginproclaim{Theorem}{theoremnum}{\sl}{Thm.}{#1}}
+\let\endtheorem=\endproclaim
+\def\Theorem#1{Theorem~\use{Thm.#1}}
+
+%       The same for lemma:
+\newcount\lemmanum             \lemmanum=\z@
+\def\lemma#1{\beginproclaim{Lemma}{lemmanum}{\sl}{Lem.}{#1}}
+\let\endlemma=\endproclaim
+\def\Lemma#1{Lemma~\use{Lem.#1}}
+
+%       The same for corollary:
+\newcount\corollarynum         \corollarynum=\z@
+\def\corollary#1{\beginproclaim{Corollary}{corollarynum}{\sl}{Cor.}{#1}}
+\let\endcorollary=\endproclaim
+\def\Corollary#1{Corollary~\use{Cor.#1}}
+     
+%       Definitions are little special; their text is not slanted.
+\newcount\definitionnum        \definitionnum=\z@     % Definition
+\def\definition#1{\beginproclaim{Definition}{definitionnum}{\rm}{Def.}{#1}}
+\let\enddefinition=\endproclaim
+\def\Definition#1{Definition~\use{Def.#1}}
+
+%       Proofs are even more special.
+\def\proof{\medbreak\vskip-\parskip\noindent{\it Proof. }}
+     
+\def\blackslug{%                                % QED "black box"
+   \setbox0\hbox{(}%                            % ( gives size
+   \vrule width.5em height\ht0 depth\dp0}%      % use ) for size
+\def\QED{\blackslug}                            % to end proof
+     
+\def\endproof{\quad\blackslug\par\medskip}
+     
+%>>> EOF TXSenvmt.tex <<<

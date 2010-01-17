@@ -1,0 +1,142 @@
+%%
+%% This is file `xo-here.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xo-here.dtx  (with options: `package,progress')
+%% 
+%% Not for distribution
+%% 
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%% 
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+\def\@tempa#1: #2.dtx,v #3 #4 #5 #6 #7${
+  \ProvidesPackage{#2}[#4 #3 #5 #6]}
+\@tempa$Id: xo-here.dtx,v 1.12 2000/08/11 07:14:21 latex3 Exp $
+\IgnoreWhiteSpace
+\def\requirespace #1 {
+  \ifhmode
+    \@bsphack
+  \fi
+  \@next\@currbox\@freelist{}{}
+  \global\toks\@currbox{{}{}
+                        {}
+                        {}
+                        {}
+                        {rspace}
+                        {}
+   }
+  \here@point\@currbox{#1}
+  \@ignorefalse
+  \@esphack
+}
+\def\marginpar #1 {
+  \ifhmode
+    \@bsphack
+  \fi
+  \@next\@currbox\@freelist{}{}
+  \@savemarbox\@currbox{#1}
+  \global\toks\@currbox{{}{}
+                        {}
+                        {}
+                        {}
+                        {mpar}
+                        {}
+   }
+  \@tempdima\ht\@currbox
+  \advance\@tempdima\dp\@currbox
+  \advance\@tempdima -\baselineskip   % allow to run long
+  \ifdim\@tempdima< \z@ \@tempdima\z@ \fi
+  \here@point\@currbox{\the\@tempdima}
+  \@ignorefalse
+  \@esphack
+}
+\def \typeset@a@marginpar{
+ \kern-\pagedepth
+ \vtop to\pagedepth{\baselineskip\pagedepth
+     \lineskip\z@
+     \vss
+     \dimen@\dp\@currbox
+  \ifnum \curr@col@count = \@ne
+     \llap{\copy\@currbox\kern\marginparsep}
+  \else
+     \ifnum \curr@col@count = \col@count
+       \rlap{\kern\columnwidth\kern\marginparsep\copy\@currbox}
+     \else
+       \ERROR-NOT-SUPPORTED
+     \fi
+  \fi
+  \kern-\dimen@
+  \null}
+}
+\def\check@and@typeset@a@here@float{
+  \ifrun@with@floats
+    \ifx\here@class\this@class
+      \ifnum \this@sequence@number > \here@sequence@number \relax
+        \calculate@target@fl@column
+        \ifnum \count@ > \curr@col@count
+        \else
+          \ifnum \count@ = \curr@col@count
+            \if t \this@area@type
+              \@failtrue
+            \fi
+          \else
+            \@failtrue
+          \fi
+        \fi
+      \fi
+    \fi
+  \fi
+  \if@fail
+    \progress@failed{\this@area\space before~here~float~
+                 (\here@type\space \here@sequence@number)~
+                 in~ column~ \the\curr@col@count}
+    \global\curr@col@count\col@count
+  \else
+    \typeset@a@here@float
+  \fi
+}
+\def \typeset@a@here@float{
+ \append@here@caption@to@float
+ \ifdim \pagesetup@grid@point@sep = \z@
+   \@tempskipa\pagesetup@float@inline@sep
+ \else
+   \@tempdima\ht\this@captioned@float
+   \advance\@tempdima\dp\this@captioned@float
+   \advance\@tempdima\tw@\pagesetup@float@inline@sep
+   \snap@to@grid \@tempdima  \pagesetup@grid@point@sep
+   \ifdim \returned@lower@delta@size < \returned@delta@size \relax
+     \ifdim \returned@lower@delta@size < 2\pagesetup@float@inline@shrink
+       \xdef \returned@delta@size {-\returned@lower@delta@size }
+     \fi
+   \fi
+   \@tempskipa \returned@delta@size \relax
+   \divide  \@tempskipa \tw@
+   \advance \@tempskipa \pagesetup@float@inline@sep
+ \fi
+ \vskip\@tempskipa
+ \box\this@captioned@float
+ \vskip\@tempskipa
+}
+\def \setup@here@float {
+ \@tempskipa 2\pagesetup@float@inline@sep   %FMi arbitrary value TMP
+ \advance\@tempskipa\ht\@currbox      %FMi arbitrary value TMP
+ \advance\@tempskipa\dp\@currbox      %FMi arbitrary value TMP
+ \advance\@tempskipa5\baselineskip    %FMi arbitrary value TMP
+ \here@point\@currbox{\the\@tempskipa}
+}
+\endinput
+%%
+%% End of file `xo-here.sty'.

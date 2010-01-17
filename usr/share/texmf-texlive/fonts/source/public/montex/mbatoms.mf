@@ -1,0 +1,1334 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%        File: mbatoms.mf
+%      Author: Oliver Corff and Dorjpalam Dorj
+%        Date: January 1st, 2002
+%     Version: 0.9
+%   Copyright: Ulaanbaatar, Beijing, Berlin
+%
+% Description: Local Mongolian and Manju Script (LMS, LMA)
+%              Mongol Bicig, Manju Bithe Font Atoms Definition
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% First we decide our identity:
+%
+	writing:=0;
+	Bicig:=1;
+	Bithe:=2;
+	Galig:=3;
+	Tod:=4;
+	Vagindra:=5;
+	Container:=255;
+
+% Then we decide our style:
+%
+	style:=0;
+	steel:=1;
+	wood:=2;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Then we decide our writing direction:
+%
+        boolean LR;
+
+% Some bizarre rotating equipment gets installed:
+	% pair Centerpoint;
+def ifrotated = % Our rotating mechanism
+	if LR: rotatedaround ((w/2,.5[h,-d]),180) fi
+enddef;
+
+% Yet we cannot deny that we still use the picture gimmick...
+%
+	picture zawjpicture, exenzawjpicture,
+		deribuntsh_picture, tsh_picture;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def numberpath = % Theoretical number shape; a slanted ellipsis
+	% pair z[];
+	path trial;
+	z1=(2/6numberwidth,gedesinner);
+	z2=(numberwidth-3thin,underinner+thin);
+	z3=(4/6numberwidth,underinner);
+	z4=(2thin,gedesinner-thin);
+	trial= (z1..tension 1.2..z2..tension 1.2..z3..tension
+	1.2..z4..tension 1.2..cycle);
+	penlabels (1,2,3,4);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def nuruu (expr exen,suul) =	% Manai nirugu!
+	numeric x[]; numeric y[];
+	z1=(exen,nuruuleft);
+	z2=(x1,nuruuright);
+	z3=(suul,y2);
+	z4=(x3,y1);
+	fill (z1--z2--z3--z4--cycle) ifrotated;
+	penlabels(1,2,3,4);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def shud (expr x_offset) =	% Manai shud!
+	numeric x[]; numeric y[];
+	nuruu(shudwidth+x_offset,x_offset);
+	z1=(x_offset+shudwidth-bearing,Centerline+1/2nuruuwidth);
+	z2=(x_offset+bearing,y1);
+	z3=(1/2[x1,x2],shudheight);
+	fill (z1--z2--z3--cycle) ifrotated;
+	penlabels(1,2,3);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def shud_atom (expr exen, suul) =	% Manai shud!
+	numeric x[]; numeric y[];
+	z1=(exen,Centerline+1/2nuruuwidth);
+	z2=(suul,y1);
+	z3=(1/2[x1,x2],shudheight);
+	fill (z1--z2--z3--cycle) ifrotated;
+	penlabels(1,2,3);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def dusal (expr posx, posy, xdim, ydim) = % Manai dusal!
+	"The dusal, used for n, s, g, etc.";
+	numeric x[]; numeric y[];
+	z1=(posx,posy-1/2ydim);
+	z2=(posx-1/2xdim,posy);
+	z3=(posx,posy+1/2ydim);
+	z4=(posx+1/2xdim,posy);
+	fill (z1--z2--z3--z4--cycle) ifrotated;
+	penlabels(1,2,3,4);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def manjudusal (expr posx, posy, xdim, ydim) = % Manju dusal!
+	"The Manju dusal";
+	numeric x[]; numeric y[];
+	z1l=(posx+1/2xdim,posy+1/2ydim);
+	z2 =(posx-1/2xdim,posy);
+	z3l=(x1,posy-1/2ydim);
+	penpos1(1/4xdim,135);
+	penpos2(4/4xdim,180);
+	penpos3(1/4xdim,225);
+	penstroke(z1e..tension 2..z2e..tension 2..z3e) ifrotated;
+	penlabels(1,2,3);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def ManjuDusal (expr posx, posy, xdim, ydim) = % Manju dusal!
+	"The Manju dusal";
+	numeric x[]; numeric y[];
+	z4l=(posx+1/2xdim,posy+1/2ydim);
+	z5 =(posx-1/2xdim,posy);
+	z6l=(x4,posy-1/2ydim);
+	penpos4(1/4xdim,135);
+	penpos5(4/4xdim,180);
+	penpos6(1/4xdim,225);
+	penstroke(z4e..tension 2..z5e..tension 2..z6e) ifrotated;
+	penlabels(4,5,6);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def cegteishud (expr posx) =
+	shud(posx);
+	dusal (posx+1/2shudwidth,yashilbeheight,3thin,2thick);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def titem =
+	numeric x[]; numeric y[];
+	z1=(0,nuruuleft);
+	z2=(bearing,y1);
+	z3=(1/2shudwidth,shudheight);
+	z4=(shudwidth-bearing,nuruuright);
+	z5=(shudwidth+bearing,y4);
+	z6=(8/12shudwidth,nuruuright-1thick);
+	z7=(1/2shudwidth,nuruuright);
+	z8=(0,nuruuright);
+	penlabels(1,2,3,4,5,6,7,8);
+	fill (z1--z2--z3..tension infinity..
+		z4..z5&z5{down}..z6..tension 2..z7--z8--cycle)
+			ifrotated;
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def titem_stroke (expr xpos) =
+	numeric x[]; numeric y[];
+	z1=(xpos+numtaigedeswidth,Centerline);
+	z2=(xpos,Centerline);
+	penpos1(nuruuwidth*1.15,80);
+	penpos2(nuruuwidth,90);
+	penlabels(1,2);
+	penstroke (z1e..z2e) ifrotated;
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def cegteititem =
+	titem;
+	dusal (1/2shudwidth,yashilbeheight,3thin,2thick);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def dugui (expr posx, posy, diameter) = % Manzu dugui!
+	"The dugui, used for h, nga, etc.";
+	numeric x[]; numeric y[];
+	z1=(posx,posy-1/2diameter);
+	z3=(posx,posy+1/2diameter);
+	pickup pencircle scaled 1.25 thin;
+	draw (z1..z3..cycle) ifrotated;
+	penlabels(1,3);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def suul =
+	if style=steel:
+		z1=(shudwidth,nuruuleft);
+		z2=(shudwidth-bearing,y1);
+		z3=(1/2shudwidth,shudheight);
+		z4=(-bearing,underouter);
+		z5=(bearing,suulouter-thin);
+		x6=(9/16shudwidth);
+		z6-z7=whatever*(z2-z3);
+		z7=(3/4shudwidth,nuruuright);
+		z8=(x1,nuruuright);
+		fill (z1--z2--z3..z4--z5{up}---z6--z7--z8--cycle) ifrotated;
+		penlabels(1,2,3,4,5,6,7,8);
+	fi;
+	if style=wood:
+		nuruu(shudwidth,2/4shudwidth);
+		z1r=(shudwidth-bearing,gedesouter);
+		z2 =(x1-thin,Centerline);
+		z3 =(0,suulouter);
+		penpos1(thick,15);
+		penpos2(2/3thick,0);
+		penpos3(1/2thin,0);
+		penstroke (z1e..z2e..z3e) ifrotated;
+		penlabels(1,2,3);
+	fi;
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def bagaodoisuul =
+	if style=steel:
+		z1=(shudwidth,nuruuleft);
+		z2=(shudwidth-bearing,y1);
+		z3=(1/2shudwidth,shudheight);
+		z4=(-bearing,underinner);
+		z5=(bearing,underouter);
+		x6=(9/16shudwidth);
+		z6-z7=whatever*(z2-z3);
+		z7=(3/4shudwidth,nuruuright);
+		z8=(x1,nuruuright);
+		fill (z1--z2--z3..z4--z5{up}---z6--z7--z8--cycle) ifrotated;
+		penlabels(1,2,3,4,5,6,7,8);
+	fi;
+	if style=wood:
+		nuruu(shudwidth,2/4shudwidth);
+		z1r=(shudwidth-bearing,gedesinner);
+		z2 =(x1-thin,Centerline);
+		z3 =(0,underouter);
+		penpos1(thick,15);
+		penpos2(2/3thick,0);
+		penpos3(1/2thin,0);
+		penstroke (z1e..z2e..z3e) ifrotated;
+		penlabels(1,2,3);
+	fi;
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def gedes (expr x_offset) =
+	numeric x[]; numeric y[];
+	nuruu(x_offset+gedeswidth,x_offset);
+	z11r=(x_offset+gedeswidth-bearing,nuruuleft);
+	z12r=(1/2[x11,x13],gedesouter);
+	z13r=(x_offset+bearing,nuruuleft);
+	penpos11(thin,0);
+	penpos12(gedesouter-gedesinner,90);
+	penpos13(thin,180);
+	penstroke (z11e{up}..z12e..{down}z13e) ifrotated;
+	penlabels(11,12,13);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def shilbe (expr x_offset) =
+	numeric x[]; numeric y[];
+	nuruu(shilbewidth+x_offset,x_offset);
+	z21r=(shilbewidth+x_offset,nuruuleft);
+	z22r=(+3thin+x_offset,shilbeheight);
+	penpos21(2thin,0);
+	penpos22(4thin,60);
+	penstroke (z21e--z22e) ifrotated;
+	penlabels(21,22);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def bosoo_shilbe =
+	nuruu(eswidth,0);
+	z1r=(eswidth,gedesouter+1/2thin);
+	z2r=(5/6eswidth,shudheight+1/2thin);
+	z3r=(3/12eswidth,shudheight-1/2thin);
+	z4 =(bearing,Centerline);
+%	z4r=(bearing,Centerline);
+	penpos1(gedesouter-gedesinner,85);
+	penpos2(gedesouter-gedesinner,85);
+	penpos3(gedesouter-gedesinner,100);
+	penpos4(nuruuleft-nuruuright,100);
+	penstroke (z1e..z2e---z3e--z4e) ifrotated;
+	penlabels(1,2,3,4);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def orxic (expr x_offset) =
+	numeric x[]; numeric y[];
+	if style=wood:
+		z31=(x_offset+orxicwidth,Centerline);
+		z32=(x_offset+5/8orxicwidth,Centerline);
+		z33=(x_offset+1/9orxicwidth,Centerline+thick);
+		z34=(x_offset+2/9orxicwidth,orxicouter-thick);
+		z35r=(x_offset+1/9orxicwidth,orxicouter);
+		z36r=(x_offset+0,orxicouter);
+		penpos31(nuruuwidth,90);
+		penpos32(nuruuwidth,90);
+		penpos33(nuruuwidth,67);
+		penpos34(nuruuwidth,67);
+		penpos35(nuruuwidth,90);
+		penpos36(nuruuwidth,90);
+		penstroke (z31e---z32e..
+			tension 1.2..z33e..
+				tension 1.5..z34e..
+					tension 1.5..z35e---z36e) ifrotated;
+	fi;
+	if style=steel:
+		z31 =(    orxicwidth,Centerline);
+		z32 =(9/12orxicwidth,Centerline);
+		z33r=(5/24gedeswidth,orxicouter);
+		penpos31(nuruuwidth,-90);
+		penpos32(nuruuwidth,-90);
+		penpos33(3/3thick,105);
+		penstroke
+			(z31e---z32e{left}..tension 2.5..{right}z33e)
+				ifrotated;
+	fi;
+		penlabels(31,32,33,34,35,36);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def seree_ewer =
+	nuruu(eswidth,0);
+	z41r=(5/6eswidth,gedesouter);
+	z42r=(4/6eswidth,shudheight);
+	z43r=(5/4bearing,shudheight);
+	z44 =(bearing,Centerline);
+	penpos41(gedesouter-gedesinner,85);
+	penpos42(gedesouter-gedesinner,85);
+	penpos43(gedesouter-gedesinner,100);
+	penpos44(nuruuleft-nuruuright,100);
+	penstroke (z41e..z42e---z43e--z44e) ifrotated;
+	penlabels(41,42,43,44);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def l_ewer (expr x_offset) =
+	numeric x[]; numeric y[];
+	z51r=(x_offset,nuruuright);
+	z52r=(x51,-0.8thick+underinner+1.5thin);
+	z53r=(x51+1.5thin,-0.8thick+underinner);
+	z54r=(x51+1.5shudwidth,-0.8thick+underinner);
+	penpos51(1.75thin,0);
+	penpos52(2.25thin,0);
+	penpos53(underinner-underouter,+90);
+	penpos54(epsilon,+90);
+	penstroke (z51e---z52e{down}..{right}z53e---z54e) ifrotated;
+	penlabels(51,52,53,54);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def high_l_ewer (expr x_offset) =
+	numeric x[]; numeric y[];
+	z61r=(x_offset,nuruuright);
+	z62r=(x61,			underouter-2.5thin+1.5thin);
+	z63r=(x61+1.5thin,		underouter-2.5thin);
+	z64r=(x_offset+1.5shudwidth,	underouter-2.5thin);
+	penpos61(thin,0);
+	penpos62(2.25thin,0);
+	penpos63(underinner-underouter,+90);
+	penpos64(epsilon,+90);
+	penstroke (z61e---z62e{down}..{right}z63e---z64e) ifrotated;
+	penlabels(61,62,63,64);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def m_ewer (expr x_offset) =
+	numeric x[]; numeric y[];
+	z71 =(x_offset+5/16shudwidth,Centerline);
+	z72r=(x_offset+1/16shudwidth,underinner-1.65thin);
+	z73 =(x_offset-10/12shudwidth,y72);
+
+        penpos71(underinner-underouter,+95);
+        penpos72(underinner-underouter,+95);
+        penpos73(underinner-underouter,+75);
+
+        penstroke (z71e--z72e--z73e) ifrotated;
+	penlabels(71,72,73);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def baganum  =
+	nuruu(numtaigedeswidth,numtaigedeswidth-bearing);
+	z81l=(1/2numtaigedeswidth,gedesinner);
+	z82r=(numtaigedeswidth-1/2bearing,nuruuleft);
+	penpos81(4thin,60);
+	penpos82(2thin,0);
+
+	z84 =(x82,nuruuright);
+	z85r=(1/2[x84,x86],sdepth);
+	z86r=(0,nuruuleft);
+	penpos84(2thin,0);
+	penpos85(underinner-underouter,-90);
+	penpos86(1/2thin,-180);
+	
+	penstroke (z81e..z82e...z84e{down}..z85e..{up}z86e) ifrotated;
+	penlabels(81,82,83,84,85,86);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def f_flag (expr f_anfang, f_ende) =
+	z91l=(f_ende,gedesouter);
+	penpos91(1/2thin,90);
+	z92 =(1/6[x91,x94],shilbeheight);
+	penpos92(2thin,90);
+	z93 =(5/6[x91,x94],shilbeheight);
+	penpos93(2thin,90);
+	z94r=(f_anfang,yashilbeheight);
+	penpos94(1/2thin,90);
+	penstroke (z91e{up}..z92e..z93e..{up}z94e) ifrotated;
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def adagu =
+	nuruu(eswidth,eswidth-numtaigedeswidth);
+
+	z1r=(eswidth-1/2bearing,nuruuleft);
+	z2r=(1/2[x1,x3],gedesouter);
+	z3r=(eswidth-numtaigedeswidth,nuruuleft);
+	penpos1(thin,0);
+	penpos2(gedesouter-gedesinner,90);
+	penpos3(thin,180);
+	penstroke (z1e{up}..z2e..{down}z3e) ifrotated;
+
+	z4 =(x1,nuruuright);
+	z5r=(1/2[x4,x6],underouter);
+	z6r=(0,nuruuright);	% nuruuright was Centerline
+	penpos4(thin,0);
+	penpos5(underinner-underouter,-90);
+	penpos6(1/4thin,-180);
+	penstroke (z4e{down}..z5e..{up}z6e) ifrotated;
+	penlabels(1,2,3,4,5,6);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def xewteeqix =
+	nuruu(2bearing,0);
+	z1=(tewidth,Centerline);
+	z2=(tewidth-bearing-4thin,gedesinner);
+
+	penpos1(nuruuwidth,90);
+	penpos2(thin,45);
+	
+	z3r=(tewidth-1/2bearing-0thin,Centerline);
+	z4r=(1/2[x3,x5],underouter);
+	z5r=(bearing,Centerline);
+	z6=(bearing+2thin,gedesinner);
+
+	penpos3(3thin,-45);
+	penpos4(underinner-underouter,-90);
+	penpos5(2thin,-180);
+	penpos6(thin,-215);
+
+	penstroke (z1e{left}..{up}z2e) ifrotated;
+	penstroke (z3e{down}..z4e..z5e..z6e) ifrotated;
+	penlabels(1,2,3,4,5,6);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def modgedestshilbe =
+	nuruu(eswidth,0);
+	z1r=(eswidth-1/2bearing,nuruuleft);
+	z2 =(07/16eswidth,orxicouter);
+	penpos1(2thin,0);
+	penpos2(2thin,45);
+	penstroke (z1e--z2e) ifrotated;
+	z3r=z2;
+	z4r=(bearing,5/12[y1,y2]);
+
+	penpos3(2thin,115 );
+	penpos4(2thin,210);
+	
+	z5 =(6/16eswidth,3/12[y1,y2]);
+	z6 =(x1-2u,nuruuleft);
+
+	penpos5(1.5thin,235);
+	penpos6(1.75thin,180);
+	penstroke (z3e{dir 205}..tension 1.4..z4e..tension 1.4..z5e..z6e)
+		ifrotated;
+	penlabels(1,2,3,4,5,6);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def roundgedestshilbe =
+	nuruu(eswidth,0);
+	z1r=(eswidth-1/2bearing,nuruuleft);
+	z2 =(09/16eswidth,shilbeheight);
+	
+	penpos1(2thin,0);
+	penpos2(2thin,angle(z2-z1)-90);
+
+	z3 =3.5[z2r,z2l];
+	penpos3(2thin,angle(z2-z1)+90);
+
+	penstroke (z1e--z2e) ifrotated;
+	penstroke (z2e..z3e..cycle) ifrotated;
+	penlabels(1,2,3,4,5,6);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def manju_te =
+	nuruu(eswidth,0);
+	z1r=(eswidth-1/2bearing,nuruuleft);
+	z2 =(05/16eswidth,orxicouter);
+	penpos1(2thin,0);
+	penpos2(2thin,45);
+	penstroke (z1e--z2e) ifrotated;
+	z3r=1/10[z2l,z1l];
+	z4 =6/10[z2l,z1l];
+	penpos3(2thin,angle(z2r-z1r));
+	penpos4(2thin,angle(z1r-z2r));
+	penstroke (z3e..{dir 25}z4e) ifrotated;
+	penlabels(1,2,3,4,5,6);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def deribun_ta =
+	nuruu(shudwidth,0);
+	shud_atom(1/2gedeswidth,bearing);
+	z1 =(shudwidth,Centerline);
+	z2r=(2/6[x1,x3],nuruuleft+2.5thin);
+	z4l=(3/6[x1,x3],nuruuright-4.5thin);
+	z3r=(cewidth,Centerline);
+	z5l=(cewidth,Centerline);
+	penpos1(nuruuwidth,90);
+	penpos2(2thin, 90);
+	penpos3(2thin,  0);
+	penpos4(2thin, 90);
+	penpos5(2thin,180);
+	penstroke (z1e..tension 1.4..z2e..tension 1.2..z3e) ifrotated;
+	penstroke (z1e{down}..tension 1.0..z4e..tension 1.1..z5e) ifrotated;
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def deribun_te =
+	nuruu(cewidth,0);
+	shud_atom(1/2gedeswidth,bearing);
+	z1r=(cewidth,nuruuright-thick);
+	z2r=(1/3cewidth,underouter);
+	z3r=(bearing,nuruuright);
+	z4r=(1/2cewidth,nuruuright);
+	penpos1(thick,0);
+	penpos2(underinner-underouter,-90);
+	penpos3(2thin,-180);
+	penpos4(thin,0);
+	penstroke (z1e{dir 160}..tension 1.2..z4e) ifrotated;
+	penstroke (z1e..tension 2..z2e..{up}z3e) ifrotated;
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def manju_si =
+	z1=(tewidth-bearing,nuruuleft);
+	z2=(1/2[x1,x3],shudheight);
+	z3=(x1-shudwidth+2bearing,y1);
+	y4=nuruuright-1thin;
+	z4=whatever[z2,z3];
+
+	y5=nuruuleft;
+	z4-z5=whatever * (z2-z1);
+	y6=nuruuleft;
+	z5-z6=whatever * (z2-z3);
+
+	y7=sdepth;
+	z4-z7=whatever * (z1-z2);
+	y8=nuruuright;
+	z7-z8=whatever * (z2-z3);
+	y9=underouter;
+	z7-z9=whatever * (z7-z8);
+	y10=nuruuright;
+	z10-z9=whatever* (z1-z2);
+	z11=(x6,nuruuright);
+	fill (z11--z10--z9--z1--z2--z4--z5--z6--cycle) ifrotated;
+	penlabels(1,2,3,4,5,6,7,8,9,10,11);
+	nuruu(tewidth,tewidth-thick);
+	nuruu(16/36tewidth,0);
+	z21r=(16/36tewidth,nuruuleft);
+	z22r=(+3thin,shilbeheight);
+	penpos21(2thin,0);
+	penpos22(4thin,60);
+	penstroke (z21e--z22e) ifrotated;
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def manju_deribun_si =
+	z1=(tewidth-bearing,nuruuleft);
+	z2=(1/2[x1,x3],shudheight);
+	z3=(x1-shudwidth+2bearing,y1);
+	y4=nuruuright-1thin;
+	z4=whatever[z2,z3];
+
+	y5=nuruuleft;
+	z4-z5=whatever * (z2-z1);
+	y6=nuruuleft;
+	z5-z6=whatever * (z2-z3);
+
+	y7=sdepth;
+	z4-z7=whatever * (z1-z2);
+	y8=nuruuright;
+	z7-z8=whatever * (z2-z3);
+	y9=underouter;
+	z7-z9=whatever * (z7-z8);
+	y10=nuruuright;
+	z10-z9=whatever* (z1-z2);
+	z11=(x6,nuruuright);
+	fill (z11--z10--z9--z1--z2--z4--z5--z6--cycle) ifrotated;
+	penlabels(1,2,3,4,5,6,7,8,9,10,11);
+%	nuruu(tewidth,tewidth-thick);
+	nuruu(16/36tewidth,0);
+	z21r=(16/36tewidth,nuruuleft);
+	z22r=(+3thin,shilbeheight);
+	penpos21(2thin,0);
+	penpos22(4thin,60);
+	penstroke (z21e--z22e) ifrotated;
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def zawj =
+	nuruu(tewidth,tewidth-thick);
+	nuruu(1/3tewidth,0);
+	z1=(tewidth-bearing,nuruuleft);
+	z2=(1/2[x1,x3],shudheight);
+	z3=(x1-shudwidth+2bearing,y1);
+	y4=nuruuright-1thin;
+	z4=whatever[z2,z3];
+
+	y5=shudheight;
+	z4-z5=whatever * (z2-z1);
+	y6=nuruuleft;
+	z5-z6=whatever * (z2-z3);
+
+	y7=sdepth;
+	z4-z7=whatever * (z1-z2);
+	y8=nuruuright;
+	z7-z8=whatever * (z2-z3);
+	y9=underouter;
+	z7-z9=whatever * (z7-z8);
+	y10=nuruuright;
+	z10-z9=whatever* (z1-z2);
+	z11=(x6,nuruuright);
+	fill (z11--z10--z9--z1--z2--z4--z5--z6--cycle) ifrotated;
+	penlabels(1,2,3,4,5,6,7,8,9,10,11);
+	zawjpicture:=currentpicture;
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def qagt =
+	nuruu(gedeswidth,gedeswidth-bearing);
+	if writing=Bithe:
+		z1 =(w-1/16shudwidth,shudheight-thin);
+		penpos1(2.5thin,-30);		
+		z2r=(gedeswidth-bearing,nuruuleft);
+	fi;
+	if writing=Bicig:
+		z1l=(1/3gedeswidth,shudheight);
+		penpos1(4thin,60);
+		z2r=(gedeswidth-1/2bearing,nuruuleft);
+	fi;
+
+	penpos2(2thin,0);
+
+	z4 =(x2,nuruuright);
+	z5r=(1/2[x4,x6],underouter);
+	z6r=(0,Centerline);
+	penpos4(2thin,0);
+	penpos5(underinner-underouter,-90);
+	penpos6(1/2thin,-180);
+	
+	penstroke (z1e..z2e...z4e{down}..z5e..{up}z6e) ifrotated;
+	penlabels(1,2,3,4,5,6);
+	z11=(gedeswidth,Centerline);
+	z12=(gedeswidth-3/4thick,Centerline);
+	z13=(gedeswidth-1.75thick,nuruuleft+thin);
+	penpos11(nuruuwidth,90);
+	penpos12(14/16nuruuwidth,80);
+	penpos13(epsilon,45);
+	penstroke (z11e---z12e..z13e) ifrotated;
+	penlabels(1,2,3,4,5,6,7,8,9,11,12,13);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def exenzawj =
+	% nuruu(tewidth,tewidth-thick);
+	nuruu(1/3tewidth,0);
+	z1=(tewidth-bearing,nuruuleft);
+	z2=(1/2[x1,x3],shudheight);
+	z3=(x1-shudwidth+2bearing,y1);
+	y4=nuruuright-1thin;
+	z4=whatever[z2,z3];
+
+	y5=shudheight;
+	z4-z5=whatever * (z2-z1);
+	y6=nuruuleft;
+	z5-z6=whatever * (z2-z3);
+
+	y7=sdepth;
+	z4-z7=whatever * (z1-z2);
+	y8=nuruuright;
+	z7-z8=whatever * (z2-z3);
+	y9=underouter;
+	z7-z9=whatever * (z7-z8);
+	y10=nuruuright;
+	z10-z9=whatever* (z1-z2);
+	z11=(x6,nuruuright);
+	fill (z11--z10--z9--z1--z2--z4--z5--z6--cycle) ifrotated;
+	penlabels(1,2,3,4,5,6,7,8,9,10,11);
+	exenzawjpicture:=currentpicture;
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def suulzawj =
+	nuruu(tewidth,tewidth-thick);
+	z1=(tewidth-bearing,nuruuleft);
+	z2=(1/2[x1,x3],shudheight);
+	z3=(x1-shudwidth+2bearing,y1);
+	y4=nuruuright-1thin;
+	z4=whatever[z2,z3];
+
+	y5=shudheight;
+	z4-z5=whatever * (z2-z1);
+	% y6=nuruuleft;
+	% z5-z6=whatever * (z2-z3);
+	z6=(0,underouter);
+
+	y7=sdepth;
+	z4-z7=whatever * (z1-z2);
+	y8=nuruuright;
+	z7-z8=whatever * (z2-z3);
+	y9=underouter;
+	z7-z9=whatever * (z7-z8);
+	y10=nuruuright;
+	z10-z9=whatever* (z1-z2);
+	z11=(x6,nuruuright);
+
+	% pickup pencircle scaled 1/4thin;
+	fill (z10--z9--z1--z2--z4--z5..z6{z3-z2}&z6{z2-z6}..z10--cycle)
+		ifrotated;
+	penlabels(1,2,3,4,5,6,7,8,9,10,11);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def manju_sh_stroke =
+	z19l=(29/36tewidth,shudheight);
+	z20l=(10/36tewidth,shilbeheight);
+	penpos19(7/9thick,75);
+	penpos20(6/9thin,60);
+	penstroke (z19e{left}..tension 2.5..{up}z20e) ifrotated;
+	penlabels(19,20);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def manju_dz_stroke =
+	z31l=(   tewidth,underouter);
+	z32l=(1/6tewidth,underouter);
+	penpos31(2thin,-75);
+	penpos32(2thin,-75);
+	penstroke (z31e..z32e) ifrotated;
+	penlabels(31,32);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def sy_nuruu(expr xbegin,xend) =
+	nuruu(xbegin,xend);
+	z1 =(xbegin,    5/6  underinner);
+	z2 =(1/2[xbegin,xend],3/4gedesinner);
+	z3 =(xend,       y1);
+	z4 =(xend+10/4thin,  underinner);
+	z5 =(x2,Centerline);
+	z6 =(xbegin-10/4thin,y4);
+	fill (z1--z2--z3--z4--z5--z6--cycle) ifrotated;
+	penlabels(1,2,3,4,5,6);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def manju_tsh_stroke =
+	x33=x34=1/2[x31,x32];
+	y33=y31;
+	y34=suulouter-0.80thick;
+	penpos33(2thin,-25);
+	penpos34(2thin,-25);
+	penstroke (z33e--z34e) ifrotated;
+	penlabels(33,34);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def ligba =
+	nuruu(secAwidth,0);
+	nuruu(bawidth,bawidth-numtaigedeswidth);
+	shud_atom(secAwidth,bearing);
+
+	z1r=(bawidth-1/2bearing,nuruuleft);
+	z2r=(1/2[x1,x3],gedesouter);
+	z3r=(bawidth-numtaigedeswidth,nuruuleft);
+	penpos1(thin,0);
+	penpos2(gedesouter-gedesinner,90);
+	penpos3(thin,180);
+	penstroke (z1e{up}..z2e..{down}z3e) ifrotated;
+
+	z4 =(x1,nuruuright);
+	z5r=(1/2[x4,x6],underouter);
+	z6l=(secAwidth,nuruuright);
+	penpos4(thin,0);
+	penpos5(underinner-underouter,-90);
+	penpos6(2thin,-180);
+	penstroke (z4e{down}..z5e..{up}z6e) ifrotated;
+
+	z7=(1/2[secAwidth,bearing],shudheight);
+	z8=(secAwidth,nuruuleft);
+	z9=(x8,nuruuright);
+	unfill (z7--z8--z9--cycle) ifrotated;
+	penlabels(1,2,3,4,5,6,7,8,9);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def ligbu (expr xpos) =
+	tntgw:=2numtaigedeswidth;
+	nuruu(tntgw+xpos,xpos);
+	z1r=(xpos+tntgw/2-1,nuruuleft);
+	z2r=(1/2[x1,x3],gedesouter);
+	z3r=(xpos+1/2bearing,nuruuleft);
+	penpos1(thin,0);
+	penpos2(gedesouter-gedesinner,90);
+	penpos3(thin,180);
+
+	z4r=(xpos+tntgw-1/2bearing,nuruuleft);
+	z5r=(1/2[x4,x6],gedesouter);
+	z6r=(xpos+tntgw/2+1,nuruuleft);
+	penpos4(thin,0);
+	penpos5(gedesouter-gedesinner,90);
+	penpos6(thin,180);
+
+	z7 =(x3,nuruuright);
+	z8l=(1/2[x7,x9],underouter);
+	z9 =(x4,nuruuright);
+	penpos7(thin,0);
+	penpos8(gedesouter-gedesinner,90);
+	penpos9(thin,180);
+
+	penstroke (z1e{up}..z2e..{down}z3e) ifrotated;
+	penstroke (z4e{up}..z5e..{down}z6e) ifrotated;
+	penstroke (z7e{down}..z8e..{up}z9e) ifrotated;
+
+	penlabels(1,2,3,4,5,6,7,8,9);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def ligmongpa =
+	nuruu(secAwidth,0);
+	nuruu(bawidth,bawidth-numtaigedeswidth);
+	shud_atom(secAwidth,bearing);
+
+%	z1r=(bawidth-1/2bearing,nuruuleft);
+	z1r=(bawidth-1/2bearing,gedesouter+thin);
+	z2r=(1/3[x1,x4],gedesouter);
+	z3r=(7/12[x1,x4],gedesouter);
+	z4r=(bawidth-numtaigedeswidth,nuruuleft);
+	penpos1(thin,180);
+	penpos2(gedesouter-gedesinner,90);
+	penpos3(gedesouter-gedesinner,90);
+	penpos4(thin,180);
+	penstroke (z1e..z2e..z3e..{down}z4e) ifrotated;
+
+	z5r=(x1,nuruuright);
+	z6r=(1/2[x5,x7],underouter);
+	z7l=(secAwidth,nuruuright);
+	penpos5(thin,0);
+	penpos6(underinner-underouter,-90);
+	penpos7(2thin,-180);
+	penstroke (z5e{down}..z6e..{up}z7e) ifrotated;
+
+	z8=(1/2[secAwidth,bearing],shudheight);
+	z9=(secAwidth,nuruuleft);
+	z10=(x9,nuruuright);
+	unfill (z10--z8--z9--cycle) ifrotated;
+	penlabels(1,2,3,4,5,6,7,8,9,10);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def ligmongpu =
+	nuruu(w,0);
+	z1r=(w-1/2bearing,gedesouter+thin);
+	z2r=(1/3[x1,x4],gedesouter);
+	z3r=(7/12[x1,x4],gedesouter);
+	z4r=(w/2+1,nuruuleft);
+	penpos1(thin,180);
+	penpos2(gedesouter-gedesinner,90);
+	penpos3(gedesouter-gedesinner,90);
+	penpos4(thin,180);
+	penstroke (z1e..z2e..z3e..{down}z4e) ifrotated;
+
+	z5r=(w-1/2bearing,nuruuright);
+	z6r=(w/2,underouter);
+	z7r=(1/2bearing,y5);
+	penpos5(thin,0);
+	penpos6(underinner-underouter,-90);
+	penpos7(thin,-180);
+	penstroke (z5e{down}..z6e..z7e{up}) ifrotated;
+	z8 =(x7,nuruuleft);
+	z9r=(1/2[x8,x10],gedesouter);
+	z10r=(w/2-1,y8);
+	penpos8(thin,180);
+	penpos9(gedesouter-gedesinner,90);
+	penpos10(thin,0);
+	penstroke (z8e{up}..z9e..{down}z10e) ifrotated;
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def liggha =
+	nuruu(secAwidth,0);
+	shud_atom(secAwidth,bearing);
+	nuruu(bawidth,bawidth-bearing);
+	z1l=(bawidth-gedeswidth+5thin,shudheight-thin);
+	z2r=(bawidth-1/2bearing,nuruuleft);
+	penpos1(4thin,60);
+	penpos2(2thin,0);
+
+	z4 =(x2,nuruuright);
+	z5r=(1/2[x4,x6],underouter);
+	z6l=(secAwidth,nuruuright);
+	penpos4(2thin,0);
+	penpos5(underinner-underouter,-90);
+	penpos6(2thin,-180);
+
+	penstroke (z1e..z2e...z4e{down}..z5e..{up}z6e) ifrotated;
+
+	z7=(1/2[secAwidth,bearing],shudheight);
+	z8=(secAwidth,nuruuleft);
+	z9=(x8,nuruuright);
+	unfill (z7--z8--z9--cycle) ifrotated;
+
+	z10r=(bawidth,gedesouter+thin);
+	z11 =(x10-2thin,shudheight-5thin);
+	penpos10(1.5thin,0);
+	penpos11(2thin,-45);
+	penstroke (z10e..z11e) ifrotated;
+
+	penlabels(1,2,3,4,5,6,7,8,9);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def ligkha =
+	nuruu(secAwidth,0);
+	shud_atom(secAwidth,bearing);
+	% Variant, more Manju-like
+	if writing=Bithe:
+		z1 =(w-1/16shudwidth,shudheight-thin);
+		penpos1(2.5thin,-30);		
+		z2r=(bawidth-bearing,nuruuleft);
+	fi;
+	if writing=Bicig:
+		z1l=(bawidth-gedeswidth+5thin,shudheight);
+		penpos1(4thin,60);
+		z2r=(bawidth-1/2bearing,nuruuleft);
+	fi;
+
+	penpos2(2thin,0);
+
+	z4 =(x2,nuruuright);
+	z5r=(1/2[x4,x6],underouter);
+	z6l=(secAwidth,nuruuright);
+	penpos4(2thin,0);
+	penpos5(underinner-underouter,-90);
+	penpos6(2thin,-180);
+
+	penstroke (z1e..z2e...z4e{down}..z5e..{up}z6e) ifrotated;
+
+	z7=(1/2[secAwidth,bearing],shudheight);
+	z8=(secAwidth,nuruuleft);
+	z9=(x8,nuruuright);
+	unfill (z7--z8--z9--cycle) ifrotated;
+	
+	z11=(bawidth,Centerline);
+	z12=(bawidth-3/4thick,Centerline);
+	z13=(bawidth-1.5thick,nuruuleft+thin);
+	penpos11(nuruuwidth,90);
+	penpos12(14/16nuruuwidth,80);
+	penpos13(epsilon,45);
+	penstroke (z11e---z12e..z13e) ifrotated;
+	penlabels(1,2,3,4,5,6,7,8,9,11,12,13);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def ligkhi =
+	nuruu(shilbewidth-2thin,0);
+	nuruu(biwidth,biwidth-bearing);
+	if writing=Bithe:
+		z1 =(w+1/4shudwidth,shudheight-thin);
+		penpos1(2.5thin,-30);
+	fi;
+	if writing=Bicig:
+		z1l=(biwidth-gedeswidth+5thin,shudheight);
+		penpos1(4thin,60);
+	fi;
+	z2r=(biwidth-1/2bearing,nuruuleft);
+	penpos2(2thin,0);
+
+	z4 =(x2,nuruuright);
+	z5r=(1/2[x4,x6],underouter);
+	z6l=(shilbewidth,nuruuright);
+	z7l=(3thin,shilbeheight);
+	penpos4(2thin,0);
+	penpos5(underinner-underouter,-90);
+	penpos6(2thin,-180);
+	penpos7(4thin,-120);
+	penstroke (z1e..z2e...z4e{down}..z5e..{up}z6e..tension
+		infinity..z7e) ifrotated;
+
+	z11=(biwidth,Centerline);
+	z12=(biwidth-3/4thick,Centerline);
+	z13=(biwidth-1.5thick,nuruuleft+thin);
+	penpos11(nuruuwidth,90);
+	penpos12(14/16nuruuwidth,80);
+	penpos13(epsilon,45);
+	penstroke (z11e---z12e..z13e) ifrotated;
+
+	penlabels(1,2,3,4,5,6,7,8,9);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def ligkhu =
+	% Variant, more Manju-like
+	if writing=Bithe:
+		z1 =(w-1/16shudwidth,shudheight-thin);
+		penpos1(2.5thin,-30);		
+		z2r=(bawidth-bearing,nuruuleft);
+	fi;
+	if writing=Bicig:
+		z1l=(bawidth-gedeswidth+5thin,shudheight);
+		penpos1(4thin,60);
+		z2r=(bawidth-1/2bearing,nuruuleft);
+	fi;
+
+	penpos2(2thin,0);
+
+	z4 =(x2,nuruuright);
+	z5r=(1/2[x4,x6],underouter);
+	z6r=(1/2bearing,nuruuright);
+	penpos4(2thin,0);
+	penpos5(underinner-underouter,-90);
+	penpos6(thin,-180);
+
+	penstroke (z1e..z2e...z4e{down}..z5e..{up}z6e) ifrotated;
+
+	z7=(bawidth,Centerline);
+	z8=(bawidth-3/4thick,Centerline);
+	z9=(bawidth-1.5thick,nuruuleft+thin);
+	penpos7(nuruuwidth,90);
+	penpos8(14/16nuruuwidth,80);
+	penpos9(epsilon,45);
+	penstroke (z7e---z8e..z9e) ifrotated;
+	
+	nuruu(0,numtaigedeswidth);
+	z11r=(numtaigedeswidth,nuruuleft);
+	z12r=(1/2[x11,x13],gedesouter);
+	z13r=(1/2bearing,nuruuleft);
+	penpos11(thin,0);
+	penpos12(gedesouter-gedesinner,90);
+	penpos13(thin,180);
+	penstroke (z11e{up}..z12e..{down}z13e) ifrotated;
+
+	penlabels(1,2,3,4,5,6,7,8,9,11,12,13);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def manju_pa =
+	nuruu(secAwidth,0);
+	nuruu(bawidth,bawidth-numtaigedeswidth);
+	shud_atom(secAwidth,bearing);
+
+	z1r=(bawidth-1/2bearing,nuruuleft);
+	z2r=(1/2[x1,x3],gedesouter);
+	z3r=(bawidth-numtaigedeswidth,nuruuleft);
+	penpos1(thin,0);
+	penpos2(gedesouter-gedesinner,90);
+	penpos3(thin,180);
+	penstroke (z1e{up}..z2e..{down}z3e) ifrotated;
+
+	z4 =(x1,nuruuright);
+	z5r=(1/2[x4,x6],underouter);
+	z6 =(1/2[x4,x8],0);
+	z7l=(1/2[x6,x8],underouter);
+	z8r=(secAwidth,nuruuright);
+	penpos4(thin,0);
+	penpos5(underinner-underouter,-90);
+	penpos6(1/2thin,-180);
+	penpos7(3/4(underinner-underouter),-270);
+	penpos8(2thin, 0);
+	penstroke (z4e{down}..z5e..{up}z6e) ifrotated;
+	penstroke (z6e{down}..z7e..tension 1.4..{up}z8e) ifrotated;
+
+	z10=(1/2[secAwidth,bearing],shudheight);
+	z11=(secAwidth,nuruuleft);
+	z12=(x11,nuruuright);
+	penlabels(1,2,3,4,5,6,7,8,9,10,11,12);
+	unfill (z10--z11--z12--cycle) ifrotated;
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def manju_pi =
+	nuruu(shilbewidth-2thin,0);
+	nuruu(biwidth,biwidth-numtaigedeswidth);
+
+	z1r=(biwidth-1/2bearing,nuruuleft);
+	z2r=(1/2[x1,x3],gedesouter);
+	z3r=(biwidth-numtaigedeswidth,nuruuleft);
+	penpos1(thin,0);
+	penpos2(gedesouter-gedesinner,90);
+	penpos3(thin,180);
+	penstroke (z1e{up}..z2e..{down}z3e) ifrotated;
+
+	z4 =(x1,nuruuright);
+	z5r=(1/2[x4,x6],underouter);
+	z6 =(1/2[x4,x8],0);
+	z7l=(1/2[x6,x8],underouter);
+	z8r=(shilbewidth,nuruuright);
+	z9r=(3thin,shilbeheight);
+	penpos4(thin,0);
+	penpos5(underinner-underouter,-90);
+	penpos6(1/2thin,-180);
+	penpos7(3/4(underinner-underouter),-270);
+	penpos8(2thin,   0);
+	penpos9(4thin, 30);
+	penstroke (z4e{down}..z5e..{up}z6e) ifrotated;
+	penstroke (z6e{down}..z7e..tension 1.4..{up}z8e..tension infinity..z9e) ifrotated;
+
+	penlabels(1,2,3,4,5,6,7,8,9);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def manju_po =
+	nuruu(w,0);
+	z1l=(w/2+1,nuruuleft);
+	z2l=(1/2[x1,x3],gedesouter);
+	z3l=(w-1/2bearing,nuruuleft);
+	penpos1(thin,0);
+	penpos2(gedesouter-gedesinner,-90);
+	penpos3(thin,-180);
+
+	z4l=(1/2bearing,nuruuleft);
+	z5l=(1/2[x4,x6],gedesouter);
+	z6l=(w/2-1,nuruuleft);
+	penpos4(thin,0);
+	penpos5(gedesouter-gedesinner,-90);
+	penpos6(thin,-180);
+
+	z7  =(x3,nuruuright);
+	z8l =(1/2[x7,x9],underouter);
+	z9  =(1/2[x7,x11],0);
+	z10r=(1/2[x9,x11],underouter);
+	z11 =(x4,nuruuright);
+	penpos7(thin,-180);
+	penpos8(gedesouter-gedesinner,-270);
+	penpos9(1/2thin,  0);
+	penpos10(gedesouter-gedesinner,-90);
+	penpos11(thin,180);
+
+	penstroke (z1e{up}..z2e..{down}z3e) ifrotated;
+	penstroke (z4e{up}..z5e..{down}z6e) ifrotated;
+	penstroke (z7e{down}..z8e..{up}z9e) ifrotated;
+	penstroke (z9e{down}..z10e..z11e{up}) ifrotated;
+
+	penlabels(1,2,3,4,5,6,7,8,9,10,11);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def ligka =
+	nuruu(secAwidth,0);
+	nuruu(w,w-bearing);
+	shud_atom(secAwidth,bearing);
+	z1l=(w-gedeswidth+5thin,shudheight-thin);
+	z2r=(w-1/2bearing,nuruuleft);
+	penpos1(4thin,60);
+	penpos2(2thin,0);
+
+	z4 =(x2,nuruuright);
+	z5r=(1/2[x4,x6],underinner-1/2thin); % underinner was underouter
+	z6l=(secAwidth,nuruuright);
+	penpos4(2thin,0);
+	penpos5(underinner-underouter,-90);
+	penpos6(2thin,-180);
+
+	penstroke (z1e..z2e...z4e{down}..z5e..{up}z6e) ifrotated;
+
+	z7=(1/2[secAwidth,bearing],shudheight);
+	z8=(secAwidth,nuruuleft);
+	z9=(x8,nuruuright);
+	unfill (z7--z8--z9--cycle) ifrotated;
+	penlabels(1,2,3,4,5,6,7,8,9);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def ligki =
+	nuruu(shilbewidth-thin,0);
+	nuruu(w,w-bearing);
+	z1l=(w-gedeswidth+5thin,shudheight-thin);
+	z2r=(w-1/2bearing,nuruuleft);
+	penpos1(4thin,60);
+	penpos2(2thin,0);
+
+	z4 =(x2,nuruuright);
+	z5r=(1/2[x4,x6],underinner-thin); % underinner was underouter
+	z6l=(shilbewidth,nuruuright);
+	z7l=(3thin,shilbeheight);
+	penpos4(2thin,0);
+	penpos5(underinner-underouter,-90);
+	penpos6(2thin,-180);
+	penpos7(4thin,-120);
+
+	penstroke (z1e..z2e...z4e{down}..z5e..{up}z6e..
+		tension infinity..z7e) ifrotated;
+
+	penlabels(1,2,3,4,5,6,7,8,9);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def ligku =
+	nuruu(numtaigedeswidth,0);
+	nuruu(bawidth,bawidth-bearing);
+	z1r=(bawidth-4thin,shudheight+thin);
+	z2r=(bawidth-1/2bearing,nuruuleft);
+	penpos1(4thin,60);
+	penpos2(2thin,0);
+
+	z4 =(x2,nuruuright);
+	z5r=(1/2[x4,x6],underouter);
+	z6r=(1/2bearing,nuruuright);
+	penpos4(2thin,0);
+	penpos5(underinner-underouter,-90);
+	penpos6(thin,-180);
+
+	penstroke (z1e..z2e...z4e{down}..z5e..{up}z6e) ifrotated;
+
+	z11r=(numtaigedeswidth,nuruuleft);
+	z12r=(1/2[x11,x13],gedesouter);
+	z13r=(1/2bearing,nuruuleft);
+	penpos11(thin,0);
+	penpos12(gedesouter-gedesinner,90);
+	penpos13(thin,180);
+	penstroke (z11e{up}..z12e..{down}z13e) ifrotated;
+	penlabels(1,2,3,4,5,6,7,8,9,10,11,12,13);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def Exclam (expr vpos) =
+	"Exclamation mark";
+	z6=(numberwidth-3thin,vpos);
+	penpos6(3.5thin,90);
+	z7=(3/4gedeswidth,vpos);
+	penpos7(2thin,90);
+	pickup pencircle scaled 3.5 thin;
+	drawdot (z6) ifrotated;
+	pickup pencircle scaled 2 thin;
+	drawdot (z7) ifrotated;
+	z8=(thick,vpos);
+	pickup pencircle scaled 3.5 thin;
+	drawdot (z8) ifrotated;
+	penstroke (z6e..z7e) ifrotated;
+	penlabels(6,7,8);
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def Quest (expr vpos) =	% Our Question Mark
+	numeric x[]; numeric y[];
+	radius:=1.15thick;
+	z1=(numberwidth-radius-2thin,vpos+1.25thick);
+	penpos1(2.5thin,90);
+	z2=(numberwidth-2thin,vpos);
+	penpos2(2thin,0);
+	z3=(x1,vpos-radius);
+	penpos3(2.5thin,-90);
+	z4=(6/8gedeswidth,vpos);
+	penpos4(2.25thin,-90);
+	z5=(thick,vpos);
+
+	pickup pencircle scaled 2.5thin;
+	drawdot (z1) ifrotated;
+	pickup pencircle scaled 2.0thin;
+	drawdot (z4) ifrotated;
+	pickup pencircle scaled 3.5thin;
+	drawdot (z5) ifrotated;
+	penstroke (z1e{right}..z2e{down}..z3e{left}..z4e{left}) ifrotated;
+	penlabels(1,2,3,4,5);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def SpezRahmen = % Useful for all these special characters
+pickup pencircle scaled thin;
+	draw ((1thin,orxicouter-thin)--
+		(w-1thin,orxicouter-thin)--
+			(w-1thin,suulouter+thin)--
+				(1thin,suulouter+thin)--cycle)
+					ifrotated;
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def F (expr startp, width) =
+	numeric x[]; numeric y[];
+	z1=(latinbottomline,startp);
+	z2=(latintopline,y1);
+	z3=(x2,width);
+	z4=(3/5[latinbottomline,latintopline],y1);
+	z5=(x4,3/4[startp,width]);
+	pickup pencircle scaled 1.5thin;
+	draw (z1--z2--z3) ifrotated;
+	draw (z4--z5) ifrotated;
+	penlabels (1,2,3,4,5);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def M (expr startp, width) =
+	numeric x[]; numeric y[];
+	z1=(latinbottomline,startp);
+	z2=(latintopline,y1);
+	z3=(1/3[latinbottomline,latintopline],1/2[startp,width]);
+	z4=(x2,width);
+	z5=(x1,y4);
+	pickup pencircle scaled 1.5thin;
+	draw (z1--z2--z3--z4--z5) ifrotated;
+	penlabels (1,2,3,4,5);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def P (expr startp, width) =
+	numeric x[]; numeric y[];
+	z1=(latinbottomline,startp);
+	z2=(latintopline,y1);
+	z3=(1/2[x2,x4],width);
+	z4=(3/5[latinbottomline,latintopline],y1);
+	pickup pencircle scaled 1.5thin;
+	draw (z1--z2) ifrotated;
+	draw (z2{down}..z3..{up}z4) ifrotated;
+	penlabels (1,2,3,4);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def S (expr startp, width) =
+	numeric x[]; numeric y[];
+	z1=(latintopline-thin,5/6[startp,width]);
+	z2=(latintopline,1/2[startp,width]);
+	z3=(3/4[latinbottomline,latintopline],startp);
+	z4=(1/2[latintopline,latinbottomline],y2);
+	z5=(1/4[latinbottomline,latintopline],width);
+	z6=(latinbottomline,y2);
+	z7=(latinbottomline+thin,1/6[startp,width]);
+	pickup pencircle scaled 1.5thin;
+	draw (z1..{up}z2..z3..z4..z5..{up}z6..z7) ifrotated;
+	penlabels (1,2,3,4,5,6,7);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def V (expr startp, width) =
+	numeric x[]; numeric y[];
+	z1=(latintopline,startp);
+	z2=(latinbottomline,1/2[startp,width]);
+	z3=(x1,width);
+	pickup pencircle scaled 1.5thin;
+	draw (z1--z2--z3) ifrotated;
+	penlabels (1,2,3,4,5);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def eins (expr startp, width) =
+	numeric x[]; numeric y[];
+	z1=(latintopline-2thin,startp);
+	z2=(latintopline,2/3[startp,width]);
+	z3=(latinbottomline,y2);
+	pickup pencircle scaled 1.5thin;
+	draw (z1--z2--z3) ifrotated;
+	penlabels (1,2,3,4,5);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def zwei (expr startp, width) =
+	numeric x[]; numeric y[];
+	z1=(latintopline-2thin,startp);
+	z2=(latintopline,1/2[startp,width]);
+	z3=(1/2[latintopline,latinbottomline],y2);
+	z4=(latinbottomline,startp);
+	z5=(x4,width);
+	pickup pencircle scaled 1.5thin;
+	draw (z1..{down}z2..z3..{left}z4--z5) ifrotated;
+	penlabels (1,2,3,4,5);
+	numeric x[]; numeric y[];
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

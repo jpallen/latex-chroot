@@ -1,0 +1,176 @@
+% This is a freeware program written in LaTeX2e. It prints the calendar for a given year.
+
+% Safe modifications are between two `=====' lines. Any other modification are recommended
+% only for TeXperts.
+
+\documentclass{article}
+\usepackage{array}
+\nofiles\thispagestyle{empty}
+
+% Counters, logical, and lengths
+\newcount\y \newcount\m \newcount\x  % year, month, day of the week
+\newcount\p \newcount\q              % temporary counters
+\newif\ifleap      % if leap year
+\newif\ifJulian    % if Julian calendar
+\newif\ifZeroExist % if 0th year exist
+\newif\ifCmRule    % cm rule at right
+\newlength{\Wd}    % the widest name of days
+\newlength{\Wdx}   % temporary dim
+
+%========== Start of Safe Modifications =============
+% The following definitions are safe to change
+
+% Fonts for Year, Months and Days
+\def\yearfont{\normalsize\bfseries} \def\monthfont{\scriptsize\scshape} \def\dayfont{\tiny}
+
+% Language Dependent Definitions (B.C., A.D., months, and days)
+
+\def\BC{ B.C.}\def\AD{} % ` B.C.' after a negative year, nothing after a positive
+
+\def\Jan{January}  \def\Feb{February}\def\Mar{March}   \def\Apr{April}
+\def\May{May}      \def\Jun{June}    \def\Jul{July}    \def\Aug{August}
+\def\Sep{September}\def\Oct{October} \def\Nov{November}\def\Dec{December}
+
+\def\Sun{\textbf{S}} \def\Mon{\textbf{M}} \def\Tue{\textbf{T}} \def\Wen{\textbf{W}}
+\def\Thr{\textbf{T}} \def\Fri{\textbf{F}} \def\Sat{\textbf{S}}
+
+% Margins and Spaces
+\setlength{\topmargin}{-1in}\setlength{\oddsidemargin}{-1in} % no margins
+\def\sm{\hspace{2pt}} % space between months
+
+% Select Gregorian/Julian calendar and zero/nonzero (default are both false)
+\Julianfalse    % don't use Julian, use Gregorian calendar
+\ZeroExistfalse % zero year doesn't exist (before 1st is -1st year)
+%\Juliantrue     % use Julian, don't use Gregorian calendar
+%\ZeroExisttrue  % zero year exists (before 1st is 0th year)
+
+% Do you wish a cm rule? (default is false)
+\CmRulefalse % don't print the cm rule
+%\CmRuletrue % print the cm rule
+
+%========== End of Safe Modifications =============
+% It is not recommended to change anything below this line!
+
+% Set \x=the day of the week (0=Sunday, 1=Monday,...)
+\def\dayofweek#1{\m=#1 \x=\y %              x:=y;
+\ifnum \x>0\else %                          if x<=0 then
+  \ifZeroExist \else \advance\x by 1 \fi %  begin if not ZeroExist x:=y+1;
+  \q=\x \divide\q by 2800 \advance\q by -1 %  q:=x; q:=(q div 2800-1)*2800;
+  \multiply\q by 2800 \advance\x by -\q %     x:=x-q
+\fi %                                       end;
+\p=\x %                                     p:=x;
+\q=\m \multiply \q by 3 %                   q=m*31;
+\advance \x by \q \advance \x by 4 %        x:=x+q+4;
+\ifnum \m<3 \advance \p by -1 \else %       if m<3 then p:=p-1 else
+  \q=\m \multiply\q by 4 \advance\q by 23 % begin q:=(4*m+23) div 10;
+  \divide\q by 10 \advance\x by -\q%         x:=x-q
+\fi %                                       end;
+\q=\p \divide\q by 4 \advance\x by \q %     q:=p div 4; x:=x+q;
+\ifJulian \else %                           if not Julian then
+  \divide\p by 100 \advance\p by 1 %        begin p:=p div 100+1;
+  \multiply\p by 3 \divide\p by 4 %           p:=p*3 div 4;
+  \advance\x by -\p %                         x:=x-p
+\fi %                                       end;
+\p=\x \divide\p by 7 \multiply\p by 7 %     p:=(x div 7)*7;
+\advance \x by -\p} %                       x:=x-p;
+
+%Is \y a leap year?
+\def\setleap{\leapfalse \x=\y %                 leap:=false; x:=y;
+\ifnum \x<0 %                                 if x<0 then
+  \ifZeroExist \else \advance\x by 1 \fi %    begin if not ZeroExist else x:=x+1
+\fi %                                         end;
+\p=\x \divide\p by 4 \multiply\p by 4 %       p:=(x div 4)*4;
+\ifnum \x=\p %                                if x=p then
+  \q=\x \divide\q by 100 \multiply\q by 100 % begin q:=(x div 100)*100;
+  \ifnum \x=\q %                                if x=q then
+    \q=\x \divide\q by 400 \multiply\q by 400 % begin q:=(x div 400)*400;
+    \ifnum \x=\q \leaptrue \fi %                   if x=q then leap:=true
+  \else \leaptrue %                              end else leap:=true
+\fi\fi}%                                      end end
+
+% Defines all kind of rows
+\def\rows{%
+\def\rone{&1&8&15&22&29&}%rows for a month with 31 days
+\def\rtwo{&2&9&16&23&30&}\def\btwo{&&2&9&16&23&30}%
+\def\rthree{&3&10&17&24&31&}\def\bthree{&&3&10&17&24&31}%
+\def\rfour{&4&11&18&25&&}\def\bfour{&&4&11&18&25&}%
+\def\rfive{&5&12&19&26&&}\def\bfive{&&5&12&19&26&}%
+\def\rsix{&6&13&20&27&&}\def\bsix{&&6&13&20&27&}%
+\def\rseven{&7&14&21&28&&}\def\bseven{&&7&14&21&28&}%
+\ifnum\m=2 %                  if February ...
+  \ifleap\else\def\rone{&1&8&15&22&&}\fi %if it isn't a leap year
+  \def\rtwo{&2&9&16&23&&}\def\btwo{&&2&9&16&23&}%
+  \def\rthree{&3&10&17&24&&}\def\bthree{&&3&10&17&24&}%
+\else %                       if other month with <=30 days ...
+  \ifnum\m=1\else\ifnum\m=3\else\ifnum\m=5\else\ifnum\m=7\else\ifnum\m=8\else
+  \ifnum\m=10\else\ifnum\m=12\else
+  \def\rthree{&3&10&17&24&&}\def\bthree{&&3&10&17&24&}%
+\fi\fi\fi\fi\fi\fi\fi\fi}
+
+% Calendar of a month
+\def\Month#1{% #1=month
+\setleap\dayofweek{#1}\rows % set leap, set \x=day of the week, and define all rows
+\setlength{\tabcolsep}{0pt}
+\begin{tabular*}{7em}{|>{\centering}p{\Wd}|@{\extracolsep{\fill}}rrrrrr|}
+\multicolumn{7}{l}{\sm\monthfont %print name of a month \m
+  \ifcase\m \or\Jan\or\Feb\or\Mar\or\Apr\or\May\or\Jun\or\Jul\or\Aug\or\Sep\or\Oct\or\Nov\or\Dec \fi}\\
+\hline
+\ifcase\x
+  \Sun\rone\\ \Mon\rtwo\\ \Tue\rthree\\ \Wen\rfour\\ \Thr\rfive\\ \Fri\rsix\\ \Sat\rseven\\ \or %if Sunday
+  \Sun\bseven\\ \Mon\rone\\ \Tue\rtwo\\ \Wen\rthree\\ \Thr\rfour\\ \Fri\rfive\\ \Sat\rsix\\ \or %if Monday
+  \Sun\bsix\\ \Mon\bseven\\ \Tue\rone\\ \Wen\rtwo\\ \Thr\rthree\\ \Fri\rfour\\ \Sat\rfive\\ \or %if Tuesday
+  \Sun\bfive\\ \Mon\bsix\\ \Tue\bseven\\ \Wen\rone\\ \Thr\rtwo\\ \Fri\rthree\\ \Sat\rfour\\ \or %if Wednesday
+  \Sun\bfour\\ \Mon\bfive\\ \Tue\bsix\\ \Wen\bseven\\ \Thr\rone\\ \Fri\rtwo\\ \Sat\rthree\\ \or %if Thursday
+  \Sun\bthree\\ \Mon\bfour\\ \Tue\bfive\\ \Wen\bsix\\ \Thr\bseven\\ \Fri\rone\\ \Sat\rtwo\\ \or %if Friday
+  \Sun\btwo\\ \Mon\bthree\\ \Tue\bfour\\ \Wen\bfive\\ \Thr\bsix\\ \Fri\bseven\\ \Sat\rone\\ \fi %if Saturday
+\hline
+\end{tabular*}}
+
+% Enter the year
+\def\enteryear{\typeout{}
+\typeout{Enter the year (negative for B.C., 0th year does\ifZeroExist \else n't\fi \space exist),}
+\typeout{and I will make the calendar for that year!}
+\typeout{}\typeout{For the current year, \number\year th, just press the ENTER key!}
+\loop
+  \typein[\Year]{}\ifx \Year\empty \y=\year \else \y=\Year \fi \relax
+  \leapfalse \ifnum \y=0 \ifZeroExist \else \leaptrue \fi\fi
+\ifleap \typeout{}\typeout{0th year doesn't exist! Maybe you want the year -1.} \repeat
+\typeout{}\typeout{\ifJulian Julian \else Gregorian \fi Calendar for the year \number\y.}\typeout{}}
+
+% Set \Wd to the widest name of the days
+\def\SetWidth{%
+\settowidth{\Wd} {\dayfont\Sun} % Wd:=width(Sun);
+\settowidth{\Wdx}{\dayfont\Mon}\ifdim\Wd<\Wdx \Wd=\Wdx \fi % if Wd<width(Mon) then Wd:=width(Mon);
+\settowidth{\Wdx}{\dayfont\Tue}\ifdim\Wd<\Wdx \Wd=\Wdx \fi % etc.
+\settowidth{\Wdx}{\dayfont\Wen}\ifdim\Wd<\Wdx \Wd=\Wdx \fi
+\settowidth{\Wdx}{\dayfont\Thr}\ifdim\Wd<\Wdx \Wd=\Wdx \fi
+\settowidth{\Wdx}{\dayfont\Fri}\ifdim\Wd<\Wdx \Wd=\Wdx \fi
+\settowidth{\Wdx}{\dayfont\Sat}\ifdim\Wd<\Wdx \Wd=\Wdx \fi}
+
+% Print the calendar for the given year
+\def\printyear{%
+\begin{minipage}{.5\textwidth}\dayfont % set font for the days
+{\sm \yearfont
+  \ifnum\y>0 \number\y\AD \else \ifZeroExist \the\y \else \p=-\y \number\p\BC\fi\fi
+  \ifJulian \ (Julian)\fi}\\[.5ex] % print year
+\SetWidth
+\Month{1}\sm\Month{2}\sm\Month{3}\\%  print all months
+\Month{4}\sm\Month{5}\sm\Month{6}\\ \Month{7}\sm\Month{8}\sm\Month{9}\\
+\Month{10}\sm\Month{11}\sm\Month{12}\par
+\ \copyright\texttt{slobodan@archimed.filfak.ni.ac.yu}
+\end{minipage}}
+
+% Print cm scale at right
+\def\cmscale(#1,#2){\setlength{\unitlength}{1mm}
+\begin{picture}(0,0)(#1,#2)\scriptsize
+  \newcounter{cms}\put(-.3,71){cm}
+  \multiput(2,70)(0,-1){70}{\line(1,0){1}} \multiput(1,65)(0,-10){7}{\line(1,0){2}}
+  \multiput(0,70)(0,-10){8}{\line(1,0){3}}
+  \multiput(1,60.5)(0,-10){7}{\makebox(0,0)[b]{\addtocounter{cms}{1}\arabic{cms}}}
+\end{picture}}
+
+\begin{document}
+  \noindent \enteryear
+  \printyear
+  \ifCmRule\cmscale(8,35)\fi% Print cm rule
+\end{document}

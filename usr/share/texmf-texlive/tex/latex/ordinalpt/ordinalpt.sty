@@ -1,0 +1,154 @@
+%%
+%% This is file `ordinalpt.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% ordinalpt.dtx 
+%% 
+%% Copyright (C) 2007 Miguel V. S. Frasson (mvsfrasson@gmail.com)
+%% 
+%% This file is part of the `ordinalpt' package.
+%% 
+%% This package may be distributed under the terms of the LaTeX
+%% Project Public License, as described in lppl.txt in the base
+%% LaTeX distribution, either version 1.2 or (at your option)
+%% any later version.
+%% 
+%% This program is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+%% 
+%% \CheckSum{260}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{ordinalpt}[2007/01/11 v1.0 Ordinal numbers in Portuguese]
+\RequirePackage{ifthen}
+\DeclareOption{tricentesimo}{\def\@ordpt@tricent{i}}
+\DeclareOption{trecentesimo}{\def\@ordpt@tricent{e}}
+\ExecuteOptions{tricentesimo}
+\DeclareOption{sexcentesimo}{\def\@ordpt@sexcent{x}}
+\DeclareOption{seiscentesimo}{\def\@ordpt@sexcent{is}}
+\ExecuteOptions{sexcentesimo}
+\DeclareOption{noningentesimo}{\def\@ordpt@noningent{in}}
+\DeclareOption{nongentesimo}{\def\@ordpt@noningent{}}
+\ExecuteOptions{noningentesimo}
+\ProcessOptions
+\newboolean{@ordpt@putspace}
+\newcounter{@ordpt@counter}
+\newcounter{@ordpt@alg}
+\newcommand{\@ordpt@case}{}
+\newcommand{\@ordpt@masc}{o}
+\newcommand{\@ordpt@fem}{a}
+\newcommand{\@ordpt@ul}{o}
+\newcommand{\@ordpt@capitalize}[1]{\MakeUppercase#1}
+\newcommand{\@ordpt@ordunits}[1]{%
+  \ifcase#1\or
+   \@ordpt@case{primeir\@ordpt@ul}\or
+   \@ordpt@case{segund\@ordpt@ul}\or
+   \@ordpt@case{terceir\@ordpt@ul}\or
+   \@ordpt@case{quart\@ordpt@ul}\or
+   \@ordpt@case{quint\@ordpt@ul}\or
+   \@ordpt@case{sext\@ordpt@ul}\or
+   \@ordpt@case{s\'etim\@ordpt@ul}\or
+   \@ordpt@case{oitav\@ordpt@ul}\or
+   \@ordpt@case{non\@ordpt@ul}%
+  \fi}
+\newcommand{\@ordpt@ordtens}[1]{%
+  \ifcase#1\or
+   \@ordpt@case{d\'ecim\@ordpt@ul}\or
+   \@ordpt@case{vig\'esim\@ordpt@ul}\or
+   \@ordpt@case{trig\'esim\@ordpt@ul}\or
+   \@ordpt@case{quadrag\'esim\@ordpt@ul}\or
+   \@ordpt@case{quinquag\'esim\@ordpt@ul}\or
+   \@ordpt@case{sexag\'esim\@ordpt@ul}\or
+   \@ordpt@case{septuag\'esim\@ordpt@ul}\or
+   \@ordpt@case{octog\'esim\@ordpt@ul}\or
+   \@ordpt@case{nonag\'esim\@ordpt@ul}%
+  \fi}
+\newcommand{\@ordpt@ordcents}[1]{%
+  \ifcase#1\or
+   \@ordpt@case{cent\'esim\@ordpt@ul}\or
+   \@ordpt@case{ducent\'esim\@ordpt@ul}\or
+   \@ordpt@case{tr\@ordpt@tricent cent\'esim\@ordpt@ul}\or
+   \@ordpt@case{quadringent\'esim\@ordpt@ul}\or
+   \@ordpt@case{quingent\'esim\@ordpt@ul}\or
+   \@ordpt@case{se\@ordpt@sexcent cent\'esim\@ordpt@ul}\or
+   \@ordpt@case{septingent\'esim\@ordpt@ul}\or
+   \@ordpt@case{octingent\'esim\@ordpt@ul}\or
+   \@ordpt@case{non\@ordpt@noningent gent\'esim\@ordpt@ul}%
+  \fi}
+\newcommand{\@ordpt@ordinal}[1]{%
+  \ifthenelse{\value{#1}>0\and\value{#1}<2000}
+  {%
+    \setcounter{@ordpt@counter}{\value{#1}}%
+    \ifthenelse{\value{@ordpt@counter}>999}
+    {%
+      \@ordpt@case{mil\'esim\@ordpt@ul}%
+      \setboolean{@ordpt@putspace}{true}%
+      \addtocounter{@ordpt@counter}{-1000}%
+    }
+    {%
+      \setboolean{@ordpt@putspace}{false}%
+    }%
+    \setcounter{@ordpt@alg}{0}%
+    \whiledo{\value{@ordpt@counter}>99}
+    {%
+      \stepcounter{@ordpt@alg}%
+      \addtocounter{@ordpt@counter}{-100}%
+    }%
+    \ifthenelse{\value{@ordpt@alg}>0}
+    {%
+      \ifthenelse{\boolean{@ordpt@putspace}}{\space}{}%
+      \@ordpt@ordcents{\value{@ordpt@alg}}%
+      \setboolean{@ordpt@putspace}{true}%
+    }
+    {}%
+    \setcounter{@ordpt@alg}{0}%
+    \whiledo{\value{@ordpt@counter}>9}
+    {%
+      \stepcounter{@ordpt@alg}%
+      \addtocounter{@ordpt@counter}{-10}%
+    }%
+    \ifthenelse{\value{@ordpt@alg}>0}
+    {%
+      \ifthenelse{\boolean{@ordpt@putspace}}{\space}{}%
+      \@ordpt@ordtens{\value{@ordpt@alg}}%
+      \setboolean{@ordpt@putspace}{true}%
+    }
+    {}%
+    \ifthenelse{\value{@ordpt@counter}>0}
+    {%
+      \ifthenelse{\boolean{@ordpt@putspace}}{\space}{}%
+      \@ordpt@ordunits{\value{@ordpt@counter}}%
+    }
+    {}%
+  }
+  {\@ctrerr}%
+}
+\newcommand{\ordptmasc}[1]{%
+  \let\@ordpt@case\@firstofone
+  \let\@ordpt@ul\@ordpt@masc
+  \@ordpt@ordinal{#1}}
+\newcommand{\Ordptmasc}[1]{%
+  \let\@ordpt@case\@ordpt@capitalize
+  \let\@ordpt@ul\@ordpt@masc
+  \@ordpt@ordinal{#1}}
+\newcommand{\ORDPTMASC}[1]{%
+  \let\@ordpt@case\MakeUppercase
+  \let\@ordpt@ul\@ordpt@masc
+  \@ordpt@ordinal{#1}}
+\newcommand{\ordptfem}[1]{%
+  \let\@ordpt@case\@firstofone
+  \let\@ordpt@ul\@ordpt@fem
+  \@ordpt@ordinal{#1}}
+\newcommand{\Ordptfem}[1]{%
+  \let\@ordpt@case\@ordpt@capitalize
+  \let\@ordpt@ul\@ordpt@fem
+  \@ordpt@ordinal{#1}}
+\newcommand{\ORDPTFEM}[1]{%
+  \let\@ordpt@case\MakeUppercase
+  \let\@ordpt@ul\@ordpt@fem
+  \@ordpt@ordinal{#1}}
+\endinput
+%%
+%% End of file `ordinalpt.sty'.

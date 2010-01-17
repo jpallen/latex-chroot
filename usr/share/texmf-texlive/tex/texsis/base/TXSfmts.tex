@@ -1,0 +1,317 @@
+%% file: TXSfmts.tex - Special Document Formats - TeXsis version 2.18
+%% @(#) $Id: TXSfmts.tex,v 18.0 1999/07/09 17:24:29 myers Exp $
+%======================================================================*
+%
+%       Several standard document formats are defined in TeXsis. All of
+% these set up the appropriate dimensions, title page macros, etc., and
+% call \texsis:
+%
+%       \preprint               Preprint format. Makes a standard title
+%                               page from \title, \author, etc. and puts the
+%                               manuscript on the following pages.
+%
+%       \Manuscript             Like \preprint, but printed with 
+%                               \TrueDoubleSpacing for submission to 
+%                               journals like Physical Review
+%
+%       \paper                  Like \preprint but puts \title, \author,
+%                               etc. material at top of first page
+%                               instead of on a separate title page.
+%
+%       \book                   For books, with chapters and sections,
+%                               and odd/even page numbering
+%
+%       \slides                 Slides/transparencies format, in 24 pt type,
+%                               special formatting.
+%
+%       \letter                 Standard business letter; see TXSletr.tex
+%
+%       \memo                   Standard memo; see TXSmemo.tex.
+%
+%       \referee                Referee reports; similar to \memo
+%
+%       \twinprint              Preprint in twin page format, with
+%                               title page in full size landscape.
+%
+%       \twinformat             Twin page formatting for other styles.
+%
+%       More specialized document layouts are available in ``style'' 
+%  files, which are only loaded when they are called for.  This is 
+%  accomplished with the \autoload macro described below.  It's possible 
+%  (and easy) to add new style files for any desired document layout.
+%
+%       The specialized document layouts which are currently loaded 
+%  from style files [named in brackets] are:
+%
+%       \nuclproc               The ``NUCLPROC'' style for Nuclear
+%                               Physics Proceedings. [nuclproc.txs]
+%
+%       \NorthHolland           North Holland proceedings format,
+%                               single column, left justified titles.
+%                               [Elsevier.txs]
+%
+%       \NorthHollandTwo        North Holland double column proceedings
+%                               format, left justified titles. [Elsevier.txs]
+%
+%       \WorldScientific        World Scientific proceedings format.
+%                               [WorldSci.txs]
+%
+%       \IEEEproceedings        Conference paper in double column IEEE
+%                               format. [IEEE.txs]
+%
+%       \IEEEreduced            Same as \IEEEproceedings but reduced
+%                               by 75% to fit on 8.5 x 11 paper. [IEEE.txs]
+%
+%       \AIPproceedings         Conference paper in the American Institute
+%                               of Physics (AIP) format. [AIP.txs]
+%
+%======================================================================*
+\message{Layout macros.}
+\catcode`@=11
+     
+%--------------------------------------------------*
+% Paper Layout: This prints the \titlepage material at the top of
+% the first page, not on a separate page.
+     
+\def\paper{%                            % Paper:
+   \auxswitchtrue                       % save tags and labels in .aux file
+   \refswitchtrue                       % save references in .ref file
+   \texsis                              % Initialize
+   \def\titlepage{%                     % \paper title page
+      \bgroup                           % so changes don't leak out
+      \let\title=\Title                 % \title inside \titlepage
+      \let\endmode=\relax               % \endmode will end a field
+      \pageno=1}%                       % title page is page 1 by default
+   \def\endtitlepage{%                  % \paper end title page
+      \endmode                          % end any open field
+      \goodbreak\bigskip                % no new page, but maybe break here
+      \egroup}%                         % everything back the way it was
+   \autoparens                          % auto-sizing of parens
+   \quoteon                             % automatic begin/end quotes
+   }
+     
+\def\Tbf{\fourteenpoint\bf}%         % 14pt bold title
+\def\tbf{\twelvepoint\bf}%           % 12pt bold section head
+
+%--------------------------------------------------*
+% Preprint Layout: This prints the \titlepage material on a separate
+% page with a \banner at the top.
+     
+\def\preprint{% Document layout for Preprints
+   \auxswitchtrue                       % save tags and labels in .aux file
+   \refswitchtrue                       % save references in .ref file
+   \texsis                              % Initialize TeXsis
+   \def\titlepage{%                     % \preprint title page
+      \bgroup                           % so changes don't leak out
+      \pageno=1                         % title page is page 1 by default
+      \let\title=\Title                 % \title inside \titlepage
+      \let\endmode=\relax               % \endmode will end a field
+      \banner}%                         % prints the banner at top of page 1
+   \def\endtitlepage{%                  % \preprint end title page
+      \endmode                          % end any open field
+      \vfil\eject                       % new page
+      \egroup}%                         % everything back the way it was
+   \autoparens                          % auto-sizing of parens
+   \quoteon                             % automatic begin/end quotes
+   }
+     
+%--------------------------------------------------*
+% \Manuscript is a layout similar to \preprint, but printed
+% in \TrueDoubleSpacing and with other things set the way Physical
+% Review wants them for submitted manuscripts.  For an even better
+% version use \PhysRevManuscript or \PhysRev\Manuscript.
+
+\def\Manuscript{% layout for manuscripts to be submitted to journals
+   \preprint                    % start with preprint form
+   \showsectIDfalse             % no section number in equation numbers
+   \showchaptIDfalse            % no chapter number in equation numbers
+   \def\SectionStyle##1{\uppercase       % section numbers in upper case
+         \expandafter{\romannumeral ##1}}%     roman numerals
+   \RomanTablestrue             % roman numerals for table numbers
+   \TablesLast                  % tables at the end
+   \FiguresLast                 % figures at the end
+   \TrueDoubleSpacing           % wider interline spacing for manu
+   \def\everyabstract{\TrueDoubleSpacing}
+   \def\Tbf{\fourteenpoint\bf\TrueDoubleSpacing}%       % 14pt bold title
+   \def\refFormat{\TrueDoubleSpacing}%
+   }
+
+\autoload\PhysRevManuscript{PhysRev.txs}% More better version in style file
+        
+%--------------------------------------------------*
+% \book format is similar to \thesis but without the special 
+% formatting.  Use for books, long review articles, etc.
+     
+\def\book{% document layout for a book or similar document
+   \ContentsSwitchtrue                  % contents page ON
+   \refswitchtrue                       % save references
+   \auxswitchtrue                       % .AUX file for forward references
+   \texsis                              % initialize TeXsis
+   \RunningHeadstrue                    % running headlines
+   \bookpagenumbers                     % page numbers for book binding
+   \def\titlepage{%                     % \book title page
+      \bgroup                           % any changes local
+      \pageno=-1                        % start on page i
+      \let\title=\Title                 % \title inside \titlepage
+      \let\endmode=\relax               % \endmode will end a field
+      \def\FootText{\relax}}%           %  no number on title page
+   \def\endtitlepage{%                  % end title page for \book
+      \endmode                          % end any open field
+      \vfil\eject                       % end title page
+      \egroup%                          % close group from \titlepage
+      \pageno=1}%                       % 
+   \def\abstract{%                      % abstract for \book
+      \endmode                          % end previous field
+      \bigskip\bigskip\medskip          % skip down some
+      \bgroup\singlespaced              % abstract has same spacing
+         \let\endmode=\endabstract      % to end \abstract
+         \narrower\narrower             %
+         \everyabstract}%               %
+   \def\endabstract{%                   % end abstract for \book
+      \medskip\egroup\bigskip}%         %
+   \def\FootText{--\ \tenrm\folio\ --}% % for 1st page of chapter
+   \def\Tbf{\sixteenpoint\bf}%          % Chapter Titles in 16pt bold
+   \def\tbf{\fourteenpoint\bf}%         % Section titles in 12pt bold
+   \twelvepoint                         % 12pt type for most of doc
+   \doublespaced                        % double spacing
+   \autoparens                          % auto-sizing of parens
+   \quoteon                             % auto quote matching
+   }                                    %
+     
+%--------------------------------------------------*
+%  \thesis is loaded from a style file now because it will be
+%  different at different installations.
+
+\autoload\thesis{thesis.txs}
+\autoload\UTthesis{thesis.txs}
+\autoload\YaleThesis{thesis.txs}
+
+%--------------------------------------------------*
+% \letter is a letter format for typing letters, following the syntax
+% in Appendix F of the TeXbook.  See TXSletr.tex for details.
+     
+\def\Letter{%   document format for letters
+   \ContentsSwitchfalse                         % no table of contents
+   \refswitchfalse                              % no reference list
+   \auxswitchfalse                              % no forward references
+   \texsis                                      % initialize
+   \singlespaced                                % single space default
+   \LetterFormat}                               % Setup using \LetterFormat
+
+\def\letter{\Letter}                            % synonym
+     
+%--------------------------------------------------*
+% \memo Format for memoranda, as defined in TXSmemo.tex
+
+\def\Memo{%  document format for memos
+   \ContentsSwitchfalse                         % no table of contents
+   \refswitchfalse                              % no reference list
+   \auxswitchfalse                              % no forward references
+   \texsis                                      % initialize
+   \singlespaced                                % single space default
+   \MemoFormat}                                 % Setup using \MemoFormat
+
+\def\memo{\Memo}                                % synonym
+
+%--------------------------------------------------*
+% \Referee format for Referee Reports, as defined in TXSmemo.tex
+
+\def\Referee{% document format for referee reports
+   \ContentsSwitchfalse                         % no table of contents
+   \auxswitchfalse                              % no need for an .aux file
+   \refswitchfalse                              % no reference list
+   \texsis                                      % initialize
+   \RefReptFormat}                              % Setup using \MemoFormat
+
+\def\referee{\Referee}                          % synonym
+     
+%--------------------------------------------------*
+%       Landscape Layout: for printing ``sideways'' on the laser printer
+%
+% \Landscape sets up the page size for sideways (``landscape mode'')
+% printing, and calls \LandscapeSpecial to signal this to the printer.
+% What signal is given to the printer driver (with \special) depends
+% on which filter or driver you are using.  You may have to change
+% the definition of \LandscapeSpecial to suit your installation, but
+% please do this in TXSsite.tex, not this file.
+
+\def\Landscape{% set page size for printing ``sideways''
+   \texsis              % 12pt, double spaced, etc
+   \hsize=9in           % wide in the side
+   \vsize=6.5in         % short and stocky
+   \voffset=.5in        % and a little space from the ``margin''
+   \nopagenumbers       % default is no page numbering
+   \LandscapeSpecial    % actually turns on landscape mode   
+}
+
+\def\landscape{\Landscape}                      % synonym
+     
+% \LandscapeSpecial turns on landscape mode on the laser printer.
+% How this is done is very site dependent, but the default is for
+% Rokicki's dvips.  Change this _in_TXSsite.tex_ if you need to.
+
+\def\LandscapeSpecial{\special{papersize=11in,8.5in}}
+
+
+%--------------------------------------------------*
+%   \slides makes slides or transparencies in default 24pt type with
+% sensible defaults. It also defines \bl for a blank line and
+% \np for new page.
+%
+\def\slides{%                                   % standard stuff except 12pt:
+   \quoteon                                     % automatic quote balancing on
+   \autoparens                                  % automatic paren balancing on
+   \ATlock                                      % now @ is no longer a letter
+   \pageno=1                                    % start on page one
+   \twentyfourpoint                             % 24 point type
+   \doublespaced                                % double spaced
+   \raggedright\tolerance=2000                  % very ragged right 
+   \hyphenpenalty=500                           % hyphens are bad
+   \raggedbottom                                % ragged bottom
+   \nopagenumbers                               % no numbers
+   \hoffset=-.25in \hsize=7.0in                 % to fit 8.5in x 10.5in
+   \voffset=-.25in \vsize=9.0in                 % to fit 8.5in x 10.5in
+   \parindent=30pt                              % for big type
+   \def\bl{\vskip\normalbaselineskip}%          % blank line
+   \def\np{\vfill\eject}%                       % new page
+   \def\nospace{\nulldelimiterspace=0pt%        % autoscale...
+      \mathsurround=0pt}%                       %
+   \def\big##1{{\hbox{$\left##1%                % ...\big
+      \vbox to2ex{}\right.\nospace$}}}%         %
+   \def\Big##1{{\hbox{$\left##1%                % ...\Big
+      \vbox to2.5ex{}\right.\nospace$}}}%       %
+   \def\bigg##1{{\hbox{$\left##1%               % ...\bigg
+       \vbox to3ex{}\right.\nospace$}}}%        %
+   \def\Bigg##1{{\hbox{$\left##1%               % ...\Bigg
+      \vbox to4ex{}\right.\nospace$}}}%
+  }
+
+%-----------------------------------------------------------------------
+% TWIN PAGE OUTPUT - using macros in twin.txs
+
+\autoload\twinout{twin.txs}             % two pages on one piece of paper
+
+
+%      \twinprint sets up a twin column preprint, with the first page
+% full with in \twelvepoint and the rest in \tenpoint \twinout format.
+
+\def\twinprint{% preprint with two pages on one
+   \preprint                                    % start with \prepriwt
+   \let\t@tl@=\title                           % based on \title
+   \def\title{\vskip-1.5in\t@tl@}%             % reduce space
+   \let\endt@tlep@ge=\endtitlepage             % save it
+   \def\endtitlepage{\endt@tlep@ge             % usual \endtitlepage
+       \twinformat}%                           % twin column default
+}
+
+
+%      \twinformat sets up the standard defaults for \twinout, with
+% 10pt fonts and no headline offset.
+
+\def\twinformat{%                              % 2 pages/page format
+   \tenpoint\doublespaced                      % ten point size
+   \def\Tbf{\twelvebf}\def\tbf{\tenbf}%        % title fonts
+   \headlineoffset=0pt                         % no extra offset
+   \twinout}                                   % \twinout format
+
+% >>> EOF TXSfmts.tex <<<

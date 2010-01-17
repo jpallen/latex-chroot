@@ -1,0 +1,44 @@
+% hstripes.mf --- horizontal stripes effect
+
+define_whole_pixels(ht);
+topline := 1.6ht;
+botline := -1.0ht;
+
+stepsize# := .05ht#;
+verythin# := .01ht#;
+define_whole_pixels(stepsize, verythin);
+
+pickup penrazor scaled verythin rotated 90;
+MinPen := savepen;
+
+def pattern=
+	def endchar=
+		cullit;
+		picture NormalChar;
+			NormalChar=currentpicture;
+		clearit;
+		% fill (0,-desc-2vo)--(w+ho, -desc-2vo)--
+		%	(w+ho, cap+2vo)--(0, cap+2vo)--cycle;
+		fill ((0-10uw,botline)--(w+10uw,botline)--(w+10uw,topline)--(0-10uw,topline)--cycle) shifted -(.5rm, 0);
+		picture BlackBox;
+			BlackBox:=currentpicture;
+		picture ReverseVideo;
+			ReverseVideo=BlackBox-NormalChar;
+		clearit;
+			pickup MinPen;
+			for f=botline step stepsize	until topline:
+				draw ((0-9uw,f)--(w+9uw,f)) shifted -(.5rm, 0);
+			endfor;
+		picture StripeOverlay;
+			StripeOverlay=currentpicture;
+		currentpicture:=StripeOverlay-ReverseVideo
+		% The rest is from standard endchar
+		scantokens extra_endchar;
+		chardx:=w;
+		shipit;
+		if displaying>0: showit; fi
+		endgroup
+	enddef;
+enddef;
+
+% end of hstripes.mf

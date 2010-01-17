@@ -1,0 +1,507 @@
+%% file: TXSsects.tex - Chapters and Sections - TeXsis version 2.18
+%%  @(#) $Id: TXSsects.tex,v 18.1 2000/05/16 22:47:23 myers Exp $
+%======================================================================*
+%
+%       These macros define chapters, sections, subsections, and
+% appendices with appropriate formats and numbering. Note that tags
+% are not automatically defined, but you can use \label.
+%
+%       \chapter{<title>} causes a page break, prints the <title> in
+% "Title bold face" (\Tbf) (which defaults to \bf if it is undefined), and
+% adds an entry in the table of contents (q.v.).
+%       \showchaptIDtrue (the default) causes the chapter number to be
+% printed and also to be appended it to equation numbers, giving in general
+% chapnum.sectnum.eqnum. \showchaptIDfalse turns off the display
+% of chapter numbers.
+%
+%       \section{<title>} causes a skip but not a page break. It prints
+% the section heading in small title bold face (\tbf) (which defaults to \bf).
+%       \showsectIDtrue (the default) causes the section number to be
+% printed and to be appended to any equation numbers. \showsectIDfalse
+% turns off the display of section numbers.
+%
+%       \subsection{<title>} is like \section but does not use title
+% bold face.  Subsection numbers are displayed if \showsectIDtrue, but
+% subsection numbers do not appear in equation numbers.
+%
+%       \subsubsection{<title>} is a lower level than \subsection.
+% Use it sparingly and only when appropritate.
+%
+%       \Appendix{<ID>}{<title>} creates an appendix, with the <ID>
+% playing the role of the chapter number. The <ID> appears in the title
+% and in equation numbers if \showchaptIDtrue.
+%
+%       \appendix{<ID>}{<title>} creates a section-like appendix.
+%
+%       \nosechead{<title>} produces a heading without begining a new section,
+% and without an entry in the table of contents. This can be used for
+% acknowledgements, etc.
+%
+%       For books, theses, and other long documents \chapter should be
+% used for the first level of subdivision. For preprints and other
+% shorter documents, \section is generally more appropriate for the
+% first level, and it may be desirable to use \showsectIDfalse.
+%
+% Note:         The typestyles \Tbf and \tbf should be defined elsewhere,
+%               and will be used to print chapter and section titles.
+% Source:       Much modified from TechRpt by Eric Myers
+%
+% Dependencies: TXSmacs.tex     --      general things
+%               TXStags.tex     --      labeling and tagging
+%               TXSconts.tex    --      Table of contents macros \addTOC
+%======================================================================*
+% (C) copyright 1991-1999 by Eric Myers and Frank E. Paige.
+% This file is a part of TeXsis.  Distribution and/or modifications
+% are allowed under the terms of the LaTeX Project Public License (LPPL).
+% See the file COPYING or ftp://ftp.texsis.org/texsis/LPPL
+%======================================================================*
+\message{Section and Chapter divisions.}
+\catcode`@=11
+
+% Counters, flags, and labels:
+
+\newcount\chapternum            \chapternum=\z@         % chapter number
+\newcount\sectionnum            \sectionnum=\z@         % section number
+\newcount\subsectionnum         \subsectionnum=\z@      % sub-section number
+\newcount\subsubsectionnum      \subsubsectionnum=\z@   % subsubsection number
+
+\newif\ifshowsectID             \showsectIDtrue         % show sections?
+\def\@sectID{}                                          % section ID for eqns
+\newif\ifshowchaptID            \showchaptIDtrue        % show chapters?
+\def\@chaptID{}                                         % chapt ID for eqns
+
+
+% \sectionskip and \subsectionskip are the skips used in \section (and
+% \appendix) and in \subsection (and \subsubsection):
+
+\newskip\sectionskip            \sectionskip=2\baselineskip
+\newskip\subsectionskip         \subsectionskip=1.5\baselineskip
+
+%  \sectionminspace is how much must be left on the page to prevent
+%  skipping to a new page at the begining of a section. 
+
+\newdimen\sectionminspace       \sectionminspace = 0.20\vsize
+
+%-------------------------------------*
+% CHAPTER LEVEL: \chapter{<title>} causes a page break, prints a
+% chapter title, and resets important counters.  The macro \label may be
+% used to assign the chapter number to a name if it occurs in the title.
+% #2 is lookahead for a \par (blank line), which is discarded, so that
+% there is no indentation at the begining of a chapter.
+
+\long\def\chapter#1#2 {%        begin a new chapter in a document
+  \def\@aftersect{#2}%  
+  \ifx\@aftersect\empty\let\@aftersect=\@eatpar
+  \else\def\@aftersect{\@eatpar #2 }\fi
+  \vfill\supereject                             % begin on a new page
+  \global\advance\chapternum by \@ne            % increment chapt. #
+  \global\sectionnum=\z@                        % reset section # to zero
+  \global\def\@sectID{}%                        % section ID is null
+%
+%  Chapter ID:
+%
+  \edef\lab@l{\ChapterStyle{\the\chapternum}}%  % chapter ID for \label
+  \ifshowchaptID                                % show chapter id?
+    \global\edef\@chaptID{\lab@l.}%             % yes: define chapter ID
+    \r@set                                      %    and reset most counters
+  \else\edef\@chaptID{}\fi                      % else chapt ID is null
+  \everychapter                                 % user can customize here
+%
+%  Print Title:
+%
+  \ifx\Tbf\undefined\def\Tbf{\bf}\fi            % If \Tbf undefined make it \bf
+  \ifshowchaptID                                % if chapter ID used
+    \leftline{\Tbf{Chapter\ \@chaptID}}         % CHAPTER ##. on a line
+    \nobreak\smallskip\fi                       % with little space below
+  \begingroup                                   %
+    \raggedright\pretolerance=2000\hyphenpenalty=2000 % no hyphenation
+    \parindent=\z@ {\Tbf{#1}\bigskip}%          %  title, in \Tbf
+  \endgroup                                     %   format
+  \nobreak\bigskip              % skip down some more
+%
+%  Running Headline and Table of Contents:
+%
+  \begingroup                                   % add to Table of Contents
+    \def\label##1{}%                            % disable \label
+    \xdef\ChapterTitle{#1}%                     % save title for user
+    \def\n{}\def\nl{}\def\mib{}%                % now turn off \n, etc
+    \setHeadline{#1}%                           % make title the running head
+    \emsg{\@chaptID\space #1}%                  % announce in log file
+    \def\@quote{\string\@quote\relax}%          % in case of \quoteon
+    \addTOC{0}{\TOCcID{\lab@l.}#1}{\folio}%  % add to Table of Contents
+  \endgroup                                     %
+%
+  \@Mark{#1}%                                   % page mark chapter heading
+  \s@ction                                      % end of section processing
+  \afterchapter\@aftersect} % user can customize (\@aftersect is lookahead)
+
+
+
+\def\everychapter{\relax}%    user ``hook'' performed before every \chapter
+\def\afterchapter{\relax}%    user ``hook'' performed after every \chapter
+
+
+
+%  \ChapterStyle lets you change the style in which the chapter number
+%  is displayed (i.e. \romannumerals, \Romannumerals, or \arabic
+
+\def\ChapterStyle#1{#1}                         % default is nothing
+
+\def\setChapterID#1{\edef\@chaptID{#1.}}        % so you can change \@chaptID
+
+
+%  \r@set restest all the counters for a new chapter or section
+
+\def\r@set{%                    % resets counters for \theorem, \EQN, etc...
+  \global\subsectionnum=\z@                     % subsection number = 0
+  \global\subsubsectionnum=\z@                  % subsubsection number = 0
+  \ifx\eqnum\undefined\relax                    % is TXSeqns.tex loaded?
+    \else\global\eqnum=\z@\fi                   % yes: reset equation number
+  \ifx\theoremnum\undefined\relax               % is TXSfigs.tex loaded?
+  \else                                         % yes: reset counters
+    \global\theoremnum=\z@    \global\lemmanum=\z@                
+    \global\corollarynum=\z@  \global\definitionnum=\z@
+    \global\fignum=\z@       
+    \ifRomanTables\relax     
+    \else\global\tabnum=\z@\fi % do not reset tables if Roman numeral counting
+  \fi}
+
+\long\def\s@ction{%  generic end processing common to chapters and sections
+  \checkquote                           % check for balanced quotes
+  \checkenv                             % check for balanced envmnt
+  \vskip -\parskip                      % eat skip to first paragraph
+  \nobreak\noindent}
+
+\def\@aftersect{}
+
+% TeXsperts note: the \@Mark \@noMark construction above is required because
+% we are using a \mark which contains an \else, and the marking operation
+% appears in conditional text (the \ifnum\chapternum ... \fi). -EAM
+
+\def\@Mark#1{%  put a \mark with conditional text on the page
+   \begingroup
+     \def\label##1{}%                           % disable \label
+     \def\goodbreak{}%                          % disable \goodbreak
+     \def\mib{}\def\n{}%                        % disable \mib and \n
+     \mark{#1\NX\else\lab@l}%                   % put mark on page
+   \endgroup}%
+
+\def\@noMark#1{\relax}%                         % do nothing
+
+%-------------------------*
+% \setHeadline{text} sets the running headline to the text, but
+% if the text is so long that the user breaks it with \n then
+% only the first part up to the \n is used, followed by ...
+% (Move this to TXShead.tex at some point...)
+
+\def\setHeadline#1{\@setHeadline#1\n\endlist}   % set the \HeadText
+
+\def\@setHeadline#1\n#2\endlist{% #1 is everything up to first \n
+   \def\@arg{#2}\ifx\@arg\empty                 % Is there \n in text?
+      \global\edef\HeadText{#1}%                % No: just use #1
+   \else                                        % there was, so...
+      \global\edef\HeadText{#1\dots}%           %   use first part up to \n
+   \fi
+}
+
+%--------------------------------------------------*
+% SECTION LEVELS: \section{<title>} makes a section level break in
+% text.  It does *not* skip to a new page, but it will reset everything
+% and display the title in the \tbf typestyle (which defaults to \bf if
+% undefined).  #2 is lookahead for a \par (blank line), which is
+% discarded, so that there is no indentation at the begining of a \section.
+
+\long\def\section#1#2 {%        create a new section of a document
+  \def\@aftersect{#2}%  
+  \ifx\@aftersect\empty\let\@aftersect=\@eatpar
+  \else\def\@aftersect{\@eatpar #2 }\fi
+  \vskip\parskip\vskip\sectionskip             % make some space
+  \goodbreak\pagecheck\sectionminspace         % new page if needed
+  \global\advance\sectionnum by \@ne           % increment section counter
+%
+%  Section ID:
+%
+  \edef\lab@l{\@chaptID\SectionStyle{\the\sectionnum}}% For \label
+  \ifshowsectID                                % show section number?
+    \global\edef\@sectID{\SectionStyle{\the\sectionnum}.}% save for later
+    \global\edef\@fullID{\lab@l.\space\space}% % what we will use here
+    \r@set                                     %   and reset counters 
+  \else\gdef\@fullID{}\def\@sectID{}\fi        % otherwise section ID is empty
+  \everysection                                % user customization here
+%
+%  Print the Section title:
+%
+  \ifx\tbf\undefined\def\tbf{\bf}\fi           % default \tbf is \bf
+  \vbox{%                                      % keep heading in \vbox
+     \raggedright\pretolerance=2000\hyphenpenalty=2000 % no hyphenation
+     \setbox0=\hbox{\noindent\tbf\@fullID}%     % find width of ID 
+     \hangindent=\wd0 \hangafter=1              % ... for hanging indent 
+     \noindent\unhbox0{\tbf{#1}\medskip}}%      % number and title
+   \nobreak                                     %
+%
+%  Table of Contents and Running Headlines:
+%
+   \begingroup                                  % group for \contents, etc.
+     \def\label##1{}%                           % disable \label
+     \global\edef\SectionTitle{#1}%             % or nothing
+     \def\n{}\def\nl{}\def\mib{}%               % turn off \n, etc
+     \ifnum\chapternum=0\setHeadline{#1}\fi     % no chapt. number -> set headine
+     \emsg{\@fullID #1}%                        % announce in log file
+     \def\@quote{\string\@quote\relax}%         % in case of \quoteon
+     \addTOC{1}{\TOCsID{\lab@l.}#1}{\folio}% % Table of Contents entry
+   \endgroup                                    % end group
+   \s@ction                                     % checkenv, etc..
+   \aftersection\@aftersect} % user can customize (\@aftersect is lookahead)
+
+\def\everysection{\relax}%  user ``hook'' performed before every \section
+\def\aftersection{\relax}%  user ``hook'' performed after every \section
+
+\def\setSectionID#1{\edef\@sectID{#1.}}         % so you can set it
+
+% \SectionStyle is style to display section number
+
+\def\SectionStyle#1{#1}                         % default is nothing
+
+%--------------------------------------------------*
+% \subsection makes a subsection.  #2 is lookahead for a \par (blank
+% line), which is discarded, so that there is no indentation at the
+% begining of a \subsection. 
+
+\long\def\subsection#1#2 {% create a subsection of a document
+  \def\@aftersect{#2}%  
+  \ifx\@aftersect\empty\let\@aftersect=\@eatpar
+  \else\def\@aftersect{\@eatpar #2 }\relax\fi
+  \vskip\parskip\vskip\subsectionskip   % make some space
+  \goodbreak\pagecheck\sectionminspace  % new page if needed
+  \global\advance\subsectionnum by \@ne % increment subsection counter
+  \subsubsectionnum=\z@                 % reset subsubsection number
+%
+%  Subsection ID:
+%
+  \edef\lab@l{\@chaptID\@sectID\SubsectionStyle{\the\subsectionnum}}%
+  \ifshowsectID                         % show section number?
+     \global\edef\@fullID{\lab@l.\space}% yes: define it
+  \else\gdef\@fullID{}\fi               % otherwise it's empty
+  \everysubsection                      % user can customize
+%
+%  Print the subsection title
+%
+  \vbox{%                               % heading in \vbox
+    {\raggedright\pretolerance=2000\hyphenpenalty=2000 % no hyphenation
+    \setbox0=\hbox{\noindent\bf\@fullID}% find width...
+    \hangindent=\wd0 \hangafter=1       % ... for hanging indent
+    \noindent\unhbox0{\bf{#1}\nobreak\medskip}}}% number, title, and space
+%
+  \begingroup                           % group for \contents, etc.
+    \def\label##1{}%                    % disable \label
+    \global\edef\SubsectionTitle{#1}%   % or nothing
+    \def\n{}\def\nl{}\def\mib{}%        % disable \n, etc
+   \emsg{\@fullID #1}%                  % announce in log file
+    \def\@quote{\string\@quote\relax}%  % in case of \quoteon
+    \addTOC{2}{\TOCsID{\lab@l.}#1}{\folio}% Table of Contents entry
+  \endgroup                             % end \contents group
+  \s@ction                              % end of section 
+  \aftersubsection\@aftersect}% room to customize (\@aftersect was lookahead)
+
+\def\everysubsection{\relax}%   user ``hook'' performed before every \subsection
+\def\aftersubsection{\relax}%   user ``hook'' performed after every \subsection
+\def\SubsectionStyle#1{#1}                      % how to display number
+
+
+%--------------------------------------------------*
+% \subsubsection makes a subsubsection, mainly for use if there
+% are no chapters in the document.  
+
+\long\def\subsubsection#1#2 {%  create a sub-subsection of a document
+  \def\@aftersect{#2}%  
+  \ifx\@aftersect\empty\let\@aftersect=\@eatpar
+  \else\def\@aftersect{\@eatpar #2 }\fi
+  \vskip\parskip\vskip\subsectionskip          % make some space
+  \goodbreak\pagecheck\sectionminspace         % new page if needed
+  \global\advance\subsubsectionnum by \@ne     % increment counter
+%
+%  Sub-subsection ID:
+%
+   \edef\lab@l{\@chaptID\@sectID\SubsectionStyle{\the\subsectionnum}.%%
+           \SubsubsectionStyle{\the\subsubsectionnum}}% for \label
+   \ifshowsectID                                % show section number?
+     \global\edef\@fullID{\lab@l.\space\space}% % yes: define it
+   \else\gdef\@fullID{}\fi                      % else it's empty
+   \everysubsubsection                          % user can customize here
+%
+%  Print the sub-subsection title
+%
+   \vbox{%                                      % heading in \vbox
+     {\raggedright\bf                           % Ragged \bf title
+     \setbox0=\hbox{\noindent\@fullID}%         % find width
+     \hangindent=\wd0 \hangafter=1              % hanging indent after 1st line
+     \noindent\@fullID\relax                    % show subsection number
+     #1\nobreak\medskip}}%                      % print the title
+%
+   \begingroup                                  % group for \contents, etc.
+     \def\label##1{}%                           % disable \label
+     \global\edef\SubsectionTitle{#1}%          % or nothing
+     \def\n{}\def\nl{}\def\mib{}%               % turn off \n, etc
+     \emsg{\@fullID #1}%                        % announce in log file
+     \def\@quote{\string\@quote\relax}%         % in case of \quoteon
+     \addTOC{3}{\TOCsID{\lab@l.}#1}{\folio}% % Table of Contents entry
+   \endgroup                                    % end group
+   \s@ction                                     % end of section
+   \aftersubsubsection\@aftersect}             % room to customize
+
+
+\def\everysubsubsection{\relax}%      % user hook  before every \subsubsection
+\def\aftersubsubsection{\relax}%      % user hook  after every \subsubsection
+\def\SubsubsectionStyle#1{#1}   % how to display subsubsection number
+
+%--------------------------------------------------*
+% Appendecies:
+%       \Appendix{<ID>}{<title>} creates an Appendix.  The <ID>
+% plays the role of the chapter number in equation numbers and the table
+% of contents. Example:  \Appendix{A}{How to create an Appendix}
+% #3 is lookahead for a \par (blank line), which is discarded, so that
+% there is no indentation at the begining of a chapter appendix.
+
+\long\def\Appendix#1#2#3 {%     begin a chapter level appendix
+  \def\@aftersect{#3}%  
+  \ifx\@aftersect\empty\let\@aftersect=\@eatpar
+  \else\def\@aftersect{\@eatpar #3 }\fi
+  \def\@arg{#1}%                                % get the ID argument #1
+  \vfill\supereject                             % begin on a new page
+  \global\sectionnum=\z@                        % reset section # to zero
+%
+% Chapter-like ID:
+%
+  \edef\lab@l{#1}%                              % chapter ID for \label
+  \gdef\@sectID{}%                              % clear section ID
+  \ifshowchaptID                                % want to show chapter number?
+    \ifx\@arg\empty\else                        % if argument #1 not null
+      \global\edef\@chaptID{\lab@l.}\fi         % set chapter ID to it
+    \r@set                                      % reset counters to zero
+  \else\def\@chaptID{}\fi                       % else, no chapter ID
+  \everychapter                                 % user customization
+%
+% Print Appendix Title:
+%
+  \ifx\Tbf\undefined\def\Tbf{\bf}\fi            % If \Tbf undefined make it \bf
+  \leftline{\Tbf{Appendix\ \@chaptID}}%         % APPENDIX ##.
+  \begingroup                                   %
+    \nobreak\smallskip                          % print title of chapter
+    \parindent=\z@\raggedright                  %  with a ragged
+    {\Tbf{#2}\bigskip}%                         %  in \Tbf
+  \endgroup                                     % 
+  \nobreak\bigskip                              % skip down some more
+%
+% Table of Contents/ Headlines:
+%
+  \begingroup                                   % add to Table of Contents
+    \def\label##1{}%                            % disable \label
+    \global\edef\ChapterTitle{#2}%              % save title for user
+    \def\n{}\def\nl{}\def\mib{}%                % now turn off \n, etc
+    \setHeadline{#2}%                           % make title the running head
+    \emsg{Appendix \@chaptID\space #2}%         % announce in log file
+    \def\@quote{\string\@quote\relax}%          % in case of \quoteon
+    \addTOC{0}{\TOCcID{\lab@l.}#2}{\folio}%  % Table of Contents entry
+  \endgroup                                     %
+%
+  \@Mark{#2}%                                   % mark chapter heading
+  \s@ction                                      % end of section
+  \afterchapter\@aftersect}% more user customization
+
+
+%--------------------------------------------------*
+% \appendix makes a section-type appendix.   #3 is lookahead for a \par
+% (blank line), which is discarded, so that there is no indentation at
+% the begining of an \appendix.
+
+\long\def\appendix#1#2#3 {%     begin a section level appendix
+  \def\@aftersect{#3}%  
+  \ifx\@aftersect\empty\let\@aftersect=\@eatpar
+  \else\def\@aftersect{\@eatpar #3 }\fi
+
+   \vskip\parskip\vskip\sectionskip             % make some space
+   \goodbreak\pagecheck\sectionminspace         % new page if needed
+           \global\advance\sectionnum by \@ne   % increment section counter
+   \def\@arg{#1}%                               % save ID argument #1
+%
+%  Section-like ID:
+%
+   \gdef\@sectID{}\gdef\@fullID{}%              % assume null section ID
+   \edef\lab@l{#1}%                             % For use by \label
+   \ifshowsectID                                % want to show section number?
+     \r@set                                     % yes: reset counters
+     \ifx\@arg\empty\else                       %   was section ID given?
+       \global\edef\@sectID{\lab@l.}%           % save it for later
+       \global\edef\@fullID{\lab@l.\space\space}\fi% this is what to show
+   \fi                                          % else no section ID
+   \everysection                                % user customization
+%
+% Print appendix title:
+%
+   \ifx\tbf\undefined\def\tbf{\bf}\fi           % default \tbf is \bf
+   \vbox{%                                      % keep heading in \vbox
+     {\raggedright\tbf                          % ragged \tbf title
+     \setbox0=\hbox{\tbf\@fullID}%              % find width for indent
+     \hangindent=\wd0 \hangafter=1              % hanging indent after 1st line
+     \noindent\@fullID                          % which has section ID
+     {#2}\nobreak\medskip}}%                  % Print title 
+%
+%  Running Headlines, Table of Contents
+%
+   \begingroup                                  % group for \contents, etc.
+     \def\label##1{}%                           % disable \label
+     \global\edef\SectionTitle{#2}%             % or nothing
+     \def\n{}\def\nl{}\def\mib{}%               % turn off \n, etc
+     \ifnum\chapternum=0\setHeadline{#2}\fi     % no chapter number -> headline
+     \emsg{appendix \@fullID #2}%          % announce in log file
+     \def\@quote{\string\@quote\relax}%         % in case of \quoteon
+     \addTOC{1}{\TOCsID{\lab@l.}#2}{\folio}% % Table of Contents entry
+   \endgroup                                    % end \contents group
+   \s@ction                                     % end of section
+   \aftersection\@aftersect}% user can customize
+
+
+%--------------------------------------------------*
+%  \pagecheck<dimen> will skip to a new page if there is less than 
+% the <dimen> of space on the remainder of the page.  For example,
+% \pagecheck{0.333333\vsize} skips to a new page if there is less than
+% 1/3 of the page left  
+
+\def\pagecheck#1{% skip to new page if less than #1 left on this one
+   \dimen@=\pagegoal                            % get total page size
+   \advance\dimen@ by -\pagetotal               % get page space remaining
+   \ifdim\dimen@>0pt                            % is there some left, but
+   \ifdim\dimen@< #1\relax                      % not enough to look good?
+      \vfil\break \fi\fi                        % then skip to new page
+   }
+
+%--------------------------------------------------*
+%  \nosechead produces a heading without a number, and without adding
+%  to the table of contents.  Suitable for Acknowledgements, Remarks, etc...
+%  Use: \nosechead{heading text}   See also \beginsection in The TeXbook
+
+\def\nosechead#1{%            section-like heading without a number
+   \vskip\subsectionskip                        % make some space
+   \goodbreak\pagecheck\sectionminspace         % new page if needed
+   \checkquote\checkenv                         % check open quotes
+   \dosupereject                        % floating figures need to get out
+%
+% Print title:
+%
+   \vbox{%                                      % keep heading in \vbox
+     {\raggedright\bf\noindent                  % Ragged \bf title
+     {#1}%
+     \nobreak\medskip}}%                        % skip down some below title
+   }
+
+%--------------------------------------------------*
+%  \checkenv checks for any unclosed environments (the kind defined
+% in TXSenvmt.tex) and prints a warning message.
+
+\def\checkenv{%         check for balanced environments
+   \ifx\@envdepth\undefined\relax               % is TXSenvmt.tex loaded?
+   \else\ifnum\@envdepth=\z@\relax              % YES: check environment
+      \else\emsg{> Unclosed environment \@envname in the last section!}\fi 
+   \fi}                                         %
+
+%>>> EOF TXSsects.tex <<<

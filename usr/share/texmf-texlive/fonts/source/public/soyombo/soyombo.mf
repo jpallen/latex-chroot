@@ -1,0 +1,1996 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% File: soyombo.mf
+% Date: August 20, 1996
+% Author: Oliver Corff
+% (c) 1996 Ulaanbaatar, Macau, Berlin
+%
+% A metafont for providing the Soyombo script to LaTeX-users.
+%
+% Usage: see package soyombo
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%% This font contains the Soyombo alphabet. %%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+mode_setup;
+	if unknown mag: mag := 1; fi;
+	mg:=3/4;
+	n#:=mg*pt#;
+	margin#:=mg*2pt#;
+	o_width#:=mg*12pt#;
+	bwidth#:=mg*4pt#;
+	full_w#:=2margin#+o_width#+bwidth#;
+	thin#:=mg*1pt#;
+	height#:=mg*24pt#;
+	vheight#:=height#+mg*4pt#;
+	om_height#:=vheight#+mg*4pt#;
+	depth#:=mg*4pt#;
+	center#:=.5o_width#+margin#;
+	width#:=o_width#+margin#;
+	define_pixels(thin,width,bwidth,o_width,height,
+			vheight,om_height,n,margin,depth,center);
+
+	font_size = 17pt#;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%% Segment definitions. %%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+def full_balken =	% Rechter Balken
+	x1=x4=width;
+	x2=x3=width+bwidth;
+	y1-2n=y2=0;
+	y3=y4=height;
+	fill z1--z2--z3--z4--cycle;
+enddef;
+
+def full_k_balken =	% Rechter Balken fuer 'k's
+	x1=x4=width;
+	x2=x3=width+bwidth;
+	y1-2n=y2=0;
+	y3=y4+2n=height;
+	fill z1--z2--z3--z4--cycle;
+enddef;
+
+def middle_k_beam =	% Mittlerer Balken fuer 'k's
+	x5=x8=center-1thin;
+	x6=x7=center+3thin;
+	y5-2n=y6=1/3height+thin;
+	y7=y8=height-2n;
+	fill z5--z6--z7--z8--cycle;
+enddef;
+
+
+def hor_k_beam =	% Horizontaler Balken fuer 'k's
+	x20=center+3thin;
+	x21=width;
+	y20=y21=2/3height;
+	pickup pencircle scaled 1.5thin;
+	draw z20--z21;
+enddef;
+
+def shorter_g_horn(expr xofs) =		% Linkes, nach oben weisendes Horn
+	x71=x72=margin;
+	x77=x78=x71+2thin;
+	x73=x76=x77+thin;
+	x74=x75=center-xofs*thin;
+
+	y71=y78=height-5n;
+	y75=y76=2/3height;
+	y73=y74=2/3height-1.5thin;
+	y72=y77=y75+thin;
+
+	fill z71---z72{down}..{right}z73---z74--z75---z76{left}..{up}z77---z78--cycle;
+enddef;
+
+def g_horn(expr xofs) =		% Linkes, nach oben weisendes Horn
+	x71=x72=margin;
+	x77=x78=x71+2thin;
+	x73=x76=x77+thin;
+	x74=x75=center-xofs*thin;
+
+	y71=y78=height-3n;
+	y75=y76=2/3height+.75thin;
+	y73=y74=2/3height-.75thin;
+	y72=y77=y75+thin;
+
+	fill z71---z72{down}..{right}z73---z74--z75---z76{left}..{up}z77---z78--cycle;
+enddef;
+
+def common_triangle =	% Oberes Dreieck
+	x11=margin;
+	x12=center;
+	x13=width;
+	y11=y13=height;
+	y12=height-3n;
+	fill z11--z12--z13--cycle;
+enddef;
+
+def k_triangle =	% Oberes Dreieck fuer 'k's
+	x11=margin;
+	x12=center+1thin;
+	x13=width+1/2bwidth;
+	y11=y13=height;
+	y12=height-3n;
+	fill z11--z12--z13--cycle;
+enddef;
+
+def upper_fish =	% Oberer Fisch;
+	x21=width-thin;
+	x22=x27=center;
+	x23=margin;
+	x25=x23+1/4[margin,center];
+	x24=x26=.5[x23,x25];
+
+	y21-1.5n=y23=y25=5/6height;
+	y22=2/3height;
+	y27=1/2[2/3height,5/6height];
+	y24=height-2n;
+	y26=height-4n;
+
+	fill z21..z22..z23..z24..z25..z26 & z26..z27..z21 & cycle;
+enddef;
+
+def lower_fish =	% Unterer Fisch;
+	x31=margin;
+	x32=x35=x38=margin+2/3o_width;
+	x33=width-2thin;
+	x34=x36=margin+5/6o_width-thin;
+	x37=x33-1.5thin;
+
+	y33=y37=1/2height;
+	y32=y38-1thin=4/9height;
+	y31=y34=y36+1.5thin=2/3height;
+	y35=2/3[4/9height,2/3height];
+
+	fill z31..z32..z33..z34..z35 & z35..z36..z37..z38..z31 & cycle;
+enddef;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%% Character definitions. %%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar("{",margin#+bwidth#+width#+bwidth#,vheight#+14thin#,depth#);
+	"Soyombo Initial";
+	% Linker Balken
+	z1=(margin,0);
+	z2=(margin+bwidth,0);
+	z3=(x2,height);
+	z4=(x1,height);
+	fill z1--z2--z3--z4--cycle;
+
+	% Rechter Balken
+	z5=(bwidth+width,0);
+	z6=(bwidth+width+bwidth,0);
+	z7=(x6,height);
+	z8=(x5,height);
+	fill z5--z6--z7--z8--cycle;
+
+	% Oberes Dreieck
+	z9=(margin+bwidth,height);
+	z10=(center+bwidth,height-3n);
+	z11=(width+bwidth,height);
+	fill z9--z10--z11--cycle;
+
+	% Unteres Dreieck
+	z12=(margin+bwidth,3n);
+	z13=(center+bwidth,0);
+	z14=(width+bwidth,3n);
+	fill z12--z13--z14--cycle;
+
+	% Unterer Balken
+	z15=(x12+thin,y12+thin);
+	z16=(x15,y15+2thin);
+	z17=(x14-thin,y16);
+	z18=(x17,y15);
+	fill z15--z16--z17--z18--cycle;
+
+	% Oberer Balken
+	z19=(x12+thin,y10-thin);
+	z20=(x19,y19-2thin);
+	z21=(x14-thin,y20);
+	z22=(x21,y19);
+	fill z19--z20--z21--z22--cycle;
+
+	% Fische
+	z23=(x10,y20-thin);
+	z24=(x10,y16+thin);
+	pickup pencircle scaled .5thin;
+	draw z23..z24..cycle;
+	
+	% Hilfspunkt z25, wird nur fuer die Halbkreise benoetigt!
+	z25=(x10,.5[y23,y24]);
+	draw halfcircle rotated 90 scaled 5n shifted (x10,.5[y23,y25]) ;
+	draw halfcircle rotated 270 scaled 5n shifted (x10,.5[y25,y24]);
+
+	% Die Augen
+	pickup pencircle scaled .75thin;
+	draw (x10,.5[y23,y25]);
+	draw (x10,.5[y25,y24]);
+
+	% Mond
+	z26=(x9,vheight);
+	z27=(x10,height+thin);
+	z28=(x11,y26);
+	z29=(x10,y27+thin);
+	fill z26..z27..z28 & z28..z29..z26 & cycle;
+
+	% Sonne
+	% pickup pencircle scaled .5thin;
+	z30=(x10,y29+thin);
+	z31=(x10,y30+4thin);
+	draw z30..z31..cycle;
+
+	% Feuer
+	z32=(x10,y31+5thin+thin);
+	penpos32(epsilon,0);
+	z33=(x10-1.5thin,y32-1.5thin);
+	penpos33(.75thin,0);
+	z34=(x10,y31+2thin);
+	penpos34(.75thin,90);
+	z35=(x10+1.5thin,y33+thin);
+	penpos35(.75thin,180);
+	z36=(x10,y32+4thin);
+	penpos36(epsilon,180);
+
+	penstroke z32e{down}..z33e..z34e..z35e{dir 135}..{up}z36e;
+endchar;
+
+beginchar(".",2margin#+bwidth#,height#+2pt#,0);
+	"Punctuation";
+	x1=x4=margin;
+	x2=x3=margin+bwidth;
+	y1=y2=0;
+	y3=y4=height;
+	fill z1--z2--z3--z4--cycle;
+endchar;
+
+beginchar("`",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"Empty Carrier";
+	% Balken
+	x1=x4=width;
+	x2=x3=width+bwidth;
+	y1-2n=y2=0;
+	y3=y4=height;
+
+	% Dreieck
+	x11=margin;
+	x12=center;
+	x13=width;
+	y11=y13=height;
+	y12=height-3n;
+
+	% Oberer Fisch
+	x21=width-thin;
+	x22=x27=center;
+	x23=margin;
+	x25=x23+1/4[margin,center];
+	x24=x26=.5[x23,x25];
+
+	y21-1.5n=y23=y25=5/6height;
+	y22=2/3height;
+	y27=1/2[2/3height,5/6height];
+	y24=height-2n;
+	y26=height-4n;
+
+	% Unterer Fisch
+	x31=margin;
+	x32=x35=x38=margin+2/3o_width;
+	x33=width-2thin;
+	x34=x36=margin+5/6o_width-thin;
+	x37=x33-1.5thin;
+
+	y33=y37=1/2height;
+	y32=y38-1thin=4/9height;
+	y31=y34=y36+1.5thin=2/3height;
+	y35=2/3[4/9height,2/3height];
+
+	pickup pencircle scaled .5n;
+
+	draw z1--z2--z3--z4--cycle;	% Balken
+	draw z11--z12--z13--cycle;	% Dreieck
+	draw z21..z22..z23..z24..z25..z26 & z26..z27..z21 & cycle; % Fisch
+	draw z31..z32..z33..z34..z35 & z35..z36..z37..z38..z31 & cycle;
+endchar;
+
+beginchar("'",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"Vowel Carrier";
+	full_balken;
+	common_triangle;
+	upper_fish;
+	lower_fish;
+endchar;
+
+beginchar("-",0,0,depth#);
+	"Long Vowel";
+	x5=x8=-margin-bwidth;
+	x6=-margin;
+	x7=0;
+	y5-2n=y6=y8=0;
+	y7=-depth;
+	fill z5--z6--z7--z8--cycle;
+endchar;
+
+beginchar("i",0,vheight#+2pt#,0);
+	"i";
+	x100=-bwidth-width;
+	x101=x103=1/2[x100,x102];
+	x102=-margin;
+	y100=y102=height;
+	y101=2/3[height,vheight];
+	y103=vheight;
+	fill z100..z101..z102 & z102..z103..z100 & cycle;
+endchar;
+
+beginchar("e",0,vheight#+2pt#,0);
+	"Umlaut a";
+	x100=x105=-bwidth-width;
+	x101+n=x102+n=x103=x104=-margin;
+	y100=y101=1/2[height,vheight];
+	y105=y104=vheight;
+	y102=y103=height;
+	fill z100--z101--z102--z103--z104--z105--cycle;
+endchar;
+
+beginchar("U",0,height#,0);
+	"U";
+	z101=(-bwidth-width,1/6height);
+	z102=(-bwidth-center,thin);
+	z103=(-bwidth-width+5/6o_width,1/6height);
+	z104=(-bwidth-width+2/3o_width,1/3height-thin);
+	z105=(-bwidth-width+5/6o_width-2thin,1/6height);
+	z106=(-bwidth-center,2thin);
+
+	fill z101{right}..{right}z102{right}..{up}z103..z104
+	..z105{down}..{left}z106{left}..{left}z101 & cycle;
+endchar;
+
+beginchar("V",0,height#,0);
+	"V";
+	z101=(-width-bwidth,1/6height);
+	z102=(-width-bwidth+1/3o_width,thin);
+	z103=(-width-bwidth+2/3o_width-thin,1/6height);
+	z104=(-width-bwidth+1/2o_width,1/3height-.5thin);
+	z105=(-width-bwidth+2/3o_width-2.5thin,1/6height);
+	z106=(-width-bwidth+1/3o_width,2thin);
+
+	fill z101{right}..{right}z102{right}..{up}z103..z104
+	..z105{down}..{left}z106{left}..{left}z101 & cycle;
+endchar;
+
+beginchar("u",0,height#,0);
+	"u";
+	x101=x106=-bwidth-width;
+	x102=x105+1.5n=x104+1.5n=x103+1n=5/6o_width-bwidth-width;
+
+	y101=y102=1/9height;
+	y106=y105=2/9height;
+	y104=y103=1/3height;
+	
+	fill z101--z102--z103--z104--z105--z106--cycle;
+endchar;
+
+beginchar("v",0,height#,0);
+	"u";
+	x101=x106=-bwidth-width;
+	x102=x105+1.5n=x104+1.5n=x103+1n=5/9o_width-bwidth-width-.5thin;
+
+	y101=y102=1/9height;
+	y106=y105=2/9height;
+	y104=y103=1/3height;
+	
+	fill z101--z102--z103--z104--z105--z106--cycle;
+endchar;
+
+beginchar("o",0,vheight#+2pt#,0);
+	"o";
+	x100=-bwidth-width;
+	x101+n=x103-n=x102=1/2[x100,x104];
+	x104=-margin;
+	y100r=y101r=y103r=y104r=vheight;
+	y102l=height;
+	penpos100(2thin,90);
+	penpos101(2thin,90);
+	penpos102(2thin,90);
+	penpos103(2thin,90);
+	penpos104(2thin,90);
+	penstroke z100e--z101e--z102e--z103e--z104e;
+endchar;
+
+beginchar("O",0,vheight#+2pt#,0);
+	"Umlaut o";
+	x100=x107=-bwidth-width;
+	x101+n=x102+n=x103-n=x104-n=1/2[x100,x105];
+	x105=x106=-margin;
+	y100=y101=y104=y105=1/2[height,vheight];
+	y106=y107=vheight;
+	y102=y103=height;
+	fill z100--z101--z102--z103--z104--z105--z106--z107--cycle;
+endchar;
+
+beginchar("W",2/3o_width#,height#,0);
+	"diphthong u";
+	x81=x83=x85=-margin;
+	x90=x92=x81+2thin;
+	x82=x84=x87=-margin+1/3o_width;
+	x86=1/2[x85,x87];
+	x88=x89=x91=x93=-margin+2/3o_width;
+
+	y81=height;
+	y82=y93=5/6height;
+	y83=y92=2/3height+3thin;
+	y84=y91=1/2height+3thin;
+	y85=y90=1/3height+3thin;
+	y86=y89=1/6height;
+	y87=thin;
+	y88=0;
+
+	fill z81{right}..z82..{left}z83
+	& z83{right}..z84..{left}z85
+	& z85{right}..{down}z87 & z87--z88
+	& z88{up}...z89..z90 & z90{right}..z91..{left}z92
+	& z92{right}..z93..{left}z81 & cycle;
+endchar;
+
+beginchar("I",2/3o_width#,height#,0);
+	"diphthong i";
+	x81=x83=x85=x94=-margin;
+	x90=x92=x81+2thin;
+	x82=x84=x87=-margin+1/3o_width;
+	x86=1/2[x85,x87];
+	x88=x89=x91=x93=-margin+2/3o_width;
+
+	y94=y93=height;
+	y81=y82=height-1.5thin;
+	y83=y92=2/3height+3thin;
+	y84=y91=1/2height+3thin;
+	y85=y90=1/3height+3thin;
+	y86=y89=1/6height;
+	y87=thin;
+	y88=0;
+
+	fill z81--z82--z83--z84--z85 & z85{right}..{down}z87 & z87--z88
+	& z88...z89..z90 & z90--z91--z92--z93--z94--cycle;
+endchar;
+
+beginchar("g",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"g";
+	k_triangle;
+	full_k_balken;
+	middle_k_beam;
+	hor_k_beam;
+	g_horn(1);
+endchar;
+
+beginchar("k",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"k";
+	k_triangle;
+	full_k_balken;
+	middle_k_beam;
+	x71=x72=margin;
+	x77=x78=x71+2thin;
+	x73=x76=x77+thin;
+	x74=x75=center-thin;
+
+	z71=whatever[z5,z6];
+	z78=whatever[z5,z6];
+	y75=y76=5/6height-.75thin;
+	y73=y74=5/6height+.75thin;
+	y72=y77=y75-thin;
+
+	fill (center+3thin,y73)--(width,y73)--(width,y75)--(center+3thin,y75)--cycle;
+
+	fill z71---z72{up}..{right}z73---z74--z75---z76{left}..{down}z77---z78--cycle;
+endchar;
+
+beginchar("x",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"x";
+	k_triangle;
+	full_k_balken;
+	middle_k_beam;
+	hor_k_beam;
+	x71=x78=margin;
+	x72=x73=x76=x77=margin+3thin;
+	x74=x75=center-thin;
+	y73=y74=2/3height-.75thin;
+	y75=y76=2/3height+.75thin;
+	y71=y72=1/2height;
+	y78+thin=y77=height-3n;
+
+	fill z71--z72--z73--z74--z75--z76--z77--z78--cycle;
+endchar;
+
+beginchar("z",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"z";
+	full_balken;
+	common_triangle;
+	x20=x22=center;
+	x21=width;
+	lft x23=margin+thin;
+	y20=y12-thin;
+	y22=y20-o_width;
+	y21=y23=.5[y22,y20];
+
+	pickup pensquare scaled 2thin rotated 45;
+	draw z20--z21--z22--z23;
+endchar;
+
+beginchar("c",margin#+width#+bwidth#,vheight#,depth#);
+	"c";
+	full_balken;
+	common_triangle;
+
+	lft x19=lft x23=margin;
+	x20=x22=center;
+	rt x21=width-thin;
+
+	y19=1/3[y22,y20];
+	y23=2/3[y22,y20];
+	y20=y12-thin;
+	y22=y20-2/3o_width;
+	y21=.5[y22,y20];
+
+	pickup pensquare scaled 2thin rotated 45;
+	draw z19--z20--z21--z22--z23;
+endchar;
+
+beginchar("=",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\= n";
+	full_balken;
+	common_triangle;
+
+	x18=x20=x22=center;
+	x19=.5[margin,center];
+	x21=width;
+	lft x23=margin;
+	y20=y12-thin;
+	y22=y20-o_width;
+	y18=y21=y23=.5[y22,y20];
+	y19=.5[y23,y20];
+
+	pickup pensquare scaled 2thin rotated 45;
+	draw z18--z19--z20--z21--z22--z23;
+endchar;
+
+beginchar("d",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"d";
+	full_balken;
+	common_triangle;
+
+	% Wie Lower Fish, nur spiegelverkehrt
+	z31=(width,2/4height+.05thin);
+	z32=(margin+1/3o_width,3/4height);
+	z38=(x32,y32-1.5thin);
+	z33=(margin,1/2[y34,y32]);
+	z37=(x33+1.5thin,y33);
+	z34=(x32,1/3height+2thin);
+	z36=(x32,y34+1.25thin);
+	z35=(margin+5/12o_width,3/2[y34,y36]);
+	z39=(width,2/4height-.05thin);
+
+	fill z31..tension 1.8..z32..z33..z34..z35
+	& z35..z36..z37..z38..tension 1.7..z39
+	& z39..z31 & cycle;
+endchar;
+
+beginchar("t",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"t";
+	full_balken;
+	common_triangle;
+	x20=x21=center;
+	y20=3/4height;
+	y21=1/2height;
+	y22=y23=1/3height+2thin;
+	x22=margin+1/4o_width;
+	x23=margin+3/4o_width;
+	x24=x25=center;
+	y24=y21;
+	y25=y22;
+	pickup pencircle scaled 1.5thin;
+	draw z20..z21..cycle;
+	draw z22--z23;
+	draw z24--z25;
+endchar;
+
+beginchar("n",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"n";
+	full_balken;
+	common_triangle;
+	x21=x23=x24=x25=margin+2/3width;
+	x22=margin+thin;
+	y24=5/6height;
+	y25=1/2height-2thin;
+	y21=y24-2thin;
+	y23=y25+2thin;
+	y22=1/2[y21,y23];
+
+	pickup pencircle scaled 2thin;
+	draw z21{left}..z22..{right}z23;
+	draw z24--z25;
+endchar;
+
+beginchar("b",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"b";
+	full_balken;
+	common_triangle;
+
+	% Wie Lower Fish, nur spiegelverkehrt
+	z31=(width,2/3height-.05thin);
+	z39=(width,2/3height+.05thin);
+	z32=(margin+1/3o_width,1/3height);
+	z38=(x32,y32+1.5thin);
+	z33=(margin,1/2height);
+	z37=(x33+1.5thin,y33);
+	z34=(x32,2/3height);
+	z36=(x32,y34-1.25thin);
+	z35=(margin+5/12o_width,3/2[y34,y36]);
+	
+	fill z31..tension 1.8..z32..z33..z34..z35
+	& z35..z36..z37..z38..tension 1.8..z39
+	& z39--z31 & cycle;
+endchar;
+
+beginchar("p",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"p";
+	full_balken;
+	common_triangle;
+	upper_fish;
+
+	% Wie Lower Fish, nur spiegelverkehrt
+	z31=(width,2/4height);
+	z32=(margin+1/3o_width,1/3height);
+	z38=(x32,y32+1.5thin);
+	z33=(margin,1/2[y34,y32]);
+	z37=(x33+1.5thin,y33);
+	z34=(x32,2/3height-2thin);
+	z36=(x32,y34-1.25thin);
+	z35=(margin+5/12o_width,3/2[y34,y36]);
+
+	fill z31..tension 1.8..z32..z33..z34..z35
+	& z35..z36..z37..z38..tension 1.8..z31 & cycle;
+endchar;
+
+beginchar("m",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"m";
+	full_balken;
+	common_triangle;
+	upper_fish;
+	x31=x32=center;
+	y31=1/3height+1.5n;
+	y32=2/3height-1.5n;
+	pickup pencircle scaled 1.5thin;
+	draw z31..z32..cycle;
+endchar;
+
+beginchar("y",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"y";
+	full_balken;
+	common_triangle;
+	upper_fish;
+	x31=margin+1/4o_width;
+	x32=center;
+	x33=margin+3/4o_width;
+	y31=y33=1/3height+thin;
+	y32=2/3height-2thin;
+
+	pickup pencircle scaled 2thin ;
+	draw z31{up}..z32..{down}z33 & z33--z31; 
+endchar;
+
+beginchar("r",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"r";
+	full_balken;
+	common_triangle;
+	upper_fish;
+	x40=margin+2thin;
+	x41=width-2thin;
+	x42=center;
+	y40=y41=1/3height+thin;
+	y42=2/3height-2thin;
+	pickup pencircle scaled 2thin;
+	draw z40--z41--z42--cycle;
+endchar;
+
+beginchar("w",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"w";
+	full_balken;
+	common_triangle;
+	x20=x21=center;
+	y20=3/4height;
+	y21=1/2height;
+	pickup pencircle scaled 1.5thin;
+	draw z20..z21..cycle;
+endchar;
+
+beginchar("l",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"l";
+	full_balken;
+	common_triangle;
+	z21=(margin+1thin,5/6height-1thin);
+	z22=(margin,1/9[y21,y29]);
+	z23=(margin+1/3o_width,4/9[y21,y29]);
+	z24=(x23+2thin,y23);
+	z25=(width-thin,y24+thin);
+	z26=(x25,y25+thin);
+	z27=(x23+thin,y23+thin);
+	z28=(margin+2thin,y22);
+
+	z29=(x21,1/3height+2thin);
+
+	z30=(x22,8/9[y21,y29]);
+	z31=(x23,5/9[y21,y29]);
+	z32=(x24,y31);
+	z33=(x25,y32-thin);
+	z34=(x33,y33-thin);
+	z35=(x27,y32-thin);
+	z36=(x28,y30);
+
+	fill z21..z22..z23..z24..z25--z26..z27..{up}z28..z21..cycle;
+	fill z23--z24--z32--z31--cycle;
+	fill z29..z30..z31..z32..z33--z34..z35..{down}z36..z29..cycle;
+endchar;
+
+beginchar("$",2margin#+width#+bwidth#,height#+2pt#,depth#);
+	"$";
+	full_balken;
+	common_triangle;
+	x31=x33=margin;
+	x32=x34=width;
+	y31r=y32r=5/6height;
+	y33l=y34l=1/3height;
+	penpos31(3thin,90);
+	penpos32(3thin,90);
+	penpos33(3thin,90);
+	penpos34(3thin,90);
+	penstroke z31e--z34e;
+	penstroke z33e--z32e;
+endchar;
+
+beginchar("s",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"s";
+	full_balken;
+	common_triangle;
+
+	z60=(margin,1/2height+thin);
+	z64=(center,height-3n);
+	z65=(width,1/2height+thin);
+	z66=(width,y65-3thin);
+	z67=(center,y64-3thin);
+	z61=1/12[z60,z64];
+	z63=1/2[z60,z64];
+	z62=1/2[z61,z63];
+	z62-z70=(z63-z61) rotated 90;
+	z62-z69=4/3(z63-z61) rotated 90;
+	z71=7/12[z60,z64];
+	z72=(margin,y60-3thin);
+	z68-z71=whatever*(z70-z62);
+	z68=whatever[z72,z67];
+
+	fill z60--z61
+	& z61{z70-z62}..z70..{z62-z70}z63
+	& z63--z64--z65--z66--z67--z68
+	& z68{z70-z62}..z69..{z62-z70}z60 & cycle;
+endchar;
+
+beginchar("h",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"h";
+	full_k_balken;
+
+	z11=(margin,height);
+	z12=(center+thin,height-3n);
+	z13=(width+1/2bwidth,y11);
+
+	z20=(margin,height-1.5n);
+	z21=(x20,1/2height-n);
+	z22=(margin+3thin,y21+n);
+	x23=x22;
+	z20-z23=whatever*(z11-z12);
+
+	z24=(x22,2/3height);
+	z25=(x22,y24+1.5thin);
+	z26=(center-.5thin,y25);
+	z27=(center+2thin,y24-.5thin);
+	z28=(x27,1/2height);
+	z29=(center,y28);
+	z30=(x29,y27);
+	z31=(x26,y24);
+
+	x32=x22;
+	z32-z35=whatever*(z12-z13);
+	z33=(x22,y32+2thin);
+	z34=whatever[z11,z12];
+	z35=(center+1thin,height-4n);
+	z34-z33=whatever*(z35-z32);
+
+	x36=width;
+	z35-z36=whatever*(z11-z12);
+	z37=(x36,y36+2thin);
+	z38=whatever[z12,z13];
+	z38-z37=whatever*(z35-z36);
+
+	fill z20--z21--z22--z23--cycle;
+	fill z24--z25--z26{right}..{down}z27--z28--
+		z29--z30{up}..{left}z31--z24--cycle;
+
+	fill z32--z33--z34--z11--z13--z38--z37--z36--z35--cycle;
+endchar;
+
+beginchar("!",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"k\d s";
+	k_triangle;
+	full_k_balken;
+	hor_k_beam;
+	g_horn(1);
+	z5=(center-1thin,height-2n);
+	z6=(x5,1/2height+.75thin);
+	z7=(x5-4thin,1/2[y6,y8]);
+	z8=(x5,1/3height);
+	z9=(center+3thin,y8);
+	z10=(x9,y9+thin);
+	z14=(x7+3thin,y7);
+	z15=(x9,y6-.5thin);
+	z16=(x9,y5);
+
+	fill z5--z6{left}..z7..{right}z9--
+		z10{left}..z14..{right}z15--z16--cycle;
+endchar;
+
+beginchar("G",0,height#,0);
+	"aG";
+	x201=x202=-margin-bwidth-1/3o_width;
+	x207=x208=x201+2thin;
+	x203=x206=x207+.5thin;
+	x204=x205=-margin-bwidth;
+	y201=y208=1/3height;
+	y203=y204=2n;
+	y205=y206=y203+thin;
+	y202=y207=y206+.5n;
+
+
+	fill z201---z202{down}..{right}z203---z204--z205
+		---z206{left}..{up}z207---z208--cycle;
+endchar;
+
+beginchar("K",0,height#,0);
+	"aK";
+	x201=x202=-margin-bwidth-1/3o_width;
+	x207=x208=x201+2thin;
+	x203=x206=x207+.5thin;
+	x204=x205=-margin-bwidth;
+
+	y201=y208=0;
+	y203=y204=1/3height;
+	y205=y206=y203-thin;
+	y202=y207=y206-.5n;
+
+	fill z201---z202{up}..{right}z203---z204--z205
+		---z206{left}..{down}z207---z208--cycle;
+endchar;
+
+beginchar("*",0,height#,0);
+	"ang";
+	x201=x208=-margin-bwidth-1/3o_width;
+	x202=x203=x206=x207=x201+2thin;
+	x204=x205=-margin-bwidth;
+	y201=y202=0;
+	y203=y204=1/6height;
+	y205=y206=1/6height+1n;
+	y207=y208+1n=1/3height;
+
+	fill z201--z202--z203--z204--z205--z206--z207--z208--cycle;
+endchar;
+
+beginchar("D",0,height#,0);
+	"aD";
+	z201=(-margin-bwidth,1/6height+1/2thin);
+	z203=(x201-1/3o_width,1/6height);
+	z202=(1/2[x201,x203],1/3height-thin);
+	z204=(x202,0);
+	z205=(1/3[x202,x201],1/3[y204,y203]);
+	z206=(x204,y204+1.5thin);
+	z207=(x203+1.5thin,y203);
+	z208=(x202,y202-2thin);
+	z209=(x201,1/6height-1/2thin);
+
+	fill z201{left}..z202..z203..z204..z205
+	& z205..z206..z207..z208..{right}z209
+	& z209--z201 & cycle;
+endchar;
+
+beginchar("N",0,height#,0);
+	"aN";
+	z201=(-margin-bwidth-2thin,2n);
+	z202=(x201-1/3o_width,1/2[y201,y203]);
+	z203=(x201,1/3height);
+	z204=(x201,y202);
+	z205=(-margin-bwidth,y202);
+
+	pickup pencircle scaled thin;
+	draw z201{left}..z202..{right}z203;
+	pickup penrazor scaled 1thin;
+	draw z201--z203;
+	pickup penrazor scaled 1thin rotated 90;
+	draw z204--z205;
+endchar;
+
+beginchar("B",0,height#,0);
+	"aB";
+	z201=(-margin-bwidth,1/6height-1/2thin);
+	z203=(x201-1/3o_width,1/6height);
+	z202=(1/2[x201,x203],thin);
+	z204=(x202,1/3height-thin);
+	z205=(1/3[x202,x201],1/3[y204,y203]);
+	z206=(x204,y204-1.5thin);
+	z207=(x203+1.5thin,y203);
+	z208=(x202,y202+2thin);
+	z209=(x201,1/6height+1/2thin);
+
+	fill z201{left}..z202..z203..z204..z205
+	& z205..z206..z207..z208..{right}z209 
+	& z209--z201 & cycle;
+endchar;
+
+beginchar("M",0,height#,0);
+	"aM";
+	y201=y202=1/6height+thin;
+	x201+thin=x202+1/3o_width=-margin-bwidth-.5thin;
+	pickup pencircle scaled thin;
+	draw z201..z202..cycle;
+endchar;
+
+beginchar("R",0,height#,0);
+	"aR";
+	y201=y202=3n;
+	y203=1/3height-thin;
+	x201=x203=-margin-bwidth;
+	x202+1/3o_width=-margin-bwidth;
+	pickup penrazor scaled thin rotated 90;
+	draw z201--z202--z203;
+endchar;
+
+beginchar("L",0,height#,0);
+	"aL";
+	x201=x204=-margin-bwidth-1/3o_width;
+	x203=x206=-margin-bwidth;
+	x202=x205=1/2[x201,x203];
+
+	y201=y202=y203=2n;
+	y204=y205=y206=1/3height-2n;
+
+	pickup penrazor scaled 1.5thin rotated 90;
+	draw z201--z203;
+	draw z204--z206;
+	pickup penrazor scaled 1thin;
+	draw z202--z205;
+endchar;
+
+beginchar("Q",0,height#,0);
+	"a$";
+	x201=x203=-1/3o_width-margin-bwidth;
+	x202=x204=-margin-bwidth;
+	y201=3/4[2n,1/3height];
+	y202=3n;
+	y203=1/4[2n,1/3height];
+	y204=1/3height;
+	pickup penrazor scaled 1.5thin rotated 90;
+	draw z201--z202;
+	draw z203--z204;
+endchar;
+
+beginchar("S",0,height#,0);
+	"aS";
+	z204=(-margin-bwidth,1/3height);
+	z201=(-margin-bwidth-1/3o_width-2thin,2n);
+	z203=1/2[z201,z204];
+	z205=1/2[z201,z203];
+	z202-z205=2/3(z201-z203) rotated 90;
+
+	pickup pencircle scaled 1.5thin;
+	draw z201{z202-z205}..z202..{z205-z202}z203--z204;
+endchar;
+
+beginchar("a",2/3o_width#,height#,0);
+	"\'a\.n";
+	z81=(-margin+2/3o_width,0);
+	z82=(-margin+1/3o_width,0);
+	z83=(-margin,1/6height);
+	z84=(-margin,1/3height);
+
+	fill z81--z82--z83--z84--cycle;
+endchar;
+
+beginchar("%",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\d r";
+	full_balken;
+	common_triangle;
+	upper_fish;
+	lower_fish;
+
+	z41=(margin+1/6o_width,1/3height+1thin);
+	z42=(margin+1/3o_width-.25thin,y50+1.5thin);
+	z43=(center-.125thin-thin,y41);
+	z44=(center+.125thin-thin,y43);
+	z45=(margin+2/3o_width-1.75thin,y42);
+	z46=(margin+5/6o_width-2thin,y41);
+	z47=(x45,y41-1/3height+2thin);
+	z48=(x44,y45);
+	z49=(x43,y42);
+	z50=(x42,y47);
+
+	fill z41..tension 1.1..z42..tension 1.3..{up}z43
+		..z44{down}..tension 1.3..z45..tension 1.2..z46
+		& z46..tension 1.2..z47..tension 1.3..{up}z48
+		..z49{down}..tension 1.3..z50..tension 1.1..z41 & cycle;
+endchar;
+
+beginchar("&",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\d l";
+	full_balken;
+	common_triangle;
+	upper_fish;
+	lower_fish;
+
+	z41=(margin+1/6o_width,3thin);
+	z42=(margin+1/3o_width-.25thin,y50-1.5thin);
+	z43=(center-.1thin-thin,y41);
+	z44=(center+.1thin-thin,y43);
+	z45=(margin+2/3o_width-1.75thin,y42);
+	z46=(margin+5/6o_width-2thin,y41);
+	z47=(x45,y41+1/3height-2thin);
+	z48=(x44+.1thin,y45);
+	z49=(x43-.1thin,y42);
+	z50=(x42,y47);
+
+	fill z41..tension 1.1..z42..tension 1.3..{down}z43
+		..z44{up}..tension 1.3..z45..tension 1.2..z46
+		& z46..tension 1.2..z47..tension 1.3..{down}z48
+		..z49{up}..tension 1.3..z50..tension 1.1..z41 & cycle;
+endchar;
+
+beginchar("0",0,om_height#+2pt#,0);
+	"am0";
+	x91=x92=-bwidth-center;
+	y91=vheight+3n;
+	y92=vheight;
+	pickup pencircle scaled thin;
+	draw z91..z92..cycle;
+endchar;
+
+beginchar("H",2/3o_width#,height#+2pt#,0);
+	"H";
+	x81=lft x84=lft x88=-margin;
+	x82=x86=x90=-margin+2/3o_width;
+	x83=x85=x87=x89=x91=-margin+1/3o_width;
+
+	y81=y82=height;
+	y83=5/6height;
+	y85=y83-thin;
+	y87-thin=y89+thin=.5[0,y85];
+	y84=y86=.5[y85,y87];
+	y88=y90=.5[y89,0];
+	bot y91=0;
+
+	fill z81--z82--z83--cycle;
+	pickup pencircle scaled 1.5thin;
+	draw z84--z85--z86--z87--cycle;
+	draw z88--z89--z90--z91--cycle;
+endchar;
+
+beginchar("(",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"g";
+	k_triangle;
+	full_k_balken;
+	middle_k_beam;
+	hor_k_beam;
+	z41=(margin+3thin,1/2height);
+	z42=(margin,2/3height);
+	z43=(x41,5/6height);
+	z44=(x41,2/3height+.75thin);
+	z45=(x5,y44);
+	z46=(x5,2/3height-.75thin);
+	z47=(x41,y46);
+
+	fill z41..z42..z43 & z43--z44--z45--z46--z47--z41 & cycle;
+endchar;
+
+beginchar(")",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"gh";
+	k_triangle;
+	full_k_balken;
+	middle_k_beam;
+	hor_k_beam;
+	z41=(margin,1/2height);
+	z42=(1/2[x41,x48],2/3height);
+	z43=(margin,5/6height);
+	z48=(4/6[x41,x45],y42);
+	z44=(x48,2/3height+.75thin);
+	z45=(x5,y44);
+	z46=(x5,2/3height-.75thin);
+	z47=(x44,y46);
+
+	fill z41..z42..z43 & z43..{down}z44
+	& z44--z45--z46--z47 & z47{down}..z41 & cycle;
+endchar;
+
+beginchar("j",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"j";
+	full_balken;
+	common_triangle;
+	x20=x22=center;
+	x21=width;
+	lft x23=margin+thin;
+	y20=y12-thin;
+	y22=y20-o_width;
+	y21=y23=.5[y22,y20];
+
+	pickup pensquare scaled 2thin rotated 45;
+	draw z23--z20--z21--z22;
+endchar;
+
+beginchar(",",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"jh";
+	full_balken;
+	common_triangle;
+	x20=x22=center;
+	rt x21=width;
+	lft x23=margin;
+	y20=y12-thin;
+	y22=y20-o_width;
+	y21=y23=.5[y22,y20];
+	z24=(x23,y20);
+	pickup pensquare scaled 2thin rotated 45;
+	draw z23--z20--z21--z22;
+	pickup penrazor scaled 2.5thin rotated -45;
+	draw z23--z24;
+endchar;
+
+beginchar("T",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\d t";
+	full_balken;
+	common_triangle;
+	z21=(center-2n,1/3height+2n-thin);
+	z22=(center+2n,y21-2n);
+	z23=(x22,height-2n);
+	z24=(x21,y23);
+	z25=(x21,5/6height);
+	z26=(x21-2.5thin,1/2[y25,y27]);
+	z27=(x21,1/2[y25,y29]);
+	z28=(x26,1/2[y27,y29]);
+	z29=(x21,1/2height);
+
+	fill z21--z22--z23--z24--z25--z26--z27--z28--z29--cycle;
+endchar;
+
+beginchar("1",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\d th";
+	full_balken;
+	common_triangle;
+	z21=(center-2n,1/3height+2n-thin);
+	z22=(center+2n,y21-2n);
+	z23=(x22,height-2n);
+	z24=(x21,y23);
+	z25=(x21,5/6height);		% << Beginn des oberen Dreiecks,
+	z26=(x21-2.5thin,1/2[y25,y27]);	% von dem alle anderen Dreiecke
+	z27=(x21,1/2[y25,y29]);		% abhaengen!
+	z28=(x26,1/2[y27,y29]);
+	z29=(x21,1/2height);
+	z30=(x22,y28);
+	z31=(x22+2.5thin,y27);
+	z32=(x22,y26);
+
+	fill z21--z22--z30--z31--z32--z23--z24--z25--z26--z27--z28--z29--cycle;
+endchar;
+
+beginchar("2",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\d d";
+	full_balken;
+	common_triangle;
+	z21=(center-2n,1/3height+2n-thin);
+	z22=(center+2n,y21-2n);
+	z23=(x22,height-2n);
+	z24=(x21,y23);
+	z25=(x21,2/3[y21,y24]);		% << Beginn des Dreiecks
+	z26=(x21-2.5thin,1/2[y25,y27]);	% 
+	z27=(x21,1/3[y21,y24]);		% 
+
+	fill z21--z22--z23--z24--z25--z26--z27--cycle;
+endchar;
+
+beginchar("3",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\d dh";
+	full_balken;
+	common_triangle;
+	g_horn(2);
+	z21=(center-2n,1/3height+2n-thin);
+	z22=(center+2n,y21-2n);
+	z23=(x22,height-2n);
+	z24=(x21,y23);
+	z25=(x21,2/3[y21,y74]);		% << Beginn des Dreiecks
+	z26=(x21-2.5thin,1/2[y25,y27]);	% 
+	z27=(x21,1/3[y21,y74]);		% 
+
+	fill z21--z22--z23--z24--z25--z26--z27--cycle;
+endchar;
+
+beginchar("4",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\d n";
+	full_balken;
+	common_triangle;
+	z5=(center,y12-2n);
+	z6=(center,1/3[y5,y9]);
+	z7=(center-3thin,1/2[y6,y8]);
+	z8=(center,2/3[y5,y9]);
+	z9=(center,1/3height+2n);
+	z10=(center+3thin,1/3height);
+	z14=(x10,y8);
+	z15=(width,y8);
+	z16=(width,y6);
+	z17=(x10,y6);
+	x18=x10;
+	z5-z18=whatever*(z12-z13);
+
+	fill z5--z6--z7--z8--z9--z10--z14--z15--z16--z17--z18--cycle;
+endchar;
+beginchar("5",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\_d";
+	full_balken;
+	common_triangle;
+	x5=center-2thin;
+	z5=whatever[z11,z12];
+	z6=(x5,2/3[y9,y5]+.5thin);
+	z7=(x5-4thin,1/2[y6,y8]);
+	z8=(x5,1/3[y9,y5]-.5thin);
+	z9=(x5,1/3height+n);
+	z10=(center+2thin,1/3height-n);
+	z14=(x10,y8+thin);
+	z15=(x7+3thin,1/2[y14,y16]);
+	z16=(x10,y6-thin);
+	x17=x10;
+	z17=whatever[z12,z13];
+
+	fill z5--z6{left}..z7..{right}z8--z9--z10--
+		z14{left}..z15..{right}z16--z17--cycle;
+endchar;
+
+beginchar("6",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\_dh";
+	full_balken;
+	common_triangle;
+	g_horn(2);
+	z5=(center-2thin,height-2n);
+	z6=(x5,2/3height-2thin);
+	z7=(x5-4thin,1/2[y6,y8]);
+	z8=(x5,1/3height);
+	z9=(center+2thin,y8);
+	z10=(x9,y9+thin);
+	z14=(x7+3thin,y7);
+	z15=(x9,y6-.5thin);
+	z16=(x9,y5);
+
+	fill z5--z6{left}..z7..{right}z9--
+		z10{left}..z14..{right}z15--z16--cycle;
+	
+endchar;
+
+beginchar("7",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\_b";
+	full_balken;
+	common_triangle;
+
+	x16=center+2thin;
+	y16=y17-thin;
+	x17=x19=x21=center;
+	y17=5/6height;
+	y19=1/3height+2thin;
+	y21=2/3[y19,y17];
+	x18=margin+thin;
+	x20=width-3thin;
+	y18=1/2[y17,y19];
+	y20=1/2[y19,y21];
+	x22=center-1thin;
+	y22=y21-thin;
+
+	z23=(center,y21-thin);
+	z24=(x20-1.5thin,y20);
+	z25=(x19,y19+1.5thin);
+	z26=(x18+1.5thin,y18);
+	z27=(center,y17-.75thin);
+
+	fill z16..z17..z18..z19..z20..z21..z22
+		& z22..z23..z24..z25..z26..z27..z16 & cycle;
+endchar;
+
+beginchar("8",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\_bh";
+	full_balken;
+	common_triangle;
+	upper_fish;
+
+	x16=center+2thin;
+	y16=y17-thin;
+	x17=x19=x31=center;
+	y17=2/3height-thin;
+	y19=1/3height;
+	y31=2/3[y19,y17];
+	x18=margin+thin;
+	x30=width-3thin;
+	y18=1/2[y17,y19];
+	y30=1/2[y19,y31];
+	x32=center-1thin;
+	y32=y31-thin;
+
+	z33=(center,y31-thin);
+	z34=(x30-1.5thin,y30);
+	z35=(x19,y19+1thin);
+	z36=(x18+1.5thin,y18);
+	z37=(center,y17-.75thin);
+
+	fill z16..z17..z18..z19..z30..z31..z32
+		& z32..z33..z34..z35..z36..z37..z16 & cycle;
+endchar;
+
+beginchar("9",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\d s";
+	full_balken;
+	common_triangle;
+
+	z71=(margin,5/6height);
+	z88=(margin,y71-3thin);
+	z73=(width,y71);
+	z74=(width,y88);
+	z77=(width,1/3height);
+	z76=(width,y77+3thin);
+	z75=(whatever,1/2[y74,y76]);
+	z75=whatever[z71,z76];
+	z72=whatever[z71,z76];
+	z72=(center,whatever);
+	z78=(center,y72-3thin);
+	z88=(margin,y74);
+	z87=whatever[z88,z77];
+	z87=whatever[z72,z73];
+	z81=(margin,y76);
+	z82=1/12[z81,z87];
+	z83=1/2[z82,z85];
+	z84-z83=7/6(z82-z85) rotated 90;
+	z85=2/3[z81,z87];
+	z86=9/12[z81,z87];
+	z79=whatever[z74,z75];
+	z86-z79=whatever*(z81-z73) rotated 90;
+	z80-z83=5/3(z82-z85) rotated 90;
+	z89-z81=whatever*(z81-z73) rotated 90;
+	z89=whatever[z75,z74];
+
+	fill z87--z88--z71--z72--z73--z74--z75--z76--z77--z78--z79
+	& z79{z84-z83}..z80..{z83-z84}z89
+	---z89--z81--z82{z84-z83}..z84..{z83-z84}z85--z87 & cycle;
+endchar;
+
+beginchar(":",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"ky";
+	full_k_balken;
+	k_triangle;
+	g_horn(1);
+
+	x5=x8=center-1thin;
+	x6=x7=center+3thin;
+	z7=whatever[z13,z12];
+	z8=whatever[z12,z11];
+	y5=y6-2n=1/2height+thin;
+
+	z14=(x6,1/2[y6,y7]+.75thin);
+	z15=(width,y14);
+	z16=(x15,y14-1.5thin);
+	z17=(x14,y16);
+
+	z18=(center,y5-2thin);
+	z19=(x18-1/3o_width,1/3height-3thin);
+	z20=(x18+1/3o_width,y19);
+
+	fill z5--z6--z7--z8--cycle;
+	fill z14--z15--z16--z17--cycle;
+
+	pickup pencircle scaled 1.5thin;
+	draw z19{up}..z18..{down}z20--z19 & cycle;
+endchar;
+
+beginchar(";",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"kr";
+	full_k_balken;
+	k_triangle;
+	g_horn(1);
+
+	x5=x8=center-1thin;
+	x6=x7=center+3thin;
+	z7=whatever[z13,z12];
+	z8=whatever[z12,z11];
+	y5=y6-2n=1/2height+thin;
+
+	z14=(x6,1/2[y6,y7]+.75thin);
+	z15=(width,y14);
+	z16=(x15,y14-1.5thin);
+	z17=(x14,y16);
+
+	z18=(center,y5-2thin);
+	z19=(x18-1/3o_width,1/3height-3thin);
+	z20=(x18+1/3o_width,y19);
+
+	fill z5--z6--z7--z8--cycle;
+	fill z14--z15--z16--z17--cycle;
+
+	pickup pencircle scaled 1.5thin;
+	draw z18--z19--z20--cycle;
+endchar;
+
+beginchar("<",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"kl";
+	full_k_balken;
+	k_triangle;
+	g_horn(1);
+
+	x5=x8=center-1thin;
+	x6=x7=center+3thin;
+	z7=whatever[z13,z12];
+	z8=whatever[z12,z11];
+	y5=y6-2n=1/2height+thin;
+
+	z14=(x6,1/2[y6,y7]+.75thin);
+	z15=(width,y14);
+	z16=(x15,y14-1.5thin);
+	z17=(x14,y16);
+
+	z21=(margin+1thin,2/3height-2thin);
+	z22=(margin,1/9[y21,y29]);
+	z23=(margin+1/3o_width,4/9[y21,y29]);
+	z24=(x23+2thin,y23);
+	z25=(width-thin,y24+thin);
+	z26=(x25,y25+thin);
+	z27=(x23+thin,y23+thin);
+	z28=(margin+2thin,y22);
+
+	z29=(x21,1/3height-2thin);
+
+	z30=(x22,8/9[y21,y29]);
+	z31=(x23,5/9[y21,y29]);
+	z32=(x24,y31);
+	z33=(x25,y32-thin);
+	z34=(x33,y33-thin);
+	z35=(x27,y32-thin);
+	z36=(x28,y30);
+
+	fill z5--z6--z7--z8--cycle;
+	fill z14--z15--z16--z17--cycle;
+	fill z21..z22..z23..z24..z25--z26..z27..{up}z28..z21..cycle;
+	fill z23--z24--z32--z31--cycle;
+	fill z29..z30..z31..z32..z33--z34..z35..{down}z36..z29..cycle;
+endchar;
+
+beginchar(">",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"km";
+	full_k_balken;
+	k_triangle;
+	g_horn(1);
+
+	x5=x8=center-1thin;
+	x6=x7=center+3thin;
+	z7=whatever[z13,z12];
+	z8=whatever[z12,z11];
+	y5=y6-2n=1/2height+thin;
+
+	z14=(x6,1/2[y6,y7]+.75thin);
+	z15=(width,y14);
+	z16=(x15,y14-1.5thin);
+	z17=(x14,y16);
+
+	z18=(center,y5-2thin);
+	z19=(center,1/3height-3thin);
+
+	fill z5--z6--z7--z8--cycle;
+	fill z14--z15--z16--z17--cycle;
+
+	pickup pencircle scaled 1.5thin;
+	draw z18..z19..cycle;
+endchar;
+
+beginchar("?",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"kk";
+	g_horn(1);
+
+	z10=(margin,height);
+	z11=(margin+2thin,height-1.25thin);
+	z12=(margin,y11);
+	z13=(center+thin,height-3thin);
+
+	z14=(center-thin,whatever);
+	z14=whatever[z12,z13];
+	z15=(x14,1/3height+thin);
+	z16=(center+3thin,1/3height-thin);
+	z17=(x16,whatever);
+	z18=(width+2thin,y11);
+	z17=whatever[z13,z18];
+
+	z19=(x18-2thin,y11);
+	z20=(x18,height);
+
+	z21=(width,whatever);
+	z24=(width+bwidth,whatever);
+	z21-z24=whatever*(z13-z18);
+
+	y21=y25-1.5n;
+	x25=width;
+	z25=whatever[z13,z18];
+
+	y22-2n=y23=0;
+	x22=x21;
+	x23=x24;
+
+	x26=x29=x16;
+	x27=x28=width;
+	y26=y27=y75;
+	y28=y29=y73;
+
+	fill z20--z10--z11--z12--z14--z15--z16--z17--z18--z19--z20--cycle;
+	fill z21--z22--z23--z24--cycle;
+	fill z26--z27--z28--z29--cycle;
+endchar;
+
+beginchar("A",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\.nk";
+	z11=(margin,height);
+	z12=(center+1thin,height-3n);
+	z13=(width+1/2bwidth,height);
+	z14=(center-thin,whatever);
+	z14=whatever[z11,z12];
+	z31=(center+3thin,whatever);
+	z31=whatever[z12,z13];
+	z15=(x14,5/6height+.75thin);
+	z16=(1/2[x11,x14],y15);
+	z17=(margin,y16+2thin);
+	z18=(margin,y19-2thin);
+	z19=(x16,5/6height-.75thin);
+	z20=(x14,y19);
+	z21=(x14,1/3height+thin);
+	z22=(x31,1/3height-thin);
+	z23=(x31,1/2height-.75thin);
+	z24=(width,y23);
+	z32=(width,2n);
+	z33=(width+bwidth,0);
+	z34=(x33,2/3height-.75thin);
+	z35=(x32,y34);
+	z25=(x24,y24+1.5thin);
+	z26=(x31,y25);
+	z27=(x31,y20);
+	z28=(x24,y20);
+	z36=(x32,y35+1.5thin);
+	z37=(x33,y36);
+	z38=(x33,height);
+	z39=(x36,height-2n);
+	z29=(x28,y15);
+	z30=(x31,y15);
+
+	x71=x72=margin+thin;
+	x77=x78=x71+2thin;
+	x73=x76=x77+thin;
+	x74=x75=center-thin;
+
+	y71=y78=y18-thin;
+	y75=y76=y26;
+	y73=y74=y23;
+	y72=y77=y75+thin;
+
+	fill z71---z72{down}..{right}z73---z74--z75
+		---z76{left}..{up}z77---z78--cycle;
+
+	fill z11--z14--z15--z16--z17--z18--z19--z20--z21--z22
+		--z23--z24--z32--z33--z34--z35--z25--z26
+		--z27--z28--z36--z37--z38--z39--z29--z30--z31--z13--cycle;
+
+endchar;
+beginchar("E",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\=nc";
+	full_balken;
+	common_triangle;
+	
+	z23=(center,y12-1thin);
+	z21=(center,1/2[y23,y25]);
+	z20=1/2[z21,z22];
+	z22=(whatever,1/2[y21,y23]);
+	z28=(center,1/3height-2thin);
+	z25=(center,6/12[y23,y28]);
+	z22-z23=(z22-z21) rotated 90;
+	y24=y21;
+	z23-z24=whatever*(z23-z28) rotated 45;
+	z23-z24=whatever*(z22-z21);
+	z27=(x24,1/2[y25,y28]);
+	z26=(margin+1/6o_width,whatever);
+	z26=whatever[z25,z27];
+	z29=(margin+1/6o_width,whatever);
+	z29-z28=whatever*(z26-z27);
+
+	pickup pensquare scaled 1.5thin rotated 45;
+	draw z21--z22--z23--z24--z25;
+	draw z26--z27--z28--z29;
+endchar;
+
+beginchar("|",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\d n\d t";
+	full_balken;
+	common_triangle;
+	z14=(center-2thin,height-4thin);
+	z15=(x14,1/9[y14,y23]);
+	z16=(x14-2.5thin,1/2[y15,y17]);
+	z17=(x14,3/9[y14,y23]);
+	z18=(x14,5/9[y14,y23]);
+	z19=(x16,1/2[y18,y20]);
+	z20=(x14,1/2[y18,y22]);
+	z21=(x16,1/2[y20,y22]);
+	z22=(x14,8/9[y14,y23]);
+	z23=(x14,1/3height+thin);
+
+	z24=(center+2thin,1/3height-thin);
+	z25=(x24,y18);
+	z26=(width,y18);
+	z27=(width,y17);
+	z28=(x24,y17);
+	z29=(x24,y14);
+
+	fill z14--z15--z16--z17--z18--z19--z20--z21--z22
+		--z23--z24--z25--z26--z27--z28--z29--cycle;
+endchar;
+
+beginchar("~",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"nt";
+	full_balken;
+	common_triangle;
+
+	% Wie Lower Fish, nur spiegelverkehrt
+	z31=(width,2/6height+.05thin);
+	z32=(margin+1/3o_width,y31+1/4height-.05thin);
+	z38=(x32,y32-1.5thin);
+	z33=(margin,1/2[y34,y32]);
+	z37=(x33+1.5thin,y33);
+	z34=(x32,y32-1/3height+2thin);
+	z36=(x32,y34+1.25thin);
+	z35=(margin+5/12o_width,3/2[y34,y36]);
+	z39=(width,y31-.1thin);
+
+	z40=(width-1/6o_width,2/3height-2thin);
+	z41=(width-2/3o_width+2thin,1/2[y40,y42]);
+	z42=(x40,5/6height);
+	z43=(width,y41);
+	z44=(x40,y41);
+	pickup pencircle scaled 1.5thin;
+	draw z40{left}..z41..{right}z42--z40 & cycle;
+	draw z43--z44;
+
+	fill z31..tension 1.8..z32..z33..z34..z35
+	& z35..z36..z37..z38..tension 1.7..z39
+	& z39..z31 & cycle;
+endchar;
+
+beginchar("P",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"mp";
+	full_balken;
+	common_triangle;
+	upper_fish;
+
+	% Wie Lower Fish, nur spiegelverkehrt
+	z31=(width,2/6height);
+	z32=(margin+1/3o_width,y31-1/6height);
+	z38=(x32,y32+1.5thin);
+	z33=(margin,1/2[y34,y32]);
+	z37=(x33+1.5thin,y33);
+	z34=(x32,y31+1/6height-2thin);
+	z36=(x32,y34-1.25thin);
+	z35=(margin+5/12o_width,3/2[y34,y36]);
+
+	z39=(center,2/3height-1.5thin);
+	z40=(center,1/3height+3thin);
+
+	fill z31..tension 1.8..z32..z33..z34..z35
+	& z35..z36..z37..z38..tension 1.8..z31 & cycle;
+
+	pickup pencircle scaled 1.5thin;
+
+	draw z39..z40..cycle;
+endchar;
+
+beginchar("Y",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"lk";
+	k_triangle;
+	full_k_balken;
+	middle_k_beam;
+	hor_k_beam;
+	shorter_g_horn(1);
+
+	z61=(margin,height-thin);
+	z62=(whatever,y61);
+	z62=whatever[z11,z12];
+	z63=(margin,height-2thin);
+	z64=(whatever,y63);
+	z64=whatever[z11,z12];
+
+	fill z61--z62--z64--z63--cycle;
+endchar;
+
+beginchar("[",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"\vsk";
+	k_triangle;
+	full_k_balken;
+	middle_k_beam;
+	hor_k_beam;
+	shorter_g_horn(1);
+
+	z61=(margin+1thin,height-thin);
+	z62=(whatever,y61);
+	z62=whatever[z11,z12];
+	z63=(margin+1thin,height-2thin);
+	z64=(whatever,y63);
+	z64=whatever[z11,z12];
+
+	z65=(x64-1.5thin,height-4thin);
+	z66=(x64-.5thin,y65);
+	z67=(x64-.5thin,y64);
+	z68=(x64-1.5thin,y64);
+
+	fill z61--z62--z64--z63--cycle;
+	fill z68--z65--z66--z67--cycle;
+endchar;
+
+beginchar("]",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"sk";
+	k_triangle;
+	full_k_balken;
+	middle_k_beam;
+	hor_k_beam;
+	shorter_g_horn(1);
+
+	z14=5/12[z11,z12];
+	z15=(x14,y14-3thin);
+	z16=(whatever,1/2[y14,y15]);
+	z16-z15=(z14-z15) rotated 60;
+
+	fill z14--z15--z16--cycle;
+endchar;
+
+beginchar("f",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"rk";
+	k_triangle;
+	full_k_balken;
+	middle_k_beam;
+	hor_k_beam;
+	shorter_g_horn(1);
+
+	z14=whatever[z11,z12];
+	z14=whatever[z5,z8];
+	z15=3/12[z11,z14];
+	z16=9/12[z11,z14];
+	z17=1/2[z11,z14];
+	z18-z17=8/6(z15-z16) rotated 90;
+
+	fill z15--z16--z18--cycle;
+endchar;
+
+beginchar("Z",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"Z";
+	x20=x22=center;
+	x21=width;
+	lft x23=margin;
+	y20=y12-thin;
+	y22=y20-o_width;
+	y21=y23=.5[y22,y20];
+
+	full_balken;
+	common_triangle;
+
+	pickup pensquare scaled 2thin rotated 45;
+	draw z20--z21--z22--z23--cycle;
+endchar;
+
+beginchar("C",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"C";
+	x20=x22=center;
+	x21=width;
+	lft x23=margin;
+	y20=y12-thin;
+	y22=y20-o_width;
+	y21=y23=.5[y22,y20];
+
+	full_balken;
+	common_triangle;
+	pickup pensquare scaled 2thin rotated 45;
+	draw z20--z21--z22--z23--cycle;
+
+	pickup pencircle scaled thin;
+	draw z20--z22;
+endchar;
+
+beginchar("J",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"J";
+	x20=x22=center;
+	x21=width;
+	x23=margin;
+	y20=y12-thin;
+	y22=y20-o_width;
+	y21=y23=.5[y22,y20];
+
+	full_balken;
+	common_triangle;
+	pickup pensquare scaled 2thin rotated 45;
+	draw z20--z21--z22--z23--cycle;
+	pickup pencircle scaled thin;
+	draw z21--z23;
+endchar;
+
+beginchar("X",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"X";
+	full_balken;
+	common_triangle;
+	upper_fish;
+	x31=margin+1/4o_width;
+	x32=center;
+	x33=margin+3/4o_width;
+	y31=y33=1/3height;
+	y32=2/3height-2thin;
+
+	pickup pencircle scaled 2thin ;
+	draw z31{up}..z32..{down}z33 ;
+endchar;
+
+beginchar("q",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"z";
+	full_balken;
+	common_triangle;
+	z21=(margin+1thin,5/6height-1thin);
+	z22=(margin,1/9[y21,y29]);
+	z23=(margin+1/3o_width,4/9[y21,y29]);
+	z24=(x23+2thin,y23);
+	z25=(width-thin,y24+thin);
+	z26=(x25,y25+thin);
+	z27=(x23+thin,y23+thin);
+	z28=(margin+2thin,y22);
+
+	z29=(x21,1/3height+2thin);
+
+	z30=(x22,8/9[y21,y29]);
+	z31=(x23,5/9[y21,y29]);
+	z32=(x24,y31);
+	z33=(x25,y32-thin);
+	z34=(x33,y33-thin);
+	z35=(x27,y32-thin);
+	z36=(x28,y30);
+
+	z37=(width,1/6height+.5thin);
+	z38=(width-1/4o_width,y37);
+	z39=(x38,y37-1thin);
+	z40=(x37,y39);
+
+	fill z21..z22..z23..z24..z25--z26..z27..{up}z28..z21..cycle;
+	fill z23--z24--z32--z31--cycle;
+	fill z29..z30..z31..z32..z33--z34..z35..{down}z36..z29..cycle;
+	fill z37--z38--z39--z40--cycle;
+endchar;
+
+beginchar("@",margin#+width#+bwidth#,height#+2pt#,depth#);
+	"'a";
+	full_balken;
+	common_triangle;
+	z21=(center-.05thin,1/3height);
+	z27=(center,height-3n-thin);
+	z23=(center,y27-1.5thin);
+	z26=(margin+2thin,2/3[y21,y27]);
+	z24=(x26+1.5thin,y26);
+	z28=(width-2thin,y26);
+	z22=(x28-1.5thin,y26);
+	z25=(3/2[x26,x24],5/12[y27,y21]);
+	z29=(center+.05thin,1/3height);
+
+	fill z21{up}..tension 1.1..z22..z23..z24..z25
+		& z25..z26..z27..z28..tension 1.2..{down}z29
+		& z29..z21 & cycle;
+endchar;
+
+beginchar("}",margin#+bwidth#+width#+bwidth#,vheight#+2pt#,depth#);
+	"Soyombo Terminal";
+	% Linker Balken
+	z1=(margin,0);
+	z2=(margin+bwidth,0);
+	z3=(x2,height);
+	z4=(x1,height);
+	fill z1--z2--z3--z4--cycle;
+
+	% Rechter Balken
+	z5=(bwidth+width,0);
+	z6=(bwidth+width+bwidth,0);
+	z7=(x6,height);
+	z8=(x5,height);
+	fill z5--z6--z7--z8--cycle;
+
+	% Symmetrieachse festlegen
+	z9=(1/2[x2,x5],0.25thin);
+	z10=(x9,height);
+
+	% Unterer Lotusbluetenboden, linke Haelfte
+	z11=(1/3[x12,x9],1.75thin);
+	z12=(2/3[x2,x9],0.25thin);
+	z13=(1/3[x14,x12],1.25thin);
+	z14=(1/3[x2,x9],0.25thin);
+	pickup pencircle scaled .5thin;
+	draw z9{up}..z11..{down}z12 & z12{up}..z13..{down}z14;
+
+	% Unterer Lotusbluetenboden, rechte Haelfte
+	z15=z11 reflectedabout (z9,z10);
+	z16=z12 reflectedabout (z9,z10);
+	z17=z13 reflectedabout (z9,z10);
+	z18=z14 reflectedabout (z9,z10);
+	draw z9{up}..z15..{down}z16 & z16{up}..z17..{down}z18 & z18--z14;
+
+	% Erstes Blatt links
+	z20=(x9,2thin);
+	z21=(x12,2.5thin);
+	z22=(x14,1.5thin);
+	z23=(x21,3.5thin);
+	draw z20..z21..z22 & z22..z23..z20;
+
+	% Erstes Blatt rechts
+	z24=z21 reflectedabout (z9,z10);
+	z25=z22 reflectedabout (z9,z10);
+	z26=z23 reflectedabout (z9,z10);
+	draw z20..z24..z25 & z25..z26..z20;
+
+
+	% Vertikales Blatt
+	z37=(2/3[x11,x9],2/3[y9,y38]);
+	z38=(x9,1/4[y9,y10]);
+	z39=z37 reflectedabout (z9,z10);
+	draw z20..z37..z38 & z38..z39..z20;
+
+	% Zweites Blatt links
+	z27=(x13,y37);
+	z28=(1/2[x2,x14],y27-thin);
+	z29=(x13,y27+thin);
+	draw z20..z27..z28 & z28..tension 1.5..z29..tension 1.5..z20;
+
+	% Zweites Blatt rechts
+	z30=z27 reflectedabout (z9,z10);
+	z31=z28 reflectedabout (z9,z10);
+	z32=z29 reflectedabout (z9,z10);
+	draw z20..z30..z31 & z31..tension 1.5..z32..tension 1.5..z20;
+
+	% Drittes, kleines Blatt links
+	z33=(1/2[x37,x34],y37+thin);
+	z34=(x11,y37);
+	% draw z37..z33..z34;
+
+	% Drittes, kleines Blatt rechts
+	z35=z33 reflectedabout (z9,z10);
+	z36=z34 reflectedabout (z9,z10);
+	% draw z39..z35..z36;
+
+	% Gluehbirne
+	z40=(x28,height-4thin);
+	z41=(x9,vheight);
+	z42=z40 reflectedabout (z9,z10);
+	path leftglass, rightglass;
+	leftglass=(z37...z40{up}..{up}z41);
+	rightglass=(z41{down}..{down}z42...z39);
+	draw leftglass & rightglass;
+
+	% Gluehfaden
+	path Horizontale;
+	Horizontale=((x2,1/2height)--(x5,1/2height));
+	z43=Horizontale intersectionpoint leftglass;
+	z44=(2/3[x43,x9],y43+2thin);
+	z45=(1/2[x43,x9],y40);
+	z46=(x9,height-thin);
+	z47=z45 reflectedabout (z9,z10);
+	z48=z44 reflectedabout (z9,z10);
+	z49=z43 reflectedabout (z9,z10);
+	draw z43..z44..z45..z46..z47..z48..z49;
+	penlabels(range 1 thru 50);
+endchar;
+
+font_normal_space	1/2full_w#;
+font_x_height 		height#;
+font_quad		full_w#;
+font_extra_space	.25full_w#;
+
+end.

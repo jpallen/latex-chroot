@@ -1,0 +1,37 @@
+% shadow.mf --- shadow effect
+
+define_whole_pixels(ht);
+shshift := 0.06ht;
+svshift := -0.06ht;
+
+def pattern=
+	def endchar=
+		cullit;
+		picture NormalChar;
+			NormalChar=currentpicture;
+		cull currentpicture keeping (1, infinity);
+		picture v; v := currentpicture;
+		cull currentpicture keeping (1,1) withweight 3;
+		addto currentpicture also v - v shifted right
+			- v shifted left - v shifted up - v shifted down;
+		cull currentpicture keeping (1,4);
+		picture OutlineChar;
+			OutlineChar=currentpicture;
+		clearit;
+		currentpicture:=NormalChar shifted (shshift, svshift);
+		picture Shadow;
+			Shadow:=currentpicture;
+		clearit;
+		currentpicture:=Shadow-NormalChar;
+		cullit;
+		currentpicture:=currentpicture+OutlineChar;
+		% The rest is from standard endchar
+		scantokens extra_endchar;
+		chardx:=w;
+		shipit;
+		if displaying>0: showit; fi
+		endgroup
+	enddef;
+enddef;
+
+% end of shadow.mf

@@ -1,0 +1,72 @@
+% Copyright 2003-2005 Han The Thanh <hanthethanh@gmx.net>.
+% This file is part of vntex.  License: LPPL, version 1.3 or newer,
+% according to http://www.latex-project.org/lppl.txt
+
+% Computer Modern Roman upper case "E" precomposed glyphs:
+% Inclusion:
+%               E'      E`      E?      E~      E.
+%       E^      E^'     E^`     E^?     E^~     E^.
+
+begin_letter(e);
+    set_letter_dimens(e)(
+        12u# - width_adj#, cap_height#, 0,
+        cap_height#*slant - beak_jut# - .5u#,
+        cap_serif_fit#, 0
+    );
+    h := vround(h - stem_corr);
+    pickup tiny.nib;
+    pos1(cap_stem, 0);
+    pos2(cap_stem, 0);
+    lft x1l = lft x2l = hround max(2u, 3u - .5cap_stem);
+    top y1 = h;
+    bot y2 = 0;
+    filldraw stroke z1e -- z2e; % stem
+    pickup crisp.nib;
+    pos3(slab, 90);
+    pos4(hair, 0);
+    top y3r = h;
+    x3 = x1;
+    rt x4r = hround(w - u);
+    y4 = good.y(y3l - beak) - eps;
+    arm(3, 4, e, beak_darkness, beak_jut);  % upper arm and beak
+    pos5(cap_bar, -90);
+    pos6(hair, 0);
+    top y5l = vround(.52[y2, y1] + .5cap_bar);
+    x5 = x1;
+    pos0(cap_bar, 90);
+    pos7(hair, 0);
+    z0 = z5;
+    x6 = x7;
+    y6 - y5l = y0l - y7;
+    if serifs: rt x6r = hround(w - 4.4u + .5hair);
+        y6 = good.y(y5l + .6beak) + eps;
+        rt x9r = hround(w - .5u);
+    else: rt x6r = hround(w - 1.5u);
+        y6 = y5l + eps;
+        rt x9r = hround(w - .75u);
+    fi
+    arm(5, 6, f, beak_darkness, 0);
+    arm(0, 7, g, beak_darkness, 0);  % middle arm and serif
+    pos8(slab if not serifs: +2stem_corr fi, -90);
+    pos9(hair, 0);
+    bot y8r = 0;
+    x8 = x2;
+    y9 = good.y(y8l + 7/6beak) + eps;
+    arm(8, 9, h, beak_darkness, 1.5beak_jut);  % lower arm and beak
+    if serifs: nodish_serif(1, 2, a, 1/3, cap_jut, b, 1/3, .5cap_jut);  % upper serif
+        nodish_serif(2, 1, c, 1/3, cap_jut, d, 1/3, .5cap_jut);
+    fi  % lower serif
+    math_fit(0, .5ic#);
+    if serifs:
+        set_letter_join(e, .5[x.a1, max(x4r, x9r)], .5w#);
+%         set_letter_join(e, x.f2, .5w#);
+%         set_letter_join(e.grave_, x.e2, .5w#);
+    else:
+        set_letter_join(e, .5[x3, x4], .5w#);
+    fi
+    penlabels(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+end_letter;
+
+input vnecomp;
+
+endinput;

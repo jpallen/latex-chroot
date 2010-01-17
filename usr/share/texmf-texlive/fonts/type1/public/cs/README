@@ -1,0 +1,71 @@
+
+                           CSfonty ve formatu pfb
+         ==========================================================
+         verze 1.0-alfa, duben 1998                      Petr Olsak
+
+CSfonty ve formatu pfb (Type1) byly pripraveny timto zpusobem:
+- popisy zakladnich znaku jsou cerpany z BaKoMa Computer Modern fontu,
+  T1FMT-V2.0 Copyright (c) 1993,1994, Basil K. Malyshev.
+- akcenty jsou cerpany z vystupu programu Metapost pri zpracovani
+  Metafontovych zdroju CSfontu a mnohdy rucne upraveny. Soubor csaccents.mf
+  byl pro tyto ucely modifikovan (napriklad odstraneno filldraw a nahrazeno
+  fill s obvodovou cestou, kterou bylo nutne Metafontem napocitat).
+- akcenty jsou k zakladovym znakum pripojeny programem t1accent, viz
+  ftp://math.feld.cvut.cz/pub/olsak/t1accent/
+- tato prvni verze fontu cerpa akcenty pro kazdou variantu rezu z cs*10.mf
+  a akcenty jsou pro jine velikosti tehoz rezu zvetsovany geometricky. Neni
+  to idealni, ale snazil jsem se najit nejmensi koeficient typu
+  "mnozstvi prace / celkovy efekt". Program t1accent bohuzel zdaleka neni a
+  nikdy nebude Meta-t1accent.
+- konfiguracni soubory pro generovani CSfontu pomoci t1accent jsou v baliku
+  pro ilustraci prilozeny (viz soubory s priponou *.tab).
+- AFM soubory k fontum nejsou distribuovany. Muzete si je vytvorit stazenim
+  souboru ftp://ftp.muni.cz/pub/tex/CTAN/dviware/dvitops/printafm.ps a
+  pouzitim povelu: echo /Nazev-Fontu printafm | gs printafm.ps > metrika.afm
+  ovsem takova metrika nebude obsahovat informace o kerningovych parech a
+  ligaturach, ktere jsou bezne obsazeny v tfm metrikach.
+
+CSfonty ve formatu pfb jsou verejne siritelne podle stejnych podminek,
+jako jsou sireny BaKoMa fonty. Podrobneji viz soubor ../cm/BaKoMa-CM.Fonts
+odstavec "Licensing agreement". Spolecne s matematickymi CM fonty z baliku
+BaKoMa vznika kompletni balik Type1 alternativ pro nejcasteji pouzivanou
+rodinu fontu v TeXu (CM a CS), ktera je v kazde instalaci TeXu a CSTeXu
+povazovana za implicitni.
+
+Na distribuovane fonty se nevztahuje zadna zaruka. Je mozne, ze nebude vse
+uplne v poradku. Fonty byly testovany na RIPu tiskarny HP Laser IV, dale na
+GhostScriptu a konecne v Acroreaderu po zavedeni fontu do dokumentu
+pdfTeXem.
+
+Poznamka: protoze tento balik ma pro zarazeni do volne sirenych
+distribuci nevyhovujici licenci, bude potreba prevest Type1
+implementaci CSfontu s vyuzitim jineho vychoziho baliku (bluesky?). 
+Kdo to udela?
+
+
+INSTALACE
+---------
+
+1. Instalujte BaKoMa fonty z ftp://ftp.muni.cz/pub/tex/CTAN/fonts/...
+   Tento krok neni nutny, ale pokud chcete mit sadu CM+CS.pfb uplnou, je
+   tento krok zadouci. Mate-li pdfTeX a navic instalovanou knihovnu
+   cspdftexlib.tar z CSTeXu, BaKoMa fonty uz mate instalovany.
+2. Zkopirujte cs*.pfb soubory do texmf/fonts/type1/public/cs/.
+3. Pridejte obsah souboru csfont-d.map do souboru psfonts.map, ktery najdete
+   nekde v podadresarich texmf/dvips/*. Tento krok nedelejte, pokud
+   nechcete vzdy pouzivat pfb alternativu fontu ve vystupech programu dvips
+   a nechcete se vzdat cesty zarazovani fontu jako bitmap generovanych
+   z puvodnich lety overenych Metafontovych zdroju. Protoze je tento balik
+   pfb fontu oznaceny jako alfa, je tato opatrnost opodstatnena.
+4. Umistete csfont-e.map a vsechny *.enc soubory do texmf/pdftex/config/ a
+   misto radku "map +cs.map" v pdftex.cfg napiste "map +csfont-e.map".
+   Tim si urcite polepsite, protoze puvodni reseni pdfTeXu a CSfontu vedlo
+   pres DC fonty, ktere nepokryvaly matematickou sadu znaku z pocatku
+   tabulky a mely jine tvary akcentu.
+5. Provedte MakeTeXls-R nebo mktexlsr pro aktualizaci databaze souboru.
+6. Instalujte pfb fonty do Ghostscriptu. To vyzaduje vlozeni obsahu souboru
+   csfont-g.map do ghostscript/Fontmap a dale:
+     cd /usr/local/ghostscript/fonts
+     ln -s /usr/local/share/texmf/fonts/type1 tex
+   Konkretni cesty mohou vypadat na Vasi instalaci mirne jinak.
+

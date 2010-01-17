@@ -1,0 +1,1461 @@
+%
+% lcyrdefs.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=2
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Cyrillic definitions and
+%  macros borrowed from ec fonts package (J"org Knappen)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Content:
+%
+% Cyrillic startup definitions:
+%  cyrchar stuff
+%  load components absent in Computer Modern parameters files
+%  redefined font_setup
+% Advanced cmbase's definitions
+%  macros for cyr letter's drawing
+%  macro for accent cyrbreve - cyrillic breve
+% Exbase's special routines for accenting
+%  (borrowed part from exbase)
+% Macros for processing chars twice
+%  (borrowed part from exbase)
+% Accents which created with beginchar_twice routine
+%  (borrowed from exaccess)
+%
+
+LHver_check(3,5); % like |version_check| in ec
+
+let lhchar=\; % `|lhchar|' should precede each character
+
+if roman_ec: % for inputed exrullett.mf and exrllett.mf
+     def version_check(expr e,f) = enddef;
+     let ecchar=\;
+fi;
+
+%
+% defining cyrchar stuff - chars with floating codes
+%
+if unknown autocount: % set auto code count for miscelaneous fonts
+   def cyrchar(suffix $)(expr w_sharp,h_sharp,d_sharp) =
+       iff known CYR_.$: beginchar(CYR_.$,w_sharp,h_sharp,d_sharp);
+   enddef;
+
+   def cyrarithchar(suffix $) =
+       iff known CYR_.$: beginarithchar(CYR_.$);
+   enddef;
+
+   def cyrchar_twice(suffix $)(expr w_sharp,h_sharp,d_sharp) =
+       iff known CYR_.$: beginchar_twice(CYR_.$,w_sharp,h_sharp,d_sharp);
+   enddef;
+
+   def getcharcode(suffix $) =
+       if known CYR_.$: charcode:=CYR_.$; fi
+   enddef;
+fi
+
+% next macro necessary for absent Old Slav letters in Italic fonts
+def cyrcharmoving (suffix $) = if known CYR_.$: CYR_.$ := -2; fi enddef;
+
+%
+% load components absent in parameter files
+%
+if unknown acc_height#: % emulation ecfonts parameter file
+
+   if monospace: % borrowed from ectt
+      basedef                     ( 8,      9,   10,   12);
+      gendef[1/36pt#](acc_height#)(60,   67.5,   75,   90);
+      gendef[1/36pt#](dot_height#)(60,   67.5,   75,   90);
+   else: % borrowed from ecrm
+      basedef                     (   5,    6,    7,  8,    9, 10,   12, 17.28);
+      gendef[1/36pt#](acc_height#)(42.5,   49, 55.5, 62, 68.5, 75,   90, 127.5);
+      gendef[1/36pt#](dot_height#)(  42, 46.6, 51.2, 56, 60.4, 66, 77.2,   100);
+   fi
+
+fi
+
+sbeak#     := (if serifs: max(beak#,3/4desc_depth#) else: desc_depth# fi) /1.2;
+cap_sbeak# :=  if serifs: max(beak#,3/4desc_depth#) else: desc_depth# fi;
+
+%
+% add absent exbase parameters in cmbase's font_setup
+% original font_setup macro redefined to ADD necessary settings in it's context
+%
+let font_setup_ = font_setup;
+
+def font_setup =
+    font_setup_;
+    define_whole_blacker_pixels(acc_height);
+    define_pixels(cap_sbeak,sbeak);
+    pickup pencircle scaled min(hair,vair);
+    extra_rule.nib:=savepen;
+enddef;
+
+%
+% booleans for lowercase/uppercase identifying
+%
+boolean cyrcaph, cyrcaph.cyrcaph;
+cyrcaph          = false;
+cyrcaph.cyrcaph  = true;
+
+%
+% advanced cmbase's definitions: macros for cyr letter's drawing
+%   set_bar_axis, bar_stroke
+%   cyr_serif, l_serif, r_serif
+%   cyrbulb
+%   cbreve
+
+% sets for bar axis in lowercase letters
+%
+vardef set_bar_axis =
+    pickup tiny.nib; y1.bh:=vround(.55x_height-.6[thin_join,vair]/2);
+    y2.bh:=y1.bh+.6[thin_join,vair]; y0.bh:=.5[y2.bh,y1.bh];
+enddef;
+
+vardef bar_stroke(expr left_jut,right_jut) = % |x$r| and |x$$r| (only) are known
+    if left_jut>right_jut: errmessage ("change `bar' points"); fi
+    fix_virgin z;
+    set_bar_axis;
+    if serifs: pickup crisp.nib; else: pickup fine.nib; fi
+    if (y2.bh-y1.bh)>(currentbreadth+eps):
+       pos[ii](.6[thin_join,vair],90); pos[jj](.6[thin_join,vair],90);
+       lft x[ii]r=left_jut; rt x[jj]r=right_jut;
+       top y[ii]r=top y[jj]r=y2.bh;
+       filldraw stroke z[ii]e--z[jj]e; % bar
+    else:
+       y[ii]l=y[jj]l=y1.bh; y[ii]r=y[jj]r=y2.bh;
+       x[ii]l=x[ii]r=left_jut; x[jj]l=x[jj]r=right_jut;
+       fill z[jj]l{right}...{left}z[jj]r--z[ii]r{left}...{right}z[ii]l--cycle; % bar
+    fi
+    penlabels([ii],[jj]);
+enddef;
+
+%
+% Cyrillic descender serif
+%
+vardef cyr_serif(suffix $,$$,@)  % serif at |z$| for stroke from |z$$|
+                (expr darkness,beak_darkness,jut,beak_jut) =
+    if serifs:
+          pickup crisp.nib;
+    else:
+          pickup pencircle scaled (3/5[fine,crisp]+eps);
+    fi
+    numeric bracket_height,light_stem; pair downward;
+    bracket_height=bracket;
+    light_stem=hround (max(tiny.breadth,fudged.hair if hefty:-4stem_corr fi));
+    % for cyr_serif always |y$|<|y$$|
+    if (y$>y$$): errmessage ("`cyr_serif' placed only on the bottom"); fi
+    downward=z$-z$$;
+    y@0=min(y$+bracket_height,y$$)+eps;
+    top y@1-slab-eps=bot y@4+eps=tiny.bot y$;
+    if y@1>y@0: y@0:=y@1+eps; fi
+    bot y@2=bot y@3=vround(-d);
+    y@5=y@1; y@6=y@0;
+    z@5=whatever[z$,z$$]; z@6=whatever[z$,z$$];
+    if jut<0:
+       z@0+penoffset downward of currentpen =
+           z$l+penoffset downward of pen_[tiny.nib]+whatever*downward;
+       lft x@1=hround (tiny.lft x$l+jut)-eps;
+       if x@6<x@0+eps: x@6:=x@0+eps; fi
+       lft x@2=rt x@3-light_stem-eps=hround (lft x@1+beak_jut)-eps;
+       x@4=x$+.5(fudged.stem-3stem_corr-tiny)+eps;
+    else:
+       z@0-penoffset downward of currentpen =
+           z$r-penoffset downward of pen_[tiny.nib]-whatever*downward;
+       rt x@1=hround (tiny.rt x$r+jut)+eps;
+       if x@6>x@0-eps: x@6:=x@0-eps; fi
+       rt x@2=lft x@3+light_stem+eps=hround (rt x@1+beak_jut)+eps;
+       x@4=x$-.5(fudged.stem-3stem_corr-tiny)-eps;
+    fi
+    pair corner,beak_corner;
+    ypart corner=y@1; corner=z@0+whatever*downward;
+    ypart beak_corner=y@4; beak_corner=z@3+whatever*(z@1-z@2);
+    if jut<0:
+       filldraw z@0{z$-z$$}
+           ...(darkness+eps)[corner,.5[z@1,z@0]]{z@1-z@0}
+           ...{jut,0}z@1--z@2--z@3{z@1-z@2}
+           ...(beak_darkness+eps)[beak_corner,.5[z@3,z@4]]
+           ...{-jut,0}z@4--(x@4,y@1)--z@5--z@6--cycle; % descender
+    else:
+       filldraw z@6--z@5--(x@4,y@1)--z@4{jut,0}
+           ...(beak_darkness+eps)[beak_corner,.5[z@3,z@4]]
+           ...{z@2-z@1}z@3--z@2--z@1{-jut,0}
+           ...(darkness+eps)[corner,.5[z@1,z@0]]{z@0-z@1}
+           ...{z$$-z$}z@0--cycle; % descender
+    fi
+    labels (@0,@1,@2,@3,@4,@5,@6);
+enddef;
+
+vardef siam_serif(suffix $,$$,@)  % serif at |z$| for stroke from |z$$|
+                (expr darkness,jut) =
+    if serifs:
+          pickup crisp.nib;
+    else:
+          pickup pencircle scaled (3/5[fine,crisp]+eps);
+    fi
+    numeric bracket_height,light_stem; pair downward;
+    bracket_height=bracket;
+    light_stem=hround (max(tiny.breadth,3/5[fudged.hair,fudged.stem]));
+    % for cyr_serif always |y$|<|y$$|
+    if (y$>y$$): errmessage ("`cyr_serif' placed only on the bottom"); fi
+    downward=z$-z$$;
+    y@0=min(y$+bracket_height,y$$)+eps;
+    top y@1-slab-eps=bot y@4+eps=tiny.bot y$;
+    if y@1>y@0: y@0:=y@1+eps; fi
+    bot y@2=bot y@3=vround(-d);
+    y@5=y@1; y@6=y@0;
+    z@5=whatever[z$,z$$]; z@6=whatever[z$,z$$];
+    if jut<0:
+       z@0+penoffset downward of currentpen =
+           z$l+penoffset downward of pen_[tiny.nib]+whatever*downward;
+       lft x@1=hround (tiny.lft x$l+jut)-eps;
+       if x@6<x@0+eps: x@6:=x@0+eps; fi
+       lft x@2=rt x@3-light_stem-eps=hround (lft x@1+beak_jut)-eps;
+       x@4=x$+.5(fudged.stem-3stem_corr-tiny)+eps;
+    else:
+       z@0-penoffset downward of currentpen =
+           z$r-penoffset downward of pen_[tiny.nib]-whatever*downward;
+       rt x@1=hround (tiny.rt x$r+jut)+eps;
+       if x@6>x@0-eps: x@6:=x@0-eps; fi
+       rt x@2=lft x@3+light_stem+eps=x@0+eps;
+       x@4=x$-.5(fudged.stem-3stem_corr-tiny)-eps;
+    fi
+    pair corner,beak_corner;
+    ypart corner=y@1; corner=z@0+whatever*downward;
+    ypart beak_corner=y@4; beak_corner=z@3+whatever*(z@1-z@2);
+    if jut<0:
+       filldraw z@0{z$-z$$}
+           ...(darkness+eps)[corner,.5[z@1,z@0]]{z@1-z@0}
+           ...{jut,0}z@1--z@2--z@3
+           --beak_corner
+           --z@4--(x@4,y@1)--z@5--z@6--cycle; % descender
+    else:
+       filldraw z@6--z@5--(x@4,y@1)--z@4
+           --beak_corner
+           --z@3--z@2--z@1{-jut,0}
+           ...(darkness+eps)[corner,.5[z@1,z@0]]{z@0-z@1}
+           ...{z$$-z$}z@0--cycle; % descender
+    fi
+    labels (@0,@1,@2,@3,@4,@5,@6,beak_corner);
+enddef;
+%
+% roman descenders
+%
+def l_serif(suffix $,$$,@)  % descender at |z$| for stroke from |z$$|
+           (expr left_darkness,beak_darkness,left_jut,beak_jut)
+           (suffix @@)
+           (expr right_darkness,right_jut) =
+    cyr_serif($,$$,@,left_darkness,beak_darkness,-left_jut,-beak_jut);
+    serif($,$$,@@,right_darkness,right_jut);
+enddef;
+%
+def r_serif(suffix $,$$,@)  % descender at |z$| for stroke from |z$$|
+           (expr left_darkness,left_jut)
+           (suffix @@)
+           (expr right_darkness,beak_darkness,right_jut,beak_jut) =
+    serif($,$$,@,left_darkness,-left_jut);
+    cyr_serif($,$$,@@,right_darkness,beak_darkness,right_jut,beak_jut);
+enddef;
+
+%
+% italic descender
+%
+def i_serif(suffix $,@) =   % vawed italic descender
+    y@1=.5[y$,y@2r]; x@1r=x$r;
+    numeric theta,slope;
+    theta=angle(-max(3u,u+2curve),d);
+    slope=-angle(-max(2u,u+curve),d);
+    pos@1(.5[vair,hair],180);
+    pos@2(7/8[hair,curve],theta);
+    pos@3(vair,theta);
+    lft x@2r=lft x@1r+max(.5hair,1)+eps;
+    y@2r=-.35d;
+    bot y@3l=-d-oo;
+    z@3l=z@2l+hair*dir (if monospace: .5 fi theta)+whatever*dir slope;
+    filldraw stroke z$e{down}...z@1e...z@2e{down}....{dir (slope)}z@3e;
+    penlabels (@1,@2,@3);
+enddef;
+
+%
+% redefined bulb: ... with directions instead of --
+%
+def cyrbulb(suffix $,$$,$$$) =
+    z$$$r=z$$r;
+    path_.l:=z$l{x$$r-x$r,0}...{0,y$$r-y$r}z$$l;
+    path p_; p_:=z$r{x$$r-x$r,0}...{0,y$$r-y$r}z$$r;
+    filldraw path_.l--reverse p_--cycle; % link
+    path_.r:=z$$$l{0,y$r-y$$r}..z$$$r{0,y$$r-y$r}; % near-circle
+    y_:=xpart(path_.r intersectiontimes p_);
+    if y_<0: y_:=1; fi
+    filldraw subpath(0,y_) of path_.r
+       {dir (angle direction y_ of p_)}...%--
+       z$$r{0,y$$r-y$r}..cycle; % bulb
+enddef;
+
+%
+% cbreve accent for Cyrillic letters
+%
+boolean altaccent; altaccent=false;
+
+vardef cbreve(expr x_center,y_move,
+             _one,_two,_three,_four,_five,_six,_seven) suffix modifier =
+    numeric mid_thickness,bulb_diam;
+    mid_thickness=max(crisp.breadth,vround if serifs: 1/5 else: 1/3 fi[vair,stem]);
+    bulb_diam=max(crisp.breadth,hround(max(dot_size,cap_curve)-2stem_corr));
+    pickup crisp.nib;
+    pos[_one](bulb_diam,0); pos[_two](bulb_diam,90);
+    x[_one]=x[_two]=x_center-1.75u if monospace: /expansion_factor fi;
+    if cyrcaph.modifier:
+        bot y[_six]r=vround (y_move+max(
+               min(cap_height+o+max(tiny,0.5mid_thickness),
+                   cap_height+0.3acc_height),
+               1/3[cap_height,min(asc_height,2x_height)]+o-.5mid_thickness
+            ));
+        top y[_two]r=vround (y_move+max(
+               (cap_height+dot_height#*hppp),
+               bot y[_six]r+mid_thickness+bulb_diam+eps
+            ));
+    else:
+        bot y[_six]r=vround (y_move+max(
+                min(x_height+o+max(tiny,0.5mid_thickness),
+                    x_height+0.3acc_height),
+                if serifs:
+                    1/3[x_height, min(asc_height,2x_height)
+                                  -cap_height+x_height]
+                else:
+                    1/3[x_height,h]
+                fi + o - 0.5mid_thickness
+            ));
+        top y[_two]r=vround (y_move+max(
+                (x_height+dot_height#*hppp),
+                bot y[_six]r+mid_thickness+bulb_diam+eps
+            ));
+    fi
+    y[_one]=y_move+.5[y[_two]l,y[_two]r];
+    pos[_three](bulb_diam,0);
+    penpos[_four](y[_two]r-y[_two]l,90);
+    y[_three]=y[_four]=y[_one];
+    x[_three]=x[_four]=x[_one]+3.5u if monospace: /expansion_factor fi;
+    if square_dots: % no dots in sans serif cyrbreve
+        x[_six]=hround x_center;
+        lft x[_five]r=hround(x[_six]-2.5u
+                  if monospace: /expansion_factor fi-.5vair);
+        rt x[_seven]r=hround(x[_six]+2.5u
+                  if monospace: /expansion_factor fi+.5vair);
+        top y[_five]=top y[_seven]=h+y_move; % common for both upper and lower
+        if y[_six]r>(bot y[_seven]-eps):
+              y[_six]r:=bot y[_seven]-eps;
+        fi
+    else:
+        dot([_one],[_two]); % left dot
+        if not altaccent:
+           dot([_three],[_four]); % right dot
+        fi
+        x[_six]=.5[x[_one]l,x[_three]r];
+        lft x[_five]r=lft x[_one]l;
+        rt x[_seven]r=rt x[_three]r;
+        top y[_five]=top y[_seven]=y[_two]; % common for both upper and lower
+    fi
+    pos[_five](vair,-180);
+    pos[_seven](vair,0);
+    pos[_six](mid_thickness,-90);
+    filldraw stroke z[_five]e{down}
+          ...z[_six]e{right}
+          ...{up}z[_seven]e;  % stroke
+    penlabels ([_five],[_six],[_seven]);
+enddef;
+
+%%% fine hi higher
+% |higher| is a counterpart to |lower| (see the file excsc.mf),
+% |hi| facilitates using higher values (which are reference points in
+% the floating world of CM fonts)
+def hi = if is_small_cap: higher fi\\ enddef;
+
+%
+%  special routines for accenting bowwowed from ecfonts but rearranged
+%
+%!!!lhfonts: first goes umlaut for yo
+vardef lowercase_umlaut(expr x_move,y_move,umlaut_one,umlaut_two,
+   umlaut_three,umlaut_four) =
+numeric dot_dist; dot_dist:=round(3.5u); % (CMBRIGHT)
+pickup tiny.nib;
+pos[umlaut_one](udot_diam,0);
+pos[umlaut_two](udot_diam,90);
+%x[umlaut_one]=x[umlaut_two]=x_move+.5w-1.75u if monospace:/expansion_factor fi ;
+x[umlaut_one]=x[umlaut_two]=x_move+.5w-0.5dot_dist %(CMBRIGHT)
+ if monospace:/expansion_factor fi ;               %(CMBRIGHT)
+top y[umlaut_two]r=lc_trema_height;
+y[umlaut_one]=y_move+.5[y[umlaut_two]l,y[umlaut_two]r];
+dot([umlaut_one],[umlaut_two]);  % left dot
+pos[umlaut_three](udot_diam,0);
+penpos[umlaut_four](y[umlaut_two]r-y[umlaut_two]l,90);
+y[umlaut_three]=y[umlaut_four]=y[umlaut_one];
+x[umlaut_three]=x[umlaut_four]=x[umlaut_one]
+%     +3.5u if monospace: /expansion_factor fi ;
+     +dot_dist if monospace: /expansion_factor fi ; % (CMBRIGHT)
+dot([umlaut_three],[umlaut_four]);  % right dot
+enddef;
+%
+vardef uppercase_umlaut(expr x_move,y_move,umlaut_one,umlaut_two,
+   umlaut_three,umlaut_four) =
+numeric dot_dist; dot_dist:=round(3.5u); % (CMBRIGHT)
+pickup tiny.nib;
+pos[umlaut_one](udot_diam,0);
+pos[umlaut_two](udot_diam,90);
+%x[umlaut_one]=x[umlaut_two]=x_move+.5w-1.75u if monospace:/expansion_factor fi ;
+x[umlaut_one]=x[umlaut_two]=x_move+.5w-0.5dot_dist %(CMBRIGHT)
+ if monospace:/expansion_factor fi ;               %(CMBRIGHT)
+top y[umlaut_two]r=vround(cap_height+dot_height#*hppp);
+y[umlaut_one]=y_move+.5[y[umlaut_two]l,y[umlaut_two]r];
+dot([umlaut_one],[umlaut_two]);  % left dot
+pos[umlaut_three](udot_diam,0);
+penpos[umlaut_four](y[umlaut_two]r-y[umlaut_two]l,90);
+y[umlaut_three]=y[umlaut_four]=y[umlaut_one];
+x[umlaut_three]=x[umlaut_four]=x[umlaut_one]
+%     +3.5u if monospace: /expansion_factor fi ;
+     +dot_dist if monospace: /expansion_factor fi ; % (CMBRIGHT)
+dot([umlaut_three],[umlaut_four]);  % right dot
+enddef;
+%
+%
+% breve accent used in wncyr font
+%
+%!!! lowercase_breve edited
+vardef lowercase_breve(expr x_center,y_move,breve_one,breve_two,breve_three)=
+pickup crisp.nib; pos[breve_one](vair,-180);
+pos[breve_three](vair,0);
+top y[breve_one]=top y[breve_three]=h;
+x[breve_two]=x_center;
+lft x[breve_one]r=hround(x[breve_two]-2.5u
+   if monospace: /expansion_factor fi -0.5vair);
+rt x[breve_three]r=hround(x[breve_two]+2.5u
+   if monospace: /expansion_factor fi +0.5vair);
+numeric mid_thickness; mid_thickness=max(crisp.breadth,vround 1/3[vair,stem]);%!!!
+bot y[breve_two]r=
+   vround max(x_height+o+tiny,1/3[x_height,h]+o-.5mid_thickness);
+if y[breve_two]r>(y[breve_one]-.5crisp-eps): %!!!
+   y[breve_two]r:=y[breve_one]-.5crisp-eps; fi %!!!
+pos[breve_two](mid_thickness,-90); %!!! moved here after if
+filldraw stroke z[breve_one]e{down}...
+         z[breve_two]e{right}...{up}z[breve_three]e;  % stroke
+enddef;
+%
+%!!! uppercase_breve edited
+vardef uppercase_breve (expr x_center,y_move,breve_one,
+   breve_two,breve_three)=
+pickup crisp.nib; pos[breve_one](vair,-180);
+pos[breve_three](vair,0);
+top y[breve_one]=top y[breve_three]=cap_height + acc_height;
+x[breve_two]=hround x_center;
+x[breve_two]-rt x[breve_one]l
+  =(lft x[breve_three]l)-x[breve_two]
+  =hround (2.5u if monospace: /expansion_factor fi -.5vair);
+numeric mid_thickness;
+mid_thickness=max(crisp.breadth,vround min(1/3[vair,stem],.5acc_height));%!!!
+pos[breve_two](mid_thickness,-90);
+% |accent_gap| SHOULD be defined by the acute accent, before this macro runs
+if unknown accent_gap: % accent_gap emulation
+   if serifs:
+      y[breve_two]'=h-.5mid_stem+eps-max(2/3[h,hi.x_height],hi.x_height+o+hair);
+      accent_gap=a_ht-(y[breve_two]'+.5mid_stem)-hi.x_height;
+   else:
+      top y[breve_two]'=h-vround(2/3[h,hi.x_height]);
+      accent_gap=a_ht-y[breve_two]'-hi.x_height;
+   fi
+fi
+bot y[breve_two]r=cap_height + if hefty: .5 fi accent_gap;
+filldraw stroke z[breve_one]e{down}...z[breve_two]e{right}...
+     {up}z[breve_three]e;  % stroke
+enddef;
+%
+%
+% the rest of accents
+%
+%!!! lowercase_cedilla edited
+vardef lowercase_cedilla (expr x_center,y_move,
+   cedi_one,cedi_two,cedi_three,cedi_four,cedi_five) =
+x[cedi_one]=x_center; % .5w+.5u;
+if serifs:
+ pickup crisp.nib;
+ pos[cedi_one](stem,0);
+ pos[cedi_two](stem,0);
+ pos[cedi_three](vair,90);
+ pos[cedi_four](stem,0);
+ pos[cedi_five](vair,-90);
+ x[cedi_one]=x[cedi_two];
+ z[cedi_three]l=z[cedi_two]l;
+ x[cedi_four]=x[cedi_two]+1.5u;
+ x[cedi_five]=x[cedi_three]-1.5u;
+ bot y[cedi_one]=y_move;%!!! was 0
+ bot y[cedi_two]=-vround 2/7d-o;
+ y[cedi_four]=.5[y[cedi_three],y[cedi_five]];
+ bot y[cedi_five]=-d-o;
+ filldraw stroke z[cedi_one]e--z[cedi_two]e;  % stem
+ filldraw stroke z[cedi_three]e{right}...
+   z[cedi_four]e{down}...{left}z[cedi_five]e;  % hook
+else: pickup fine.nib; pos[cedi_one](vair,0); top y[cedi_one]=-o-2;
+ pos[cedi_two](.5[vair,stem],0);
+ bot y[cedi_two]=-d-o; x[cedi_two]=x[cedi_one]-1.25u;
+ filldraw stroke z[cedi_one]e--z[cedi_two]e; fi  % diagonal
+enddef;
+%
+vardef uppercase_cedilla(expr x_center,y_move,
+  cedi_one,cedi_two,cedi_three,cedi_four,cedi_five) =
+x[cedi_one]=x_center;
+if serifs:
+ pickup crisp.nib;
+ pos[cedi_one](stem,0);
+ pos[cedi_two](stem,0);
+ pos[cedi_three](vair,90);
+ pos[cedi_four](stem,0);
+ pos[cedi_five](vair,-90);
+ x[cedi_one]=x[cedi_two];
+ z[cedi_three]l=z[cedi_two]l;
+ x[cedi_four]=x[cedi_two]+1.5u if monospace: /expansion_factor fi;
+ x[cedi_five]=x[cedi_three]-1.5u if monospace: /expansion_factor fi;
+ top y[cedi_one]=y_move;
+ bot y[cedi_two]=-vround 2/7d-o;
+ y[cedi_four]=.5[y[cedi_three],y[cedi_five]];
+ bot y[cedi_five]=-d-o;
+ filldraw stroke z[cedi_one]e--z[cedi_two]e;  % stem
+ filldraw stroke z[cedi_three]e{right}...
+   z[cedi_four]e{down}...{left}z[cedi_five]e;  % hook
+else: pickup fine.nib; pos[cedi_one](vair,0);
+ top y[cedi_one]=-o-2;
+ pos[cedi_two](.5[vair,stem],0);
+ bot y[cedi_two]=-d-o; x[cedi_two] =
+    x[cedi_one]-1.25u if monospace: /expansion_factor fi;
+ filldraw stroke z[cedi_one]e--z[cedi_two]e; fi  % diagonal
+enddef;
+%
+%
+%!!! uppercase_hat edited
+vardef uppercase_hat
+    (expr x_center,y_move,hat_zero,hat_one,hat_two,hat_three,hat_four) =
+if serifs:
+ pickup crisp.nib;
+ pos[hat_two](.5[vair,curve],90);
+ top y[hat_two]r=cap_accent_height+oo;
+ x[hat_two]=good.x x_center; %  optically centered
+ x[hat_one]=good.x x[hat_two]-2.25u if monospace: /expansion_factor fi ;
+ x[hat_three]=2x[hat_two]-x[hat_one];
+ %!!! |accent_gap| SHOULD be defined by the acute accent, before this macro runs
+ if unknown accent_gap:  % accent_gap emulation
+    y[hat_one]'=h-.5mid_stem+eps-max(2/3[h,hi.x_height],hi.x_height+o+hair);
+    accent_gap=a_ht-(y[hat_one]'+.5mid_stem)-hi.x_height;
+ fi
+ y[hat_one]=y[hat_three] = accent_gap + cap_height;
+ pos[hat_one](hair,angle(z[hat_two]-z[hat_one])+90);
+ pos[hat_three](hair,angle(z[hat_three]-z[hat_two])+90);
+ filldraw stroke z[hat_one]e--z[hat_two]e--z[hat_three]e;  % diagonals
+else:
+ pickup fine.nib;
+ pos[hat_one](vair,0);
+ pos[hat_three](vair,0);
+ pos[hat_two](stem,0);
+ top y[hat_two]=cap_accent_height+oo;
+ x[hat_two]=good.x x_center; %  optically centered
+ x[hat_one]=good.x x[hat_two]-2.25u if monospace: /expansion_factor fi ;
+ x[hat_three]=2x[hat_two]-x[hat_one];
+ %!!! |accent_gap| SHOULD be defined by the acute accent, before this macro runs
+ if unknown accent_gap:  % accent_gap emulation
+    top y[hat_one]'=h-vround(2/3[h,hi.x_height]);
+    accent_gap=a_ht-y[hat_one]'-hi.x_height;
+ fi
+ bot y[hat_one]=bot y[hat_three]=.5accent_gap + cap_height;
+ z[hat_zero]=whatever[z[hat_one]r,z[hat_two]r]=
+    whatever[z[hat_two]l,z[hat_three]l];
+ y[hat_four]l=y[hat_four]r=y[hat_two];
+ x[hat_four]l=hround (.2[x[hat_two]l,x[hat_two]]-eps); %!!!
+ x[hat_four]r=w-x[hat_four]l;
+ filldraw z[hat_four]l--z[hat_one]l--z[hat_one]r--
+    z[hat_zero]--z[hat_three]l--
+    z[hat_three]r--z[hat_four]r--cycle; fi  % diagonals
+enddef;
+%
+%!!! lowercase_hat edited
+vardef lowercase_hat
+    (expr x_center,y_move,hat_zero,hat_one,hat_two,hat_three,hat_four) =
+if serifs:
+ pickup crisp.nib;
+ pos[hat_two](.5[vair,curve],90);
+ top y[hat_two]r=h+y_move;
+ x[hat_two]=good.x x_center; %  optically centered
+ x[hat_one]=good.x x[hat_two]-2.25u if monospace: /expansion_factor fi ;
+ x[hat_three]=2x[hat_two]-x[hat_one];
+ y[hat_one]=y[hat_three] =
+     max(y[hat_two]-0.5(min(asc_height,2x_height)-x_height),
+         1/6[x_height,h]);
+ pos[hat_one](hair,angle(z[hat_two]-z[hat_one])+90);
+ pos[hat_three](hair,angle(z[hat_three]-z[hat_two])+90);
+ filldraw stroke z[hat_one]e--z[hat_two]e--z[hat_three]e;  % diagonals
+else:
+ pickup fine.nib;
+ pos[hat_one](vair,0);
+ pos[hat_three](vair,0);
+ pos[hat_two](stem,0);
+ top y[hat_two]=h+y_move;
+ x[hat_two]=good.x x_center; %  optically centered
+ x[hat_one]=good.x x[hat_two]-2.25u if monospace: /expansion_factor fi ;
+ x[hat_three]=2x[hat_two]-x[hat_one];
+ bot y[hat_one]=bot y[hat_three]=vround (2/3[x_height+acc_height,x_height]-eps); %!!!
+     % same slope as in the acute accent
+ z[hat_zero]=whatever[z[hat_one]r,z[hat_two]r]=
+    whatever[z[hat_two]l,z[hat_three]l];
+ y[hat_four]l=y[hat_four]r=y[hat_two];
+ x[hat_four]l=hround (.2[x[hat_two]l,x[hat_two]]-eps); %!!!
+ x[hat_four]r=w-x[hat_four]l;
+ filldraw z[hat_four]l--z[hat_one]l--z[hat_one]r--
+    z[hat_zero]--z[hat_three]l--
+    z[hat_three]r--z[hat_four]r--cycle; fi  % diagonals
+enddef;
+%
+%
+vardef lowercase_tilde(expr x_move,y_move,tilde_one,tilde_two,tilde_three,
+     tilde_four,tilde_five)=
+h':=min(asc_height,10/7x_height+.5dot_size);
+if serifs: numeric theta;
+ theta=angle(1/6(
+    6u if monospace: /expansion_factor fi-vair),
+      1/4(h'-x_height));
+ pickup crisp.nib;
+ numeric mid_width; mid_width=.4[vair,stem];
+ pos[tilde_one](vair,theta+90);
+ pos[tilde_two](vair,theta+90);
+ pos[tilde_three](vair,theta+90);
+ pos[tilde_four](vair,theta+90);
+ z[tilde_two]-z[tilde_one]=
+    z[tilde_four]-z[tilde_three]=(mid_width-crisp)*dir theta;
+ lft x[tilde_one]r=hround(x_move+0.5w-3u if monospace: /expansion_factor fi);
+ rt x[tilde_four]l=hround(x_move+0.5w+3u if monospace: /expansion_factor fi);
+ top y[tilde_four]r=h';
+ pair delta;
+ ypart delta=3(y[tilde_three]l-y[tilde_one]l);
+ delta=whatever*dir theta;
+ bot y[tilde_one]l=vround(bot y[tilde_one]l+
+    min(2/3[x_height,h'],y[tilde_three]l-.25vair)-top y[tilde_one]r);
+ filldraw z[tilde_one]l..
+   controls(z[tilde_one]l+
+    delta)and(z[tilde_three]l-delta)..z[tilde_three]l..z[tilde_four]l
+  --z[tilde_four]r..
+     controls(z[tilde_four]r-delta)and(z[tilde_two]r+delta)..
+     z[tilde_two]r..z[tilde_one]r--cycle;  % stroke
+else:
+ pickup fine.nib;
+ pos[tilde_one](vair,180);
+ pos[tilde_two](vair,90);
+ pos[tilde_three](.5[vair,slab],90);
+ pos[tilde_four](vair,90);
+ pos[tilde_five](vair,180);
+ lft x[tilde_one]r=hround (x_move + 0.5w-3u);
+ rt x[tilde_five]l=hround (x_move + 0.5w+3u);
+ x[tilde_two]-x[tilde_one]=
+    x[tilde_three]-x[tilde_two]=
+    x[tilde_four]-x[tilde_three]=x[tilde_five]-x[tilde_four];
+ bot y[tilde_one]=bot y[tilde_four]l=y_move+vround(.75[x_height,h]-vair);
+ top y[tilde_two]r=top y[tilde_five]=h+y_move;
+ y[tilde_three]=.5[y[tilde_two],y[tilde_four]];
+ filldraw stroke
+   z[tilde_one]e{up}...
+     z[tilde_two]e{right}..
+     z[tilde_three]e..
+     {right}z[tilde_four]e...{up}z[tilde_five]e; fi % stroke
+enddef;
+
+%
+%!!! uppercase_tilde edited
+vardef uppercase_tilde(expr x_move,y_move,tilde_one,tilde_two,tilde_three,
+     tilde_four,tilde_five)=
+if serifs: numeric theta;
+ theta=angle(1/8(7u if monospace: /expansion_factor fi-vair),1/4acc_height);
+ pickup crisp.nib;
+ numeric mid_width; mid_width=.4[vair,stem];
+ pos[tilde_one](vair,theta+90);
+ pos[tilde_two](vair,theta+90);
+ pos[tilde_three](vair,theta+90);
+ pos[tilde_four](vair,theta+90);
+ z[tilde_two]-z[tilde_one]=
+    z[tilde_four]-z[tilde_three]=(mid_width-crisp)*dir theta;
+ lft x[tilde_one]r=hround(x_move+0.5w-3.5u if monospace: /expansion_factor fi);
+ rt x[tilde_four]l=hround(x_move+0.5w+3.5u if monospace: /expansion_factor fi);
+ top y[tilde_four]r=h;
+ % |accent_gap| SHOULD be defined by the acute accent, before this macro runs
+ %if unknown accent_gap:  % accent_gap emulation
+ %   y[tilde_one]'=h-.5mid_stem+eps-max(2/3[h,hi.x_height],hi.x_height+o+hair);
+ %   accent_gap=a_ht-(y[tilde_one]'+.5mid_stem)-hi.x_height;
+ %fi
+ %bot y[tilde_one]l=accent_gap+cap_height;
+ bot y[tilde_one]l=vround(bot y[tilde_one]l
+    +min(2/3[cap_height,cap_accent_height],y[tilde_three]l-.25vair)
+    -top y[tilde_one]r);
+ pair delta;
+ ypart delta=3(y[tilde_three]l-y[tilde_one]l);
+ delta=whatever*dir theta;
+ filldraw z[tilde_one]l..
+   controls(z[tilde_one]l+
+    delta)and(z[tilde_three]l-delta)..z[tilde_three]l..z[tilde_four]l
+  --z[tilde_four]r..
+     controls(z[tilde_four]r-delta)and(z[tilde_two]r+delta)..
+     z[tilde_two]r..z[tilde_one]r--cycle;  % stroke
+else:
+ pickup fine.nib;
+ pos[tilde_one](vair,180);
+ pos[tilde_two](vair,90);
+ pos[tilde_three](.5[vair,slab],90);
+ pos[tilde_four](vair,90);
+ pos[tilde_five](vair,180);
+ lft x[tilde_one]r=w-rt x[tilde_five]l=hround 1.5u+0.5(w-9u);
+ x[tilde_two]-x[tilde_one]=
+    x[tilde_three]-x[tilde_two]=
+    x[tilde_four]-x[tilde_three]=x[tilde_five]-x[tilde_four];
+ % |accent_gap| SHOULD be defined by the acute accent, before this macro runs
+ if unknown accent_gap:  % accent_gap emulation
+    top y[tilde_one]'=h-vround(2/3[h,hi.x_height]);
+    accent_gap=a_ht-y[tilde_one]'-hi.x_height;
+ fi
+ bot y[tilde_one]=bot y[tilde_four]l=cap_height+.5accent_gap;
+ top y[tilde_two]r=top y[tilde_five]=h;
+ y[tilde_three]=.5[y[tilde_two],y[tilde_four]];
+ filldraw stroke
+   z[tilde_one]e{up}...
+     z[tilde_two]e{right}..
+     z[tilde_three]e..
+     {right}z[tilde_four]e...{up}z[tilde_five]e; fi % stroke
+enddef;
+%
+% umlauts moved up
+%
+vardef lowercase_circle(expr
+       x_center,y_bottom,circ_one,circ_two,circ_three,circ_four)=
+numeric circ_hair,circ_vair;
+circ_hair=hround min(hair,u if monospace: /expansion_factor fi +.5);
+circ_vair=vround min(vair,(h-x_height)/6+.5);
+penpos[circ_one](circ_vair,90); penpos[circ_three](circ_vair,-90);
+penpos[circ_two](circ_hair,180); penpos[circ_four](circ_hair,0);
+x[circ_one]=x[circ_three]=x_center; %
+x[circ_two]r=hround(x[circ_one]-1.5u-.5circ_hair);
+x[circ_four]r=hround(x[circ_one]+1.5u+.5circ_hair);
+y[circ_one]r=h+apex_o;
+y[circ_two]=y[circ_four]=.5[y[circ_one],y[circ_three]];
+y[circ_three]l=vround y_bottom; % (1/3[x_height,h]+apex_o);
+penstroke pulled_arc.e([circ_one],[circ_two])
+ & pulled_arc.e([circ_two],[circ_three])
+ & pulled_arc.e([circ_three],[circ_four])
+ & pulled_arc.e([circ_four],[circ_one]) & cycle;  % bowl
+enddef;
+%
+vardef uppercase_circle(expr
+       x_center,y_bottom,circ_one,circ_two,circ_three,circ_four)=
+numeric circ_hair,circ_vair;
+circ_hair=hround min(hair,u if monospace: /expansion_factor fi +.5);
+circ_vair=vround vair; % min(vair,(h-x_height)/6+.5);
+penpos[circ_one](circ_vair,90); penpos[circ_three](circ_vair,-90);
+penpos[circ_two](circ_hair,180); penpos[circ_four](circ_hair,0);
+x[circ_one]=x[circ_three]=x_center; % .5w;
+x[circ_two]r
+    = hround(x[circ_one]-1.5u if monospace: /expansion_factor fi -.5circ_hair);
+x[circ_four]r
+    = hround(x[circ_one]+1.5u if monospace: /expansion_factor fi +.5circ_hair);
+y[circ_one]r=cap_height + acc_height+apex_o;
+y[circ_two]=y[circ_four]=.5[y[circ_one],y[circ_three]];
+y[circ_three]l=vround y_bottom; % (1/3[x_height,h]+apex_o);
+penstroke pulled_arc.e([circ_one],[circ_two])
+ & pulled_arc.e([circ_two],[circ_three])
+ & pulled_arc.e([circ_three],[circ_four])
+ & pulled_arc.e([circ_four],[circ_one]) & cycle;  % bowl
+enddef;
+%
+%
+% cedillas moved up
+%
+% breves moved up
+%
+% renamed lowercase ogonek
+vardef the_ogonek(expr x_move,y_move,ogon_one,ogon_two,ogon_three) =
+x[ogon_one]r=x_move;
+ pickup crisp.nib;
+ pos[ogon_one](
+ if currentbreadth<0.9vair: 0.9vair else: currentbreadth+eps fi,-60);
+ pos[ogon_two](stem,0);
+ pos[ogon_three](vair,145);
+ x[ogon_two]=x[ogon_one]-2.5u if monospace: / expansion_factor fi ;
+ x[ogon_three]=x[ogon_one]+0.5u if monospace: / expansion_factor fi ;
+ bot y[ogon_one]r = y_move;
+ bot y[ogon_three]=0.5(-d-o)+y_move;  %0.4
+ bot y[ogon_two]=0.5(-d-o)+y_move;
+ filldraw stroke z[ogon_one]e{dir 225}...
+   z[ogon_two]e{dir -110}...{dir 60}z[ogon_three]e;  % hook
+enddef;
+
+%
+%                   MACROS FOR PROCESSING CHARS TWICE:
+%             PASS 1: COLLECTING TFM (SHARP) INFORMATION
+%             PASS 2: CREATING THE GLYPH
+%
+%%% define_pixels prepare_pen
+%%% beginchar beginchar_twice
+%%% endfor repeat_once
+
+% A special provision is necessary if one uses |modes.mf|:
+% This file assumes, that one never wants to use more than one mode
+% in the same font, but we will do so.
+%
+% Make sure, that you never input |modes.mf| after this file, otherwise
+% unpleasant surprises wait for you.
+
+def clear_mode_guards =
+  forsuffixes $=proofing,fontmaking,tracingtitles,pixels_per_inch,
+    blacker,fillin,o_correction,blacker_min,aspect_ratio:
+      numeric mode_guard_$;
+  endfor
+enddef;
+
+let ori_draw:=draw;
+let ori_fill:=fill;
+let ori_filldraw:=filldraw;
+let ori_erase:=erase;
+let ori_penstroke:=penstroke;
+let ori_special:=special;
+let ori_numspecial:=numspecial;
+
+mode_def canonical_sharp_mode = % nearly |proof| mode
+ proofing:=0;                   % no, we aren't making full proofs
+ fontmaking:=0;                 % yes, we are making a font
+ tracingtitles:=0;              % don't show titles online
+ pixels_per_inch:=2601.72;      % that's 36 pixels per pt
+ blacker:=0;                    % no additional blackness
+ blacker_min:=0;                % no write_white provision
+ fillin:=0;                     % no compensation for fillin
+ o_correction:=1;               % no reduction in overshoot
+enddef;
+
+def beginchar_twice(expr c,w_sharp,h_sharp,d_sharp) =
+ begingroup
+  if string mode: string prev_mode; prev_mode:=mode;
+  else: numeric prev_mode; prev_mode:=mode;
+  fi
+  for sharp_calc_:=1,whatever:
+%  |sharp_calc| is checked in |corrital|, |mark_height|, and |put_accent|
+   sharp_calc:=sharp_calc_;
+   if known sharp_calc: % carry out ``sharp'' calculations
+    begingroup save mode,mag; mode:=canonical_sharp_mode;
+    clear_mode_guards; mode_setup; font_setup; pseudo_setup;
+    if is_small_cap: % excerpt from |font_setup|
+      define_pixels(higher.u,higher.bar_height);
+      define_corrected_pixels(higher.o);
+      define_whole_pixels(higher.letter_fit);
+      define_whole_vertical_pixels(higher.x_height,higher.body_height);
+      define_whole_blacker_pixels(higher.stem);
+    fi
+    endgroup;
+    def draw expr e=enddef;
+    let fill:=draw;
+    let filldraw:=draw;
+    let erase:=killtext; % |killtext| was absent from earlier versions of plain
+    let penstroke:=killtext;
+    def special primary t = enddef;
+    def numspecial primary t = enddef;
+    charwd:=w_sharp; charht:=h_sharp; chardp:=d_sharp; charic:=0;
+   else: % carry out ``discrete'' calculations
+    mode:=prev_mode;
+    clear_mode_guards; mode_setup; font_setup; pseudo_setup;
+    if is_small_cap: % excerpt from |font_setup|
+      define_pixels(higher.u,higher.bar_height);
+      define_corrected_pixels(higher.o);
+      define_whole_pixels(higher.letter_fit);
+      define_whole_vertical_pixels(higher.x_height,higher.body_height);
+      define_whole_blacker_pixels(higher.stem);
+    fi
+    let draw:=ori_draw;
+    let fill:=ori_fill;
+    let filldraw:=ori_filldraw;
+    let erase:=ori_erase;
+    let penstroke:=ori_penstroke;
+    let special:=ori_special;
+    let numspecial:=ori_numspecial;
+    charwd:=w_sharp;
+   fi
+   charcode:=if known c: byte c else: 0 fi;
+   w:=hround(w_sharp*hppp); h:=vround(h_sharp*hppp); d:=vround(d_sharp*hppp);
+   clearxy; clearit; clearpen; scantokens extra_beginchar;
+enddef;
+
+let repeat_once = endfor;
+
+%
+%
+% accents which created with beginchar_twice routine
+%  (borrowed from exaccess but with
+%   redefining is_cap put_accent put_gravis and put_dot)
+
+%
+%                         GENERAL PURPOSE ACCESSORIES
+%
+vardef is_egyptian =
+% |false| for most of the CM fonts, except funny fonts;
+% |true| for the CC fonts
+ serifs and (1.4max(fine#,crisp#, tiny#)<slab#) and (1.6slab#>stem#)
+enddef;
+
+vardef is_bold = if serifs: (hair#+.5stem#)>1.5u# else: stem#>2u# fi\\ enddef;
+
+%!!! set is_cap as boolean
+boolean is_cap;
+
+%%% top is_known
+%%% top fix_virgin
+vardef is_known z suffix $ =
+% an auxiliary macro for |fix_virgin z|, used also while constructing ogoneks
+ (known x$) or (known x$l) or (known x$r)\\ or
+ (known y$) or (known y$l) or (known y$r)
+enddef;
+
+vardef fix_virgin z = % find a pair of virgin pairs
+ numeric ii,jj; jj:=1;
+ forever:
+  if is_known z[jj] or is_known z[jj+1]: % unknown gaps may occur
+  jj:=incr jj else: jj=ii fi; exitif known ii;
+ endfor;
+ jj:=ii+1;
+% now |ii| and |jj| are such that |z[ii]| and |z[jj]| are ``untouched''
+enddef;
+
+%%% italcorr corrital
+% correction of italic correction (cf. D. E. Knuth, The \MF{}book, p. 105):
+vardef corrital z suffix $ =
+% |z$| is the rightmost position of a pen (in accent path)
+ if known sharp_calc:
+  if not monospace:
+   save charic_; charic_=(rt(x$)-r)/hppp+slant*y$/vppp+.5u#;
+   if charic_>charic: charic:=charic_; fi
+  fi
+%| else: %| |charic=mono_charic#|, do nothing
+ fi
+enddef;
+
+%%% top prepare_pen
+def prepare_pen suffix $ =
+%%% fine $ %%%% temporary MFT convention
+  if $>fudged.hair: $:=fudged.hair; fi
+  $.breadth:=$;
+  pickup if $=0: nullpen else: pencircle scaled $; $:=$-eps fi;
+  $.nib:=savepen; breadth_[$.nib]:=$;
+  forsuffixes $$=lft,rt,top,bot: shiftdef($.$$,$$ 0); endfor
+%%% qq $ %%%% ordinary MFT convention
+enddef;
+
+% The proportion of |vair/stem| depends drastically on resolution;
+% e.g., for 300 dpi cmbx10 |vair=1| and |stem=5|, for 746 dpi cmbx10
+% (300 dpi, magstep 5) |vair=4| and |stem=12|, while, sharply speaking,
+% |stem#/vair#=3.15381|; hence a new variable |xvair| has been introduced
+% to be used in some crucial places instead of |vair|.
+vardef xvair = stem*vair#/stem# enddef;
+
+%
+%                          ACCENT ACCESSORIES
+%
+% |the_cap_flat| is a factor controlling the flatness of accents over
+% majuscules; a default value may be overriden by assigning a value to the
+% variable |cap_flat| (cf. also |the_|... macros in ogonek accessories).
+vardef the_cap_flat =
+ if known cap_flat: cap_flat elseif serifs and hefty: 1/5 else: 1/3 fi
+enddef;
+%
+% The |hpos_corr| variable is an optional parameter to |put_ogonek|, meant
+% to be set locally inside |beginchar| ... |endchar|, if a horizontal
+% correction of the accent position is needed:
+numeric hpos_corr;
+%
+%%%% temporary MFT convention:
+%%% top x_height diam a_wd a_ht i_ht u asc_height cap_A_wd
+% width of the acute accent:
+vardef a_wd@# = 9hi.u@# enddef;
+% height of the acute accent:
+vardef a_ht@# = %!!!in plfonts: skipped ,hi.x_height@#+acc_h
+ min(asc_height@#,2hi.x_height@#,hi.x_height@#+acc_height@#) enddef;
+% height of the letter `i':
+vardef i_ht@#(suffix diam) =
+ if is_small_cap: a_ht@# % usually there is no dot over a small cap `i'
+ else: min(asc_height@#, 10/7hi.x_height@#+.5diam@#) fi
+enddef;
+% width of the letter `A' (used in |put_ogonek|):
+vardef cap_A_wd@# = 13u@# enddef;
+%%%% ordinary MFT convention:
+%%% qq x_height diam a_wd a_ht i_ht u asc_height cap_A_wd
+
+def mark_height(expr sharp_h)=
+% |sharp_h| is the height of an accented minuscule
+ if known sharp_calc:
+  charht:=if is_cap: h/vppp else: sharp_h fi;% in plfonts line placed after `if' in ec---before
+  if\\ (proofing>0) and is_cap:
+% BJ likes to have proofs vertically aligned (somehow):
+   proofoffset(0,h-charht*vppp-1mm);
+  fi
+ fi
+% say earlier, e.g., |is_smoke=1| if you're making `smoked' proofs
+% and you don't like to have a rule marking the height
+ if unknown is_smoke:
+  if proofing>0: proofrule((l+w/2,charht*hppp)t_,(r+u,charht*hppp)t_); fi
+  if displaying>0: screenrule((l+w/2,charht*hppp)t_,(r+u,charht*hppp)t_); fi
+ fi
+enddef;
+
+def fix_acc_pairs =
+ fix_virgin z;
+ begingroup
+% excerpt from |beginchar|:
+  save w,h; w=round(a_wd); h=round(a_ht);
+% excerpt from |mono_adjust|:
+  if monospace:
+   save u_; numeric u_; u_:=hi.u#; save u; u#:=u_;
+   numeric expansion_faktor;
+   mono_charwd#=2 hi.letter_fit#+expansion_faktor*a_wd#;
+   hi.u:=u#*expansion_faktor*hppp;
+   w:=mono_charwd-shrink_fit-2 hi.letter_fit;
+  fi
+% end of the excerpts
+  numeric accent_gap,mid_stem; mid_stem=2/3[stem,hi.stem];
+  if serifs:
+   pickup crisp.nib;
+   x[jj]'=hround(w-2hi.u)-.5mid_stem; x[jj]':=x[jj]'-2/3[x[jj]',w-x[jj]'];
+   y[jj]'=h-.5mid_stem+eps-max(2/3[h,hi.x_height],hi.x_height+o+hair);
+   accent_gap=a_ht-(y[jj]'+.5mid_stem)-hi.x_height;
+   bot z[ii]=round(accent_hpos,
+    accent_gap+if is_cap: cap_height else: hi.x_height fi);
+   z[jj]=z[ii]+(z[jj]'
+    if is_cap: rotated (-the_cap_flat*angle(z[jj]')) fi);
+   numeric theta; theta=angle(z[ii]-z[jj])+90;
+   pos[jj](mid_stem,theta); pos[ii](hair,theta);
+  else:
+   pickup fine.nib;
+   rt x[jj]'r=hround(.5w-1.25hi.u);
+   top y[jj]'=h-vround(2/3[h,hi.x_height]);
+   z[ii]'=origin; pos[jj]'(mid_stem,0); pos[ii]'(vair,0);
+   accent_gap=a_ht-y[jj]'-hi.x_height;
+   if is_cap:
+    numeric beta; beta=-the_cap_flat*angle(z[jj]'-z[ii]');
+    z[ii]=round(accent_hpos,accent_gap+cap_height);
+    z[jj]=z[ii]+(z[jj]' rotated beta);
+    y[jj]r=y[jj]l=y[jj]; y[ii]r=y[ii]l=y[ii];
+    for xx:=jj,ii: forsuffixes $:=l,r:
+     (z[xx]$-z[ii]) rotated -beta=whatever[z[jj]'$,z[ii]'$];
+    endfor\\ endfor
+   else:
+    for xx:=jj,ii: forsuffixes $:=r, ,l:
+     z[xx]$=z[xx]'$+round(accent_hpos,
+      accent_gap+if is_small_cap: cap_height else: x_height fi);
+    endfor\\ endfor
+   fi
+  fi
+ endgroup;
+enddef;
+
+% is_cap checked by modifier
+def put_accent suffix modifier = %!!!
+ if cyrcaph.modifier: is_cap:=true; else: is_cap:=false; fi %!!!
+ numeric accent_hpos;
+ accent_hpos=.5w - if is_cap: .75 else: .5 fi\\ u
+  if known hpos_corr: +hpos_corr fi;
+ fix_acc_pairs; % |fix_acc_pairs| uses private values of |w|, |h| \& |u|
+ numeric hpos_corr; % |hpos_corr| is local: forget its value
+% draw the diagonal:
+ if serifs:
+  pickup crisp.nib; filldraw circ_stroke (z[jj]e--z[ii]e);
+  z[jj].right=directionpoint up of (z[jj]r{z[jj]r-z[ii]r}..{z[ii]l-z[jj]l}z[jj]l);
+  z[jj].top=directionpoint left of (z[jj]r{z[jj]r-z[ii]r}..{z[ii]l-z[jj]l}z[jj]l);
+ else:
+  pickup fine.nib; filldraw stroke (z[jj]e--z[ii]e);
+  z[jj].right=z[jj].top=z[jj]r;
+ fi
+ corrital z[jj].right; % correct italic correction
+% adjust and save height (it is used in the program for the dotted `Z'):
+ h:=if is_cap: y[jj].top else: a_ht fi;
+ if known sharp_calc: saved_height:=h; fi
+ mark_height(a_ht#);
+ penlabels([ii],[jj]);
+enddef;
+
+%
+%                           GRAVE ACCENT ACCESSORIES
+%
+
+% This section borrows heavily from the (acute) accent accessories
+def fix_grav_pairs =
+ fix_virgin z;
+ begingroup
+% excerpt from |beginchar|:
+  save w,h; w=round(a_wd); h=round(a_ht);
+% excerpt from |mono_adjust|:
+  if monospace:
+   save u_; numeric u_; u_:=hi.u#; save u; u#:=u_;
+   numeric expansion_faktor;
+   mono_charwd#=2 hi.letter_fit#+expansion_faktor*a_wd#;
+   hi.u:=u#*expansion_faktor*hppp;
+   w:=mono_charwd-shrink_fit-2 hi.letter_fit;
+  fi
+% end of the excerpts
+  numeric accent_gap,mid_stem; mid_stem=2/3[stem,hi.stem];
+  if serifs:
+   pickup crisp.nib;
+   x[jj]'=hround(w-2hi.u)-.5mid_stem; x[jj]':= -x[jj]'+ 2/3[x[jj]',w-x[jj]'];
+   y[jj]'=h-.5mid_stem+eps-max(2/3[h,hi.x_height],hi.x_height+o+hair);
+   accent_gap=a_ht-(y[jj]'+.5mid_stem)-hi.x_height;
+   bot z[ii]=round(accent_hpos,
+    accent_gap+if is_cap: cap_height else: hi.x_height fi);
+   z[jj]=z[ii]+(z[jj]'
+    if is_cap: rotated (-the_cap_flat*(angle(z[jj]')-180)) fi);
+   numeric theta; theta=angle(z[ii]-z[jj])+90;
+   pos[jj](mid_stem,theta); pos[ii](hair,theta);
+  else:
+   pickup fine.nib;
+   lft x[jj]'l=-hround(.5w-1.25hi.u);
+   top y[jj]'=h-vround(2/3[h,hi.x_height]);
+   z[ii]'=origin; pos[jj]'(mid_stem,0); pos[ii]'(vair,0);
+   accent_gap=a_ht-y[jj]'-hi.x_height;
+   if is_cap:
+    numeric beta; beta=-the_cap_flat*(angle(z[jj]'-z[ii]')-180);
+    z[ii]=round(accent_hpos,accent_gap+cap_height);
+    z[jj]=z[ii]+(z[jj]' rotated beta);
+    y[jj]r=y[jj]l=y[jj]; y[ii]r=y[ii]l=y[ii];
+    for xx:=jj,ii: forsuffixes $:=l,r:
+     (z[xx]$-z[ii]) rotated -beta=whatever[z[jj]'$,z[ii]'$];
+    endfor\\ endfor
+   else:
+    for xx:=jj,ii: forsuffixes $:=r, ,l:
+     z[xx]$=z[xx]'$+round(accent_hpos,
+      accent_gap+if is_small_cap: cap_height else: x_height fi);
+    endfor\\ endfor
+   fi
+  fi
+ endgroup;
+enddef;
+
+% is_cap checked by modifier
+def put_gravis suffix modifier = %!!!
+ if cyrcaph.modifier: is_cap:=true; else: is_cap:=false; fi %!!!
+ numeric accent_hpos;
+ accent_hpos=.5w + if is_cap: .75 else: .5 fi\\ u
+  if known hpos_corr: +hpos_corr fi;
+ fix_grav_pairs; % |fix_grav_pairs| uses private values of |w|, |h| \& |u|
+ numeric hpos_corr; % |hpos_corr| is local: forget its value
+% draw the diagonal:
+ if serifs:
+  pickup crisp.nib; filldraw circ_stroke (z[jj]e--z[ii]e);
+  z[jj].right=directionpoint down of (z[jj]r{z[jj]r-z[ii]r}..{z[ii]l-z[jj]l}z[jj]l);
+  z[jj].top=directionpoint left of (z[jj]r{z[jj]r-z[ii]r}..{z[ii]l-z[jj]l}z[jj]l);
+ else:
+  pickup fine.nib; filldraw stroke (z[jj]e--z[ii]e);
+  z[jj].right=z[jj].top=z[jj]r;
+ fi
+% adjust and save height (tho the height is never needed):
+ h:=if is_cap: y[jj].top else: a_ht fi;
+ if known sharp_calc: saved_height:=h; fi
+ mark_height(a_ht#);
+ penlabels([ii],[jj]);
+enddef;
+
+%
+%                           DOT ACCENT ACCESSORIES
+%
+
+%%% good penkind
+% is_cap checked by modifier
+def put_dot (suffix penkind) (expr dd_) % dot of the lowercase letter `i'
+            suffix modifier = %!!!
+ if cyrcaph.modifier: is_cap:=true; else: is_cap:=false; fi %!!!
+ fix_virgin z;
+ numeric dd#; % sharp dot diameter
+ dd#=dd_; define_whole_blacker_pixels(dd);
+% adjust height temporarily:
+ h:=vround(if is_cap: (cap_height#+1.5u#+dd#)
+           else:      i_ht#(dd)
+           fi\\ *hppp);
+ pickup penkind.nib; pos[jj](dd,90); pos[ii](dd,0);
+ x[jj]=x[ii]=good.x(.5w+.25u if known hpos_corr: +hpos_corr fi); %!!!
+ numeric hpos_corr; %!!! |hpos_corr| is local: forget its value   !!!
+ top y[jj]r=h+1; y[ii]=.5[y[jj]l,y[jj]r];
+% draw the dot:
+ dot([ii],[jj]);
+% dotted `Z' inherits the recently saved height (if known; usually the height
+% of the accented `Z') which allows to decrease by one the number of different
+% heights in a font; dotted `z' has the height of a lowercase `i' (exception:
+% caps and small caps)
+ if known saved_height: h:=saved_height; fi\\ mark_height(i_ht#(dd));
+ penlabels([ii],[jj]);
+enddef;
+
+%
+%                          CYRCROSS ACCESSORIES
+% 		   (redefined L's CROSS ACCESSORIES)
+%
+
+% is_cap checked by modifier
+def put_cyrcross(expr x_center,y_move,left_jut,right_jut) suffix modifier = %!!!
+    if cyrcaph.modifier: is_cap:=true; else: is_cap:=false; fi %!!!
+    fix_virgin z;
+    numeric dd; dd=if serifs:if is_cap: cap_bar
+                                else:   bar fi
+                      else:  if is_cap: .2[vair,cap_band]
+                                else:   vair fi
+                   fi;
+    pickup if serifs: crisp.nib else: fine.nib fi;
+    numeric theta;
+    if left_jut>0:
+       theta=angle(11u#,.3[x_height#,cap_height#]);
+       lft x[ii]r = hround(x_center-left_jut)-eps;
+       rt x[jj]l  = hround(x_center+right_jut)+eps;
+    else:
+       theta=angle(11u#,-.3[x_height#,cap_height#]);
+       rt x[ii]r  = hround(x_center-left_jut)-eps;
+       lft x[jj]l = hround(x_center+right_jut)+eps;
+    fi
+    pos[ii](dd,theta+90); pos[jj](dd,theta+90);
+    z[ii]-z[jj]=whatever*dir theta;
+    % |.52| is one of CM (Computer Magic) numbers appearing in many CM programs,
+    % among others in the programs for B, F, and H:
+    whatever[z[ii],z[jj]]=if not is_cap and hefty: top fi\\
+            (x_center,if is_cap:.52cap_height else: bar_height fi\\+y_move);
+    % before drawing the stroke improve discretization:
+    save eps_;
+    eps_:=y[ii]l-good.y(y[ii]l);
+    forsuffixes $:=l, ,r: y[ii]$:=y[ii]$-eps_; endfor
+    eps_:=y[jj]r-good.y(y[jj]r);
+    forsuffixes $:=l, ,r: y[jj]$:=y[jj]$-eps_; endfor
+    filldraw stroke z[ii]e--z[jj]e; % now draw the stroke
+    corrital z[jj]l; % correct italic correction
+    penlabels([ii],[jj]);
+enddef;
+
+%
+%                          EASY OGONEK ACCESSORIES
+% simplified ogonek
+% there are used some macros from put_ogonek stuff (ec fonts)
+%
+
+% ogonek defaults:
+vardef the_ogonek_depth# = % sharp value
+ if known depth_corr: depth_corr* fi\\ desc_depth#
+enddef;
+
+vardef the_tip_pos =
+  (if monospace: 1.9 elseif serifs: if hefty: 1.85
+   elseif is_bold: 1.75 else: 2 fi\\ else: % sansserif
+    if is_bold: 2.1 else: 1.95 fi\\ fi\\ hi.u,
+   if serifs:
+    if monospace: 1.25 elseif hefty: 1 elseif is_bold: .75 else: 1.45 fi
+   else: % sansserif
+    .45 fi\\ hi.u)
+   if known tip_xcorr: xscaled\\ tip_xcorr fi
+   if known tip_ycorr: yscaled\\ tip_ycorr fi
+enddef;
+
+vardef the_pre_angle = % refers to the outer edge
+ if known pre_angle: pre_angle else:
+  if serifs: if hefty: 208 elseif is_bold: 211 else: 214 fi\\ else: 211 fi
+ fi
+enddef;
+
+vardef the_post_angle = % refers to the outer edge
+ if known post_angle: post_angle else:
+  if serifs: if monospace: 60 elseif hefty: 66 elseif is_bold: 55 else: 74 fi
+  else: 25 fi\\ fi
+enddef;
+
+% parameters to |put_ogonek|:
+numeric join_angle; % starting (inner) ogonek direction, if known
+
+% common ogonek breath (because of slab changed in a few letters)
+numeric ogonek_breadth; % ogonek breadth at the tip
+ogonek_breadth=if serifs and is_bold: slab else: xvair fi;
+
+pair ogonek_pos; % starting (inner for `e' with ogonek, otherwise outer) ogonek position:
+
+vardef easy_ogonek (suffix penkind)(expr _one,_two,_three)=
+    pickup penkind.nib;
+    if monospace:
+       % excerpt from |mono_adjust|:
+       save u_; numeric u_; u_:=hi.u#; save u; u#:=u_;
+       numeric expansion_faktor;
+       mono_charwd#=2hi.letter_fit#+expansion_faktor*cap_A_wd#; % cap_A_wd=13u
+       hi.u:=u#*expansion_faktor*hppp;
+       % now |u| is like in the letter `A'
+    fi
+    y_right:=-vround(d+hi.o); % bottom bound
+    if unknown ogonek_breadth:
+       ogonek_breadth=if serifs and is_bold: slab else: xvair fi;
+    fi
+    if known ogonek_pos:
+       z[_one]'l=ogonek_pos+(0,eps);
+       pos[_one]'(max(ogonek_breadth,penkind+eps),0);
+       z[_one]l=whatever[ogonek_pos, ogonek_pos+dir the_pre_angle];
+       bot y[_one]l=0 if known ogonek_move:+ogonek_move fi+eps;
+       numeric ogonek_move; % it's local
+    else:
+       bot z[_one]l=(.5w,eps);
+    fi
+    pos[_one](max(ogonek_breadth,penkind+eps),0);
+    bot z[_three]'=(xpart z[_one]l-.5penkind,y_right-eps)+the_tip_pos;
+    z[_three]l=if is_small_cap:
+                  z[_one]+((z[_three]'-z[_one])
+                  scaled sqrt(body_height#/higher.body_height#))
+               else:
+                  z[_three]'
+               fi;
+    pos[_three](max(ogonek_breadth,penkind+eps),
+               the_post_angle+if serifs: 90 else: 80 fi);
+    z[_two]l=if serifs:
+                if monospace: 2/3[z[_one],z[_three]]+
+                else:         .52[z[_one],z[_three]]+
+                fi
+             else:            3/5[z[_one],z[_three]]+7/8
+             fi
+       (y[_three]-y[_one],x[_one]-x[_three]-eps)
+       -penoffset (z[_three]-z[_one]) of currentpen;
+    pos[_two](max(penkind+eps,
+        if serifs: 7/8 else: 2/3 fi [bar,fudged.stem-2stem_corr]), %from ukreve
+       angle(z[_one]-z[_three]) - if serifs: 90 else: 80 fi);
+    if known ogonek_pos:
+       if y[_one]'<y[_one]: path p; numeric t;
+          if known join_angle:
+             prim_angle:=join_angle;
+          else:
+             p=z[_one]{dir the_pre_angle}...{(z[_three]-z[_one])}z[_two]
+               ...{dir (the_post_angle)}z[_three];
+             t=ypart (((0,y[_one]')--(w,y[_one]')) intersectiontimes p);
+             prim_angle:=angle(direction t of p);
+          fi
+          filldraw stroke
+              z[_one]'e{dir prim_angle}...
+               {(z[_three]-z[_one])}z[_two]e...
+               {dir (the_post_angle)}z[_three]e; % ogonek stroke
+       else:
+          prim_angle:=if known join_angle: join_angle else: the_pre_angle fi;
+          filldraw stroke
+              z[_one]'e{dir prim_angle}...
+               z[_one]e{dir the_pre_angle}...
+               {(z[_three]-z[_one])}z[_two]e...
+               {dir (the_post_angle)}z[_three]e; % ogonek stroke
+       fi
+    else:
+       filldraw stroke
+           z[_one]e{dir the_pre_angle}...
+           {(z[_three]-z[_one])}z[_two]e...{dir (the_post_angle)}z[_three]e; % ogonek stroke
+    fi
+    numeric join_angle,ogonek_breadth; pair ogonek_pos; % all they are local
+    penlabels([_one],[_one]',[_two],[_three],ogonek);.
+enddef;
+
+%
+%                           HACHEK ACCESSORIES
+%
+% This was csaccent.mf in text format, as of 89/05/08
+% written by P. Novak, Prague
+%
+%!!! edited
+def lc_hachek_accent(expr ref) =
+   if serifs:
+       pickup crisp.nib;
+       pos52'(0.75[vair,curve],90);
+       pos52(0.75[vair,curve],90);
+       x52=good.x ref;
+       x52-x51=x53-x52=good.x if hach_sharp:2.5 else:3 fi
+                              accent_u-accent_thin;
+       top y52' = top y51 = top y53 = lc_hachek_height;
+     if hach_sharp:
+       y52=max(2/3[h,hi.x_height],hi.x_height+o+hair); % lower point
+       pos51(1.5stem,0); pos53(accent_thin,180);
+     else:
+       0.5[y52,y52r] = 0.5[hi.x_height,y52'];
+       pos51(accent_thin,angle(z52-z51)+90);
+       pos53(accent_thin,angle(z53-z52)+90);
+     fi
+       filldraw stroke z51e -- z52e -- z53e;
+    else:
+       pickup fine.nib;
+       pos51(vair,0);
+       pos53(vair,0);
+       x52=good.x ref;
+       x52-lft x51=rt x53-x52= hround(1.25accent_u + vair);
+       pos52(stem,0);
+       if ebbase=1:%!!!
+         bot y52=vround(0.33[x_height,lc_hachek_height]);% (CMBRIGHT)
+       else:
+         bot y52=vround(max(2/3[h,hi.x_height],hi.x_height+o+hair));
+       fi
+       top y51 = top y53 = max(lc_hachek_height,top y52+eps); %!!!
+       z50 = whatever[z51r,z52r] = whatever[z52l,z53l];
+       y54l=y54r=y52;
+       x54l=good.x .2[x52l,x52];
+       x54r-x52 = x52-x54l;
+       filldraw z54l -- z51l-- z51r -- z50 -- z53l -- z53r -- z54r -- cycle;
+    fi
+    penlabels(50,51,52,52',53,54);
+enddef;
+
+def dtl_hachek(text x_ref,y_ref) =
+pickup fine.nib;
+  pickup fine.nib;
+  x51=hround(x_ref); y51=vround(y_ref);
+  comma(51,q,pdot_diam,.25accent_u,2/3comma_depth);
+  penlabels(51);
+enddef;
+
+def uc_hachek_accent(expr ref) =
+ if serifs:
+       pickup crisp.nib;
+       pos52'(0.5[vair,cap_curve],90);
+       pos52(0.5[vair,cap_curve],90);
+       x52=good.x ref;
+       x52-x51=x53-x52=good.x 3accent_u-accent_thin;
+       top y52' = top y51 = top y53 =        % upper points
+        uc_acc_height-.5[vair,cap_curve]+eps
+        -max(2/3[uc_acc_height,hi.x_height],hi.x_height+o+hair)+cap_height;
+     if hach_sharp:
+       y52=max(2/3[uc_acc_height,hi.x_height],hi.x_height+o+hair)
+           -hi.x_height+cap_height;           % lower point
+       pos51(cap_stem,0); pos53(2accent_thin,180);
+     else:
+       0.5[y52,y52r] =
+      if not hefty:
+        max(2/3[uc_acc_height,hi.x_height],hi.x_height+o+hair)
+            -hi.x_height+cap_height;
+      else:
+        max(2/3[uc_acc_height,hi.x_height],hi.x_height+o)
+            -hi.x_height+cap_height-hair;
+      fi
+       pos51(accent_thin,angle(z52-z51)+90);
+       pos53(accent_thin,angle(z53-z52)+90);
+     fi
+       filldraw stroke z51e -- z52e -- z53e;
+ else:
+       pickup fine.nib;
+       pos51(vair,0);
+       pos53(vair,0);
+       x52=good.x ref;
+       x52-x51=x53-x52= 1.75accent_u + .5vair;
+       pos52(cap_stem,0);
+       bot y52= cap_height + .5 accent_gap;
+       top y51 = top y53 = cap_height + acc_height;
+       z50 = whatever[z51r,z52r] = whatever[z52l,z53l];
+       y54l=y54r=y52;
+       x54l=good.x .2[x52l,x52];
+       x54r-x52 = x52-x54l;
+       filldraw z54l -- z51l-- z51r -- z50 -- z53l -- z53r -- z54r -- cycle;
+ fi
+penlabels(50,51,52,52',53,54);
+enddef;
+
+endinput;
+% end-of-file

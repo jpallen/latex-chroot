@@ -1,0 +1,89 @@
+% snpp.mf by Raymond Chen (rjc@math.princeton.edu) 
+ 
+% The SNPP logo. 
+ 
+beginchar(1, 8u#, 8u#, 0); "Springfield Nuclear Power Plant"; 
+ 
+    % We will need 8 symmetrically paired points 
+    forsuffixes $=range 1 thru 8: x$ = w - x$'; y$ = y$'; endfor 
+ 
+    pickup thinpen; 
+    save u; u = w/8;                    % IMPORTANT! 
+    save v; v = h/8;                    % IMPORTANT! 
+ 
+    z0 = (4u, 4v);                      % = 1/2(w,h), the center. 
+ 
+    % The circular seal 
+    numeric r; r = y0; 
+    draw fullcircle scaled 2r shifted z0; 
+ 
+    % The cooling tower 
+ 
+    localpath tower; 
+ 
+    z1 = (2.2u, 4v); 
+    z2 = (2.5u, 3.5v); 
+    z3 = (1.7u, 0); 
+ 
+    tower = z3 .. tension 3 .. z2 .. 
+        z1{up} .. tension 3 .. z1'{down} .. 
+            z2'.. tension 3 .. z3'; 
+    draw prepostclip(tower, quartercircle scaled 2r rotated 180 shifted z0, 
+                            quartercircle scaled 2r rotated -90 shifted z0); 
+ 
+    % The atom logo 
+    % The ellipse is 2u by .5u. 
+    x4 = .5w; 
+    y4 + u * sind 60 = y2; 
+ 
+    pickup finepen; 
+    draw fullcircle xscaled 2u yscaled .5v shifted z4; 
+    draw fullcircle xscaled 2u yscaled .5v rotated 60 shifted z4; 
+    draw fullcircle xscaled 2u yscaled .5v rotated-60 shifted z4; 
+    pickup thinpen; 
+ 
+    % The rising fumes 
+    z5 = (.5w - .8u, 6v); 
+    z5 - z5a = z5a - z5b = z5b - z5';       % equally spaced 
+    y5a := y5a + .3v; 
+    y5b := y5b - .3v; 
+ 
+    forsuffixes $=,a,b,': draw preclip( (x5$,0) .. z5$, tower); endfor 
+ 
+    % The outer cloud 
+    localpath cloud; 
+    y6 = y5; 
+    x6 = xpart z0 - (r +-+ (y6-y0));        % length(z0 - z6) = r 
+ 
+    cloud = bend(-30, z6, z6'); 
+ 
+    localpath puffcloud; 
+    numeric n; n = 13; 
+    puffcloud = 
+            point 0 of cloud 
+    for k = 1 upto n: 
+            {direction (k+.5)/n of cloud rotated -80} .. 
+            {direction (k+.5)/n of cloud rotated  80} point k/n of cloud 
+        endfor; 
+ 
+    draw postclip(puffcloud, (x5, 0) .. z5); 
+    draw preclip(puffcloud, (x5', 0) .. z5'); 
+ 
+    % the inner cloud 
+    y7 = h - v; 
+    x7 = 1/3[x5, x6]; 
+ 
+    cloud := bend(-20, z7, z7'); 
+    n := 5; 
+    draw 
+            point 0 of cloud 
+    for k = 1 upto n: 
+            {direction (k+.5)/n of cloud rotated -80} .. 
+            {direction (k+.5)/n of cloud rotated  80} point k/n of cloud 
+        endfor; 
+ 
+    labels(1', 2', 3', 4', 5', 6', 7'); 
+    labels(range 0 thru 7); 
+endchar; 
+ 
+endinput 

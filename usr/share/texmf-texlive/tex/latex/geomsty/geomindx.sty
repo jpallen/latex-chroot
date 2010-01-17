@@ -1,0 +1,72 @@
+% $Header: /home/tampa_a/fac/levy/texts/geombook/RCS/index.sty,v 1.1 92/04/07 09:47:28 levy Exp $
+
+\@ifundefined{@margin}{}{\endinput}
+
+%
+% index and glossary macros
+%
+% the basic user-level command is \index, which, in proof mode
+% merely prints the entry on the left margin. To revert to
+% index-making behavior, type \makeindex.
+%
+
+\newif\ifmakingindex\makingindexfalse
+\def\makeindex{\if@filesw \newwrite\@indexfile
+  \immediate\openout\@indexfile=\jobname.idx
+  \makingindextrue\typeout{Writing index file \jobname.idx }\fi}
+
+\def\index#1{\@bsphack\ifproofing\marginindex{#1}\fi\ifmakingindex\begingroup
+  \set@key{#1}\@wrindex{\the\@key}\else\@esphack\fi}
+\def\marginindex#1{{\everypar{}\insert\@margin{%
+  \vbox{\marginstyle\strut #1\hfil\strut}}}}
+\def\marginstyle{\tiny \hsize=1in \parindent=0pt \hangindent=10pt
+  \hangafter=1 \rightskip=0pt plus 5em }
+\newinsert\@margin \dimen\@margin=\maxdimen \count\@margin=0 \skip\@margin=0pt
+
+%
+% change in output routine to account for new insertion class
+%
+\def\@makecol{\ifvoid\footins \setbox\@outputbox\box\@cclv
+   \else\setbox\@outputbox
+     \vbox{\boxmaxdepth \maxdepth
+     \unvbox\@cclv\vskip\skip\footins\footnoterule\unvbox\footins}\fi
+     \xdef\@freelist{\@freelist\@midlist}\gdef\@midlist{}\@combinefloats
+     \setbox\@outputbox\vbox to\@colht{\boxmaxdepth\maxdepth
+        \@texttop\dimen128=\dp\@outputbox
+        \ifvoid\@margin\else
+          \llap{\vbox to0pt {\kern4pt\box\@margin \vss}\kern .1in}\fi
+        \unvbox\@outputbox
+        \vskip-\dimen128\@textbottom}
+     \global\maxdepth\@maxdepth}
+
+%
+% But \index does not print its argument.  To index a word that
+% actually appears in the text say \ix{...}. To index notation say \ixn$...$
+% or \ixninv$...$, depending on whether the word should appear or not.
+% And just for symmetry, you can also use \ixinv, which equals \index:
+%
+%                 Text              Notation
+%
+%  Visible        \ix               \ixn
+%  Invisible      \ixinv            \ixninv
+%
+\def\ixinv{\index}      % must not use \let, since meaning changes
+                        % under \makeindex
+\def\ix#1{#1\index{#1}}
+\def\ixninv$#1${\index{$#1$}}
+\def\ixn$#1${$#1$\index{$#1$}}
+
+%
+% Some functions such as cross-referencing automatically invoke
+% indexing.  The particular format is defined here.
+% The xfs for \labelindex are needed because \index doesn't expand
+%
+\def\labelindex#1{\@xf\@xf\@xf\index
+  \@xf\@xf\@xf{\@xf\cap@first\object@type\space``#1''}}
+\def\refindex#1{\index{#1}}
+{\catcode`\%=12 \gdef\refinvindex#1{\index{% #1}}}
+
+% $Log:	index.sty,v $
+%Revision 1.1  92/04/07  09:47:28  levy
+%Initial revision
+%

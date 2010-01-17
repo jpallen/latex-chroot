@@ -1,0 +1,48 @@
+%
+%   This file is part of MusiXTeX
+%
+%   MusiXTeX is free software; you can redistribute it and/or modify
+%   it under the terms of the GNU General Public License as published by
+%   the Free Software Foundation; either version 2, or (at your option)
+%   any later version.
+%
+%   MusiXTeX is distributed in the hope that it will be useful,
+%   but WITHOUT ANY WARRANTY; without even the implied warranty of
+%   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%   GNU General Public License for more details.
+%
+%   You should have received a copy of the GNU General Public License
+%   along with MusiXTeX; see the file COPYING.  If not, write to
+%   the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+%   Boston, MA 02111-1307, USA.
+%
+\immediate\write10{MusiXEXTra 0.36\space<1 March 1995>}%
+
+\ifx\undefined\centerskip \else \endinput \fi
+
+\edef\catcodeat{\the\catcode`\@}\catcode`\@=11
+\catcodesmusic
+
+%\def\barsrest#1{\centerskip\uplap{\lrlap{\meterfont{#1}}%
+%  \vskip\f@ur\internote\lrlap{\musixchar59}}%
+%  \advance\barno#1\global\advance\barno\m@ne }
+
+%
+% slide #1=height #2=number of elements #3=slope(-8 to 8 [step 10degree])
+%
+
+\def\slide#1#2#3{\n@ii#3\relax\inhgetn@i#1\relax%
+  \ifnum\n@ii>\m@ne \advance\n@ii\m@ne\let\@Ti\raise
+  \else \n@ii-\n@ii \advance\n@ii\s@v@n\let\@Ti\lower \fi
+  \setbox\toks@box\hbox{\mxsps\char\n@ii}\n@iii\z@
+  \raise\n@i\internote\rlap{\hbox{\loop\ifnum\n@iii<#2%
+    \@Ti\n@iii\ht\toks@box\copy\toks@box\advance\n@iii\@ne\repeat}}}
+
+% if you need a line which appears ragged
+
+\def\raggedstoppiece{\ifx\ragg@d\empty \fil@{r}\fi
+  \check@nopen\n@wbar\hfill\z@suspend\@nds@ction}
+
+\endcatcodesmusic
+\catcode`\@=\catcodeat
+\endinput

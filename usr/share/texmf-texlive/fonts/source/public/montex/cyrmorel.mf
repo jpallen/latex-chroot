@@ -1,0 +1,75 @@
+%        File: cyrmorel.mf
+%    Based on: jkbashl.mf
+% Modified by: Oliver Corff
+%        Date: October 1997, Ulaanbaatar
+%
+  % jkbashl.mf by Joerg Knappen, Bitnet: knappen@dmznat51
+  % Version 11 June 1990
+  % Bashkirian special lowercase letters
+
+cmchar "The Bashkirian letter o-umlaut";
+beginchar(cyrotld,9u#,x_height#,0);
+italcorr .7x_height#*slant;
+adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);
+penpos1(vair,90); penpos3(vair',-90);
+penpos2(curve,180); penpos4(curve,0);
+x2r=hround max(.5u,1.25u-.5curve);
+x4r=w-x2r; x1=x3=.5w; y1r=h+vround 1.5oo; y3r=-oo;
+y2=y4=.5h-vair_corr; y2l:=y4l:=.52h;
+penstroke pulled_arc.e(1,2) & pulled_arc.e(2,3)
+ & pulled_arc.e(3,4) & pulled_arc.e(4,1) & cycle;  % bowl
+if serifs: z90=z2l; x91=x4; y91=y90; pos90(bar,90); pos91(bar,90);
+  z92=.5[z90,z91]; pos92(if serifs: 2.5 fi bar,90);
+  filldraw stroke z90e{1,1}..{1,-1}z92e..{1,1}z91e;
+else: z90=z2l; x91=x4; y91=y90; penpos90(bar,90); penpos91(bar,90);
+  fill stroke z90e--z91e; fi
+penlabels(1,2,3,4); endchar;
+
+cmchar "The Bashkirian letter u-umlaut";
+beginchar(cyry,if serifs: 9.5u# else: 9u# fi,x_height#,desc_depth#);
+italcorr x_height#*slant+.45u#;
+adjust_fit(serif_fit#,serif_fit#);
+numeric left_stem,right_stem,outer_jut,dy,alpha;
+left_stem=stem-stem_corr;
+right_stem=min(hair if hefty:-2stem_corr fi,left_stem);
+outer_jut=.75jut; x1l=w-x4r=l+letter_fit+outer_jut+.05u;
+x2l=x5l=hround(.5w-.5left_stem); x3r=x5r; y1=y4=h; y2=y3=y5=0;
+dy=y1-y2; alpha=((x2l-x1l)++dy)/dy;
+penpos1(alpha*left_stem,0); penpos2(alpha*left_stem,0);
+penpos3(alpha*right_stem,0); penpos4(alpha*right_stem,0);
+penpos5(left_stem,0); penpos6(left_stem,0); x5=x6; y6=-desc_depth;
+z0=whatever[z1r,z2r]=whatever[z3l,z4l];
+if y0>y2+notch_cut: y0:=y2+notch_cut;
+  fill z0+.5right{up}...{z4-z3}diag_end(3l,4l,1,1,4r,3r)--z5r
+    --diag_end(5r,6r,1,1,6l,5l)--z5l--diag_end(2l,1l,1,1,1r,2r){z2-z1}
+    ...{down}z0+.5left--cycle; % diagonals and stem
+else: fill z0--diag_end(0,4l,1,1,4r,3r)--z5r
+    --diag_end(5r,6r,1,1,6l,5l)--z5l
+    --diag_end(2l,1l,1,1,1r,0)--cycle; fi  % diagonals and stem
+if serifs: numeric inner_jut; pickup tiny.nib;
+ prime_points_inside(1,2); prime_points_inside(4,3); prime_points_inside(6,5);
+ if rt x1'r+jut+.5u+1<=lft x4'l-jut: inner_jut=jut;
+ else: rt x1'r+inner_jut+.5u+1=lft x4'l-inner_jut; fi
+ dish_serif(1',2,a,1/3,outer_jut,b,1/2,inner_jut);  % upper left serif
+ dish_serif(4',3,c,.6,inner_jut,d,1/2,outer_jut)(dark);  % upper right serif
+ dish_serif(6',5,e,1/3,cap_jut,f,1/3,cap_jut); fi  % lower serif
+math_fit(.5u#-x_height#*slant,ic#-4u#);
+penlabels(0,1,2,3,4,5,6); endchar;
+
+cmchar "The Bashkirian letter ha";
+beginchar(cyrshha,11u#,asc_height#,0);
+italcorr .5[bar_height#,x_height#]*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(.5u#+serif_fit#+stem_shift#,serif_fit#-stem_shift#);
+pickup tiny.nib; pos1(stem,0); pos2(stem,0);
+pos1'(stem',0); pos2'(stem',0); pos3(stem,0);
+lft x1l=hround(2.5u-.5stem); x1l=x1'l=x2l=x2'l; x3=w-x1;
+top y1=h; bot y2=0; y1=y1'; y2=y2';
+filldraw stroke z1'e--z2'e;  % left stem
+h_stroke(2,a,3,4);  % arch and right stem
+if serifs: sloped_serif.l(1',2',b,1/3,jut,serif_drop); % upper left serif
+ numeric inner_jut; pickup tiny.nib;
+ if rt x2r+jut+.5u+1<=lft x4l-jut: inner_jut=jut;
+ else: rt x2r+jut+.5u+1=lft x4l-inner_jut; fi
+ dish_serif(2,1,c,1/3,jut,d,1/3,jut); % lower left serif
+ dish_serif(4,3,e,1/3,inner_jut,f,1/3,jut); fi % lower right serif
+penlabels(1,2,3,4); endchar;

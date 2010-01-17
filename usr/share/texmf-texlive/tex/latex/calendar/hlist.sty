@@ -1,0 +1,114 @@
+%%
+%% This is file `hlist.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% htmlstuf.dtx  (with options: `htmlevent')
+%% This file is part of the Calendar package,
+%% Copyright (C) 1996, 1997 Frank Bennett, Jr.
+%% All rights reserved.
+%% ------------------------------------------
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% You are not allowed to change this file.  You may however copy
+%% this file to a file with a different name and then change the
+%% copy if (a) you do not charge for the modified code, (b) you
+%% acknowledge the author of this file in the new file, if it
+%% is distributed to others, and (c) you attach these same
+%% conditions to the new file.
+%% 
+%% You are not allowed to distribute this file alone.  You are not
+%% allowed to take money for the distribution or use of this file
+%% (or a changed version) except for a nominal charge for copying
+%% etc.
+%% 
+%% You are allowed to distribute this file under the condition that
+%% it is distributed with all of its contents, intact.
+%% 
+%% For error reports, or offers to help make this a more powerful,
+%% friendlier, and altogether more thrilling package, please contact me on
+%% fb@soas.ac.uk.  Better yet, make a contribution to
+%% my pension.  Account details available on request.
+%% ------------------------------------------
+%% 
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{hlist}
+          [1997/11/07 10:44:05 2.2 HTML Event List (Frank Bennett)]
+\input calopts.cfg
+\InputIfFileExists{dates.cfg}{}{}
+\ProcessOptions
+\ProcessOptions
+\RequirePackage{calendar}
+\define@key{opt}{textnum}{%
+  \dates@textnum=#1\relax}
+\define@key{opt}{outputfile}{%
+  \@ifundefined{html@outputfile}
+    {\newwrite\html@output%
+     \gdef\html@outputfile{#1}%
+     \immediate\openout\html@output=\html@outputfile}
+    {\gdef\el@temp{#1}%
+     \ifx\html@outputfile\el@temp%
+       \relax%
+     \else%
+       \immediate\closeout\html@output%
+       \gdef\html@outputfile{#1}%
+       \immediate\openout\html@output=\html@outputfile\relax%
+    \fi}}
+\def\el@item{<LI><A NAME="\the\dates@date">\theday\space\themonth\space\theyear</A>}
+\newcalendar%
+{htmllist}
+{\el@output}
+{8}
+{1}
+{1}
+{}
+{I}
+{<UL>}
+{</UL>}
+{}
+{}
+{\dates@requiremonthtrue\dates@requiredaytrue}
+{\global\dates@date\cal@range@start%
+ \caldate%
+  \message{^^JStart: \theshortweekday\space%
+    \theday\space\theshortmonth\space\theyear}%
+  \global\dates@date\cal@range@end%
+  \caldate%
+  \message{^^JEnd: \theshortweekday\space%
+    \theday\space\theshortmonth\space\theyear}%
+  \global\dates@date\cal@range@start%
+  \caldate%
+  \def\el@output##1{\ifcat$##1$\else\immediate\write\html@output{##1}\fi}}%
+{}%
+{\cal@get@appointments\cal@get@events}%
+{\relax%
+   \ifnum\dates@time@start>0\relax%
+    \ifnum\dates@time@start=\dates@time@end%
+      \protected@edef\cal@entry@text{%
+        ^^J\space\space\space\space<LI>\thetimestart\space%
+        \thelongtext}%
+    \else%
+      \protected@edef\cal@entry@text{%
+        ^^J\space\space\space\space<LI>\thetimestart--\thetimeend\space%
+        \thelongtext}%
+    \fi%
+  \else%
+      \protected@edef\cal@entry@text{%
+      ^^J<BR>\thelongtext}%
+  \fi}%
+{\ifcat$\theevents\theappointments$\else%
+\el@item%
+\fi%
+\ifcat$\theevents$\else%
+  \theevents%
+\fi%
+\ifcat$\theappointments$\else%
+ ^^J\space\space\space\space<UL>%
+ \theappointments%
+ ^^J\space\space\space\space</UL>%
+\fi}
+\endinput
+%%
+%% End of file `hlist.sty'.

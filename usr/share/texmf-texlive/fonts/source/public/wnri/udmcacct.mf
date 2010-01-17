@@ -1,0 +1,43 @@
+%
+% Washington Romanized Indic accent driver
+%
+% Macros to draw combination macron accent and underdot
+%
+
+cmchar "Dot accent";
+numeric dot_diam#; dot_diam#=max(dot_size#,cap_curve#);
+beginchar(oct"137",5u#,min(asc_height#,10/7x_height#+.5dot_diam#),0);
+define_whole_blacker_pixels(dot_diam);
+italcorr h#*slant+.5dot_diam#-2u#;
+adjust_fit(0,0);
+pickup tiny.nib; pos1(dot_diam,0); pos2(dot_diam,90);
+x1=x2=.5w; top y2r=h+1;
+if bot y2l<x_height+o+slab: y2l:=min(y2r-eps,x_height+o+slab+.5tiny); fi
+y1=.5[y2l,y2r]; dot(1,2);  % dot
+transform Tf; Tf = identity shifted (-.5w+ slant*(-h-.325desc_depth),aspect_ratio*(-h-.325desc_depth));
+savePicture(UdotPic); 
+endgroup;
+
+cmchar "Macron accent";
+numeric macron_breadth#; macron_breadth#=.2[vair#,stem#];
+beginchar(oct"026",9u#,.4[x_height#,asc_height#]+macron_breadth#,0);
+italcorr h#*slant-.75u#;
+adjust_fit(0,0);
+numeric macron_breadth; macron_breadth:=Vround .2[vair,stem];
+pickup if serifs: crisp.nib else: fine.nib fi;
+pos1(macron_breadth,90); pos2(macron_breadth,90);
+top y1r=top y2r=h+o; lft x1=w-rt x2=hround 1.25u;
+filldraw stroke z1e--z2e;  % bar
+if monospace: currentpicture:=currentpicture shifted(0,1/2aspect_ratio*dot_size); fi
+makeACCENT(MacronPic);
+endgroup;
+
+
+extra_endchar:=
+  " czu ap(MacronPic);  czdm ap(UdotPic); ah; oechar; ";
+
+boolean dotson; dotson=false; % omit dots on i, j, and possibly etc.
+def cp = udmc enddef;
+
+% end of file udmcacct.mf
+

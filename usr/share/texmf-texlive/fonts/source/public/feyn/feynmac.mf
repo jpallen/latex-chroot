@@ -1,0 +1,188 @@
+%   The following macros produce general gauge boson half-loops, and fermions
+%   bosons and ghosts at arbitrary angles.
+%
+%   They are:
+%	def gbhalfloop (expr charno, wid, nopts, inv) =
+%		    charno	character number
+%		    wid		character width in double modules
+%				(= length of fermion)
+%		    nopts	number of intermediate points in the loop
+%		    inv		if <> 0, invert the loop
+%
+%	def gfermion (expr code, ang) =
+%	def gboson (expr code, ang, stretch, taper) =
+%	def gghost (expr code, ang) =
+%		    code	character position
+%		    ang		angle anticlockwise from x-axis
+%				-90 <= ang <= +90, or all hell will break loose
+%		    stretch	Produces a character which is of length
+%				(2module*stretch).  We need this so that we can
+%				construct a vertical propagator which will
+%				mesh smoothly with a photon half-loop.
+%		    taper	When a vertical photon has to join a loop which
+%				is raised at its central point, it has to taper
+%				to squeeze into the gap.
+
+
+def looselink = ..tension 0.75.. enddef;
+def pen = pickup diagram_pen enddef;
+
+
+numeric nn;
+def dirlooselink(expr point,rtn) =
+  looselink{(-point) rotated (90-rtn)}point enddef;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+def gbhalfloop (expr charno, wid, nopts, inv) =
+  % charno	character number
+  % wid		character width in double modules (= length of fermion)
+  % nopts	number of intermediate points in the loop
+  % inv		if <> 0, invert the loop
+  halfwidth# := wid*module# ;
+  define_pixels (halfwidth);
+  if odd (nopts): nn := nopts
+    else: nn := nopts+1
+    fi;			      % nn is odd
+  if inv <> 0:		      % invert it
+    beginchar (charno, 0, a#, halfwidth# + phfudge# - a#);
+    else:
+    beginchar (charno, 0, halfwidth# + phfudge# + a#, 0);
+    fi
+      pen;					"gauge boson (half) loop";
+      z1 = (-halfwidth,0);
+      z[nn+1] = (halfwidth, 0);
+      for x = 2 upto nn:
+	z[x] = z1 rotated (- (x-1) * 180 / nn);
+	endfor
+      draw z1{dir (180-phangle)}
+	for x = 2 step 2 until nn:
+	  dirlooselink(z[x], phangle) dirlooselink(z[x+1], -phangle)
+	  endfor
+	looselink {dir (180+phangle)}z[nn+1];
+      if inv <> 0:
+	currentpicture := currentpicture reflectedabout ((0,0),(1,0)); fi
+      currentpicture := currentpicture shifted (0,a); % shift up to axis
+%     labels (range 1 thru nn+1);
+    endchar;
+enddef;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%   The following characters are in boxes the same vertical size as the black
+%   bit of the character, but they project out of the top by an amount equal to
+%   the height of the math axis, and are that same height clear of the bottom
+%   of the box.
+%
+%%%% -90 <= ang <= +90, or all hell will break loose
+
+
+
+def gfermion (expr code, ang) =
+  beginchar (code, 2module#*(cosd ang), 2module#*(abs sind ang), 0);
+    pen;
+    if ang > 0 :	% slopes upward
+      draw (0,a) .. (w,h+a);
+    else :
+      draw (0,h+a) .. (w,a);
+    fi
+  endchar;
+enddef;
+
+def gboson (expr code, ang, stretch, taper) =
+  beginchar (code,
+      2module#*(cosd ang)*stretch, 2module#*(abs sind ang)*stretch, 0);
+    pen;
+    if ang > 0 :	% slopes upward
+      z1 = (0,a);  z5 = (w,h+a);
+    else :
+      z1 = (0,h+a);  z5 = (w,a);
+    fi
+    z2-z1 = z3-z2 = z4-z3 = z5-z4;
+    def ::(expr b) = {dir (ang+b)} looselink {dir (ang-b)} enddef;
+    draw z1 ::(phangle) z2 ::(-phangle) z3 ::(phangle) z4
+    if taper <> 0 : {dir (ang-phangle)} .. tension 1 and 0.8 ..
+      {dir (ang+phangle/2)}
+    else : ::(-phangle)
+    fi
+    z5;
+  endchar;
+enddef;
+
+def gghost (expr code, ang) =
+  beginchar (code, 2module#*(cosd ang), 2module#*(abs sind ang), 0);
+    pen;
+    if ang > 0 :	% slopes upward
+      z1 = (0,a);  z10 = (w,h+a);
+    else :
+      z1 = (0,h+a);  z10 = (w,a);
+    fi
+    z4-z3 = 2(z2-z1);
+    z4-z3 = z6-z5 = z8-z7;
+    z2-z1 = z3-z2 = z5-z4 = z7-z6 = z9-z8 = z10-z9;
+    draw z1..z2; draw z3..z4; draw z5..z6; draw z7..z8; draw z9..z10;
+  endchar;
+enddef;
+
+def garrow (expr code, ang, onaxis) =
+% If onaxis is 1, the arrow will be on the math axis, if 0, it'll be at the
+% origin, and slightly smaller.
+% We need the latter behaviour because \arrow places the arrow in a
+% particular spot in the diagram.
+
+  numeric localarrowsize;
+  
+  if onaxis = 1 :
+    localarrowsize := bigarrow;
+  else :
+    localarrowsize := littlearrow;
+  fi
+
+  beginchar (code, 0, 0, 0);	  "garrow";
+    pair t[];
+    z1 = (localarrowsize, onaxis*a);
+    z4 = (-localarrowsize/4,onaxis*a);
+    z0 = (-localarrowsize/2,onaxis*a);
+    z2 = z0 + (0,localarrowsize/2);
+    z3 = z0 - (0,localarrowsize/2);
+
+    forsuffixes s = 1,2,3,4 :
+      t[s] = z[s] rotated ang;
+    endfor
+
+    fill t4--t2--t1--t3--cycle;
+  endchar;
+enddef;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Error character.
+%
+% The parameter ht is the nominal height of the character.
+def errorchar (expr ht) =
+  begingroup
+    numeric rad,npetals,ilowest;
+    pair cent;
+    cent=(0,2ht/3);		% centre of the flower
+    rad=ht/5;			% radius of the inner points
+    npetals=5;			% number of petals
+    pickup pencircle scaled (thinlinewidth#); % thin line
+    z0 = cent shifted (rad,0);
+    for i=1 upto npetals-1:
+      z[i] = z0 rotatedabout (cent, i*360/npetals);
+    endfor
+    draw z0{dir 0}
+    for i=1 upto npetals-1:
+      .. tension 0.75 ..{dir (i*360/npetals+180)}z[i]{dir (i*360/npetals)}
+    endfor
+    ..{dir 180}z0;
+    ilowest := 0;
+    for i=1 upto npetals-1:
+      if y[i] <= y[ilowest]: ilowest := i; fi
+    endfor
+    draw z[ilowest]{dir (ilowest*360/npetals)}..origin;
+    %draw z[npetals-2]{dir ((npetals-2)*360/npetals)}..origin;
+    draw origin{dir 0}..(rad,rad);
+    draw (rad,rad){dir 180}..origin;
+  endgroup
+enddef;

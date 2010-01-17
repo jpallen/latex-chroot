@@ -1,0 +1,144 @@
+% +--------------------------------------------------+
+% | Typeset ensindex.tex to get the documentation.   |
+% +--------------------------------------------------+
+%
+%% Copyright (C) 1998-2004, 2006 Javier Bezos
+%% All Rights Reserved
+%% http://www.texytipografia.com
+%%
+%% This work may be distributed and/or modified under the conditions
+%% of the LaTeX Project Public License, either version 1.3 of this
+%% license or (at your option) any later version.  The latest version
+%% of this license is in
+%%     http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2003/12/01 or later.
+%%
+%% This work has the LPPL maintenance status "maintained".
+%%
+%% This Current Maintainer of this work is Javier Bezos.
+%%
+%% This work consists of the files esindex.tex and esindex.sty.
+
+% Changes
+%
+% 2006/05/12. Bug fixed. Missing accents in multilevel entries.
+
+\ProvidesPackage{esindex}[2006/05/12 v1.2 Spanish indexes]
+
+\def\esx@level{`\!}
+\def\esx@actual{`\@}
+\def\esx@encap{`\|}
+\def\esx@quote{`\"}
+
+\def\esx@error{\PackageError{esindex}{Unknown index parameter}%
+	   {Options in this package have the form^^J%
+	    parameter=value, where parameter stands for^^J%
+		one of the following MakeIndex ones:^^J%
+		encap, level, actual, quote}}
+
+\def\esx@process#1=#2\esx@process{%
+  \@ifundefined{esx@#1}{\esx@error}{%
+  \expandafter\edef\csname esx@#1\endcsname
+   {\string`\expandafter\noexpand\csname\string#2\endcsname}}}
+
+\DeclareOption*{%
+  \@expandtwoargs\in@{=}{\CurrentOption}%
+  \ifin@
+    \expandafter\esx@process\CurrentOption\esx@process
+  \else
+    \esx@error
+  \fi}
+
+\ProcessOptions
+
+\begingroup
+
+\catcode`\|=\catcode\esx@encap   \lccode`\|=\esx@encap\relax
+\catcode`\!=\catcode\esx@level   \lccode`\!=\esx@level\relax
+\catcode`\&=\catcode\esx@actual  \lccode`\&=\esx@actual\relax
+\catcode`\*=13                   \lccode`\*=\esx@quote\relax
+
+\catcode`\'=13
+\catcode`\"=13
+\catcode`\~=13
+
+\gdef\esindex#1#{\esx@index{#1}}
+
+\lowercase{
+\gdef\esx@index#1#2{%
+  \let\esx@g\@empty
+  \esx@bar@idx#2|\@@
+  \expandafter\esx@@index\esx@b!\@@
+  \toks@\expandafter{\esx@g}%
+  \protected@edef\esx@g{\noexpand\index#1{\the\toks@\esx@a}}%
+  \esx@g}
+}
+
+\lowercase{
+\gdef\esx@bar@idx#1|#2\@@{%
+  \def\esx@b{#1}\def\esx@a{#2}%
+  \ifx\esx@a\@empty\else\esx@bar@eat#2\fi}
+}
+
+\lowercase{
+\gdef\esx@bar@eat#1|{\def\esx@a{|#1}}
+}
+
+\lowercase{
+\gdef\esx@@index#1!#2\@@{%
+  \begingroup
+  \def\@tabacckludge##1{\csname\string##1\endcsname}%
+  \def\'##1{\@ifundefined{esx@index@q@\string##1}%
+       {##1}%
+       {\csname esx@index@q@\string##1\endcsname}}%
+  \ifnum\catcode`\'=\active
+    \let'\'%
+  \fi
+  \def\~##1{\string##1\string^^ff}%
+  \ifnum\catcode`\~=\active
+    \let~\~%
+  \fi
+  \def\"##1{\@ifundefined{esx@index@qq@\string##1}%
+       {\string"##1}%
+       {\csname esx@index@qq@\string##1\endcsname}}%
+  \ifnum\catcode`\"=\active
+    \let"\"%
+  \fi
+  \toks@\expandafter{\esx@g}%
+  \protected@xdef\esx@g{\the\toks@#1\string &}%
+  \endgroup
+  \begingroup
+  \def*##1{% <- its lower case is the quote char (")
+    \ifcat##1a%
+	  \@ifundefined{spanish@sh@\string*\string##1@}%
+        {\string*##1}%
+        {\string*\string*##1}%
+	\else
+	  \string*\string##1%
+	\fi}%
+  \def\esx@b{#2}%
+  \toks@\expandafter{\esx@g}%
+  \ifx\esx@b\@empty
+     \protected@xdef\esx@g{\the\toks@#1}%
+  \else
+     \protected@xdef\esx@g{\the\toks@#1!}%
+     \esx@@index#2\@@
+  \fi
+  \endgroup}
+}
+\endgroup
+
+\def\esx@index@q@n{n\string^^ff}
+\def\esx@index@q@N{N\string^^ff}
+
+\def\esx@index@qq@o{.o}
+\def\esx@index@qq@O{.O}
+\def\esx@index@qq@a{.a}
+\def\esx@index@qq@A{.A}
+\def\esx@index@qq@u{u}
+\def\esx@index@qq@A{U}
+\def\esx@index@qq@c{c}
+\def\esx@index@qq@C{C}
+
+\endinput

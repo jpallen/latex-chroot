@@ -1,0 +1,250 @@
+% -*- TeX -*-
+% for yTeX
+% Michael A. Gennert 
+% MICHAELG%OZ@MIT-MC
+
+% These macros generate IEEE style papers.  They break each page into
+% 4 pieces, except for the first page, which is broken into 5.  This
+% allows a paper to be created with the minimum amount of pasting onto
+% pages.  The text of all pages is broken into quadrants, where each
+% quadrant is 4.25 inches wide by 5.75 inches long.  Two quadrants are
+% pasted together to make a column and two columns pasted together to
+% make a page.  The top two quadrants of the first page are shorter,
+% allowing space for the title piece.  There are no headers nor
+% footers.  Twocolumn mode may not be used (it is superfluous).
+% Glosses are not allowed.  A typical paper looks like:
+
+% \input <michaelg.tex>yTeX.ieee
+% \begintitlepage
+% \ctitle{yTeX.IEEE: A NEW MACRO PACKAGE}
+% \cauthor{Michael A. Gennert}
+% \caffiliation{Artificial Intelligence Laboratory\cr
+% Massachusetts Institute of Technology\cr
+% Cambridge, Massachusetts 02139\cr}
+% \endtitlepage
+% \section{Abstract}
+% This paper introduces a new macro package called yTeX.IEEE, for the
+% yTeX text formatter.  And so on.
+% \section{1. Introduction} ...
+
+% There are new entries for the titlepage, \affiliation and
+% \caffiliation, that behave exactly like \author and \cauthor, except
+% that their font is \affiliationfont, defaulting to \regsize\rm.
+
+% \section underlines and centers the section title and numbers it.
+% \subsection underlines and places flush left.  \subsubsection
+% underlines, indents, and then runs the text in.  Each has its own
+% font, defaulting to \regsize\bf.
+
+% Footnotes cannot be used in the title page.  They disappear if you try.
+
+% The \draft macro does not put the words draft anywhere now, since it
+% used to use glosses, which are disabled.  But, it does give a rule
+% at the edge of overfull boxes, helpful for pointing out lines that
+% are too long.
+
+% The \ref macro makes references easier.  Sample usage is
+% \ref{1} M.A. Gennert, ``yTeX.IEEE: A New Macro Package,''
+
+% While yTeX is running, it prints the page numbers on the screen as
+% they are shipped out.  Here, we use a convention for page numbers.
+% The title page is page 0.  Other pages are of the form pq, where p
+% is the manuscript page (which of course never gets shipped out at
+% all), and q is the quadrant, from 1 to 4.  Thus, the normal sequence
+% of page numbers on the screen will be [0], [1.1], ... [1.4], [2.1] ...
+
+\makeatletter % allow @ in macro names
+
+\offrunners % no runners at all
+
+% quadrants
+\countdef\quadrant=1
+\quadrant=1
+
+% Title page hacks.  Titles cannot have footnotes.  If you can make title
+% footnotes appear at the bottom of the first column of text, let me
+% know how you did it.  Title should be 1.875 inches high and normal width.
+
+% main title pages %%% vsize 1.875 truein?
+\newelement\titlepage
+  \setup \output={\ytextitlepageoutput}
+  \above
+  \below
+  \begin \begintitlingpage \hsize=6.5truein \vsize=8truein \ymessage{{Title page}}
+  \end \endgraf \endtitlingpage \global\vsize=8.625truein
+  \endnew
+
+% title pages for sub-parts of a book, etc.
+\newelement\partpage
+  \setup \ymessage{{No part titles allowed in IEEE format}}
+  \above
+  \below
+  \begin
+  \end
+  \endnew
+
+% add spacing around elements of title
+\newtitle\title
+  \box \vbottom
+  \shape \titleleft{\z@}{\z@}%
+  \font \the\titlefont
+  \setup
+  \begin
+  \end \vskip .20truein plus .25truein minus .10truein
+  \endnew
+\newtitle\ctitle
+  \box \vbottom
+  \shape \titlecenter{\z@}{\z@}%
+  \font \the\titlefont
+  \setup
+  \begin
+  \end \vskip .20truein plus .25truein minus .10truein
+  \endnew
+\newtitle\author
+  \box \vbottom
+  \shape \titleleft{\z@}{\z@}%
+  \font \the\authorfont
+  \setup
+  \begin \vskip .15truein plus .25truein minus .5truein
+  \end \vskip .15truein plus .25truein minus .5truein
+  \endnew
+\newtitle\cauthor
+  \box \vbottom
+  \shape \titlecenter{\z@}{\z@}%
+  \font \the\authorfont
+  \setup
+  \begin \vskip .15truein plus .25truein minus .5truein
+  \end \vskip .15truein plus .25truein minus .5truein
+  \endnew
+
+% affiliation
+\newtoks\affiliationfont
+\newtitle\affiliation
+  \box \vbottom
+  \shape \titleleft{\z@}{\z@}%
+  \font \the\affiliation
+  \setup
+  \begin \vskip .15truein plus .25truein minus .5truein
+  \end
+  \endnew
+\newtitle\caffiliation
+  \box \vbottom
+  \shape \titlecenter{\z@}{\z@}%
+  \font \the\affiliationfont
+  \setup
+  \begin \vskip .15truein plus .25truein minus .5truein
+  \end
+  \endnew
+
+% fonts
+\affiliationfont={\regsize\rm}
+
+% title page output routine
+\def\ytextitlepageoutput {\pageno=0 %
+  \shipout\vbox{% 
+    \hbox to6.5truein{%
+      \hss
+      \vbox to1.875truein{%
+        \offinterlineskip
+        \unvbox\@cclv
+        }% end of contents \vbox
+      \hss}% end of centering \hbox
+    }% end of centering \vbox
+  \ifnum\outputpenalty>-\@MM \else\dosupereject\fi
+  \global\output={\ytexoutput}}
+
+% normal(?) output routine
+\def\ytexoutput {%
+  \iftrimpages \trimp@ge\fi
+  \setbox\@cclv=\vbox{\pagecontents}
+  \setbox\z@=\vsplit\@cclv to 5.7truein
+  \shipout\addpageno{\box\z@} 
+  \advancequadrant
+  \shipout\addpageno{\box\@cclv}
+  \advancequadrant
+  \ifnum\quadrant=1\global\vsize=11.4truein\fi
+  \ifnum\outputpenalty>-\@MM \else\dosupereject\fi}
+
+% fancy quadrant increment scheme
+\def\advancequadrant{%
+  \global\advance\quadrant by 1
+  \ifnum\quadrant>4 \global\advance\quadrant by -4 \global\advance\pageno by 1\fi}
+
+% add page number to bottom of output sheet
+\def\addpageno#1{%
+  \vbox to 9truein{%
+    \hbox to 6.5truein{#1\hss}
+    \vskip 0pt plus 1filll
+    \hbox to 6.5truein{\hss\number\pageno .\number\quadrant}}}
+
+% sections, subsections, subsubsections
+\newtitle\sectiontitle
+  \box \vbottom
+  \shape \titlecenter{\z@}{\z@}
+  \font \the\sectionfont
+  \setup
+  \begin
+  \end
+  \endnew
+
+\newelement\section
+  \setup \get@rg\endsection \sectionsetup
+  \above \minbreak \presectionpenalty \abovesectionskip
+  \below \dobreak \postsectionpenalty \belowsectionskip \vpar
+  \begin \get@rg
+  \end \ymessage{{Section: \the\toks@}}%
+       \sectiontitle{\underbar{\the\toks@}}%
+  \endnew
+\setskip\abovesectionskip \dimen 9pt \glue \parskip \factor 3000
+\setskip\belowsectionskip \dimen 3pt \glue \parskip \factor 2000
+
+\newtitle\subsectiontitle
+  \box \vbottom
+  \shape \titleleft{\z@}{\z@}
+  \font \the\subsectionfont
+  \setup
+  \begin
+  \end
+  \endnew
+
+\newelement\subsection
+  \setup \get@rg\endsubsection
+  \above \minbreak \presectionpenalty \abovesectionskip
+  \below \dobreak \postsectionpenalty \belowsectionskip \vpar
+  \begin \get@rg
+  \end \ymessage{{Subsection: \the\toks@}}%
+       \subsectiontitle{\underbar{\the\toks@}}%
+  \endnew
+
+\def\subsubsection#1{%
+  \minbreak \presectionpenalty \abovesectionskip
+  \underbar{{\the\subsubsectionfont #1}} \noindent}
+
+% subsection and subsubsection fonts
+\newtoks\subsectionfont
+\subsectionfont={\regsize\bf}
+\newtoks\subsubsectionfont
+\subsubsectionfont={\regsize\bf}
+
+% references are adjoint tagged paragraphs 
+\def\ref#1{\atpar{[#1]}}
+
+% skip .5 inch after the abstract
+\def\abstractskip{\vskip .5truein}
+
+% first paragraph after a heading not flush left
+\vparfalse
+
+% footnotes have a rule along their entire length
+\def\footnoterule{\kern-3pt
+  \hrule width \hsize \kern 2.6pt}
+
+% set page size
+\hsize=4.25truein
+\vsize=11.4truein
+
+% set proper spacing
+\baselinefactor={1.1}\setnormalbaselines
+
+% disallow @ elsewhere
+\makeatother

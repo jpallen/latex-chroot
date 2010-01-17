@@ -1,0 +1,151 @@
+%%% Stephen Moye
+%%% Stephen_Moye@brown.edu
+%%% Brown University
+%%% Graphic Services
+
+%%%%% Registers
+
+\newtoks\dspfont
+\newdimen\dspsize
+\newdimen\letterboxwd
+\newcount\scratch
+\newcount\divisor
+
+%%%%% Layout options
+
+\parindent0pt
+\nopagenumbers
+
+\vsize10in \voffset-.5in
+\hsize7.5in \hoffset-.5in
+
+%%%%% Macros
+
+%%% This is the macro that does all the work.
+%%% #1 -> TeX's name for the desired font
+%%% #2 -> The name font name as you want it to print
+%%% #3 -> The name of the type's designer, or other salient
+%%%       piece of information that lends itself to display
+%%% #4 -> The size of the type inside the box
+%%% #5 -> The overall desired width of the box
+\def\makefontbox#1#2#3#4#5{%
+\dspfont={#1}%
+\def\fontname{#2}%
+\font\test=\the\dspfont\space at #4 \test \baselineskip1.25em
+\setbox0=\vbox{\halign to #5{%
+##\tabskip0pt plus 1fill&\hfil##\hfil&\hfil##\hfil&\hfil##\hfil&\hfil##\hfil&
+\hfil##\hfil&\hfil##\hfil&
+\hfil##\hfil&\hfil##\hfil&\hfil##\hfil&\hfil##\hfil&\hfil##\hfil\tabskip0pt\cr
+\noalign{\red\hrule\black\medskip}
+%%% Substitute any characters you like to suit your purposes
+A&B&C&D&E\enskip&1&2&\enskip a&b&c&d&e\cr
+F&G&H&I&J\enskip&3&4&\enskip f&g&h&i&j\cr
+K&L&M&N&O\enskip&5&6&\enskip k&l&m&n&o\cr
+P&Q&R&S&T\enskip&7&8&\enskip p&q&r&s&t\cr
+U&V&W&X&Y\enskip&9&0&\enskip u&v&w&x&y\cr
+(&&Z&&)&\&&\char166&[&&z&&]\cr
+\noalign{\medskip\red\hrule\black}}}%
+\letterboxwd=\wd0
+\vtop{\hsize\letterboxwd
+\if\empty#2 \else\makefit{#2}\fi%
+\smallskip
+\box0%
+\smallskip
+\if\empty#3 \else \makefit{#3}\fi}}
+
+%%% Fit text to a given size by first setting the text
+%%% very tiny and then determining a scaling factor.
+\def\makefit#1{\font\dsp=\the\dspfont\space at .1pt%
+\setbox1=\hbox{\dsp #1}%
+\dspsize=\letterboxwd 
+\scratch=\dspsize \multiply\scratch10 \divisor=\wd1
+\divide\scratch by \divisor
+\dspsize=\scratch pt \divide\dspsize by 100 
+\hbox{\font\dsp=\the\dspfont\space at\dspsize \dsp #1}}
+
+%%% For Textures users, and anyone else who can use color
+%%% via the \special mechanism
+
+\def\red{%
+\special{color push}
+\special{color define red rgb 1.0 0 0}
+\special{color red}}
+
+\def\blue{%
+\special{color push}
+\special{color define blue rgb 0 0 1.0}
+\special{color blue}}
+
+\def\green{%
+\special{color push}
+\special{color define green rgb 0 1.0 0}
+\special{color green}}
+
+\def\black{\special{color pop}}
+
+%%%%% Example -- this is just a suggestion to get you started.
+
+%%% Make the `grid'. This is just for fun. For even more fun,
+%%% color the rules -- red, blue and green are very printerly.
+%%% The easy way, as here, is to make your pattern in a \vbox
+%%% set to \vsize, then all you have to do is \kern-\vsize
+%%% to start setting type over the grid.
+
+\vbox to \vsize{\blue
+\hrule
+\vss
+\noindent\llap{\vrule height\vsize\hskip0pt}%
+\hskip2in\kern2pt\vrule height\vsize\hskip1pt%
+\hskip3.5in\kern-6pt\vrule height\vsize\hskip1pt%
+\hfill\rlap{\hskip0pt\vrule height\vsize}
+\vss
+\hrule\black}
+
+\kern-\vsize
+
+%%% Now do the text bits
+
+\line{\hskip1pt\makefontbox{ACaslon}{Adobe Caslon Roman}{ }{11pt}{2in}\hfill
+\makefontbox{ACaslonI}{Adobe Caslon Italic}{ }{11pt}{2in}\hskip1pt}
+
+\vfill
+
+\red\hrule\black
+
+\bigskip
+
+%%% Notice that the narrow measure (3.5in) used for the quotation
+%%% required some \emergencystretch.
+\begingroup
+\font\rm=ACaslon at 10pt \rm \baselineskip1.35em \font\it=ACaslonI at 10pt
+\moveright 2.1in\vbox{\hsize3.3in \emergencystretch.5em%
+A lot of mathematics and technical knowledge are involved in our work today.
+I would not call us artists any more.
+I think `alphabet designer' is more accurate,
+and our comrade is no longer the punchcutter but the electronics engineer.
+If the technician learns that he doesn't have to work with a crazy artist,
+and the designer learns a little about electronics,
+they will make an ideal team.
+It is still teamwork as it was in the good old days of metal type.
+
+\bigskip
+
+\it Hermann Zapf\par}
+
+\bigskip
+
+\red\hrule\black
+
+
+\endgroup
+
+\vfill\vfill
+
+
+\line{\hskip1pt\makefontbox{ACaslonB}{Adobe Caslon Bold}{ }{11pt}{2in}\hfill
+\makefontbox{ACaslonBI}{Adobe Caslon BoldItalic}{Carol Twombly}{11pt}{2in}\hskip1pt}
+
+\line{\hss}
+
+
+\eject

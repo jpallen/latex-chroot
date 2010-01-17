@@ -1,0 +1,127 @@
+%%
+%% This is file `xt_capts.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xt_capts.dtx  (with options: `package')
+%% 
+%% Copyright (C) 1997 Olaf Fricke
+%% 
+%% IMPORTANT NOTICE:
+%% This file is part of the eXTendend CAPTionS package.
+%% 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{xt_capts}
+         [1998/02/25 v1.1d eXTended CAPTionS (OFR)]
+
+\long\def\g@prependto@macro#1#2{%
+  \begingroup \def\reserved@a{#2}%
+    \toks@\expandafter\expandafter\expandafter{%
+      \expandafter\reserved@a#1}%
+    \xdef#1{\the\toks@}%
+    \endgroup}
+\def\BeforeAtBeginDocument{\g@prependto@macro\@begindocumenthook}
+\def\AfterAtBeginDocument#1{\g@prependto@macro\@preamblecmds{#1}}
+\@onlypreamble\BeforeAtBeginDocument
+\@onlypreamble\AfterAtBeginDocument
+\def\BeforeAtEndDocument#1{\g@prependto@macro\@enddocumenthook{#1}}
+
+\newcommand{\DeclareCaption}[2]{%
+  \xtc@init{#2}%
+  \DeclareTextCommand#1{#2}}
+\newcommand{\ProvideCaption}[2]{%
+  \xtc@init{#2}%
+  \ProvideTextCommand#1{#2}}
+\@onlypreamble\DeclareCaption
+\newcommand{\DeclareCaptionDefault}[1]{%
+  \DeclareTextCommand#1{lang?}}
+\newcommand{\ProvideCaptionDefault}[1]{%
+  \ProvideTextCommand#1{lang?}}
+\@onlypreamble\DeclareCaptionDefault
+\expandafter\let\csname lang?-cmd\endcsname\xtc@changed@lang
+\def\xtc@use@lang#1{%
+  \expandafter\let\csname\xtc@lang -cmd\endcsname\xtc@changed@lang
+  \edef\xtc@lang{#1}%
+  \expandafter\let\csname\xtc@lang -cmd\endcsname\xtc@current@lang}
+\def\xtc@lang{lang?}
+\def\xtc@current@lang#1{%
+   \ifx\protect\@typeset@protect
+      \@inmathwarn#1%
+   \else
+      \noexpand#1\expandafter\@gobble
+   \fi}
+\def\xtc@changed@lang#1#2{%
+   \ifx\protect\@typeset@protect
+      \@inmathwarn#1%
+      \expandafter\ifx\csname\xtc@lang\string#1\endcsname\relax
+         \expandafter\ifx\csname lang?\string#1\endcsname\relax
+            \expandafter\def\csname lang?\string#1\endcsname{%
+               \xtc@unavailable#1%
+            }%
+         \fi
+         \global\expandafter\let
+               \csname\xtc@lang \string#1\expandafter\endcsname
+               \csname lang?\string#1\endcsname
+      \fi
+      \csname\xtc@lang\string#1%
+         \expandafter\endcsname
+   \else
+      \noexpand#1%
+   \fi}
+\gdef\xtc@unavailable#1{%
+  \@latex@error{%
+    Command \protect#1 unavailable in language \xtc@lang%
+    }\@eha}
+\declare@robustcommand\UseCaption[2]{%
+  \@inmathwarn#2%
+  \expandafter\ifx\csname #1\string#2\endcsname\relax
+    \expandafter\ifx\csname lang?\string#2\endcsname\relax
+      \expandafter\def\csname lang?\string#2\endcsname{%
+        \xtc@unavailable#2%
+        }%
+    \fi
+    \global\expandafter\let
+    \csname #1\string#2\expandafter\endcsname
+    \csname lang?\string#2\endcsname
+  \fi
+  \csname #1\string#2\endcsname
+  }
+
+\newcommand{\xtc@init}[1]{%
+  \expandafter\ifx\csname xtc@#1\endcsname\relax
+    \expandafter\def\csname xtc@#1\endcsname{%
+      \xtc@use@lang{#1}}%
+    \expandafter\let\csname #1-cmd\endcsname\xtc@changed@lang
+    \ifx\@begindocumenthook\@undefined
+      \xtc@install{#1}%
+    \else
+      \AtBeginDocument{\xtc@install{#1}}%
+    \fi
+  \fi}
+\newcommand{\xtc@install}[1]{%
+  \begingroup\expandafter\endgroup
+  \expandafter\ifx\csname captions#1\endcsname\@undefined
+    \PackageWarningNoLine{xt_capts}{%
+      You haven't defined the language #1\space yet.\MessageBreak
+      Nevertheless, \string\UseCaption{#1}{\string\foo} will work}
+  \else
+    \expandafter\g@addto@macro\csname captions#1\expandafter\endcsname
+      \csname xtc@#1\endcsname
+  \fi}
+\AfterAtBeginDocument{%
+  \ifx\languagename\@undefined
+    \xtc@use@lang{english}%
+  \else
+    \xtc@use@lang\languagename
+  \fi}
+\BeforeAtBeginDocument{%
+  \ifx\languagename\@undefined
+    \ifx\captionsenglish\@undefined
+      \let\captionsenglish\@empty
+    \fi
+  \fi}
+
+\endinput
+%%
+%% End of file `xt_capts.sty'.

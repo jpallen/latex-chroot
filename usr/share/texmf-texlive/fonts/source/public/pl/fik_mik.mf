@@ -1,0 +1,75 @@
+% ---------------------------------------------------------------------------
+%%% input use_driver
+% This is an auxiliary file which prepares reading a CM parametric file using
+% a sneaky-tricky method. Every PL parametric file (such as PLB10, PLBX10,
+% ..., etc.) inputs this file, optionally changes some of PL parameters, and
+% then calls the macro |use_driver|.
+% ---------------------------------------------------------------------------
+% AUTHORS: {\bif{}Bogus\l{}aw Jackowski \& Marek Ry\'cko}
+% ---------------------------------------------------------------------------
+% This file belongs to the public domain under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+%
+% In particular, only the authors are entitled to modify this file.
+%
+% For details see either the file MEXINFO.POL or MEXINFO.ENG.
+% ---------------------------------------------------------------------------
+% PL VERSION 1.09, April 13th, 2001 -- released for BachoTeX 2001
+% ---------------------------------------------------------------------------
+if unknown cmbase: input cmbase fi
+
+string driver_name,ss; numeric ii;
+
+vardef generate @# = driver_name:=str @#; endgroup enddef;
+
+vardef use_driver @# =
+% |@#| either is empty or is equal to the pt-size of a respective
+% CM parametric file
+ if unknown param_base:
+% in sophisticated applications a user may wish to specify
+% |param_base| prior to calling |use_driver|:
+  string param_base; param_base=jobname;
+ fi
+ ii:=0;
+ forever:
+  ii:=ii+1;
+  ss:=substring(length(param_base)-ii,length(param_base)-ii+1) of param_base;
+  exitif (ss<"0") or (ss>"9") or (ii>=length(param_base));
+ endfor;
+ ii:=ii-1;
+ if unknown basic_unit#: basic_unit#=pt#; fi % i.e., |basic_unit#:=1|
+ numeric scale;
+ if str@# <> "":
+  scale=basic_unit#*scantokens(
+   substring(length(param_base)-ii,length(param_base)) of param_base)/@#;
+  ss:="input cm"&(substring(2,length(param_base)-ii) of param_base)&str @#;
+ else:
+  scale:=basic_unit#;
+  ss:="input cm"&(substring(2,length(param_base)) of param_base);
+ fi
+
+% |ogonek_pen#| is the only sharp extra PL parameter;
+% it must be rescaled separately:
+ if known ogonek_pen#: ogonek_pen#:=scale*ogonek_pen#; fi
+% input the original driver, possibly rescaling:
+ numeric true_pt#; true_pt#=pt#;
+ pt#:=scale*true_pt#; scantokens(ss); pt#:=true_pt#;
+
+ if (basic_unit#<>pt#):
+  message "Actual font size is " & decimal(designsize) & "pt#";
+  message "";
+ fi
+
+ font_identifier:=substring(0,length(param_base)-ii) of param_base;
+ scantokens("input "&
+ if driver_name="roman": "polan"
+  elseif driver_name="textit": "polkur"
+  elseif driver_name="mathsy": "polmat"
+  elseif driver_name="title": "poltyt"
+  elseif driver_name="csc": "polkap"
+  else: driver_name fi);
+
+enddef;
+
+endinput;
+%%\end

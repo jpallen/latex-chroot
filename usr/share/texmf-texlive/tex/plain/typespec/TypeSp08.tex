@@ -1,0 +1,215 @@
+%%% Stephen Moye
+%%% Stephen_Moye@brown.edu
+%%% Brown University
+%%% Graphic Services
+
+\newdimen\leading
+\newdimen\ascheight
+\newdimen\xheight
+\newdimen\adjust
+\newdimen\sampletextwd
+\newdimen\gutter
+\newdimen\dist
+\newdimen\mainleading
+
+\newcount\scratch
+\newcount\divisor
+\newcount\spconv
+\newcount\divisor
+\newcount\scratch
+\newcount\sscratch
+\newcount\intgp
+\newcount\fracp
+
+\newtoks\texttoks
+
+%%%
+
+\vbadness10000
+
+%%%
+
+\def\setleading{%
+\setbox0=\hbox{Ilpgy}%
+\setbox1=\hbox{x}%
+\xheight=\ht1
+\ascheight=\ht0
+\leading=\ht0
+\adjust=\xheight \advance\adjust-.5\leading
+\advance\leading\dp0
+\leading=1.2\leading  
+\ifdim\dp0<.05\ht0 \advance\adjust.5\xheight\fi
+\advance\leading by \adjust
+\baselineskip=\leading}
+
+%%% Type factor = ([Type size] * [# of characters in a sample])/(linear length of sample)
+%%% Based on {\it Brown's Index}, Bruce Brown, Greenwood Publishing, Great Britain 1983
+\def\typefact#1{%
+\dist=10pt
+\font\facttext=#1 at\dist
+\spconv=\number\dist
+\multiply\spconv by 12
+\multiply\spconv by 204
+\setbox1=\hbox{\facttext\freqabc}%
+\divisor=\number\wd1
+\divide\divisor by 100
+\divide\spconv by \divisor
+\scratch=\spconv 
+	\divide\scratch100
+ \divisor=\scratch
+ \multiply \scratch100
+ \advance\spconv-\scratch
+ \hbox{\number\divisor.\ifnum\spconv<10 0\the\spconv \else \the\spconv\fi}}
+ 
+%%% Convert from TeX's bulky 4-decimal point measurements to 1
+\def\prettypt#1{\dist=#1%
+\multiply\dist10%
+\scratch=\number\dist
+\divide\scratch65536%
+\intgp=\scratch \divide\intgp10%
+\sscratch=\intgp 
+\multiply\sscratch10 \advance\scratch-\sscratch
+\fracp=\scratch
+\hbox{\the\intgp.\the\fracp}pt}
+
+\def\displaytype#1{%
+\font\bigtype=#1 at 24pt
+\font\medtype=#1 at 18pt
+\font\normtype=#1 at 14pt
+\font\smalltype=#1 at 12pt
+\font\tinytype=#1 at 10pt
+\font\tinytinytype=#1 at 8pt}
+
+\texttoks={\emergencystretch1em Brick quiz whangs jumpy veldt fox.
+Nymphs vex, beg quick fjord waltz.
+Quick wafting zephyrs vex bold Jim.
+West quickly gave Bert handsome prizes for six juicy plums.
+Freight to me sixty dozen quart jars and twelve black pans.
+My help squeezed back in again and joined the weavers after six.
+Turgid saxophones blew over Mick's jazzy quiff.
+Five wine experts jokingly quizzed sample chablis.
+My grandfather picks up quartz and valuable onyx jewels.
+Mix Zapf with Veljovic and get quirky Beziers.
+All questions asked by five watch experts amazed the judge.
+Back in June we delivered oxygen equipment of the same size.
+We have just quoted on nine dozen boxes of grey lamp wicks.
+A large fawn jumped quickly over white zinc boxes.
+The exodus of jazzy pigeons is craved by squeamish walkers.}
+
+\def\freqabc{\text  zjqx%
+       kkvv%
+       bbbbppppyyyywwwwgggg%
+       mmmmmmffffffccccccuuuuuu%
+       lllllllldddddddd%
+       hhhhhhhhhhhhrrrrrrrrrrrrssssssssssss%
+       ooooooooooooooiiiiiiiiiiiiiinnnnnnnnnnnnnn%
+       aaaaaaaaaaaaaaaatttttttttttttttttt%
+       eeeeeeeeeeeeeeeeeeeeeeee}% 204 chars
+
+%%% #1 - Font TeX name; #2 - number of lines in sample
+%%% #3 - Printed name of font
+\def\textbox#1#2#3{%%
+\setbox0=\vtop{#1%
+\hbadness10000\emergencystretch1em\hsize\sampletextwd\the\texttoks}%
+\setbox1=\vsplit0 to #2\baselineskip
+\vtop{\hsize\sampletextwd\centerline{\strut#1[#3]}\smallskip\unvbox1\relax%
+%%% Comment-out the following line if you don't want/need numbers in the sample text
+1\hfill2\hfill3\hfill4\hfill5\hfill6\hfill7\hfill8\hfill9\hfill0\hfill\&\null\par%
+}}
+
+\def\setupmargnote{%
+\tinytinytype \setleading \baselineskip=\leading \vskip\baselineskip}
+
+%%% 1-type size; 2-Number of lines;
+%%% 3-TeX type name 1; 4-Printed type name 1;
+%%% 5-TeX type name 2; 6-Printed type name 2
+\def\lineoftwo#1#2#3#4#5#6{%
+\begingroup
+\font\typeone=#3 at #1%
+%% Set up baselineskip for the two samples
+%% and the info for the margin notes for the
+%% sample on the left:
+\typeone\setleading \calcxaratio{\typeone}
+ \baselineskip=\leading
+ \mainleading=\leading
+\font\typetwo=#5 at #1%
+\line{%
+\llap{\vtop{\setupmargnote%
+   \halign{\hfill##\cr#1\cr
+   \prettypt{\the\mainleading}\cr
+   \typefact{#3}\cr
+   0.\the\xascrnum\cr}}\enskip}\hss%
+\textbox{\typeone}{#2}{#4}%
+\hskip\gutter
+%% Setup the info for the margin note describing
+%% the sample on the right
+\typetwo \setleading \calcxaratio{\typetwo}
+\textbox{\typetwo}{#2}{#6}%
+\hss
+\rlap{\enskip\vtop{\setupmargnote%
+			\halign{##\hfil\cr#1\cr
+   \prettypt{\the\mainleading}\cr
+   \typefact{#5}\cr
+   0.\the\xascrnum\cr}}}%
+}\endgroup}
+
+\def\lineofone#1#2#3#4{%
+\begingroup
+\font\typeone=#3 at #1 \typeone \setleading \calcxaratio{\typeone}
+\baselineskip=\leading
+\line{\hss%%
+\hbox{\textbox{\typeone}{#2}{#4}%
+\hss
+\rlap{\enskip\vtop{\setupmargnote%
+			\halign{##\hfil\cr
+   #1\cr
+   \prettypt{\the\mainleading}\cr
+   \typefact{#3}\cr
+   0.\the\xascrnum\cr}}}}%
+\hss}\endgroup}
+
+\def\comment#1{%
+\bigskip
+\hrule
+\smallskip
+\line{\hfill\vbox{\hyphenpenalty10000 \emergencystretch1em%
+\leftskip0pt plus 4em \rightskip0pt \parfillskip0pt
+\tinytinytype\setleading\hsize.75\sampletextwd\noindent#1}}}
+
+%%%
+%%% Example
+%%%
+
+%%% Setup
+
+\parindent0pt
+\nopagenumbers
+\hsize6in
+\hoffset.25in
+\gutter1pc
+\sampletextwd2.85in
+\displaytype{Helvetica}
+
+
+%%%
+%%% The Page
+%%%
+
+\leftline{\medtype Centaur}
+\smallskip
+\hrule
+\bigskip
+
+\lineoftwo{12pt}{10}{Centaur}{Centaur}{CentaurI}{Centaur Italic}
+
+\bigskip
+
+\lineoftwo{12pt}{10}{CentaurB}{Centaur Bold}{CentaurBI}{Centaur Bold-Italic}
+
+\comment{Centaur, drawn by Bruce Rogers and Frederick Warde}
+
+%%%
+%%% The End
+%%%
+
+\bye

@@ -1,0 +1,166 @@
+% $Id: cassette.tex,v 1.2 1995/03/16 01:17:54 schrod Exp $
+%--------------------------------------------------------
+% Written by Joachim Schrod <schrod@iti.informatik.th-darmstadt.de>.
+% Put into public domain.
+
+
+\catcode`\@=11
+
+\font\norm=cmss8
+\font\intfont=cmssi8
+\font\titfont@page=cmcsc10 scaled 800
+\font\titfont=cmss10
+\font\titintfont=cmssi10
+\font\cassfont=cmcsc10
+
+\newdimen\colwidth  \colwidth=50 true mm
+\newdimen\backheight \backheight=10 true mm
+\newdimen\titheight \titheight=14 true mm
+\newdimen\pagheight \pagheight=66 true mm
+
+\def\@seite#1{%
+    \global\setbox\@page=\vbox{\hsize=\colwidth
+        \everypar={\global\hangindent=1em }%
+        \vskip \tw@\p@
+        #1\endgraf
+        \vfil
+        }%
+    }
+
+\def\cnt#1:{[#1]}
+\def\von#1:{{\intfont #1\/}:\penalty -100 } % <== Space!
+\def\nl{\hfill\break}
+
+\def\@titel#1{%
+    \global\setbox\@title=\vbox{\hsize=\colwidth
+        \let\intfont=\titintfont        % Font fuer Interpret
+        \vfill
+        \unvbox\@title
+        \titfont #1\endgraf
+        \vfill
+        }%
+    {\titfont@page
+        \def\von##1:{\uppercase{##1}:\penalty -100 }% % <== Space!
+        #1%
+    }}
+
+
+\newbox\@seitea
+\newbox\@seiteb
+\newbox\@titela
+\newbox\@titelb
+\def\seitea{\let\@page=\@seitea \let\titel=\titela \obeylines \@seite}
+\def\seiteb{\let\@page=\@seiteb \let\titel=\titelb \obeylines \@seite}
+\def\titela{\let\@title=\@titela \@titel}
+\def\titelb{\let\@title=\@titelb \@titel}
+
+\def\titelcass#1{%
+    \global\setbox\@titela=\vbox{\hsize=\colwidth
+        \vfill
+        \unvbox\@titela
+        \titfont #1\endgraf
+        \vfill
+        }%
+    }
+
+
+
+
+\def\begincassette#1{%
+     \def\cassname{#1}%
+     \setbox\@seitea\vbox{\hrule width\colwidth height\z@ depth\z@ \vfil}%
+     \setbox\@seiteb\vbox{\hrule width\colwidth height\z@ depth\z@ \vfil}%
+     \setbox\@titela\vbox{\hrule width\colwidth height\z@ depth\z@ \vfil}%
+     \setbox\@titelb\vbox{\hrule width\colwidth height\z@ depth\z@ \vfil}%
+     \splittopskip\baselineskip
+     }
+
+\newif\if@text@left@
+\def\endcassette{%
+    \hbox{%
+        \vrule
+        \vbox{%
+            \hrule
+             \vbox to \backheight{\hsize2\colwidth \advance\hsize by 4.4\p@
+                \vfill
+                \centerline{\cassfont \cassname}%
+                \vfill
+                }%
+            \hrule
+            \col{\titheight}{@titel}%
+            \hrule
+             \loop
+                 \global\@text@left@false
+                 \one@page
+             \if@text@left@ \repeat
+            }%
+        \vrule
+        }%
+    }
+\def\one@page{%
+    \col{\pagheight}{@seite}%
+    \hrule
+    }%
+\def\col#1#2{%
+    \hbox{%
+        \hskip \p@
+        \split@col{#2a}{#1}%
+        \hskip \p@
+        \vrule
+        \hskip \p@
+        \split@col{#2b}{#1}%
+        \hskip \p@
+        }%
+    }
+\def\split@col#1#2{%
+    \expandafter \ifvoid \csname #1\endcsname
+        \vbox to #2{\hrule width\colwidth height\z@ depth\z@ \vfil}%
+       \else
+        \vbox to #2{\hsize\colwidth
+             \setbox\z@ \vsplit \csname #1\endcsname to #2\relax
+             \unvbox\z@
+             \vskip 2pt plus 1fil minus 2pt
+             }%
+        \expandafter \ifvoid \csname #1\endcsname
+           \else \global\@text@left@true
+        \fi
+    \fi
+    }
+
+
+\norm \baselineskip=9pt \lineskip=0pt \lineskiplimit=0pt
+\parindent=\z@ \parskip=\tw@\p@ minus \tw@\p@
+\rightskip=\z@ plus 0.7\colwidth \linepenalty=100
+\r@ggedbottomtrue
+\frenchspacing
+\nopagenumbers
+
+
+\endinput
+
+
+
+% ============================================================
+%
+% $Log: cassette.tex,v $
+% Revision 1.2  1995/03/16  01:17:54  schrod
+%     Support for magnified typesetting.
+%     Might be more changes as well, they looked sensible.
+%
+% Revision 1.1  1995/03/13  23:18:10  schrod
+%     Started to manage this package with CVS. Made minor code cleanup.
+%
+
+%
+% Pre-CVS Log:
+%
+% 87-09-20 js   Initial revision
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Local Variables:
+mode: plain-TeX
+TeX-master: t
+TeX-brace-indent-level: 4
+End:

@@ -1,0 +1,67 @@
+%=== xslz.mf=======================================================
+% WpH modified to be "dashed" (each modification marked with WpH.
+% 96-08-24 WpH-constants set (ick)
+% ick 98-05-22 modified constants for gap, dash, endlen.
+%
+thick#:=1pt#;
+nhh#:=5pt#;
+define_pixels(nhh);
+define_blacker_pixels(thick);
+minwidth:=8pt#;
+delwidth:=4pt#;
+
+numslurs:=54;
+maxwidth:=minwidth+(numslurs-1)*delwidth;
+
+fontdimen 5: maxwidth;
+
+picture p;
+
+min_bow:=  .4nhh;
+max_bow:= 1.75nhh;
+slope:= 10/100;
+
+code=-1;
+gap=thick;		%was 1.5; WpH new parameter: gap length. ick
+dash=1.6thick;		%    2.5; WpH new parameter: dash length. ick
+endlen=-0.0thick;	%   -1.0; WpH new: length of dash at ends measured to center of gap. ick
+if unknown makedotted: makedotted:=0; fi % WpH
+
+for i=1 upto numslurs:
+
+  beginchar(incr code, 0, 0, 0);
+    mw:=(minwidth+code*delwidth)*pt;
+    x3= -x1= .5mw; x2= y1= y3 = 0;
+    y2= max(min_bow, slope*mw);
+    y2:= min(y2, max_bow);
+    penpos1(.15thick,90); penpos2(thick,90); penpos3(.15thick,90);
+    penstroke (flex(z1e,z2e,z3e));
+    currentpen:= pencircle; draw (flex(z1,z2,z3));
+    %
+    % wph start of added block to make gaps.
+    if makedotted<>1: 
+        % variable makedotted has not been given a value.
+        % Dotted lines will not be made.
+    else:
+        cullit;
+        pickup penrazor scaled gap;
+        xcount:=(mw-2endlen)/(gap+dash); % number of gaps.
+        xcount:=floor(xcount + .5); %round to nearest int number.
+        xinc:=(mw-2endlen)/xcount;
+        for j=0 upto xcount-1:
+            xcur:=x1+endlen+j*xinc;
+            undraw (xcur,y1)..(xcur,y2+.6thick);
+        endfor;
+        cullit;
+    fi
+    % wph end of added block to make gaps.
+    %
+    p:=currentpicture;
+  endchar;
+
+  beginchar(code+54, 0, 0, 0);
+    currentpicture:=p reflectedabout (origin, right);
+  endchar;
+
+endfor
+end

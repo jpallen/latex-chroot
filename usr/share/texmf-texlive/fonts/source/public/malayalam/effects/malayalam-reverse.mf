@@ -1,0 +1,34 @@
+% reverse.mf -- reverse video effect (does not work correctly
+%				with characters that stick out of their box of the
+%				left or right).
+
+define_whole_pixels(ht);
+
+topline := 1.6ht;
+botline := -1.0ht;
+
+def pattern=
+	def endchar=
+		cullit;
+		picture NormalChar;
+			NormalChar=currentpicture;
+		clearit;
+		% fill (0,-desc-2vo)--(w+ho, -desc-2vo)--
+		%	(w+ho, cap+2vo)--(0, cap+2vo)--cycle;
+		fill ((0,botline)--(w,botline)--(w,topline)--
+			(0,topline)--cycle) shifted -(.5rm, 0);
+		picture BlackBox;
+			BlackBox:=currentpicture;
+		picture ReverseVideo;
+			ReverseVideo=BlackBox-NormalChar;
+		currentpicture:=ReverseVideo
+		% The rest is from standard endchar
+		scantokens extra_endchar;
+		chardx:=w;
+		shipit;
+		if displaying>0: showit; fi
+		endgroup
+	enddef;
+enddef;
+
+% end of reverse.mf

@@ -1,0 +1,317 @@
+%% This file is a part of the ArmTeX 2.0
+%% [1999/06/01 v2.0 armtex.sty (LaTeX package for writing in Armenian)]
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%% Double input protection.
+%%
+\expandafter\ifx\csname ArmTeX@ArmTeXLoaded\endcsname\relax
+\let\ArmTeX@ArmTeXLoaded\null\else\endinput\fi
+
+
+%% Begining of the code.
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{armtex}
+  [1999/06/01 v2.0 armtex.sty (LaTeX package for writing in Armenian)]
+
+
+%% Options processing.
+%%
+\newif\ifArmTeX@Main
+\global\ArmTeX@Maintrue
+\DeclareOption{latin}{\global\ArmTeX@Mainfalse}
+
+\DeclareOption{notstar}{\global\let\ArmTeX@Notstar\null}
+\DeclareOption{notbar}{\global\let\ArmTeX@Notbar\null}
+\DeclareOption{notexclam}{\global\let\ArmTeX@Notexclam\null}
+\DeclareOption{notdots}{\global\let\ArmTeX@Notdots\null}
+
+\DeclareOption{safe}{\global\let\ArmTeX@Notstar\null
+                     \global\let\ArmTeX@Notbar\null
+                     \global\let\ArmTeX@Notexclam\null
+                     \global\let\ArmTeX@Notdots\null}
+\ProcessOptions
+
+
+%% Loading encoding definition file.
+%%
+\InputIfFileExists{ot6enc.def}{}
+  {\PackageError{ArmTeX}
+    {Encoding definition file `ot6enc.def' not found.\MessageBreak
+     Check your installation}
+    {It seems that there is a problem with your installation.\MessageBreak
+     Normally the file `ot6enc.def' should have been present on your system.\MessageBreak
+     But apparently it isn't !!!\MessageBreak
+     It is better to stop at this point and to check your installation.}}
+
+
+%% Some auxilliary macros.
+%%
+\def\ArmTeX@Armencoding{OT6}
+\def\ArmTeX@Armfamily{cmr}
+\def\ArmTeX@Armseries{m}
+\def\ArmTeX@Armshape{n}
+\def\ArmTeX@Armnormalfont{\usefont\ArmTeX@Armencoding
+                                  \ArmTeX@Armfamily
+                                  \ArmTeX@Armseries
+                                  \ArmTeX@Armshape
+                                  \relax}
+\def\ArmTeX@Savednormalfont{\usefont\ArmTeX@Savedencoding
+                                    \ArmTeX@Savedfamily
+                                    \ArmTeX@Savedseries
+                                    \ArmTeX@Savedshape
+                                    \relax}
+\def\ArmTeX@Armtoday{\number\day~\ifcase\month\or
+  hunvari\or phetrvari\or marti\or aprili\or maisi\or hunisi\or
+  hulisi\or o'gostosi\or septemberi\or hoktemberi\or noyemberi\or
+  dektemberi\fi~\number\year th.}
+\def\ArmTeX@Armdischyph{\discretionary{\char123}{}{}}
+\def\ArmTeX@MathError#1{%
+    \PackageError{ArmTeX}
+      {The command `\string #1' is not available in math mode}
+      {You have used the command `\string #1' in math mode.\MessageBreak
+       But it can only be used in text mode.}}
+
+
+%% User macros.
+%%
+\def\armdate{\let\today\ArmTeX@Armtoday}
+\def\armdateoff{\let\today\ArmTeX@Savedtoday}
+\def\armhyph{\let\-\ArmTeX@Armdischyph
+             \let\@dischyph\ArmTeX@Armdischyph}
+\def\armhyphoff{\let\-\ArmTeX@Saveddischyph
+                \let\@dischyph\ArmTeX@Saveddischyph}
+\def\armuh{--\break}
+\def\armnames{%
+  \def\refname{Hghumneri cank}
+  \def\abstractname{Amphophum}
+  \def\bibname{Grakanuthyun}
+  \def\prefacename{Naxaban}
+  \def\chaptername{Glux}
+  \def\appendixname{Havelvac'}
+  \def\contentsname{Bovandakuthyun}
+  \def\listfigurename{Patkerneri cank}
+  \def\listtablename{Aghyusakneri cank}
+  \def\indexname{Ar'arkayakan cank}
+  \def\figurename{Patker}
+  \def\tablename{Aghyusak}
+  \def\partname{Mas}
+  \def\pagename{e'j}
+  \def\seename{{\aritshape te|s}}
+  \def\alsoname{{\aritshape te|s naev}}
+  \def\enclname{Kic e'jer}
+  \def\ccname{Krkno'rinak`}
+  \def\headtoname{Hasceater`}
+  \def\proofname{Apacuyc}% for AMS-\LaTeX
+}
+\def\armnamesoff{%
+  \let\refname\ArmTeX@Savedrefname
+  \let\abstractname\ArmTeX@Savedabstractname
+  \let\bibname\ArmTeX@Savedbibname
+  \let\prefacename\ArmTeX@Savedprefacename
+  \let\chaptername\ArmTeX@Savedchaptername
+  \let\appendixname\ArmTeX@Savedappendixname
+  \let\contentsname\ArmTeX@Savedcontentsname
+  \let\listfigurename\ArmTeX@Savedlistfigurename
+  \let\listtablename\ArmTeX@Savedlisttablename
+  \let\indexname\ArmTeX@Savedindexname
+  \let\figurename\ArmTeX@Savedfigurename
+  \let\tablename\ArmTeX@Savedtablename
+  \let\partname\ArmTeX@Savedpartname
+  \let\pagename\ArmTeX@Savedpagename
+  \let\seename\ArmTeX@Savedseename
+  \let\alsoname\ArmTeX@Savedalsoname
+  \let\enclname\ArmTeX@Savedenclname
+  \let\ccname\ArmTeX@Savedccname
+  \let\headtoname\ArmTeX@Savedheadtoname
+  \let\proofname\ArmTeX@Savedproofname
+}
+\DeclareRobustCommand{\?}{\ifmmode\ArmTeX@MathError{\?}\else
+       \textquestion\fi}
+\DeclareRobustCommand{\ArmTeX}{{\artmfamily
+  \def\ArmTeX@testa{it}\ifx\f@shape\ArmTeX@testa\arslshape\fi
+  A\kern -0.08ex\raise 0.63ex\hbox{\smash{r}}\kern -0.22em%
+  \def\ArmTeX@testa{sl}\ifx\f@shape\ArmTeX@testa\kern -0.075em\fi
+  \def\ArmTeX@testa{m}\ifx\f@series\ArmTeX@testa\else\kern -0.015em\fi
+  \lower 0.43ex\hbox{m}\kern -0.16em\fontencoding\ArmTeX@Savedencoding
+  \fontfamily\ArmTeX@Savedfamily
+  \def\ArmTeX@testa{sl}\ifx\f@shape\ArmTeX@testa\slshape\else\upshape\fi
+  \def\ArmTeX@testa{m}\ifx\f@series\ArmTeX@testa\mdseries\else\bfseries\fi
+  \selectfont\TeX}}
+\DeclareRobustCommand{\latArmTeX}{{\aroff
+  \edef\ArmTeX@testa{\itdefault}\ifx\f@shape\ArmTeX@testa\slshape\fi
+  Arm\kern -0.15em\edef\ArmTeX@testa{\mddefault}%
+  \ifx\f@series\ArmTeX@testa\else\kern 0.03em\fi\TeX}}
+
+
+%% At begining of the document.
+%%
+\AtBeginDocument{
+%
+% Cheking if OT6 is not already loaded.
+%
+\ifx\encodingdefault\ArmTeX@Armencoding
+  \PackageError{armtex}
+    {Encoding definition file `ot6enc.def' already loaded.\MessageBreak
+     You should not load it with the help of\MessageBreak
+     `fontenc' package if you use `armtex' package}
+    {You must have put something like \protect\usepackage[T1,T3,OT6]{fontenc} in\MessageBreak
+     the preambule of your document.\MessageBreak
+     Removing `OT6' from the list of options (or removing the whole\MessageBreak
+     `fontenc' package, if you don't need it) will solve the problem.}
+\fi
+%
+% Do some savings.
+%
+\let\ArmTeX@Savedexclam=\!%
+\let\ArmTeX@Savedbar=\|%
+\let\ArmTeX@Savedstar=\*%
+\let\ArmTeX@Saveddischyph=\-%
+\let\ArmTeX@Savedtoday=\today
+\let\ArmTeX@Savedencoding=\encodingdefault
+\let\ArmTeX@Savedfamily=\familydefault
+\let\ArmTeX@Savedseries=\seriesdefault
+\let\ArmTeX@Savedshape=\shapedefault
+\let\ArmTeX@Savedrefname\refname
+\let\ArmTeX@Savedabstractname\abstractname
+\let\ArmTeX@Savedbibname\bibname
+\let\ArmTeX@Savedprefacename\prefacename
+\let\ArmTeX@Savedchaptername\chaptername
+\let\ArmTeX@Savedappendixname\appendixname
+\let\ArmTeX@Savedcontentsname\contentsname
+\let\ArmTeX@Savedlistfigurename\listfigurename
+\let\ArmTeX@Savedlisttablename\listtablename
+\let\ArmTeX@Savedindexname\indexname
+\let\ArmTeX@Savedfigurename\figurename
+\let\ArmTeX@Savedtablename\tablename
+\let\ArmTeX@Savedpartname\partname
+\let\ArmTeX@Savedpagename\pagename
+\let\ArmTeX@Savedseename\seename
+\let\ArmTeX@Savedalsoname\alsoname
+\let\ArmTeX@Savedenclname\enclname
+\let\ArmTeX@Savedccname\ccname
+\let\ArmTeX@Savedheadtoname\headtoname
+\let\ArmTeX@Savedproofname\proofname
+%
+% Processing Options.
+%
+\ifArmTeX@Main
+  \let\encodingdefault=\ArmTeX@Armencoding
+  \let\familydefault=\ArmTeX@Armfamily
+  \let\seriesdefault=\ArmTeX@Armseries
+  \let\shapedefault=\ArmTeX@Armshape
+  \ArmTeX@Armnormalfont
+  \armdate
+  \armhyph
+  \armnames
+\fi
+%
+\ifx\ArmTeX@Notstar\null\else
+  \DeclareRobustCommand{\*}{\ifmmode\ArmTeX@Savedstar\else
+    \textbreaklig\fi}%
+\fi
+%
+\ifx\ArmTeX@Notexclam\null\else
+  \DeclareRobustCommand{\!}{\ifmmode\ArmTeX@Savedexclam\else
+    \textexclam\fi}%
+\fi
+%
+\ifx\ArmTeX@Notbar\null\else
+  \DeclareRobustCommand{\|}{\ifmmode\ArmTeX@Savedbar\else
+    \textanjgic\fi}%
+\fi
+%
+\ifx\ArmTeX@Notdots\null\else
+  \def\vdots{\vbox{\baselineskip4\p@ \lineskiplimit\z@
+    \kern6\p@\hbox{$\ldotp$}\hbox{$\ldotp$}\hbox{$\ldotp$}}}%
+  \def\ddots{\mathinner{\mkern1mu\raise7\p@
+    \vbox{\kern7\p@\hbox{$\ldotp$}}\mkern2mu
+    \raise4\p@\hbox{$\ldotp$}\mkern2mu\raise\p@\hbox{$\ldotp$}\mkern1mu}}%
+\fi
+}
+
+
+%% Encoding/font MATH selection user macros.
+%%
+\DeclareMathAlphabet{\mathartm}{OT6}{cmr}{m}{n}
+\SetMathAlphabet{\mathartm}{bold}{OT6}{cmr}{bx}{n}
+\DeclareMathAlphabet{\mathartmbf}{OT6}{cmr}{bx}{n}
+\DeclareMathAlphabet{\mathartmit}{OT6}{cmr}{m}{it}
+\SetMathAlphabet{\mathartmit}{bold}{OT6}{cmr}{bx}{it}
+\DeclareMathAlphabet{\mathartmbfit}{OT6}{cmr}{bx}{it}
+
+
+%% Encoding/font TEXT selection orthogonal user macros.
+%%
+\DeclareRobustCommand{\aroff}{%
+    \ifx\f@encoding\ArmTeX@Armencoding\ArmTeX@Savednormalfont
+                                      \armdateoff
+                                      \armhyphoff\fi}%
+%
+\providecommand{\ArmTeX@OrthoFontDef}[3]{%
+  \DeclareRobustCommand{#1}{%
+    \ifmmode\ArmTeXMathError{#1}\else
+      \ifx\f@encoding\ArmTeX@Armencoding\else\ArmTeX@Armnormalfont\armdate\armhyph\fi
+      #3\selectfont\fi}%
+  \DeclareTextFontCommand{#2}{#1}}
+%
+\ArmTeX@OrthoFontDef{\artmfamily}{\armtm}{\fontfamily{cmr}}
+\ArmTeX@OrthoFontDef{\arssfamily}{\armss}{\fontfamily{cmss}}
+\ArmTeX@OrthoFontDef{\arbfseries}{\armbf}{\fontseries{bx}}
+\ArmTeX@OrthoFontDef{\armdseries}{\armmd}{\fontseries{m}}
+\ArmTeX@OrthoFontDef{\arupshape}{\armup}{\fontshape{n}}
+\ArmTeX@OrthoFontDef{\aritshape}{\armit}{\fontshape{it}}
+\ArmTeX@OrthoFontDef{\arslshape}{\armsl}{\fontshape{sl}}
+
+
+%% Encoding/font TEXT selection NON-orthogonal commands
+%%
+
+% Old-style armenian commands used in plain version.
+%
+\providecommand{\ArmTeX@OldArmFontDef}[3]{%
+  \DeclareOldFontCommand{#1}{%
+    \ifx\f@encoding\ArmTeX@Armencoding\else\armdate\armhyph\fi
+    \ArmTeX@Armnormalfont #2\selectfont}{#3}}
+%
+\ArmTeX@OldArmFontDef{\artm}{\fontfamily{cmr}}
+  {\mathartm}
+\ArmTeX@OldArmFontDef{\arss}{\fontfamily{cmss}}
+  {\ArmTeXMathError{\arss}}
+\ArmTeX@OldArmFontDef{\artmbf}{\fontfamily{cmr}\fontseries{bx}}
+  {\mathartmbf}
+\ArmTeX@OldArmFontDef{\arssbf}{\fontfamily{cmss}\fontseries{bx}}
+  {\ArmTeXMathError{\arssbf}}
+\ArmTeX@OldArmFontDef{\artmit}{\fontfamily{cmr}\fontshape{it}}
+  {\mathartmit}
+\ArmTeX@OldArmFontDef{\artmsl}{\fontfamily{cmr}\fontshape{sl}}
+  {\ArmTeXMathError{\artmsl}}
+\ArmTeX@OldArmFontDef{\arsssl}{\fontfamily{cmss}\fontshape{sl}}
+  {\ArmTeXMathError{\arsssl}}
+\ArmTeX@OldArmFontDef{\artmbfit}{\fontfamily{cmr}\fontshape{it}\fontseries{bx}}
+  {\mathartmbfit}
+\ArmTeX@OldArmFontDef{\artmbfsl}{\fontfamily{cmr}\fontshape{sl}\fontseries{bx}}
+  {\ArmTeXMathError{\artmbfsl}}
+\ArmTeX@OldArmFontDef{\arssbfsl}{\fontfamily{cmss}\fontshape{sl}\fontseries{bx}}
+  {\ArmTeXMathError{\arssbfsl}}
+
+% Old-style NON-armenian commands (possibly redefining, if
+% already defined in class).
+%
+\providecommand{\ArmTeX@OldNonArmFontDef}[3]{%
+  \DeclareOldFontCommand{#1}{\ArmTeX@Savednormalfont\armdateoff\armhyphoff #2}{#3}}
+%
+\ArmTeX@OldNonArmFontDef{\rm}{\rmfamily}{\mathrm}
+\ArmTeX@OldNonArmFontDef{\sf}{\sffamily}{\mathsf}
+\ArmTeX@OldNonArmFontDef{\tt}{\ttfamily}{\mathtt}
+\ArmTeX@OldNonArmFontDef{\bf}{\bfseries}{\mathbf}
+\ArmTeX@OldNonArmFontDef{\it}{\itshape}{\mathit}
+\ArmTeX@OldNonArmFontDef{\sl}{\slshape}{\ArmTeXMathError{\sl}}
+\ArmTeX@OldNonArmFontDef{\sc}{\scshape}{\ArmTeXMathError{\sc}}
+
+
+%% That's all, Folks!
+%%
+\endinput

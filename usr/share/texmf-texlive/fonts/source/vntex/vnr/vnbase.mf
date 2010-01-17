@@ -1,0 +1,954 @@
+% Copyright 2003-2005 Han The Thanh <hanthethanh@gmx.net>.
+% This file is part of vntex.  License: LPPL, version 1.3 or newer,
+% according to http://www.latex-project.org/lppl.txt
+
+% basic macros for all vnr fonts
+
+% get_acc_pos := 1;
+% gen_t5_supp := 1;
+
+if known get_acc_pos or known gen_t5_supp:
+    mag := 100.375;
+fi
+
+% define which letters should be generated when testing > 0
+def testchars =
+% a.acute_,
+% a.dot_,
+% a.grave_,
+% a.hook_,
+% a.tilde_,
+% a.breve_,
+% a.breve_.acute_,
+% a.breve_.dot_,
+% a.breve_.grave_,
+% a.breve_.hook_,
+% a.breve_.tilde_,
+% a.circumflex_,
+% a.circumflex_.acute_,
+% a.circumflex_.dot_,
+% a.circumflex_.grave_,
+% a.circumflex_.hook_,
+% a.circumflex_.tilde_,
+% d.bar_,
+% e.acute_,
+% e.dot_,
+% e.grave_,
+% e.hook_,
+% e.tilde_,
+% e.circumflex_,
+% e.circumflex_.acute_,
+% e.circumflex_.dot_,
+% e.circumflex_.grave_,
+% e.circumflex_.hook_,
+% e.circumflex_.tilde_,
+% i.acute_,
+% i.dot_,
+% i.grave_,
+% i.hook_,
+% i.tilde_,
+% o.acute_,
+% o.dot_,
+% o.grave_,
+% o.hook_,
+% o.tilde_,
+% o.circumflex_,
+% o.circumflex_.acute_,
+% o.circumflex_.dot_,
+% o.circumflex_.grave_,
+% o.circumflex_.hook_,
+% o.circumflex_.tilde_,
+o.horn_,
+o.horn_.acute_,
+o.horn_.dot_,
+o.horn_.grave_,
+o.horn_.hook_,
+o.horn_.tilde_,
+% u.acute_,
+% u.dot_,
+% u.grave_,
+% u.hook_,
+% u.tilde_,
+u.horn_,
+u.horn_.acute_,
+u.horn_.dot_,
+u.horn_.grave_,
+u.horn_.hook_,
+u.horn_.tilde_,
+% y.acute_,
+% y.dot_,
+% y.grave_,
+% y.hook_,
+% y.tilde_,
+last
+enddef;
+
+C.l.last := 256;
+C.u.last := 256;
+
+% copied from plain.mf to make metapost run with ec sources, as mfplain.mp is not
+% up-to-date with plain.mf
+vardef whatever = save ?; ? enddef;
+def killtext text t = enddef;
+
+
+if known testing: % turn testing on
+%     proofcolor := .4[white, black];
+    defaultfont := "Times-Roman";
+    defaultscale := 1;
+    prologues := 1;
+    show_labels := 1;
+    if known gensize:
+        mag := 20/gensize;
+    else:
+        mag := 2;
+    fi
+fi
+
+if unknown exbase:
+    input exbase;
+fi
+
+if unknown displaying:
+    displaying := 0;
+fi
+
+let vnchar = ecchar;
+let cmchar = ecchar;
+
+input vncode;   % character encoding
+
+if known testing:
+string inputstr;
+forsuffixes _u =
+    A_fam_used, D_fam_used, E_fam_used, I_fam_used, O_fam_used, U_fam_used, Y_fam_used,
+    a_fam_used, d_fam_used, e_fam_used, i_fam_used, o_fam_used, u_fam_used, y_fam_used:
+    boolean _u;
+    _u := false;
+endfor;
+
+def test_fam(text _f, _u, _c) =
+    n_ := 0;
+    if not _u:
+        forsuffixes $ = _f(,) 257:
+            n_ := n_ + 1;
+            if (($ < 32) or ($ > 127)) % check for vn chars only
+               and ($ = C.u._c) or ($ = C.l._c):
+                _u := true;
+            fi
+        endfor
+    fi
+enddef;
+
+forsuffixes _c = testchars:
+    test_fam(A_fam)(A_fam_used)(_c);
+    test_fam(D_fam)(D_fam_used)(_c);
+    test_fam(E_fam)(E_fam_used)(_c);
+    test_fam(I_fam)(I_fam_used)(_c);
+    test_fam(O_fam)(O_fam_used)(_c);
+    test_fam(U_fam)(U_fam_used)(_c);
+    test_fam(Y_fam)(Y_fam_used)(_c);
+
+    test_fam(a_fam)(a_fam_used)(_c);
+    test_fam(d_fam)(d_fam_used)(_c);
+    test_fam(e_fam)(e_fam_used)(_c);
+    test_fam(i_fam)(i_fam_used)(_c);
+    test_fam(o_fam)(o_fam_used)(_c);
+    test_fam(u_fam)(u_fam_used)(_c);
+    test_fam(y_fam)(y_fam_used)(_c);
+
+    test_fam(U_horn_fam)(U_fam_used)(_c);
+    test_fam(u_horn_fam)(u_fam_used)(_c);
+endfor
+
+def input_ur_fam =
+    inputstr := "";
+    if A_fam_used: inputstr := inputstr & "input vnuar; "; fi
+    if D_fam_used: inputstr := inputstr & "input vnudr; "; fi
+    if E_fam_used: inputstr := inputstr & "input vnuer; "; fi
+    if I_fam_used: inputstr := inputstr & "input vnuir; "; fi
+    if O_fam_used: inputstr := inputstr & "input vnuor; "; fi
+    if U_fam_used: inputstr := inputstr & "input vnuur; "; fi
+    if Y_fam_used: inputstr := inputstr & "input vnuyr; "; fi
+    scantokens(inputstr);
+enddef;
+
+def input_lr_fam =
+    inputstr := "";
+    if a_fam_used: inputstr := inputstr & "input vnlar; "; fi
+    if d_fam_used: inputstr := inputstr & "input vnldr; "; fi
+    if e_fam_used: inputstr := inputstr & "input vnler; "; fi
+    if i_fam_used: inputstr := inputstr & "input vnlir; "; fi
+    if o_fam_used: inputstr := inputstr & "input vnlor; "; fi
+    if u_fam_used: inputstr := inputstr & "input vnlur; "; fi
+    if y_fam_used: inputstr := inputstr & "input vnlyr; "; fi
+    scantokens(inputstr);
+enddef;
+
+def input_sc_fam =
+    inputstr := "";
+    if a_fam_used: inputstr := inputstr & "input vnuar; "; fi
+    if d_fam_used: inputstr := inputstr & "input vnudr; "; fi
+    if e_fam_used: inputstr := inputstr & "input vnuer; "; fi
+    if i_fam_used: inputstr := inputstr & "input vnuir; "; fi
+    if o_fam_used: inputstr := inputstr & "input vnuor; "; fi
+    if u_fam_used: inputstr := inputstr & "input vnuur; "; fi
+    if y_fam_used: inputstr := inputstr & "input vnuyr; "; fi
+    scantokens(inputstr);
+enddef;
+
+def input_li_fam =
+    inputstr := "";
+    if a_fam_used: inputstr := inputstr & "input vnlai; "; fi
+    if d_fam_used: inputstr := inputstr & "input vnldi; "; fi
+    if e_fam_used: inputstr := inputstr & "input vnlei; "; fi
+    if i_fam_used: inputstr := inputstr & "input vnlii; "; fi
+    if o_fam_used: inputstr := inputstr & "input vnloi; "; fi
+    if u_fam_used: inputstr := inputstr & "input vnlui; "; fi
+    if y_fam_used: inputstr := inputstr & "input vnlyi; "; fi
+    scantokens(inputstr);
+enddef;
+
+% def endchar =
+%  scantokens extra_endchar;
+%  if proofing>0: makebox(proofrule); fi
+%  chardx:=w;     % desired width of the character in pixels
+%  shipit;
+%  endgroup enddef;
+
+% def makebox(text rule) =
+%  for y=0,asc_height,body_height,x_height,bar_height,-desc_depth,-body_depth:
+%   rule((l,y)t_,(r,y)t_); endfor % horizontals
+%  for x=l,r:   rule((x,-body_depth)t_,(x,body_height)t_); endfor % verticals
+%  for x=u*(1+floor(l/u)) step u until r-1:
+%   rule((x,-body_depth)t_,(x,body_height)t_); endfor % more verticals
+%  if charic<>0:
+%   rule((r+charic*pt,h.o_),(r+charic*pt,.5h.o_)); fi % italic correction
+%  enddef;
+
+def bboxcolor = red enddef;
+def bboxrule(expr w,z) =
+  begingroup interim linecap:=squared;
+  draw w..z withpen pencircle scaled (.4/bp_per_pixel) withcolor bboxcolor;
+  endgroup
+enddef;
+
+def makebox(text rule) =
+ for y=0,(cap_height+acc_height),
+       asc_height,body_height,x_height,bar_height,-desc_depth,-body_depth:
+  rule((l,y),(r,y)); endfor % horizontals
+
+ for y=-3.5pt,8.5pt,(x_height+acc_height):
+   rule((l-4pt,y),(l-2pt,y)); endfor
+ for x=l,r:   rule((x,-body_depth),(x,body_height)); endfor % verticals
+ for x=u*(1+floor(l/u)) step u until r-1:
+  rule((x,-body_depth),(x,body_height)); endfor % more verticals
+
+ for x=0.5w:
+   rule((x,-body_depth-1pt),(x,-body_depth-1.5pt));
+   rule((x,cap_height+acc_height+1pt),(x,cap_height+acc_height+1.5pt));
+ endfor
+ if charic<>0:
+  rule((r+charic*pt,h.o_),(r+charic*pt,.5h.o_)); fi % italic correction
+ enddef;
+
+def makebbox(text rule) =
+ for x=0,w:   bboxrule((x,-d),(x,h)); endfor % verticals
+ for y = 0,h,-d: bboxrule((0, y), (w, y)); endfor
+enddef;
+
+def endchar =
+    scantokens extra_endchar;
+    if proofing>0: 
+%         makebox(proofrule);
+        makebbox(proofrule);
+    fi
+    shipit;
+endgroup
+enddef;
+
+fi % known testing
+
+% if (known show_labels) and (known testing):
+% if (known show_labels):
+%     def makebox(text r) =
+%         for y = 0, h, -d:
+%             r((0, y), (w, y));
+%         endfor % horizontals
+%         for x = 0, w:
+%             r((x, -d), (x, h));
+%         endfor % verticals
+%     enddef;
+%     def draw_box(expr x, y, w, h, p) =
+%         pickup pencircle scaled p;
+%         draw (x, y) -- (x, y + h) -- (x + w, y + h) -- (x + w, y) -- (x, y);
+%     enddef;
+% else:
+%     def makebox(text r) = enddef;
+%     def draw_box(expr x, y, w, h) = enddef;
+%     def penlabels(text r) = enddef;
+%     proofcolor := black;
+% fi;
+
+numeric case_;
+small     := 0;
+capital   := 1;
+smallcap  := 2;
+
+def set_lowercase =
+    case_ := small;
+    def vncase = l enddef;
+enddef;
+
+def set_uppercase =
+    case_ := capital;
+    def vncase = u enddef;
+enddef;
+
+def set_smallcap =
+    case_ := smallcap;
+    def vncase = l enddef;
+enddef;
+
+def casename expr _name =
+if not known testing:
+    "The " &
+    if case_ = capital:
+        "capital"
+    elseif case_ = small:
+        "small"
+    else:
+        "smallcap"
+    fi &
+    " letter " & _name
+fi
+enddef;
+
+def ifknown(suffix _a)(expr _b) =
+    if known _a: _a
+    else: _b
+    fi
+enddef;
+
+def tand(expr _d) =
+    (sind(_d)/cosd(_d))
+enddef;
+
+def vn_code(suffix _n) =
+    C.vncase._n
+enddef;
+
+def vn_pic(suffix _n) =
+    vn.vncase._n.pic
+enddef;
+
+def vn_width(suffix _n) =
+    vn.vncase._n.w#
+enddef;
+
+def vn_height(suffix _n) =
+    vn.vncase._n.h#
+enddef;
+
+def vn_top(suffix _n) =
+    vn.vncase._n.top#
+enddef;
+
+def vn_depth(suffix _n) =
+    vn.vncase._n.d#
+enddef;
+
+def vn_bot(suffix _n) =
+    vn.vncase._n.bot#
+enddef;
+
+def vn_ic(suffix _n) =
+    vn.vncase._n.ic#
+enddef;
+
+def vn_left_adj(suffix _n) =
+    vn.vncase._n.left_adj#
+enddef;
+
+def vn_right_adj(suffix _n) =
+    vn.vncase._n.right_adj#
+enddef;
+
+def vn_gap(suffix _n) =
+    vn.vncase._n.gap#
+enddef;
+
+def vn_join_xp(suffix _n) =
+    vn.vncase._n.join.x
+enddef;
+
+def vn_join_x(suffix _n) =
+    vn.vncase._n.join.x#
+enddef;
+
+def vn_rt(suffix _n) =
+    vn.vncase._n.rt#
+enddef;
+
+def vn_dot_shift_y(suffix _n) =
+    vn.vncase._n.dot_shift.y#
+enddef;
+
+def vn_ac_top =
+    vn.vncase.accent_top#
+enddef;
+
+def vn_double_ac_top =
+    vn.vncase.double_accent_top#
+enddef;
+
+let vn_left_side = vn_join_x;
+
+def vn_right_side(suffix _a) =
+    (vn_width(_a) - vn_left_side(_a))
+enddef;
+
+def align_left(suffix _a, _b) =
+    0
+enddef;
+
+def vn_align_join(suffix _a, _b) =
+    (vn_join_x(_a) - vn_join_x(_b))
+enddef;
+
+def vn_align_right(suffix _a, _b) =
+    (vn_width(_a) - vn_width(_b))
+enddef;
+
+def define_accent_dimens(suffix _a)(expr _w, _h) =
+    vn_width(_a) := _w;
+    vn_height(_a) := _h;
+    vn_top(_a) := vn_height(_a) + vn_letter_height# + vn_accent_gap#;
+    vn_max_ac_top# := max(vn_max_ac_top#, vn_top(_a));
+enddef;
+
+def vn_set_ac_join(suffix _a)(expr _xp, _x, _rt) =
+    vn_join_xp(_a) := _xp;
+    vn_join_x(_a) := _x;
+    vn_rt(_a) := _rt;
+    if known show_labels:
+        makelabel("j", (vn_join_xp(_a), 0));
+        makelabel("J", (hp(vn_join_x(_a)), 0));
+        makelabel("r", (hp(vn_width(_a)), vp(vn_rt(_a))));
+        makelabel("o", (0,0));
+    fi
+enddef;
+
+def set_letter_join(suffix _l)(expr _xp, _x) =
+    vn_join_xp(_l) := _xp;
+    vn_join_x(_l) := _x;
+    if known show_labels:
+        makelabel("j", (vn_join_xp(_l), vp(vn_height(_l))));
+        makelabel("J", (hp(vn_join_x(_l)), vp(vn_height(_l))));
+    fi
+enddef;
+
+def set_adj_gap(suffix _l, _a) =
+    adj_gap# := ifknown(vn_gap(_l._a), ifknown(vn_gap(_a), 0));
+enddef;
+
+def get_join_xp(suffix _l, _a) =
+    ifknown(vn_join_xp(_l._a), vn_join_xp(_l))
+enddef;
+
+def get_join_x(suffix _l, _a) =
+    ifknown(vn_join_x(_l._a), vn_join_x(_l))
+enddef;
+
+def get_top(suffix _a) =
+    max(vn_top(_a) + adj_gap#,
+        if vn_top(_a) <= vn_ac_top:
+            vn_ac_top
+        else:
+            vn_double_ac_top
+        fi)
+enddef;
+
+def set_shift(suffix _l, _a) =
+    shift.y  := vp(vn_top(_a) - vn_height(_a));
+    shift.x  := get_join_xp(_l, _a) - vn_join_xp(_a) + slant*shift.y;
+    shift.y# := vn_top(_a) - vn_height(_a);
+    shift.x# := get_join_x(_l, _a) - vn_join_x(_a) + slant*shift.y#;
+enddef;
+
+def set_ic(suffix _l, _a) =
+    italcorr max(vn_ic(_l), 
+                 vn_width(_a) + shift.x#
+                 + slant*(vn_rt(_a) + shift.y#) 
+                 - w# + .5u#);
+enddef;
+
+def set_lic(suffix _l) =
+    italcorr vn_ic(_l);
+enddef;
+
+def set_fit(suffix _l) =
+    adjust_fit(vn_left_adj(_l), vn_right_adj(_l));
+enddef;
+
+C.l.idot.dot_ = 256;
+C.u.idot.dot_ = 256;    % to avoid error when calling set_dot_shift(idot)
+
+def set_dot_shift(suffix _l) =
+    shift.y := - vp(ifknown(vn_dot_shift_y(_l), vn_bot(dot_)));
+    shift.x := get_join_xp(_l, dot_) - vn_join_xp(dot_) + slant*shift.y;
+enddef;
+
+% vardef xpos@#(expr b ,d) =
+%     pos@#(max(currentbreadth + eps, b), d)
+% enddef;
+vardef pos@#(expr b,d) =
+    if known b: if b<=currentbreadth:
+        (x@#r-x@#l,y@#r-y@#l)=(eps,0) rotated d;
+    else: (x@#r-x@#l,y@#r-y@#l)=(b-currentbreadth,0) rotated d; fi
+    else: (x@#r-x@#l,y@#r-y@#l)=(b-currentbreadth,0) rotated d; fi
+    x@#=.5(x@#l+x@#r); y@#=.5(y@#l+y@#r)
+enddef;
+
+def hp(expr _x) =
+    hround(_x*hppp)
+enddef;
+
+def vp(expr _y) =
+    vround(_y*vppp)
+enddef;
+
+def begin_pic(suffix _n) =
+    begingroup
+        clearxy;
+        clearit;
+        clearpen;
+        picture vn.vncase._n.pic;
+        vn.vncase._n.pic :=
+        begingroup
+enddef;
+
+def end_pic =
+        if known testing: 
+%             makebox(proofrule); 
+            makebbox(proofrule); 
+        fi
+            currentpicture  % continuation of `vn_pic(_n) :='
+        endgroup;
+    endgroup
+enddef;
+
+def set_letter_dimens(suffix _l)(expr _w, _h, _d, _ic, _lft, _rt) =
+    set_char_dimens(_w, _h, _d);
+    vn_width(_l) := _w;
+    vn_height(_l) := _h;
+    vn_depth(_l) := _d;
+    vn_ic(_l) := _ic;
+    vn_left_adj(_l) := _lft;
+    vn_right_adj(_l) := _rt;
+    adjust_fit(_lft, _rt);
+enddef;
+
+def begin_accent(suffix _a) =
+    begin_pic(_a);
+    set_char_dimens(vn_width(_a), vn_height(_a), 0)
+enddef;
+let end_accent = end_pic;
+
+let begin_letter = begin_pic;
+let end_letter = end_pic;
+
+def vn_sl_shift(suffix _a) =
+%     .5slant*(adj_y# + vn_height(_a))
+    0
+enddef;
+
+def set_char_dimens(expr _w, _h, _d) =
+    charwd := _w;
+    charht := _h;
+    chardp := _d;
+    w := hp(charwd);
+    h := vp(charht);
+    d := vp(chardp);
+    charic := 0;
+enddef;
+
+def abs_round(expr _e) =
+    if _e < 0:
+        ceiling(_e - .5)
+    else:
+        floor(_e + .5)
+    fi
+enddef;
+
+def write_shift_xy(suffix _l, _a)(expr _sx, _sy) =
+    if known get_acc_pos and known bp_per_pixel:
+        message "CC " & 
+                if case_ = capital:
+                    "capital"
+                elseif case_ = small:
+                    "small"
+                else:
+                    "smallcap"
+                fi & " " &
+                str _l & " " & 
+                str _a & " " & 
+                decimal(abs_round(_sx*bp_per_pixel*10/designsize)) &  " " & 
+                decimal(abs_round(_sy*bp_per_pixel*10/designsize));
+    fi
+enddef;
+
+
+def define_double_accent(suffix _a, _b)(expr _adj_x, _adj_y) =
+    shift.y# := _adj_y + vn_height(_a);
+    shift.x# := _adj_x + slant*shift.y#;
+    define_accent_dimens(_a._b, vn_width(_a), vn_height(_b) + shift.y#);
+    begin_accent(_a._b);
+    currentpicture := vn_pic(_a);
+    addto currentpicture also vn_pic(_b)
+                         shifted (hp(shift.x#), vp(shift.y#));
+    write_shift_xy(_a, _b)(hp(shift.x#), vp(shift.y#));
+    vn_set_ac_join(_a._b, vn_join_xp(_a), vn_join_x(_a),
+                if vn_width(_a) + slant*vn_rt(_a) >                                         
+                    vn_width(_b) + shift.x# + slant*(vn_rt(_b) + shift.y#):            
+                    vn_rt(_a)
+                else:                                                                       
+                    vn_rt(_b) + shift.y#
+                fi);                                
+    end_accent;
+enddef;
+
+if not known testing:
+vardef used_char(expr _code) = true enddef;
+else:
+vardef used_char(expr _code) =
+    boolean _is_used;
+    _is_used := false;
+    forsuffixes $ = testchars:
+        if _code = vn_code($):
+            _is_used := true;
+        fi;
+    endfor;
+    _is_used
+enddef;
+fi
+
+def define_vnaccent(expr _c)(suffix _a) =
+    beginchar(_c, vn_width(_a), vn_height(_a), 0);
+        currentpicture := vn_pic(_a);
+    endchar
+enddef;
+
+def define_vnchar(suffix _l, _a) =
+if used_char(vn_code(_l._a)):
+    set_adj_gap(_l, _a);    % set adj_gap#
+    beginchar(vn_code(_l._a), 
+              vn_width(_l), 
+              get_top(_a), 
+              vn_depth(_l));
+        set_shift(_l, _a);  % set shift.x, shift.y, shift.x# and shift.y#
+        set_ic(_l, _a);     % call italcorr
+        set_fit(_l);        % call adjust_fit
+        currentpicture := vn_pic(_l);
+        addto currentpicture also vn_pic(_a) 
+            shifted (shift.x, shift.y + vp(adj_gap#));
+        write_shift_xy(_l, _a)
+            (shift.x + hp(vn_left_adj(_l)) + letter_fit, shift.y + vp(adj_gap#));
+%         message "vn_left_adj: " & decimal hp(vn_left_adj(_l));
+%         message "letter_fit: " & decimal letter_fit;
+    endchar
+fi
+enddef;
+
+def define_vnchar_dot(suffix _l) =
+if used_char(vn_code(_l.dot_)):
+    % test for the small i letter with dot
+    if (case_ = small) and (vn_code(_l.dot_) = vn_code(i.dot_)):
+        beginchar(vn_code(i.dot_), 
+                  vn_width(idot), 
+                  vn_height(idot), 
+                  vn_bot(dot_));
+            set_dot_shift(idot);    % set shift.x and shift.y
+            set_lic(idot);          % call italcorr
+            set_fit(idot);          % call adjust_fit
+            currentpicture := vn_pic(idot);
+    else:
+        beginchar(vn_code(_l.dot_), 
+                  vn_width(_l), 
+                  vn_height(_l),
+                  ifknown(vn_depth(_l.dot_), max(vn_bot(dot_), vn_depth(_l))));
+            set_dot_shift(_l);
+            set_lic(_l);
+            set_fit(_l);
+            currentpicture := vn_pic(_l);
+    fi
+            addto currentpicture also vn_pic(dot_)
+                                 shifted (shift.x, shift.y);
+        write_shift_xy(_l, dot_)
+            (shift.x + hp(vn_left_adj(_l)) + letter_fit,  shift.y);
+        endchar
+fi
+enddef;
+
+def define_vnchar_dot_ac(suffix _l, _a) =
+if used_char(vn_code(_l._a.dot_)):
+    set_adj_gap(_l, _a);
+    beginchar(vn_code(_l._a.dot_), 
+              vn_width(_l), 
+              get_top(_a), 
+              max(vn_bot(dot_), vn_depth(_l)));
+        set_shift(_l, _a);
+        set_ic(_l, _a);
+        set_fit(_l);
+        currentpicture := vn_pic(_l);
+        addto currentpicture also vn_pic(_a)
+                             shifted (shift.x, shift.y + vp(adj_gap#));
+        set_dot_shift(_l);
+        addto currentpicture also vn_pic(dot_)
+                             shifted (shift.x, shift.y);
+        write_shift_xy(_l._a, dot_)
+            (shift.x + hp(vn_left_adj(_l)) + letter_fit, shift.y);
+    endchar
+fi
+enddef;
+
+def define_vnchar_horn(suffix _l) =
+if used_char(vn_code(_l.horn_)):
+    select_horn(_l);
+    set_shift_horn(_l);
+    update_horn_width(_l);
+    beginchar(vn_code(_l.horn_), 
+              updated_width#,
+              vn_top(cur_horn_), 
+              vn_depth(_l));
+        set_ic(_l, cur_horn_);
+        set_fit(_l);
+        select_letter_u(_l);
+        addto currentpicture also vn_pic(cur_horn_)
+                             shifted (shift.x, shift.y);
+    endchar
+fi
+enddef;
+
+def select_horn(suffix _l) = % set cur_horn_ to uhorn_ or ohorn_ according to _l
+    if vn_code(_l.horn_) = vn_code(u.horn_):
+        def cur_horn_ = uhorn_ enddef;
+    else:
+        def cur_horn_ = ohorn_ enddef;
+    fi
+enddef;
+
+def update_horn_width(suffix _l) =
+    _du := (shift.x + hp(vn_width(cur_horn_))) -
+           (hp(vn_width(_l) + vn_left_adj(_l) + vn_right_adj(_l)) + 2letter_fit) -
+           slant*(shift.y + vp(vn_height(cur_horn_)));
+    updated_width# := vn_width(_l)
+        if _du > .5u:
+            + .5u#*floor(_du/.5u)
+        fi
+enddef;
+
+def set_shift_horn(suffix _l) =
+    shift.y  := vp(vn_bot(cur_horn_));
+    shift.x  := vn_join_xp(_l.horn_join) - vn_join_xp(cur_horn_) +
+                slant*(shift.y);
+enddef;
+
+def select_letter_u(suffix _l) =
+    % test for the serif capital u letter with horn
+    if serifs and (case_ <> small) and (vn_code(_l.horn_) = vn_code(u.horn_)):
+        % use the modified "U" (without right part of the right serif)
+        currentpicture := vn_pic(Uhorn)
+    else:
+        currentpicture := vn_pic(_l)
+    fi
+enddef;
+
+def define_vnchar_horn_ac(suffix _l, _a) =
+if used_char(vn_code(_l.horn_._a)):
+    select_horn(_l); % set cur_horn_ to uhorn_ or ohorn_ according to _l
+    set_adj_gap(_l, _a);
+    set_shift_horn(_l);
+    update_horn_width(_l);
+    beginchar(vn_code(_l.horn_._a), 
+              updated_width#,
+              get_top(_a), 
+              vn_depth(_l));
+        set_ic(_l, cur_horn_);
+        set_fit(_l);
+        select_letter_u(_l);
+        addto currentpicture also vn_pic(cur_horn_)
+                             shifted (shift.x, shift.y);
+        set_shift(_l.horn_, _a);
+%         if serifs and (vn_code(_l.horn_._a) = vn_code(o.horn_.grave_)):
+%             shift.x := shift.x + max(0, u - .3stem);
+%         fi
+        set_ic(_l, _a);
+        addto currentpicture also vn_pic(_a)
+                             shifted (shift.x, shift.y + vp(adj_gap#));
+        write_shift_xy(_l.horn_, _a)
+            (shift.x + hp(vn_left_adj(_l)) + letter_fit, shift.y + vp(adj_gap#));
+    endchar
+fi
+enddef;
+
+def define_vnchar_horn_dot(suffix _l) =
+if used_char(vn_code(_l.horn_.dot_)):
+    select_horn(_l); % set cur_horn_ to uhorn_ or ohorn_ according to _l
+    set_shift_horn(_l);
+    update_horn_width(_l);
+    beginchar(vn_code(_l.horn_.dot_), 
+              updated_width#,
+              vn_top(cur_horn_),
+              max(vn_bot(dot_), vn_depth(_l)));
+        set_ic(_l, cur_horn_);
+        set_fit(_l);
+        select_letter_u(_l);
+        addto currentpicture also vn_pic(cur_horn_)
+                             shifted (shift.x, shift.y);
+        set_dot_shift(_l);
+%         if serifs and (vn_tt_corr = 0) and (vn_code(_l.horn_) = vn_code(o.horn_)):
+%             shift.x := shift.x + .1dot_size;
+%         fi
+        addto currentpicture also vn_pic(dot_)
+                             shifted (shift.x, shift.y);
+        write_shift_xy(_l.horn_, dot_)
+            (shift.x + hp(vn_left_adj(_l)) + letter_fit, shift.y);
+    endchar
+fi
+enddef;
+
+% hook_arc is based on super_arc from exbase.mf
+vardef hook_arc.r(suffix $, $$)(expr _superness, _swap) =
+    pair center, corner;
+    if (y$ = y$r) or _swap:
+        center = (x$$r, y$r);
+        corner = (x$r, y$$r);
+    else:
+        center = (x$r, y$$r);
+        corner = (x$$r, y$r);
+    fi
+    z$.r{corner - z$.r} ... _superness[center, corner]{z$$.r - z$.r} ...
+        {z$$.r - corner}z$$.r
+enddef;
+
+vardef hook_arc.l(suffix $, $$)(expr _superness, _swap) =
+    pair center, corner;
+    if (y$ = y$r) or _swap:
+        center = (x$$l, y$l);
+        corner = (x$l, y$$l);
+    else:
+        center = (x$l, y$$l);
+        corner = (x$$l, y$l);
+    fi
+    z$l{corner - z$l} ... _superness[center, corner]{z$$l - z$l} ...
+        {z$$l - corner}z$$l
+enddef;
+
+% vn_hook_bulb is based on bulb from exbase.mf
+def vn_hook_bulb(suffix $, $$, $$$) =
+    z$$$r = z$$r;
+    path_.l := z$l{x$$r - x$r, 0} ... {0, y$$r - y$r}z$$l;
+    filldraw path_.l -- z$$r{0, y$r - y$$r} ... {x$r - x$$r, 0}z$r -- cycle; % link
+    path_.r := z$$$l{0, y$r - y$$r} .. z$$$r{0, y$$r - y$r}; % near - circle
+    filldraw subpath(0, xpart(path_.r intersectiontimes path_.l)) of path_.r
+    -- z$$r{0, y$$r - y$r} .. cycle; % bulb
+enddef;
+
+def vn_draw_horn(suffix _a)(expr _dotsize, _horn_stem, _horn_bot_theta) =
+    cur_dotsize# := _dotsize;
+    cur_stem# := _horn_stem;
+    define_blacker_pixels(cur_dotsize, cur_stem);
+    if not square_dots:
+        pickup crisp.nib;
+        pos4(cur_dotsize, 90);
+        top y4r = h;
+        x4 = w - .5cur_dotsize;
+        pos1(cur_stem, 90);
+        pos2(cur_stem, 0);
+        pos3(cur_stem, _horn_bot_theta - 90);
+        z1r = z4r;
+        rt x2r = hround(x4 + .5cur_dotsize) + 2eps;
+        lft x3l = 0;
+        bot y3r = 0;
+        y2 = 1/3[y1, y3];
+        y_ := ypart((z1{right} ... z2{down} ... z3)
+                    intersectiontimes (z4l{right} .. {left}z4r));
+        if y_ < 0:
+            y_ := 1;
+        fi
+        filldraw z4r{left} .. subpath (0, y_) of (z4l{right} .. {left}z4r)
+            -- cycle; % dot
+        filldraw stroke z1e{right} ... z2e{down} ... {left}z3e;
+        filldraw z1r--z2r--z4l--cycle;
+        penlabels(0, 1, 2, 3, 4);
+        vn_set_ac_join(_a, x3, .5cur_stem*sind(_horn_bot_theta),  
+                    h# - .5cur_dotsize#);
+    else:
+        pickup fine.nib;
+        pos4(cur_dotsize, 90);
+        top y4r = h;
+        x4 = w - .5cur_dotsize;
+        pos4'(cur_dotsize, 0);
+        z4' = z4;
+        dot(4', 4);  % squarish dot
+        horn_join := max(fine.breadth, floor cur_stem);
+        horn_bot := max(fine.breadth, floor .8cur_stem);
+        pos0(horn_join, 0);
+        pos1(horn_join, 0);
+        pos2(horn_bot, 0);
+        y0 = y4;
+        y1 = y4l;
+        x0r = x1r = x4'r;
+        lft x2l = 0;
+        bot y2r = 0;
+        z2' = whatever[z1, z2];
+        numeric _vn_bot_width;
+        pos2'(_vn_bot_width, -90 + _horn_bot_theta);
+        z2l = z2'l;
+        filldraw stroke z0e -- z1e .. z2'e; % tail
+        penlabels(0, 1, 2', 3, 4);
+        vn_set_ac_join(_a, x2', 0, h#);
+    fi
+    vn_bot(_a) := vn_top(_a) - vn_height(_a);
+enddef;
+
+def set_horn_join(suffix _l)(expr _pl, _pr) =
+    select_horn(_l); % set cur_horn_ to uhorn_ or ohorn_ according to _l
+    path bot_line;
+    pair L, R;
+    bot_line := (.5w, vp(vn_bot(cur_horn_))) -- (w, vp(vn_bot(cur_horn_)));
+    L := point xpart(bot_line intersectiontimes _pl) of bot_line;
+    R := point xpart(bot_line intersectiontimes _pr) of bot_line;
+    vn_set_ac_join(_l.horn_join, xpart .5[L, R], 0, 0);
+enddef;
+
+def lig_CGQ_table(expr k) =
+    "C" kern k, "G" kern k, "Q" kern k
+enddef;
+
+def end_ligtable = 0 kern 0 enddef;
+
+% define input_lig to generate only char oct"031" from excspl.mf
+def input_lig suffix @# = 
+    let save_endchar = endchar;
+    let endchar = lig_endchar;
+    scantokens("input " & str @#);
+    relax;
+    let endchar = save_endchar;
+enddef;
+
+def lig_endchar = 
+    if charcode = oct"031":
+        save_endchar
+    else:
+        endgroup
+    fi
+enddef;
+
+def generate suffix @# = 
+    scantokens("input null"); % can't figure out why it's needed
+    scantokens("input vn" & substring(2, length(str @#)) of str @#);
+enddef;
+
+endinput;

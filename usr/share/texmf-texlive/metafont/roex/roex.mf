@@ -1,0 +1,1756 @@
+%%%%
+%%%% This file belongs to the ROEX package.
+%%%%
+%%%% ---------------------------------------------------------------------
+%%%% MFT formatting commands
+%%%% ---------------------------------------------------------------------
+%%% length quicksort
+%%% length cycle zang pos_turn neg_turn
+%%% good enc
+%%% labels makelabel
+%%% length make_cycle make_join make_cyclic_join make_end make_edge
+%%% point predir postdir upredir upostdir udir
+%%% dotprod det
+%%% subpath pos_subpath neg_subpath
+%%% message info_ro info_es
+%%% draw roex_default
+%%% -- &&
+%%%% ---------------------------------------------------------------------
+%%%% \TeX formatting commands
+%%%% ---------------------------------------------------------------------
+%%\vsize245mm
+%%\font\titfnt cmtt10 at 48 pt
+%%{\let\makefootline\empty \let\makeheadline\empty
+%%\vglue0ptplus1fill
+%%\centerline{\titfnt ROEX.MF}
+%%\bigskip
+%%\centerline{ver. 0.56 (Wednesday, October 25th, 1995)}
+%%\vfill\vfill\eject}
+%% % ---
+%% \vsize 245mm
+%% % an innocent formatting trick: the underscore character ending a name
+%% % will be typeset as an superscript asterisk
+%% \let\oriunderscore\_
+%% \newif\ifbgroupopen\bgroupopenfalse
+%% \def\altdblbackslash#1{\bgroup\bgroupopentrue\it#1}
+%% \def\optegroup{\ifbgroupopen\egroup\fi}
+%% \def\underscoreasasterisk#1{%
+%%   \ifx#1\relax\optegroup^*\else\oriunderscore#1\fi}
+%% \def\\#1{%
+%%   \let\_\underscoreasasterisk
+%%   \altdblbackslash{#1\relax}\optegroup
+%%   \let\_\oriunderscore}
+%% % ---
+%% \def\dblhyph{--}
+%% \def\8#1{\def\eightparm{#1}\mathrel{\mathcode`\.="8000 \mathcode`\-="8000
+%% \ifx\eightparm\dblhyph\setbox\shorthyf\hbox{\bf -\kern-.05em}\fi%
+%%  #1\unkern}} % `..' and `--'
+%% % ---
+%% \def\MP{{\tenlogo META}\-{\tenlogo POST}}
+% ------------------------------------------------------------------------
+% This is ROEX.MF file containing \MF definitions implementing
+% operations known as `remove overlap' and `expand stroke'.
+% ------------------------------------------------------------------------
+% Authors: \bf{}B. Jackowski, P. Pianowski, M. Ry\'cko \& S. Soko\l{}owski
+% ------------------------------------------------------------------------
+%                            H I S T O R Y
+% ver. 0.1 (1 / 9 VI 1994):
+%   * incunabula version
+% ver. 0.5 (15 VIII / 1 IX 1995):
+%   * pioneer version, released during the 9th Euro\TeX conference in Arnhem
+% ver. 0.55 (26 IX 1995):
+%   * if a single path is an argument to |remove_overlap|, removing
+%     of self-overlaps is performed, hence several adjustments, most
+%     significant changes were introduced in |is_far_enough| and
+%     |intersect_two_segments|; this ismprovement is, in fact, a prelude
+%     towards a more general approach
+%   * a bug trap added in |clean_path|
+%   * positioning of labels not forced in |mark_nodes|
+%   * |quicksort| more flexible
+%   * more statistics available (optionally) in |find_minimal_secant|
+%   * displaying information changed
+%   * \TeX formatting comments collected at the beginning of the file
+%   * a result of mental laps corrected in |build_node_structure|
+%     (minimal secant has nothing to do with minimal distance between nodes)
+%   * a silly bug removed in |prepare_input_data| (|W| instead of |W_|)
+%   This version was released during the CyrTUG-95 meeting in Moscow
+% ver. 0.56 (27 X 1995):
+%   * comments adjusted to a new distribution
+%   * the name |miter_limit| changed to |miter_size| in order to avoid
+%     misunderstanding, as in this implementation it is a dimen, while
+%     in PostScript it is a dimensionless quantity
+% ------------------------------------------------------------------------
+%                           S Y N O P S I S
+% ------------------------------------------------------------------------
+%
+% Such operations as `remove overlap' and `expand stroke' are perhaps
+% particularly useful in the contex of exporting data from \MF to other
+% languages, e.g., to PostScript or HP-GL. Therefore the file ROEX.MF has
+% been included into the MFTOEPS package (which accomplishes export from \MF
+% to Encapsulated PostScript), although it can be used by ``normal'' \MF
+% users, too. Therefore our favourite macros (e.g., |pos_turn|, |neg_turn|,
+% |make_list|), are defined identically in both ROEX and MFTOEPS.
+%
+% We hope that tiny adjustments, if any, should be sufficient for transforming
+% the macros to the form accepted by both \MF and \MP.
+%
+% Sample \MF programs (i.e., simple examples) illustrating the use of the
+% ``interface'' macros, i.e., |remove_overlap|, |expand_stroke| and
+% |change_weight|, can be found in a subdirectory ROEXSAMP. It is instructive
+% to generate EPS files and then to play around with the results using
+% CorelDRAW! or Adobe Illustrator.
+%
+%
+% REMOVING OVERLAPS
+%
+% The command |remove_overlap_| requires three parameters. The first
+% parameter is a list of paths to be processed; the paths are assumed to
+% have a non-zero |turningnumber| and no self intersecting points (no
+% checking is performed, except that non-cyclic paths are ignored).
+% The second parameter is a list (possibly empty) of weights assigned
+% to paths; more exactly, it is a list of pairs |(i,w.i)|, where |i| is
+% the order number of a path and |w.i| is the respective weight.
+% If the weight is not specified it is assumed to be equal to |1|.
+% The last parameter is a suffix, i.e., the name of the resulting data
+% structure; given a suffix is |R|, |R.num| is the number of the resulting
+% paths, and |R1|, |R2|, ..., |R[R.num]| are the paths. If the suffix
+% contains an index, e.g., |P[x]q|, the user is responsible for providing
+% appropriate declarations prior to calling |remove_overlap|,
+% in this case: |numeric P[\\]q.num; path P[\\]q[\\]|. If a variable
+% |append_results| is assigned a definite value (by default it is undefined),
+% |R.num| is not zeroed at the stage of initialisation, thus the results
+% are accumulated (see example ROES-02.MF in the subdirectory ROEXSAMP).
+%
+% The algorithm assumes that a path |p| fills its interior with the colour
+% |w*turningnumber(p)|, where |w| is the weight assigned to |p|. If an
+% area is coloured by several paths, the colors are summed up. The user
+% decides which areas are the resulting ones. By default, these are areas
+% which have the interior painted with a colour $\ge1$ and the exterior
+% painted with a colour $\le0$. There is a two-parameter function
+% (parameters are numbers) that can be redefined by a user, |good_colors|,
+% which governs the decision. The user is responsible for a proper definition
+% of this function (the formula |good_colors(m,n) and good_colors(n,m)| must
+% be false; cf. the default definition of |good_colors| at the end of this
+% file). There is also a variable |background_color|, by default equal to |0|,
+% which determines the colour of the Euclidian plane. One more function that
+% is meant to be redefined by the user, if needed, is one-parameter function
+% |touch_path|; the function is applied to every input path at the stage of
+% initialisation, and can be used, e.g., for adjusting the direction of paths
+% (cf. example RO-04.MF in the subdirectory ROEXSAMP).
+%
+% The orientation of paths generated by the |remove_overlap| macro is defined
+% in such a way that in order to fill the resulting figure the internal
+% variable |turningcheck| should be set to zero prior to using the |fill|
+% command.
+%
+% Examples:
+%  Assume that paths |A|, |B| and |C| are defined as follow (say, |w=h=1cm|):
+%    |A=unitsquare xscaled 1/5w yscaled h shifted (2/5w,0);|
+%    |B=A rotatedaround((1/2w,1/2h), 60);|
+%    |C=B rotatedaround((1/2w,1/2h), 60);|
+%  Calling
+%    |remove_overlap (A,B,C) () R;|
+%  will result in generating a single path |R1| (|R.num=1|) of a six-arm
+%  propeller shape. Adding one more path:
+%    |D=reverse fullcircle scaled 3/4w shifted (1/2w,1/2h);|
+%  and calling
+%    |remove_overlap (A,B,C,D) ((4,2)) R;|
+%  (|D| has weight |=2|) will result in generating seven objects: six
+%  ``tips'' of a propeler and a regular hexagon in the center. Try to guess
+%  what would be the result of
+%  |remove_overlap (A,B,C,D) () R;|
+%  Not all paths need to intersect. For example, the following set of paths
+%    |A=fullcircle scaled w shifted (1/2w,1/2h);|
+%    |B=reverse unitsquare xscaled 1/5w yscaled 3/5w shifted (2/5w,1/5w);|
+%    |C=B rotatedaround((1/2w,1/2h), 90);|
+%  after calling
+%    |remove_overlap (A,B,C) () R;|
+%  will yield a circle surrounding a white cross. Since the orientation
+%  of the resulting paths is important here, the |fill| commands should be
+%  preceded by
+%    |interim turningcheck:=0;|
+%  assignment.
+%
+%
+% EXPANDING STROKES
+%
+% Expanding stroke means finding the trace of the outline of an imaginary pen
+% moving along a path. There are two commands accomplishing expanding stroke:
+% |expand_stroke| and |change_weight|. Both make use of the essentially the
+% same algorithm, except that the latter finds only one edge and ignores
+% non-cyclic paths. Both commands require three parameters: first and third
+% are analogous to the parameters of the |expand_stroke| macro (see above),
+% the second denotes the radius (not diameter) of the circular pen.
+% The algorithm works in such a way that the result of the |expand_stroke|
+% does not depend on the direction of a path for cyclic paths, namely,
+% the outer edge is always positively directed and the inner is negatively
+% directed, provided the radius is positive; if the radius is negative,
+% the outer edge is negatively directed and the inner one---positively.
+% For non-cyclic paths positive radius yields positively directed resulting
+% paths, negative radius---negatively oriented paths. Although the macro
+% |change_weight| is subdued to the same rules, the result depends both
+% on the direction of a path and on the sign of a radius. Let |t| and |r|
+% denote the turning number and the radius, respectively; there are
+% four cases:
+%   1) |t>0| and |r>0|: the resulting path is an outer edge positively
+%      directed,
+%   2) |t>0| and |r<0|: the resulting path is an inner edge positively
+%      directed,
+%   3) |t<0| and |r>0|: the resulting path is an inner edge negatively
+%      directed,
+%   4) |t<0| and |r<0|: the resulting path is an outer edge negatively
+%      directed.
+% Following PostScript, we introduced three variables which govern the shape
+% of joins and ends: |join_kind| (corresponds to |setlinejoin|), |end_kind|
+% (corresponds to |setlinecap|) and |miter_size| (corresponds, as the name
+% suggest, to |setmiterlimit|; however, here |miter_size| is a dimen,
+% while in PostScript miter limit is a dimensionless quantity).
+% Currently both |join_kind| and |end_kind| can receive value |0| or |1|,
+% while in PostScript value |2| is also admissible. (The latter option
+% will perhaps be included also into the ROEX package some day, but more
+% tempting is the implementation of extrapolated non-linear joins.)
+% Since the interpretation of |miter_size| (dimen) is slightly different than
+% the interpretation of |miter_limit| (a number), |miter_size| must merely
+% be non-negative, while |miter_limit| must be greater than or equal to $1$.
+% Roughly speaking, value |0| for |join_kind| and |end_kind| denotes cusp
+% joins, cut if necessary at miter limit; value |1| denotes rounded rounded
+% joins (for details see, e.g., ``PostScript Language Reference Manual,''
+% second ed., Addison-Wesley Publishing Company, Ltd.).
+%
+% Example:
+%  Assume that a path |A| is simply a square (say, |w=h=1cm|):
+%    |A=unitsquare scaled w;|
+%  After calling
+%    |expand_stroke(A)(1mm)R;|
+%  |R1| is a positively directed square of side |12mm|, and |R2| is
+%  negatively directed square of side |8mm|.
+% ------------------------------------------------------------------------
+%        C A V E A T S ,    H I N T S    A N D    C O M M E N T S
+% * The employed algorithms expect that the results are well defined;
+%   if the data are weird (e.g., self-loooping path are supplied)
+%   the results, if any, may be weird as well.
+% * The case of curves partially overlapping is not handled and, frankly
+%   speaking, we have no idea how to implement it efficiently and robustly;
+%   if there are such pairs of paths in the input data, the algorithm almost
+%   certainly will not produce good results.
+% * Only circular pens are implemented so far.
+% * Be aware of rounding errors, they may cause unpredictable results;
+%   in some cases increasing accuracy by using a higher resolution may
+%   help, but more adequate seems to be preparing better data (cf. the
+%   program RO-07.MF in the subdirectory ROEXSAMP).
+% * Comments in the code are meant primarily for the authors; the user
+%   is kindly requested not to complain fiercely if they are of a little
+%   use to her/him.
+% * Unfortunately, \MF has no error-handling facility, hence a lot of
+%   ``bug traps'' can be found in the code; messages issued in the case
+%   of falling into such a trap are rather useless if you don't know the
+%   details of the algorithm; this part of the program is certainly to be
+%   improved; usually the error help says ``Better stop now! Algorithm
+%   failed'' and this advice should be followed; in practice this means that
+%   \MF is not able to recognize the details of the picture because of
+%   very close nodes (intersection points).
+% * Usually, the first stage of removing overlaps (finding all intersection
+%   points) is the longest one, the more segments paths have the longer it
+%   lasts; a pity that \MF has no built-in function informing about all
+%   intersection points/times of two B\'ezier curves.
+% * Improper definition of |good_colors| may result in erroneous behaviour of
+%   the algorithm.
+% * One peculiar case is considered by the expanding stroke algorithm,
+%   namely cyclic path of length 2; some more cases might have been taken
+%   into account...
+% * There remain a lot of unsolved problems with numerical instability
+%   connected with detecting tangent and close points.
+% * In The \MF{}book, p. 229, D. E. Knuth writes:
+%     ``...tiny little loops won't hurt anything if you are filling cycles
+%       in the correct direction.''
+%   Cf. also preceding dangerous band paragraph and exercise on pp. 228--229.
+%   ROEX does much more complex things with paths than merely filling them,
+%   hence tiny loops may cause some mess, the more so as the built-in
+%   function |turningnumber| is very sensitive to such loops, e.g., it may
+%   happen that |turningnumber(p)=1| while |turningnumber(reverse p)=0|
+%   (cf. example RO-6.MF in the subdirectory ROEXSAMP); hence a hopefully
+%   more robust (from the point of view of this application) function
+%   is used, |check_turn|, which makes use of \MF's |fill| operation.
+% * There remain several suboptimal algorithms employed, partially on
+%   purpose: less efficient algorithms are usually (although not necessarily)
+%   more comprehensible and flexible (easier to modify), which is important
+%   at the stage of developing a program.
+% * Parameters that may have influence on the process of removing
+%   overlaps are |epsil.time|, |epsil.ang| (in degrees), |epsil.dist| (in
+%   resolution-dependent units), and |max_idx|; the choice of good default
+%   values will need some practice.
+% * Incompatible modifications may come, although we shall do our best
+%   to avoid them.
+% ------------------------------------------------------------------------
+% We follow the naming convention of The \MF{}book:
+% ``Private tokens always end with the underscore character.''
+% Since the underscore is a rather illegible character, in a ``neat''
+% printing (using MFT utility) it will appear as an superscript asterisk.
+% ------------------------------------------------------------------------
+%                          D E F I N I T I O N S
+% ------------------------------------------------------------------------
+% UNIVERSAL MACROS:
+% ---
+% Without the following redefinition:
+def -- = {curl 1} .. tension (1+eps) .. {curl 1} enddef;
+% the result of |p intersectiontimes reverse p|, where |p=(a,b)--(a+3c,b+3d)|,
+% |a|, |b|, |c|, |d| are arbitrary (sic!) \MF's numbers, yields the result
+% |(1/2,1/2)|, which contradicts the statement preceding the exercise 14.17
+% on the page 137 of The \MF{}book. Since it is no longer a ``standard''
+% macro, its formatting is slightly modified.
+% ---
+%%% length ]]] ]]]]
+%%% ; ]
+def ]]] = ] ] ] enddef;
+def ]]]] = ] ] ] ] enddef; % right brackets should be loners, indeed
+%%% ) ] ]] ]]] ]]]]
+% ---
+vardef distance(expr za,zb) = length(za-zb) enddef; % in fact, an alias
+% ---
+vardef interval(expr ta,tb,p) =
+ save ta_,tb_;
+ if cycle p:
+  ta_:=ta mod length(p); tb_:=tb mod length(p);
+  min(length(p)-abs(ta_-tb_), abs(ta_-tb_))
+ else:
+  ta_:=min(max(0,ta),length(p)); tb_:=min(max(0,tb),length(p));
+  abs(ta_-tb_)
+ fi
+enddef;
+% ---
+def make_list(expr k,l) suffix s =
+ for i_:=k upto l: if i_>k: , fi \\ s[i_] endfor
+enddef;
+% ---
+vardef dec_pair(expr z) =
+ "(" & decimal(xpart z) & "," & decimal(ypart z) & ")"
+enddef;
+% ---
+primarydef u det v = % dual operation to |dotprod|
+ (xpart u * ypart v - xpart v * ypart u)
+enddef;
+% ---
+vardef zang(expr u,v) = % useful during testing
+% computes the angle form |u| to |v| (useful for testing)
+ angle(u dotprod v,u det v) mod 360 % CAVEAT! rounding errors
+enddef;
+% ---
+vardef turn_ang(expr za,zb) = % more robust version of |zang|
+% The idea of computing the turn angle is based on the following observation:
+% |z reflectedabout (origin,right)=1/z| for a complex number |z| such that
+% |abs(z)=1|; recall also that multiplication of complex numbers
+% (|zscaled| operation) implies addition of their angle arguments.
+ if (abs(za)>=epsil.len) and (abs(zb)>=epsil.len): % |eps| may be not enough
+  angle(unitvector(za) zscaled (unitvector(zb) reflectedabout (origin,right)))
+ else: whatever fi
+enddef;
+% ---
+def predir expr t of p = ((point t of p)-(precontrol t of p)) enddef;
+def postdir expr t of p = ((postcontrol t of p)-(point t of p)) enddef;
+def udir expr t of p = unitvector(direction t of p) enddef;
+def upredir expr t of p = unitvector(predir t of p) enddef;
+def upostdir expr t of p = unitvector(postdir t of p) enddef;
+% ---
+vardef pos_turn primary p =
+ interim autorounding:=0;
+ if check_turn(p)=0: show p;
+  errhelp "I will leave the path intact, continue with crossed fingers.";
+  errmessage "Cannot make positive turn (check_turn=0)";
+ elseif check_turn(p)<0: reverse fi \\ p
+enddef;
+% ---
+vardef neg_turn primary p =
+ interim autorounding:=0;
+ if check_turn(p)=0: show p;
+  errhelp "I will leave the path intact, continue with crossed fingers.";
+  errmessage "Cannot make negative turn (check_turn=0)";
+ elseif check_turn(p)>0: reverse fi \\ p
+enddef;
+% ---
+vardef check_turn primary p = % seems more adequate than |turningnumber|
+% |epsilon|=|totalweight currentpicture| after |fill unitsquare|,
+% |eps/epsilon=32|, i.e., we admit accuracy of 32 pixels (isn't it too many?)
+ save r_,currentpicture; picture currentpicture;
+ interim turningcheck:=0; interim autorounding:=0;
+ currentpicture:=nullpicture; fill p; r_:=totalweight(currentpicture);
+ if r_>eps: 1 elseif r_<-eps: -1 else: turningnumber(p) fi
+enddef;
+% ---
+def check_embedding(expr a,b)(suffix res) =
+begingroup
+% see comment in |check_turn|
+ save napb_,panb_,currentpicture; picture currentpicture;
+ interim turningcheck:=0; interim autorounding:=0;
+ currentpicture:=nullpicture; fill pos_turn a; fill neg_turn b; cullit;
+ panb_:=totalweight currentpicture;
+ currentpicture:=nullpicture; fill neg_turn a; fill pos_turn b; cullit;
+ napb_:=totalweight currentpicture;
+ if (panb_<eps) and (napb_<>0): res:=1; % $a \subset b$
+ elseif (panb_<>0) and (napb_<eps): res:=2; % $b \subset a$
+ else: res:=0; fi % undefined result
+endgroup
+enddef;
+% ---
+vardef pos_subpath expr z of p =
+ if not cycle p: subpath z of p
+ else:
+  if xpart(z)<=ypart(z): subpath z of p
+  else: subpath (xpart(z),ypart(z)+length(p)) of p
+  fi
+ fi
+enddef;
+% ---
+vardef neg_subpath expr z of p =
+ if not cycle p: subpath z of p
+ else: reverse(pos_subpath (ypart z,xpart z) of p) fi
+enddef;
+% ---
+tertiarydef p && q = % |length(p)>0|
+  (subpath(0,length(p)-1) of p) ..
+   controls (postcontrol length(p)-1 of p) and (precontrol length(p) of p)
+   .. q
+enddef;
+% ---
+def make_cycle expr p = % |length(p)>0|
+  (subpath(0,length(p)-1) of p) ..
+   controls (postcontrol length(p)-1 of p) and (precontrol length(p) of p)
+   .. cycle
+enddef;
+% ---
+vardef is_line(expr B) =
+% checks if a B\'ezier segment |B| is an almost straight line;
+% recall that |z reflectedabout (origin,right)=1/z| for a complex
+% number |z| such that |length(z)=1|; recall also that the multiplication
+% of complex numbers (|zscale| operation) implies the addition of
+% their angle arguments
+ save pa_,pb_,pc_,pd_,ba_,da_,dc_; pair pa_,pb_,pc_,pd_,ba_,da_,dc_;
+ pa_:=point 0 of B; pd_:=point 1 of B;
+ if distance(pa_,pd_)<epsil.dist:
+  false % either really not a line or an uncertain situation (rounding errors)
+ else:
+  da_=unitvector(pd_-pa_) reflectedabout (origin,right);
+  pb_:=postcontrol 0 of B; if distance(pa_,pb_)<epsil.dist: pb_:=pa_; fi
+  pc_:=precontrol 1 of B; if distance(pd_,pc_)<epsil.dist: pc_:=pd_; fi
+  if (pa_=pb_) and (pc_=pd_): true
+  elseif (pa_=pb_):
+   dc_=unitvector(pd_-pc_); abs(angle(dc_ zscaled da_))<epsil.ang
+  elseif (pc_=pd_):
+   ba_=unitvector(pb_-pa_); abs(angle(ba_ zscaled da_))<epsil.ang
+  else:
+   ba_=unitvector(pb_-pa_); dc_=unitvector(pd_-pc_);
+   (abs(angle(ba_ zscaled da_))<epsil.ang)
+    and (abs(angle(dc_ zscaled da_))<epsil.ang)
+  fi
+ fi
+enddef;
+% ---
+vardef is_tiny_bez(expr B) =
+% checks if B\'ezier segment |B| is negligibly small
+ (distance((postcontrol 0 of B),(point 0 of B))<epsil.dist)
+ and (distance((precontrol 1 of B),(point 0 of B))<epsil.dist)
+ and (distance((point 1 of B),(point 0 of B))<epsil.dist)
+enddef;
+% ---
+vardef are_parallel(expr B,C) =
+% checks if B\'ezier segments |B| and |C| are linear and parallel
+save a_;
+ if is_line(B) and is_line(C):
+  a_:=turn_ang((point 0 of B)-(point 1 of B),(point 0 of C)-(point 1 of C));
+  (if known a_: abs(a_)<epsil.ang else: false fi)
+ else: false fi
+enddef;
+% ---
+vardef tidy_lines(expr P) =
+% converts almost linear segments of a path |P| into a ``tidy'' lines (|--|)
+ save B_; path B_;
+ for i_:=1 upto length(P): if i_>1: & fi
+  hide(B_:=subpath (i_-1,i_) of P)
+  if is_line(B_): ((point 0 of B_)--(point 1 of B_)) else: B_ fi
+ endfor if cycle P: & cycle fi
+enddef;
+% ---
+def add_bez(expr ta,tb, p) =
+ .. controls (postcontrol ta of p) and (precontrol tb of p) .. (point tb of p)
+enddef;
+% ---
+vardef clean_path(expr P) =
+% this routine joins together colinear neighbouring segments and removes
+% ``tiny'' edges of a cyclic path |P| (performed at the end of removing
+% overlaps and expanding stroke); since some nodes may become ``midline''
+% ones after cleaning, the operation is performed twice
+ if cycle P:
+  save P_,for_del_,not_del_,i_,j_; path P_;
+% mark all deletable nodes and one non-deletable node:
+  for i_:=0 upto length(P)-1:
+   if are_parallel(subpath (i_-1,i_) of P,subpath (i_,i_+1) of P)
+     or is_tiny_bez(subpath(i_-1,i_) of P):
+    for_del_[i_]:=1;
+   else:
+    not_del_:=i_;
+   fi
+  endfor;
+% BUG TRAP:
+  if unknown not_del_:
+   err_helpless;
+   errmessage "ROEX ERROR: all nodes deleted during path cleaning";
+  fi
+% delete nodes:
+  i_:=j_:=not_del_; % we start with |not_del_|: one of not deleted points
+  P_:=(point j_ of P)
+   forever:
+% invariant: |i_| recent not deleted point, |j_| current point
+    hide(j_:=(j_+1) mod length(P))
+    if unknown for_del_[j_]: add_bez(i_,j_,P) \\ hide(i_:=j_) fi
+   exitif j_=not_del_;
+   endfor & cycle;
+  tidy_lines(P_)
+ else: P fi
+enddef;
+% ---
+vardef is_less(expr a,b) = (a<b) enddef;
+vardef quicksort@#(expr ii,jj)(suffix s)(text t) =
+% sorts |@#.s[ii..jj]| along with |@#.$[ii..jj]| for |$| in |t|,
+% using Tony Hoare's ``quick sort'' method; suffix |s| must must not occur
+% in the |t| list (no checking is performed); if both |s| and |t| are empty,
+% |t| is ignored.
+% REMARK 1: the algorithm has no explicit recursion, because of \MF's limits
+%           on recursion level.
+% REMARK 2: the algorithm, of course, is not stable, i.e., it does not
+%           preserve the order of equal items, but it does not matter here
+ save i_,j_,k_,l_,cell_,stack_,incl_t_; boolean incl_t_;
+ pair stack_[\\]; stack_.lev:=0; stack_[incr stack_.lev]:=(ii,jj);
+ i_:=0; for $:=t: i_:=i_+1; endfor % ``measure'' |t|-list
+ incl_t_:=(str s <> "") or ((str s = "") and (i_<>0));
+ forsuffixes $:= s if incl_t_: , t fi:
+  if numeric @#.$[ii]: numeric cell_.$;
+  elseif string @#.$[ii]: string cell_.$;
+  elseif boolean @#.$[ii]: boolean cell_.$;
+  fi
+ endfor
+ forever:
+ exitif stack_.lev<=0;
+  numeric i_,j_; (i_,j_)=stack_[stack_.lev]; stack_.lev:=stack_.lev-1;
+  if i_<j_:
+   forsuffixes $:= s if incl_t_: , t fi: cell_.$:=@#.$[i_]; endfor
+   l_:=i_;
+   for k_:=i_+1 upto j_:
+    if is_less(@#.s[k_],cell_.s):
+     forsuffixes $:=s if incl_t_: , t fi:
+      @#.$[l_]:=@#.$[k_]; @#.$[k_]:=@#.$[l_+1];
+     endfor
+     l_:=l_+1;
+    fi
+   endfor
+   forsuffixes $:= s if incl_t_: , t fi: @#.$[l_]:=cell_.$; endfor
+   stack_[incr stack_.lev]:=(i_,l_-1); stack_[incr stack_.lev]:=(l_+1,j_);
+  fi
+ endfor
+enddef;
+% ---
+% R-O MACROS:
+% ---
+% visualising macros (useful for testing):
+% ---
+def mark_nodes =
+ if proofing>0:
+  for i_:=1 upto NODE_.num:
+   makelabel(decimal(i_) & ":" & decimal(NODE_.pth[i_]),
+    point TIME_[NODE_.pth[i_]]tim[NODE_.tim[i_]] of PATH_[NODE_.pth[i_]]);
+  endfor
+ fi
+enddef;
+% ---
+def mark_area(expr i) =
+begingroup
+ save j_,v_; j_:=i; mark_edge(j_); v_[j_]:=0;
+ forever: j_:=EDGE_.out[j_]; exitif (j_=i) or (known v_.emerg);
+  if known v_[j_]: v_.emerg:=0; else: mark_edge(j_); v_[j_]:=0; fi
+ endfor
+endgroup
+enddef;
+% ---
+def mark_edge(expr i) =
+begingroup
+ if proofing>0:
+  save currentpen, currentpen_path; pen currentpen; path currentpen_path;
+  makelabel(decimal(i),
+   (point .5length(the_edge(i)) of the_edge(i))+
+   1pt*(udir .5length(the_edge(i)) of the_edge(i)) rotated 90);
+  pickup pencircle scaled 1;
+  draw (point .5length(the_edge(i)) of the_edge(i))--
+   ((point .5length(the_edge(i)) of the_edge(i))+
+   (1pt*(udir .5length(the_edge(i)) of the_edge(i)) rotated 90));
+  makelabel("", point 0 of the_edge(i));
+ fi
+endgroup
+enddef;
+% ---
+def mark_edges =
+ for i_:=-EDGE_.num upto EDGE_.num: if i_<>0: mark_edge(i_); fi endfor
+enddef;
+% ---
+def show_area(expr i) =
+begingroup
+ save j_,v_; j_:=i;
+ message "EDGE " & decimal(j_) & "/" & decimal(EDGE_.pth[j_]) & ":";
+ message "color " &
+  if known EDGE_.col[j_]: decimal(EDGE_.col[j_]) else: "???" fi;
+ v_[j_]:=0;
+ forever: j_:=EDGE_.out[j_]; exitif (j_=i) or (known v_.emerg);
+  if known v_[j_]: v_.emerg:=0; fi
+  v_[j_]:=0; message "  " & decimal(j_) & "/" & decimal(EDGE_.pth[j_]);
+ endfor
+endgroup
+enddef;
+% ---
+def show_areas =
+ for i_:=-EDGE_.num upto EDGE_.num: if i_<>0: show_area(i_); fi endfor
+enddef;
+% ---
+def err_helpless =
+ errhelp "Better stop now! Algorithm failed.";
+enddef;
+% ---
+def err_extra_info(expr i,j) =
+ message
+"========================== BEGIN OF ERROR INFO: ==========================";
+ for k_:=i,j:
+  if known k_:
+   message "Edge " & decimal(k_) &
+    " (a subpath of the path " & decimal(EDGE_.pth[k_]) & "):";
+   message "Color:"; show EDGE_.col[k_]; show the_edge(k_);
+  fi
+ endfor;
+enddef;
+% ---
+% principal macros:
+% ---
+vardef edge_path(expr i) = PATH_[EDGE_.pth[i]] enddef;
+vardef first_time(expr i) =
+ TIME_[NODE_.pth[EDGE_.fnd[i]]]tim[NODE_.tim[EDGE_.fnd[i]]]
+enddef;
+vardef last_time(expr i) =
+ TIME_[NODE_.pth[EDGE_.lnd[i]]]tim[NODE_.tim[EDGE_.lnd[i]]]
+enddef;
+% ---
+vardef the_edge(expr i) =
+ if i>0: pos_subpath else: neg_subpath fi
+  (first_time(i), last_time(i)) of edge_path(i)
+enddef;
+% ---
+vardef make_area(expr i) =
+ save j_,q_,v_; path q_; j_:=i; v_[j_]:=0; q_:=the_edge(j_);
+ forever: j_:=EDGE_.out[j_]; exitif (j_=i) or (known v_.emerg);
+  if known v_[j_]:
+   show_area(i); err_helpless;
+   errmessage "RO ERROR: Edge " & decimal(j_) & " revisited";
+   v_.emerg:=0;
+  fi
+  v_[j_]:=0; q_:=q_ && the_edge(j_);
+ endfor
+ make_cycle(q_)
+enddef;
+% ---
+vardef is_tangent(expr i,j,k,l) =
+ save e_,d_,pi_,pj_,ti_,tj_; path e_,pi_,pj_;
+ if (TIME_[i]num=0) or (TIME_[j]num=0): true
+ else:
+  ti_.loc:=TIME_[i]tim[k];
+  ti_.prv:=TIME_[i]tim[(k-1) mod (TIME_[i]num+1)];
+  ti_.nxt:=TIME_[i]tim[(k+1) mod (TIME_[i]num+1)];
+  tj_.loc:=TIME_[j]tim[l];
+  tj_.prv:=TIME_[j]tim[(l-1) mod (TIME_[j]num+1)];
+  tj_.nxt:=TIME_[j]tim[(l+1) mod (TIME_[j]num+1)];
+  pi_:=PATH_[i] shifted (-point ti_.loc of PATH_[i]);
+  pj_:=PATH_[j] shifted (-point tj_.loc of PATH_[j]);
+  d_:=min(
+   distance(point ti_.loc of pi_, point ti_.prv of pi_),
+   distance(point ti_.loc of pi_, point ti_.nxt of pi_),
+   distance(point tj_.loc of pj_, point tj_.prv of pj_),
+   distance(point tj_.loc of pj_, point tj_.nxt of pj_));
+% BUG TRAP 1:
+  if d_<epsil.dist:
+   err_helpless;
+   errmessage "RO ERROR: Cannot check tangency (too short secants)";
+  fi
+  e_:=enc.pth scaled (1/2[epsil.dist,d_]);
+  save ta_,tb_,tc_,td_;
+  save tt_;
+  (tt_,ta_)=(pos_subpath (ti_.prv,ti_.loc) of pi_) intersectiontimes e_;
+  save tt_;
+  (tt_,tb_)=(pos_subpath (ti_.loc,ti_.nxt) of pi_) intersectiontimes e_;
+  save tt_;
+  (tt_,tc_)=(pos_subpath (tj_.prv,tj_.loc) of pj_) intersectiontimes e_;
+  save tt_;
+  (tt_,td_)=(pos_subpath (tj_.loc,tj_.nxt) of pj_) intersectiontimes e_;
+% BUG TRAP 2:
+  if (ta_<0) or (tb_<0) or (tc_<0) or (td_<0):
+   err_helpless; errmessage "RO ERROR: Cannot check tangency";
+  fi
+  forsuffixes tt_:=tb_,tc_,td_: tt_:=(tt_-ta_) mod enc.len; endfor
+  ((tc_>=tb_) and (td_>=tb_)) or ((tc_<=tb_) and (td_<=tb_))
+ fi
+enddef;
+% ---
+vardef multi_path_case = PATH_.num>1 enddef;
+def prepare_input_data(text P)(text W) =
+% |P|: list of paths to be processed (non-cyclic paths are ignored);
+% |W|: list of weights given as pairs: (index, value)
+ PATH_.num:=0;
+ for P_:=P: if cycle P_: PATH_[incr PATH_.num]:=touch_path(P_); fi endfor
+ for W_:=W: PATH_.wei[xpart W_]:=ypart W_; endfor
+ for i_:=1 upto PATH_.num:
+  if unknown PATH_.wei[i_]: PATH_.wei[i_]:=1; fi
+ endfor
+enddef;
+% ---
+def initialise_removing_overlaps =
+% Given paths are |PATH_1|, |PATH_2|, ..., |PATH_[P.num]|;
+% if |PATH_[i][j]| is known, paths |PATH_[i]| and |PATH_[j]| at least touch
+% each other; |PATH_.wei[i]| is a weight of a path (corresponds to
+% multiplying a turning number by this value or, in other words, to
+% applying |PATH_.wei[i]| times a fill operation to the path |PATH_[i]|).
+numeric PATH_.num, PATH_[\\][\\], PATH_.wei[\\]; path PATH_[\\];
+%
+% Lone paths are stored in variable |LONE_|; |LONE_.col[i]| determines
+% the color (being an integer number) of the plane surrounding the path
+% |LONE_[i]|; |LONE_.wei| is a weight inherited from |PATH_.wei| (see above).
+numeric LONE_.num, LONE_.col[\\], LONE_.wei[\\]; path LONE_[\\];
+%
+% |TIME_[i]num| is the number of intersection points for paths |PATH_[i]|,
+% |TIME_[i]tim[j]| is the time of intersection of the |j|-th point of path
+% |PATH_[i]| (points are sorted with respect to time), |TIME_[i]ntp[j]|
+% marks non-tangent points (if known), |TIME_[i]nod[j]| is the node number
+% of |j|-th point of path |PATH_[i]| (only non-tangent points are considered
+% to be nodes, points on a path are numbered from |0|).
+numeric TIME_[\\]num, TIME_[\\]tim[\\], TIME_[\\]ntp[\\], TIME_[\\]nod[\\];
+%
+% Variables with prefix |EDGE_| describe the edge structure that results from
+% intersecting process; the data structure is similar to Dijkstra's data
+% structure for the algorithm finding the convex hull of for a given
+% set of points (E. W. Dijkstra, ``A Discipline of programming'',
+% Prentice-Hall, Inc., 1976): the edges (edsges?) are numbered
+% |-EDGE_.num|, |-EDGE_.num+1|, ..., |-1|, |1|, ... |EDGE_.num-1|,
+% |EDGE_.num|; edges |i| and |-i| are in fact the same edge but
+% differently oriented, the positive value denotes the edge which
+% direction is consistent with the direction of the original path;
+% |EDGE_.out[i]| is the number of the leftmost edge outcoming from
+% the last node, i.e., |EDGE_.lnd[i]|; the number of the first node
+% of |i|-th edge is |EDGE_.fnd[i]|; color of |i|-th edge, i.e., the color
+% of the area surrounded by the edge and its leftmost successors is stored
+% in |EDGE_.col[i]|; |i|-th edge belongs to the path of |PATH_[EDGE_.pth[i]]|;
+% |EDGE_.aux[\\]| is an auxiliary variable; all intersecting paths
+% can be grouped into |SPOT_.num| of disjoint ``spots''; for |i=1|, |2|, ...,
+% |SPOT_.num|, |EDGE_.bed[i]| is the number of the edge which leftmost
+% successors form the area being a boundary of the intersecting paths
+% for a given spot and |EDGE_.bpa[i]| is the boundary (since there is
+% one-to-one correspondence between boundaries and spots, boundaries are
+% pairwise disjoint, too).
+numeric EDGE_.num, EDGE_.pth[\\], EDGE_.out[\\], EDGE_.aux[\\], EDGE_.col[\\],
+ EDGE_.fnd[\\], EDGE_.lnd[\\], EDGE_.are[\\], EDGE_.bed[\\];
+path EDGE_.bpa[\\];
+%
+% Variables with prefix |NODE_| describe the node structure and are related
+% to the edge structure; the node is not a point on a plane but a point on a
+% path, hence several nodes may correspond to one Euclidian point;
+% |NODE_.num| is the number of nodes, |NODE_.pth[i]| is the number of a path
+% to which the node |i| belongs, |NODE_.tim[i]| is the corresponding time on
+% path |PATH_[NODE_.pth[i]]|, |NODE_.ped[i]| is the ordering number of a
+% positively-numbered edge leaving the node |i|, |NODE_.ned[i]| is the
+% ordering number of negatitively-numbered edge leaving node |i|,
+% |NODE_.nod[i]num| is the number of nodes coinciding with node |i| and
+% these are nodes |NODE_.nod[i]1|, |NODE_.nod[i]2|, ...,
+% |NODE_.nod[i][NODE_.nod[i]num]|.
+numeric NODE_.num, NODE_.pth[\\], NODE_.tim[\\], NODE_.ned[\\],
+ NODE_.ped[\\], NODE_.nod[\\]num, NODE_.nod[\\][\\];
+%
+% It often happens that intersecting paths form disjoint areas or that
+% there are paths that do not intersect; it is crucial for the colouring
+% algorithm to know the embedding ``hierarchy''; the hierarchy is stored in
+% a tree structure: the links (suffix |emb|) point upward (from leaves to
+% the root), moreover, with each leaf (node) is associated a ``level,''
+% i.e., the number of leaves beneath this leaf; the information stored in
+% a leaf is either the number of a lone path or the number of an area being
+% the result of the intersecting process (negative value marks the former
+% case); the tree is built by adding at first lone paths and next boundary
+% paths, i.e., negatively oriented paths surrounding groups of paths (areas,
+% see below) resulting from the intersecting process; if there is a lone path
+% or a boundary path |q| embedded in a boundary path |p|, there must be also
+% an area which belongs to the group of areas surrounded by |p|, which apears
+% in the tree between |q| and |p|; such a structure is convenient at the
+% stage of finding colors of areas and lone paths.
+numeric TREE_.num,TREE_.pth[\\],TREE_.emb[\\],TREE_.lev[\\];
+%
+% Finally there are areas which arise during intersecting process;
+% |AREA_1|, |AREA_2|, ..., |AREA_[AREA_.num]| are the ordering numbers
+% of edges which leftmost successors form areas such that areas arising
+% from |AREA_[i]| and |AREA_[j]| are either disjoint or have at most a common
+% edge, and, moreover, areas arising from |AREA_1|, |AREA_2|, ...,
+% |AREA_[AREA_.num]| exhaust the list of all possible areas in question
+% (plus lone paths, i.e., with no intersecting points); |AREA_.spt[i]| is
+% a spot number (areas of the same spot number are subsets of the same
+% boundary, different boundaries are disjoint); areas are sorted wrt spot
+% numbers, moreover, |AREA_[SPOT_[s-1]+1]| thru |AREA_[SPOT_[s]]| are areas
+% belonging to a spot |s|, |s=1|, |2|, ..., |SPOT_.num|.
+numeric AREA_.num, AREA_[\\], AREA_.spt[\\]; numeric SPOT_.num, SPOT_[\\];
+enddef;
+% ---
+vardef is_far_enough(expr i,k,dk) =
+ if act_idx_>=max_idx: were_more_:=1; false
+ else:
+  save z_; pair z_; z_:=point k+dk of PATH_[i];
+  true
+   for j_:=0 upto TIME_[i]num:
+    and
+    if multi_path_case:
+     (distance(point TIME_[i]tim[j_] of PATH_[i],z_)>=epsil.dist)
+    else:
+     (interval(TIME_[i]tim[j_],(k+dk),PATH_[i])>=epsil.time)
+    fi
+   endfor
+   for j_:=0 upto ignored_.num:
+    and
+    if multi_path_case:
+     (distance(point ignored_[j_] of PATH_[i],z_)>=epsil.dist)
+    else:
+     (interval(ignored_[j_],(k+dk),PATH_[i])>=epsil.time)
+    fi
+   endfor
+ fi
+enddef;
+% ---
+def intersect_two_segments(expr i,j,k,l) =
+begingroup
+ save pi_,pj_,stack_; path pi_,pj_,stack_[\\]; numeric stack_.lev;
+ pi_:=subpath (k,k+1) of PATH_[i]; pj_:=subpath (l,l+1) of PATH_[j];
+ stack_.lev:=1; stack_[stack_.lev]:=pj_;
+ forever:
+ exitif stack_.lev<=0;
+  pj_:=stack_[stack_.lev]; stack_.lev:=stack_.lev-1;
+  save dk_,dl_; (dk_,dl_)=pi_ intersectiontimes pj_;
+  if dk_>=0:
+   if is_far_enough(i,k,dk_):
+    act_idx_:=act_idx_+1; TIME_[i].tim[incr TIME_[i].num]:=k+dk_;
+   else: ignored_[incr ignored_.num]:=k+dk_;
+   fi
+   if (dl_+epsil.time)<length(pj_):
+    stack_[incr stack_.lev]:=subpath (dl_+epsil.time,length pj_) of pj_;
+   fi
+   if (dl_-epsil.time)>0:
+    stack_[incr stack_.lev]:=subpath (0,dl_-epsil.time) of pj_;
+   fi
+  fi
+ endfor
+endgroup
+enddef;
+% ---
+def intersect_two_paths(expr i,j) =
+begingroup
+ save ignored_,were_more_,act_idx_;
+ act_idx_:=0; ignored_.num:=-1;
+ for k_:=0 upto length(PATH_[i])-1:
+  for l_:=0 upto length(PATH_[j])-1:
+   if (i<>j) or (k_<>l_):
+    intersect_two_segments(i,j,k_,l_);
+   fi
+  endfor
+ endfor
+ if known were_more_:
+  errhelp "Dangerous situation: rounding errors may screw up results.";
+  errmessage "RO ERROR: there were more than "
+   & decimal(max_idx) & " intersections (thus some were ignored)";
+ fi
+ quicksort TIME_[i](0,TIME_[i].num)(tim)();
+endgroup
+enddef;
+% ---
+def intersect_all_paths =
+ for i_:=1 upto PATH_.num: TIME_[i_]num:=-1; endfor
+ for i_:=1 upto PATH_.num:
+  for j_:=i_+1 upto PATH_.num:
+    if xpart(PATH_[i_] intersectiontimes PATH_[j_])>-1:
+     PATH_[i_][j_]:=0;
+% the process is repeated twice (for both paths in turn) because we haven't
+% invented an efficient soultion to the following problem:
+% given a subpath |S| of a path |P| and a time |t.S|; find a time |t.P| such
+% that |point t.S of S=point t.P of P|
+     intersect_two_paths(i_,j_); intersect_two_paths(j_,i_);
+    fi
+  endfor
+ endfor
+ if not multi_path_case:
+  for i_:=1 upto PATH_.num:
+   PATH_[i_][i_]:=0; intersect_two_paths(i_,i_);
+  endfor
+ fi
+enddef;
+% ---
+vardef find_minimal_secant =
+ save secants_, intervals_;
+ secants_.num:=0; intervals_.num:=0;
+ minimal_secant:=minimal_interval:=infinity;
+ for i_:=1 upto PATH_.num:
+  for j_:=0 upto TIME_[i_].num:
+   if TIME_[i_].num>0:
+    secants_[if tracingremoving>1: incr fi \\ secants_.num]:=
+     distance(point TIME_[i_]tim[j_] of PATH_[i_],
+      point TIME_[i_]tim[(j_+1) mod (TIME_[i_].num+1)] of PATH_[i_]);
+    if tracingremoving>1:
+     secants_.pth[secants_.num]:=i_; secants_.tim[secants_.num]:=j_;
+    fi
+    minimal_secant:=min(minimal_secant,secants_[secants_.num]);
+    intervals_[if tracingremoving>1: incr fi \\ intervals_.num]:=
+     interval(TIME_[i_]tim[j_],
+       TIME_[i_]tim[(j_+1) mod (TIME_[i_].num+1)], PATH_[i_]);
+    if tracingremoving>1:
+     intervals_.pth[intervals_.num]:=i_; intervals_.tim[intervals_.num]:=j_;
+    fi
+    minimal_interval:=min(minimal_interval,intervals_[intervals_.num]);
+   fi
+  endfor;
+ endfor;
+ if minimal_secant<>infinity:
+  info_ro "Minimal secant = " & decimal(minimal_secant/pt)
+   & "pt, i.e., " & decimal(minimal_secant) & "pxl, " &
+   if minimal_secant<4/3epsil.dist: "CAVEAT!" else: "seems OK" fi
+   & " (bound=" & decimal(epsil.dist) & "pxl)";
+ fi
+ if minimal_interval<>infinity:
+  info_ro "Minimal interval = " & decimal(minimal_interval) & ", " &
+   if minimal_interval<4/3epsil.time: "CAVEAT!" else: "seems OK" fi
+   & " (bound=" & decimal(epsil.time) & ")";
+ fi
+ if tracingremoving>1:
+  quicksort secants_(1,secants_.num)()(tim,pth);
+  quicksort intervals_(1,intervals_.num)()(tim,pth);
+  for i_:=1 upto secants_.num:
+   info_ro "secant=" & decimal(secants_[i_])
+    & " path=" & decimal(secants_.pth[i_])
+    & " time=" & decimal(secants_.tim[i_]);
+  endfor
+  for i_:=1 upto intervals_.num:
+   info_ro "interval=" & decimal(intervals_[i_])
+    & " path=" & decimal(intervals_.pth[i_])
+    & " time=" & decimal(intervals_.tim[i_]);
+  endfor
+ fi
+enddef;
+% ---
+def build_node_structure =
+begingroup
+ save n_,Tik_,Tjl_;
+ NODE_.num:=0;
+ for i_:=1 upto PATH_.num:
+  for j_:=i_ if multi_path_case: +1 fi upto PATH_.num:
+   if known PATH_[i_][j_]:
+    for k_:=0 upto TIME_[i_]num:
+     for l_:=if i_=j_: k_ else: 0 fi upto TIME_[j_]num:
+      if distance(point TIME_[i_]tim[k_] of PATH_[i_],
+        point TIME_[j_]tim[l_] of PATH_[j_])<epsil.dist:
+       if if multi_path_case: not is_tangent(i_,j_,k_,l_) else: true fi:
+        TIME_[i_]ntp[k_]:=1; TIME_[j_]ntp[l_]:=1;
+        if unknown TIME_[i_]nod[k_]:
+         NODE_.num:=NODE_.num+1; TIME_[i_]nod[k_]:=NODE_.num;
+         NODE_.pth[NODE_.num]:=i_; NODE_.tim[NODE_.num]:=k_;
+         NODE_.nod[NODE_.num]num:=0;
+        fi
+        if unknown TIME_[j_]nod[l_]:
+         NODE_.num:=NODE_.num+1; TIME_[j_]nod[l_]:=NODE_.num;
+         NODE_.pth[NODE_.num]:=j_; NODE_.tim[NODE_.num]:=l_;
+         NODE_.nod[NODE_.num]num:=0;
+        fi
+        Tik_:=TIME_[i_]nod[k_]; Tjl_:=TIME_[j_]nod[l_];
+        NODE_.nod[Tik_][incr NODE_.nod[Tik_]num]:=Tjl_;
+        if (i_<>j_) or (k_<>l_):
+         NODE_.nod[Tjl_][incr NODE_.nod[Tjl_]num]:=Tik_;
+        fi
+       fi
+      fi
+     endfor
+    endfor
+   fi
+  endfor
+ endfor
+% BUG TRAP:
+ for i_:=1 upto PATH_.num:
+  n_:=0;
+  for j_:=0 upto TIME_[i_]num: if known TIME_[i_]ntp[j_]: n_:=n_+1; fi endfor
+  if n_=1:
+   err_helpless;
+   errmessage "RO ERROR: Number of non-tangent points must not be 1 (path "
+    & decimal(i_) & ")";
+  fi
+ endfor
+endgroup
+enddef;
+% ---
+def identify_close_nodes =
+begingroup
+% It is assumed that `close points' and `coinciding points' means the same,
+% hence we make a transitive closure of the relation of `being close'
+% (in ``normal'' cases the relation is transitive, although from
+% a mathematical point of view it is obviously not):
+ forever:
+  % Is this loop really needed? I (BJ) could not devise a case where
+  % more than two turns would be necessary and where the algorithm
+  % would still work properly
+  save changed_;
+  for i_:=1 upto NODE_.num:
+   save v_;
+   for j_:=1 upto NODE_.nod[i_]num: v_[NODE_.nod[i_][j_]]:=0; endfor
+   for j_:=1 upto NODE_.nod[i_]num:
+    k_:=NODE_.nod[i_][j_];
+    for l_:=1 upto NODE_.nod[k_]num:
+     if NODE_.nod[k_][l_]<>i_:
+      if unknown v_[NODE_.nod[k_][l_]]:
+       NODE_.nod[i_][incr NODE_.nod[i_]num]:=NODE_.nod[k_][l_];
+       changed_:=v_[NODE_.nod[k_][l_]]:=0;
+      fi
+     fi
+    endfor
+   endfor
+  endfor
+ exitif unknown changed_;
+ endfor
+endgroup
+enddef;
+% ---
+def build_edge_structure =
+begingroup
+ numeric min_sec_[\\],min_sec_.tmp;
+% |min_sec_[i]| is a minimal secant for |i|-th path, |i=1|, |2|, ..., |PATH_.num|
+ save i_,j_,k_;
+ EDGE_.num:=0;
+ if NODE_.num>0:
+  for i_:=1 upto PATH_.num:
+   for j_:=0 upto TIME_[i_]num:
+    if known TIME_[i_]ntp[j_]:
+     EDGE_.num:=EDGE_.num+1; EDGE_.pth[EDGE_.num]=i_;
+     EDGE_.pth[-EDGE_.num]=i_; EDGE_.fnd[EDGE_.num]:=TIME_[i_]nod[j_];
+% each path should contain at least two non-tangent nodes
+     k_:=j_+1;
+     forever: exitif known TIME_[i_]ntp[k_ mod (TIME_[i_]num+1)];
+      k_:=k_+1;
+     endfor;
+     EDGE_.lnd[EDGE_.num]:=TIME_[i_]nod[k_ mod (TIME_[i_]num+1)];
+     min_sec_.tmp:=
+      distance(point first_time(EDGE_.num) of edge_path(EDGE_.num),
+       point last_time(EDGE_.num) of edge_path(EDGE_.num));
+     if if unknown min_sec_[i_]: true else: min_sec_[i_]>min_sec_.tmp fi:
+      min_sec_[i_]:=min_sec_.tmp;
+     fi
+     EDGE_.fnd[-EDGE_.num]:=EDGE_.lnd[EDGE_.num];
+     EDGE_.lnd[-EDGE_.num]:=EDGE_.fnd[EDGE_.num];
+    fi
+   endfor
+  endfor
+  for i_:=-EDGE_.num upto EDGE_.num:
+   if i_>0: NODE_.ped[EDGE_.fnd[i_]]:=i_;
+   elseif i_<0: NODE_.ned[EDGE_.fnd[i_]]:=i_;
+   fi
+  endfor
+ else:
+  info_ro "RO WARNING: no intersections detected.";
+ fi
+endgroup
+enddef;
+% ---
+def find_leftmost_edges =
+% a simple method is used: a tiny circle is drawn in a node and its
+% intersection points with all edges leaving the node are examined
+begingroup
+ save ei_,ej_,i_,j_,k_,leftmost_; path ei_,ej_; numeric min_sec_.loc;
+ for i_:=-EDGE_.num upto EDGE_.num: if i_<>0:
+  if tracingleftmost>0:
+   message "@@@ " & decimal(i_) & "/" & decimal(EDGE_.pth[i_])
+    & " (" & decimal(EDGE_.fnd[i_]) & "," & decimal(EDGE_.lnd[i_]) & "):";
+  fi
+  numeric leftmost_.edg,leftmost_.tim,leftmost_.tmp;
+  min_sec_.loc:=min_sec_[EDGE_.pth[i_]];
+  for k_:=1 upto NODE_.nod[EDGE_.lnd[i_]]num:
+   forsuffixes $:=ped,ned:
+    j_:=NODE_$[NODE_.nod[EDGE_.lnd[i_]][k_]];
+    min_sec_.loc:=min(min_sec_.loc,min_sec_[EDGE_.pth[j_]]);
+   endfor
+  endfor
+% BUG TRAP 1: (should not happen, see |find_minimal_secant|);
+  if min_sec_.loc<epsil.dist:
+   err_extra_info(i_,whatever); showvariable min_sec_; err_helpless;
+   errmessage "RO ERROR: Cannot continue searching for the leftmost edge";
+  fi
+  ei_:=enc.pth scaled (1/2[epsil.dist,min_sec_.loc])
+   shifted point infinity of the_edge(i_);
+  save tei_,tt_; (tei_,tt_)=ei_ intersectiontimes the_edge(i_);
+  for k_:=1 upto NODE_.nod[EDGE_.lnd[i_]]num:
+   forsuffixes $:=ped,ned:
+    j_:=NODE_$[NODE_.nod[EDGE_.lnd[i_]][k_]];
+    ej_:=enc.pth scaled (1/2[epsil.dist,min_sec_.loc])
+     shifted point 0 of the_edge(j_);
+    if tracingleftmost>0:
+     message "    " & decimal(j_) & "/" & decimal(EDGE_.pth[j_])
+     & " (" & decimal(EDGE_.fnd[j_]) & "," & decimal(EDGE_.lnd[j_]) & "):";
+    fi
+    save tej_,tt_; (tej_,tt_)=ej_ intersectiontimes the_edge(j_);
+% BUG TRAP 2:
+    if (tei_<0) or (tej_<0):
+     err_extra_info(i_,j_); showvariable min_sec_;
+     message "Times: " & decimal(tei_) & " " & decimal(tej_);
+     err_helpless;
+     errmessage "RO ERROR: Unsuccesful search for the leftmost edge";
+    fi
+% it happens that |i_=j_| if |multi_path_case=false|
+    leftmost_.tmp:=if (i_=-j_): 0 else: (tej_-tei_) mod enc.len fi;
+    if tracingleftmost>0:
+     message "    " & decimal(leftmost_.tmp) & " " & dec_pair((tei_,tej_));
+    fi
+    if if unknown leftmost_.tim: true else: leftmost_.tmp>leftmost_.tim fi:
+     leftmost_.edg:=j_; leftmost_.tim:=leftmost_.tmp;
+    fi
+   endfor
+  endfor
+  EDGE_.out[i_]:=leftmost_.edg;
+  if tracingleftmost>0: j_:=EDGE_.out[i_];
+   message ">>> " & decimal(j_) & "/" & decimal(EDGE_.pth[j_])
+   & " (" & decimal(EDGE_.fnd[j_]) & "," & decimal(EDGE_.lnd[j_]) & "):";
+  fi
+ fi endfor
+endgroup
+enddef;
+% ---
+def build_area_structure =
+begingroup
+ save i_,j_,v_;
+ AREA_.num:=0;
+ for i_:=1 upto EDGE_.num: % \MF's linear equation solver employed
+  EDGE_.col[i_]-PATH_.wei[EDGE_.pth[i_]]=EDGE_.col[-i_];
+ endfor
+% split to areas (edges surrounding the same area are assigned the same colour):
+ for i_:=-EDGE_.num upto EDGE_.num:
+  if (i_<>0) and (unknown EDGE_.are[i_]):
+   AREA_[incr AREA_.num]:=i_;
+   save v_; j_:=i_; v_[j_]:=0; EDGE_.are[j_]:=AREA_.num;
+   forever: j_:=EDGE_.out[j_]; exitif (j_=i_) or (known v_.emerg);
+% BUG TRAP 1:
+    if j_=-i_:
+     err_extra_info(i_,whatever); show_area(i_); err_helpless;
+     errmessage "RO ERROR: strange area";
+    fi
+% BUG TRAP 2:
+    if known v_[j_]:
+     err_extra_info(i_,j_); show_area(i_); err_helpless;
+     errmessage "RO ERROR: Edge " & decimal(j_) & " revisited";
+     v_.emerg:=0;
+    fi
+    v_[j_]:=0; EDGE_.are[j_]:=AREA_.num;
+    if known (EDGE_.col[i_]-EDGE_.col[j_]):
+% BUG TRAP 3:
+     if (EDGE_.col[i_]-EDGE_.col[j_])<>0:
+      err_extra_info(i_,j_); show_area(i_); err_helpless;
+      errmessage "RO ERROR: Edges " & decimal(i_) & " and " & decimal(j_)
+      & " have inconsistent colors";
+     fi
+    else: EDGE_.col[i_]=EDGE_.col[j_]; fi
+   endfor
+  fi
+ endfor
+endgroup
+enddef;
+% ---
+def build_spot_structure =
+begingroup
+ save i_,j_;
+% areas having a common edge belong to the same spot (\MF's linear
+% equation solver employed):
+ for i_:=1 upto EDGE_.num: if (i_<>0):
+  if unknown (AREA_.spt[EDGE_.are[i_]]-AREA_.spt[EDGE_.are[-i_]]):
+   AREA_.spt[EDGE_.are[i_]]=AREA_.spt[EDGE_.are[-i_]];
+  fi
+ fi endfor
+% count different spots:
+ SPOT_.num:=0;
+ for i_:=1 upto AREA_.num:
+  if unknown AREA_.spt[i_]: AREA_.spt[i_]=incr SPOT_.num; fi
+ endfor;
+% sort areas wrt spot numbers:
+ quicksort AREA_(1,AREA_.num)(spt)();
+% define |SPOT_[s]|, |s=1|, |2|, ..., |SPOT_.num|, such that
+% |AREA_[SPOT_[s-1]+1]| thru |AREA_[SPOT_[s]]| are areas having the
+% same spot number |s|:
+ SPOT_0=0; for i_:=1 upto AREA_.num: SPOT_[AREA_.spt[i_]]:=i_; endfor
+% identify paths for which |check_turn=-1| (such areas are boundaries and
+% should be unique for each spot):
+ i_:=0;
+ for j_:=1 upto AREA_.num:
+  if check_turn(make_area(AREA_[j_]))<=0:
+   i_:=i_+1;
+   EDGE_.bar[i_]:=j_; EDGE_.bed[i_]:=AREA_[j_];
+   EDGE_.bpa[i_]:=make_area(AREA_[j_]);
+  fi
+ endfor
+% BUG TRAP 4:
+ if i_<>SPOT_.num:
+  message "Number of spots=" & decimal(SPOT_.num) &
+   ", number of boundaries=" & decimal(i_);
+  err_helpless;
+  errmessage "RO ERROR: Inconsistent number of spots and boundaries";
+ fi
+endgroup
+enddef;
+% ---
+def update_tree_levels(expr n) =
+% update levels above the inserted leaf (|n|):
+begingroup
+ save i_,j_;
+ i_:=TREE_.emb[n]; j_:=TREE_.lev[n];
+ forever:
+ exitif i_=0;
+  j_:=TREE_.lev[i_]:=max(j_+1,TREE_.lev[i_]); i_:=TREE_.emb[i_];
+ endfor
+endgroup
+enddef;
+% ---
+vardef embedding_pair(expr p,n) =
+% returns a pair of numbers, |(out_,in_)|, such that |out_| is either a tree
+% address of an area surrounded |p| or zero if not found, and |in_| is a
+% tree address of an area surrounding |p| or zero if not found; one branch
+% is searched, starting from a zero level leaf, |n|.
+ save in_,out_,q_; path q_; in_:=out_:=0; n_:=n;
+ forever:
+  q_:=if TREE_.pth[n_]<0: LONE_[-TREE_.pth[n_]]
+   else: make_area(AREA_[TREE_.pth[n_]]) fi;
+  check_embedding(p_,q_,r_);
+  if r_=1: % |p_| $\subset$ |q_|
+   if in_=0: in_:=n_; fi % ``minimal'' surrounding path is to be found
+  elseif r_=2: % |q_| $\subset$ |p_|
+   out_:=n_; % ``maximal'' surrounded path is to be found
+  fi
+  exitif TREE_.emb[n_]=0;
+  n_:=TREE_.emb[n_];
+ endfor
+ (out_,in_)
+enddef;
+% ---
+def add_to_queue (expr p,q) =
+% updates a queue, i.e., adds to a queue an area belonging to the spot
+% of a boundary area, i.e., |AREA_[q]|, surrounding a path described by
+% a tree address |p|.
+begingroup
+ save p_,r_,s_,found_; path p_; boolean found_;
+% |AREA_[q]| is a boundary, i.e., it is negatively oriented,
+ p_:=if TREE_.pth[p]<0: LONE_[-TREE_.pth[p]]
+  else: make_area(AREA_[TREE_.pth[p]]) fi;
+% there must be a unique positively oriented area containing |p_|, belonging
+% to the ``spot'' of the boundary |AREA_[q]|.
+ found_:=false; s_:=SPOT_[AREA_.spt[q]-1];
+% |s_| is the last area from a previous spot, |s_+1| will be the first
+% area of the current spot
+ forever: s_:=s_+1;
+  if s_<>q:
+   check_embedding(make_area(AREA_[s_]),p_,r_);
+   found_:=(r_=2); % |r_=2| implies |p_| $\subset$ |make_area(AREA_[s_])|
+  fi
+  if found_:
+   if unknown LVQ_.inq[s_]: LVQ_[incr LVQ_.num]:=s_; LVQ_.inq[s_]:=1; fi
+  elseif s_=SPOT_[AREA_.spt[q]]:
+% the list of candidates has been exhausted without a success, hence
+% BUG TRAP:
+   err_helpless;
+   errmessage "RO ERROR: cannot build embedding tree (boundary " &
+    decimal(q) & ")";
+   found_:=true;
+  fi
+  exitif found_;
+ endfor;
+endgroup
+enddef;
+% ---
+def add_to_tree (expr leaf) =
+begingroup
+ save boundary_,found_,N_,p_; path p_;
+ TREE_.num:=TREE_.num+1;
+ N_:=TREE_.num; % abbreviation
+ TREE_.pth[N_]:=leaf; TREE_.emb[N_]:=0; TREE_.lev[N_]:=0;
+ p_:=if leaf<0: LONE_[-leaf] else: make_area(AREA_[leaf]) fi;
+ if (leaf>0) and (check_turn(p_)<0): boundary_:=1; fi
+ if N_>1:
+  for l_:=1 upto LVZ_.num: % climbing up from level zero
+   save out_,in_; (out_,in_)=embedding_pair(p_,LVZ_[l_]);
+   if (out_<>0) or (in_<>0): % a feasible branch found
+    if (out_=0) and (in_<>0): % to be added at the bottom, certain
+     TREE_.emb[N_]:=in_;
+     if in_=LVZ_[l_]: LVZ_[l_]:=N_; % replace bottom leaf
+     else: LVZ_[incr LVZ_.num]:=N_; fi % add new bottom leaf
+    elseif (out_<>0) and (in_=0): % to be added at the top, optional
+     if TREE_.emb[out_]<>N_: % we weren't here, add
+% invariant: |TREE_.emb[out_]=0|
+      TREE_.emb[out_]:=N_;
+      TREE_.lev[N_]:=max(TREE_.lev[N_],TREE_.lev[out_]+1);
+      if known boundary_: add_to_queue(out_,leaf); fi
+     fi
+    else: % to be added in the midst, optional
+     if TREE_.emb[out_]<>N_: % we weren't here, add
+% invariant: |TREE_.emb[out_]=in_|
+      TREE_.emb[out_]:=N_; TREE_.emb[N_]:=in_;
+      TREE_.lev[N_]:=max(TREE_.lev[N_],TREE_.lev[out_]+1);
+      if known boundary_: add_to_queue(out_,leaf); fi
+     fi
+    fi
+    found_:=1; update_tree_levels(N_);
+   fi
+  endfor;
+ fi
+ if unknown found_: LVZ_[incr LVZ_.num]:=N_; fi % a ``separate'' leaf appeared
+endgroup
+enddef;
+% ---
+def build_embedding_tree =
+begingroup
+ save LVZ_,QUE_;
+% |LVZ_1|, |LVZ_2|, ..., |LVZ_[LVZ_.num]| is the list of zero-level leaves,
+% (a temporary data structure, used during building a tree), |LVQ_1|, |LVQ_2|,
+% ..., |LVQ_[LVQ_.num]| is the list of leaves waiting in a queue (also
+% a temporary data structure); if |LVQ_.inq[i]| is known, |i=1|, |2|, ...,
+% |AREA_.num|, area |i| is already in a queue.
+ TREE_.num:=0; LONE_.num:=0; LVZ_.num:=0; LVQ_.num:=0;
+% identify lone paths:
+ for i_:=1 upto PATH_.num:
+  if true for j_:=0 upto TIME_[i_]num: and (unknown TIME_[i_]ntp[j_]) endfor:
+   LONE_[incr LONE_.num]:=PATH_[i_]; LONE_.wei[LONE_.num]:=PATH_.wei[i_];
+  fi
+ endfor
+% build the tree:
+ for i_:=1 upto LONE_.num: add_to_tree(-i_); endfor
+ for i_:=1 upto SPOT_.num: add_to_tree(EDGE_.bar[i_]); endfor
+ for i_:=1 upto LVQ_.num: add_to_tree(LVQ_[i_]); endfor
+endgroup
+enddef;
+% ---
+def color_paths = % \MF's linear equation solver heavily exploited
+begingroup
+ save i_,j_;
+ for i_:=1 upto TREE_.num:
+  if TREE_.emb[i_]=0: % outer path
+   if TREE_.pth[i_]<0: LONE_.col[-TREE_.pth[i_]]=background_color;
+   else: EDGE_.col[AREA_[TREE_.pth[i_]]]=background_color; fi
+  else: % inner path, inherits color from the surrounding path
+   j_:=TREE_.emb[i_];
+   if TREE_.pth[i_]<0:
+    if TREE_.pth[j_]<0:
+     LONE_.col[-TREE_.pth[i_]]=LONE_.col[-TREE_.pth[j_]]
+      +LONE_.wei[-TREE_.pth[j_]]*check_turn(LONE_[-TREE_.pth[j_]]);
+    else:
+     LONE_.col[-TREE_.pth[i_]]=EDGE_.col[AREA_[TREE_.pth[j_]]];
+    fi
+   else:
+    if TREE_.pth[j_]<0:
+     EDGE_.col[AREA_[TREE_.pth[i_]]]=LONE_.col[-TREE_.pth[j_]]
+      +LONE_.wei[-TREE_.pth[j_]]*check_turn(LONE_[-TREE_.pth[j_]]);
+    else:
+     if AREA_.spt[TREE_.pth[i_]]<>AREA_.spt[TREE_.pth[j_]]:
+      EDGE_.col[AREA_[TREE_.pth[i_]]]=EDGE_.col[AREA_[TREE_.pth[j_]]];
+     fi
+    fi
+   fi
+  fi
+ endfor;
+endgroup
+enddef;
+% ---
+def recombine_edges(suffix R) =
+% this routine can be used several times (after completing the process
+% of finding the structure of paths after intersecting) with various
+% definitions of |good_color| function in order to select various
+% sets of areas
+ if not path R0: numeric R.num; path R[\\]; fi
+ if (unknown R.num) or (unknown append_results): R.num:=0; fi
+% |R|: resulting data structure, namely, |R.num| is the number of output
+% paths, |R1|, |R2|, ..., |R[R.num]| are the resulting paths
+begingroup
+ save i_,j_,out_,in_;
+ for i_:=1 upto LONE_.num:
+  out_:=LONE_.col[i_]; in_:=out_+LONE_.wei[i_]*check_turn(LONE_[i_]);
+  if good_colors(in_,out_) or good_colors(out_,in_):
+   R[incr R.num]:=LONE_[i_];
+   R[R.num]:=if good_colors(in_,out_): pos_turn else: neg_turn fi \\ R[R.num];
+  fi
+ endfor
+ for i_:=-EDGE_.num upto EDGE_.num: if i_<>0:
+  EDGE_.aux[i_]:=whatever;
+ fi endfor
+ for i_:=-EDGE_.num upto EDGE_.num: if i_<>0:
+% BUG TRAP 1:
+  if unknown EDGE_.col[i_]:
+   err_extra_info(i_,whatever); err_helpless;
+   errmessage "RO ERROR: Edge " & decimal(j_) & " not colored";
+  fi
+  if good_colors(EDGE_.col[i_],EDGE_.col[-i_]) and (unknown EDGE_.aux[i_]):
+   save v_;
+   R.num:=R.num+1; j_:=i_; v_[j_]:=0;
+   EDGE_.aux[j_]:=0; R[R.num]:=the_edge(j_);
+   forever: j_:=EDGE_.out[j_]; exitif (j_=i_) or (known v_.emerg);
+% BUG TRAP 2:
+    if known v_[j_]:
+     err_extra_info(i_,j_); err_helpless;
+     errmessage "RO ERROR: Edge " & decimal(j_) & " revisited";
+     v_.emerg:=0;
+    fi
+    v_[j_]:=0;
+    if good_colors(EDGE_.col[j_],EDGE_.col[-j_]):
+     EDGE_.aux[j_]:=0; R[R.num]:=R[R.num] && the_edge(j_);
+    else: j_:=-j_;
+    fi
+   endfor
+   R[R.num]:=clean_path(clean_path(make_cycle(R[R.num])));
+  fi
+ fi endfor
+endgroup
+enddef;
+% ---
+def remove_overlap (text P)(text W) suffix R =
+begingroup interim autorounding:=0;
+% |P|: list of paths to be processed (non-cyclic paths are ignored);
+% |W|: list of weights given as pairs: (index, value)
+% |R|: resulting data structure, i.e., |R.num| is the number of output paths,
+% |R1|, |R2|, ..., |R[R.num]| are the resulting paths
+ info_ro "initialise_removing_overlaps"; initialise_removing_overlaps;
+ info_ro "prepare_input_data"; prepare_input_data(P)(W);
+ info_ro "intersect_all_paths"; intersect_all_paths;
+ info_ro "find_minimal_secant"; find_minimal_secant;
+ info_ro "build_node_structure"; build_node_structure;
+ info_ro "identify_close_nodes"; identify_close_nodes;
+ info_ro "build_edge_structure"; build_edge_structure;
+ info_ro "find_leftmost_edges"; find_leftmost_edges;
+ info_ro "build_area_structure"; build_area_structure;
+ info_ro "build_spot_structure"; build_spot_structure;
+ info_ro "build_embedding_tree"; build_embedding_tree;
+ info_ro "color_paths"; color_paths;
+ info_ro "recombine_edges"; recombine_edges(R);
+endgroup
+enddef;
+% ---
+% E-S MACROS:
+% ---
+vardef make_join@#(expr pa,pb)=
+ save kind_; string kind_; kind_:=str @#; if kind_="": kind_:="0" fi;
+ if (kind_<>"0") and (kind_<>"1"):
+  errhelp "Will use default.";
+  errmessage "ES ERROR: don't know how to join";
+  kind_:="0";
+ fi
+ if distance(point length(pa) of pa,point 0 of pb)<epsil.dist:
+  if (point length(pa) of pa)<>(point 0 of pb):
+   info_es "Points " & dec_pair(point length(pa) of pa) &
+    " and " & dec_pair(point 0 of pb) & " joined";
+   if (tracingexpanding>0) and (proofing>0):
+    makelabel.lft.nodot("joined",point length(pa) of pa);
+   fi
+  fi
+  pa && pb
+ elseif kind_="0":
+  if miter_size<=0: % a special case, isn't it?
+   pa--pb
+  else:
+   save ta_,tb_,za_,da_,zb_,db_,zc_,zd_,ze_,zf_;
+   pair za_,da_,zb_,db_,zc_,zd_,ze_,zf_;
+   za_=point length(pa) of pa;
+   da_=direction length(pa) of pa;
+   zb_=point 0 of pb;
+   db_=direction 0 of pb;
+   zc_=whatever[za_,za_+da_]=whatever[ze_,ze_+(zb_-za_)];
+   zd_=whatever[zb_,zb_+db_]=whatever[ze_,ze_+(zb_-za_)];
+   ze_=.5[za_,zb_]+miter_size*(unitvector(da_-db_));
+% we used to check |turningnumber(za_--zc_--zd_--zb_--cycle)|, but it was
+% not sufficiently robust
+   (ta_,tb_)=(za_--zc_) intersectiontimes (zd_--zb_);
+   if ta_<0: % |miter_size| in force:
+     pa
+      if distance(point length(pa) of pa,zc_)>=epsil.dist: --zc_ fi
+      if (distance(zc_,zd_)>=epsil.dist)
+        and (distance(point 0 of pb,zd_)>=epsil.dist): --zd_ fi
+     --pb
+   else:
+    zf_:=point ta_ of (za_--zc_);
+    if abs(zf_-.5[za_,zb_])>abs(ze_-.5[za_,zb_]): % |miter_size| in force:
+     pa
+      if distance(point length(pa) of pa,zc_)>=epsil.dist: --zc_ fi
+      if (distance(zc_,zd_)>=epsil.dist)
+       and (distance(point 0 of pb,zd_)>=epsil.dist): --zd_ fi
+     --pb
+    else:
+     pa
+      if (distance(point length(pa) of pa,zf_)>=epsil.dist)
+       and (distance(point 0 of pb,zf_)>=epsil.dist): --zf_ fi
+     --pb
+    fi
+   fi
+  fi
+ elseif kind_="1":
+  pa{direction length(pa) of pa}..{direction 0 of pb}pb
+ fi
+enddef;
+% ---
+vardef make_cyclic_join@#(expr p)=
+ save kind_; string kind_; kind_:=str @#; if kind_="": kind_:="0" fi;
+ if (kind_<>"0") and (kind_<>"1"):
+  errhelp "Will use default.";
+  errmessage "ES ERROR: don't know how to join";
+  kind_:="0";
+ fi
+ if distance(point length(p) of p,point 0 of p)<epsil.dist:
+  if (point length(p) of p)<>(point 0 of p):
+   info_es "Points " & dec_pair(point length(p) of p) &
+    " and " & dec_pair(point 0 of p) & " joined (cycle)";
+   if (tracingexpanding>0) and (proofing>0):
+    makelabel.lft.nodot("joined (cycle)",point length(p) of p);
+   fi
+  fi
+  make_cycle(p)
+ elseif kind_="0":
+  if miter_size<=0: % a special case, isn't it?
+   p--cycle
+  else:
+   save ta_,tb_,za_,da_,zb_,db_,zc_,zd_,ze_,zf_; pair za_,da_,zb_,db_,zc_,zd_,ze_,zf_;
+   za_=point length(p) of p; da_=direction length(p) of p;
+   zb_=point 0 of p; db_=direction 0 of p;
+   zc_=whatever[za_,za_+da_]=whatever[ze_,ze_+(zb_-za_)];
+   zd_=whatever[zb_,zb_+db_]=whatever[ze_,ze_+(zb_-za_)];
+   ze_=.5[za_,zb_]+miter_size*(unitvector(da_-db_));
+% we used to check |turningnumber(za_--zc_--zd_--zb_--cycle)|, but it was
+% not sufficiently robust
+   (ta_,tb_)=(za_--zc_) intersectiontimes (zd_--zb_);
+   if ta_<0: % |miter_size| in force:
+     p
+      if distance(point length(p) of p,zc_)>=epsil.dist: --zc_ fi
+      if (distance(zc_,zd_)>=epsil.dist)
+       and (length((point 0 of p)-zd_)>=epsil.dist): --zd_ fi
+     --cycle
+   else:
+    zf_:=point ta_ of (za_--zc_);
+    if abs(zf_-.5[za_,zb_])>abs(ze_-.5[za_,zb_]): % |miter_size| in force:
+     p
+      if distance(point length(p) of p,zc_)>=epsil.dist: --zc_ fi
+      if (distance(zc_,zd_)>=epsil.dist)
+       and (distance(point 0 of p,zd_)>=epsil.dist): --zd_ fi
+     --cycle
+    else:
+     p
+      if (distance(point length(p) of p,zf_)>=epsil.dist)
+       and (distance(point 0 of p,zf_)>=epsil.dist): --zf_ fi
+     --cycle
+    fi
+   fi
+  fi
+ elseif kind_="1":
+  p{direction length(p) of p}..{direction 0 of p}cycle
+ fi
+enddef;
+% ---
+vardef make_end@#(expr pr,pl) =
+ save kind_; string kind_; kind_:=str @#; if kind_="": kind_:="0" fi;
+ if (kind_<>"0") and (kind_<>"1"):
+  errhelp "Will use default.";
+  errmessage "ES ERROR: don't know how to end";
+  kind_:="0";
+ fi
+ if kind_="0": pr--pl--cycle
+ elseif kind_="1":
+  save za_,zb_; pair za_,zb_;
+  za_=1/2[point length(pr) of pr,point 0 of pl]
+   +(1/2((point length(pr) of pr)-(point 0 of pl)) rotated 90);
+  zb_=1/2[point length(pl) of pl,point length 0 of pr]
+   +(1/2((point length(pl) of pl)-(point 0 of pr)) rotated 90);
+  pr{direction length(pr) of pr}..za_..{direction 0 of pl}pl
+   {direction length(pl) of pl}..zb_..{direction 0 of pr}cycle
+ fi
+enddef;
+% ---
+vardef opt_tensions(expr p,b) =
+% for a given B\'ezier segment |p| and a distance |b|, an optimal pair of
+% `tensions' $(\alpha,\beta)$ is found using least square method such that
+% |bez_edge|$(p,b,\alpha,\beta)$ (see below) approximates the edge of
+% a circular pen of diameter |b| traversing |p| (more on the employed
+% method be found in the article of B. Jackowski and M. Ry\'cko:
+% ``Labyrinth of \MF paths in outline,'' proceedings of the 8th European
+% \TeX Conference, Sept. 26--30, 1994, Gda\'nsk, Poland)
+%
+ save alpha_,beta_,gx_,gy_,n_,t_,ta_,tb_,tc_,td_,u_,v_,nu_,nv_,x_,y_;
+ numeric alpha_,beta_,n_,ta_,tb_,tc_,td_,
+   gx_[\\],gy_[\\],gx_.alpha[\\],gy_.alpha[\\],gx_.beta[\\],gy_.beta[\\],
+   u_.x,u_.y,v_.x,v_.y,nu_.x,nu_.y,nv_.x,nv_.y,
+   x_[\\],y_[\\];
+ n_:=5; % perhaps for |n_|$=\infty$ algebraic formulas can be derived, but...
+ (u_.x,u_.y)=(postcontrol 0 of p)-(point 0 of p);
+ (v_.x,v_.y)=(precontrol 1 of p)-(point 1 of p);
+ (nu_.x,nu_.y)=unitvector(u_.x,u_.y); (nv_.x,nv_.y)=unitvector(v_.x,v_.y);
+ for t_:=0 upto n_:
+  (x_[t_],y_[t_])=(point t_/n_ of p)+b*((udir t_/n_ of p) rotated -90);
+ endfor
+ for t_:=1 upto n_-1:
+  td_:=t_/n_; ta_:=1-td_; tb_:=3ta_*ta_*td_; tc_:=3ta_*td_*td_;
+  ta_:=ta_*ta_*ta_; td_:=td_*td_*td_;
+  gx_[t_]=ta_*x_0+tb_*(x_0+alpha_*u_.x)+tc_*(x_[n_]+beta_*v_.x)+td_*x_[n_];
+  gx_.alpha[t_]=tb_*nu_.x; gx_.beta[t_]=tc_*nv_.x;
+  gy_[t_]=ta_*y_0+tb_*(y_0+alpha_*u_.y)+tc_*(y_[n_]+beta_*v_.y)+td_*y_[n_];
+  gy_.alpha[t_]=tb_*nu_.y; gy_.beta[t_]=tc_*nv_.y;
+ endfor
+ 0=0 for t_:=1 upto n_-1:
+   +((gx_[t_]-x_[t_])*gx_.alpha[t_]+(gy_[t_]-y_[t_])*gy_.alpha[t_])/n_
+  endfor;
+ 0=0 for t_:=1 upto n_-1:
+   +((gx_[t_]-x_[t_])*gx_.beta[t_]+(gy_[t_]-y_[t_])*gy_.beta[t_])/n_
+  endfor;
+%| (u_.x,u_.y)=(postcontrol 0 of p)-(point 0 of p);|
+%| (v_.x,v_.y)=(precontrol 1 of p)-(point 1 of p);|
+%| ta_:=1/4length((u_.x,u_.y))+1/4length((v_.x,v_.y))|
+%|  +1/4length((postcontrol 0 of p)-(precontrol 1 of p))|
+%|  +1/4length((point 0 of p)-(point 1 of p));|
+%| message "accuracy=" & decimal|
+%|   (0+for t_:=1 upto n_-1:+(((gx_[t_]-x_[t_])++(gy_[t_]-y_[t_]))/ta_)/n_|
+%|  endfor);|
+%| message "   alpha=" & decimal(alpha_) & " beta=" & decimal(beta_);|
+%| for t_:=0 upto n_: fill fullcircle scaled 3 shifted (x_[t_],y_[t_]); endfor|
+%| for t_:=1 upto n_-1: makelabel("g" & decimal(t_),(gx_[t_],gy_[t_])); endfor|
+ (alpha_,beta_)
+enddef;
+% ---
+vardef bez_edge(expr p,b,uv) =
+ save za_,zb_,u_,v_; pair za_,zb_; u_:=xpart(uv); v_:=ypart(uv);
+ za_=b*((udir 0 of p) rotated -90); zb_=b*((udir 1 of p) rotated -90);
+ ((point 0 of p)+za_) .. controls (u_[point 0 of p,postcontrol 0 of p]+za_)
+  and (v_[point 1 of p,precontrol 1 of p]+zb_) .. ((point 1 of p)+zb_)
+enddef;
+% ---
+def remove_global_loops(suffix E) =
+begingroup
+% warning: we don't trust too much in the results of ex. 14.17 from
+% The \MF{}book, hence a ``par force'' approach; there still exist
+% weird cases (e.g., local loops) which remain unsolved, but in practice
+% the following algorithm should suffice:
+ save opt_,ta_,tb_; pair opt_;
+ opt_:=(0,length(E));
+ for i_:=0 upto length(E)-1:
+  for j_:=i_+2 upto length(E)-1:
+   numeric ta_,tb_;
+   (ta_,tb_)=(subpath (i_,i_+1) of E)
+    intersectiontimes (subpath (j_,j_+1) of E);
+   if (ta_>0) and ((ta_+i_)>xpart(opt_)) and ((tb_+j_)<ypart(opt_)):
+    opt_:=(ta_+i_,tb_+j_);
+   fi
+  endfor
+ endfor
+ if xpart(opt_)>0:
+  E:=make_cycle(subpath(xpart(opt_),ypart(opt_)) of E);
+ fi
+endgroup
+enddef;
+% ---
+vardef make_edge@#(expr p,b)=
+ save E_,e_,ta_,tb_,tc_,td_; path E_,e_[\\];
+ for i_:=0 upto length(p)-1:
+  E_:=subpath (i_,i_+1) of p; e_[i_]=bez_edge(E_,b,opt_tensions(E_,b));
+ endfor
+ E_:=e_0;
+ for i_:=1 upto length(p)-1:
+  if (length(p)=2) and (cycle p): % this is a peculiar case, indeed!
+   numeric ta_,tb_,tc_,td_;
+   (ta_,tb_)=E_ intersectiontimes e_[i_];
+   (1-tc_,1-td_)=reverse(E_) intersectiontimes reverse(e_[i_]);
+   if ta_>=0:
+    E_:=(subpath(min(ta_,tc_),max(ta_,tc_)) of E_)
+     && (subpath(min(tb_,td_),max(tb_,td_)) of e_[i_]);
+   else: E_:=make_join@#(E_,e_[i_]);
+   fi
+  else:
+   numeric ta_,tb_;
+   (ta_,tb_)=(subpath(length(E_)-1,length(E_)) of E_)
+    intersectiontimes e_[i_];
+   if ta_>=0:
+     E_:=(subpath (0,length(E_)-1+ta_) of E_)
+      && (subpath(tb_,1) of e_[i_]);
+   else: E_:=make_join@#(E_,e_[i_]); fi
+  fi
+ endfor
+ if cycle p:
+  remove_global_loops(E_);
+  if not (cycle E_): E_:=make_cyclic_join@#(E_); fi
+ fi
+ E_
+enddef;
+% ---
+def expand_stroke(text P)(expr b) suffix R =
+begingroup interim autorounding:=0;
+ numeric PATH_.num; path PATH_[\\];
+ PATH_.num:=0; for P_:=P: PATH_[incr PATH_.num]:=touch_path(P_); endfor
+ if not path R0: numeric R.num; path R[\\]; fi
+ if (unknown R.num) or (unknown append_results): R.num:=0; fi
+ if unknown join_kind: save join_kind; join_kind=0; fi
+ if unknown end_kind: save end_kind; end_kind=0; fi
+ for i_:=1 upto PATH_.num:
+  if not cycle PATH_[i_]:
+   R[incr R.num]:=make_end[end_kind]
+     (make_edge[join_kind](PATH_[i_],b),
+      reverse make_edge[join_kind](PATH_[i_],-b));
+  else:
+   R[incr R.num]:=make_edge[join_kind](PATH_[i_],b);
+   R[incr R.num]:=reverse make_edge[join_kind](PATH_[i_],-b);
+  fi
+ endfor
+ for i_:=1 upto R.num: R[i_]:=clean_path(clean_path(R[i_])); endfor
+endgroup
+enddef;
+% ---
+def change_weight(text P)(expr b) suffix R =
+begingroup interim autorounding:=0;
+ numeric PATH_.num; path PATH_[\\];
+ PATH_.num:=0; for P_:=P: PATH_[incr PATH_.num]:=touch_path(P_); endfor
+ if not path R0: numeric R.num; path R[\\]; fi
+ if (unknown R.num) or (unknown append_results): R.num:=0; fi
+ if unknown join_kind: save join_kind; join_kind=0; fi
+ for i_:=1 upto PATH_.num:
+% non-cyclic paths are ignored
+  if cycle PATH_[i_]: R[incr R.num]:=make_edge[join_kind](PATH_[i_],b); fi
+ endfor
+endgroup
+enddef;
+% ---
+def info_ro expr s = if tracingremoving>0: message s; message ""; fi enddef;
+def info_es expr s = if tracingexpanding>0: message s; message ""; fi enddef;
+% ---
+% DEFAULTS:
+% ---
+def roex_default text t =
+ forsuffixes S_:=t:
+  if str S_ = "good_colors":
+% the formula |good_colors(p,q) and good_colors(q,p)| must be |false|!
+   vardef good_colors(expr i,o) = ((i>=1) and (o<=0)) enddef;
+  elseif str S_ = "touch_path":
+   vardef touch_path(expr p) = p enddef;
+  elseif str S_ = "background_color": background_color:=0;
+  elseif str S_ = "miter_size":
+   miter_size:=10pixels_per_inch/72; % i.e., 10bp
+% incidentally, |10bp| would convert to |10.00002| during export at |300dpi|
+  elseif str S_ = "epsil.ang": epsil.ang:=1/10; % in degrees
+  elseif str S_ = "epsil.dist": epsil.dist:=1/10pt; % ca |2/5|pxl at |300dpi|
+  elseif str S_ = "epsil.time": epsil.time:=1/100;
+  elseif str S_ = "epsil.len": epsil.len:=1/1000; % used in |turn_ang|
+  elseif str S_ = "max_idx": max_idx:=125;
+  elseif str S_ = "enc":
+% |enc| is a prefix of a data structure used in checking tangent
+% points and searching for the leftmost edge; |enc.pth| is in both
+% cases scaled differently
+   vardef enc.pth = fullcircle enddef; enc.len:=length(enc.pth);
+  fi
+ endfor
+enddef;
+%
+roex_default good_colors, touch_path, background_color, miter_size,
+ epsil.ang, epsil.dist, epsil.time, epsil.len, max_idx, enc;
+% ---
+numeric append_results; % initially unknown
+newinternal tracingleftmost; tracingleftmost:=0;
+newinternal tracingremoving; tracingremoving:=0;
+newinternal tracingexpanding; tracingexpanding:=0;
+% ---
+endinput
+%%\end
+

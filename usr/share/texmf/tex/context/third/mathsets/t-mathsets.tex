@@ -1,0 +1,140 @@
+%M \setuphead[section]  [page=]
+
+%D \module
+%D   [       file=t-mathsets,
+%D        version=2007-02-25,
+%D          title=Math Sets,
+%D       subtitle=\CONTEXT\ port of \filename{braket.sty},
+%D         author={Aditya Mahajan},
+%D          email={adityam [at] umich [dot] edu},
+%D           date=\currentdate]
+  
+%M \usemodule[mathsets] 
+
+%D \section Introduction
+%D
+%D I write a lot of probability expressions, which look like
+%D \startformula
+%D \mfunction{E} \left\{ \sum_{y} f(X,y) \,\middle|\, Z \right\}
+%D \stopformula
+%D The delimiters should scale properly, and so should the {\em
+%D conditional} sign \type{|}. Moreover the spacing around the
+%D conditional sign should be correct. This ensures that the resultant
+%D \TEX\ code is almost unreadable.  In \LATEX\ I used to use Donald
+%D Arseneau's \filename{braket.sty} to typeset should expressions.
+%D \CONTEXT\ does not have anything similar. So, this is a port of
+%D \filename{braket.sty} functionality to \CONTEXT. I have not ported
+%D everything, only the features that I use. 
+%D
+%D \section Usage
+%D
+%D To use this module add
+%D \starttyping
+%D \usemodule[mathsets]
+%D \stoptyping
+%D on the top of your file. Now, a new {\em set} can be defined as follows:
+%D \startbuffer[EXP]
+%D \definemathset[EXP] [text=\mfunction{E}]
+%D \definemathset[PR]  [text={\mfunction{Pr}},left=(,right=)]
+%D \stopbuffer
+%D After which you can use 
+%D \startbuffer
+%D \startformula
+%D    \EXP{f(X) | Y} = \sum_{x} f(x) \PR{x|Y}
+%D \stopformula
+%D \stopbuffer
+%D \typebuffer
+%D \getbuffer[EXP] \getbuffer
+%D
+%D We can also run the example specified in \filename{braket.sty}
+%D documentation.
+%D
+%D \startbuffer
+%D \definemathset[BRAKET][left=\langle,right=\rangle]
+%D \definemathset[SET]
+%D
+%D \startformula
+%D   \BRAKET{ \phi | \frac{\partial^2}{\partial t^2} | \psi }
+%D   \SET{ x\in {\bf R}^2 | 0<{|x|}<5 }
+%D \stopformula
+%D \stopbuffer
+%D \typebuffer \getbuffer
+%D Notice that the \type{|} protected by \type<<{|}>> did not get
+%D expanded in the second expression.
+
+
+%D \section Implementation
+%D
+
+\unprotect
+
+%D Since two letter codes are reserved for system modules, and \CONTEXT\
+%D seems to be running out of those, I choose a more verbose variable to
+%D store options.
+
+\definesystemvariable {mathset}   % Math Set
+
+%D \macros{setupmathset}
+%D To specify the default values of left, middle, and right delimiters
+
+\def\setupmathset
+  {\dosingleargument\getparameters[\??mathset]}
+
+\def\definemathset
+  {\dodoubleargument\dodefinemathset}
+
+%D \macros{definemathset}
+%D To define new math delimiters
+
+\let\currentmathset\empty
+\let\currentmathsetgrouplevel\empty
+
+\def\mathsetmiddle
+  {\ifnum\currentmathsetgrouplevel=\currentgrouplevel
+      \expandafter\firstoftwoarguments
+    \else
+      \expandafter\secondoftwoarguments
+    \fi
+   {\egroup\,\middle\mathsetparameter\c!middle\,\bgroup}
+   {\mathsetparameter\c!middle}}
+
+\def\mathsetparameter#1%
+  {\executeifdefined{\??mathset\currentmathset#1}{\executeifdefined{\??mathset#1}\empty}}
+
+\def\dodefinemathset[#1][#2]%
+  {\getparameters[\??mathset#1][#2]
+   \setvalue{#1}{\dododefinemathset[#1]}}
+
+%D Since \type{|} is already active, we do not have to make it active
+%D again.
+
+\def\dododefinemathset[#1]#2#%
+  {\begingroup
+   \def\currentmathset{#1}
+   \edef\currentmathsetgrouplevel{\the\numexpr\currentgrouplevel+2\relax}
+   \mathcode`\|32768
+   \let|\mathsetmiddle
+   \def\mathsetarguments{#2}
+   \dodododefinemathset}
+
+%D The extra group in the definition of \type{dodododefinemathset} is
+%D so that such expressions turn out correct
+%D \getbuffer[EXP]
+%D \startformula
+%D \EXP{ \left(\frac {a}{b}\right) | 
+%D      \left( \frac{a} {\frac{b}{\sum c}} \right) }
+%D \stopformula
+
+\def\dodododefinemathset#1%
+  {\doifsomething{\mathsetparameter\c!text}
+    {\mathop{\mathsetparameter\c!text\mathsetarguments}}
+   \left\mathsetparameter\c!left{#1}\right\mathsetparameter\c!right
+   \endgroup}
+
+\setupmathset
+  [  left={\{},
+    right={\}},
+   middle=\vert]
+
+\protect
+

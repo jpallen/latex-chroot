@@ -1,0 +1,132 @@
+% vim: ts=8 sw=8
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%        File: mlsgalig.tex
+%      Author: Oliver Corff
+%        Date: November 1st, 1999
+%     Version: \VersionRelease
+%   Copyright: Ulaanbaatar, Beijing, Berlin
+%
+% Description: The mls pretty-spell subroutine
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\long\def\my@mls@galig#1{%
+     \t@kenbuffer={}%
+     \do@mlsgalig#1\ \end@mlsgalig\the\t@kenbuffer}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \do@mlsgalig, \dodo@mlsgalig and the outer loop of \evaluate
+% are shamelessly stolen from or modelled after Knuth's token
+% scanners demonstrated in the TeXbook, exercise 11.5, chapter
+% 20 and, most notoriously,  appendix D.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\do@mlsgalig{\afterassignment\dodo@mlsgalig\let\next= }
+
+\def\dodo@mlsgalig{\ifx\next\end@mlsgalig \let\next\relax
+ \else \prettify@mls\let\next\do@mlsgalig\fi
+ \next}
+
+\def\end@mlsgalig{\end@mlsgalig}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\let\following@char\empty % ditto
+\let\this@char\empty % general char var initialization
+%
+\newtoks\t@kenbuffer	% token buffer collects output
+%
+\newif\ifShowSpecialMLS	% Used for toggling token status
+\def\double@quote{''}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% The \evaluate construct appears in the TeXbook, disguised
+% as \\; see above for sources of inspiration.
+%
+\def\prettify@mls{\expandafter\if\space \next\ % <- Watch space and `%'!
+  \let\this@char\space%
+  \the\t@kenbuffer%
+  \t@kenbuffer={}%
+  \this@char%
+ \else%
+  \let\this@char\next%
+%  [[\expandafter\string\this@char]] % <- used for diagnostics only.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \if\this@char E%
+  	\t@kenbuffer=\expandafter{\the\t@kenbuffer \"a}%
+  \else%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \if\this@char O%
+  	\t@kenbuffer=\expandafter{\the\t@kenbuffer \"o}%
+  \else%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \if\this@char U%
+  	\t@kenbuffer=\expandafter{\the\t@kenbuffer \"u}%
+  \else%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \if\this@char S%
+  	\t@kenbuffer=\expandafter{\the\t@kenbuffer \sh}%
+  \else%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \if\this@char G%
+  	\t@kenbuffer=\expandafter{\the\t@kenbuffer \g}%
+  \else%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \if\this@char '%
+    \ifShowSpecialMLS
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer \fbox{\textsf{FVS1}}}%
+    \else%
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer '}%
+    \fi
+  \else%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \if\this@char "%
+      \ifShowSpecialMLS
+  	\t@kenbuffer=\expandafter{\the\t@kenbuffer \fbox{\textsf{FVS2}}}%
+      \else%
+  	\t@kenbuffer=\expandafter{\the\t@kenbuffer ''}%
+      \fi
+  \else%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \if\this@char *%
+      \ifShowSpecialMLS
+  	\t@kenbuffer=\expandafter{\the\t@kenbuffer \fbox{\textsf{*}}}%
+      \else
+  	\t@kenbuffer=\expandafter{\the\t@kenbuffer *}%
+      \fi
+  \else%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \if\this@char -%
+      \ifShowSpecialMLS
+  	\t@kenbuffer=\expandafter{\the\t@kenbuffer \fbox{\textsf{MSP}}}%
+      \else
+  	\t@kenbuffer=\expandafter{\the\t@kenbuffer -}%
+      \fi
+  \else%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \if\this@char =%
+      \ifShowSpecialMLS
+  	\t@kenbuffer=\expandafter{\the\t@kenbuffer \fbox{\textsf{MVS}}}%
+      \else
+  	\t@kenbuffer=\expandafter{\the\t@kenbuffer =}%
+      \fi
+  \else%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	\the\t@kenbuffer\this@char\t@kenbuffer={}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ \fi% <- end of evaluate else branch
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+ %
+ }% End of evaluate definition
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\endinput
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% The file mlsgalig.tex ends here.
+%
+% O. Corff, (c) 1999, Ulaanbaatar, Beijing, Berlin
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

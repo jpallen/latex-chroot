@@ -1,0 +1,250 @@
+% file: Elsevier.txs                              TeXsis version 2.14  
+% $Revision: 15.0 $  :  $Date: 91/07/09 19:24:09 $  :  $Author: myers $
+%======================================================================*
+%  Elsevier -- TeXsis style file for North-Holland Physics Publishers
+%
+%       \NorthHolland           North Holland proceedings format,
+%                               single column, left justified titles
+%       \NorthHollandTwo        North Holland double column proceedings
+%                               format, left justified titles
+%======================================================================*
+\ATunlock
+\emsg{\@comment\ Elsevier: North-Holland/Elsevier style}%
+
+%--------------------------------------------------*
+%       \NorthHolland -- North-Holland/Elsevier Proceedings Layout.
+% Single column with left justified title, author, and abstract, small
+% \parindent, intented subsections.
+%       Note that \author treats the first line as the author's name and
+% the following lines as addresses. You can can extend the author line
+% to more than one line by ending the lines with \
+
+\def\NorthHolland{%  North-Holland/Elsevier Proceedings
+   \auxswitchtrue                       % save tags and labels in .aux file
+   \refswitchtrue                       % save references in .ref file
+   \texsis                              % initialize
+   \def\Tbf{\twelvepoint\rm}%           % Title typestyle    
+   \def\tbf{\twelvepoint\rm}%           % section head typestyle
+   \twelvepoint%                        % 12 pt type
+   \parindent=0.65cm%                   % small indent
+   \hsize=16.8cm%                       % width
+   \vsize=25.0cm%                       % height
+   \nopagenumbers%                      % don't print page numbers
+   \showsectIDtrue%                     % show section numbers
+   \parskip=0pt plus0pt minus0pt\relax% % no stretch!
+   \advance\voffset by-0.5in\relax%     % fit page
+   \raggedbottom%                       % since no stretch
+   \let\@@@disclaimer=\disclaimer%      % save it
+   \def\disclaimer{%                    % in 12 pt
+      \let\tenrm=\twelverm%             %
+      \@@@disclaimer}%                  %
+%
+   \def\titlepage{%                     % for \NorthHolland
+      \bgroup                           % begin title page
+      \let\endmode=\relax               % define end
+      \pageno=1%                        % start on 1
+      \vbox{\vskip1.2cm}}%              % whitespace at top
+   \def\endtitlepage{%                  % for \NorthHolland
+      \endmode                          % end titlepage
+      \egroup%                          % end group
+      \doublespaced}%                   % double space below
+%
+   \def\title{%                         % for \NorthHolland
+      \endmode                          % end previous field
+      \bgroup\narrower%                 % margins
+      \let\endmode=\endtitle            % set up ending
+      \mark{Title Page\NX\else Title Page}% mark page so no \HeadLine
+      \flushleft%                       % left justified with line breaks
+      \hyphenpenalty=10000%             % no hyphens
+      \exhyphenpenalty=10000%           % no hyphens
+      \singlespaced}%                   % single spaced
+   \def\endtitle{%                      % for \NorthHolland
+      \endflushleft%                    % end flush left and group
+      \vskip\normalbaselineskip%        % skip a line
+      \egroup}%                         % end title group
+%
+   \def\author{%                        % for \NorthHolland
+      \endmode                          % end previous field
+      \bgroup\narrower%                 % margins
+      \let\endmode=\endauthor           % set up ending
+      \flushleft%                       % flush left
+      \@NHgetauthor}%                   % get author
+   \def\endauthor{%                     % for \NorthHolland
+      \vskip\normalbaselineskip%        % skip line - another in \abstract
+      \endflushleft%                    % end flush left
+      \egroup}%                         % end author group
+%
+   \def\abstract{%                      % for \NorthHolland
+      \endmode                          % end previous field
+      \vskip\normalbaselineskip         % skip second line
+      \bgroup\narrower%                 % margins
+      \let\endmode=\endabstract         % set up ending
+      \noindent}%                       % no indent
+   \def\endabstract{%                   % for \NorthHolland
+      \vskip0pt%                        % force vertical mode
+      \egroup}%                         % end abstract group
+   \let\section=\@NHsection%            % for \NorthHolland
+   \let\subsection\@NHsubsection%       % for \NorthHolland
+}%                                      % end \NorthHolland
+
+%       \@NHgetauthor is like \getauthor but left justifies and skips 
+% 1 line after author's name.
+{\obeylines
+ \gdef\@NHgetauthor#1
+    #2
+    {#1\vskip0pt\noindent{#2}%          % author line
+    \vskip1\normalbaselineskip}%        % blank line
+}
+
+%       \section for \NorthHolland
+
+\def\@NHsection#1{%                             % N.Holland section
+   \everysection%                               % user customization
+   \vskip 2\normalbaselineskip\goodbreak%       % make some space
+   \global\advance\sectionnum by \@ne           % increment section counter
+   \global\subsectionnum=\z@%                   % reset subsection counter
+   \edef\ttt{\@chaptID\the\sectionnum}%         % For use by \label
+   \s@ction%                                     % checkenv, etc..
+   \vbox{%                                      % heading in \vbox
+      \begingroup\raggedright                   % group for \tbf
+      \ifshowsectID                             % show section number?
+         \global\edef\@sectID{\the\sectionnum.}% yes: define section ID
+         \r@set%                                %   and reset counters
+         \setbox0=\hbox{\noindent\@chaptID\@sectID\space}% find width
+         \hangindent=\wd0\hangafter=1%          % hanging indent after 1st line
+         \noindent{\tbf{\@chaptID\@sectID\space}}%   and print sect ID
+      \else\gdef\@sectID{}%                     % no: section ID is null
+         \noindent                              %  just print section title
+      \fi                                       % end \ifshowsectID
+      {\tbf{#1}}\relax                          % Print title ragged in \tbf
+      \endgroup                                 % end \tbf
+      \nobreak\medskip}%                        % skip down some
+   \begingroup                                  % group for \contents, etc.
+      \def\label##1{}\def\goodbreak{}%          % disable \label & \goodbreak
+      \def\n{\ }\def\nl{\ }%                    % turn off \n
+      \def\mib{}%                               % turn off \mib
+      \emsg{Section \ttt.\space #1}%            % announce in .LIS and
+      \ifnum\chapternum=0%                      % no chapter number, so
+         \global\edef\HeadText{{\tenit #1}}\fi  % make running head the title
+      \addTOC{\ttt.}{\ #1}{1}%                  % add to table of contents
+      \def\sectiontitle{#1}%                    % for \aftersection
+   \endgroup%                                   % end \contents group
+   \nobreak%                                    % no break
+   \aftersection\nobreak}%                      % user can customize
+
+%       \subsection for \NorthHolland, with indented nonbold titles and
+% fixes for standard version.
+
+\def\@NHsubsection#1{%                          % N.Holland sub-section
+   \everysubsection%                            % user customization
+   \vskip\baselineskip\goodbreak%               % break 
+   \checkquote%                                 % make sure no open quotes
+   \global\advance\subsectionnum by\@ne%        % increment counter
+   \edef\ttt{\@chaptID\@sectID\the\subsectionnum.}% for \label
+   \vbox{%                                      % heading in \vbox
+      \begingroup\raggedright%                  % Print title ragged, indent
+         \ifshowsectID%                         % showing section numbers?
+         \setbox0=\hbox{\noindent\ttt\space}%   % find width
+         \hangindent=\wd0\hangafter=1\relax%    % hanging indent after 1st line
+         \ttt\space%                            % show subsection number
+         \fi #1\relax%                          % print the title
+      \endgroup%                                % end \bf
+      \nobreak\medskip%                         % skip down some
+      \nobreak\vskip-\parskip}%                 % cancel first \parskip
+   \begingroup%                                 % group for \contents, etc.
+      \def\label##1{}\def\goodbreak{}%          % disable \label & \goodbreak
+      \def\n{\ }\def\nl{\ }%                    % turn off \n
+      \def\mib{}%                               % turn off \mib
+      \emsg{\ttt\space #1}%                     % announce in .LIS and
+      \addTOC{\ttt}{\ #1}{2}%                   % add to table of contents
+      \def\subsectiontitle{#1}%                 % for \aftersection to use
+   \endgroup%                                   % end \contents group
+   \nobreak%                                    % no page break
+   \aftersubsection}%                           % room to customize
+
+
+%--------------------------------------------------*
+%       \NorthHollandTwo -   North-Holland/Elsevier proceedings layout in
+% double column format with titles left justified, eleven point type, etc.,
+% for camera-ready copy.  Constructed following directions in ``Instructions 
+% for the Preparation and Typing of Camera Ready Contributions'' by Mary 
+% Carpenter, Elsevier Publishers.
+
+\def\NorthHollandTwo{% North-Holland/Elsevier proceedings 2-column layout
+   \auxswitchtrue                       % save tags and labels in .aux file
+   \refswitchtrue                       % save references in .ref file
+   \texsis                              % initialize
+   \def\Tbf{\elevenpoint\bf}%           % Title typestyle    
+   \def\tbf{\elevenpoint\it}%           % section head typestyle
+   \setdoublecolumns{21.3cm}{27.1cm}{10.0cm}%
+   \parindent=0.6cm                     %
+   \advance\voffset by -2.2cm \relax    % as close to the top as possible
+   \advance\hoffset by -2.3cm \relax    % as close to the left as possible
+%
+   \emsg{ }
+   \emsg{The \NX\NorthHollandTwo document layout you have selected is}%
+   \emsg{too large to fit on one 8.5 x 11.0 page.  You should either}%
+   \emsg{print the output on an oversized printer or offset the output}%
+   \emsg{horizontally to get one column at a time. }%
+   \emsg{Please enter the horizontal OFFSET TO THE LEFT (with units!):}%
+   \read-1 to \tmp                      % read from terminal (use UNITS!)
+   \if\tmp\par \relax\else              % if blank line, ignore
+      \advance \hoffset by -\tmp\relax  % else move \hoffset left
+   \fi
+%
+   \def\titlepage{%                             % for \NorthHollandTwo
+      \pageno=1                                 %
+      \hbox{\ }%                                % anchor to top of page
+      \bgroup                                   %
+      \let\endmode=\relax                       % \endmode will end a field
+      \vskip 0.3cm                              % whitespace on title page
+      \narrower\parindent=0pt}%                 %
+   \def\endtitlepage{%                          % for \NorthHollandTwo
+      \endmode                                  % end any open field
+      \smallskip                                %
+      \egroup}%                                 %
+%
+   \def\title{%                                 % for \NorthHollandTwo
+      \endmode                                  % end previous field, if any
+      \mark{Title Page\NX\else Title Page}%     % so \HeadLine doesn't print
+      \bgroup                                   % begin title group
+      \flushleft                                % left justified 
+      \let\endmode=\endtitle                    %
+      \Tbf\widenspacing}%                       % \Tbf is Title boldface
+   \def\endtitle{%                              % for \NorthHollandTwo
+      \endflushleft                             %
+      \egroup%                                  % end title group
+      \bigskip}%                                %
+%
+   \let\getauthor=\LATauthor                    % see definition below
+   \def\endauthor{\par\egroup\medskip}%         %
+   \def\and{\smallskip{and}\smallskip}%         %
+%
+   \def\abstract{%                              % for \NorthHollandTwo
+      \endmode                                  % end any open field
+      \bigskip                                  %
+      \bgroup                                   %
+      \let\endmode=\endabstract                 %
+      \singlespaced\noindent}%                  %
+   \def\endabstract{%                           % for \NorthHollandTwo
+      \medskip\egroup\bigskip}%                 % 
+%
+   \elevenpoint                                 % eleven point type size
+   \parindent=0.6cm                             % paragraph indent
+   \autoparens                                  % auto-sizing of parens
+   \quoteon                                     % automatic begin/end quotes
+   \nopagenumbers                               % don't print page numbers
+   \singlespaced\whitespaced                    % 1.25 percent spacing
+}                                               % end of \NorthHollandTwo
+
+% \NorthHollandTwo replacement for \getauthor left justifies
+
+{\obeylines
+ \gdef\LATauthor#1
+  #2
+  {#1\bigskip\noindent{\bf #2}\medskip}%
+}
+
+\ATlock
+
+%>>> EOF Elsevier.txs <<<

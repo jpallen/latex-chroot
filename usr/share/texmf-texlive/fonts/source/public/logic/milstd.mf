@@ -1,0 +1,439 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       "milstd" font by Rick Simpson
+%       (published in UKTeX 1988, issue 30 (23 Sept. 1988))
+
+%       Contains a collection of special characters for
+%       use in logic diagrams
+
+
+%       To create the "milstd" font, use command:
+%               makefont milstd
+
+%       To use the characters in a PLAIN TeX document:
+%               \font\milstd=milstd         % define the font
+%               . . .
+%               {\milstd\char0}             % typeset the character
+
+%       To use the characters in a LaTeX document:
+%               \newfont{\milstd}{milstd}   % define the font
+%               . . .
+%               {\milstd\char0}             % typeset the character
+
+%       See "milstd.tex" for definitions to be used with TeX and LaTeX
+
+
+mode_setup;
+font_size 10pt#;
+
+picture pic;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       Slanting line at 45-degree angle for marking
+%       busses in logic diagrams.
+
+slwd#:=7pt#;
+define_pixels(slwd);
+
+beginchar(0,slwd#,slwd#,0);  "Slanted line for buss widths";
+
+x1 = 0;
+y1 = 0;
+
+x2 = slwd;
+y2 = slwd;
+
+pickup pencircle scaled 1pt;
+draw z1--z2;
+
+labels (range 1 thru 2);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       AND gate, facing to the right
+%
+
+gateunit# := 6pt#;
+
+gatea# := 2   * gateunit#;
+gateb# := 4   * gateunit#;
+gatec# := 2.5 * gateunit#;
+gated# := 2   * gateunit#;
+
+define_pixels(gatea,gateb,gatec,gated);
+
+beginchar(1,gatec#+gated#,gateb#,0);  "AND gate, right";
+
+x1 = x2 = 0;
+x3 = x5 = gatec;
+x4 = gatec + gated;
+
+y1 = y5 = 0;
+y2 = y3 = gateb;
+y4 = gatea;
+
+pickup pencircle scaled 1pt;
+draw z1--z2--z3{right}..z4..{left}z5--z1;
+
+pic := currentpicture;
+
+labels (range 1 thru 5);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       AND gate, facing down
+%
+
+beginchar(2,gateb#,gatec#+gated#,0);  "AND gate, down";
+
+currentpicture := pic rotated 270 shifted (0,gatec+gated);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       AND gate, facing to the left
+%
+
+beginchar(3,gatec#+gated#,gateb#,0);  "AND gate, right";
+
+currentpicture := pic rotated 180 shifted(gatec+gated,gateb);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       AND gate, facing up
+%
+
+beginchar(4,gateb#,gatec#+gated#,0);  "AND gate, up";
+
+currentpicture := pic rotated 90 shifted(gateb,0);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       NAND gate, facing to the right
+%
+
+gatee# := gateunit#;
+
+define_pixels(gatee);
+
+beginchar(5,gatec#+gated#,gateb#,0);  "NAND gate, right";
+
+x1 = x2 = 0;
+x3 = x5 = gatec;
+x4 = gatec + gated;
+x6 = x4 + gatee/2;
+
+y1 = y5 = 0;
+y2 = y3 = gateb;
+y4 = gatea;
+y6 = y4;
+
+pickup pencircle scaled 1pt;
+draw z1--z2--z3{right}..z4..{left}z5--z1;
+draw fullcircle scaled gatee shifted(z6);
+
+pic := currentpicture;
+
+labels (range 1 thru 6);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       NAND gate, facing down
+%
+
+beginchar(6,gateb#,gatec#+gated#,0);  "NAND gate, down";
+
+currentpicture := pic rotated 270 shifted (0,gatec+gated);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       NAND gate, facing to the left
+%
+
+beginchar(7,gatec#+gated#,gateb#,0);  "NAND gate, right";
+
+currentpicture := pic rotated 180 shifted(gatec+gated,gateb);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       NAND gate, facing up
+%
+
+beginchar(8,gateb#,gatec#+gated#,0);  "NAND gate, up";
+
+currentpicture := pic rotated 90 shifted(gateb,0);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       OR gate, facing to the right
+%
+
+gatef# := .75 * gateunit#;
+gateg# := 1.5 * gateunit#;
+gateh# := 3   * gateunit#;
+
+define_pixels(gatef,gateg,gateh);
+
+beginchar(9,gateg#+gateh#,gateb#,0);  "OR gate, right";
+
+x1 = x2 = 0;
+x3 = x5 = gateg;
+x4 = gateg + gateh;
+x6 = gatef;
+
+y1 = y5 = 0;
+y2 = y3 = gateb;
+y4 = y6 = gatea;
+
+pickup pencircle scaled 1pt;
+draw z1..z6..z2;
+draw z2--z3;
+draw z3{right}..{(1,-2)}z4;
+draw z4{-1,-2}..z5{left};
+draw z5--z1;
+
+pic := currentpicture;
+
+labels (range 1 thru 6);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       OR gate, facing down
+%
+
+beginchar(10,gateb#,gateg#+gateh#,0);  "OR gate, down";
+
+currentpicture := pic rotated 270 shifted (0,gateg+gateh);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       OR gate, facing to the left
+%
+
+beginchar(11,gateg#+gateh#,gateb#,0);  "OR gate, left";
+
+currentpicture := pic rotated 180 shifted(gateg+gateh,gateb);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       OR gate, facing up
+%
+
+beginchar(12,gateb#,gateg#+gateh#,0);  "OR gate, up";
+
+currentpicture := pic rotated 90 shifted(gateb,0);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       NOR gate, facing to the right
+%
+
+beginchar(13,gateg#+gateh#,gateb#,0);  "NOR gate, right";
+
+x1 = x2 = 0;
+x3 = x5 = gateg;
+x4 = gateg + gateh;
+x6 = gatef;
+x7 = x4 + gatee/2;
+
+y1 = y5 = 0;
+y2 = y3 = gateb;
+y4 = y6 = gatea;
+y7 = y4;
+
+pickup pencircle scaled 1pt;
+draw z1..z6..z2;
+draw z2--z3;
+draw z3{right}..{(1,-2)}z4;
+draw z4{-1,-2}..z5{left};
+draw z5--z1;
+draw fullcircle scaled gatee shifted (z7);
+
+pic := currentpicture;
+
+labels (range 1 thru 7);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       NOR gate, facing down
+%
+
+beginchar(14,gateb#,gateg#+gateh#,0);  "NOR gate, down";
+
+currentpicture := pic rotated 270 shifted (0,gateg+gateh);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       NOR gate, facing to the left
+%
+
+beginchar(15,gateg#+gateh#,gateb#,0);  "NOR gate, left";
+
+currentpicture := pic rotated 180 shifted(gateg+gateh,gateb);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       NOR gate, facing up
+%
+
+beginchar(16,gateb#,gateg#+gateh#,0);  "NOR gate, up";
+
+currentpicture := pic rotated 90 shifted(gateb,0);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       Buffer, facing to the right
+%
+
+gatei# := 3    * gateunit#;
+gatej# := .866 * gatei#;
+gatek# := 1.5  * gateunit#;
+
+define_pixels(gatei,gatej,gatek);
+
+beginchar(17,gatej#,gatei#,0);  "Buffer, right";
+
+x1 = x2 = 0;
+x3 = gatej;
+
+y1 = 0;
+y2 = gatei;
+y3 = gatek;
+
+pickup pencircle scaled 1pt;
+draw z1--z2--z3--z1;
+
+pic := currentpicture;
+
+labels (range 1 thru 3);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       Buffer, facing down
+%
+
+beginchar(18,gatei#,gatej#,0);  "Buffer, down";
+
+currentpicture := pic rotated 270 shifted (0,gatej);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       Buffer, facing to the left
+%
+
+beginchar(19,gatej#,gatei#,0);  "Buffer, left";
+
+currentpicture := pic rotated 180 shifted(gatej,gatei);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       Buffer, facing up
+%
+
+beginchar(20,gatei#,gatej#,0);  "Buffer, up";
+
+currentpicture := pic rotated 90 shifted(gatei,0);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       Inverter, facing to the right
+%
+
+beginchar(21,gatej#,gatei#,0);  "Inverter, right";
+
+x1 = x2 = 0;
+x3 = gatej;
+x4 = x3 + gatee/2;
+
+y1 = 0;
+y2 = gatei;
+y3 = y4 = gatek;
+
+
+pickup pencircle scaled 1pt;
+draw z1--z2--z3--z1;
+draw fullcircle scaled gatee shifted (z4);
+
+pic := currentpicture;
+
+labels (range 1 thru 4);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       Inverter, facing down
+%
+
+beginchar(22,gatei#,gatej#,0);  "Inverter, down";
+
+currentpicture := pic rotated 270 shifted (0,gatej);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       Inverter, facing to the left
+%
+
+beginchar(23,gatej#,gatei#,0);  "Inverter, left";
+
+currentpicture := pic rotated 180 shifted(gatej,gatei);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       Inverter, facing up
+%
+
+beginchar(24,gatei#,gatej#,0);  "Inverter, up";
+
+currentpicture := pic rotated 90 shifted(gatei,0);
+
+endchar;
+
+end;
+

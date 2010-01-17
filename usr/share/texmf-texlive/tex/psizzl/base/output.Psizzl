@@ -1,0 +1,200 @@
+% OUTPUT PSIZZL - output routine for publications
+% singlesided    : page numbers in fixed location
+% doublesided    : alternating page numbers at left/right
+% quadsided      : alternating page numbers at foot and top
+% nopagenumbers  : disables all pagenumbering
+% bottomcentered : bottom centered page numbers
+% topcentered    : top centered page numbers
+% bottomnumbers  : bottom outside page numbers
+% topnumbers     : top outside page numbers
+\newdimen\evenoffset\newdimen\oddoffset
+% Even and odd leaves of output are shifted by these respective amounts
+% in order to have a proper binding margin.
+\newcount\p@gecount
+\def\pageset#1{\p@gecount#1}%
+\def\p@geclear{\global\p@gecount\@ne}\adddef\fmtreset{\p@geclear}%
+\def\p@gefront{\global\p@gecount\m@ne}\adddef\resd@c{\p@gefront}%
+\newcount\le@f\le@f=\@ne
+\newcount\p@geroman\p@geroman\m@ne
+\newif\iffr@nt
+\newif\ifdoubleside
+\newif\ifquadside
+\def\singlesided{\quadsidefalse \doublesidefalse}%
+\def\doublesided{%
+   \quadsidefalse\doublesidetrue%\evenoffset.2in\oddoffset-.05in
+   }%
+\def\quadsided{%
+   \quadsidetrue\doublesidefalse%\evenoffset.2in\oddoffset-.05in
+   \let\endleaf\endle@f
+   }%
+\newif\ifp@genumberleft
+\newif\ifp@genumbertop
+\newif\ifp@genumbernone
+\newif\ifp@genumbercenter
+\adddef\resd@c{%
+   \let\frontnumbers=\bottomcentered\let\bodynumbers=\topoutside
+   }%
+\def\nopagenumbers{\p@genumbernonetrue}%
+\def\bottomcentered{\p@genumbertopfalse\p@genumbercentertrue}%
+\def\topcentered{\p@genumbertoptrue\p@genumbercentertrue}%
+\def\bottomoutside{\p@genumbertopfalse\p@genumbercenterfalse}%
+\def\topoutside{\p@genumbertoptrue\p@genumbercenterfalse}%
+\def\p@gehead{\ifp@genumbertop\p@genumberline\else\p@genumbernull\fi}%
+\def\p@gefoot{\ifp@genumbertop\p@genumbernull\else\p@genumberline\fi}%
+\def\b@ndp@ge#1#2{\ifp@genumberleft{#2}\else{#1}\fi}%
+\def\p@gebanner#1#2#3{%
+   \line{{\rm\lapline{\b@ndp@ge{#1}{#3}}{#2}{\b@ndp@ge{#3}{#1}}}}%
+   }%
+\def\lapline#1#2#3{\rlap{#1}\hfil#2\hfil\llap{#3}}%
+%
+% set up the defaults
+%
+\singlesided\topoutside % default pagenumbering format
+%
+\newinsert\margin\dimen\margin\maxdimen
+% This pagenumber is same as in PLAIN but does not impose \tenrm
+\gdef\p@genumber{{\bf\numorroman\p@gecount}}%
+\def\p@genumberline{%
+   \iffr@nt
+      \p@genumbernull
+      \else
+      \ifletter\p@genumberletter\else
+         \ifm@mo\p@genumbermemo\else
+            \p@genumberpaper
+            \fi
+         \fi
+      \fi
+   }%
+\def\p@genumbernull{\vbox to \z@{}}%
+\def\makep@genumber{% output.psizzl
+   \ifnum\p@gecount<\z@\frontnumbers\else\bodynumbers\fi
+   \ifdoubleside
+      \ifodd\pageno\hoffset\evenoffset\p@genumberleftfalse
+         \else\hoffset\oddoffset\p@genumberlefttrue
+         \fi
+      \fi
+   \ifquadside
+      \ifodd\pageno\p@genumberlefttrue\else\p@genumberleftfalse\fi
+      \ifodd\le@f
+         \p@genumbertopfalse\voffset\evenoffset
+         \else\p@genumbertoptrue\voffset\oddoffset
+         \fi
+      \fi
+   \ifp@genumbernone\fr@nttrue\fi
+   \count\@ne\number\p@gecount
+   %\count\tw@\number\le@f
+   }%
+\def\p@gecontents{%
+   \ifvoid\margin\else
+      \p@gebanner{}{}{%
+         \hbox to\z@{\b@ndp@ge{}{\hss}%
+            \hbox{\vbox to \z@{\box\margin\vss}}\b@ndp@ge{\hss}{}%
+            }%
+         }%
+      \fi
+   \ifvoid\topins\else\unvbox\topins\fi
+   \unvbox\@cclv
+   \ifvoid\footins\else\vskip\skip\footins\vskip-0.68ex
+      \hrule width.25\hsize\vskip1.82ex
+      \unvbox\footins
+      \fi
+   \ifr@ggedbottom\vfill\fi
+   }%
+\def\p@gebox#1{%
+   \vbox{% \boxmaxdepth=\the\maxdepth\offinterlineskip
+      %\offinterlineskip
+      \p@gehead\vskip\normalbaselineskip
+      \c@lumnbox{#1}%
+      \vskip\normalbaselineskip\p@gefoot
+      }%
+   }%
+\def\c@lumnbox#1{%
+   \vbox to \vsize{#1}%
+   }%
+\def\bumple@fnumber{% counter for total leaves. Quad: Two pages per leaf
+   \ifodd\pageno\global\advance\le@f\@ne\fi
+   }%
+\def\bumpp@genumber{%
+   \iffr@nt\global\fr@ntfalse\fi
+   \ifnum\p@gecount<\z@ % register for the page label `page number'
+      \global\advance\p@gecount\m@ne
+      \global\p@geroman=\number\p@gecount
+      \else\global\advance\p@gecount\@ne
+      \fi
+   \global\advance\pageno\@ne % counter for total pages
+   }%
+\def\fmtoutput#1{%
+   \makep@genumber\l@twrite\shipout#1\bumpp@genumber\bumple@fnumber
+   }%
+\def\eject@ns{%
+   \ifnum\outputpenalty>-20000 \else\dosupereject\fi
+   }%
+\output{\fmtoutput{\p@gebox{\p@gecontents}}\eject@ns}%
+\newdimen\pagesize\pagesize\hsize
+\newcount\c@lumncount\newcount\c@lumntotal
+\def\gutter{\thinvrule}%
+\def\pageline{\hbox to\pagesize}%
+\newbox\c@lumni\newbox\c@lumnii\newbox\c@lumniii
+\newbox\c@lumniv\newbox\c@lumnv
+\def\@@nd{\endmulticolumn\@nd}\let\@nd\end
+\def\beginmulticolumn#1{% arg = number of columns per page < 6
+   \@ndmulticolumn
+   \topskip\z@\r@ggedbottomtrue
+   \c@lumntotal#1\c@lumncount\c@lumntotal
+   \pagesize\hsize\let\g@tter\gutter % save \gutter where it can't go bad
+   \setbox\z@\hbox{\g@tter}\advance\hsize\wd\z@
+   \divide\hsize\number\c@lumntotal\advance\hsize-\wd\z@ % new \hsize
+   \output{\multic@lumn{\c@lumnbox{\p@gecontents}}\eject@ns}%
+   }%
+\def\@ndmulticolumn{%
+   \endpage\supereject
+   \message{\string\c@lumncount=\number\c@lumncount}%
+   \loop\ifnum\c@lumncount<\c@lumntotal\null\endpage\repeat
+   \hsize\pagesize\c@lumntotal\@ne
+   \let\markl\empty\let\markr\empty\let\marko\empty % null these, too
+   }%
+\def\endmulticolumn{%
+   \mark{}\@ndmulticolumn
+   }%
+\def\multic@lumn#1{\rm % switch back just in case
+   \def\l@toutput{%
+      \l@twrite\let\leftline\z@\let\bf\z@
+      \let\allmark\z@\let\nomark\z@\let\inimark\z@
+      }%
+   \ifx\markl\empty
+      {\l@toutput\xdef\markl{\firstmark}}%
+      {\let\allmark\relax\let\nomark\relax\let\inimark\relax
+         \setbox\z@\hbox{\titleline\markl}%
+         \setbox\@ne\hbox{\titleline\empty}%
+         \ifdim\wd\z@=\wd\@ne
+         {\l@toutput\xdef\markl{\botmark}}%
+            \fi
+         }%
+      %\message{\string\markl=\markl.}%
+      \fi
+   \ifcase\c@lumncount
+      \or\c@lumnformat{#1}\or\s@tb@x\c@lumni#1\or\s@tb@x\c@lumnii#1%
+      \or\s@tb@x\c@lumniii#1\or\s@tb@x\c@lumniv#1\or\s@tb@x\c@lumnv#1%
+      \fi
+   \global\advance\c@lumncount\m@ne
+   % if the current heading is not yet finished,
+   % insert the column header for this heading into the vertical list
+   \botmark
+   }%
+\def\g@tb@x#1{\ifdim\wd#1=\z@\else\box#1\g@tter\fi}%
+\def\s@tb@x{\global\setbox}%
+\def\c@lumnformat#1{%
+   \fmtoutput{%
+      \vbox{%
+         \p@gehead
+         {\l@twrite
+            \pageline{%
+               \g@tb@x\c@lumnv\g@tb@x\c@lumniv\g@tb@x\c@lumniii
+               \g@tb@x\c@lumnii\g@tb@x\c@lumni#1\hfil
+               }%
+            }%
+         \p@gefoot
+         }%
+      \global\advance\c@lumncount\c@lumntotal
+      }%
+   }%

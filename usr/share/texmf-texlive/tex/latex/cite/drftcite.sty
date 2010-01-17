@@ -1,0 +1,359 @@
+%     D R F T C I T E . S T Y
+%
+%     version 3.9  (Nov 2001)
+%
+%     Print the tags instead of the numbers for \cite.  This is meant as a 
+%     companion to cite.sty and overcite.sty, when used without bibtex,
+%     and is not fully general.
+%
+%     Copyright (C) 1989,1991-1997,2001 by Donald Arseneau
+%     These macros may be freely transmitted, reproduced, or modified
+%     provided that this notice is left intact.
+%
+%     Instructions are below, after \endinput.
+% ........................
+%
+% First, ensure that some catcodes have the expected values
+\edef\citenum{% to restore funny codes
+  \catcode\string`\string ` \the\catcode\string`\`
+  \catcode\string`\string ' \the\catcode\string`\'
+  \catcode\string`\string = \the\catcode\string`\=
+  \catcode\string`\string _ \the\catcode\string`\_
+  \catcode\string`\string : \the\catcode\string`\:}
+\catcode\string`\`12 \catcode`\'12 \catcode`\=12 \catcode`\_8 \catcode`\:12
+
+%   Handle formatting hooks:
+%   \citeform,\citeleft,\citeright,\citemid,\citepunct
+%
+%   Set defaults:
+
+%   [ on the left.
+\@ifundefined{citeleft}{\let\citeleft=[}{}
+
+%   ] on the right:
+\@ifundefined{citeright}{\let\citeright=]}{}
+
+%   , (comma space) before note
+\@ifundefined{citemid}{\def\citemid{,\penalty\@lowpenalty\ }}{}
+
+%   , (comma space) between entries
+\@ifundefined{citepunct}{
+% Default: To put space after the comma.  [nospace] eliminates the space
+   \def\citepunct{,\penalty\@lowpenalty\ }%
+  }{}
+
+%   Each citation tag left as-is:
+\@ifundefined{citeform}{\def\citeform{}}{}
+
+%   Do not repeat warnings.  [verbose] reverses
+\let\oc@verbo\relax
+
+%  Use \citen to give citation name without the other formatting.
+%
+\edef\citen{\noexpand\protect \expandafter\noexpand\csname citen \endcsname}
+
+\@namedef{citen }#1{%
+\begingroup
+\@docite{#1}% do everything
+\endgroup}
+
+% Make \cite robust.
+%
+\edef\cite{\noexpand\protect\expandafter\noexpand\csname cite \endcsname}
+
+\@namedef{cite }{\@ifnextchar [{\@tempswatrue\@citex}{\@tempswafalse\@citex[]}}
+
+%  Make \@citex refer to \citen:
+%  (Put a single space before the output)
+%
+\def\@citex[#1]#2{\@cite{\citen{#2}}{#1}}%
+
+%  Replacement for \@cite which defines the formatting normally done
+%  around the citation list.  Minor changes can be done by changing 
+%  \citeleft, \citemid, and \citeright; but in other cases it might
+%  be necessary to redefine the whole macro.
+%
+\def\@cite#1#2{\leavevmode \cite@adjust
+  \citeleft{#1\if@tempswa \@safe@activesfalse\citemid{#2}\fi
+  \spacefactor\@m % punctuation in note doesn't affect outside
+  }\citeright}
+
+%  Put a penalty before the citation, and adjust the spacing: if no space
+%  already or if there is extra space due to some punctuation, then change
+%  to one inter-word space.
+%
+\@ifundefined{cite@adjust}{\def\cite@adjust{\begingroup
+  \@tempskipa\lastskip \edef\@tempa{\the\@tempskipa}\unskip
+  \ifnum\lastpenalty=\z@ \penalty\@highpenalty \fi
+  \ifx\@tempa\@zero@skip \spacefactor1001 \fi % if no space before, set flag
+  \ifnum\spacefactor>\@m \ \else \hskip\@tempskipa \fi
+  \endgroup}}{}
+
+\edef\@zero@skip{\the\z@skip}
+
+% \nocite: This is changed to ignore *ALL* spaces and be robust.  The
+% parameter list, with spaces removed, is `returned' in \@no@sparg, which
+% is used by \citen.
+%
+\edef\nocite{\noexpand\protect\expandafter\noexpand\csname nocite \endcsname}
+
+\@namedef{nocite }#1{\@bsphack \begingroup
+ \let\@dftc@hbox\@gobble \let\citepunct\@empty
+ \@docite{#1}\endgroup\@esphack}
+
+% \@docite: Does most of the work for both \cite and \nocite.
+%
+\def\@docite#1{\begingroup\let\protect\string% normalize active chars
+   \xdef\@no@sparg{\expandafter\@ignsp#1 \: }% and remove ALL spaces
+   \if@filesw \immediate\write\@auxout {\string\citation{\@no@sparg}}\fi
+ \endgroup
+ \let\@citea\@empty % no punctuation preceding first
+ \gdef\dftc@prenum{-1}%
+ \@for \@citeb:=\@no@sparg\do{%
+   \ifnum\dftc@cnum{\@citeb}<\z@ % undefined
+     \dftc@vdef{b@\@citeb\@extra@b@citeb}{\dftc@tag{-1}?}%
+     \G@refundefinedtrue \dftc@warn
+   \else % defined (0 or num)
+     \dftc@checksort
+   \fi
+   \@advancecitecount
+   \@citea \@dftc@hbox{\@dftc@nums\@citeverb{\@citeb}}%
+   \let\@citea\citepunct
+ }}
+
+\def\dftc@warn{\@warning{Citation `\@citeb' on page \thepage\space undefined}}
+
+% for ignoring *ALL* spaces in the input.  This presumes there are no
+% \outer tokens and no \if-\fi constructs in the parameter.  Spaces inside
+% braces are retained.
+%
+\def\@ignsp#1 {\ifx\:#1\@empty\else #1\expandafter\@ignsp\fi}
+
+%
+%  Give the citation tag as the label (even if another label is specified)
+%
+\def\@lbibitem[#1]#2{\global\@HighCite\z@
+  \item[\@biblabel{%
+    \ifnum\dftc@cnum{#2}>\z@ % cited
+     \DC@llap{$^{\dftc@cnum{#2}}$\ \ }%
+     \ifnum\dftc@cnum{#2}=\number 0#1\relax \else
+       \@warning {Bib item `#2' is in wrong order}%
+     \fi
+    \else % never cited 
+     \@warning {Reference `#2' was never cited}%
+    \fi
+    \@citeverb{#2}}\hfil]%
+  \if@filesw {\let\protect\string
+    \immediate\write\@auxout{\string\bibcite{#2}{#1}}}\fi
+  \ignorespaces}
+
+\def\@bibitem#1{\refstepcounter{\@listctr}\@lbibitem[\the\value{\@listctr}]{#1}}
+
+\def\@testdef #1#2#3{%
+  \def\reserved@a{#3}\protected@edef\@tempa{\csname #1@#2\endcsname}%
+  \ifx \@tempa\reserved@a  \else \@tempswatrue \fi}
+
+% Citations are tagged with their order of first-citation by prefacing 
+% \dftc@tag{<number>} to their definition.  If reference "foo" is number 
+% 11 in the bibliography, and is first-cited 7th in the text, then 
+% \b@foo will be redefined from "11" to "\dftc@tag{7}11" when foo is
+% first cited.  A (pretend) tag number of 0 is used to indicate an uncited
+% reference, and -1 indicates that "foo" was not defined by the bibliography
+% (also when LaTeX isn't run enough times).
+%
+\def\dftc@cnum#1{\expandafter\expandafter\expandafter \dftc@cnumx 
+  \csname b@#1\@extra@b@citeb\endcsname \dftc@tag 0\:}
+\def\dftc@cnumx#1\dftc@tag#2#3\:{\ifx\relax#1-1\else#2\fi}
+
+%
+%  make the special characters in the citation tag printable
+%
+\def\@citeverb#1{%
+ {\citeform{% to get characters <>_|{}: \citeform->\tt
+   \expandafter \expandafter \expandafter \@gobblethree %  do \csname, \string,
+   \expandafter \string\csname b@#1\endcsname}%     %  \@gobble, in that order.
+}}%
+
+\long\def\@gobblethree#1#2#3{}
+
+\let\dftc@tag\@gobble
+
+%   \@extra@b@citeb is a hook for other style files to further specify
+%   citations; for example, to number by chapter.
+%   In case no fancy bib package (chapterbib) defines it:
+
+\@ifundefined{@extra@b@citeb}{\def\@extra@b@citeb{}}{}
+
+%     count the citations as they appear in the text
+%
+\def\@advancecitecount{\begingroup
+  \ifcase\dftc@cnum\@citeb % not cited yet
+     \global\advance\@HighCite\@ne
+     \toks@\expandafter\expandafter\expandafter
+       {\csname b@\@citeb\@extra@b@citeb\endcsname}%
+     \expandafter\xdef\csname b@\@citeb\@extra@b@citeb\endcsname{%
+       \noexpand\dftc@tag{\the\@HighCite}\the\toks@}%
+  \fi\endgroup}
+
+
+%------------------------------------
+%   Handle optional variations:
+
+\newcount\@HighCite \global\@HighCite\z@
+\let\@dftc@hbox\hbox
+\let\@dftc@nums\@empty
+\def\dftc@vdef{\global\@namedef}
+\let\DC@llap=\llap
+\let\dftc@checksort\@empty
+
+\def\nocitecount{%
+  \let\DC@llap=\@gobble
+  \let\@dftc@nums\@empty
+  \let\@advancecitecount\@empty
+  \let\dftc@checksort\@empty}
+
+
+\@ifundefined{DeclareOption}{}%
+{ \DeclareOption{nocitecount}{\nocitecount}
+  \DeclareOption{verbose}{\let\dftc@vdef\@gobbletwo}
+  \DeclareOption{tt}{\def\citeform{\tt}}
+  \DeclareOption{nospace}{\def\citepunct{,\penalty\z@}}
+  \DeclareOption{space}{\def\citepunct{,\ }}
+  \DeclareOption{breakcites}{\let\@dftc@hbox\relax}
+  \DeclareOption{shownumbers}{\let\@dftc@nums\relax}
+  \DeclareOption{manualsort}{\let\dftc@checksort\relax}
+  \ProvidesPackage{drftcite}[2001/11/20 \space  v 3.9]
+  \ProcessOptions }
+
+
+\ifx\@dftc@nums\relax
+\def\@dftc@nums{\leavevmode\raise1.4ex\rlap{\the\scriptfont\z@
+  \csname b@\@citeb\@extra@b@citeb\endcsname\ 
+  (\dftc@cnum\@citeb)}}%
+\fi
+
+\ifx\@advancecitecount\@empty \nocitecount \endinput \fi
+
+%
+% Check if cites in a \cite{a,b,c} are increasing.
+%
+\ifx\dftc@checksort\relax
+\def\dftc@checksort{%
+  \edef\dftc@enum{\number0\csname b@\@citeb\@extra@b@citeb\endcsname}%
+  \ifnum \z@<\dftc@enum\relax % is numeric
+   \ifnum\dftc@prenum<\dftc@enum\relax
+   \else
+    \@warning {Citation `\@citeb' number \dftc@enum\space
+      cited on page \thepage\space is given out of order}%
+   \fi
+   \global\let\dftc@prenum\dftc@enum%
+  \fi}
+\fi
+
+%  The remainder handles (counting over) input files skipped by \includeonly.
+%  It adds code to LaTeX's \include to re-read the .aux file checking the
+%  \citation commands.
+%
+%  For included files that are skipped (not listed by \includeonly)
+%  input the .aux file ignoring all commands but \citation, which
+%  does \@advancecitecount (keeps count of the citations).  This adds
+%  a requirement for other style files that add commands to the .aux
+%  file:  the commands must be safe to execute an extra time.
+%
+\let\@dftc@include\include
+\def\include#1{\relax
+ \ifx\DC@llap\llap \begingroup % do counting only if wanted
+  \@ifundefined{cp@#1}{}% don't do if .aux file not there!
+   {\toks@\expandafter\expandafter\expandafter{\csname cp@#1\endcsname}%
+   \expandafter\xdef\csname cp@#1\endcsname{\the\toks@
+    \noexpand\@dftc@auxcite{#1}}}%
+ \endgroup\fi \@dftc@include{#1}}
+%
+\def\@dftc@auxcite#1{\begingroup % disable everything but \citation
+  \let\bibcite\@gobbletwo \let\newlabel\@gobbletwo \let\@writefile\@gobbletwo
+  \let\bibdata\@gobble \let\bibstyle\@gobble % already \@gobble normally
+  \def\citation##1{\@for\@citeb:=##1\do {\@advancecitecount}}%
+  \makeatletter\@input{#1.aux}\endgroup
+}
+\endinput
+
+
+%     D R F T C I T E . S T Y
+%
+%     version 3.9  (Nov 2001)
+%
+%  This package makes LaTeX use the identifying label instead of the number
+%  for citations, as if the bibliography had entries like \bibitem[name]{name}
+%  but LaTeX writes the proper citation number to the aux file for later runs.
+%  This package is meant for draft copies documents using numeric citations,
+%  particularly those that will use cite.sty or overcite.sty but not bibtex.
+%
+%  The \citen command is provided, as in cite.sty, to print just the citation
+%  or list of citations without the brackets and other formatting.
+%
+%  Drftcite keeps track of which references were cited, and issues warnings
+%  for bibliography items that were never cited in the text.
+%
+%  This package also keeps track of the order of first-citations in the text
+%  for easy sorting (in lieu of BibTeX).  The cite-order is displayed in the 
+%  bibliography along with the tags.  
+%
+%  Both the cite-order number and the bibliography numbers can be displayed
+%  as superscripts with the citations; use option [shownumbers].
+%  
+%  The characters <>|_{}\ are not present in the cm roman fonts, so if you use
+%  them in identifiers, they will have to be typeset in typewriter style.
+%  To do this, give package option [tt], or redefine \citeform as {\tt}.
+%
+%  `Citation...undefined' warnings are only given once per undefined
+%  citation name.  In the text, missing numbers are represented with a
+%  bold `name?'.   To restore multiple warnings, use option [verbose].
+%
+%  Options for \usepackage are:
+%  [space]    -  Separate printed names with comma-space (Default).
+%  [nospace]  -  Print just a comma (not comma-space) after each name.
+%  [breakcites]  - Allow each printed name to be broken (hyphenated).
+%  [verbose]  -  Give warning every time an undefined citation is used.
+%  [tt] -        Use tt font for citation tags
+%  [shownumbers] - show superscript: bib-number (cite-order) with the cite tags
+%  [manualsort]  - Issue warnings when \cite tags are out of numeric order.
+%  [nocitecount] - Disable all numbering/sorting functions.
+%
+%  There are several commands that you may redefine (using \renewcommand)
+%  to change the formatting of citation lists:
+%
+%   command       function                   default
+%  ----------    -----------------------    ----------------------------
+%  \citeform     reformats every entry      nothing
+%  \citepunct    printed between numbers    comma + space
+%  \citeleft     left delimiter of list     [
+%  \citeright    right delimeter of list    ]
+%  \citemid      printed before note        comma + space
+%
+%  This version of drftcite can co-exist with chapterbib.sty (version 1.4
+%  or later).
+%
+%  [This file is named "drftcite" because "draftcite" is too long a name for
+%   some computers.  Sorry to those who use the spelling "draught."  I could
+%   have abbreviated the name by selecting the shared letters in "draft" and
+%   "draught," but "dratcite" somehow conveys the wrong meaning.]
+%
+% Version 1991: Ignore spaces after commas in the parameter list. Create
+%    \nocitecount to turn off counting the order of citations.
+% Version 3.1 (1992): protect \cite and \citen. (There is no version 3.0)
+% Version 3.2 (1993): Supress repetitions of warning messages.  Include
+%    \@extra@b@citeb hook for chapterbib.sty.  Make \include handle case that
+%    \cp@FOO was not defined.
+% Version 3.3 (1993): Fix \nocitecount. Change printing of undefined refs.
+% Version 3.4 (1994): LaTex2e support, including spaces in protected command
+%    names; better chapterbib support.
+% Version 3.5 (1995): Add tests before removing space + options from cite.sty.
+%    change \@citeverb to not eat hash space.
+% Version 3.9 (2001): Change a whole lot...and not thoroughly checked.
+%
+% Send problem reports to asnd@Reg.triumf.ca
+%
+% Test integrity of file:
+% brackets:  round, square, curly, angle:   () [] {} <>
+% backslash, slash, vertical, at, dollar, and: \ / | @ $ &
+% hat, grave, acute (apostrophe), quote, tilde, under:   ^ ` ' " ~ _

@@ -1,0 +1,85 @@
+%
+% llmligtb.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Ligatures
+% This file should be called for monospaced fonts !
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% The following ligatures are integrated:
+%
+% for CM fonts
+% !`
+% ?`
+% for T2
+% --  gives -
+% --- gives --
+% -<hyphenchar> gives <hyphenchar>
+% common
+% <<
+% >>
+% ,,
+% ''
+% ``
+%
+
+LHver_check(3,5); % like |version_check| in ec
+
+if known spanish_shriek: % for CM fonts only
+
+   ligtable "!": "`" =: spanish_shriek;
+   ligtable "?": "`" =: spanish_query;
+
+fi
+
+if genmode="ex": % for T2 only
+
+%english quotes
+   ligtable "`": "`" =: oct"020";
+   ligtable "'": "'" =: oct"021";
+
+%dashes
+   ligtable "-":
+	 "-"	  =: oct"025", % number range dash equals "-"
+         oct"177" =: oct"177"; % <hyphen><hyphenchar> => <hyphenchar>
+%
+fi
+
+
+% ligatures for cyrillic quotes
+if (altcoding and (ligs <> 0)) % for CM
+   or (genmode="ex"): % if T2 started
+
+      beginligtable
+         labelchar ([ASCII"<"]);
+            setlig ([ASCII"<"],CYR_.flqq);  % "<<"
+      endligtable;
+
+      beginligtable
+         labelchar ([ASCII">"]);
+            setlig ([ASCII">"],CYR_.frqq);  % ">>"
+      endligtable;
+
+      beginligtable
+         labelchar ([ASCII","]);
+            setlig ([ASCII","],CYR_.baseqq);  % ",,"
+      endligtable;
+
+fi  % ligatures for cyrillic quotes
+
+%
+endinput;
+%end of file

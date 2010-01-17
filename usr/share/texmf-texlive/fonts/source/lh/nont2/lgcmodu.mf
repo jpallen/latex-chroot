@@ -1,0 +1,167 @@
+%
+% lgcmodu.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Uppercase Cyrillic modified letters and variants
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% List of letternames
+%
+% Modified
+%
+% VG_hcrs
+% LAT_I_dsc
+% VDZHE
+%
+
+LHver_check(3,5); % like |version_check| in ec
+
+lhchar "Uppercase Cyrillic letter VG_hcrs - Variant GHE hcrossed";
+cyrchar(VG_hcrs,if monospace: 9u# else: 11u# fi-width_adj#, %G_width
+ cap_height#,0);
+if is_small_cap: getcharcode(Vg_hcrs); fi
+italcorr cap_height#*slant-beak_jut#-.25u#;
+adjust_fit(cap_serif_fit#,0);
+% upper_g;
+pickup tiny.nib; pos1(cap_stem,0); pos2(cap_stem,0);
+lft x1l=lft x2l=hround max(2u ,3u-.5cap_stem); top y1=h; bot y2=0;
+filldraw stroke z1e--z2e; % stem
+pickup crisp.nib; pos3(slab,90); pos4(hair,0);
+top y3r=h; x3=x1; rt x4r=hround(w-.75u); y4=good.y(y3l-beak)-eps;
+arm(3,4,e,beak_darkness,beak_jut);  % upper arm and beak
+if serifs: nodish_serif(1,2,a,1/3,cap_jut,b,1/3,.5cap_jut);  % upper serif
+ dish_serif(2,1,c,1/3,cap_jut,d,1/3,1.25cap_jut); fi % lower serif
+%%%%%
+% hcross
+pickup fine.nib; numeric outer_jut;
+outer_jut=if serifs: max(limit_dist,1.1cap_jut) else: 1.8u fi;
+pos5(bar,90); pos6(bar,90);
+top y5r=top y6r=vround (.52h+.5bar)+eps;
+x6=min(x1r+2outer_jut,lft x4l-1); x5=x1;
+filldraw stroke z5e--z6e;
+penlabels(0,1,2,3,4,5,6); endchar;
+
+lhchar "Uppercase Cyrillic letter LAT_I_dsc - Ukrainian I descender";
+cyrchar(LAT_I_dsc,max(6u#,4u#+cap_stem#),cap_height#,cap_sbeak#);
+if is_small_cap: getcharcode(lat_i_dsc); fi
+italcorr cap_height#*slant-.25u#;
+adjust_fit(cap_serif_fit#,
+ if serifs: cap_serif_fit# else:0 fi); %ur_serif_adj
+% upper_ukri; - borrowed from ec
+pickup tiny.nib; pos1(cap_stem,0); pos2(cap_stem,0);
+lft x1l=lft x2l=hround(.5w-.5cap_stem); top y1=cap_height; bot y2=0;
+filldraw stroke z1e--z2e; % stem
+if serifs or monospace:
+ dish_serif(1,2,a,1/3,1.05cap_jut,b,1/3,1.05cap_jut);  % upper serif
+ dish_serif(2,1,c,1/3,1.05cap_jut,d,1/3,1.05cap_jut);  fi % lower serif
+if slitex:
+ pickup crisp.nib;           % arms based on proportions of uppercase E
+ pos3(slab,90); pos4(slab if not serifs:+2stem_corr fi,-90);
+ x3=x4=x1; top y3r=h; bot y4r=0;
+ pos5(hair,0); pos6(hair,0); % top and bottom right arms
+ rt x5r=rt x6r=hround(w-u);
+ pos7(hair,180); pos8(hair,180); % top and bottom left arms
+ lft x7r=lft x8r=hround(u);
+ y5=y7=good.y(y3l-beak)-eps; % beak in case we ever want a beaked serif!
+ y6=y8=good.y(y4l+beak)+eps; % watch that this doesn't get too heavy
+ arm(3,5,a,darkness,jut); arm(3,7,b,darkness,jut); % top left and right arms
+ arm(4,6,c,darkness,jut); %arm(4,8,d,darkness,jut); %!!! % bottom left and right
+fi
+%%%%%
+% uppercase descender/ogonek
+if is_ogonek:
+   def the_pen=if known ogonek_pen: ogonek_pen
+       elseif serifs: tiny elseif is_bold: fisp else: fine fi
+   enddef;
+   % |stem| is drawn |tiny| pen, hence |tiny| in the following equation:
+   ogonek_pos=(if slitex: x8 else: x2
+                   if not serifs: l if is_bold: +.75tiny fi\\fi\\fi,.5the_pen)
+       if serifs and not is_egyptian: +(.5xvair,0) fi;
+   easy_ogonek(the_pen,7,8,9); % ogonek
+else:
+   numeric right_jut;
+   right_jut=if serifs: 1.414cap_jut
+	  else: hround if slitex: max(r-rt x2r-.65u,rt x6r-x1)
+		       else: (r-rt x2r-.65u)
+		       fi fi;
+   if not serifs:
+      numeric arm_thickness; arm_thickness=vround(slab-vair_corr);
+      save slab; slab:=arm_thickness; fi % bottom.desc.slab
+   r_serif(2,1,x,1/3,cap_jut,y,1/3,beak_darkness,right_jut,beak_jut); % lower right descender
+fi
+penlabels(1,2,3,4,5,6); endchar;
+
+lhchar "Uppercase Cyrillic letter VDZHE - T with tail";
+cyrchar(VDZHE,13u#-width_adj#,cap_height#,desc_depth#);
+if is_small_cap: getcharcode(Vdzhe); fi
+italcorr cap_height#*slant-beak_jut#-.25u#;
+adjust_fit(0,2.5u#); if odd(cap_stem-w): change_width; fi % symmetric
+% upper_t;
+if odd(cap_stem-w): change_width; fi % symmetric & all three equal
+pickup tiny.nib; pos1(cap_stem,0); pos2(cap_stem,0);
+lft x1l=lft x2l=hround(.5w-.5cap_stem); top y1=h; bot y2=0;
+filldraw stroke z1e--z2e; % stem
+pickup crisp.nib; pos3(slab,90); pos4(hair,0);
+top y3r=h; x3=x1; rt x4r=hround(w-.65u); y4=good.y(y3l-beak)-eps;
+arm(3,4,e,beak_darkness,.7beak_jut);  % right arm and beak
+pos5(hair,180); x5=w-x4; y5=y4;
+arm(3,5,f,beak_darkness,-.7beak_jut);  % left arm and beak
+%%%
+if serifs: dish_serif(2,1,c,1/3,1.414cap_jut,d,1/3,cap_jut);  %!!!% lower serif
+ nodish_serif(1,2,a,1/3,.5cap_jut,b,1/3,.5cap_jut); fi  % upper bracketing
+%%%%%
+w:=w+2.5u;
+% Tail_part(2);
+_zero:=2;
+_one:=6; _two:=7; _three:=8;
+_four:=9; _five:=10; _six:=11; _seven:=12; _eight:=13;
+%
+pickup tiny.nib;
+numeric bulb_diam;
+bulb_diam=max(currentbreadth+eps,min(.82d-1-eps,flare+(cap_stem-stem)));
+penpos[_one](vair,90); penpos[_two](vair,90);
+penpos[_three](cap_curve if hefty:-3stem_corr fi,0);
+y[_three]=.5[y[_one],-d]; x[_two]=max(.5w-.25u,w-7u);
+x[_one]=x[_zero]; x[_three]r=hround(w-u);
+x[_two]l:=x[_two]-.25cap_curve; y[_one]=y[_two]=.52h;
+{{interim superness:=more_super;
+ fill stroke super_arc.e([_three],[_two])..z[_one]e}};  % lobe
+if serifs: z[_four]=z[_three];
+ pos[_four](cap_curve if hefty:-3stem_corr fi,0);
+ pos[_five](vair',-90); bot y[_five]r=-d-oo; y[_six]-.5flare=-.85d;
+ pos[_six](cap_hair,-180); pos[_seven](bulb_diam,-180);
+ rt x[_seven]l=max(lft x[_zero]l-jut+bulb_diam,
+  floor x[_three]-3.5u if monospace: / expansion_factor fi);
+ z[_six]r=z[_seven]r;
+ x[_five]=max(rt x[_seven]l,.6[x[_four],x[_seven]r]);
+ (x,y[_five]r)=whatever[z[_five]l,z[_four]l];
+ x[_five]r:=max(x,.5[x[_six]r,x[_five]]);
+ filldraw stroke super_arc.e([_four],[_five]);
+ bulb([_five],[_six],[_seven]); % bulb
+else:
+ pickup fine.nib; z[_four]=z[_three];
+ pos[_four](max(fine.breadth,cap_curve if hefty:-3stem_corr fi),0);
+ pos[_eight](vair,-90); pos[_five](flare,-105);
+ rt x[_five]r=x[_three]-6u; bot y[_five]r=-d;
+ y[_five]l:=good.y y[_five]l; x[_five]l:=good.y x[_five]l;
+ bot y[_eight]r=-d-o; x[_eight]=.35[lft x[_five]r,x[_three]r];
+ filldraw stroke super_arc.e([_four],[_eight])
+  & term.e([_eight],[_five],left,.75,4); fi
+%%%
+penlabels(1,2,3,4,5,6,7,8,9,10,11,12,13); endchar;
+
+endinput;
+%end of file

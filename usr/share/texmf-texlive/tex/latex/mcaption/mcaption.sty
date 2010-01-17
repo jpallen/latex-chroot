@@ -1,0 +1,96 @@
+%%
+%% This is file `mcaption.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% mcaption.dtx  (with options: `package')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2005 by Stephan Hennig <stephanhennig@arcor.de>
+%% 
+%% This file may be distributed and/or modified under the conditions of
+%% the LaTeX Project Public License, either version 1.2 of this license
+%% or (at your option) any later version.  The latest version of this
+%% license is in:
+%% 
+%%    http://www.latex-project.org/lppl.txt
+%% 
+%% and version 1.2 or later is part of all distributions of LaTeX version
+%% 1999/12/01 or later.
+%% 
+\ProvidesPackage{mcaption}
+  [2005/09/30 v2.2 Put captions in margin (SH)]
+\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+\RequirePackage{ifthen}
+\RequirePackage{chngpage}
+\newcommand*{\margincapalign}{}
+\DeclareOption{top}{\renewcommand*{\margincapalign}{t}}
+\DeclareOption{bottom}{\renewcommand*{\margincapalign}{b}}
+\ExecuteOptions{bottom}
+\ProcessOptions\relax
+\newlength{\margincapsep}
+\AtBeginDocument{%
+  \setlength{\margincapsep}{\marginparsep}%
+}
+\newsavebox{\mcaption@ObjectBox}
+\newsavebox{\mcaption@CaptionBox}
+\newlength{\mcaption@ObjectHeight}
+\newlength{\mcaption@ObjectRaise}
+\newlength{\mcaption@CaptionRaise}
+\newlength{\mcaption@tempdima}
+\newenvironment{margincap}[2][\mcaption@DefaultOpt]{%
+  \def\mcaption@DefaultOpt{#2}%
+  \begin{lrbox}{\mcaption@CaptionBox}%
+    \setlength{\mcaption@tempdima}{\marginparsep}%
+    \addtolength{\mcaption@tempdima}{\marginparwidth}%
+    \addtolength{\mcaption@tempdima}{-\margincapsep}%
+    \begin{minipage}[\margincapalign]{\mcaption@tempdima}%
+       \caption[#1]{#2}%
+    \end{minipage}%
+  \end{lrbox}%
+  \begin{lrbox}{\mcaption@ObjectBox}%
+    \begin{minipage}[\margincapalign]{\linewidth}%
+}{%
+    \end{minipage}%
+  \end{lrbox}%
+  \settoheight{\mcaption@ObjectHeight}{\usebox{\mcaption@ObjectBox}}%
+  \ifthenelse{\equal{\margincapalign}{t}}{%
+    \setlength{\mcaption@ObjectRaise}{-\mcaption@ObjectHeight}%
+    \setlength{\mcaption@ObjectHeight}{0pt}%
+    \settoheight{\mcaption@CaptionRaise}{\strut}%
+  }{%
+    \setlength{\mcaption@ObjectRaise}{0pt}%
+    \setlength{\mcaption@CaptionRaise}{0pt}%
+  }%
+  \if@twoside%
+    \checkoddpage%
+  \else%
+    \cpoddpagetrue%
+  \fi%
+  \ifcpoddpage%
+    \makebox[\linewidth][l]{%
+      \raisebox{\mcaption@ObjectRaise}[\mcaption@ObjectHeight]{%
+        \usebox{\mcaption@ObjectBox}%
+      }%
+      \hspace*{\margincapsep}%
+      \raisebox{\mcaption@CaptionRaise}[0pt][0pt]{%
+        \usebox{\mcaption@CaptionBox}%
+      }%
+    }%
+  \else%
+    \makebox[\linewidth][r]{%
+      \raisebox{\mcaption@CaptionRaise}[0pt][0pt]{%
+        \usebox{\mcaption@CaptionBox}%
+      }%
+      \hspace*{\margincapsep}%
+      \raisebox{\mcaption@ObjectRaise}[\mcaption@ObjectHeight]{%
+        \usebox{\mcaption@ObjectBox}%
+      }%
+    }%
+  \fi%
+}%
+\endinput
+%%
+%% End of file `mcaption.sty'.

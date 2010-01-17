@@ -1,0 +1,172 @@
+% LISTS PSIZZL - macros for lists, numbered and unnumbered
+%
+\gdef\d@m{.08}%
+\gdef\sd@m{.13}%
+\gdef\ssd@m{.195}%
+%
+% UNNUMBERED LISTS
+%
+% This is similar to the Itemized List Macro except it doesn't
+% number the items.  Instead it allows you to pick a symbol to
+% highlight the line.
+%
+% \itembegin{<symbol>}text   You pick the symbol to be used.
+%                            It then applies to all following items.
+%
+% \item text                 Each additional item in the series.
+%
+% \itemcon text              Used to continue an xitem when you have
+%                            more than one paragraph in the item:
+%                            you get a blank instead of a symbol.
+%
+% \sitembegin{<symbol>}      Use these as above. The sub-item list
+% \sitem                     is indented a bit farther.
+% \sitemcon
+%
+% \ssitembegin{<symbol>}     Sub-sub-item list macros
+% \ssitem
+% \ssitemcon
+%
+% A blank line or a \par will end the item and give you a new paragraph.
+% If you don't want a new paragraph at the end of the xitem,
+% type `\par\noindent' to end the item
+%
+\def\itemset#1{%
+   \gdef\items@m{#1}%
+   }\itemset{\bull}%
+\def\itembegin#1{%
+   \itemset{#1}\item
+   }%
+\def\it@m{%
+   \hangpar\d@m
+   }%
+\def\item{%
+   \it@m{\items@m\quad}%
+   }%
+\def\itemcon{%
+   \it@m{}%
+   }%
+%
+\def\sitemset#1{%
+   \gdef\sitems@m{#1}%
+   }\sitemset{\astr}%
+\def\sitembegin#1{%
+   \sitemset{#1}\sitem
+   }%
+\def\sit@m{%
+   \hangpar\sd@m
+   }%
+\def\sitem{%
+   \sit@m{\sitems@m\quad}%
+   }%
+\def\sitemcon{%
+   \sit@m{}%
+   }%
+%
+\def\ssitemset#1{%
+   \gdef\ssitems@m{#1}%
+   }\ssitemset{\crcl}%
+\def\ssitembegin#1{%
+   \ssitemset{#1}\ssitem
+   }%
+\def\ssit@m{%
+   \hangpar\ssd@m
+   }%
+\def\ssitem{%
+   \ssit@m{\ssitems@m\quad}%
+   }%
+\def\ssitemcon{%
+   \ssit@m{}%
+   }%
+%
+%
+% ITEMIZED LIST MACRO
+%
+% These commands are used to make xitemized lists, to write
+% outlines or make points within a body of text.
+%
+% \pointbegin text           To start a list.  The list will be
+%      or                    numbered in Arabic numerals and
+% \pointbegin                indented. You can begin the text
+% text                       after the \pointbegin command -
+%                            separated by a space - or you can
+%                            begin on the following line.
+%
+% \point text                Subsequent items in the list.
+%
+% \pointcon text             If you want a point to contain more
+%                            than one paragraph, but you don't want
+%                            to generate a new number, use
+%                            \pointcon text.  This will also work
+%                            with \spointcon and \sspointcon.
+%
+% \spointbegin text          To begin a sub-point list; indented,
+%                            lowercase Roman letter, in ( ).
+%
+% \spoint text               To continue a sub-point list.
+%
+% \sspointbegin text         To start a sub-sub-point list;
+%                           indented, lowercase Roman numerials,
+%                            in ( ).
+%
+% \sspoint text              To continue a sub-sub-point list.
+%
+% A blank line or a \par will end the item and give you a new paragraph.
+% If you don't want a new paragraph at the end of the item,
+% type `\par\noindent' to end the item
+%
+\newcount\p@ntcount
+\def\p@ntinit{%
+   \p@ntcount\@ne
+   }%
+\def\p@ntreset{%
+   \sp@ntinit\sp@ntreset
+   }%
+\def\pointbegin{%
+   \p@ntinit\point
+   }%
+\def\point{%
+   \p@ntreset\it@m{\p@nttext\p@ntcount.\quad}%
+   \bumpcount\p@ntcount
+   }%
+\def\pointcon{%
+   \it@m{}%
+   }%
+\let\p@nttext\numorroman
+%
+\newcount\sp@ntcount
+\def\sp@ntinit{%
+   \sp@ntcount`a
+   }%
+\def\sp@ntreset{%
+   \ssp@ntinit\ssp@ntreset
+   }%
+\def\spointbegin{%
+   \sp@ntinit\spoint
+   }%
+\def\spoint{%
+   \sp@ntreset\sit@m{\sp@nttext\sp@ntcount.\quad}%
+   \bumpcount\sp@ntcount
+   }%
+\def\spointcon{%
+   \sit@m{}%
+   }%
+\let\sp@nttext\char%
+%
+\newcount\ssp@ntcount
+\def\ssp@ntinit{%
+   \ssp@ntcount\@ne
+   }%
+\def\ssp@ntreset{}%
+\def\sspointbegin{%
+   \ssp@ntinit\sspoint
+   }%
+\def\sspoint{%
+   \ssp@ntreset\ssit@m{\number\ssp@ntcount.\quad}%
+   \bumpcount\ssp@ntcount
+   }%
+\def\sspointcon{%
+   \ssit@m{}%
+   }%
+\let\ssp@nttext\numorroman
+%

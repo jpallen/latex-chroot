@@ -1,0 +1,110 @@
+%%
+%% This is file `plprefix.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% plprefix.dtx  (with options: `package')
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                      %%
+%%                        Package plprefix                              %%
+%%                                                                      %%
+%% Purpose: to provide various variants of prefix notation for          %%
+%%          polish diacritical characters.                              %%
+%%                                                                      %%
+%% Copyright (c) by Marcin Woli\'nski                      <2003/01/09> %%
+%%                  wolinski@gust.org.pl                                %%
+%%                                                                      %%
+%%                                                                      %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                      %%
+%% The package may be used freely, but you are not allowed to modify    %%
+%% this file.  If you wish to make any changes please make a copy       %%
+%% under a different name.                                              %%
+%%                                                                      %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NeedsTeXFormat{LaTeX2e}[1996/06/01]
+\ProvidesPackage{plprefix}[2003/01/09 v1.02
+                 Prefix notation for polish characters]
+\newcommand\ThePrefixChar{1}
+\def\prefixing{\catcode\expandafter`\ThePrefixChar=\active
+  \bgroup \uccode`\~=\expandafter`\ThePrefixChar \uppercase{\egroup
+    \let~\PrefixMacro}%
+  }
+\def\nonprefixing{\catcode\expandafter`\ThePrefixChar=12 }
+\newcommand\SetPrefixChar[1]{%
+  \nonprefixing
+  \bgroup \uccode`2=`#1\uppercase{\egroup
+    \def\ThePrefixChar{2}}%
+  \prefixing
+  }
+\newcommand\PrefixMacro[1]{\ifx#1\PrefixMacro
+    \ifx\protect\@typeset@protect\else\protect\string\fi\ThePrefixChar
+  \else
+  \expandafter\ifx\csname pref@\string#1\endcsname\relax
+    \PrefixingError{#1}%
+  \else \csname pref@\string#1\endcsname \fi\fi
+  }
+\newcommand\PrefixingError[1]{%
+  \ifx\protect\@typeset@protect
+    \PackageError{plprefix}
+      {The prefix-character combination
+         \ThePrefixChar\noexpand#1 is undefined}%
+      {I will ignore the prefix character.}%
+  \else \expandafter\protect\ThePrefixChar \fi
+  \expandafter\expandafter\expandafter#1%
+  }
+\SetPrefixChar\/
+\nonprefixing
+\newcommand\Prefix[2]{\expandafter#1\csname pref@#2\endcsname}
+\def\PlPrIeC{%
+  \ifx\protect\@typeset@protect
+    \expandafter\@firstofone
+  \else
+    \noexpand\PlPrIeC
+  \fi
+}
+\Prefix\def a{\k a} \Prefix\def A{\k A}
+\Prefix\def c{\@acute c}  \Prefix\def C{\@acute C}
+\Prefix\def e{\k e} \Prefix\def E{\k E}
+\Prefix\def l{\PlPrIeC{\l}}   \Prefix\def L{\PlPrIeC{\L}}
+\Prefix\def n{\@acute n}  \Prefix\def N{\@acute N}
+\Prefix\def o{\@acute o}  \Prefix\def O{\@acute O}
+\Prefix\def s{\@acute s}  \Prefix\def S{\@acute S}
+\Prefix\def x{\@acute z}  \Prefix\def X{\@acute Z}
+\Prefix\def z{\.z}  \Prefix\def Z{\.Z}
+\Prefix\def ,{\PlPrIeC{\quotedblbase}}
+\Prefix\def '{\PlPrIeC{\textquotedblright}}
+\Prefix\def <{\PlPrIeC{\guillemotleft}}
+\Prefix\def >{\PlPrIeC{\guillemotright}}
+\providecommand*\dywiz{%
+  \kern0sp\discretionary{-}{-}{-}\penalty10000\hskip0sp\relax}
+\Prefix\def -{\PlPrIeC{\dywiz}}
+\newcommand\prefZisZkropka{%
+  \Prefix\let r\relax \Prefix\let R\relax
+  \Prefix\def x{\@acute z}\Prefix\def X{\@acute Z}%
+  \Prefix\def z{\.z}\Prefix\def Z{\.Z}%
+  }
+\newcommand\prefZisZkreska{%
+  \Prefix\let x\relax \Prefix\let X\relax
+  \Prefix\def z{\@acute z}\Prefix\def Z{\@acute Z}%
+  \Prefix\def r{\.z}\Prefix\def R{\.Z}%
+  }
+\DeclareOption{/z}{\SetPrefixChar\/ \prefZisZkropka
+   \nonprefixing}
+\DeclareOption{"z}{\SetPrefixChar\" \prefZisZkropka
+   \nonprefixing}
+\DeclareOption{@z}{\SetPrefixChar\@ \prefZisZkropka
+   \catcode`\@=11}
+\DeclareOption{/r}{\SetPrefixChar\/ \prefZisZkreska
+   \nonprefixing}
+\DeclareOption{"r}{\SetPrefixChar\" \prefZisZkreska
+   \nonprefixing}
+\DeclareOption{@r}{\SetPrefixChar\@ \prefZisZkreska
+   \catcode`\@=11}
+\ProcessOptions
+\AtBeginDocument{\let\@acute\'}
+\endinput
+%%
+%% End of file `plprefix.sty'.

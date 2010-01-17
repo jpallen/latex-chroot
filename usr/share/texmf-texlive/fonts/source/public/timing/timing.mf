@@ -1,0 +1,492 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  TIMING.MF  
+%
+%  Zeichensatz zum Darstellen von Zeitdiagrammen digitaler
+%  Schaltungen.
+%  Hauptdatei fÅr alle ZeichensÑtze
+%
+%  Ludwig May, Dezember 1991
+%  Jens Leilich, énderungen im Mai 1994
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+define_pixels(p_size,p3_size);
+%define_good_x_pixels(c_width);
+%define_good_y_pixels(c_height);
+define_whole_pixels(c_width,c_height,p2_size);
+if not odd c_width: c_width:=c_width-1; fi
+
+font_x_height c_height#;
+font_quad c_width#;
+
+pen pinsel;
+pinsel=(pencircle xscaled (0.8*p_size) yscaled p_size);
+
+
+beginchar("H",c_width#,c_height#,bt#);  "High Level";
+
+pickup pinsel;
+draw (-c_width,c_height)--(0,c_height);
+showit;
+endchar;
+
+
+beginchar("L",c_width#,c_height#,bt#);  "Low Level";
+
+pickup pinsel;
+draw (-c_width,0)--(0,0);
+showit;
+endchar;
+
+%1/12->xs#/12, damit Steigung von HL und LH wie UV (JL,8.1.94)
+beginchar(0,2*c_width#,c_height#,bt#);  "High-Low";
+
+pickup pinsel;
+draw (-c_width,c_height)--(-xs#/12*c_width,c_height)--(xs#/12*c_width,0)--(c_width,0);
+showit;
+endchar;
+
+beginchar(1,2*c_width#,c_height#,bt#);  "Low-High";
+
+pickup pinsel;
+draw (-c_width,0)--(-xs#/12*c_width,0)--(xs#/12*c_width,c_height)--(c_width,c_height);
+showit;
+endchar;
+
+beginchar(12,2*c_width#,c_height#,bt#);  "Change Bus";
+
+pickup pinsel;
+draw (-c_width,0)--(-xs#/12*c_width,0);
+draw (-c_width,c_height)--(-xs#/12*c_width,c_height);
+draw (xs#/12*c_width,0)--(c_width,0);
+draw (xs#/12*c_width,c_height)--(c_width,c_height);
+draw (-xs#/12*c_width,0)--(xs#/12*c_width,c_height);
+draw (-xs#/12*c_width,c_height)--(xs#/12*c_width,0);
+showit;
+endchar;
+
+beginchar("V",c_width#,c_height#,bt#);  "Valid Bus";
+
+pickup pinsel;
+draw (-c_width,0)--(0,0);
+draw (-c_width,c_height)--(0,c_height);
+showit;
+endchar;
+
+beginchar("Z",c_width#,c_height#,bt#);  "Tristate Bus";
+
+pickup pinsel;
+draw (-c_width,c_height/2)--(0,c_height/2);
+showit;
+endchar;
+
+beginchar(2,2*c_width#,c_height#,bt#);  "Tristate -> Valid Bus";
+
+pickup pinsel;
+draw (-c_width,c_height/2)--(0/12*c_width,c_height/2);
+draw (0/12*c_width,c_height/2)--(xs#/12*c_width,c_height)--(c_width,c_height);
+draw (0/12*c_width,c_height/2)--(xs#/12*c_width,0)--(c_width,0);
+showit;
+endchar;
+
+beginchar(3,2*c_width#,c_height#,bt#);  "Valid -> Tristate Bus";
+
+pickup pinsel;
+draw (-c_width,c_height)--(-xs#/12*c_width,c_height)--(0/12*c_width,c_height/2);
+draw (-c_width,0)--(-xs#/12*c_width,0)--(0/12*c_width,c_height/2);
+draw (0/12*c_width,c_height/2)--(c_width,c_height/2);
+showit;
+endchar;
+
+
+beginchar("U",c_width#,c_height#,bt#);  "Invalid Bus";
+
+pickup pinsel;
+draw (-c_width,0)--(0,0);
+draw (-c_width,c_height)--(0,c_height);
+
+pickup pencircle scaled p3_size;
+draw (-c_width,5/6*c_height)--(-c_width/2,c_height);
+draw (-c_width,c_height/2)--(0,5/6*c_height);
+draw (-c_width,1/6*c_height)--(0,c_height/2);
+draw (-c_width/2,0)--(0,1/6*c_height);
+showit;
+endchar;
+
+
+beginchar(4,2*c_width#,c_height#,bt#);  "Tristate -> Invalid Bus";
+
+y1=s_f#*2/3*(x1+c_width)+1/2*c_height;
+x1=y1*(xs#/s_f#/12)+(6-xs#*0.5)*c_height/s_f#/12-c_width;% Startpunkt der 1. Linie 
+%y1=s_f#* 12/xs#*(x1+c_width)-(6/xs#-0.5)*c_height;% Startpunkt der 1. Linie 
+y2=s_f#*2/3*(x2+c_width)+1/6*c_height;
+x2=y2*(xs#/s_f#/-12)-(6+xs#*0.5)*c_height/s_f#/-12-c_width;% Startpunkt der 2. Linie 
+%y2=s_f#*-12/xs#*(x2+c_width)+(6/xs#+0.5)*c_height;% Startpunkt der 2. Linie
+y3=s_f#*2/3*(x3+c_width)-1/6*c_height;
+x3=y3*(xs#/s_f#/-12)-(6+xs#*0.5)*c_height/s_f#/-12-c_width;% Startpunkt der 3. Linie 
+%y3=s_f#*-12/xs#*(x3+c_width)+(6/xs#+0.5)*c_height;% Startpunkt der 3. Linie
+
+pickup pinsel;
+draw (-c_width,c_height/2)--(0/12*c_width,c_height/2);
+draw (0/12*c_width,c_height/2)--(xs#/12*c_width,c_height)--(c_width,c_height);
+draw (0/12*c_width,c_height/2)--(xs#/12*c_width,0)--(c_width,0);
+
+pickup pencircle scaled p3_size;
+draw z1--(1/2*c_width,c_height);
+draw z2--(c_width,5/6*c_height);
+draw z3--(c_width,c_height/2);
+draw (1/2*c_width,0)--(c_width,1/6*c_height);
+showit;
+endchar;
+
+beginchar(5,2*c_width#,c_height#,bt#);  "Invalid -> Tristate Bus";
+
+y1=s_f#*2/3*(x1+c_width)+1/2*c_height ;
+x1=y1*(xs#/s_f#/-12)-(6+xs#*0.5)*c_height/s_f#/-12-c_width;% Startpunkt der 1. Linie 
+%y1=s_f#*-12/xs#*(x1+c_width)+(6/xs#+0.5)*c_height; % Startpunkt der 1. Linie 
+y2=s_f#*2/3*(x2+c_width)+1/6*c_height ;
+x2=y2*(xs#/s_f#/-12)-(6+xs#*0.5)*c_height/s_f#/-12-c_width;% Startpunkt der 2. Linie 
+%y2=s_f#*-12/xs#*(x2+c_width)+(6/xs#+0.5)*c_height; % Startpunkt der 2. Linie
+y3=s_f#*2/3*(x3+c_width)-1/6*c_height ;
+x3=y3*(xs#/s_f#/12)+(6-xs#*0.5)*c_height/s_f#/12-c_width;% Startpunkt der 3. Linie 
+%y3=s_f#* 12/xs#*(x3+c_width)-(6/xs#-0.5)*c_height; % Startpunkt der 3. Linie
+
+pickup pinsel;
+draw (-c_width,c_height)--(-xs#/12*c_width,c_height)--(0/12*c_width,c_height/2);
+draw (-c_width,0)--(-xs#/12*c_width,0)--(0/12*c_width,c_height/2);
+draw (0/12*c_width,c_height/2)--(c_width,c_height/2);
+
+pickup pencircle scaled p3_size;
+draw (-c_width,5/6*c_height)--(-c_width/2,c_height);
+draw (-c_width,c_height/2)--z1;
+draw (-c_width,1/6*c_height)--z2;
+draw (-c_width/2,0)--z3;
+showit;
+endchar;
+
+
+beginchar(6,2*c_width#,c_height#,bt#);  "Valid -> Invalid Bus";
+
+y1=s_f#*2/3*(x1+c_width)+1/2*c_height;
+x1=y1*(xs#/s_f#/12)+(6-xs#*0.5)*c_height/s_f#/12-c_width;% Startpunkt der 1. Linie 
+%y1=s_f#* 12/xs#*(x1+c_width)-(6/xs#-0.5)*c_height;% 1. Linie
+y2=s_f#*2/3*(x2+c_width)+1/6*c_height;
+x2=y2*(xs#/s_f#/-12)-(6+xs#*0.5)*c_height/s_f#/-12-c_width;% Startpunkt der 2. Linie 
+%y2=s_f#*-12/xs#*(x2+c_width)+(6/xs#+0.5)*c_height;% 2. Linie
+y3=s_f#*2/3*(x3+c_width)-1/6*c_height;
+x3=y3*(xs#/s_f#/-12)-(6+xs#*0.5)*c_height/s_f#/-12-c_width;% Startpunkt der 3. Linie 
+%y3=s_f#*-12/xs#*(x3+c_width)+(6/xs#+0.5)*c_height;% 3. Linie
+
+pickup pinsel;
+draw (-c_width,0)--(-xs#/12*c_width,0);
+draw (-c_width,c_height)--(-xs#/12*c_width,c_height);
+draw (xs#/12*c_width,0)--(c_width,0);
+draw (xs#/12*c_width,c_height)--(c_width,c_height);
+draw (-xs#/12*c_width,0)--(xs#/12*c_width,c_height);
+draw (-xs#/12*c_width,c_height)--(xs#/12*c_width,0);
+
+pickup pencircle scaled p3_size;
+draw z1--(1/2*c_width,c_height);
+draw z2--(c_width,5/6*c_height);
+draw z3--(c_width,1/2*c_height);
+draw (1/2*c_width,0)--(c_width,1/6*c_height);
+showit;
+endchar;
+
+beginchar(7,2*c_width#,c_height#,bt#);  "Invalid -> Valid Bus";
+
+y1=s_f#*2/3*(x1+c_width)+1/2*c_height;
+x1=y1*(xs#/s_f#/-12)-(6+xs#*0.5)*c_height/s_f#/-12-c_width;% Startpunkt der 1. Linie 
+%y1=s_f#*-12/xs#*(x1+c_width)+(6/xs#+0.5)*c_height;% 1. Linie
+y2=s_f#*2/3*(x2+c_width)+1/6*c_height;
+x2=y2*(xs#/s_f#/-12)-(6+xs#*0.5)*c_height/s_f#/-12-c_width;% Startpunkt der 2. Linie 
+%y2=s_f#*-12/xs#*(x2+c_width)+(6/xs#+0.5)*c_height;% 2. Linie
+y3=s_f#*2/3*(x3+c_width)-1/6*c_height;
+x3=y3*(xs#/s_f#/12)+(6-xs#*0.5)*c_height/s_f#/12-c_width;% Startpunkt der 3. Linie 
+%y3=s_f#* 12/xs#*(x3+c_width)-(6/xs#-0.5)*c_height;% 3. Linie
+
+pickup pinsel;
+draw (-c_width,0)--(-xs#/12*c_width,0);
+draw (-c_width,c_height)--(-xs#/12*c_width,c_height);
+draw (xs#/12*c_width,0)--(c_width,0);
+draw (xs#/12*c_width,c_height)--(c_width,c_height);
+draw (-xs#/12*c_width,0)--(xs#/12*c_width,c_height);
+draw (-xs#/12*c_width,c_height)--(xs#/12*c_width,0);
+
+pickup pencircle scaled p3_size;
+draw (-c_width,5/6*c_height)--(-1/2*c_width,c_height);
+draw (-c_width,1/2*c_height)--z1;
+draw (-c_width,1/6*c_height)--z2;
+draw (-1/2*c_width,0)--z3;
+showit;
+endchar;
+
+beginchar("F",c_width#,c_height#,bt#);  "Floating Line";
+
+pickup pinsel;
+draw (-c_width,0)--(0,0);
+draw (-c_width,c_height)--(0,c_height);
+showit;
+endchar;
+
+%1/12->xs#/12, damit Steigung von FL und FH wie UV (JL,8.1.94)
+beginchar(13,2*c_width#,c_height#,bt#);  "Float-Low";
+
+pickup pinsel;
+draw (-c_width,c_height)--(-xs#/12*c_width,c_height)--(xs#/12*c_width,0);
+draw (-c_width,0)--(c_width,0);
+showit;
+endchar;
+
+beginchar(14,2*c_width#,c_height#,bt#);  "Float-High";
+
+pickup pinsel;
+draw (-c_width,0)--(-xs#/12*c_width,0)--(xs#/12*c_width,c_height);
+draw (-c_width,c_height)--(c_width,c_height);
+showit;
+endchar;
+
+beginchar(15,2*c_width#,c_height#,bt#);  "High-Float";
+
+pickup pinsel;
+draw (-c_width,c_height)--(c_width,c_height);
+draw (-xs#/12*c_width,c_height)--(xs#/12*c_width,0)--(c_width,0);
+showit;
+endchar;
+
+beginchar(16,2*c_width#,c_height#,bt#);  "Low-Float";
+
+pickup pinsel;
+draw (-c_width,0)--(c_width,0);
+draw (-xs#/12*c_width,0)--(xs#/12*c_width,c_height)--(c_width,c_height);
+showit;
+endchar;
+
+
+beginchar("-",c_width#/2,c_height#,bt#);  "...";
+
+pickup pencircle scaled p3_size;
+draw (-c_width,-1/12*c_height)--(-c_width,13/12*c_height);
+draw (-c_width/2-1,-1/12*c_height)--(-c_width/2-1,13/12*c_height);
+showit;
+endchar;
+
+beginchar("T",c_width#,1/6*c_height#,bt#);  "TOP";
+
+pickup pinsel;
+draw (-c_width,1/12*c_height)--(-c_width,1/6*c_height)--(0,1/6*c_height);
+showit;
+endchar;
+
+beginchar("B",c_width#,1/6*c_height#,bt#);  "BOTTOM";
+
+pickup pinsel;
+draw (-c_width,1/12*c_height)--(-c_width,0)--(0,0);
+showit;
+endchar;
+
+beginchar(8,3/2*c_width#,1/6*c_height#,bt#);  "TOP-";
+
+pickup pinsel;
+draw (-c_width,1/12*c_height)--(-c_width,1/6*c_height)--(0,1/6*c_height);
+pickup pencircle scaled p3_size;
+draw (0+1,0)--(0+1,2/12*c_height);
+draw (1/2*c_width-1,0)--(1/2*c_width-1,2/12*c_height);
+showit;
+endchar;
+
+beginchar(9,3/2*c_width#,1/6*c_height#,bt#);  "BOTTOM-";
+
+pickup pinsel;
+draw (-c_width,1/12*c_height)--(-c_width,0)--(0,0);
+pickup pencircle scaled p3_size;
+draw (0+1,0)--(0+1,2/12*c_height);
+draw (1/2*c_width-1,0)--(1/2*c_width-1,2/12*c_height);
+showit;
+endchar;
+
+beginchar(10,3/2*c_width#,1/6*c_height#,bt#);  "top-";
+
+pickup pinsel;
+draw (-c_width,1/6*c_height)--(0,1/6*c_height);
+pickup pencircle scaled p3_size;
+draw (0+1,0)--(0+1,2/12*c_height);
+draw (1/2*c_width-1,0)--(1/2*c_width-1,2/12*c_height);
+showit;
+endchar;
+
+beginchar(11,3/2*c_width#,1/6*c_height#,bt#);  "bottom-";
+
+pickup pinsel;
+draw (-c_width,0)--(0,0);
+pickup pencircle scaled p3_size;
+draw (0+1,0)--(0+1,2/12*c_height);
+draw (1/2*c_width-1,0)--(1/2*c_width-1,2/12*c_height);
+showit;
+endchar;
+
+beginchar("t",c_width#,1/6*c_height#,bt#);  
+
+pickup pinsel;
+draw (-c_width,1/6*c_height)--(0,1/6*c_height);
+showit;
+endchar;
+
+beginchar("b",c_width#,1/6*c_height#,bt#);  
+
+pickup pinsel;
+draw (-c_width,0)--(0,0);
+showit;
+endchar;
+
+%Pfeil von 1/2 nach 7/8 der Breite vergrîûert (JL,8.1.94)
+beginchar("A",c_width#,3/12*c_height#,0);  "Arrow left";
+
+pickup pencircle scaled p_size;
+draw (-1/8*c_width,1/12*c_height)--(0,1/12*c_height);
+fill (-1/8*c_width,2/12*c_height)--(-c_width,1/12*c_height)--(-1/8*c_width,0)--cycle;
+showit;
+endchar;
+
+beginchar("P",c_width#,3/12*c_height#,0);  "Arrow right";
+
+pickup pencircle scaled p_size;
+draw (-c_width,1/12*c_height)--(-1/8*c_width,1/12*c_height);
+fill (-7/8*c_width,2/12*c_height)--(0,1/12*c_height)--(-7/8*c_width,0)--cycle;
+showit;
+endchar;
+
+beginchar("a",c_width#,3/12*c_height#,0);  "Arrow line";
+
+pickup pencircle scaled p_size;
+draw (-c_width,1/12*c_height)--(0,1/12*c_height);
+showit;
+endchar;
+
+
+%dasselbe wie "U"
+beginchar("X",c_width#,c_height#,bt#); "Unknown";
+pickup pinsel;
+draw (-c_width,0)--(0,0);
+draw (-c_width,c_height)--(0,c_height);
+
+pickup pencircle scaled p3_size;
+draw (-c_width,5/6*c_height)--(-c_width/2,c_height);
+draw (-c_width,c_height/2)--(0,5/6*c_height);
+draw (-c_width,1/6*c_height)--(0,c_height/2);
+draw (-c_width/2,0)--(0,1/6*c_height);
+showit;
+endchar;
+
+%Leerzeichen mit Punkten, damit nachtrÑglich gezeichnet werden kann
+%(JL,8.1.94)
+
+beginchar(".",c_width#,c_height#,bt#);  "Leer";
+pickup pinsel;
+fill (-c_width,0)--(-c_width+p2_size,0)--
+     (-c_width+p2_size,p2_size)--(-c_width,p2_size)--cycle;
+fill (-c_width,c_height)--(-c_width+p2_size,c_height)--
+     (-c_width+p2_size,c_height-p2_size)--(-c_width,c_height-p2_size)--cycle;
+showit;
+endchar;
+
+beginchar("h",c_width#,c_height#,bt#);  "High Level";
+pickup pinsel;
+draw (-c_width,c_height)--(0,c_height);
+fill (-c_width,0)--(-c_width+p2_size,0)--
+     (-c_width+p2_size,p2_size)--(-c_width,p2_size)--cycle;
+showit;
+endchar;
+
+
+beginchar("l",c_width#,c_height#,bt#);  "Low Level";
+pickup pinsel;
+draw (-c_width,0)--(0,0);
+fill (-c_width,c_height)--(-c_width+p2_size,c_height)--
+     (-c_width+p2_size,c_height-p2_size)--(-c_width,c_height-p2_size)--cycle;
+showit;
+endchar;
+
+beginchar(20,2*c_width#,c_height#,bt#);  "High-Low";
+pickup pinsel;
+draw (-c_width,c_height)--(-xs#/12*c_width,c_height)--(xs#/12*c_width,0)--(c_width,0);
+fill (-c_width,0)--(-c_width+p2_size,0)--
+     (-c_width+p2_size,p2_size)--(-c_width,p2_size)--cycle;
+fill (0,c_height)--(p2_size,c_height)--
+     (p2_size,c_height-p2_size)--(0,c_height-p2_size)--cycle;
+showit;
+endchar;
+
+beginchar(21,2*c_width#,c_height#,bt#);  "Low-High";
+pickup pinsel;
+draw (-c_width,0)--(-xs#/12*c_width,0)--(xs#/12*c_width,c_height)--(c_width,c_height);
+fill (0,0)--(p2_size,0)--
+     (p2_size,p2_size)--(0,p2_size)--cycle;
+fill (-c_width,c_height)--(-c_width+p2_size,c_height)--
+     (-c_width+p2_size,c_height-p2_size)--(-c_width,c_height-p2_size)--cycle;
+showit;
+endchar;
+
+beginchar("f",c_width#,c_height#,bt#);  "Floating Line";
+pickup pinsel;
+draw (-c_width,0)--(0,0);
+draw (-c_width,c_height)--(0,c_height);
+showit;
+endchar;
+
+beginchar(33,2*c_width#,c_height#,bt#);  "Float-Low";
+pickup pinsel;
+draw (-c_width,c_height)--(-xs#/12*c_width,c_height)--(xs#/12*c_width,0);
+draw (-c_width,0)--(c_width,0);
+fill (0,c_height)--(p2_size,c_height)--
+     (p2_size,c_height-p2_size)--(0,c_height-p2_size)--cycle;
+showit;
+endchar;
+
+beginchar(34,2*c_width#,c_height#,bt#);  "Float-High";
+pickup pinsel;
+draw (-c_width,0)--(-xs#/12*c_width,0)--(xs#/12*c_width,c_height);
+draw (-c_width,c_height)--(c_width,c_height);
+fill (0,0)--(p2_size,0)--
+     (p2_size,p2_size)--(0,p2_size)--cycle;
+showit;
+endchar;
+
+beginchar(35,2*c_width#,c_height#,bt#);  "High-Float";
+pickup pinsel;
+draw (-c_width,c_height)--(c_width,c_height);
+draw (-xs#/12*c_width,c_height)--(xs#/12*c_width,0)--(c_width,0);
+fill (-c_width,0)--(-c_width+p2_size,0)--
+     (-c_width+p2_size,p2_size)--(-c_width,p2_size)--cycle;
+showit;
+endchar;
+
+beginchar(36,2*c_width#,c_height#,bt#);  "Low-Float";
+pickup pinsel;
+draw (-c_width,0)--(c_width,0);
+draw (-xs#/12*c_width,0)--(xs#/12*c_width,c_height)--(c_width,c_height);
+fill (-c_width,c_height)--(-c_width+p2_size,c_height)--
+     (-c_width+p2_size,c_height-p2_size)--(-c_width,c_height-p2_size)--cycle;
+showit;
+endchar;
+
+
+% HX,LX,XH,XL und dasselbe mit U statt X sind eigtl. Pfusch
+% vielleicht mal Zeichen fÅr machen... (JL)
+ligtable "H":"L"=:0, "F"=:15, "V"=:15, "X"=:15;
+ligtable "L":"H"=:1, "F"=:16, "V"=:16, "X"=:16;
+ligtable "F":"L"=:13,"H"=:14;
+ligtable "h":"l"=:20,"f"=:35; % Version mit Punkten zum Zeichnen (JL, 4.2.94)
+ligtable "l":"h"=:21,"f"=:36;
+ligtable "f":"l"=:33,"h"=:34;
+ligtable "Z":"V"=:2, "U"=:4;
+ligtable "V":"Z"=:3, "U"=:6, "X"=:12, "L"=:13, "H"=:14;
+ligtable "U":"Z"=:5, "V"=:7, "X"=:7, "L"=:13, "H"=:14;  % UX=:7 [UV] (JL, 8.1.94)
+ligtable "X":"V"=:12,"U"=:6, "L"=:13, "H"=:14;          % XU=:6 [VU] (JL, 8.1.94)
+ligtable "T":"-"=:8;
+ligtable "B":"-"=:9;
+ligtable "t":"-"=:10;
+ligtable "b":"-"=:11;
+
+end;
+

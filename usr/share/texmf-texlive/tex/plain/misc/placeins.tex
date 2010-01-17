@@ -1,0 +1,135 @@
+%  P L A C E I N S . T E X        ver 2.0   Mar 3, 1995
+%
+%  By   Donald Arseneau       <asnd@reg.triumf.ca>
+%
+%  Insertions that keep their place.
+%
+%  This TeX file provides various mechanisms (for plain TeX and close 
+%  relatives) to let insertions (footnotes, topins, pageins, etc.) float 
+%  within their appropriate section, but to prevent them from intruding 
+%  into the following section, even when sections do not normally begin 
+%  a new page.  (If your sections normally begin a new page, just use 
+%  \supereject to flush out insertions.)
+%
+%  Different combinations of insertions can be controlled with different
+%  commands:
+%  
+%  \par\penalty-20029  
+%         If there are any insertions that will not fit on the current page,
+%         a \supereject is performed and the following text will continue at
+%         the top of a page after all insertions.  If all insertions do fit
+%         on the current page, then the following text will continue
+%         immediately on this page. 
+%  \par\penalty-20030  
+%         Like above, except that if there are any footnotes at all on the
+%         current page, the section must begin on the next page. (This is so
+%         no footnote text from section 1 will appear beneath the beginning
+%         of section 2.) 
+%  \par\penalty-10029  
+%         If any insertions cannot fit on the current page, eject them, and
+%         then allow the following section to begin immediately on the same
+%         page as the last insert. If all insertions do fit on the current
+%         page, then the following text will continue immediately on this
+%         page. 
+%  \barrier{\eject}{\topins}
+%         If there are any pageinserts or topinserts that do not fit on the
+%         current page, eject them, and then allow the following section to
+%         begin immediately on the same page as the last insert.  Split
+%         footnotes or other insertions are allowed to intrude into the next
+%         section. 
+%  \barrier{\supereject}{\topins}
+%         Like the \barrier command above, but if any inserts are ejected 
+%         the following section will begin at the top of a new page (like 
+%         \supereject).
+%  \barrier{...}{\footins}
+%         *** NOT ALLOWED ***  You will get spurious space and footnote-rules 
+%         at the bottom of pages!
+%  \barrier{...}{\margins}    
+%         If you define other insertion classes, such as marginal notes, you 
+%         can use \barrier for them too.  But only if \skip\margins=0pt.  
+%         You must also add any new insertion classes to the definition of 
+%         \placerestoreoutput
+%
+%  How to use:  First, \input this file (of course!).  Then, at the beginning
+%  of a new section, or at any boundary that insertions should not cross, put
+%  one of the commands listed above.  Presumably, you will actually put these
+%  commands at the start of your own \section or \startsection macro; that is
+%  why they are non mnemonic!
+%
+%  There is a slight chance that a footnote may be separated from its reference
+%  in the text after \penalty-xxxxx when there are no split insertions.  (LaTeX
+%  has the same possibility at every float!)
+ 
+\chardef\noplaceoutput\catcode`\@
+\catcode`\@=11
+
+\edef\zero@skip{\the\z@skip}
+
+\def\barrier#1#2{\par\begingroup
+ \ifdim\skip#2>\z@{\newlinechar10\errhelp{\barrier#2may produce some spurious
+   extra material on the page, ^^J but I will try anyway.}\errmessage{Bad use 
+   of \string\barrier}}%
+ \fi
+ \skip@\lastskip \edef\next{\the\skip@}\ifx\next\zero@skip\else\vskip-\skip@\fi
+ \penalty\z@ % update page parameters
+ \fam-\insertpenalties
+ \insert#2{\floatingpenalty\@ne}%
+ \ifx\next\zero@skip\else\vskip\skip@\fi
+ \advance\fam\insertpenalties % 0: no held; 1: held over
+ \expandafter\endgroup
+ \ifnum\fam=\@ne % then do eject
+% \message{There are held-over \string#2 inserts; performing \string#1. }%
+  \ifdim\pagetotal<\topskip \leftline{}\kern-\topskip\fi % avoid empty list 
+  {\dimen@\pagetotal \advance\dimen@\pagedepth 
+   \ifdim\dimen@<\pagegoal\vfill\fi}%
+  #1\@barrier{#1}{#2}\else
+%   \message{There are no held-over \string#2 inserts. \space}%
+\fi
+}
+
+\def\placeinsoutput{%
+\ifnum\outputpenalty=-20030\relax % eject if any footnotes
+  \ifvoid\footins\else 
+   \fam\insertpenalties \advance\fam\@ne \insertpenalties\fam
+  \fi \outputpenalty=-20029\relax
+\fi
+\ifnum\outputpenalty=-20029\relax % Check for `supereject' flag
+ \ifnum\insertpenalties>\z@ % something is being held over, must get it out
+% \message{Forcing insertions on their own pages. \space}%
+  \ifvoid\footins \r@ggedbottomtrue \else \advance\skip\footins 0ptplus1fil\fi
+  \noplaceoutput % performs \supereject
+ \else % must rejoin seamlessly:
+  \placerestoreoutput
+ \fi
+\else % check for other flag...
+ \ifnum\outputpenalty=-10028 % in the middle of ejecting
+  \ifnum\insertpenalties=\z@ \global\setbox\@cclv\vbox{}\fi
+  \outputpenalty=-10029
+ \fi
+ \ifnum\outputpenalty=-10029\relax % section start
+  \ifnum\insertpenalties>\z@ % something is being held over, must get it out
+%  \message{Forcing insertions. \space}%
+   \ifvoid\footins \r@ggedbottomtrue \else \advance\skip\footins 0ptplus1fil\fi
+   \noplaceoutput % performs \eject, perhaps repeatedly:
+   \leftline{}\kern-\topskip \penalty-10028\relax % (like \dosupereject)
+  \else % must rejoin seamlessly:
+   \placerestoreoutput
+  \fi
+ \else % just a regular page break
+  \noplaceoutput
+ \fi
+\fi
+}
+
+% there is a slim chance that footnotes may lose their place.
+\def\placerestoreoutput{%
+  \ifvoid\footins\else\insert\footins{\unvbox\footins}\fi
+  \ifvoid\topins\else\insert\topins{\unvbox\topins}\fi
+% If you have other floating insertion classes, do the same here.
+  \unvbox\@cclv
+}
+
+\catcode`\@=\noplaceoutput
+
+\edef\noplaceoutput{\the\output}
+\output{\placeinsoutput}

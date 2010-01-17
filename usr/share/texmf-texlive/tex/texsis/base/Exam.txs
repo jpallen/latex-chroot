@@ -1,0 +1,196 @@
+%% file: Exam.txs (TeXsis version 2.18)
+% @(#) $Revision: 16.0+X1 $ : $Date: 1992/08/08 22:20:36 $ : $Author: myers$
+%======================================================================*
+% These are a few simple macros to make it easier to type up
+% homework problems and examinations. 
+%
+% Example:
+%   
+%    \texsis
+%    \def\CourseName{Physics 231 -- Mathematical Methods}
+%    \def\Semester{Fall 1993}\def\ExamTitle{Test 2}
+%    \input Exam.txs
+%    \noindent
+%    There are \Qcount\ problems on this exam. Work all or as many as you
+%    can do, and record all answers below.  \n 
+%    To insure that you get proper partial credit for incomplete answers show
+%    all your work either here or on another piece of paper.
+%    \medskip\noindent
+%    100 Points.
+%    
+%    \Questions
+%    
+%    \Q
+%    Determine whether each infinite series below is convergent or divergent
+%    using the \hbox{Malcom~X} method (i.e., by any means necessary!).
+%    Be sure to give your reasons.
+%    \Choices
+%    \itm  $S = \sum_{n=1}^\infty {2^n \over (n-1)!}$
+%    \itm  $S = \sum_{n=1}^\infty  \left( 1 - {1\over n^2} \right)$
+%    \itm  $S = \sum_{n=3}^\infty  {2n-3\over (n-1)(n-2)} $
+%    \endChoices
+%    
+%    ...
+%    
+%    \endQuestions
+%    \bye
+%      
+% Note: these are just supposed to help you make up an exam, but not
+% define the format used.  Change these as you like or make up your own,
+% but I hope they help give you a starting point.
+%
+% Eric Myers <myers@vassar.edu> - 20 September 1994
+% Department of Physics and Astronomy, Vassar College, Poughkeepsie, NY
+% Department of Physics, University of Michigan, Ann Arbor, MI
+%======================================================================*
+
+\singlespaced
+\parindent=0pt
+\sectionminspace=0pt
+
+%% Get the question count from the last run
+
+\newskip\Qskip \Qskip=\medskipamount
+
+\newwrite\cntfile               % to save question count
+
+\newread\cntfile\openin\cntfile=\jobname.cnt
+\ifeof\cntfile\def\Qcount{99 }\else\read\cntfile to\Qcount\fi
+
+
+%% \Questions environment is like a ``List'' environment
+
+\def\Questions{\bigskip\bigskip
+  \enumNumOutline
+  \enumerate
+  \advance\leftskip by -\EnvLeftskip 
+  \advance\rightskip by -\EnvRightskip 
+  \everymath={\displaystyle}
+  \def\endmode{\relax}
+  \def\Q{\endmode\def\endmode{\relax}%
+      \vskip\Qskip
+      \itm}}
+
+\def\endQuestions{%
+   \filbreak   
+   \immediate\openout\cntfile=\jobname.cnt 
+   \immediate\write\cntfile{\the\enumcnt }%
+   \immediate\closeout\cntfile
+   \xdef\Qcount{\the\enumcnt}%
+   \endenumerate}
+
+\def\Choices{\medskip\enumerate\def\enummark{\rparen}\parskip=0pt
+        \singlespaced\widenspacing
+        \def~{\phantom{0}}%
+        \def\endChoices{\endenumerate\medskip}}
+\def\endChoices{\relax}
+
+
+%% Exam title, if there is one:
+
+\ifx\ExamTitle\undefined\else
+  \line{\hss\ExamTitle\hss}
+  \bigskip\bigskip
+  \line{%
+    \vbox{\hbox{\CourseName}%
+          \hbox{\ }%
+          \hbox{\Semester}%
+          }%
+    \hss
+    \vbox{\hbox{Name:\quad\theBlank{5cm}}%
+          \hbox{\ }%
+          \hbox{Date:\quad\theBlank{4cm}}%
+          }%
+     }%
+\fi
+\vskip 1cm 
+
+
+%% Header for a set of 1 or more questions:
+
+\def\endmode{\relax}
+
+\def\Unskip{\vskip-\Qskip\vskip-\parskip}%   \emsg{Unskip!}}
+
+
+\long\def\Qset#1#2{%   begin a set of questions (#2 is lookahead)
+   \endmode
+   \begingroup\def\endmode{\endgroup}%
+   \ifnum#1>1   %% Several QuestionS  (like \QS)
+       \filbreak
+       \noindent{\bf \undertext{Questions \Qplus1--\Qplus#1}}
+   \else
+       \filbreak
+       \noindent{\bf \undertext{Question \Qplus1}}
+   \fi
+   \vskip 0pt
+%%   \def\foo{#2}\emsg{Lookahead gives \string#2}%
+%%   \ifx\foo\Unskip \emsg{Found \string\Unskip!}\fi
+%%   \ifx\foo\Q \emsg{Found \string\Q!}\fi
+%%   \ifx\foo\par\emsg{Found \string\par!}\fi
+%%   \ifx\foo\empty\emsg{Empty lookahead}\fi
+   \noindent#2}
+
+
+% Increment the question counter and ``return'' the new number
+
+\def\Qplus#1{\count255=\the\enumcnt
+        \advance\count255 by #1 \the\count255}
+
+%% Old macros to do what \Qset does:
+
+\long\def\QH#1#2{\filbreak      % NOW IGNORES #1 -EAM 1997/6/22
+        \noindent{\bf \undertext{Question \Qplus1}}\vskip 0pt\noindent#2}
+
+\long\def\QS#1#2{\filbreak
+        \noindent{\bf \undertext{Questions #1}}\vskip 0pt\noindent#2}
+
+
+\def\Continued{\smallskip
+   \line{\bf Questions continue on the next page...\hfill}
+   \eject}
+
+\def\Answer{\vskip 0pt
+        \line{\hfill{\twelvess ANSWER:\ }\hfill}%
+        \vskip 0pt}
+
+
+%% Put "DRAFT" watermark over each page using PostScript \special
+
+\def\DraftMark{\draft
+   \special{!userdict begin /bop-hook{gsave 200 30 translate
+   65 rotate /Times-Roman findfont 216 scalefont setfont
+   0 0 moveto 0.825 setgray (DRAFT) show grestore}def end}}
+
+
+% This displays a figure of vertical height #1, from the file #2,
+% side by side with the text #4 of width #3 times \hsize.  The text is
+% actually on the left, the figure on the right, and there is a small
+% gutter between. 
+
+\long\def\RightFig#1#2#3{%
+   \line{\def\endmode{\relax}%
+      \vbox to #1{\hsize=0.60\hsize\noindent #3\relax\vss}%
+      \hfill
+      \vbox to #1{\hbox{\epsfysize=#1\epsfbox{figs/#2}}\vss}
+      \hfill}%
+}
+
+
+%% Version control for large classes
+
+\newcount\version       \version=0       % version A(0) or B(1)?  
+
+\def\AB#1#2{\ifcase\version #1\or #2\else\?\fi}
+\def\ABC#1#2#3{\ifcase\version #1\or #2\or #3\else\?\fi}
+
+% Misc:
+
+
+\def\?{\theBlank{1.2cm}}
+
+\def\DS{\displaystyle}
+
+
+
+%>>> EOF Exam.txs <<<

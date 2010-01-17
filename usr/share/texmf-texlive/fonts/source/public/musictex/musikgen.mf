@@ -1,0 +1,1252 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  this is musikgen.mf
+%
+%  Version 5.02 [March 94] Daniel Taupin changed '047 to a + for percussion
+%
+%  Version 5.01 [January 94] Daniel Taupin
+%
+%  Version 4.89 [September 93] Andreas Egler
+%               - blacker influence now
+%               - redesigned chars 71, 72, 53, 123
+%
+%  Version 4.88 [January 93] Ross Mitchell
+%               - redesigned chars 63, 64, 65, 66
+%
+%  Version 4.87 [] Daniel Taupin
+%
+%  Version 2.00 [] Daniel Taupin
+%
+%  Version 1.00 [August 86] Angelika Schofer/Andrea Steinbach
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%"At most 15 different nonzero heights, 15 different nonzero depths, ...
+% may appear in a single fonts. If these limits are exceeded, METAFONT will
+% change one or more values, ..., until the restriction hold. A warning
+% message is issued ..; for example 'some charht values had to be adjusted
+% by as much as 0.12pt' means that you had too many different nonzero
+% heights, ..."                                        METAFONT-Book App. F
+
+%<<<>>> This indicates the heights I've changed
+
+%{{{ This always indicates a lowres fix to avoid seperated points
+%}}} and/or 'invisible' lines. It doesn't affect higher resolutions !!
+
+pair pone, ptwo;
+transform t;
+path p;
+picture save_pic;
+
+pen thin_pen, med_pen;
+thin_pen:= pencircle scaled thin;
+med_pen:= pencircle scaled med;
+
+apog_fact=0.75;
+apog_nhh=apog_fact*nhh;
+apog_nhh#=apog_fact*nhh#;
+apog_nhw#=apog_fact*nhw#;
+
+%%%AE it's somewhat faster to use already computed pictures
+def mirror (expr pone, ptwo) =
+    currentpicture:=currentpicture reflectedabout(round(pone),round(ptwo))
+enddef;
+def add_mirror (expr pone, ptwo) =
+    addto currentpicture also currentpicture 
+          reflectedabout (round(pone), round(ptwo))
+enddef;
+
+def savepic = save_pic:= currentpicture enddef;
+def callpic = currentpicture:= save_pic enddef;
+def clearpic = save_pic:= nullpicture enddef;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% basic macros for noteheads and flags %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% noteheads %
+%%%%%%%%%%%%%
+def drawnoteb(expr noteheadwidth, noteheadheight, theta_a,
+              theta_b, theta_c, width_a, width_b)  =
+    penpos1(width_a, theta_a);       %         .l
+    penpos3(width_a, 180+theta_a);   %         .2
+    penpos2(width_b, 180+theta_b);   %         .r
+    penpos4(width_b, theta_b);       %.l.1.r         .r.3.l
+    x1l =  y1 = y3 = 0;              %         .r
+    x3l = 2x2 = 2x4 = noteheadwidth; %         .4
+    y2l =-y4l = noteheadheight;      %         .l
+    t:= identity rotatedaround ((x2,0),theta_c);
+    penstroke (z1e{up}..z2e{right}..z3e{down}..z4e{left}..cycle)
+               transformed t;
+%{{{
+    currentpen:= pencircle;
+    draw (z1{up}..z2{right}..z3{down}..z4{left}..cycle) transformed t
+%}}}
+enddef;
+
+def drawnotew(expr noteheadwidth, noteheadheight, theta_a,
+              theta_b, width_a, width_b)  =
+    penpos1(width_a, theta_a);       %         .l
+    penpos3(width_a, 180+theta_a);   %         .2
+    penpos2(width_b, 180+theta_b);   %         .r
+    penpos4(width_b, theta_b);       %.l.1.r        .r.3.l
+    x1l= y1l  = y3l  = 0;            %         .r
+    x3l= 2x2l = 2x4l = noteheadwidth;%         .4
+    y2l=-y4l  = noteheadheight;      %         .l
+    fill z1l{up}..z2l{right}..z3l{down}..z4l{left}..cycle;
+    erase fill z1r{up}..z2r{right}..z3r{down}..z4r{left}..cycle;
+%{{{
+    currentpen:= pencircle;
+    draw z1{up}..z2{right}..z3{down}..z4{left}..cycle;
+%}}}
+    penlabels(1,2,3,4)
+enddef;
+
+%%%AE I found in a notebook a whole note which looks slight different
+def drawnote_w(expr noteheadwidth, noteheadheight, theta, width_a, width_b)=
+    x1= y1 = y3 = y5 = y7 = 0;
+    x3= 2x2 = 2x4 = 2x6 = 2x8 = noteheadwidth;
+    y2=-y4 = noteheadheight;
+    x5= x3-x7 = x1+width_a;
+    y6=-y8 = y2-width_b;
+    fill z1{curl3}..z2..{curl3}z3{curl3}..z4..{curl3}cycle;
+    unfill (z5..z6..z7..z8..cycle) rotatedaround ((x2,0),theta);
+    labels(range 1 thru 8);
+enddef;
+%%%AE if you have GFtoDVI and want to see the character,
+%     uncomment the next four lines
+%beginchar(0,1.5nhh#, .5nhh#, .5nhh#);
+%    drawnote_w(w, h, 45, 1.6thick, .5thin);
+%endchar;
+%end
+
+%%%%%%%%%
+% flags %
+%%%%%%%%%
+%%%AE the penstrike macro is a copy of plain's penstroke
+%     macro, 'fill' is replaced by 'filldraw', this is
+%     responsible for 'strange path' when sharp turns ahead (intersectionp)
+%     the second macro does the same with a little more 'tolerance'
+%
+%     I don't like it at all, because the flags are thicker
+%     on lowres than (or as?) on highres devices
+%     {Sorry, my english is very bad, nevertheless I hope you
+%      understand my words}
+%
+%%%def penstrike text t =
+%%% forsuffixes e = l,r: path_.e:=t; endfor
+%%% if cycle path_.l: cyclestroke_
+%%% else: filldraw path_.l -- reverse path_.r -- cycle fi enddef;
+%
+%def penstrike text t =
+% forsuffixes e = l,r: path_.e:=t; endfor
+% if cycle path_.l: cyclestroke_
+% else: fill path_.l -- reverse path_.r -- cycle;
+%       draw path_.l -- reverse path_.r -- cycle fi enddef;
+
+def flagshape(suffix i) (expr width, height, thick,
+                         thin, shiftx, shifty, flagsense) =
+    pair intersectionp;               %  .1
+    penpos[i](thick+blacker, 90);     %
+    penpos[i+1](3.25thin+blacker, 70);%       .2
+    penpos[i+3](thin, -45);           %
+    x[i]   = rt shiftx;               %           .3
+    y[i]   = height+shifty-thick/2;   %
+    x[i+1] = shiftx+3/8width;         %        .4
+    y[i+1] = height+shifty-.95thick;  %
+    x[i+2] = shiftx+width-thin/2;
+    y[i+2] = height+shifty-2thick;
+    x[i+3] = shiftx-thin/2+0.6width;
+    y[i+3] = shifty;
+    if i>1: intersectionp = z[i-2]; else: intersectionp = z[i+3]; fi;
+    if flagsense>0:
+       penpos[i+2](1.25thin+blacker, 35);
+    else:
+       penpos[i+2](1.05thin+blacker, 0);
+    fi;
+    penstroke z[i]e..z[i+1]e..z[i+2]e{down}..intersectionp;
+%{{{
+    currentpen:= pencircle;
+    draw lft z[i]..z[i+1]..z[i+2]{down}..intersectionp;
+%}}}
+    penlabels (range i thru i+3)
+enddef;
+
+% Added by D. Taupin Jan 1993
+beginchar(14,0.5nhw#,0,0); "Song system limit up";
+%%%AE clearxy is already done by 'beginchar();'
+%   clear;
+    x1=y1=y2=0; 3x2=x3=3w; y3=nhh;
+    p:= z1---z2..z3;
+    pickup penrazor scaled med rotated 90;
+    draw p;
+%{{{
+    currentpen:= pencircle;
+    draw p;
+%}}}
+    savepic;
+endchar;
+
+beginchar(15,0.5nhw#,0,0); "Song system limit down";
+    callpic;
+    mirror (origin, right);
+endchar;
+
+for n:=1 upto 4:
+%<<<>>>(0.5+0.1*n)*nhh#
+    beginchar(15+n, 4n*nhw#, 0, (0.5+0.1n)*nhh#); "Crescendo";
+        pickup med_pen;
+        draw (0,(0.5+0.1n)*nhh)--(w,0)--(0,-d);
+    endchar;
+endfor;
+
+for n:=1 upto 4:
+%<<<>>>(0.5+0.1*n)*nhh#
+    beginchar(19+n, 4n*nhw#, 0, (0.5+0.1n)*nhh#); "Decrescendo";
+        pickup med_pen;
+        draw (w,(0.5+0.1n)*nhh)--(0,0)--(w,-d);
+    endchar;
+endfor;
+
+%%%%%%%%%%%
+% accents %
+%%%%%%%%%%%
+dely:=1.15nhh+.2pt;
+
+%%%AE 'fill fullcircle' is faster and produce 'nicer' circles
+beginchar(24, nhw#, nhh#, 0); "Point au-dessus de la note";
+    fill fullcircle scaled thick shifted (.5w, dely);
+    savepic;
+endchar;
+
+beginchar(25, nhw#, 0, nhh#); "Point au-dessous de la note";
+    callpic;
+    mirror (origin, right);
+endchar;
+
+beginchar(26, nhw#, nhh#, 0); "Barre au-dessus de la note";
+%%%AE faster
+    fill unitsquare xscaled w yscaled 1.25med shifted (0,dely-.625med);
+    savepic;
+endchar;
+
+beginchar(27, nhw#, 0, nhh#); "Trait au-dessous de la note";
+    callpic;
+    mirror (origin, right);
+endchar;
+
+beginchar(28, nhw#, nhh#, 0); "Accent (pizz.) au-dessus de la note";
+    rayon:= thin+.1nhh;
+    z1=(0.5w,w+rayon);
+    z2=(0.5w-rayon,w);
+    z3=(0.5w,w-0.45nhh);
+    z4=(0.5w+rayon,w);
+    fill z3--z4{up}..z1..{down}z2--cycle;
+    savepic;
+endchar;
+
+beginchar(29, nhw#, 0, nhh#); "Accent (pizz.) au-dessous de la note";
+    callpic;
+    mirror (origin, right);
+endchar;
+
+%%%AE why 1.5nhh ???
+beginchar(30, nhw#, 1.5nhh#, 0); "Accent (sforz.) au-dessus de la note";
+    pickup med_pen;
+    draw (-.2w, 1.6nhh)--(1.2w, 1.3nhh)--(-.2w, nhh);
+    savepic;
+endchar;
+
+beginchar(31, nhw#, 0, nhh#); "Accent (sforz.) au-dessous de la note";
+    callpic;
+    mirror (origin, right);
+endchar;
+
+%%%%%%%%%
+% breve %
+%%%%%%%%%
+def breve =
+    fill unitsquare xscaled w yscaled .5h shifted (0,.25h);
+    add_mirror (origin, right);
+    nh:= .7nhh;
+    pickup thin_pen;
+    draw (0,nh)--(0,-nh); draw (w,nh)--(w,-nh);
+enddef;
+
+%<<<>>>.7nhh#
+beginchar(32, nhw#, 0.5nhh#, 0.5nhh#); "Breve";
+    breve;
+endchar;
+
+beginchar(33, nhw#, .5nhh#, .5nhh#); "Quarter note";
+    w:=w+2thinwidth;
+%%%AE a little bit smaller, because a quarter note
+%     seems to be thicker as an half note
+    drawnoteb(w, .99h, 0, 90, 20, w/2, h);
+endchar;
+
+beginchar(34, nhw#, .5nhh#, .5nhh#); "Half note";
+    w:=w+2thinwidth;
+    drawnoteb(w, h, 0, 90, 20, thin, thick);
+endchar;
+
+beginchar(35,1.5nhh#, .5nhh#, .5nhh#); "Whole note";
+    drawnotew(w, h, 0, 30, 1.3thick, 1.75thin);
+endchar;
+
+%<<<>>>.7nhh#
+beginchar(36, 2nhw#, 0.5nhh#, 0.5nhh#); "Semi-breve";
+    breve;
+endchar;
+
+beginchar(37, apog_nhw#, .5apog_nhh#, .5apog_nhh#); "Small quarter note";
+    w:=w+2thinwidth;
+    drawnoteb(w, .99h, 0, 90, 20, w/2, h);
+endchar;
+
+%beginchar(38, apog_nhw#, .5apog_nhh#, .5apog_nhh#); "Small half note";
+%    w:=w+2thinwidth;
+%    drawnoteb(w, h, 0, 90, 20, thin, apog_fact*thick);
+%endchar;
+
+def doublesharp (expr high)=
+    clear;
+    x4= .5w; y4=high;
+    x1=w-x7=.5w+1/25nhh; y1=y7=0;
+    x2=w-x6=.51w+thin; y2=y6=.3y4;
+    x3=w-x5=.58w+thin; y3=y5=.6y4;
+    t:= identity rotatedaround ((.5w, 0), 90);
+    fill (z1{up}..z2..z3..{nw}z4 & z4{sw}..z5..z6..{down}z7--z1--cycle)
+          rotatedaround ((.5w, 0), 45);
+    addto currentpicture also currentpicture transformed t;
+    addto currentpicture also currentpicture transformed (t transformed t);
+    labels (1,2,3,4,5,6,7)
+enddef;
+
+
+beginchar(38, nhw#, nhh#, nhh#); "Circled doublesharp";
+    doublesharp (.62w);
+    pickup thin_pen;
+    draw (0,0){up}..{right}(0.5nhw,0.5nhw)..
+      {down}(nhw,0)..{left}(0.5nhw,-0.5nhw)..cycle;
+endchar;
+
+
+
+% beginchar(39, 1.5apog_nhh#, .5apog_nhh#, .5apog_nhh#); "Small full note";
+%    drawnotew(w, h, 0, 30, apog_fact*1.3thick, 1.5thin);
+% endchar;
+
+%
+beginchar(39, nhw#, nhh#, nhh#); "Bongo cross";
+    pickup pencircle scaled med;
+    draw (0,0)--(nhw,0);
+    draw (0.5nhw,-0.5nhw) -- (0.5nhw,0.5nhw)
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% general parameters for flags %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+flagw:=0.8nhw;
+flagthick:=nhh;
+flagthin:=5thinwidth;
+
+def cflag (expr sense) =
+    flagshape(1, flagw, h, flagthick, flagthin, 0, 0, sense);
+    if sense<0 : mirror ((0,h/2), (1,h/2)); fi
+enddef;
+
+def flagloop (expr sense, doitagain) =
+    flagshape(1, flagw, 2.50flagthick, 2/3flagthick,
+              flagthin, 0, 0, sense);
+    for xyz:=1 upto doitagain:
+        flagshape([4xyz+1], flagw, 2.25flagthick, 2/3flagthick,
+                  flagthin, 0, (.75xyz+.25)*flagthick, sense);
+    endfor;
+    if sense<0 : mirror ((0,h/2), (1,h/2)); fi
+enddef;
+
+def ccflag (expr sense) = flagloop(sense, 1) enddef;
+def cccflag (expr sense) = flagloop(sense, 2) enddef;
+def ccccflag (expr sense) = flagloop(sense, 3) enddef;
+def cccccflag (expr sense) = flagloop(sense, 4) enddef;
+
+beginchar(40, 0, 3nhh#, 0); "1/8flag down";
+    cflag(1);
+    savepic;
+endchar;
+
+% Acciacaturra, added by D.Taupin Jan 93.
+% idem mais avec barre (appogiature)
+beginchar(12, 0, 3nhh#, 0); "Acciacaturra stem up";
+    callpic;
+    pickup med_pen;
+    x1=-0.25nhw; y1=0.2h; x2=1.1nhw; y2=y1+0.6(x2-x1);
+    draw z1--z2;
+endchar;
+
+beginchar(41, 0, 3.25nhh#, 0); "1/16flag down";
+    ccflag(1);
+endchar;
+
+beginchar(42, 0, 4.00nhh#, 0); "1/32flag down";
+    cccflag(1);
+endchar;
+
+beginchar(43, 0, 4.75nhh#, 0); "1/64flag down";
+    ccccflag(1);
+endchar;
+
+beginchar(44, 0, 5.50nhh#, 0); "1/128flag down";
+    cccccflag(1);
+endchar;
+
+%%%
+% flags up should be wider
+%%%
+flagw:=nhw;
+
+beginchar(45, 0, 3nhh#, 0); "1/8flag up";
+    cflag(-1);
+    savepic;
+endchar;
+
+% added by D.Taupin Jan 93.
+% idem mais avec barre (appogiature)
+beginchar(13, 0, 3nhh#, 0); "Acciacaturra stem down";
+    callpic;
+    pickup med_pen;
+    x1=-0.25nhw; y1=1.6nhh; x2=1.2nhw; y2=y1+0.6(x2-x1);
+    draw z1--z2;
+endchar;
+
+beginchar(46, 0, 3.25nhh#, 0); "1/16flag up";
+    ccflag(-1);
+endchar;
+
+beginchar(47, 0, 4.00nhh#, 0); "1/32flag up";
+    cccflag(-1);
+endchar;
+
+beginchar(48, 0, 4.75nhh#, 0); "1/64flag up";
+    ccccflag(-1);
+endchar;
+
+beginchar(49, 0, 5.50nhh#, 0); "1/128flag up";
+    cccccflag(-1);
+endchar;
+
+%%%%%%%%%%%%%%%
+% accidentals %
+%%%%%%%%%%%%%%%
+def flat (expr reduction, shiftx, flatsense) =
+    clear;
+    fthick:= reduction*s;
+    penpos4(4/3fthick+blacker,0);  % 1
+    penpos3(1/2fthick+blacker,-90);%
+    penpos6(4/7fthick+blacker,90); %   6
+    penpos2(.1thinwidth, 180);     %  / \
+    x1 = x2 = x3 = x5 = fthick;    % 2   4
+    y1 = 6fthick; y2l= 0.5y4;      %    /
+    y3l=-2fthick; y5= y3r;         % 3,5
+    x4 = 3.6fthick; y4 = 0.1fthick;
+    y6r= 2fthick; x6= 0.5(x2+x4);
+    t:=identity shifted (shiftx,0);
+    p:= (z1--z5) transformed t;
+    pickup penrazor scaled (2sind40*thin) rotated 40;
+    draw p;
+%{{{
+    currentpen:= pencircle;
+    draw p;
+%}}}
+    penstroke (z2e..{right}z6e..z4e{sw+down}..{sw}z3e) transformed t;
+    if flatsense<0: mirror (z5 transformed t, z1 transformed t); fi;
+    penlabels (1,2,3,4,5,6)
+enddef;
+
+%<<<>>> 2nhh#
+beginchar(50, nhw#, 1.5nhh#, 1.5nhh#); "Flat";
+    flat (1, 0, 1);
+    savepic;
+endchar;
+
+%<<<>>> 2nhh#
+beginchar(51,1.7nhw#, 1.5nhh#, 1.5nhh#); "Doubleflat";
+    callpic;
+    addto currentpicture also currentpicture shifted (.7nhw, 0);
+endchar;
+
+def sharp =
+    clear;
+    reduction:=w/0.8nhw;
+    sthick:= .5reduction*thick;
+    y1 =-y7= h-1.5sthick; y2 =-y8 = .5sthick-h;
+    x1 = x2 = y3 = -y6 = w-x7 = w-x8 = 2sthick;
+    y4 =-y5 = y3 + 3sthick;
+    x3 = x5 = 0; x4 = x6 = w;
+    pickup penrazor scaled thin rotated angle(z4-z3);
+    draw z1--z2; draw z8--z7;
+%{{{
+    currentpen:= pencircle;
+    draw z1--z2; draw z8--z7;
+%}}}
+    pickup penrazor scaled 3sthick rotated 90;
+    draw z3--z4; draw z5--z6;
+    labels (range 1 thru 8)
+enddef;
+
+beginchar(52, 0.8nhw#, 1.5nhh#, 1.5nhh#); "Sharp";
+    sharp;
+endchar;
+
+%<<<>>>.5nhw#
+beginchar(53, nhw#, nhh#, nhh#); "Doublesharp";
+    doublesharp (.65w);
+endchar;
+
+def natural =
+    clear;
+    reduction:=w/0.8nhw;
+    nthick:= 3/4reduction*thick;
+    x1 = x2 = x3 = nthick;
+    x5 = x6 = x4 = w-x1;
+    y1 = -y6 = h;
+    y2 = -y5 = 1.6nthick;
+    y4 = -y3 = y2+4/3nthick;
+    pickup penrazor scaled thin rotated angle(z4-z2);
+    draw lft z1--bot lft(x3,y3-nthick);
+    draw top rt(x4,y4+nthick)--rt z6;
+%{{{
+    pickup pencircle;
+    draw lft z1--lft(x3,y3-nthick);
+    draw rt(x4,y4+nthick)--rt z6;
+%}}}
+    pickup penrazor scaled 2nthick rotated 90;
+    draw z2--z4; draw z3--z5;
+    labels(1,2,3,4,5,6)
+enddef;
+
+beginchar(54, 0.8nhw#, 1.5nhh#, 1.5nhh#); "Natural";
+    natural;
+endchar;
+
+%<<<>>> 2nhh#
+beginchar(55, nhw#, 1.5nhh#, 1.5nhh#); "1/4 flat";
+    flat (1, 0.65nhw, -1);
+endchar;
+
+%<<<>>> 2nhh#
+beginchar(56, 1.7nhw#, 1.5nhh#, 1.5nhh#); "3/4 flat";
+    flat (1, 0.65nhw, -1); flat (1, 0.65nhw, 1);
+endchar;
+
+beginchar(57, nhw#, .5nhh#, .5nhh#); "Gregorian notes";
+    fill (0.5w-0.8h,0)--(0.5w,h)--(0.5w+0.8h,0)--(0.5w,-h)--cycle;
+endchar;
+
+beginchar(0, nhw#, .5nhh#, .5nhh#); "Gregorian diamond";
+    fill (0,0)--(0.5w,0.5nhw)--(w,0)--(0.5w,-0.5nhw)--cycle;
+endchar;
+
+beginchar(1, 0.71*nhw#, .5nhh#, .5nhh#); "Gregorian square";
+    fill (0,0.355nhw)--(w,0.355nhw)--(w,-0.355nhw)--(0,-0.355nhw)--cycle;
+endchar;
+
+beginchar(2, 0.71*nhw#, .5nhh#, .5*nhh#); "Gregorian square left";
+    fill (0,0.355nhw)--(w,0.355nhw)--(w,-0.355nhw)--(0,-0.355nhw)--cycle;
+    pickup thin_pen;
+    draw (0.5thin,0.355nhw-thin)--(0.5thin,-1.5nhh+0.5thin);
+endchar;
+
+beginchar(3, 0.71*nhw#, .5nhh#, .5nhh#); "Gregorian square right";
+    fill (0,0.355nhw)--(w,0.355nhw)--(w,-0.355nhw)--(0,-0.355nhw)--cycle;
+    pickup thin_pen;
+    draw (w-0.5thin,0.355nhw-thin)--(w-0.5thin,-1.5nhh+0.5thin);
+endchar;
+
+beginchar(4, nhw#, 3nhh#, 0); "Gregorian C clef";
+    fill (0,2nhh+0.8nhh)..{right}(0.5w,2nhh+nhh)--(w,2nhh+nhh)--
+      (w,2nhh+0.3nhh)--(0.5w,2nhh+0.3nhh){left}..(0,2nhh+0.1nhh)--cycle;
+    fill (0,2nhh-0.8nhh)..{right}(0.5w,2nhh-nhh)--(w,2nhh-nhh)--
+      (w,2nhh-0.3nhh)--(0.5w,2nhh-0.3nhh){left}..(0,2nhh-0.1nhh)--cycle;
+    pickup thin_pen;
+    draw (0.5thin,2.5nhh)--(0.5thin,1.5nhh);
+endchar;
+
+%%%%%%%%%
+% rests %
+%%%%%%%%%
+beginchar(58,1/2nhw#, 3nhh#, 0); "Dp";
+    fill unitsquare xscaled w yscaled 1/3h shifted (0, 2/3h);
+endchar;
+
+beginchar(59,1/2nhw#, 3nhh#, 0); "Ddp";
+    fill unitsquare xscaled w yscaled 2/3h shifted (0, 1/3h);
+endchar;
+
+beginchar(60, nhw#, 3nhh#, 0); "Full rest";
+    fill unitsquare xscaled w yscaled .5nhh shifted (0,h-.5nhh);
+endchar;
+
+%<<<>>> 2.5nhh#
+beginchar(61, nhw#, 3nhh#, 0); "Half rest";
+    fill unitsquare xscaled w yscaled .5nhh shifted (0,h-nhh);
+endchar;
+
+beginchar(62, nhw#, 4nhh#, 0); "Quarter rest";
+    rthin:= 1/8 nhh;           % .1
+    rthick:= 2 thick+rthin;    %       .2
+    alpha:= -50;               %    .3
+    penpos1 (rthin, 90+alpha); % .4
+    penpos5 (rthin, alpha);    %       .5,10
+    penpos2 (rthick, alpha);   %   .6
+    penpos4 (rthick, alpha);   %
+    penpos3 (3/4rthick, alpha);%       .7
+    penpos6 (4/3thick, alpha);
+    penpos7 (rthin, 45);
+    y1l = h - 2s;
+    x1l = 2s;
+    z2r = z1 +(nhh* right) rotated alpha;
+    z3  = 1/2[z2,z4];
+    z4  = (w,h) scaled .55;
+    z5  = z4l+(nhh* right) rotated alpha;
+    x6l = x4l; y6r = 1.45nhh;
+    x7  = 0.9w; y7= nhh-.5s;
+    z10 = z5r shifted (sqrt(2)*rthin/4,sqrt(2)*rthin/4);
+
+    pickup penrazor scaled rthin rotated 45;
+    draw z1--z2r; draw z4l--z10;
+    penstroke z2e..z3e..z4e;
+    penstroke z5e..z6e..z7e;
+    penlabels(1,2,3,4,5,6,7,10);
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Quaver rest and submultiples. %
+% Ross Mitchell,  January 1993  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%
+%   Draw the crook needed for quaver rests and shorter.
+%   The crook extends left from the point z.i on the stem.
+%%%
+def crook(suffix i)=
+    x3:=x.i-6.5fact; y3:=top y.i-3.0fact;
+    x4:=x.i-6.0fact; y4:=    y.i+0.5fact;
+    draw z.i{dir 240}..{dir 160}z3;
+    filldraw z3{dir 160}..z4{dir-20}..{dir 160}z3..cycle
+enddef;
+
+beginchar(63, 2nhh#, 3nhh#, 0); "Quaver rest";
+    z1=(nhh,nhh);
+    z2-z1=whatever*dir 70;    %  Angle the stem at 70 degrees.
+%%%
+%   Define the scaling factor `fact' implicitly.
+%   This value will be used for the shorter rests as well.
+%%%
+    z2-z1=(5fact,1.7nhh);
+    pickup med_pen;
+    draw z1..z2;
+    crook(2);
+    penlabels (1,2,3,4);
+endchar;
+
+beginchar(64,2nhh#, 3nhh#, 0); "Semiquaver rest";
+    z1=(nhh,0);
+    z2-z1=whatever*dir 75;    %  Angle the stem at 75 degrees.
+    y2-y1=2.7nhh;
+    z5-z2=whatever*(z1-z2); y5=y2-nhh;
+    pickup med_pen;
+    draw z1..z2;
+    crook(2); crook(5);
+    penlabels (1,2,3,4,5);
+endchar;
+
+beginchar(65,2nhh#, 4nhh#, 0); "Demisemiquaver rest";
+    z1=(nhh,0);
+    z2-z1=whatever*dir 80;    %  Angle the stem at 80 degrees.
+    y2-y1=3.7nhh;
+    z5-z2=whatever*(z1-z2); y5=y2-nhh;
+    z6-z2=whatever*(z1-z2); y6=y5-nhh;
+    pickup med_pen;
+    draw z1..z2;
+    crook(2); crook(5); crook(6);
+    penlabels (1,2,3,4,5,6);
+endchar;
+
+%<<<>>> 5nhh#
+beginchar(66,2nhh#, 4.75nhh#, 0); "Hemidemisemiquaver rest";
+    z1=(nhh,0);
+    z2-z1=whatever*dir 82;    %  Angle the stem at 82 degrees.
+    y2-y1=4.7nhh;
+    z5-z2=whatever*(z1-z2); y5=y2-nhh;
+    z6-z2=whatever*(z1-z2); y6=y5-nhh;
+    z7-z2=whatever*(z1-z2); y7=y6-nhh;
+    pickup med_pen;
+    draw z1..z2;
+    crook(2); crook(5); crook(6); crook(7);
+    penlabels (1,2,3,4,5,6,7);
+endchar;
+
+%%%%%%%%%%%%%
+% ornaments %
+%%%%%%%%%%%%%
+beginchar (67, 2nhw#, nhh#, 0); "Ornament";
+    x1=w-x6=0.2w; y1r=h; y6=h-y1;
+    x2r=0; y2=0.5h; x5=w-x2; y5=h-y2;
+    x3=0.22w; y3r=0; x4=w-x3; y4=h-y3;
+    penpos1 (med, 90);
+    penpos2 (med, 180);
+    penpos3 (thick,-40);
+    penpos4 (thick,-40);
+    penpos5 (med, 180);
+    penpos6 (med, 90);
+    penstroke z1e..{down}z2e{down}..{right}z3e{right}
+              ..{right}z4e{right}..{down}z5e{down}..z6e;
+    fill fullcircle scaled (s+thick) shifted (x1,y1r-thick);
+    fill fullcircle scaled (s+thick) shifted (x6,y6l+thick);
+    penlabels(1,2,3,4,5,6);
+    savepic;
+endchar;
+
+beginchar (68, 2nhw#, nhh#, 0); "Ornament";
+    callpic;
+    mirror ((.5w,0), (.5w,1));
+endchar;
+
+%<<<>>>3.5apog_nhh#
+beginchar(69, apog_nhw#, 3.25apog_nhh#, .5apog_nhh#); "Appogiature stem up";
+    flagshape(1,0.8w, 3apog_nhh, apog_nhh, 4thinwidth, w, 0.5apog_nhh, 1);
+    clear;
+    drawnoteb(w, 0.5apog_nhh, 0, 90, 20, w/2, apog_nhh/2);
+    clear;
+    pickup pencircle scaled .8med;
+    draw (w-2thinwidth,0)--(w-2thinwidth,3.5apog_nhh);
+    x1=-0.1w; y1=0.6apog_nhh; x2=2w; y2=y1+0.6(x2-x1);
+    draw z1--z2;
+endchar;
+
+beginchar(70, apog_nhw#, 0.5apog_nhh#, 3.5apog_nhh#); "Appogiature stem down";
+    flagshape(1,w, 3apog_nhh, apog_nhh, 4thinwidth, 0.2pt, apog_nhh, -1);
+    mirror ((0,h/2), (1,h/2));
+    clear;
+    drawnoteb(w, 0.5apog_nhh, 0, 90, 20, w/2, apog_nhh/2);
+    pickup pencircle scaled .8med;
+    draw (2thinwidth,0)--(2thinwidth,-d);
+    clear;
+    x1=-0.3w; y1=-1.6apog_nhh; x2=1.3w; y2=y1+0.6(x2-x1);
+    draw z1--z2;
+endchar;
+
+%%%%%%%%%
+% clefs %
+%%%%%%%%%
+def violin(expr reduction) =
+    clear;
+    gx:=reduction*-nhw;
+    gy:=reduction*nhh;
+    gthick:=1.6reduction*thick;
+    gthin:=.95reduction*med;
+
+    x1=x4=23/24gx+w;  x2=x10=3/4gx+w;  x3r=w; x8l=7/8gx+w;
+    x5=x11r=2gx+w;  x6=gx+w;  x7=1/2gx+w;  x9=5/4gx+w;
+    y1=3/8gy;  y2=y5=2gy;  y3=gy;  y4r=0;  y6=27/8gy;
+    y7l=21/4gy;  y8l=23/4gy;  y9=17/4gy;  y10=y11=-7/8gy;
+    penpos1(gthin,180);
+    penpos2(gthick,90);
+    penpos3(gthick,0);
+    penpos4(5/4gthin,-90);
+    penpos5(11/8gthick,110);
+    penpos6(5/4gthick,120);
+    penpos7(4/5gthin,-140);
+    penpos8(5/4gthick,-80);
+    penpos9(3/8gthick,0);
+    penpos10(gthin,0);
+    penpos11(1/2gthick,180);
+    penstroke z1e{left}..z2e..z3e..z4e..z5e{up+ne}..z6e..{up+nw}z7e
+              ..z8e{sw}..{down}z9e{down}..{down}z10e..z11e;
+%{{{
+    currentpen:= pencircle;
+    draw z3..z4..z5{up+ne}..z6..{up+nw}z7
+         ..z8{sw}..{down}z9{down}..{down}z10..z11;
+%}}}
+    fill fullcircle scaled (3(x2-x1)) shifted (x11+11/40gy, y11);
+    penlabels(range 1 thru 11)
+enddef;
+
+%<<<>>> 6nhh#
+beginchar(71,3.25nhw#, 5.50nhh#, 2nhh#); "G-clef";
+    violin(1);
+endchar;
+
+%<<<>>> 6nhh#
+beginchar(72,2.60nhw#, 5.50nhh#, 2nhh#); "small G-clef";
+    violin(0.8);
+endchar;
+
+% clef de fa par D. Taupin
+def bass (expr reduction) =
+    clear;
+    x2=0.80reduction*nhw; y2=3nhh;
+    x1=x2r+1.25reduction*s; y1=y2;
+    x3=x2+0.71reduction*nhw; y3=y2+reduction*nhh;
+    x4=x3+0.71reduction*nhw; y4=y2-0.2reduction*nhh;
+    x6=x2-6reduction*thinwidth; y6=y2-2.2reduction*nhh;
+    x7=x4+0.50reduction*nhw; x8=x7;
+    y7=y2+0.38reduction*nhh; y8=y2-0.38reduction*nhh;
+
+    penpos2(.6thick*reduction,180);
+    penpos3(.6thick*reduction, 90);
+    penpos4(2thick*reduction,0);
+    penpos6(.4thick*reduction,-10);
+
+    penstroke(z2e{up}..{right}z3e{right}..{down}z4e{down}
+              ..{left+0.1down}z6e);
+%{{{
+    currentpen:= pencircle;
+    draw (z2{up}..{right}z3{right}..{down}z4{down}..{left+0.1down}z6);
+%}}}
+    fill fullcircle scaled (2(x2r-x1)) shifted z1;
+    fill fullcircle scaled 1.7s shifted z7;
+    fill fullcircle scaled 1.7s shifted z8;
+    penlabels(1,2,3,4,6)
+enddef;
+
+beginchar(73, 3nhw#, 4nhh#, 0); "F-clef";
+    bass(1.0);
+endchar;
+
+beginchar(74, 2.4nhw#, 4nhh#, 0); "small F-clef";
+    bass(0.8);
+endchar;
+
+def alt(expr reduction, yshift) =
+    clear;
+    nh:=h*reduction;
+    athick:=1/10nh;
+    ahigh:=1/2nh;
+
+    x4=13/16nh+3thinwidth; x5=9/16nh;
+    x6=1/2nh; x9=x10=2/3nh; x11=17/32nh;
+    y4=yshift+31/50ahigh; y5=yshift+1/2ahigh;
+    y6=yshift; y9=yshift+1/9ahigh;
+    y10=yshift+ahigh; y11=yshift+11/14ahigh;
+    penpos4(athick,180);
+    penpos5(1/8athick,0);
+    penpos6(athick,0);
+    penpos9(1/3athick,90);
+    penpos10(1/3athick,-90);
+    penpos11(1/2athick,0);
+
+    penstroke z5e..{sw+down}z6e;
+    penstroke z5e{se+3down}..{right}z9e{right}..{up}z4e{up}
+              ..{left}z10e{left}..{sw+3down}z11e;
+    fill fullcircle scaled (5/2thick*reduction)
+                    shifted (x11l+5/4thick*reduction, y11-.05nhh);
+    fill unitsquare xscaled athick yscaled ahigh
+                    shifted (5/16nh-1/2athick,yshift);
+    fill unitsquare xscaled 1/4athick yscaled ahigh
+                    shifted (x6l-1/4athick,yshift);
+    add_mirror ((0,yshift),(1,yshift));
+    penlabels(4,5,6,9,10,11)
+enddef;
+
+beginchar(75,3.5nhw#, 4nhh#, 0); "Alto clef";
+    alt(1, 2nhh);
+    savepic;
+endchar;
+
+beginchar(76,2.8nhw#, 4nhh#, 0); "small Alto clef";
+    alt(0.8 ,2nhh);
+endchar;
+
+%%%%%%%%%%%%%
+% drum clef % (by Andreas Egler)
+%%%%%%%%%%%%%
+beginchar(77, 3nhw#, 4nhh#, 0);
+    fill unitsquare xscaled .5nhw yscaled 2nhh shifted (.5nhw,1nhh);
+    fill unitsquare xscaled .5nhw yscaled 2nhh shifted (1.5nhw,1nhh);
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% this sign is sometimes used      %
+% to indicate a (randomly played)  %
+% tremolo accord (ragtime, boogie) %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(78, 0, 3nhh#, 0);
+    clear;
+    x1=-x2=-.5nhw; y1=1nhh; y2=1.6nhh;
+    pickup med_pen;
+    for i=0 upto 4: draw (z1--z2) shifted (0,.4nhh*i); endfor;
+    labels (1,2);
+endchar;
+
+
+%%%%%%%%%%
+% shaker %
+%%%%%%%%%%
+beginchar(79, nhw#, nhh#, nhh#);
+    x1=x4=y2=y4=0; y1=-0.6nhh; x2=x3=w; y3=0.6nhh;
+    fill z1--z2--z3--z4--cycle;
+    labels (1,2,3,4);
+endchar;
+
+
+%%%%%%%%%%%%%%%%%
+% special signs %
+%%%%%%%%%%%%%%%%%
+%<<<>>>1.25nhh#
+beginchar(80, 2nhw#, 1.5*apog_nhh#, 0); "Fermate up";
+    x1 = y1 = y3 = 0;
+    y2r = 1.5nhh; 2x2l = x3 = w;
+    penpos1(med,180);
+    penpos2(1.3thick,90);
+    penpos3(med,0);
+    penstroke z1e..z2e..z3e;
+    fill fullcircle scaled 1.3thick shifted (.5w, .65thick);
+    savepic;
+    penlabels(1,2,3);
+endchar;
+
+beginchar(81, 2nhw#, 0, 1.25nhh#); "Fermate down";
+    callpic;
+    mirror (origin, right);
+endchar;
+
+beginchar(82, 2nhh#, 3nhh#, 0); "Allabreve";
+    2x2 = 2x4 = x1 + 2s = w;
+    x3r = 0; 2y1 = 3y2 = y4r = h;
+    y3r = 2/3h; x5 = w -2s; y5 = h -2s;
+    z6r = z5r + (-0.1s, .2s);
+    penpos1(med, 0);
+    penpos2(med, -90);
+    penpos3(s+thick,180);
+    penpos4(med, 90);
+    penpos5(med, 0);
+    penpos6(s+med,45);
+    penstroke z1e..z2e..z3e..z4e..z5e;
+%{{{
+    currentpen:= pencircle;
+    draw z1..z2..z3..z4..z5;
+%}}}
+    fill fullcircle scaled 1.3thick shifted z6;
+    savepic;
+
+    pickup med_pen;
+    draw (w/2, y2r-1/8h)--(w/2, y4r+1/8h);
+    penlabels(1,2,3,4,5,6);
+endchar;
+
+beginchar(83, 2nhh#, 3nhh#, 0); "C";
+    callpic;
+endchar;
+
+beginchar(84, 2nhh#, 3nhh#, 0); "reverseC";
+    callpic;
+    mirror ((w/2,0),(w/2,1));
+endchar;
+
+%%%%%%%%%%%%%%%%%%
+% repeat symbols %
+%%%%%%%%%%%%%%%%%%
+beginchar(85, 2nhw#, 3nhh#, 0); "Repeat symbol";
+    x2 = w-x4 = 1/6h; y2 = y4 = 1/2h;
+    x3 = x5 = 1/2w; y3 = h-y5 = 5/6h;
+    pickup pencircle scaled 1.25thin;
+    draw (0,h/2)--(w,h/2); draw (w/2,0)--(w/2,h);
+    pickup pencircle xscaled 1.2thick yscaled 1.25thin;
+    draw z2..z3..z4..z5..cycle;
+    labels (1,2,3,4);
+endchar;
+
+%<<<>>>3nhw#
+beginchar(86, 3nhw#, 4.75apog_nhh#, 0); "Repeat symbol";
+    x6 = .75w;  y6 = .9w; x8 = .4w; y8l = .95w;
+    x11= y11 = .5w; z10 = z11+(-s,s);
+    penpos8 (med, -90);
+    penpos10 (1.8thick, 25);
+    penpos11 (1.8thick, 25);
+    penstroke z8e{left}..{se}z10e..z11e;
+    fill fullcircle scaled 1.6thick shifted (z8l-(0, .8thick));
+    fill fullcircle scaled thick shifted (.2w, .4w);
+    pickup penrazor scaled 0.8thick;
+    draw z6--z11;
+    addto currentpicture also currentpicture rotatedaround((.5w,.5w),180);
+    penlabels (8,9,11);
+endchar;
+
+def pince (expr length)=
+    clear;
+    off:= w/2length;
+    nh:= .8nhh;
+    y1 = y3 = nh-y2 = nh-y4 = 1/5nh;
+    x1=-.5off; x2=x1+off; x3=x2+off; x4=x3+off;
+    pickup pensquare xscaled (thick+.15nhh) yscaled thin rotated 52;
+    p:= z1--z2--z3--z4;
+    for i=1 upto length: draw p shifted ((i-1)*2off,0); endfor
+enddef;
+%%%%%%%%%% Begin Andreas Egler's
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% full rest outside a staff %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(5, nhw#, nhh#, 0);
+    fill unitsquare xscaled w yscaled .5nhh shifted (0,-.5nhh);
+    fill unitsquare xscaled 1.8w yscaled med shifted (-.4w,-0.5med);
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% half rest outside a staff %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(6, nhw#, nhh#, 0);
+    fill unitsquare xscaled w yscaled .5nhh;
+    fill unitsquare xscaled 1.8w yscaled med shifted (-.4w,-0.5med);
+endchar;
+%%%%%%%%%%%%%%%%%%%%%
+% mordant with line %
+%%%%%%%%%%%%%%%%%%%%%
+beginchar(7, 1.8nhw#, apog_nhh#, 0);
+    pince(3);
+    pickup med_pen;
+    draw ((x1,0)--(x1,2h)) shifted (-.5thick,0);
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% mordant with hook ne %
+%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(9, 1.8nhw#, apog_nhh#, 0);
+    pince(3);
+    pickup pencircle scaled .75med;
+    z5=2[z3,z4]-(.5thick,1/5nh); z6=z3 rotatedaround (z5,-90);
+    draw (z4..z5{z4-z3}..{z3-z4}z6) shifted 2(x4-x2,0);
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% mordant with hook nw %
+%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(10, 1.8nhw#, apog_nhh#, 0);
+    pince(3);
+    pickup pencircle scaled .75med;
+    z5=1.75[z3,z2]-(x3-x1,0); z6=z1 rotatedaround (z5,90);
+    draw (z1..z5{z2-z3}..{z3-z2}z6) shifted -(.5thick, 1/5nh);
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% mordant with hook sw %
+%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(11, 1.8nhw#, apog_nhh#, 0);
+    pince(3);
+    pickup pencircle scaled .75med;
+    z5=1.5[z2,z1]-.75(.5thick,1/5nh); z6=z2 rotatedaround (z5,-90);
+    draw (z1..z5{z1-z2}..{z2-z1}z6);
+endchar;
+%%%%%%%%%% End Andreas Egler
+%<<<>>> .8nhh#
+beginchar(87, 1.2nhw#, apog_nhh#, 0); "Pince";
+    pince(2);
+endchar;
+
+%<<<>>> .8nhh#
+beginchar(88, 1.8nhw#, apog_nhh#, 0); "???";
+    pince(3);
+endchar;
+
+%<<<>>> .8nhh#
+beginchar(89, 1.2nhw#, apog_nhh#, 0); "Mordant";
+    pince(2);
+    fill unitsquare xscaled med yscaled 2h shifted ((.5w-.5med),-.5h);
+endchar;
+
+def arpeg (expr length)=
+    clear;
+    x1=.5w; y1=0; z2=z1+(0,.5nhh); z3=z1+(0,nhh);
+    pickup penrazor scaled (thick+.16nhh) rotated 46;% try 50
+    callpic;
+    draw (z1{ne}..{nw}z2{nw}..{ne}z3) shifted (0, length*nhh);
+    savepic;
+    labels (1,2,3)
+enddef;
+
+clearpic;
+for jj=0 upto 9:
+%<<<>>>(1+jj)*nhh#
+    beginchar(90+jj, 0.4nhw#, nhh#, 0); "Arpeggio";
+        arpeg(jj);
+    endchar;
+endfor;
+
+def trill (expr length)=
+    clear;
+    x1=0; y1=.5h; z2=z1+(.5nhw,0); z3=z1+(nhw,0);
+    pickup penrazor scaled 1.4thick rotated 48;
+    callpic;
+    draw (z1{ne}..{se}z2{se}..{ne}z3) shifted (length*nhw, 0);
+    savepic;
+    labels (1,2,3)
+enddef;
+
+clearpic;
+for jj=0 upto 9:
+%<<<>>>0.45nhh#
+    beginchar(100+jj, (jj+1)*nhw#, 0.5nhh#, 0); "Trille";
+        trill(jj);
+    endchar;
+endfor;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% general parameters for small flags %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+flagw:=0.8nhw*apog_fact;
+flagthick:=apog_nhh;
+flagthin:=5thinwidth*apog_fact;
+
+beginchar(110, 0, 3apog_nhh#, 0); "Small 1/8flag down";
+    cflag(1);
+endchar;
+
+beginchar(111, 0, 3.25apog_nhh#, 0); "Small 1/16flag down";
+    ccflag(1);
+endchar;
+
+beginchar(112, 0, 4.00apog_nhh#, 0); "Small 1/32flag down";
+    cccflag(1);
+endchar;
+
+beginchar(113, 0, 4.75apog_nhh#, 0); "Small 1/64flag down";
+    ccccflag(1);
+endchar;
+
+beginchar(114, 0, 5.50apog_nhh#, 0); "Small 1/128flag down";
+    cccccflag(1);
+endchar;
+
+%%%
+% flags up should be wider
+%%%
+flagw:=nhw*apog_fact;
+
+beginchar(115, 0, 3apog_nhh#, 0); "Small 1/8flag up";
+    cflag(-1);
+endchar;
+
+beginchar(116, 0, 3.25apog_nhh#, 0); "Small 1/16flag up";
+    ccflag(-1);
+endchar;
+
+beginchar(117, 0, 4.00apog_nhh#, 0); "Small 1/32flag up";
+    cccflag(-1);
+endchar;
+
+beginchar(118, 0, 4.75apog_nhh#, 0); "Small 1/64flag up";
+    ccccflag(-1);
+endchar;
+
+beginchar(119, 0, 5.50apog_nhh#, 0); "Small 1/128flag up";
+    cccccflag(-1);
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%
+% small accidentals %
+%%%%%%%%%%%%%%%%%%%%%
+%<<<>>>2apog_nhh#
+beginchar(120, apog_nhw#, 1.5apog_nhh#, 1.5apog_nhh#); "Small flat";
+    flat (apog_fact, 0, 1);
+    savepic;
+endchar;
+
+%<<<>>>2apog_nhh#
+beginchar(121,1.7*apog_fact*nhw#, 1.5apog_nhh#, 1.5apog_nhh#); "Small doubleflat";
+    callpic;
+    addto currentpicture also currentpicture shifted(0.7apog_fact*nhw,0);
+endchar;
+
+beginchar(122, 0.8apog_fact*nhw#, 1.5apog_nhh#, 1.5apog_nhh#); "Small sharp";
+    sharp;
+endchar;
+
+%<<<>>>.5nhw#
+beginchar(123, apog_nhw#, apog_nhh#, apog_nhh#); "Small doublesharp";
+    doublesharp(.75w);
+endchar;
+
+beginchar(124, 0.8apog_fact*nhw#, 1.5apog_nhh#, 1.5apog_nhh#); "Small natural";
+    natural;
+endchar;
+
+beginchar(125,1.5nhh#, .5nhh#, .5nhh#); "Full note with | -->  |O|";
+    fill unitsquare xscaled thick yscaled nhh shifted (-4/5thick,-d);
+    add_mirror ((w/2, 0),(w/2, 1));
+    drawnoteb(w, h, 0, 85, 0, 1.3thick, thin);
+endchar;
+
+beginchar(126,0.6nhh#, 4nhh#, 0); "Repeat colons";
+    fill fullcircle scaled 1.2thick shifted (0.5w, 3/8h);
+    add_mirror ((0, h/2),(1, h/2));
+endchar;
+
+%%%%%%%%%%%
+% rimshot %
+%%%%%%%%%%%
+def caro (expr reduction)=
+    x1=w-w*reduction; y1=y3=0; x2=x4=w-.5w*reduction;
+    x3=w; -y2=y4=0.6nhh*reduction;
+    pickup thin_pen;
+    draw z1--z2; draw z3--z4;
+    pickup pencircle xscaled (.15nhw*reduction) yscaled thinwidth
+                     rotated -45;
+    draw z2--z3; draw z4--z1;
+    labels (1,2,3,4);
+enddef;
+
+beginchar(127, nhw#, nhh#, nhh#);
+    caro(.95);
+endchar;
+
+
+%%%AE some characters are 'kerned' and 'raised' by MusicTeX
+%     this can be done faster with modified fonts and
+%     as an additional advantage, there is more 'main memory' for
+%     future enhancements, for example:
+%
+%\def\w@coli{\selectinstr{\p@loop\raise\altportee
+%  \hbox to \z@{\hss\musicnorfont\char 126\hss}\n@portee\repeat}}%
+%
+%     with
+%
+%beginchar(126, 0, 4nhh#, 0); "Repeat colons";
+%    fill fullcircle scaled 1.2thick shifted (0, 3/8h);
+%    add_mirror ((0, h/2),(1, h/2));
+%endchar;
+%
+%     becomes
+%
+%\def\w@coli{\selectinstr{\p@loop\raise\altportee
+%  \hbox{\musicnorfont\char 126}\n@portee\repeat}}%
+%
+%     or
+%
+%\def\clefdesol{\hbox to 3.2\Interligne{\musickeyfont
+%     \kern -1.2\internote\hss\char"47\hss}}%
+%
+%     with
+%
+%beginchar(71, 8/3nhw#, 5.50nhh#, 2nhh#); "G-clef";
+%    violin(1);
+%endchar;
+%
+%     becomes
+%
+%\def\clefdesol{\hbox{\musickeyfont\char"47}}%
+%
+%     or
+%
+%\def\d@soup{\hbox{\kern -0.3\qn@width\musicnfont\char"3F}}%
+%
+%     with
+%
+%beginchar(63, 2nhh#, 3nhh#, 0); "Quaver rest";
+%     ...
+%    currentpicture:= currentpicture shifted (round(-0.3nhw), 0);
+%endchar;
+%
+%     becomes
+%
+%\def\d@soup{\hbox{\musicnfont\char"3F}}%
+%
+%     and so on

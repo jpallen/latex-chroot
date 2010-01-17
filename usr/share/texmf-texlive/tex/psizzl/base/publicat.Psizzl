@@ -1,0 +1,317 @@
+% PUBLICAT PSIZZL  - macros for thesis, report and publication
+%
+%  macros for all documents
+%
+\def\docspec#1{%
+   \def\sp@cd@c{#1}%
+   }\docspec{}%
+\def\contract#1{%
+   \def\c@ntract{#1}%
+   }\contract{}%
+\def\title#1{%
+   \def\t@tle{#1}%
+   }\title{}%
+\def\subtitle#1{%
+   \def\s@btitle{#1}%
+   }\subtitle{}%
+\def\titlefootnote#1{%
+   \def\t@tlefoot{#1}%
+   }\titlefootnote{}%
+\def\authors#1{%
+   \def\@uthors{#1}%
+   }\authors{}%
+\def\institute#1{%
+   \def\@nstitute{#1}%
+   }\institute{}%
+\def\submittedto#1{%
+   \def\j@urnal{#1}%
+   }\submittedto{}%
+\long\def\abstract#1{%
+   \long\def\@bstract{#1}%
+   }\abstract{}%
+\long\def\longempty{}%
+\long\def\acknowledge#1{%
+   \long\def\@cknowledge{#1}%
+   }\acknowledge{}%
+\def\@bstrhead{Abstract}%
+\def\@cknwhead{Acknowledgments}%
+\newif\iffrontmatter\frontmattertrue
+\newif\ifabstractsigned
+\newif\ifcopyright
+\def\p@genumberpaper{%
+   \ifp@genumbercenter\p@gebanner{}{\p@genumber}{}%
+      \else\p@gebanner{}{}{\p@genumber}%
+      \fi
+   }%
+\def\workingauthor#1{%
+   \def\w@rkauth{#1}%
+   }\workingauthor{}%
+\def\workingbin#1{%
+   \def\w@rkbin{#1}%
+   }\workingbin{}%
+\def\workingaddress#1{%
+   \def\w@rkadd{#1}%
+   }\workingaddress{}%
+\newif\iftitlepage\titlepagetrue
+\def\begindocument{% to appear at beginning of any document
+   \resd@c\p@gefront\styled@c\p@ststyle
+   \pred@c
+   \iftitlepage\titd@c\fi
+   \iffrontmatter\frontd@c\fi
+   }%
+\def\enddocument{%
+   \endd@c
+   }%
+\def\p@ststyle{}%
+\def\resd@c{\endpage}%
+\adddef\fmtreset{\resd@c}%
+\def\specd@c{%
+   \ifx\sp@cd@c\empty\else
+      \rightline{\vbox{\singlespace\halign{##\hfil\cr\sp@cd@c\endline}}}%
+      \fi
+   }%
+\def\copyrightpage{%
+   \vbox to \z@{}\vfil%
+   \centertitle{\copyright\ Copyright\ \the\year\breaktitle
+      by\breaktitle\@uthors
+      }%
+   \endpage
+   }%
+\def\signrule{\vrule width3in height -2.5pt depth 3pt}%
+\def\signee#1{%
+   \rightline{%
+      \vbox{%\smallinterlineskip
+         \halign{\hfil##\hfil\cr\noalign{\bigskip}\signrule\cr#1\crcr}%
+         }%
+      }%
+   }%
+\def\sigpage#1#2#3#4#5{%
+   \gdef\s@gpage{%
+      \vfil
+      \sigstatement\signee{#1}\medskip
+      \sigstatement\signee{#2}\medskip
+      \sigstatement\signee{#3}\bigskip#5\bigskip
+      \signee{#4}%
+      \vfil\eject
+      }%
+   }%
+\def\abspage{%
+   \ifx\@bstract\longempty\else
+      \ifabstractsigned
+         \smallskip
+         \centertitle{\t@tle}\bigbreak
+         \centerline{\@uthors , Ph.D.}%
+         \centerline{\@niversity ,\ \the\year}
+         \medskip
+         \par \@bstract
+         \medskip\vfil
+         \rightline{%
+            \vbox{%\smallinterlineskip
+               \halign{\hfil##\hfil\cr
+                  Approved for publication:\hfill\cr
+                  \noalign{\bigskip}By\space\signrule\cr
+                  For Major Department\cr
+                  \noalign{\bigskip}By\space\signrule\cr
+                  Dean of Graduate Studies\cr
+                  }%
+               }%
+            }%
+         \endpage
+         \else
+         \centerline{\bf\@bstrhead}%
+         \medskip
+         \par\@bstract
+         {\@ddch@pt{\@bstrhead}{\noexpand\strut}}%
+         \endpage
+         \fi
+      \fi
+   }%
+\def\dedicate{\def\d@dicate}%
+\def\d@dicathead{Dedication}%
+\def\dedicatpage{%
+   \ifx\d@dicate\empty\else\endpage
+      \centerline{\bf\d@dicathead}\medskip\d@dicate
+      \begingroup\l@twrite\@ddch@pt{\d@dicathead}{\noexpand\strut}\endgroup
+      \fi
+   }%
+\def\ackpage{%
+   \ifx\@cknowledge\longempty\else\endpage
+      \centerline{\bf\@cknwhead}\medskip\par\@cknowledge
+      {\@ddch@pt{\@cknwhead}{\noexpand\strut}}%
+      \endpage
+      \fi
+   }%
+\def\contentspages{%
+   \immediate\write\ch@pterwrite{\noexpand\t@bcontents}%
+   \immediate\write\ch@pterwrite{\noexpand\f@gt@bhead}%
+   \t@cpagecount=\number\p@gecount
+   }%
+%
+% macros for publications
+%
+\def\publicationstyle#1{%
+   \adddef\stylep@b{#1}%
+   }%
+\def\publication{%
+   \let\pred@c\prep@b\let\styled@c\stylep@b\let\titd@c\titp@b
+   \let\frontd@c\frontp@b\let\endd@c\endp@b
+   }%
+\def\stylep@b{%
+   \largetype\normalbaselines\singlesided
+   }%
+\def\prep@b{}%
+\def\frontp@b{}%
+\def\titp@b{% to appear at beginning of pub
+   \specd@c
+   \vfil
+   {\bf\let\t@tlefoot\c@ntract
+      \centertitle{%
+         \uppercase{\t@tle}%
+         \ifx\t@tlefoot\empty\else\footnote{$^\ast$}{{\rm\t@tlefoot}}\fi
+         }%
+      }\medskip
+   {\singlespace\cp\centertitle\@uthors}%
+   \ifc@teaddress\medskip{\it\centertitle\@nstitute}\fi
+   \ifx\@bstract\empty\else
+      \midinsert
+         \medskip
+         %\hsize=\refsize
+         \centerline{\bf\@bstrhead}\medskip
+         \par \@bstract
+         \endinsert
+      \fi
+   \ifx\j@urnal\empty\else
+      \medskip\centertitle{Submitted to \j@urnal}%
+      \fi
+   \vfil\supereject
+   }%
+\def\endp@b{%
+   \ifsubmit\ifx\j@urnal\empty\else\letp@b\fi\fi
+   }%
+\def\letp@b{% if paper is to be submitted, this is the cover letter
+   {%
+      \singlesided
+      \letterto{\j@urnaleditor}{\j@urnaladdress}%
+      \letterfrom{\w@rkauth\endline
+         \ifx\w@rkadd\empty\else\w@rkadd\endline\fi
+         }{\w@rkbin}{}%
+      \closing{Sincerely yours,}%
+      \enclosure{Enclosures}{}%
+      \beginletter\l@tp@b\endletter
+      }%
+   }%
+\newbox\glossies
+\def\gl@ssies#1#2{%
+   \ifnum#1>\z@
+      \global\setbox\glossies
+      \hbox{\ifnum\wd\glossies=\z@\else\unhbox\glossies\ and\ \fi
+         \number#1\ #2\ifnum#1>\@ne s\fi
+         }%
+      \fi
+   }%
+\def\l@tp@b{%
+ 
+   Enclosed are three copies of a manuscript entitled,
+   {\def\breaktitle{\relax}``{\bf\t@tle}''}
+   which we are submitting for publication in \j@urnalname .
+   \setbox\glossies\hbox{}%
+   \gl@ssies\f@gtotal{figure}\gl@ssies\t@btotal{table}%
+   \ifnum\wd\glossies=\z@\else
+      Glossies of the \unhbox\glossies\
+      are included with one of the copies.
+      \fi
+ 
+   Please send correspondence to me at the
+   \ifx\w@rkadd\empty above address.
+      \else following address:%
+      \halign{\indent##\hfil\cr\w@rkauth\cr\w@rkadd.\cr}%
+      \par\noindent
+      \fi
+   However, please send the Publication Charge Certification form
+   directly to \pubadmin .
+ 
+   Thank you for your consideration of this paper.
+   }%
+%
+% Macros for thesis
+%
+\def\university#1{%
+   \gdef\@niversity{#1}%
+   }\university{}%
+\def\thesisstyle#1{%
+   \adddef\styleth@{#1}%
+   }\def\styleth@{%
+   }%
+\def\thesis{%
+   \let\pred@c\preth@\let\styled@c\styleth@\let\titd@c\titth@
+   \let\frontd@c\frontth@\let\endd@c\endth@
+   }%
+\def\preth@{%
+   \abstractsignedtrue\fr@nttrue\abspage
+   }%
+\def\titth@{%
+   \endpage\p@gefront\fr@nttrue
+   \vbox to \z@{}\vfil%
+   {\cp\centertitle{\t@tle}}\vfil
+   \ifx\s@btitle\empty\else{\cp\centertitle{\s@btitle}}\vfil\fi
+   \centertitle{\@uthorpre\@uthors\breaktitle\@uthorpost}%
+   \vfil\eject
+   }%
+\def\@uthorpre{%
+   by\breaktitle
+   }%
+\def\@uthorpost{%
+   \monthword\ \the\year\breaktitle
+   }%
+\newif\ifs@gpage\s@gpagetrue
+\def\frontth@{%
+   \let\n@llch@pt\g@bble
+   \ifcopyright \copyrightpage \fi
+   \ifs@gpage\s@gpage\fi
+   \abstractsignedfalse\abspage
+   \ackpage
+   \contentspages
+   }%
+\def\endth@{}%
+%
+%  Macros for reports
+%
+\def\price#1{%
+   \gdef\pr@ce{#1}%
+   }\price{A08}%
+\def\reportstyle#1{%
+   \adddef\styler@p{#1}%
+   }%
+\def\styler@p{%
+   }%
+\def\report{%
+   \let\pred@c\prer@p\let\styled@c\styler@p\let\titd@c\titr@p
+   \let\frontd@c\frontr@p\let\endd@c\endr@p
+   }%
+\def\prer@p{}%
+\def\endr@p{}%
+\def\titr@p{%
+   {\normalbottom%\baselineskip 15pt
+      \specd@c\bigskip\bigskip
+      {\bf
+         \centertitle{%
+            \uppercase{\t@tle}%
+            \ifx\t@tlefoot\empty\else
+               \footnote{$^\ast$}{{\rm\t@tlefoot}}\fi
+            }%
+         }\bigskip
+      \centertitle{{\rm \@uthors}}\bigskip
+      \centertitle{{\rm \@nstitute}}\vfil
+      \centertitle{\monthword\ \the\year}\vfil
+      \ifx\c@ntract\empty\else{\rm\noindent\c@ntract}\bigskip\fi
+      \ifx\r@portprice\empty\else{\rm\noindent\r@portprice}\bigskip\fi
+      \supereject
+      }%
+   }%
+\def\frontr@p{%
+   \ifcopyright \copyrightpage \fi
+   \abstractsignedfalse\abspage
+   \ackpage
+   \contentspages
+   }%
+\def\endr@p{}%

@@ -1,0 +1,157 @@
+%%
+%% This is file `xo-capt.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xo-capt.dtx  (with options: `package,progress')
+%% 
+%% Not for distribution
+%% 
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%% 
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+
+\def\@tempa#1: #2.dtx,v #3 #4 #5 #6 #7${
+  \ProvidesPackage{#2}[#4 #3 #5 #6]}
+\@tempa$Id: xo-capt.dtx,v 1.13 2000/08/11 07:14:03 latex3 Exp $
+\IgnoreWhiteSpace
+\def\caption{\@dblarg{\@caption\float@type}}
+
+\long\def\@caption#1[#2]#3{%
+  \unskip
+  \addcontentsline{\csname toc@extension@#1\endcsname}{#1}
+    {\protect\numberline{\csname the\float@counter\endcsname}
+    {\ignorespaces #2}}
+  \global\toks\@currbox{#3}
+  \ignorespaces
+  }
+\def\append@caption@to@float{
+  \typeset@some@floatbox
+      \this@type\this@area
+      \this@float@box{\csname caption@\this@type\endcsname}
+      \this@usercnt\this@caption\this@span@number
+}
+\def\append@here@caption@to@float{
+  \typeset@some@floatbox
+      \here@type{h\the\curr@col@count 1}
+      \here@float@box{\csname caption@\here@type\endcsname}
+      \here@usercnt\here@caption\here@span@number
+}
+\def\typeset@this@float@and@caption{
+  \append@caption@to@float
+  \box\this@captioned@float
+}
+\def\typeset@some@floatbox#1#2{ % type area
+
+  \IfExistsInstanceTF{buildfloat}
+                     { #1 - #2 }
+    {\def\use@instance@named{#1 - #2}}
+    {
+      \IfExistsInstanceTF{buildfloat}
+                         { #2 }
+        {\def\use@instance@named{#2}}
+        {
+        \IfExistsInstanceTF{buildfloat}
+                           { #1 }
+          {\let\use@instance@named#1 }   % we know this is a token
+          {\def\use@instance@named{default}}
+        }
+    }
+  \UseInstance{buildfloat}\use@instance@named
+}
+\DeclareTemplateType{buildfloat}{5}
+\DeclareTemplate{buildfloat}{centeredabove}{5}
+ {
+   body-caption-sep =l [10pt] \belowcaptionskip,
+ }
+ {
+  \DoParameterAssignments
+
+  \@parboxrestore
+
+  \hsize=#5\columnwidth
+
+  \global\setbox\this@captioned@float\vbox{
+    \sbox\@tempboxb{#2~ #3:~ #4}
+    \ifdim \wd\@tempboxb >\hsize
+      #2~ #3:~ #4\par
+    \else
+      \hb@xt@\hsize{\hfil\box\@tempboxb\hfil}%
+    \fi
+    \vskip\belowcaptionskip
+    \centerline{
+     \copy#1
+    }
+    \kern\z@
+  }
+ }
+\newbox\@tempboxb
+\DeclareTemplate{buildfloat}{centeredbelow}{5}
+ {
+   body-caption-sep =l [10pt] \abovecaptionskip,
+ }
+ {
+  \DoParameterAssignments
+
+  \@parboxrestore
+
+  \hsize=#5\columnwidth
+
+  \global\setbox\this@captioned@float\vbox{
+    \centerline{\copy#1}
+    \vskip\abovecaptionskip
+    \sbox\@tempboxb{#2~ #3:~ #4}
+    \ifdim \wd\@tempboxb >\hsize
+      #2~ #3:~ #4\par
+    \else
+      \hb@xt@\hsize{\hfil\box\@tempboxb\hfil}%
+    \fi
+  }
+ }
+\DeclareTemplate{buildfloat}{bottomright}{5}
+ {
+   body-caption-sep =l [10pt] \abovecaptionskip,
+ }
+ {
+  \DoParameterAssignments
+
+  \@parboxrestore
+
+  \hsize=#5\columnwidth
+
+  \global\setbox\this@captioned@float\vbox{
+    \@@line{\hss\vbox{\copy#1\kern0pt}
+      \rlap{
+        \hskip\abovecaptionskip
+        \parbox[b]{\marginparwidth
+                   +(#5\columnwidth-\wd#1)/2}{
+           \raggedright
+           #2~ #3:~ #4
+        }
+      }\hss
+    }
+    \kern0pt
+  }
+ }
+\DeclareInstance{buildfloat}{default}{centeredabove}{}
+
+\DeclareInstance{buildfloat}{figure}{centeredbelow}{}
+
+\DeclareInstance{buildfloat}{t31}{bottomright}{}
+\DeclareInstance{buildfloat}{t22}{bottomright}{}
+\DeclareInstance{buildfloat}{t13}{bottomright}{}
+\endinput
+%%
+%% End of file `xo-capt.sty'.

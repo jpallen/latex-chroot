@@ -1,0 +1,83 @@
+%
+% Washington Romanized Indic accent driver
+%
+% Macros to draw Greek characters
+%
+
+cmchar "Lowercase Greek theta";
+newchar(lthet,8.25u#,asc_height#,0);
+italcorr .7asc_height#*slant+.5curve#-u#;
+adjust_fit(0,0); pickup fine.nib;
+pos1(vair,90); pos2(curve,180); pos3(vair,270); pos4(curve,360);
+x1=x3=.5w; lft x2r=hround(1.5u-.5curve); x4=w-x2;
+top y1r=h+oo; y2=y4=.5[y1,y3]; bot y3r=-oo;
+filldraw stroke pulled_arc.e(1,2) & pulled_arc.e(2,3)
+ & pulled_arc.e(3,4) & pulled_arc.e(4,1);  % bowl
+pos2'(bar,90); pos4'(bar,90); z2'=z2l; z4'=z4l;
+filldraw stroke z2'e--z4'e;  % bar
+math_fit(-.3asc_height#*slant-u#+.5curve#,ic#-.5u#);
+penlabels(1,2,3,4); endchar;
+
+cmchar "delta";
+newchar(ldelta,9u#,x_height#,0);
+adjust_fit(0,0);
+numeric left_stem,alpha;
+left_stem=hair if hefty: -stem_corr fi;
+x1l=w-x4r=.75u; y1=y4=0;
+x2-x1=x4-x3; x3r=x2r+apex_corr; y2=y3=h+apex_o+apex_oo;
+alpha=diag_ratio(2,left_stem,y2-y1,x4r-x1l-apex_corr);
+penpos1(alpha*left_stem,0); penpos2(alpha*left_stem,0);
+penpos3(alpha*stem,0); penpos4(alpha*stem,0);
+fill diag_end(2l,1l,1,1,4r,3r)--diag_end(4r,3r,1,1,2l,1l)--cycle;  % triangle
+z0=whatever[z1r,z2r]=whatever[z3l,z4l];
+y5=y6=vstem; z5=whatever[z1r,z2r]; z6=whatever[z3l,z4l];
+if y0<h-notch_cut: y0:=h-notch_cut;
+ unfill z0+.5right{down}...{z4-z3}z6--z5{z2-z1}
+  ...{up}z0+.5left--cycle; % counter
+else: unfill z0--z5--z6--cycle; fi  % counter
+penlabels(0,1,2,3,4,5,6); endchar;
+
+cmchar "phonetic gamma";
+newchar(lgama,if serifs: 9.5u# else:9u# fi,x_height#,desc_depth#);
+italcorr x_height#*slant+.25u#;
+adjust_fit(serif_fit# if monospace:+\\.5u#,.5u#+ else:,fi\\ serif_fit#);
+numeric left_stem,right_stem,outer_jut; pickup tiny.nib; 
+left_stem=fudged.stem-stem_corr;
+right_stem=min(fudged.hair if hefty:-2stem_corr fi,left_stem);
+outer_jut=.75jut; x1l=w-x4r=if serifs:l+letter_fit+outer_jut+.25u+tiny else: u fi; 
+y1=y4=h; x5=x3=x2=.5[x1,x4]; y3=y2=.265h; bot y5r=-d;
+numeric gbot; gbot=.5(left_stem+right_stem);
+pos1(left_stem,0); pos4(right_stem,-180); pos2(left_stem,0);
+pos3(right_stem,-180); pos5(gbot,-90);
+filldraw stroke z1e--z2e{z2-z1}...{left}z5e{left}...{z4-z3}z3e--z4e;
+if serifs: numeric inner_jut; pickup tiny.nib;
+ if rt x1r+jut+.5u+1<=lft x4l-jut: inner_jut=jut;
+ else: rt x1r+inner_jut+.5u+1=lft x4l-inner_jut; fi
+ dish_serif(1,2,a,1/3,outer_jut,b,1/2,inner_jut);  % left serif
+ dish_serif(4,3,c,.6,inner_jut,d,1/2,outer_jut)(dark); 
+ fi  % right serif
+penlabels(0,1,2,3,4,5); endchar;
+
+cmchar "epsilon";
+newchar(lepsi,8u#,x_height#,0);
+italcorr x_height#*slant-.5u#;
+adjust_fit(0,0); pickup fine.nib;
+numeric light_vstem; light_vstem=Vround 2/3[vair,vstem];
+pos2(vstem,90); x2=x8=.5w+.5u; top y2r=h+o;
+x1+.5vstem=hround(w-u); y1=.2[y2,bar_height];
+pos1(vstem,angle(x1-x2,2(y1-y2))+90); pos3(slab,180); pos4(vair,270);
+pos5(slab,360); pos6(vair,450); pos7(hair,540); pos8(vstem,630);
+lft x3r=hround u; x4=x6=.5w; rt x5r=hround(w-2.5u); x7=x3;
+y3=.5[y2,y4]; y5=bar_height=.5[y4,y6]; y7=.5[y6,y8]; bot y8r=-o;
+top y6r-bot y4r=vstem+eps; if y6l<y4l: y6l:=y4l:=y5; fi
+x9+.5vstem=hround(w-.5u); y9=1/3[y8,bar_height];
+pos9(vstem,angle(x8-x9,2(y8-y9))+90);
+filldraw circ_stroke z1e{x2-x1,2(y2-y1)}...pulled_super_arc.e(2,3)(.5superpull)
+ & super_arc.e(3,4)...{up}z5e;  % upper arc
+filldraw circ_stroke z9e{x8-x9,8(y8-y9)}...pulled_arc.e(8,7)
+ & super_arc.e(7,6)...{down}z5e;  % lower arc
+math_fit(-.5bar_height#*slant-.5u#,ic#);
+penlabels(1,2,3,4,5,6,7,8,9); endchar;
+
+% end of file greeks.mf
+

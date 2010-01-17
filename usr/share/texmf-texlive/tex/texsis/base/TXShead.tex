@@ -1,0 +1,151 @@
+%% file: TXShead.tex - Running Headlines - TeXsis version 2.18
+%% @(#) $Id: TXShead.tex,v 18.0 1999/07/09 17:24:29 myers Exp $
+%======================================================================*
+% RUNNING HEADLINES (and footlines) with page numbers
+%
+%       This is an alternative definition of \makeheadline, which can be
+% used to put the running headlines in the right position.  A new dimension
+% called \headlineoffset specifies how much the headline is to be RAISED.
+% The default, which is zero, puts the headline in the "usual" place.
+% Similarly, \footlineoffset LOWERS the footline an extra bit. To meet
+% the Yale Graduate School guidelines I used \headlineoffset=0.2in.
+%
+% This file is a part of TeXsis.
+% (C) copyright 1991, 1997 by Eric Myers and Frank Paige
+%======================================================================*
+\message{Running Headlines.}
+
+\newdimen\headlineoffset        \headlineoffset=0.0cm   % how much to raise
+\newdimen\footlineoffset        \footlineoffset=0.0cm   % how much to lower
+
+\newif\ifRunningHeads           \RunningHeadsfalse      % default: off
+\newif\ifbookpagenumbers        \bookpagenumbersfalse   % default: off
+\newif\ifrightn@m               \rightn@mtrue           % default: right
+
+
+% re-define \makeheadline and \makefootline from Plain TeX to
+% allow for moving the headlines up and footlines down
+
+\def\makeheadline{\vbox to 0pt{\vskip-22.5pt
+   \vskip-\headlineoffset              % raises the headline an extra bit
+   \line{\vbox to 8.5pt{}\the\headline}\vss}\nointerlineskip}
+
+\def\makefootline{\baselineskip=24pt    % normal skip to footline
+   \vskip\footlineoffset                % lower the footline an extra bit
+   \line{\the\footline}}
+
+
+%   \Headline and \Footline actually create the running head and foot
+% lines. We make \the\headline=\HeadLine and \the\footline=\FootLine. For
+% the first page of a chapter there is no headline, and no page number. For
+% subsequent pages there is a running head line with page number, and nothing
+% at the bottom of the page. The text of the running head and foot lines is
+% kept in \HeadText and \FootText. \chapter and \section make their arguments
+% the running head text, but you can change this by re-defining \HeadText 
+% immediately after calling these macros. By default the headline is written 
+% in italics; you can change this yourself in \HeadText.
+
+%-%\headline={\HeadLine}                           % headline executes \HeadLine
+
+
+%       \HeadLine uses marks to turn off headline on first pages. \HeadText
+% contains the text; \He@dText is set to it or \relax depending on 
+% \ifRunningHeads.
+
+\def\HeadLine{%
+   \edef\firstm{{\XA\iffalse\firstmark\fi}}% chapternumber of \firstmark
+   \edef\topm{{\XA\iffalse\topmark\fi}}% chapternumber of \topmark
+   \ifRunningHeads                      % print running heads?
+     \def\He@dText{{\HeadFont \HeadText}}% head text in \HeadFont
+   \else\def\He@dText{\relax}\fi        % or nothing
+   \ifbookpagenumbers                   % book-like numbering
+      \ifodd\pageno\rightn@mtrue        %   odd numbers right
+      \else\rightn@mfalse\fi            %   even numbers left
+   \else\rightn@mtrue\fi                % or always right
+   \tenrm                               % page number in Roman
+   \ifx\topm\firstm                     % Marks the same?
+     \ifrightn@m                        % number on right?
+        {\hss\He@dText\hss\llap{\HeadFont\rm\PageNumber}}% 
+     \else                              % or on left
+        {\rlap{\HeadFont\rm\PageNumber}\hss\He@dText\hss}% 
+      \fi 
+   \else \hfill \fi}%                   % NOTHING ON FIRST PAGE of chapter
+
+\def\HeadText{\hfill}
+
+%-%\footline={\FootLine}
+
+\def\FootLine{%
+   \edef\firstm{%
+      {\expandafter\iffalse\firstmark\fi}}% get first mark
+   \edef\topm{% 
+      {\expandafter\iffalse\topmark\fi}}% and top mark
+   \ifx\topm\firstm \hss                % if not page 1, nothing
+    \else {\hss\HeadFont \FootText \hss} \fi}    % print \FootText if page 1
+
+\def\FootText{\hfill}                   % nothing by default
+
+\def\HeadFont{\tenit}                   % default is 10pt Roman italic
+
+
+% Page numbers are links to the table of contents, but they also
+% have names so you can link to them.  You should be able to have both
+% href= and name= in the same anchor, but that fails in HyperTeXview
+% for now. 
+ 
+\begingroup
+  \catcode`<=12 \catcode`>=12 \catcode`\"=12 
+  \gdef\PageLinkto#1{%
+        \html{<a href="\hash sect.TOC">}% 
+        \html{<a NAME="page.\the\pageno">}%
+        {#1}\html{</a>}%
+        \html{</a>}%
+   }%
+\endgroup
+
+\def\PageNumber{\PageLinkto{\folio}}% default is just \folio
+
+
+%-------------------------*
+% In Plain TeX \nopagenumbers turns off the page numbering by making
+% the footline \hfil.  In TeXsis, pagenumbers can appear on the
+% headline instead, so we turn that off too.
+
+\def\nopagenumbers{\headline={\hfil}\footline={\hfil}}%
+
+% We'd like to turn it back on, or put them at the bottom.
+
+\def\pagenumbers{\headline={\HeadLine}\footline={\FootLine}}
+\def\bottompagenumbers{\footline={\hfill{\rm\PageNumber}\hfill}%
+                \headline={\hfill}}
+
+% -- This just sets the flag for odd/even page numbers
+
+\def\bookpagenumbers{\bookpagenumberstrue}
+
+%======================================================================*
+% BINDING MARGIN
+%        Add extra binding margin on left side for even pages and on 
+% right side for odd ones. Assumes (for now) \hoffset=0pt.
+
+% Just like standard \plainoutput except for \makeBindingMargin.
+\def\plainoutput{%                      \plainoutput with binding margin
+  \makeBindingMargin
+  \shipout\vbox{\makeheadline\pagebody\makefootline}%
+  \advancepageno
+  \ifnum\outputpenalty>-\@MM \else\dosupereject\fi}
+
+% Extra margin for binding
+\newdimen\BindingMargin \BindingMargin=0pt
+
+% Insert extra \BindingMargin on left side of odd numbered pages and right
+% side of even numbered ones. But do nothing if \BindingMargin=0pt so as not
+% to clobber user's \hoffset. The user must adjust other page dimensions by 
+% hand.
+
+\def\makeBindingMargin{%               add \BindingMargin in \output
+   \ifdim\BindingMargin>0pt
+   \ifodd\pageno\hoffset=\BindingMargin\else
+   \hoffset=-\BindingMargin\fi\fi}
+
+%>>> EOF TXShead.tex <<<

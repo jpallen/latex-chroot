@@ -1,0 +1,137 @@
+%%
+%% This is file `scrlfile.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% scrlfile.dtx  (with options: `scrlfile')
+%% scrlogo.dtx  (with options: `logo')
+%% 
+%% Copyright (c) 1994-2002
+%% Markus Kohm and any individual authors listed elsewhere in this file.
+%% 
+%% This file was generated from file(s) of the KOMA-Script bundle.
+%% ---------------------------------------------------------------
+%% 
+%% It may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.2
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.2 or later is part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%% 
+%% This file may only be distributed together with the files
+%% `scrlogo.dtx', `scrlfile.dtx' and `scrlfile.ins'. You may however
+%% distribute the files `scrlogo.dtx', `scrlfile.dtx' and `scrlfile.ins'
+%% without this file. See also `scrlfile.dtx' for additional information.
+%% 
+%% If this file is a beta version, you are not allowed to distribute it.
+%% 
+%% English and German manuals are part of KOMA-Script bundle.
+%% ----------------------------------------------------------
+%% 
+%% A short version of the english manual is at `scrlfile.dtx', too.
+%% 
+%% The KOMA-Script bundle (but maybe not this file) was based upon the
+%% LaTeX2.09 Script family created by Frank Neukam 1993 and the LaTeX2e
+%% standard classes created by The LaTeX3 Project 1994-1996.
+%% 
+%%% From File: scrlfile.dtx
+\def\scrlfileversion{2006/03/28 v2.95}
+\ProvidesPackage{scrlfile}[%
+  \scrlfileversion\space KOMA-Script package (loading files)]
+\typeout{Package scrlfile, \csname ver@scrlfile.sty\endcsname%
+  ^^J\@spaces\@spaces\@spaces\@spaces\space\space
+  Copyright (C) Markus Kohm^^J}
+\ExecuteOptions{}
+\ProcessOptions\relax
+\CheckCommand{\InputIfFileExists}[2]{%
+  \IfFileExists{#1}%
+    {#2\@addtofilelist{#1}\@@input \@filef@und}}
+\renewcommand{\InputIfFileExists}[2]{%
+  \IfFileExists{#1}{%
+    \scr@load@hook{before}{#1}%
+    #2\@addtofilelist{#1}\@@input \@filef@und
+    \scr@load@hook{after}{#1}}}
+\newcommand*{\scr@load@hook}[2]{%
+  \@ifundefined{#2-@#1}{}{%
+    \@nameuse{#2-@#1}%
+    \expandafter\let\csname #2-@#1\endcsname=\relax}}
+\newcommand*{\scr@set@load@hook}[2]{%
+  \@ifundefined{#2-@#1}{\@namedef{#2-@#1}{}}{}%
+  \expandafter\g@addto@macro\csname #2-@#1\endcsname}
+\newcommand*{\BeforeFile}{\scr@set@load@hook{before}}
+\newcommand*{\AfterFile}{\scr@set@load@hook{after}}
+\newcommand*{\BeforeClass}[1]{%
+  \scr@set@load@hook{before}{#1.\@clsextension}}
+\newcommand*{\AfterClass}{%
+  \@ifstar {\@sAfterClass}{\@AfterClass}}
+\newcommand*{\@AfterClass}[1]{%
+  \scr@set@load@hook{after}{#1.\@clsextension}}
+\newcommand*{\@sAfterClass}[1]{%
+  \begingroup
+    \@ifclassloaded{#1}{%
+      \aftergroup\@secondoftwo
+    }{%
+      \aftergroup\@AfterClass
+    }%
+  \endgroup
+  {#1}%
+}
+\newcommand*{\BeforePackage}[1]{%
+  \scr@set@load@hook{before}{#1.\@pkgextension}}
+\newcommand*{\AfterPackage}{%
+  \@ifstar {\@sAfterPackage}{\@AfterPackage}}
+\newcommand*{\@AfterPackage}[1]{%
+  \scr@set@load@hook{after}{#1.\@pkgextension}}
+\newcommand*{\@sAfterPackage}[1]{%
+  \begingroup
+    \@ifpackageloaded{#1}{%
+      \aftergroup\@secondoftwo
+    }{%
+      \aftergroup\@AfterPackage
+    }%
+  \endgroup
+  {#1}%
+}
+\AtEndDocument{%
+  \let\scr@saved@checkend=\@checkend
+  \renewcommand*{\@checkend}[1]{%
+    \def\reserved@a{#1}\def\reserved@b{document}%
+    \scr@saved@checkend{#1}%
+    \ifx\reserved@a\reserved@b
+      \let\scr@saved@clearpage=\clearpage
+      \renewcommand*{\clearpage}{\scr@saved@clearpage
+        \scr@hook@bcma\let\clearpage=\scr@saved@clearpage}%
+    \fi%
+  }%
+}
+\newcommand*{\scr@saved@checkend}{}
+\newcommand*{\scr@hook@bcma}{%
+  \renewcommand*{\BeforeClosingMainAux}[1]{##1}%
+  \renewcommand*{\newpage}{%
+    \PackageError{%
+      scrlfile%
+    }{%
+      \string\newpage\space at \string\BeforeClosingMainAux
+    }{%
+      You should never use \string\newpage\space or
+      \string\clear(double)page or other output material at the\MessageBreak
+      argument of \string\BeforeClosingMainAux!\MessageBreak
+      If you'll continue, the \string\newpage\space will be ignored to
+      avoid corruption of\MessageBreak
+      every prior use of \string\BeforeClosingMainAux.
+    }%
+  }%
+}
+\newcommand*{\BeforeClosingMainAux}{%
+  \g@addto@macro\scr@hook@bcma%
+}
+%%% From File: scrlogo.dtx
+\@ifundefined{KOMAScript}{%
+  \DeclareRobustCommand{\KOMAScript}{\textsf{K\kern.05em O\kern.05em%
+      M\kern.05em A\kern.1em-\kern.1em Script}}}{}
+\endinput
+%%
+%% End of file `scrlfile.sty'.

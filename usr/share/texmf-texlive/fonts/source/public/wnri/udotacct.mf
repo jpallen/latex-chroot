@@ -1,0 +1,29 @@
+%
+% Washington Romanized Indic accent driver
+%
+% Macros to draw subscript dot accents 
+%
+
+cmchar "Dot accent";
+numeric dot_diam#; dot_diam#=max(dot_size#,cap_curve#);
+beginchar(oct"137",5u#,min(asc_height#,10/7x_height#+.5dot_diam#),0);
+define_whole_blacker_pixels(dot_diam);
+italcorr h#*slant+.5dot_diam#-2u#;
+adjust_fit(0,0);
+pickup tiny.nib; pos1(dot_diam,0); pos2(dot_diam,90);
+x1=x2=.5w; top y2r=h+1;
+if bot y2l<x_height+o+slab: y2l:=min(y2r-eps,x_height+o+slab+.5tiny); fi
+y1=.5[y2l,y2r]; dot(1,2);  % dot
+transform Tf; Tf = identity shifted (-.5w+ slant*(-h-.325desc_depth),aspect_ratio*(-h-.325desc_depth));
+savePicture(UdotPic); transform Tf;
+endgroup;
+
+extra_endchar:=
+  " czdm ap(UdotPic); ad; oechar; ";
+
+boolean dotson; dotson=true; % don't omit dots on i, j, and possibly etc.
+
+def cp = udot enddef;
+
+% end of file udotacct.mf
+

@@ -1,0 +1,193 @@
+%
+% ldroman.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Driver file for Roman and Sans Serif fonts
+% - modified ROMAN.MF in Computer Modern fonts
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% There are also added SliTeX emulation:
+% It differs from ldroman.mf (roman.mf) only in that it has been
+% adjusted to call for sromanu.mf with a special uppercase I
+% for the SLITeX fonts: lcmss8, lcmssb8, and lcmssi8.
+% Written by Pierre A. MacKay, 16 Sept. 1986
+% &
+% There also used special letters UKR_I LAT_I etc in Cyrillic glyphs
+%
+
+LHver_check(3,5); % like |version_check| in ec
+
+if ligs>1: font_coding_scheme:="TeX text/Cyr - "&enc_name;
+ if altcoding:
+    spanish_shriek=oct"074"; spanish_query=oct"076";
+ fi
+else: font_coding_scheme:=if ligs=0: "TeX typewriter text/Cyr - "&enc_name
+  else: "TeX text without f-ligs/Cyr - "&enc_name fi;
+ if altcoding:
+    spanish_shriek=oct"016"; spanish_query=oct"017";
+ fi
+fi
+
+input lxpseudo;
+
+mode_setup; font_setup;
+pseudo_setup;    % |pseudo_setup| from ec
+
+if altcoding:
+   if slitex:
+      input sromanu;   % upper case (majuscules) with SliTeX I
+   else:
+      input romanu;   % upper case (majuscules)
+   fi
+   input romanl;   % lower case (minuscules)
+   input greeku;   % upper case Greek letters
+   input romand;   % numerals
+   input romanp;   % ampersand, question marks, currency sign
+   input romspl;   % lowercase specials (dotless \i, ligature \ae, etc.)
+   input romspu;   % uppercase specials (\AE, \OE, \O)
+   input punct;    % punctuation symbols common to roman and italic text
+   input accent;   % accents common to roman and italic text
+   if ligs>1: input romlig; fi  % letter ligatures
+   if ligs<=1: input romsub; fi  % substitutes for ligatures
+fi
+
+if not vfcoding: % ligs for both altcoding and wncoding (dashes & quotes)
+   if ligs>0: input comlig; fi  % ligatures common with italic text
+fi
+
+input lgcyru;	   % Cyrillic upper case (majuscules)
+input lgcyrl;	   % Cyrillic lower case (minuscules)
+input lgcyrsym;    % << >> ,, No
+input lgcyracc;	   % Cyrillic accents
+if old_cyr:
+   input lgocyrac; % Cyrillic Old Slav accents & signs
+fi
+
+if wncoding: %Part used in WNCYR
+   input romand;   % numerals
+   input lgpunct;  % excerpts from punct.mf
+   input lgromp;   % roman question mark
+   input lgrlig;   % roman dotless i,j
+fi
+
+font_slant slant; font_x_height x_height#;
+if monospace: font_normal_space 9u#; % no stretching or shrinking
+   font_quad 18u#;
+   font_extra_space 9u#;
+   if altcoding: input llmligtb; fi % input ligs for quotes
+   if wncoding : input lwnligs;  fi % input ligs for Cyrillic letters in WNCYR
+else: font_normal_space 6u#+2letter_fit#;
+   font_normal_stretch 3u#; font_normal_shrink 2u#;
+   font_quad 18u#+4letter_fit#;
+   font_extra_space 2u#;
+   k#:=-.5u#; kk#:=-1.5u#; kkk#:=-2u#; % three degrees of kerning
+   %
+   % Latin ligs & kerns:
+   %   There are just the same ligs and kerns as in CM
+   %   but they are built in more visible form
+   TITLEfont:=false; SmallCapsfont:=false; ROMANfont:=true;
+   if altcoding:
+      ligtable "k":
+	 if serifs: "v":
+		    "a" kern -u#, fi\\
+	       "w": "e" kern k#,
+		    "a" kern k#,
+		    "o" kern k#,
+		    "c" kern k#;
+      ligtable "P": "A" kern kk#,
+	       "y": "o" kern k#,
+		    "e" kern k#,
+		    "a" kern k#,
+		    "." kern kk#,
+		    "," kern kk#;
+      ligtable "F": "V": "W":
+	 if serifs: "o" kern kk#,
+		    "e" kern kk#,
+		    "u" kern kk#,
+		    "r" kern kk#,
+		    "a" kern kk#,
+		    "A" kern kkk#,
+	      else: "o" kern k#,
+		    "e" kern k#,
+		    "u" kern k#,
+		    "r" kern k#,
+		    "a" kern k#,
+		    "A" kern kk#, fi
+	  "K": "X": "O" kern k#,
+		    "C" kern k#,
+		    "G" kern k#,
+		    "Q" kern k#;
+      ligtable "T": "y" kern if serifs: k# else: kk# fi,
+	       "Y": "e" kern kk#,
+		    "o" kern kk#,
+		    "r" kern kk#,
+		    "a" kern kk#,
+		    "A" kern kk#,
+		    "u" kern kk#;
+      ligtable "O": "D":
+		    "X" kern k#,
+		    "W" kern k#,
+		    "A" kern k#,
+		    "V" kern k#,
+		    "Y" kern k#;
+      if serifs:
+	 ligtable "h": "m": "n":
+		    "t" kern k#,
+		    "u" kern k#,
+		    "b" kern k#,
+		    "y" kern k#,
+		    "v" kern k#,
+		    "w" kern k#;
+         ligtable "c":
+		    "h" kern k#,
+		    "k" kern k#;
+      fi
+      ligtable "o": "b": "p":
+		    "e" kern -k#,
+		    "o" kern -k#,
+		    "x" kern k#,
+		    "d" kern -k#,
+		    "c" kern -k#,
+		    "q" kern -k#,
+	       "a": if serifs:
+			  "v" kern k#,
+			  "j" kern u#,
+		    else: "r" kern k#, fi
+		    "t": "y" kern k#,
+	       "u": "w" kern k#;
+      ligtable "A": if serifs: "R": fi\\
+		    "t" kern k#,
+		    "C" kern k#,
+		    "O" kern k#,
+		    "G" kern k#,
+		    "U" kern k#,
+		    "Q" kern k#,
+	       "L": "T" kern kk#,
+		    "Y" kern kk#,
+		    "V" kern kkk#,
+		    "W" kern kkk#;
+      ligtable "g": "j" kern -k#; % logjam
+      ligtable "I": "I" kern -k#;  % Richard III
+      %
+      % there are ligature/kern programs for |"f"| in the {\tt romlig} file
+      % and for |"-"|, |"`"|, and |"'"| in the {\tt comlig} file
+      input llvligtb;   % input ligs & kerns for quotes
+   fi
+   scantokens("input "&(substring(fonteq-2,fonteq) of param_base)&"liker"); % Cyrillic ligs & kerns
+fi
+
+bye.
+%end of file

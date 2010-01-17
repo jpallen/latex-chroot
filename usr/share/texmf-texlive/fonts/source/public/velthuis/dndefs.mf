@@ -1,0 +1,313 @@
+%
+%    dndefs.mf v2.1
+%
+%    Definitions file with Metafont parameters for the Devanagari fonts
+%    Copyright (C) 1991-2003 University of Groningen, The Netherlands
+%
+%    Author     : Frans J. Velthuis <velthuis@rc.rug.nl>
+%    Maintainer : Anshuman Pandey <apandey@u.washington.edu>
+%                 Kevin Carmody <i@kevincarmody.com>
+%    Date       : 8 April 2004
+%
+%    This program is free software; you can redistribute it and/or modify
+%    it under the terms of the GNU General Public License as published by
+%    the Free Software Foundation.
+%
+%    This program is distributed in the hope that it will be useful,
+%    but without any warranty; without even the implied warranty of
+%    merchantability or fitness for a particular purpose. See the
+%    GNU General Public License for more details.
+%
+
+  if unknown dninit:
+    input dninit;
+  fi;
+  boolean custom; custom := false;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The following parameters determine the font size.
+
+  if unknown designsize:  % designsize is set by font_size command
+    font_size := 10pt#;
+  fi;
+  fontpoints# := designsize/pt#;
+  fontfactor# := fontpoints#/10;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The following parameters determine whether alternative characters
+% will be used.
+
+  if known alta:
+    custom := true;
+  else:
+    alta := false;
+  fi;
+  if known altri:
+    custom := true;
+  else:
+    altri := false;
+  fi;
+  if known altli:
+    custom := true;
+  else:
+    altli := false;
+  fi;
+  if known altcha:
+    custom := true;
+  else:
+    altcha := false;
+  fi;
+  if known altna:
+    custom := true;
+  else:
+    altna := false;
+  fi;
+  if known altjha:
+    custom := true;
+  else:
+    altjha := false;
+  fi;
+  if known altla:
+    custom := true;
+  else:
+    altla := false;
+  fi;
+  if known altsha:
+    custom := true;
+  else:
+    altsha := false;
+  fi;
+  if known altksa:
+    custom := true;
+  else:
+    altksa := false;
+  fi;
+  if known altjna:
+    custom := true;
+  else:
+    altjna := false;
+  fi;
+  if known altone:
+    custom := true;
+  else:
+    altone := false;
+  fi;
+  if known altfive:
+    custom := true;
+  else:
+    altfive := false;
+  fi;
+  if known alteight:
+    custom := true;
+  else:
+    alteight := false;
+  fi;
+  if known altnine:
+    custom := true;
+  else:
+    altnine := false;
+  fi;
+  if known nepalijha:
+    custom := true;
+  else:
+    nepalijha := false;
+  fi;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The following parameters determine whether alternative fonts will
+% be created
+
+  if unknown bombayfont:
+    bombayfont := false;
+  fi;
+  if unknown calcuttafont:
+    calcuttafont := false;
+  fi;
+  if unknown nepalifont:
+    nepalifont := false;
+  fi;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The following parameters determine the glyph sets for the alternate
+% Bombay, Calcutta, and Nepali fonts.
+
+  if bombayfont:
+    altla := true; altsha := true; altjna:= true; altfive := true; 
+    alteight := true;
+  fi;
+  if calcuttafont:
+    alta := true; altri := true; altli := true; altcha := true; 
+    altna := true; altjha := true; altksa := true; 
+  fi;
+  if nepalifont:
+    altcha := true; nepalijha := true; altksa := true; 
+    altone := true; altnine := true;
+  fi;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The following parameters set up line thickness parameters for
+% default bold and italic fonts.
+
+  if unknown boldfont:
+    boldfont := false;
+  fi;
+  if unknown italicfont:
+    italicfont := false;
+  fi;
+  if known thickfactor or known subthickfactor or known thinfactor:
+    custom := true;
+  fi;
+  if boldfont and italicfont:
+    if unknown thickfactor:    thickfactor    := 1.18; fi;
+    if unknown subthickfactor: subthickfactor := 1.13; fi;
+    if unknown thinfactor:     thinfactor     := 2.50; fi;
+  elseif boldfont:
+    if unknown thickfactor:    thickfactor    := 1.27; fi;
+    if unknown subthickfactor: subthickfactor := 1.25; fi;
+    if unknown thinfactor:     thinfactor     := 2.50; fi;
+  elseif italicfont:
+    if unknown thickfactor:    thickfactor    := 0.86; fi;
+    if unknown subthickfactor: subthickfactor := 0.88; fi;
+  fi;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The following parameters determine the line thickness.
+% The line thickness varies between thin# and thick#, depending on the
+% angle between the pen and the direction of writing.
+% For strokes in subscripts it varies between subthick# and thin#.
+
+  if unknown thickfactor:
+    thickfactor := 1;
+  fi;
+  if unknown thinfactor:
+    thinfactor := 1;
+  fi;
+  if unknown subthickfactor:
+    subthickfactor := 1;
+  fi;
+  thick# := thickfactor * fontfactor# * 1.1pt#;
+  thin# := thinfactor * 0.2pt#;
+  subthick# := subthickfactor * fontfactor# * .8pt#;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The following parameter determines the slant (italic/oblique), if any.
+
+  if known slantratio:
+    custom := true;
+  elseif italicfont:
+    slantratio := 1/4;
+  fi;
+  if known slantratio:
+    currenttransform := identity slanted slantratio;
+  fi;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The following parameter determines the internal font name.
+
+  if length(font_identifier_) = 0:
+    string font_root, font_suffix, font_points;
+    font_root   := (if custom: "DVNX" 
+                    elseif bombayfont: "DVNB" 
+                    elseif calcuttafont: "DVNC" 
+                    elseif nepalifont: "DVNN" 
+                    else: "DVNG" fi);
+    font_suffix := (if boldfont and italicfont: "BI"
+      elseif boldfont: "B" elseif italicfont: "I" else: "" fi);
+    font_points := decimal(round(fontpoints));
+    font_identifier := font_root & font_suffix & font_points;
+  fi;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  ht# := fontfactor#*2mm#;
+  rm# := fontfactor#*0.6mm#;
+  brm# := fontfactor#*0.9mm#;
+  twd# := fontfactor#*1.4mm#;
+  uwidth# := twd#;
+  define_pixels(rm,twd,uwidth,brm);
+  define_whole_pixels(ht);
+  rot = 135;
+  font_quad 1.5twd#+rm#;
+  font_x_height .7rm#;
+  font_normal_space:=1.2twd#;
+  font_normal_stretch:=.6twd#;
+  font_normal_shrink:=.4twd#;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  penwd# :=thick# * cosd(rot-90);
+  usthick# := thick#;
+  mb# := .2ht#;
+  define_pixels(penwd,usthick,mb);
+  define_blacker_pixels(thin,thick,subthick);
+  thin := max(thin,1); subthick := max(subthick,1);
+  smoothing := 0;
+  pickup pencircle xscaled thick yscaled thin rotated rot;
+  scpenwd := pen_rt - pen_lft;
+  frame_pen := savepen;
+  pickup pencircle xscaled subthick yscaled thin rotated rot;
+  sub_pen := savepen;
+  picture v[];
+  numeric vbar[];
+  extra_endchar := extra_endchar & "chardp := chardp + mb#;" ;
+
+  def tframe =
+  pickup frame_pen;
+  z1=(w-brm-.7rm,h); z2=(w,h);
+  x3=good.x w-brm; y3=h; z4=(x3,0);
+  draw z1--z2;
+  draw z3--z4;
+  enddef;
+
+  def aframe =
+  pickup frame_pen;
+  z1=(w-rm-brm,h); z2=(w,h);
+  x3=good.x w-brm; y3=h; z4=(x3,0);
+  draw z1--z2;
+  draw z3--z4;
+  enddef;
+
+  def endsav =
+  vbar[charcode]=x3;
+  cullit;
+  v[charcode]=currentpicture;
+  endchar;
+  enddef;
+
+  def cutoff(expr t) =
+  x23 = vbar[t];
+  fill (-penwd,-d-mb-penwd)--(x23-.6scpenwd,-d-mb-penwd)--(x23-.6scpenwd,
+  h+penwd)--(-penwd,h+penwd)--cycle withweight 2;
+  cull currentpicture keeping(2,2);
+  addto currentpicture also v[t];
+  cull currentpicture keeping (2,2);
+  w := floor(x23-.6scpenwd);
+  enddef;
+
+  def addpic(expr t) =
+  addto currentpicture also v[t];
+  enddef;
+
+  def frame =
+  pickup frame_pen;
+  z1 = (0,ht); z2 = (w,ht);
+  x3 = good.x w-brm; y3 = ht; z4 = (x3,0);
+  draw z1--z2; draw z3--z4;
+  enddef;
+
+  def sqdot(expr p)=
+  x25:=floor(xpart p)+.5;
+  y25:=floor(ypart p)+.5;
+  dwd:=ceiling(thick);
+  if not odd dwd: dwd:= dwd+1; fi
+  fill unitsquare shifted -(.5,.5) rotated 45 scaled (.5sqrt2 * dwd)
+  shifted z25;
+  enddef;
+
+  def low_n(expr nw,nh)=
+	y38 := good.y nh; x38 := x3;
+	y39 := y38 - .6penwd; x39 := nw;
+	filldraw fullcircle scaled 1.2penwd shifted(x39,y39);
+	z40 = (x39,y38);
+	draw z38--z40;
+  enddef;

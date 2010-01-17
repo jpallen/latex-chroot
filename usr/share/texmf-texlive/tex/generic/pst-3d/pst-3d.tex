@@ -1,0 +1,349 @@
+%%
+%% This is file `pst-3d.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% pst-3d.dtx  (with options: `pst-3d')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from pst-3d.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file pst-3d.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% Package `pst-3d.dtx'
+%%
+%% Timothy Van Zandt <tvz@nwu.edu> (tvz)
+%% Herbert Voss <voss@pstricks.de> (hv)
+%%
+%% September 03, 2005
+%%
+%% This file is under the LaTeX Project Public License
+%% See CTAN archives in directory macros/latex/base/lppl.txt.
+%%
+%% DESCRIPTION:
+%%   `pst-3d' is a PSTricks package for tilting and other pseudo-3D tricks
+%%
+
+
+\ifx\PSTricksLoaded\endinput\else\input pstricks.tex\fi
+\ifx\PSTXKeyLoaded\endinput\else\input pst-xkey \fi % (hv 2005-09-03)
+\edef\PstAtCode{\the\catcode`\@}
+\catcode`\@=11\relax
+\pst@addfams{pst-3d}
+\def\fileversion{1.00}
+\def\filedate{2005/09/03}
+\message{`PST-3d' v\fileversion, \filedate\space (tvz)}
+\csname PSTthreeDLoaded\endcsname
+\let\PSTthreeDLoaded\endinput
+\pst@def{SetMatrixThreeD}<%
+  dup sin /e ED cos /f ED
+  /p3 ED /p2 ED /p1 ED
+  p1 0 eq
+  { /a 0 def /b p2 0 le { 1 } { -1 } ifelse def
+    p3 p2 abs
+  }
+  { p2 0 eq
+    { /a p1 0 lt { -1 } { 1 } ifelse def /b 0 def
+      p3 p1 abs
+    }
+    { p1 dup mul p2 dup mul add sqrt dup
+      p1 exch div /a ED
+      p2 exch div neg /b ED
+      p3 p1 a div
+    }
+    ifelse
+  }
+  ifelse
+  atan dup sin /c ED cos /d ED
+  /Matrix3D
+  [
+    b f mul c a mul e mul sub
+    a f mul c b mul e mul add
+    d e mul
+    b e mul neg c a mul f mul sub
+    a e mul neg c b mul f mul add
+    d f mul
+  ] def>
+\pst@def{ProjThreeD}<%
+  /z ED /y ED /x ED
+  Matrix3D aload pop
+  z mul exch y mul add exch x mul add
+  4 1 roll
+  z mul exch y mul add exch x mul add
+  exch>
+\pst@def{SetMatrixEmbed}<%
+  \tx@SetMatrixThreeD
+  Matrix3D aload pop
+  /z3 ED /z2 ED /z1 ED /x3 ED /x2 ED /x1 ED
+  \tx@SetMatrixThreeD
+  [
+  Matrix3D aload pop
+  z3 mul exch z2 mul add exch z1 mul add 4 1 roll
+  z3 mul exch z2 mul add exch z1 mul add
+  Matrix3D aload pop
+  x3 mul exch x2 mul add exch x1 mul add 4 1 roll
+  x3 mul exch x2 mul add exch x1 mul add
+  3 -1 roll 3 -1 roll 4 -1 roll 8 -3 roll 3 copy
+  x3 mul exch x2 mul add exch x1 mul add 4 1 roll
+  z3 mul exch z2 mul add exch z1 mul add
+  ]
+  concat>
+\let\pssetzlength\pssetylength
+\define@key[psset]{pst-3d}{viewpoint}{%
+  \pst@expandafter\psset@@viewpoint#1 {} {} {} \@nil
+  \let\psk@viewpoint\pst@tempg}
+\def\psset@@viewpoint#1 #2 #3 #4\@nil{%
+  \begingroup
+    \pssetxlength\pst@dima{#1}%
+    \pssetylength\pst@dimb{#2}%
+    \pssetzlength\pst@dimc{#3}%
+    \xdef\pst@tempg{%
+      \pst@number\pst@dima \pst@number\pst@dimb \pst@number\pst@dimc}%
+  \endgroup}
+\psset[pst-3d]{viewpoint=1 -1 1}
+\define@key[psset]{pst-3d}{viewangle}{%
+  \pst@getangle{#1}\psk@viewangle}
+\psset[pst-3d]{viewangle=0}
+\define@key[psset]{pst-3d}{normal}{%
+  \pst@expandafter\psset@@viewpoint#1 {} {} {} \@nil
+  \let\psk@normal\pst@tempg}
+\psset[pst-3d]{normal=0 0 1}
+\define@key[psset]{pst-3d}{embedangle}{%
+  \pst@getangle{#1}\psk@embedangle}
+\psset[pst-3d]{embedangle=0}
+\define@key[psset]{pst-3d}{Tshadowsize}{%
+  \pst@checknum{#1}\psTshadowsize}
+\psset[pst-3d]{Tshadowsize=1}
+\define@key[psset]{pst-3d}{Tshadowangle}{%
+  \pst@getangle{#1}\psk@Tshadowangle}
+\psset[pst-3d]{Tshadowangle=60}
+\define@key[psset]{pst-3d}{Tshadowcolor}{%
+  \pst@getcolor{#1}\psTshadowcolor}
+\psset[pst-3d]{Tshadowcolor=lightgray}
+
+\pst@def{TMSave}<%
+  tx@Dict /TMatrix known not { /TMatrix { } def /RAngle { 0 } def } if
+  /TMatrix [ TMatrix CM ] cvx def>
+\pst@def{TMRestore}<%
+  CP /TMatrix [ TMatrix setmatrix ] cvx def moveto>
+\pst@def{TMChange}<%
+  \tx@TMSave
+  /cp [ currentpoint ] cvx def % ??? Check this later.
+  CM
+  CP T \tx@STV
+  CM matrix invertmatrix    % Inv(M')
+  matrix concatmatrix       % M Inv(M')
+  exch exec
+  concat cp moveto>
+\def\ThreeDput{\def\pst@par{}\pst@object{ThreeDput}}
+\def\ThreeDput@i{\@ifnextchar({\ThreeDput@ii}{\ThreeDput@ii(\z@,\z@,\z@)}}
+\def\ThreeDput@ii(#1,#2,#3){%
+  \pst@killglue\pst@makebox{\ThreeDput@iii(#1,#2,#3)}}
+\def\ThreeDput@iii(#1,#2,#3){%
+  \begingroup
+    \use@par
+    \if@star\pst@starbox\fi
+    \pst@makesmall\pst@hbox
+    \pssetxlength\pst@dima{#1}%
+    \pssetylength\pst@dimb{#2}%
+    \pssetzlength\pst@dimc{#3}%
+    \leavevmode
+    \hbox{%
+      \pst@Verb{%
+        { \pst@number\pst@dima
+          \pst@number\pst@dimb
+          \pst@number\pst@dimc
+          \psk@normal
+          \psk@embedangle
+          \psk@viewpoint
+          \psk@viewangle
+          \tx@SetMatrixEmbed
+        } \tx@TMChange}%
+    \box\pst@hbox
+    \pst@Verb{\tx@TMRestore}}%
+  \endgroup
+  \ignorespaces}
+\def\pst@sinandcos#1{%
+  \begingroup
+    \pst@dima=#1\relax
+    \pst@dima=.366022\pst@dima     %Now 1pt=1/32rad
+    \pst@dimb=\pst@dima   % dimb->32sin(angle) in pts
+    \pst@dimc=32\p@       % dimc->32cos(angle) in pts
+    \pst@dimtonum\pst@dima\pst@tempa
+    \pst@cntb=\tw@
+    \pst@cntc=-\@ne
+    \pst@cntg=32
+    \loop
+    \ifnum\pst@dima>\@cclvi % 256
+      \pst@dima=\pst@tempa\pst@dima
+      \divide\pst@dima\pst@cntg
+      \divide\pst@dima\pst@cntb
+      \ifodd\pst@cntb
+        \advance\pst@dimb \pst@cntc\pst@dima
+        \pst@cntc=-\pst@cntc
+      \else
+        \advance\pst@dimc by \pst@cntc\pst@dima
+      \fi
+      \advance\pst@cntb\@ne
+    \repeat
+    \divide\pst@dimb\pst@cntg
+    \divide\pst@dimc\pst@cntg
+    \global\pst@dimg\pst@dimb
+    \global\pst@dimh\pst@dimc
+  \endgroup}
+\def\pst@getsinandcos#1{%
+  \pst@dimg=100000sp
+  \pst@dimg=#1\pst@dimg
+  \pst@dimh=36000000sp
+  \pst@cntg=0
+  \loop
+  \ifnum\pst@dimg<\z@
+    \advance\pst@dimg\pst@dimh
+  \repeat
+  \loop
+  \ifnum\pst@dimg>\pst@dimh
+    \advance\pst@dimg-\pst@dimh
+  \repeat
+  \pst@dimh=9000000sp
+  \def\pst@tempg{%
+    \ifnum\pst@dimg<\pst@dimh\else
+      \advance\pst@dimg-\pst@dimh
+      \advance\pst@cntg\@ne
+      \ifnum\pst@cntg>\thr@@ \advance\pst@cntg-4 \fi
+      \expandafter\pst@tempg
+    \fi}%
+  \pst@tempg
+  \chardef\pst@quadrant\pst@cntg
+  \ifdim\pst@dimg=\z@
+    \def\pst@sin{0}%
+    \def\pst@cos{1}%
+  \else
+    \pst@sinandcos\pst@dimg
+    \pst@dimtonum\pst@dimg\pst@sin
+    \pst@dimtonum\pst@dimh\pst@cos
+  \fi%
+}
+\def\pstilt#1{\pst@makebox{\pstilt@{#1}}}
+\def\pstilt@#1{%
+  \begingroup
+    \leavevmode
+    \pst@getsinandcos{#1}%
+    \hbox{%
+      \ifcase\pst@quadrant
+        \kern\pst@cos\dp\pst@hbox
+        \pst@dima=\pst@cos\ht\pst@hbox
+        \ht\pst@hbox=\pst@sin\ht\pst@hbox
+        \dp\pst@hbox=\pst@sin\dp\pst@hbox
+      \or
+        \kern\pst@sin\ht\pst@hbox
+        \pst@dima=\pst@sin\dp\pst@hbox
+        \ht\pst@hbox=\pst@cos\ht\pst@hbox
+        \dp\pst@hbox=\pst@cos\dp\pst@hbox
+      \or
+        \kern\pst@cos\ht\pst@hbox
+        \pst@dima=\pst@sin\dp\pst@hbox
+        \pst@dimg=\pst@sin\ht\pst@hbox
+        \ht\pst@hbox=\pst@sin\dp\pst@hbox
+        \dp\pst@hbox=\pst@dimg
+      \or
+        \kern\pst@sin\dp\pst@hbox
+        \pst@dima=\pst@sin\ht\pst@hbox
+        \pst@dimg=\pst@cos\ht\pst@hbox
+        \ht\pst@hbox=\pst@cos\dp\pst@hbox
+        \dp\pst@hbox=\pst@dimg
+      \fi
+      \pst@Verb{%
+        { [ 1 0
+            \pst@cos\space \ifnum\pst@quadrant>\@ne neg \fi
+            \pst@sin\space
+            \ifnum\pst@quadrant>\z@\ifnum\pst@quadrant<\thr@@ neg \fi\fi
+            \ifodd\pst@quadrant exch \fi
+            0 0
+          ] concat
+        } \tx@TMChange}%
+      \box\pst@hbox
+      \pst@Verb{\tx@TMRestore}%
+      \kern\pst@dima}%
+  \endgroup}
+\def\psTilt#1{\pst@makebox{\psTilt@{#1}}}
+\def\psTilt@#1{%
+  \begingroup
+    \leavevmode
+    \pst@getsinandcos{#1}%
+    \hbox{%
+      \ifodd\pst@quadrant
+        \pst@@divide{\dp\pst@hbox}{\pst@cos\p@}%
+        \ifnum\pst@quadrant=\thr@@\kern\else\pst@dima=\fi\pst@sin\pst@dimg
+        \pst@@divide{\ht\pst@hbox}{\pst@cos\p@}%
+        \ifnum\pst@quadrant=\@ne\kern\else\pst@dima=\fi\pst@sin\pst@dimg
+      \else
+        \ifdim\pst@sin\p@=\z@
+          \@pstrickserr{\string\psTilt\space angle cannot be 0 or 180}\@ehpa
+          \def\pst@sin{.7071}%
+          \def\pst@cos{.7071}%
+        \fi
+        \pst@@divide{\dp\pst@hbox}{\pst@sin\p@}%
+        \ifnum\pst@quadrant=\z@\kern\else\pst@dima=\fi\pst@cos\pst@dimg
+        \pst@@divide{\ht\pst@hbox}{\pst@sin\p@}%
+        \ifnum\pst@quadrant=\tw@\kern\else\pst@dima=\fi\pst@cos\pst@dimg
+      \fi
+      \ifnum\pst@quadrant>\@ne
+        \pst@dimg=\ht\pst@hbox
+        \ht\pst@hbox=\dp\pst@hbox
+        \dp\pst@hbox=\pst@dimg
+      \fi
+      \pst@Verb{%
+        { [ 1 0
+            \pst@cos\space \pst@sin\space
+            \ifodd\pst@quadrant exch \fi
+            \tx@Div
+            \ifnum\pst@quadrant>\z@\ifnum\pst@quadrant<\thr@@ neg \fi\fi
+            \ifnum\pst@quadrant>\@ne -1 \else 1 \fi
+            0 0
+          ] concat
+        } \tx@TMChange}%
+      \box\pst@hbox
+      \pst@Verb{\tx@TMRestore}%
+      \kern\pst@dima}%
+  \endgroup}
+\def\psshadow{\pst@object{psshadow}}
+\def\psshadow@i{\pst@makebox{\psshadow@ii}}
+\def\psshadow@ii{%
+  \begingroup
+    \use@par
+    \leavevmode
+    \pst@getsinandcos{\psk@Tshadowangle}%
+    \hbox{%
+      \lower\dp\pst@hbox\hbox{%
+        \pst@Verb{%
+          { [ 1 0
+              \pst@cos\space \psTshadowsize mul
+              \ifnum\pst@quadrant>\@ne neg \fi
+              \pst@sin\space \psTshadowsize mul
+              \ifnum\pst@quadrant>\z@\ifnum\pst@quadrant<\thr@@ neg \fi\fi
+              \ifodd\pst@quadrant exch \fi
+              0 0
+            ] concat
+          } \tx@TMChange}}%
+      \hbox to\z@{%   patch 2 (hv), to get it run with xcolor _and_ TeX
+       \pst@Verb{ gsave \pst@usecolor\psTshadowcolor}%
+       \copy\pst@hbox
+       \pst@Verb{ grestore}\hss}%
+      \pst@Verb{\tx@TMRestore}%
+      \box\pst@hbox}%
+  \endgroup}
+\catcode`\@=\PstAtCode\relax
+\endinput
+%%
+%% End of file `pst-3d.tex'.

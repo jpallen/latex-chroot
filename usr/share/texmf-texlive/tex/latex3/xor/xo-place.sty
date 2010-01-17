@@ -1,0 +1,422 @@
+%%
+%% This is file `xo-place.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xo-place.dtx  (with options: `package,progress')
+%% 
+%% Not for distribution
+%% 
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%% 
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+
+\def\@tempa#1: #2.dtx,v #3 #4 #5 #6 #7${
+  \ProvidesPackage{#2}[#4 #3 #5 #6]}
+\@tempa$Id: xo-place.dtx,v 1.37 2000/08/11 07:14:28 latex3 Exp $
+\IgnoreWhiteSpace
+\def\std@try@this@area{
+  \ifx\this@open@areas\@empty
+        \do@next\defer@and@try@next@float
+  \else
+    \setup@this@area{\expandafter\@carcube\this@open@areas\@nil}
+    \progress{~ area~trial:~ \this@area}
+    \ifnum \this@area@span@number = \if!\this@span@number! 1\else  % big hack
+                                    \this@span@number \fi
+                                    \relax
+      \ifnum \pagesetup@max@float@num > \page@float@count
+        \ifnum\csname pagesetup@\this@area @float@num\endcsname =
+              \csname \this@area @float@count \endcsname
+          \progress@failed{\this@area\space float~num~reached ~
+                 (\csname pagesetup@\this@area @float@num\endcsname)}
+          \do@next\try@next@area
+        \else
+          \xin@\this@area
+               \this@page@closed
+          \ifin@
+            \progress@failed{area~ closed~ for~ all~ types}
+            \do@next\try@next@area
+          \else
+            \xin@\this@area
+                 \this@closed@areas
+            \ifin@
+              \progress@failed
+                    {area~ closed~ for~ class~ \this@class}
+              \do@next\try@next@area
+            \else
+              \xin@\this@area\this@fps
+              \ifin@
+                \append@caption@to@float
+                \construct@and@test@col@hts
+                \if@test
+                  \do@next\try@next@area
+                \else
+                  \do@next\pretests@success@action
+                \fi
+
+              \else
+                \progress@failed{\this@area\space float~not~allowed~
+                       by~ user~ control~ (\this@fps)}
+                \do@next\try@next@area
+              \fi
+            \fi
+          \fi
+        \fi
+      \else
+        \global\let\this@open@areas\@empty
+        \progress@failed{max~float~num~reached ~(\pagesetup@max@float@num)}
+        \do@next\defer@and@try@next@float
+      \fi
+    \else
+      \progress@failed{span~ count~ \this@area \space /=~
+             \if!\this@span@number! 1\else  % big hack
+                                    \this@span@number \fi}
+      \do@next\try@next@area
+    \fi
+  \fi
+  \do@continue
+}
+\def\do@next{\let\do@continue}
+\def\relaxed@try@this@area{
+  \ifx\this@open@areas\@empty
+        \do@next\defer@and@try@next@float
+  \else
+    \setup@this@area{\expandafter\@carcube\this@open@areas\@nil}
+    \progress{~ area~trial:~ \this@area}
+    \ifnum \this@area@span@number = \if!\this@span@number! 1\else  % big hack
+                                    \this@span@number \fi
+                                    \relax
+      \xin@\this@area\this@page@closed
+      \ifin@
+            \progress@failed{area~ closed~ for~ all~ types}
+        \do@next\try@next@area
+      \else
+        \xin@\this@area
+             \this@closed@areas
+        \ifin@
+          \progress@failed
+                    {area~ closed~ for~ class~ \this@class}
+          \do@next\try@next@area
+        \else
+          \append@caption@to@float
+          \construct@and@test@col@hts
+          \if@test
+            \do@next\try@next@area
+          \else
+            \do@next\pretests@success@action
+          \fi
+        \fi
+      \fi
+    \else
+      \progress@failed{span~ count~ \this@area \space /=~
+             \if!\this@span@number! 1\else  % big hack
+                                    \this@span@number \fi}
+      \do@next\try@next@area
+    \fi
+  \fi
+  \do@continue
+}
+\def\construct@and@test@col@hts {
+  \update@this@area@columns
+     {
+      \expandafter
+      \construct@and@test@col@ht
+         \csname col@ht@ \the\count@ \endcsname
+         {\the\count@}
+      \if@test
+         \count@\z@   % break out of loop
+      \fi
+     }
+}
+\def\construct@and@test@col@ht#1#2{
+  \@tempdima          \ht\this@captioned@float
+  \advance \@tempdima \dp\this@captioned@float
+  \ifnum \csname col@ \this@area@type
+                  @floats@#2@number\endcsname
+          = \z@
+    \advance \@tempdima \pagesetup@float@text@sep
+  \else
+    \advance \@tempdima
+      \expandafter
+      \ifx \csname area@\this@area\endcsname\@empty
+         \pagesetup@float@area@sep
+      \else
+         \pagesetup@float@float@sep
+      \fi
+  \fi
+  \advance \@tempdima
+          -\csname col@ \this@area@type @delta@ #2 \endcsname \relax
+  \snap@to@grid  \@tempdima \pagesetup@grid@point@sep
+  \ifdim \returned@lower@delta@size < \returned@delta@size \relax
+    \ifdim \returned@lower@delta@size < \pagesetup@float@text@shrink
+      \global\let \returned@size \returned@lower@size
+      \xdef \returned@delta@size {-\returned@lower@delta@size }
+    \fi
+  \fi
+  \@tempdima \returned@size
+  \@tempdimb#1
+  \advance \@tempdimb -\@tempdima
+  \@testfalse
+  \ifdim \textminlines\baselineskip > \@tempdimb
+     \@testtrue
+     \progress@failed{not~ enough~ text~ space~
+       (\textminlines x\the\baselineskip\space
+        >~ \the\@tempdimb)}
+  \else
+     \expandafter\xdef
+        \csname saved@col@ht@ #2\endcsname{\the#1}
+     \global#1\@tempdimb
+     \global\expandafter\let
+        \csname saved@col@ \this@area@type @delta@ #2 \expandafter \endcsname
+        \csname col@ \this@area@type @delta@ #2 \endcsname
+     \global\expandafter\let
+        \csname col@ \this@area@type @delta@ #2 \endcsname
+        \returned@delta@size
+  \fi
+}
+\def\textminlines{4}
+\let\pagesetup@grid@point@sep\ERROR
+\let\snap@to@grid\ERROR
+\def \dummy@snap@to@grid #1#2{
+   \begingroup
+     \@tempdima #1 \relax
+     \xdef \returned@size { \the\@tempdima }
+     \global\let \returned@lower@size \returned@size
+     \gdef \returned@delta@size {0pt}
+     \global\let \returned@lower@delta@size  \returned@delta@size
+   \endgroup
+}
+\def \std@snap@to@grid #1#2{
+  \begingroup
+     \@tempdima #1\relax
+     \@tempdimb #2\relax
+     \@tempcnta \@tempdima      % orig size in sp
+     \@tempcntb \@tempdimb      % grid size in sp
+     \divide \@tempcnta \@tempcntb
+     \@tempdimc \@tempcnta\@tempdimb
+     \ifdim \@tempdimc < \@tempdima
+       \xdef \returned@lower@size { \the\@tempdimc }
+       \advance\@tempdimc \@tempdimb
+     \fi
+     \xdef \returned@size { \the\@tempdimc }
+     \advance \@tempdimc -\@tempdima
+     \xdef \returned@delta@size { \the\@tempdimc }
+     \ifdim \@tempdimc = \z@
+       \global \let \returned@lower@size \returned@size
+       \global \let \returned@lower@delta@size \returned@delta@size
+     \else
+       \advance\@tempdimb-\@tempdimc
+       \xdef \returned@lower@delta@size { \the\@tempdimb }
+     \fi
+  \endgroup
+}
+\def\really@defer@and@try@next@float{
+        \progress@failed{-->~ defer}
+        \progress@nl{}
+      \@cons\area@ddd\this@float@box
+      \xdef\this@page@closed{\this@page@closed,
+                 \pagesetup@ddd@all@close}
+
+      \ifx\pagesetup@ddd@class@close\pagesetup@area@list
+        \global\let\this@closed@areas\pagesetup@ddd@class@close
+      \else
+        \xdef\this@closed@areas{\this@closed@areas,
+                   \pagesetup@ddd@class@close}
+      \fi
+
+      \global\expandafter\let\csname closed@\this@class
+                                     @areas\endcsname % FMi tmp
+                             \this@closed@areas
+      \try@next@float
+}
+\def\defer@and@try@next@float{
+  \if@flushseen
+    \xin@\this@class\flush@classes@list@max
+    \ifin@
+      \ifnum \csname flush@min@col@1\endcsname > \curr@col@count
+        \do@next\really@defer@and@try@next@float
+      \else
+        \count@ \@ne
+        \loop
+          \ifnum \flush@seq@num < \count@
+            \in@false
+          \else
+            \ifnum \this@sequence@number >
+                   \csname flush@last@float@ \the\count@ \endcsname
+                   \relax
+              \in@true
+            \else
+              \expandafter\xin@\expandafter\this@class
+              \csname flush@classes@list@ \the\count@ \endcsname
+              \ifin@
+                \in@false
+              \else
+                \in@true
+              \fi
+            \fi
+          \fi
+        \ifin@
+          \advance\count@\@ne
+        \repeat
+        \ifnum \flush@seq@num < \count@
+          \do@next\really@defer@and@try@next@float
+        \else
+          \ifnum \csname flush@min@col@\the\count@\endcsname
+               > \curr@col@count
+            \do@next\really@defer@and@try@next@float
+          \else
+            \ifx\try@this@area\relaxed@try@this@area
+              \progress@nl{}
+              \progress@nl{Flushing~ impossible~ -->~ breaking~
+                           before~ flush~ point~ and~ retry}
+              \expandafter \gincrement@num
+                 \csname flush@min@col@ \the\count@ \endcsname
+              \progress@nl{}
+              \progress@nl{Defer~ impossible~ -->~ moving~
+                           flush~ point~ to~ column~
+                           \csname flush@min@col@ \the\count@\endcsname
+                           \space
+                           and~ retry}
+              \relax@float@placement@conditions  % needed to reset open areas
+              \do@next\try@this@area
+
+            \else
+              \relax@float@placement@conditions
+              \do@next\try@this@area
+            \fi
+          \fi
+        \fi
+      \fi
+    \else
+      \do@next\really@defer@and@try@next@float
+    \fi
+
+  \else
+    \do@next\really@defer@and@try@next@float
+  \fi
+
+  \do@continue
+}
+\def \relax@float@placement@conditions {
+    \progress@failed{-->~ retry~ with~ relaxed~ conditions}
+    \progress@nl{}
+    \global\let\try@this@area\relaxed@try@this@area
+    \global\let\this@open@areas\saved@this@open@areas
+
+    \global\let\check@some@constraints\relaxed@check@some@constraints
+    \global\let\check@callout@constraints\relaxed@check@callout@constraints
+    \global\let\calculate@target@fl@column\relaxed@calculate@target@fl@column
+}
+\def\tighten@float@placement@conditions {
+    \global\let\try@this@area\std@try@this@area
+
+    \global\let\check@some@constraints\std@check@some@constraints
+    \global\let\check@callout@constraints\std@check@callout@constraints
+    \global\let\calculate@target@fl@column\std@calculate@target@fl@column
+}
+\def\partly@tighten@float@placement@conditions {
+    \global\let\try@this@area\std@try@this@area
+
+    \global\let\calculate@target@fl@column\std@calculate@target@fl@column
+}
+\let\check@callout@none\@gobble
+\def\check@callout@page#1{
+  \ifnum\curr@col@count=\col@count
+    \global\expandafter\let\expandafter\fl@max
+                       \csname fl@0@#1\endcsname
+    \forall@columns {
+      \ifnum\csname fl@\the\curr@col@count @#1\endcsname>\fl@max\relax
+         \xdef\fl@max{\csname fl@\the\curr@col@count @#1\endcsname}
+      \fi
+    }
+    \count@0\LastMark{#1}\relax
+    \ifnum\count@<\fl@max\relax
+      \@failtrue
+    \progress@failed{last~callout~
+       \the\count@\space~<~\fl@max
+       \space last~float~put~on~page~or~ earlier}
+    \fi
+  \fi
+}
+\let\fl@max\ERROR
+\def\check@callout@column#1{
+  \count@0\LastMark{#1}\relax
+  \ifnum\count@<\csname fl@\the\curr@col@count @#1\endcsname\relax
+  \progress@failed{last~ callout~
+         \the\count@\space <~
+         \csname fl@\the\curr@col@count @#1\endcsname
+         \space last~ float~ placed~ in~ column~ \the\curr@col@count}
+    \@failtrue
+    \global\curr@col@count\col@count
+    \let\@elt\@gobble
+  \fi
+}
+\def\check@callout@after#1{
+  \check@callout@column{#1}
+  \if@fail\else
+     \global\expandafter\let\expandafter
+            \returned@sequence@number
+            \csname tfl@\the\curr@col@count @#1\endcsname
+     \ifnum \returned@sequence@number = \z@
+    \else
+      \count@ 0\PreviousMark{#1}\relax
+      \ifnum \count@ < \returned@sequence@number \relax
+        \progress@failed{top~ callout~
+              \the\count@\space <~ \returned@sequence@number
+              \space last~ float~ put~ in~ top~
+              of~ column~ \the\curr@col@count}
+        \@failtrue
+        \global\curr@col@count\col@count
+        \let\@elt\@gobble
+      \fi
+    \fi
+  \fi
+}
+\def\check@float@footnote@forbidden{
+  \ifvoid\footins
+  \else
+    \expandafter
+    \ifx \csname area@b\the\curr@col@count1\endcsname
+         \relax
+         \global\expandafter\let
+            \csname area@b\the\curr@col@count1\endcsname
+            \@empty
+    \fi
+    \expandafter
+    \ifx \csname area@b\the\curr@col@count1\endcsname
+         \@empty
+    \else
+      \progress@failed{old~bottom~floats:~ \expandafter\meaning
+          \csname area@b\the\curr@col@count1\endcsname}
+      \@failtrue
+    \fi
+    \ifnum \this@area@span@number = \@ne
+      \if b \this@area@type
+         \ifnum \this@area@col@number = \curr@col@count
+           \@failtrue
+         \fi
+      \fi
+    \fi
+    \if@fail
+      \progress@failed{column~ \the\curr@col@count\space
+                       contains~ footnotes~ and~ bottom~ floats}
+      \global\curr@col@count\col@count
+    \fi
+  \fi
+}
+\let\check@float@footnote@none\@empty
+\endinput
+%%
+%% End of file `xo-place.sty'.

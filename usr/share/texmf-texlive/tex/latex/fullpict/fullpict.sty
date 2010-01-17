@@ -1,0 +1,377 @@
+%%%%%%%%%%%%%%%%%%%%%%%%  fullpict.sty  %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%       Written by Bruce Shawyer 14 March 1995       %%%%%%
+%%%%%%       Updated and improved 14 November 1995        %%%%%%
+%%%%%%       Second update September 1996                 %%%%%%
+%%%%%%       Third  update August    1998                 %%%%%%
+%%%%%%       Fourth update March     2001                 %%%%%%
+%%%%%%       Fifth  update April     2001                 %%%%%%
+%%%%%%       Sixth  update October   2003                 %%%%%%
+\makeatletter
+\newcount\gs@ \newcount\gs@d \newcount\a@@@a
+
+\def\g@odfullunit#1{\gs@=\number\hsize
+\divide\gs@ by72820\divide\gs@ by#1\setlength\unitlength{\gs@ pt}}
+
+\def\fullpicture(#1,#2){\@ifnextchar({\@fullpicture(#1,#2)}%
+{\@fullpicture(#1,#2)(0,0)}}
+\def\@fullpicture(#1,#2)(#3,#4){\begin{center}
+\g@odfullunit{#1}\@picht #2\unitlength
+\setbox\@picbox\hbox to#1\unitlength\bgroup
+\hskip -#3\unitlength \lower #4\unitlength \hbox\bgroup\ignorespaces}
+\def\endfullpicture{\egroup\hss\egroup\ht\@picbox\@picht
+\dp\@picbox\z@\mbox{\box\@picbox}\end{center}}
+
+\def\g@odhalfunit#1{\gs@=\number\hsize
+\divide\gs@ by145640\divide\gs@ by#1\setlength\unitlength{\gs@ pt}}
+
+\def\halfpicture(#1,#2){\@ifnextchar({\@halfpicture(#1,#2)}%
+{\@halfpicture(#1,#2)(0,0)}}
+\def\@halfpicture(#1,#2)(#3,#4){\begin{center}
+\g@odhalfunit{#1}\@picht #2\unitlength
+\setbox\@picbox\hbox to#1\unitlength\bgroup
+\hskip -#3\unitlength \lower #4\unitlength \hbox\bgroup\ignorespaces}
+\def\endhalfpicture{\egroup\hss\egroup\ht\@picbox\@picht
+\dp\@picbox\z@\mbox{\box\@picbox}\end{center}}
+
+\def\sc@leunit#1#2{\gs@=\number\hsize
+\divide\gs@ by72820\divide\gs@ by#1\multiply\gs@ by#2\divide\gs@ by100
+\setlength\unitlength{\gs@ pt}}
+
+\def\scalepicture#1(#2,#3){\@ifnextchar({\@scalepicture#1(#2,#3)}%
+{\@scalepicture#1(#2,#3)(0,0)}}
+\def\@scalepicture#1(#2,#3)(#4,#5){\begin{center}
+\sc@leunit{#2}{#1}\@picht #3\unitlength
+\setbox\@picbox\hbox to#2\unitlength\bgroup
+\hskip -#4\unitlength \lower #5\unitlength \hbox\bgroup\ignorespaces}
+\def\endscalepicture{\egroup\hss\egroup\ht\@picbox\@picht
+\dp\@picbox\z@\mbox{\box\@picbox}\end{center}}
+
+\def\sc@leunit#1#2{\gs@=\number\hsize
+\divide\gs@ by72820\divide\gs@ by#1\multiply\gs@ by#2\divide\gs@ by100
+\setlength\unitlength{\gs@ pt}}
+
+\def\Scalepicture#1(#2,#3){\@ifnextchar({\@Scalepicture#1(#2,#3)}%
+{\@Scalepicture#1(#2,#3)(0,0)}}
+\def\@Scalepicture#1(#2,#3)(#4,#5){
+\sc@leunit{#2}{#1}\@picht #3\unitlength
+\setbox\@picbox\hbox to#2\unitlength\bgroup
+\hskip -#4\unitlength \lower #5\unitlength \hbox\bgroup\ignorespaces}
+\def\endScalepicture{\egroup\hss\egroup\ht\@picbox\@picht
+\dp\@picbox\z@\mbox{\box\@picbox}}
+
+% new environments July 1998
+%  ticks2.sty %  version  beta3 % 13 March 2001 % Bruce Shawyer
+
+\newcount\t@ck\newcount\s@ck \newcount\xt@ck\newcount\yt@ck
+\newdimen\t@@k\newdimen\t@@k@\newdimen\s@@k
+\newdimen\t@y@k\newdimen\t@x@k\newdimen\t@z@k
+\newdimen\ty@@k\newdimen\sy@@k \newdimen\xt@@k\newdimen\xs@@k
+\newdimen\yt@@k\newdimen\ys@@k
+\def\scaledpicture#1(#2,#3){\@ifnextchar({\@scaledpicture#1(#2,#3)}%
+{\@scaledpicture#1(#2,#3)(0,0)}}
+\def\@scaledpicture#1(#2,#3)(#4,#5){\t@x{#1}\begin{center}\a@@@a=#1
+\sc@leunit{#2}{#1}\@picht #3\unitlength
+\setbox\@picbox\hbox to#2\unitlength\bgroup
+\hskip -#4\unitlength \lower #5\unitlength \hbox\bgroup\ignorespaces
+
+\def\xaxis{\put(#4,0){\Vector(1,0){#2}}}
+\def\yaxis{\put(0,#5){\Vector(0,1){#3}}}
+\def\axes{\xaxis\yaxis}
+
+\t@@k=#2pt \t@y@k=#3pt \xt@@k=#4pt \divide\xt@@k by65536
+\yt@@k=#5pt \divide\yt@@k by65536
+}
+\def\endscaledpicture{\egroup\hss\egroup\ht\@picbox\@picht
+\dp\@picbox\z@\mbox{\box\@picbox}\end{center}}
+
+\def\Scaledpicture#1(#2,#3){\@ifnextchar({\@Scaledpicture#1(#2,#3)}%
+{\@Scaledpicture#1(#2,#3)(0,0)}}
+\def\@Scaledpicture#1(#2,#3)(#4,#5){\t@x{#1}
+\sc@leunit{#2}{#1}\@picht #3\unitlength
+\setbox\@picbox\hbox to#2\unitlength\bgroup
+\hskip -#4\unitlength \lower #5\unitlength \hbox\bgroup\ignorespaces
+
+\def\xaxis{\put(#4,0){\Vector(1,0){#2}}}
+\def\yaxis{\put(0,#5){\Vector(0,1){#3}}}
+\def\axes{\xaxis\yaxis}
+
+\t@@k=#2pt \t@y@k=#3pt \xt@@k=#4pt \divide\xt@@k by65536
+\yt@@k=#5pt \divide\yt@@k by65536
+}
+\def\endScaledpicture{\egroup\hss\egroup\ht\@picbox\@picht
+\dp\@picbox\z@\mbox{\box\@picbox}}
+
+\gdef\Vector(#1,#2)#3{\@xarg #1\relax \@yarg #2\relax
+  \@tempcnta \ifnum\@xarg<\z@ -\@xarg\else\@xarg\fi
+  \ifnum\@tempcnta<5\relax
+  \@linelen #3\unitlength \divide\@linelen by200 \multiply\@linelen by203
+  \ifnum\a@@@a<86  \divide\@linelen by200 \multiply\@linelen by201\fi
+  \ifnum\a@@@a<76  \divide\@linelen by200 \multiply\@linelen by201\fi
+  \ifnum\a@@@a<51  \divide\@linelen by200 \multiply\@linelen by202\fi
+  \ifnum\a@@@a<46  \divide\@linelen by200 \multiply\@linelen by201\fi
+  \ifnum\a@@@a<41  \divide\@linelen by200 \multiply\@linelen by201\fi
+  \ifnum\a@@@a<36  \divide\@linelen by200 \multiply\@linelen by201\fi
+  \ifnum\a@@@a<31  \divide\@linelen by200 \multiply\@linelen by201\fi
+  \ifnum\a@@@a<26  \divide\@linelen by200 \multiply\@linelen by201\fi
+  \ifnum\a@@@a<21  \divide\@linelen by200 \multiply\@linelen by201\fi
+  \ifdim\@linelen<\z@\@badlinearg\else
+    \ifnum\@xarg =\z@ \@vvector
+      \else \ifnum\@yarg =\z@ \@hvector \else \@svector\fi
+    \fi
+  \fi
+  \else\@badlinearg\fi}
+
+\newdimen\xy@@
+\def\xticks#1{\@ifnextchar [{\@xticks#1}{\@xticks#1[1]}}
+\def\@xticks#1[#2]{\t@@k@=\t@@k\s@@k=#1pt\divide\s@@k by256 \advance\t@@k@
+by-1pt
+\ifnum\s@@k<65536 \advance\t@@k@ by1pt \fi \multiply\t@@k@ by256
+\divide\t@@k@ by\number\s@@k \t@ck=\number\t@@k@ \divide\t@ck by65536
+\advance\t@ck by1
+\xy@@=#2pt
+\ifnum\xy@@>0
+\multiput(\number\xt@@k,0)(#1,0){\t@ck}{\line(0,-1){#2}} \else
+\multiput(\number\xt@@k,0)(#1,0){\t@ck}{\line(0,1){-#2}} \fi}
+
+\def\yticks#1{\@ifnextchar [{\@yticks#1}{\@yticks#1[1]}}
+\def\@yticks#1[#2]{\t@@k@=\t@y@k\s@@k=#1pt\divide\s@@k by256 \advance\t@@k@
+by-1pt
+\ifnum\s@@k<65536 \advance\t@@k@ by1pt \fi \multiply\t@@k@ by256
+\divide\t@@k@ by\number\s@@k \t@ck=\number\t@@k@ \divide\t@ck by65536
+\advance\t@ck by1
+\xy@@=#2pt
+\ifnum\xy@@>0
+\multiput(0,\number\yt@@k)(0,#1){\t@ck}{\line(-1,0){#2}}\else
+\multiput(0,\number\yt@@k)(0,#1){\t@ck}{\line(1,0){-#2}}\fi}
+
+\def\ticks#1{\@ifnextchar [{\@ticks#1}{\@ticks#1[1]}}
+\def\@ticks#1[#2]{\xticks{#1}[#2]\yticks{#1}[#2]}
+
+\def\origin#1{\put(0,0){\circle{#1}}}
+
+\def\xnums#1{\@ifnextchar [{\@xnums#1}{\@xnums#1[.25]}}
+\def\@xnums#1[#2]{
+\cput(\number\xt@@k,-#2){\number\xt@@k}
+\xt@ck=\number\xt@@k
+\s@ck=\xt@@k\multiply\s@ck by 65536 \advance\s@ck by\t@@k
+\divide\s@ck by65536
+\loop \advance\xt@ck by#1 \ifnum\xt@ck=0 \advance\xt@ck by#1 \fi
+\ifnum\xt@ck<\number\s@ck
+\cput(\number\xt@ck,-#2){\number\xt@ck}\repeat
+\ifnum\xt@ck=\number\s@ck\cput(\number\xt@ck,-#2){\number\xt@ck}\fi
+}
+
+\def\ynums#1{\@ifnextchar [{\@ynums#1}{\@ynums#1[.25]}}
+\def\@ynums#1[#2]{
+\cput(-#2,\number\yt@@k){\number\yt@@k} \xt@ck=\number\yt@@k
+\s@ck=\yt@@k\multiply\s@ck by 65536 \advance\s@ck by\t@y@k
+\divide\s@ck by65536
+\loop \advance\xt@ck by#1 \ifnum\xt@ck=0 \advance\xt@ck by#1 \fi
+\ifnum\xt@ck<\number\s@ck
+\cput(-#2,\number\xt@ck){\number\xt@ck}\repeat
+\ifnum\xt@ck=\number\s@ck\cput(-#2,\number\xt@ck){\number\xt@ck}\fi
+}
+\def\nums#1{\@ifnextchar [{\@nums#1}{\@nums#1[.25]}}
+\def\@nums#1[#2]{\xnums{#1}[#2]\ynums{#1}[#2]}
+
+% font size calculation
+
+\newcount\gs@dfont
+\newcount\gs@done\newcount\gs@dtwo\newcount\gs@dthree\newcount\gs@dfour
+\gs@done=39\gs@dtwo=49\gs@dthree=59\gs@dfour=74
+%                                   % percentages for font size changes
+\def\t@x#1{\gs@d=\number\textwidth\divide\gs@d by\number\hsize
+\multiply\gs@done by\number\gs@d \multiply\gs@dtwo by\number\gs@d
+\multiply\gs@dthree by\number\gs@d \multiply\gs@dfour by\number\gs@d
+\gs@dfont=5
+\tiny\ifnum#1>\gs@done\scriptsize \gs@dfont=4
+\ifnum#1>\gs@dtwo\footnotesize \gs@dfont=3
+\ifnum#1>\gs@dthree\small \gs@dfont=2
+\ifnum#1>\gs@dfour\normalsize \gs@dfont=1
+\fi\fi\fi\fi}
+
+% additions August 1998
+\newdimen\@dx\newdimen\@dy\newdimen\@dz\newdimen\@d@x\newdimen\@d@y
+\newdimen\@d@z\newdimen\@dzz\newcount\s@c
+
+% calculation of  #1*#2 +#3 or  xa+b  -  answer is \@d@x
+\def\m@l#1#2#3{\@d@z=#1 \divide\@d@z by32
+\@d@x=#2pt \multiply\@d@x by\@d@z \divide\@d@x by2048
+\@d@y=#3pt \advance\@d@x by\@d@y}
+% main macro calculation - #1 is the angle in degrees, #x is the object put
+%                          #3 is the multiplier for extra distance
+\def\@x@p#1#2#3{\rm\@dz=#1pt \@dzz=720pt \advance\@dz by2\@dzz
+\divide\@dz by65536 \s@c=\number\@dz \divide\s@c by360 \multiply\s@c by360
+\@dzz=\s@c pt \divide\@dzz by65536 \advance\@dz by-1\@dzz
+% \@dz is now in [0,360)
+\@d@z=1\@dz \divide\@dz by15 \s@c=\number\@dz \multiply\@dz by15
+\advance\@dzz by-1\@dz \advance\s@c by1 \@dz=65536\@d@z
+% \@d@z is angle in range[0,15) in dodecant \s@c all measured positively
+\ifnum\s@c=1            %time zone 1
+\m@l{\@dz}{-0.00227161}{+1}
+\@dx=\@d@x
+\m@l{\@dz}{0.0172546}{+0}
+\@dy=\@d@x\fi
+\ifnum\s@c=2            %time zone 2
+\m@l{\@dz}{-0.00666002}{+1.06582}
+\@dx=\@d@x
+\m@l{\@dz}{0.0160787}{+0.0176380}
+\@dy=\@d@x\fi
+\ifnum\s@c=3            %time zone 3
+\m@l{\@dz}{-0.0105945}{+1.18386}
+\@dx=\@d@x
+\m@l{\@dz}{0.0138071}{+0.0857865}
+\@dy=\@d@x\fi
+\ifnum\s@c=4            %time zone 4
+\m@l{\@dz}{-0.0138071}{+1.32842}
+\@dx=\@d@x
+\m@l{\@dz}{0.0105945}{+0.230350}
+\@dy=\@d@x\fi
+\ifnum\s@c=5            %time zone 5
+\m@l{\@dz}{-0.0160787}{+1.46472}
+\@dx=\@d@x
+\m@l{\@dz}{0.00666002}{+0.466424}
+\@dy=\@d@x\fi
+\ifnum\s@c=6            %time zone 6
+\m@l{\@dz}{-0.0172546}{+1.55291}
+\@dx=\@d@x
+\m@l{\@dz}{0.00227161}{+0.795555}
+\@dy=\@d@x\fi
+\ifnum\s@c=7            %time zone 7
+\m@l{\@dz}{-0.0172546}{+1.55291}
+\@dx=\@d@x
+\m@l{\@dz}{-0.00227161}{+1.20444}
+\@dy=\@d@x\fi
+\ifnum\s@c=8            %time zone 8
+\m@l{\@dz}{-0.0160787}{+1.42944}
+\@dx=\@d@x
+\m@l{\@dz}{-0.00666002}{+1.66522}
+\@dy=\@d@x\fi
+\ifnum\s@c=9            %time zone 9
+\m@l{\@dz}{-0.0138071}{+1.15685}
+\@dx=\@d@x
+\m@l{\@dz}{-0.0105945}{+2.13737}
+\@dy=\@d@x\fi
+\ifnum\s@c=10           %time zone 10
+\m@l{\@dz}{-0.0105945}{+0.723161}
+\@dx=\@d@x
+\m@l{\@dz}{-0.0138071}{+2.57106}
+\@dy=\@d@x\fi
+\ifnum\s@c=11           %time zone 11
+\m@l{\@dz}{-0.00666002}{+0.132979}
+\@dx=\@d@x
+\m@l{\@dz}{-0.0160787}{+2.91180}
+\@dy=\@d@x\fi
+\ifnum\s@c=12           %time zone 12
+\m@l{\@dz}{-0.00227161}{-0.591111}
+\@dx=\@d@x
+\m@l{\@dz}{-0.0172546}{+3.10582}
+\@dy=\@d@x\fi
+\ifnum\s@c=13           %time zone 13
+\m@l{\@dz}{0.00227161}{-1.40889}
+\@dx=\@d@x
+\m@l{\@dz}{-0.0172546}{+3.10582}
+\@dy=\@d@x\fi
+\ifnum\s@c=14           %time zone 14
+\m@l{\@dz}{0.00666002}{-2.26462}
+\@dx=\@d@x
+\m@l{\@dz}{-0.0160787}{+2.87653}
+\@dy=\@d@x\fi
+\ifnum\s@c=15           %time zone 15
+\m@l{\@dz}{0.0105945}{-3.09088}
+\@dx=\@d@x
+\m@l{\@dz}{-0.0138071}{+2.39949}
+\@dy=\@d@x\fi
+\ifnum\s@c=16           %time zone 16
+\m@l{\@dz}{0.0138071}{-3.81370}
+\@dx=\@d@x
+\m@l{\@dz}{-0.0105945}{+1.67667}
+\@dy=\@d@x\fi
+\ifnum\s@c=17           %time zone 17
+\m@l{\@dz}{0.0160787}{-4.35889}
+\@dx=\@d@x
+\m@l{\@dz}{-0.00666002}{+0.732385}
+\@dy=\@d@x\fi
+\ifnum\s@c=18           %time zone 18
+\m@l{\@dz}{0.0172546}{-4.65874}
+\@dx=\@d@x
+\m@l{\@dz}{-0.00227161}{-0.386666}
+\@dy=\@d@x\fi
+\ifnum\s@c=19           %time zone 19
+\m@l{\@dz}{0.0172546}{-4.65874}
+\@dx=\@d@x
+\m@l{\@dz}{0.00227161}{-1.61333}
+\@dy=\@d@x\fi
+\ifnum\s@c=20           %time zone 20
+\m@l{\@dz}{0.0160787}{-4.32361}
+\@dx=\@d@x
+\m@l{\@dz}{0.00666002}{-2.86403}
+\@dy=\@d@x\fi
+\ifnum\s@c=21           %time zone 21
+\m@l{\@dz}{0.0138071}{-3.64213}
+\@dx=\@d@x
+\m@l{\@dz}{0.0105945}{-4.04439}
+\@dy=\@d@x\fi
+\ifnum\s@c=22           %time zone 22
+\m@l{\@dz}{0.0105945}{-2.63018}
+\@dx=\@d@x
+\m@l{\@dz}{0.0138071}{-5.05635}
+\@dy=\@d@x\fi
+\ifnum\s@c=23           %time zone 23
+\m@l{\@dz}{0.00666002}{-1.33178}
+\@dx=\@d@x
+\m@l{\@dz}{0.0160787}{-5.80598}
+\@dy=\@d@x\fi
+\ifnum\s@c=24           %time zone 24
+\m@l{\@dz}{0.00227161}{+0.182227}
+\@dx=\@d@x
+\m@l{\@dz}{0.0172546}{-6.21165}
+\@dy=\@d@x\fi
+
+\@d@x=1.25pt \divide\@d@x by2048
+\multiply\@dx by\@d@x \divide\@dx by32
+\multiply\@dy by\@d@x \divide\@dy by32
+
+% increasing the distance by  #3
+\@dz=#3pt \divide\@dz by2048
+\multiply\@dx by\number\@dz \multiply\@dy by\number\@dz
+\divide\@dx by32 \divide\@dy by32
+% adjusting for font size
+% normal 8, small 7, foot 6, script 5, tiny 4
+% what we have here is for  crux.sty -3.8, -3.95, -4.1,  -4.4, -5.5
+% and we need for           2130.sty -3.8, -3.95, -3.95, -4.1, -4.8
+\rm
+\ifnum\gs@dfont=1 \multiply\@dx by8 \multiply\@dy by8 \advance\@dx by-3.8ex
+\fi
+\ifnum\gs@dfont=2 \multiply\@dx by7 \multiply\@dy by7 \advance\@dx by-3.95ex
+\fi
+\ifnum\gs@dfont=3 \multiply\@dx by6 \multiply\@dy by6 \advance\@dx by-3.95ex
+\fi
+\ifnum\gs@dfont=4 \multiply\@dx by5 \multiply\@dy by5 \advance\@dx by-4.1ex
+\fi
+\ifnum\gs@dfont=5 \multiply\@dx by4 \multiply\@dy by4 \advance\@dx by-4.8ex
+\fi
+% moving the origin - #2 is the object to be put
+\setbox0=\hbox{#2} \advance\@dx by-0.5\wd0
+\@dz=\dp0\advance\@dz by-\ht0 \divide\@dz by2
+\advance\@dy by\@dz \raisebox{\@dy}{\kern\@dx #2}}
+% the MAIN macro
+\def\angleput#1{\@ifnextchar [{\@ngleput#1}{\@ngleput#1[1]}}
+\def\@ngleput#1[#2](#3,#4)#5{\put(#3,#4){\@x@p{#1}{#5}{#2}}}
+% USAGE
+% \angleput{degrees}[multiplier](xcoord,ycoord){object}
+% SHORTFORMS
+% geographic putting commands
+\def\cput(#1,#2)#3{\angleput{0}[0](#1,#2){#3}}  % centre #3 on (#1,#2)
+\def\eput(#1,#2)#3{\angleput{0}(#1,#2){#3}}     % put #3 east  of (#1,#2)
+\def\nput(#1,#2)#3{\angleput{90}(#1,#2){#3}}    % put #3 north of (#1,#2)
+\def\sput(#1,#2)#3{\angleput{270}(#1,#2){#3}}   % put #3 south of (#1,#2)
+\def\wput(#1,#2)#3{\angleput{180}(#1,#2){#3}}   % put #3 west  of (#1,#2)
+\def\neput(#1,#2)#3{\angleput{45}(#1,#2){#3}}   % put #3 ne of (#1,#2)
+\def\seput(#1,#2)#3{\angleput{315}(#1,#2){#3}}  % put #3 se of (#1,#2)
+\def\nwput(#1,#2)#3{\angleput{135}(#1,#2){#3}}  % put #3 nw of (#1,#2)
+\def\swput(#1,#2)#3{\angleput{225}(#1,#2){#3}}  % put #3 sw of (#1,#2)
+\def\lcm{\mathop{\operator@font lcm}}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%  END  fullpict.sty  %%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,0 +1,281 @@
+%% 
+%% This is file `crosswrd.sty',
+%% generated with the docstrip utility.
+%% 
+%% The original source files were:
+%% 
+%% crosswrd.dtx  (with options: `package')
+%% Copyright C 1989 Brian Hamilton Kelly 
+%% 
+%% crossword macros for LaTeX 
+%% updated for LaTeX2e by Frank Mittelbach 96/12/06 
+%% 
+%% for documentation run latex crosswrd.dtx 
+%% 
+%% distribution consist of 
+%% 
+%% crosswrd.dtx source 
+%% crosswrd.ins installation script 
+%% 00readme 
+%% 
+%% don't distribute this file without distributing the above 
+%% files as well 
+%% 
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesPackage{crosswrd}
+          [1996/12/06 v2.8b Generating crosswords (BHK)]
+\def\ninept{\@setsize\ninept{11pt}\ixpt\@ixpt
+  \abovedisplayskip 8.5pt plus 3pt minus 4pt
+  \belowdisplayskip \abovedisplayskip
+  \abovedisplayshortskip \z@ plus2pt
+  \belowdisplayshortskip 4pt plus2pt minus 2pt
+  \def\@listi{\itemsep 0pt
+    \parsep \z@ plus 1pt
+    \topsep 4pt plus 2pt minus 2pt
+}}
+\newif\ifnumberit
+\newcount{\gr@dsize}
+\newcount{\p@csize}
+\newcount{\Down}
+\newcount{\Across}
+\newwrite\tf@acr
+\newwrite\tf@dwn
+\def\OpenClueFiles{%
+  \immediate\openout \tf@acr \jobname.acr\relax
+  \immediate\openout \tf@dwn \jobname.dwn\relax
+  \@writefile{acr}{\begin{minipage}[t]{70mm}}%
+  \@writefile{acr}{ \centerline{\textbf{\ACROSStext}}}%
+  \@writefile{acr}{ \sloppy}%
+  \@writefile{acr}{ \ninept}%
+  \@writefile{acr}{ \begin{ClueList}}%
+  \@writefile{dwn}{\begin{minipage}[t]{70mm}}%
+  \@writefile{dwn}{ \centerline{\textbf{\DOWNtext}}}%
+  \@writefile{dwn}{ \sloppy}%
+  \@writefile{dwn}{ \ninept}%
+  \@writefile{dwn}{ \begin{ClueList}}}
+\newcommand\ACROSStext{ACROSS}
+\newcommand\DOWNtext{DOWN}
+\def\CloseClueFiles{%
+  \@writefile{acr}{ \end{ClueList}}%
+  \@writefile{acr}{\end{minipage}}%
+  \@writefile{dwn}{ \end{ClueList}}%
+  \@writefile{dwn}{\end{minipage}}%
+  \immediate\closeout\tf@acr \let\tf@acr\relax
+  \immediate\closeout\tf@dwn \let\tf@dwn\relax
+  \endgraf
+}
+\def\ClueListlabel#1{\hspace\labelsep {\bf #1}\hss}
+\def\ClueList{\list{}{\labelwidth\leftmargin
+  \advance \labelwidth by -\labelsep
+  \let\makelabel\ClueListlabel}}
+\let\endClueList\endlist
+\def\PrintClues{%
+  \centerline{%
+    \begin{tabular}{ c | c }
+      \@input{\jobname.acr}
+      &
+      \@input{\jobname.dwn}
+    \end{tabular}
+  }\endgraf
+}
+\def\crossword#1#2{%
+  \endgraf\leavevmode
+  \vtop\bgroup
+    \unitlength 6mm\numberittrue
+    \def\Header{}%
+    \OpenClueFiles
+    \TestAnswers{#2}%
+    \SetUpGrid{#1}}
+\def\endcrossword{\endgraf
+    \centerline{\Header}%
+    \hbox{\FinishGrid}%
+    \CloseClueFiles
+    \hbox{\PrintClues}%
+  \egroup
+}
+\expandafter\def\csname crossword*\endcsname#1#2{%
+  \unitlength 4mm\numberitfalse
+  \endgraf\leavevmode
+  \vtop\bgroup
+    \def\Header{{\bf\strut #2}}%
+    \def\answer{Y}%
+    \let\tf@dwn=\relax \let\tf@acr=\relax
+    \SetUpGrid{#1}}
+
+\expandafter\def\csname endcrossword*\endcsname{\endgraf
+    \centerline{\Header}%
+    \hbox{\FinishGrid}%
+  \egroup
+}
+\def\laterletter#1{\setsquare{\lettersquare{#1}}}
+\def\nextletter#1#2{%
+  \ifx#2\@nil \let\nextlet=\@gobble
+  \else\letterput{#2}\advance#1 by \@ne
+    \let\nextlet=\nextletter
+    \let\letterput=\laterletter
+  \fi
+  \nextlet{#1}}
+\def\blacktest{\blacksquare}
+\newif\ifneed@d
+\newif\ifNoerr
+\Noerrtrue
+\newtoks\Number \newtoks\Plain
+\def\blank#1{\Plain}
+\def\numbered#1#2{\Number}
+\def\letterinsquare#1{#1}
+
+\def\letterinnumbersquare#1#2{#2}
+\def\setsquare#1{%
+  \need@dfalse
+  \ifx#1\blacksquare
+    \need@dtrue
+  \else
+    \expandafter\ifx\csname\ther@w\thec@l\endcsname\blacktest
+      \need@dtrue
+    \else
+      \let\lettersquare=\letterinsquare
+      \let\numbersquare=\letterinnumbersquare
+      \expandafter\if\csname\ther@w\thec@l\endcsname#1
+      \else
+        \ifNoerr
+          \errhelp{Two intersecting lights tried to
+                   put different letters^^Jin the same square!
+                   You've probably confused their coordinates.^^J
+                   Carry on, and examine the printout.}
+          \errmessage{Illegal redefinition of square \ther@w\thec@l.
+                   Was: \expandafter\meaning\csname\ther@w
+                                                \thec@l\endcsname.
+                   Now: \noexpand #1}
+          \Noerrfalse
+        \fi
+      \fi
+      \let\lettersquare=\blank
+      \let\numbersquare=\numbered
+      \expandafter\ifx#1\Number
+        \need@dtrue
+      \fi
+    \fi
+  \fi
+  \ifneed@d
+     \expandafter\edef\csname\ther@w\thec@l\endcsname{\noexpand #1}
+  \fi
+}
+\def\clue#1#2#3#4#5#6#7{%
+  \findnumber{#1}
+  \ifx#2A
+    \if\@empty#7\relax\else
+      \ifx\tf@acr\relax\else
+        \@writefile{acr}{  \item[#1] #6 (#7)}%
+      \fi
+    \fi
+    \let\Direction=\Across
+  \else
+    \ifx#2D
+      \if\@empty#7\relax\else
+        \ifx\tf@dwn\relax\else
+          \@writefile{dwn}{  \item[#1] #6 (#7)}%
+        \fi
+      \fi
+      \let\Direction=\Down
+    \else
+      \errhelp{The second parameter of the \string\clue\space
+               command must be `A' or `D'}
+      \errmessage{Illegal direction (#1) specification
+                  for \string\clue.}
+    \fi
+  \fi
+  \Across=#3 \Down=#4
+  \edef\letterput##1{\noexpand\setsquare
+                         {\noexpand\numbersquare
+                                  {\noexpand\cluenumber}{##1}}}%
+  \nextletter{\Direction}#5\@nil
+  \ignorespaces
+}
+\newcount\clueNumber
+\def\special@gobble #1\@nil{}
+\def\findnumber#1{%
+  \afterassignment \special@gobble \clueNumber=0#1 \@nil
+  \ifnum\clueNumber=0
+    \errhelp{The first parameter of the \string\clue\space command
+             must commence with a digit}
+    \errmessage{Illegal clue number (#1) specified
+                for \string\clue.}
+  \fi
+}
+\def\cluenumber{\the\clueNumber}
+\def\blackenrow{\let\savediterate\iterate
+  \loop\relax\ifnum\Across>\z@
+    \setsquare{\blacksquare}%
+    \advance\Across by \m@ne
+  \repeat
+  \let\iterate\savediterate
+}
+\def\SetUpGrid#1{%
+  \gr@dsize=#1
+  \p@csize=#1 \advance\p@csize by \@ne
+  \Down=\gr@dsize
+  \loop
+    \Across=\gr@dsize
+    \ifnum\Down>\z@
+        \blackenrow
+        \advance\Down by \m@ne
+  \repeat
+}
+\def\thec@l{C\romannumeral\Across}
+\def\ther@w{R\romannumeral\Down}
+\def\f@rst#1#2.{#1}
+\def\TestAnswers#1{\edef\next{\def\noexpand\answer{#1}}%
+  \lowercase\expandafter{\next}%
+  \edef\answer{\expandafter \f@rst \answer .}%
+  \if\answer y \else \if\answer n \else
+    \typein[\answer]{Make answers visible? [Y/N]: }\fi
+  \fi
+  \edef\next{\def\noexpand\answer{\answer}}%
+  \uppercase\expandafter{\next}%
+  \edef\answer{\expandafter \f@rst \answer .}%
+}
+\def\letter#1{{\put(\Across,-\Down){\makebox(1,1){\sffamily #1}}}}
+\def\numberedsquare#1#2{%
+  \put(\Across,-\Down){%
+    \begin{picture}(1,1)(0,0)
+      \put(0.05,0.05){\makebox(0.9,0.9)[tl]{\tiny #1}}
+    \end{picture}%
+  }
+  \letter{#2}}
+\def\unnumberedsquare#1{\letter}
+\def\FinishGrid{%
+  \if\answer Y \else \let \letter=\@gobble \fi
+  \ifnumberit
+    \let\numbersquare=\numberedsquare
+  \else
+    \let\numbersquare=\unnumberedsquare
+  \fi
+  \let\lettersquare=\letter
+  \def\blacksquare{%
+    \put(\Across,-\Down){\rule{\unitlength}{\unitlength}}}
+  \Down=\gr@dsize
+  \centerline{%
+    \begin{picture}(\p@csize,\p@csize)(1,-\p@csize)
+    \loop\ifnum\Down>\z@
+      \put(1,-\Down){\line(1,0){\the\gr@dsize}}
+      \Across=\gr@dsize
+      {\loop \ifnum\Across>\z@
+         \csname\ther@w\thec@l\endcsname
+         \advance\Across by \m@ne
+       \repeat
+      }%
+      \advance\Down by \m@ne
+    \repeat
+    \put(1,0){\line(1,0){\the\gr@dsize}}
+    \Across=\p@csize
+    \loop\ifnum\Across>\z@
+      \put(\Across,0){\line(0,-1){\the\gr@dsize}}
+      \advance\Across by \m@ne
+    \repeat
+    \end{picture}%
+  }%
+}
+
+\endinput
+%% 
+%% End of file `crosswrd.sty'.

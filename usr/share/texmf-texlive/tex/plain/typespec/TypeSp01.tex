@@ -1,0 +1,344 @@
+%%% Stephen Moye
+%%% Stephen_Moye@brown.edu
+%%% Brown University
+%%% Graphic Services
+
+% Much of the math in this example is simple modular arithmetic,
+% and gets around the fact that \TeX can only do integer math.
+%
+% This sort of typesetting project is probably better suited to 
+% TrueType or PostScript typefaces.
+
+\newtoks\dspfont
+%%% Fill in the \TeX name of the font here:
+\dspfont={ACaslonI} 
+
+%%% Fill in the name of the typeface as you want it at the top of the page
+\def\fontname{Adobe Caslon Italic}
+
+%%% The following is for notes in the comments at the bottom
+%%% of the page following the type stats.
+%%% Just leave it empty if you have nothing to say...
+\def\comment{Carol Twombly}
+
+%\hsize7.5in \hoffset-.5in
+\parindent0pt
+\nopagenumbers
+\voffset-.5in
+\advance\vsize by 1in
+
+\font\text=\the\dspfont\space at 10pt
+\font\tiny=\the\dspfont\space at 8pt
+\font\name=\the\dspfont\space at 24pt
+
+\newtoks\ntext
+\newtoks\pantext
+\newtoks\loremtext
+%
+\newbox\testbox 
+%
+\newdimen\bigger 
+\newdimen\dspsize 
+\newdimen\dspsizeincr 
+\newdimen\habcwd
+\newdimen\ctextsz
+\newdimen\leading 
+\newdimen\xheight 
+\newdimen\ascheight
+\newdimen\kernone 
+\newdimen\kerntwo
+\newdimen\adjust  \adjust0pt 
+\newdimen\dist
+\newdimen\scratchdim
+%
+\newcount\dsplineno
+\newcount\picawd
+\newcount\pointwd
+\newcount\spconv
+\newcount\measure 
+\newcount\divisor 
+\newcount\scratch
+\newcount\sscratch
+\newcount\xascrnum
+\newcount\intgp
+\newcount\fracp
+\newcount\scppt \scppt=65536
+
+\ntext={Typography may be defined as both
+an art and a craft. It is an art in that what it does, it does for its
+own sake, according to its own internal sense of what is beautiful and
+right. It is a craft in that what it does, it does for a purpose
+outside itself: it provides a means of storing, shaping and conveying
+information. Typography is, therefore, a selfless art -- a
+contradiction in terms, perhaps -- and is at its best when it is least
+perceived to be doing anything, indeed when there is no active
+awareness of perceiving it, directly, at all, but rather perceiving,
+through it, the knowledge which animates the type on the page. Quality
+in typography results from an effortless perfection of conception and
+execution in the creation of a balance between beauty \& utility:
+compromising neither, calling attention to neither, yet achieving
+both.\thinspace\nobreak\leaders\hrule\hfill\null\par}
+
+%%% The following pangrams were collected by David Lemon of Adobe Systems, Inc.
+%%% This is just a small sample from the entire collection.
+\pantext={Brick quiz whangs jumpy veldt fox.
+Nymphs vex, beg quick fjord waltz.
+Quick wafting zephyrs vex bold Jim.
+West quickly gave Bert handsome prizes for six juicy plums.
+Freight to me sixty dozen quart jars and twelve black pans.
+My help squeezed back in again and joined the weavers after six.
+Turgid saxophones blew over Mick's jazzy quiff.
+Five wine experts jokingly quizzed sample chablis.
+My grandfather picks up quartz and valuable onyx jewels.
+Mix Zapf with Veljovic and get quirky Beziers.
+All questions asked by five watch experts amazed the judge.
+Back in June we delivered oxygen equipment of the same size.
+We have just quoted on nine dozen boxes of grey lamp wicks.
+A large fawn jumped quickly over white zinc boxes.
+The exodus of jazzy pigeons is craved by squeamish walkers.\thinspace\nobreak\leaders\hrule\hfill\hbox{}\par}
+
+\loremtext={Lorem ipsum
+dolor sit amet, consectetuer adipiscing elit, sed diam
+nonummy nibh eusi\-mod tincidunt ut laor\-eet dolore magna
+ali\-quam erat volutpat. Ut wisi enim ad minim veniam, quis
+nostrud exerci tation ullamcorper suscipit la\-bortis nisl
+ut ali\-quip exea commodo consequat.
+Quousque tandem abutere, Catilina, patientia nostra? Quamdiu nos etiam furor iste tuus eludet?
+quem ad finem sese effrenata jactibit audicia? nihilne te nocturnum pr\ae sidium palatii, nihil
+urbis vigil\ae .
+Lorem ipsum
+dolor sit amet, consectetuer adipiscing elit, sed diam
+nonummy nibh eusi\-mod tincidunt ut laor\-eet dolore magna
+ali\-quam erat volutpat. Ut wisi enim ad minim veniam, quis
+nostrud exerci tation ullamcorper suscipit la\-bortis nisl
+ut ali\-quip exea commodo consequat.
+Quousque tandem abutere, Catilina, patientia nostra? Quamdiu nos etiam furor iste tuus eludet?
+quem ad finem sese effrenata jactibit audicia?
+\thinspace\nobreak\leaders\hrule\hfill\null\par}
+
+\def\abc{abcdefghijklmnopqrstuvwxyz}
+\def\habc{\abc\abc abcdefghijklm}
+\def\dabc{AGQMstaefgpy1234?!\&}
+\def\ucabc{ABCDEFGHIJKLMNOPQRSTUVWXYZ}
+\def\freqabc{\text  zjqx%
+       kkvv%
+       bbbbppppyyyywwwwgggg%
+       mmmmmmffffffccccccuuuuuu%
+       lllllllldddddddd%
+       hhhhhhhhhhhhrrrrrrrrrrrrssssssssssss%
+       ooooooooooooooiiiiiiiiiiiiiinnnnnnnnnnnnnn%
+       aaaaaaaaaaaaaaaatttttttttttttttttt%
+       eeeeeeeeeeeeeeeeeeeeeeee}% 204 chars
+
+\def\ast{*} \def\per{.}
+
+%%% Convert from TeX's bulky 4-decimal point measurements to 1
+\def\prettypt#1{\dist=#1
+\multiply\dist10
+\scratch=\number\dist
+\divide\scratch\scppt
+\intgp=\scratch \divide\intgp10
+\sscratch=\intgp 
+\multiply\sscratch10 \advance\scratch-\sscratch
+\fracp=\scratch
+\hbox{\the\intgp.\the\fracp}pt\ }
+
+%%% Converts points to inches.
+\def\cvptin#1{\dist=#1
+\multiply\dist by 10
+\scratch=\number\dist
+\divide\scratch\scppt
+\multiply\scratch100
+\fracp=\scratch
+\divide\scratch72270
+\intgp=\scratch
+\multiply\scratch72270
+\advance\fracp-\scratch
+\multiply\fracp10
+\divide\fracp7227
+\hbox{\the\intgp.\ifnum\fracp<10 0\the\fracp \else\the\fracp\fi in}}
+
+%%% Type factor = ([Type size] * [# of characters in a sample])/(linear length of sample)
+%%% Based on {\it Brown's Index}, Bruce Brown, Greenwood Publishing, Great Britain 1983
+\def\typefact{%
+\dist=10pt
+\spconv=\number\dist
+\multiply\spconv by 12
+\multiply\spconv by 204
+\setbox1=\hbox{\text\freqabc}%
+\divisor=\number\wd1
+\divide\divisor by 100
+\divide\spconv by \divisor
+\scratch=\spconv 
+	\divide\scratch100
+ \divisor=\scratch
+ \multiply \scratch100
+ \advance\spconv-\scratch
+ \hbox{\number\divisor.\ifnum\spconv<10 0\the\spconv \else \the\spconv\fi}}
+
+\setbox0=\hbox{\tiny 0}
+\kernone=.5\wd0 \kerntwo=\wd0
+\def\k{\kern-\kernone}
+\def\kk{\kern-\kerntwo}
+
+\def\endline{\hbox to 0pt{\vrule width1pt height\baselineskip%
+														depth.25\baselineskip\hss}}
+
+\def\iline{\hbox to 0pt{\vrule width.25pt height\baselineskip\hss}}
+\def\hline{\hbox to 0pt{\vrule width.25pt height.75\baselineskip\hss}}
+\def\qline{\hbox to 0pt{\vrule width.25pt height.55\baselineskip\hss}}
+\def\eline{\hbox to 0pt{\vrule width.25pt height.35\baselineskip\hss}}
+\def\sline{\hbox to 0pt{\vrule width.25pt height.15\baselineskip\hss}}
+
+\def\itick{\hbox to 1in{\iline\hfill}}
+\def\htick{\hbox to .5in{\hline\hfill}}
+\def\qtick{\hbox to .25in{\qline\hfill}}
+\def\etick{\hbox to .125in{\eline\hfill}}
+\def\stick{\hbox to .0625in{\sline\hfill}}
+
+\def\dhtick{\hbox to .5in{\hline\hfill}}
+\def\dttick{\hbox to .1in{\qline\hfill}}
+\def\dftick{\hbox to .05in{\eline\hfill}}
+
+\def\pctick{\hbox to 1pc{\iline\hss}}
+\def\hpctick{\hbox to .5pc{\qline\hss}}
+
+\def\druler#1 {\hbox to #1{\endline\hfill\endline}
+\kern-\baselineskip \bigger=#1 \advance\bigger by .5in
+\hbox to #1{\hrulefill}\kern-\baselineskip
+\hbox to \bigger{\leaders\itick\hfill}\kern-\baselineskip
+\hbox to #1{\leaders\dhtick\hfill}\kern-\baselineskip
+\hbox to #1{\leaders\dttick\hfill}\kern-\baselineskip
+\hbox to #1{\leaders\dftick\hfill}}
+
+\def\pcruler#1 {\hbox to #1{\endline\hfill\endline}
+\kern-\baselineskip
+\hbox to #1{\hrulefill}\kern-\baselineskip
+\hbox to #1{\leaders\pctick\hfill}\kern-\baselineskip
+\hbox to #1{\leaders\hpctick\hfill}}
+
+%%% Calculates the largest display typesize to fit \hsize
+%%% First typeset it very small (.5pt) then calculate a
+%%% scale factor to get it to fit to \hsize
+\font\dsp=\the\dspfont\space at .1pt
+\setbox0=\hbox{\dsp \dabc}%
+\dspsize=\hsize 
+\scratch=\dspsize \multiply\scratch10 \divisor=\wd0
+\divide\scratch by \divisor
+\dspsize=\scratch pt \divide\dspsize by 100
+
+%%% Calculates the increment such that smallest display size is 12pt
+\dspsizeincr=\dspsize \advance\dspsizeincr by -12pt
+\divide\dspsizeincr by 5 \dsplineno6
+
+\kern-1\baselineskip
+
+{\name \fontname\par}
+\hbox to \hsize{\hrulefill}\kern-.5\baselineskip
+
+%%% Display Type
+\bgroup
+\loop\font\dsp=\the\dspfont\space at \dspsize \dsp \baselineskip1em
+		\hbox to\hsize{\dabc\hfill\hss\rlap{\tiny\enskip\prettypt{\the\dspsize}}}%
+ 	\vskip.075in\relax
+		\ifnum\dsplineno>1 \global\advance\dsplineno by-1\relax
+			\advance\dspsize by -\dspsizeincr \font\dsp=\the\dspfont\space at \dspsize\repeat
+\egroup
+
+\setbox0=\hbox{\text x}
+\xheight=\ht0
+
+%%% Leading calculations
+\setbox0=\hbox{\text Ilpgy}
+\ascheight=\ht0
+\leading=\ht0
+\adjust=\xheight \advance\adjust-.5\leading
+\advance\leading\dp0
+\leading=1.175\leading  
+\ifdim\dp0<.05\ht0 \advance\adjust.5\xheight\fi
+\advance\leading by \adjust
+\baselineskip\leading
+
+%%% Calculates ratio of x-height to ascender height
+\dimen0=\the\fontdimen5\text
+\xascrnum=\dimen0%
+\divisor=\number\ascheight
+\multiply\xascrnum by 100\relax
+\divide\xascrnum by\ascheight
+
+%%% Calculates width of 2.5 lc alphabets in picas and points
+\setbox0=\hbox{\text\habc} \habcwd=\wd0
+\def\showhabcwd{%
+\scratchdim=\habcwd \scratchdim=\scratchdim
+\scratch=\number\scratchdim 
+\divide\scratch\scppt \sscratch=\scratch
+\divide\scratch12
+\picawd=\scratch
+\multiply\scratch by 12
+\advance\sscratch-\scratch
+\pointwd=\sscratch
+\hbox{\the\picawd pc\the\pointwd}}
+
+%%% Calculates the largest typesize to fit 70 characters to 4.5in.
+%%% First typeset it very small (.5pt) then calculate a
+%%% scale factor to get it to fit to 4.5in.
+\font\calcfont=\the\dspfont\space at .5pt
+\setbox0=\hbox{\calcfont \habc}%
+\dspsize=4.5in 
+\scratch=\dspsize \multiply\scratch10 \divisor=\wd0
+\divide\scratch by \divisor
+\ctextsz=\scratch pt \divide\ctextsz by 20
+
+\vskip.2in
+
+\text
+
+\vbox{\baselineskip1.2\baselineskip%
+\druler{6.51in}
+%
+{\hsize6in \settabs 6\columns\tiny
+\+Decimal Inches&\k 1&\k 2&\k 3&\k 4&\k 5&\k 6\cr}
+%
+\text 1234567890\$\%\&?(``\thinspace'')\par
+\habc\par
+\uppercase\expandafter{\abc}\vskip.5em
+%
+\pcruler{38pc}
+%
+{\hsize35pc \settabs 7\columns\tiny
+\+Picas&\k 5&\kk 10&\kk 15&\kk 20&\kk 25&\kk 30&\kk 35\cr}\vfill}
+
+\vskip.25in
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%
+%%% Change the text sample here.
+%%% The choices are \ntext, \pantext and \loremtext
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vbox{%
+\hsize\habcwd \baselineskip\leading \the\ntext}
+\vfill
+
+\hbox to \hsize{\hrulefill}
+\smallskip
+\vbox{%
+\emergencystretch1em\tiny \hsize.8\habcwd  \baselineskip.9\leading
+%
+\halign to \hsize{#\hfil\tabskip0pt plus 1fill&\hfil#\tabskip0pt\cr
+Type stats:\cr
+\noalign{\smallskip\hrule\smallskip}
+Text sample (10pt) leading&\prettypt{\the\leading}\unskip\cr 
+\noalign{\smallskip\hrule\smallskip}
+Width of 2.5 lowercase 10pt alphabets&\showhabcwd\ or \cvptin{\the\habcwd}\unskip\cr
+\noalign{\smallskip\hrule\smallskip}
+Type size required for a 4.5in measure&\prettypt{\the\ctextsz}\unskip\cr
+\noalign{\smallskip\hrule\smallskip}
+Ratio of x-height to ascender height&\hbox{0.\the\xascrnum}\cr
+\noalign{\smallskip\hrule\smallskip}
+Typefactor&\typefact\cr
+\noalign{\smallskip\hrule}}
+\smallskip
+\comment}%
+
+\eject\end

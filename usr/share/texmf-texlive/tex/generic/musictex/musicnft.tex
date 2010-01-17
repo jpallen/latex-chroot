@@ -1,0 +1,938 @@
+%
+% This is MusicNFT from MusicTeX
+\message{Version 5.18 -- August 26th, 1996}%
+%
+% finding which class of fonts is normally used (cmxxx, dmxxx, dcxxx,...)
+\def\wordsplita#1#2#3.XX.{#1}%
+\def\wordsplitb#1#2#3.XX.{#2}%
+\rm
+\edef\fonthdg{\expandafter\wordsplita\fontname\the\font.XX.}%
+\edef\fonthdge{\expandafter\wordsplitb\fontname\the\font.XX.}%
+ %
+\font\cmmi=cmmi10 scaled \magstep1
+\font\cmbxbig=\fonthdg\fonthdge bx10 scaled \magstep2
+\font\cmbx=\fonthdg\fonthdge bx10 scaled \magstep1
+\font\cmbxsmall=\fonthdg\fonthdge bx10 
+\font\cmbxtiny=\fonthdg\fonthdge bx8
+\font\cmbxmicro=\fonthdg\fonthdge bx7
+\font\moyen=\fonthdg\fonthdge bx10 scaled \magstep1
+\font\cmex=cmex10
+\font\cmsy=cmsy10 scaled \magstep1
+\font\cmr=\fonthdg\fonthdge r10 scaled \magstep1
+\font\ttyeight=\fonthdg\fonthdge tt8
+
+
+\edef\catcodeat{\the\catcode`\@}\catcode`\@=11
+\edef\catcode@gt{\the\catcode`\>}\catcode`\>=12
+\edef\catcode@lt{\the\catcode`\<}\catcode`\<=12
+
+%
+\let\@plainwlog=\wlog
+\def\wlog#1{}%
+%
+\font\musictwenty=musikn20
+\fontdimen35\musictwenty=0pt\relax
+\font\musicsixteen=musikn16
+\font\slurntwenty=slurn20
+\font\slurnsixteen=slurn16
+\font\musicthirteen=musikn13
+\font\musiceleven=musikn11
+\font\beamtwenty=beamn20
+\fontdimen50\beamtwenty=0pt\relax
+\font\beamsixteen=beamn16
+\font\beamthirteen=beamn13
+\font\beameleven=beamn11
+%
+\newif\ifcautionacc
+\cautionaccfalse
+%
+\def\q@u{\musicnfont\char33\hss}%
+\def\h@a{\musicnfont\char34\hss}%
+\def\w@h{\musicnfont\char35\hss}%
+\def\d@iamg{\musicnfont\char0\hss}%
+\def\d@iamw{\musicnfont\char127\hss}%
+\def\s@haker{\musicnfont\char79\hss}%
+\def\t@remolord{\musicnfont\char78\hss}%
+\def\c@arrg{\musicnfont\char1\hss}%
+\def\c@arpg{\musicnfont\char2\hss}%
+\def\c@arqg{\musicnfont\char3\hss}%
+\def\w@hq{\musicnfont\char 125\hss}%
+\def\s@bv{\musicnfont\char36\hss}%
+\def\b@rv{\musicnfont\char32\hss}%
+\def\c@upchar{39}%   offset to upper eighth hook
+\def\c@dnchar{44}%   offset to upper eighth hook
+%
+ %
+%
+\def\musicxx{\musicnorfont}%
+\def\slurnxx{\slurnorfont}%
+\def\slurnfont{\slurnorfont}%
+%
+\def\set@normalnotesize{\def\beamfont{\beamnorfont}%
+\def\musicnfont{\musicnorfont}%
+\def\i@nterbeam{0.75\Interligne}%
+\def\b@alkthick{0.24\Interligne}}
+%
+\def\set@smallnotesize{\def\beamfont{\beamsmallfont}%
+\def\musicnfont{\musicsmallfont}%
+\def\i@nterbeam{0.6\Interligne}%
+\def\b@alkthick{0.192\Interligne}}
+%
+\def\set@tinynotesize{\def\beamfont{\beamtinyfont}%
+\def\musicnfont{\musictinyfont}%
+\def\i@nterbeam{0.48\Interligne}%
+\def\b@alkthick{0.1536\Interligne}}
+%
+\set@normalnotesize
+%
+\def\qu@raise{\z@}%
+\def\ha@raise{\z@}%
+\def\wh@raise{\z@}%
+\def\zwq#1{\getn@i{#1}\def\n@fon{\zwq}\def\n@sym{\w@hq}\g@zw}%
+\def\zsb#1{\getn@i{#1}\def\n@fon{\zsb}\def\n@sym{\s@bv}\g@zsb}% semi-breve
+\def\zbv#1{\getn@i{#1}\def\n@fon{\zbv}\def\n@sym{\b@rv}\g@zbv}% breve
+\def\g@zbv{\n@raiseq
+  \h@lines{\bv@width}\def\s@tem{\resetstem}\plap@symss\fi}%
+\def\g@zsb{\n@raiseq
+  \h@lines{\sb@width}\def\s@tem{\resetstem}\plap@symss\fi}%
+%
+\newbox\ch@box
+\newdimen\lthick
+\global\lthick=0.4pt
+%\newdimen\qn@width
+%\newdimen\hn@width
+%\newdimen\wn@width
+%\newdimen\sb@width
+%\newdimen\bv@width
+\newdimen\qd@skip
+\newdimen\hd@skip
+\newdimen\wd@skip
+%
+\newcount\musicsize
+%
+\def\musickeyfont{\ifdim\internote<0.76\Internote\musictinyfont
+\else\ifdim\internote<0.95\Internote\musicsmallfont
+     \else\musicnorfont
+     \fi
+\fi}%
+%
+\def\meterfont{\ifdim\internote<0.76\Internote\metersmallfont
+\else\ifdim\internote<0.95\Internote\meternorfont
+     \else\meterbigfont
+     \fi
+\fi}%
+%
+\def\pointfont{\ifdim\internote<0.76\Internote\metertinyfont
+\else\ifdim\internote<0.95\Internote\metersmallfont
+     \else\meternorfont
+     \fi
+\fi}%
+%
+\def\computespecifics{\ifnum\musicsize=0\relax\musicsize=20\relax\fi
+\ifnum\musicsize=20\relax
+  \def\ppff{\ppfftwenty}%
+  \def\beamnorfont{\beamtwenty}\def\musicnorfont{\musictwenty}%
+  \def\beamsmallfont{\beamsixteen}\def\musicsmallfont{\musicsixteen}%
+  \def\beamtinyfont{\beamthirteen}\def\musictinyfont{\musicthirteen}%
+  \def\meternorfont{\cmbx}\def\metersmallfont{\cmbxsmall}%
+  \def\metertinyfont{\cmbxtiny}\def\slurnorfont{\slurntwenty}%
+  \def\meterbigfont{\cmbxbig}%
+\else
+  \def\ppff{\ppffsixteen}%
+  \def\beamnorfont{\beamsixteen}\def\musicnorfont{\musicsixteen}%
+  \def\beamsmallfont{\beamthirteen}\def\musicsmallfont{\musicthirteen}%
+  \def\beamtinyfont{\beameleven}\def\musictinyfont{\musiceleven}%
+  \def\meternorfont{\cmbxsmall}\def\metersmallfont{\cmbxtiny}%
+  \def\metertinyfont{\cmbxmicro}\def\slurnorfont{\slurnsixteen}%
+  \def\meterbigfont{\cmbx}%
+\fi
+\Interligne=\musicsize pt\divide\Interligne by 4\relax
+\Internote=0.5\Interligne
+\interbeam=\i@nterbeam
+\computeqn@w}%
+%
+\def\computeqn@w{%
+\setbox\ch@box=\hbox{\w@h}\wn@width=\wd\ch@box
+\setbox\ch@box=\hbox{\s@bv}\sb@width=\wd\ch@box
+\setbox\ch@box=\hbox{\b@rv}\bv@width=\wd\ch@box
+\setbox\ch@box=\hbox{\c@arrg}\gr@width=\wd\ch@box
+\setbox\ch@box=\hbox{\h@a}\hn@width=\wd\ch@box
+\setbox\ch@box=\hbox{\q@u}\qn@width=\wd\ch@box
+\qd@skip=\qn@width\advance\qd@skip by -\hlthick
+\hd@skip=\hn@width\advance\hd@skip by -\hlthick
+\wd@skip=\wn@width\advance\wd@skip by -\hlthick
+}%
+\def\normalnotesize{\set@normalnotesize\computespecifics
+  \def\currentsize{\normalnotesize}}
+\def\smallnotesize{\set@smallnotesize\computespecifics
+  \def\currentsize{\smallnotesize}}
+\def\tinynotesize{\set@tinynotesize\computespecifics
+  \def\currentsize{\tinynotesize}}
+%
+%\check
+%
+\def\s@oupir{{\musicnfont\char"3E}}%
+%
+ %\newdimen\c@height
+\newcount\c@mult
+%\check
+\def\d@cr#1{\c@mult=#1\relax    % queue de #1 croche(s) vers le haut
+\advance\c@mult by \c@upchar\d@crg}%
+\def\d@gru{\c@mult=12\relax\d@crg}% queue de croche barree vers le haut
+\def\d@crg{\setbox\ch@box=\rlap{\musicnfont\char\c@mult}\c@height=\ht\ch@box
+\global\advance\st@top by \c@height
+\global\advance\st@top by \internote
+  \ifdim\st@top>\st@bot
+    \maxst@top
+    \global\advance\st@bot by -\altportee
+    \global\advance\st@top by -\altportee
+    \kern\stem@skip\vrule height\st@top depth -\st@bot width \lthick
+    \advance\st@top by -\c@height\raise\st@top\box\ch@box
+    \kern -\lthick \kern-\stem@skip    
+  \fi\resetstem}%
+%\check
+\def\p@cr#1{\c@mult=#1\relax    % queue de #1 croche(s) vers le bas
+\advance\c@mult by \c@dnchar\p@crg}%
+\def\p@gru{\c@mult=13\relax\p@crg}% queue de croche barree vers la bas
+\def\p@crg{\setbox\ch@box=\rlap{\kern \hlthick\musicnfont
+    \char\c@mult}\c@height=\ht\ch@box
+\global\advance\st@bot by -\internote
+\global\advance\st@bot by -\c@height
+\ifdim\st@top>\st@bot
+ \minst@bot
+ \global\advance\st@bot by -\altportee
+ \global\advance\st@top by -\altportee
+ \raise\st@bot\box\ch@box
+ \vrule height\st@top depth -\st@bot width \lthick
+ \kern -\lthick
+\fi \resetstem}%
+%
+% grace notes (croches barrees)
+\def\grcu#1{\getn@i{#1}\def\n@sym{\q@u}\def\n@fon{\grcu}\n@raiseq
+  \h@linesqn\global\stem@skip=\qd@skip
+  \def\s@tem{\d@gru}\pl@symssq\fi}%
+\def\grcl#1{\getn@i{#1}\def\n@sym{\q@u}\def\n@fon{\grcl}\n@raiseq	
+  \h@linesqn\def\s@tem{\p@gru}\pl@symssq\fi}%
+%
+%\check
+\def\s@harp{\musicnfont\char"34}\def\sh@raise{\z@}%
+\def\f@lat{\musicnfont\char"32}\def\fl@raise{\z@}%
+\def\n@at{\musicnfont\char"36}\def\na@raise{\z@}%
+\def\ds@harp{\musicnfont\char"35}%
+\def\df@lat{\musicnfont\char"33}%
+%
+\def\smalln@at{\cau@left\musicnfont\char"7C\cau@right}%
+\def\smallf@lat{\cau@left\musicnfont\char"78\cau@right}%
+\def\smalls@harp{\cau@left\musicnfont\char"7A\cau@right}%
+\def\smallds@harp{\cau@left\musicnfont\char"7B\cau@right}%
+\def\smalldf@lat{\cau@left\musicnfont\char"79\cau@right}%
+\def\cau@left{\ifcautionacc\raise-.45\Interligne
+     \hbox{\ttyeight(\kern -\lthick}\fi} 
+\def\cau@right{\ifcautionacc\raise-.45\Interligne
+     \hbox{\ttyeight\kern -\lthick)\kern -.2\Interligne}\fi\cautionaccfalse} 
+%
+\def\n@rpl@lap{\global\n@raise=\z@\pl@llap}%
+\def\bigsh#1{\inhgetn@i{#1}\n@rpl@lap{\s@harp}}%
+\def\smallsh#1{\inhgetn@i{#1}\n@rpl@lap{\smalls@harp}}%
+\def\csh{\cautionacctrue\smallsh}%
+\def\uppersh#1{\zcharnote{#1}{\raise3\internote
+\hbox to \qn@width{\hss\smalls@harp\hss}}}%
+%
+\def\bigdsh#1{\inhgetn@i{#1}\n@rpl@lap{\ds@harp}}%
+\def\smalldsh#1{\inhgetn@i{#1}\n@rpl@lap{\smallds@harp}}%
+\def\cdsh{\cautionacctrue\smalldsh}%
+%
+\def\bigna#1{\inhgetn@i{#1}\n@rpl@lap{\n@at}}%
+\def\smallna#1{\inhgetn@i{#1}\n@rpl@lap{\smalln@at}}%
+\def\cna{\cautionacctrue\smallna}%
+\def\upperna#1{\zcharnote{#1}{\raise3\internote
+\hbox to \qn@width{\hss\smalln@at\hss}}}%
+%
+\def\bigfl#1{\inhgetn@i{#1}\n@rpl@lap{\f@lat}}%
+\def\smallfl#1{\inhgetn@i{#1}\n@rpl@lap{\smallf@lat}}%
+\def\cfl{\cautionacctrue\smallfl}%
+\def\upperfl#1{\zcharnote{#1}{\raise3\internote
+\hbox to \qn@width{\hss\smallf@lat\hss}}}%
+%
+\def\bigdfl#1{\inhgetn@i{#1}\n@rpl@lap{\df@lat}}%
+\def\smalldfl#1{\inhgetn@i{#1}\n@rpl@lap{\smalldf@lat}}%
+\def\cdfl{\cautionacctrue\smalldfl}
+%
+\def\na#1{\ifdim\small@test\bigna{#1}\else\smallna{#1}\fi}%
+\def\fl#1{\ifdim\small@test\bigfl{#1}\else\smallfl{#1}\fi}%
+\def\sh#1{\ifdim\small@test\bigsh{#1}\else\smallsh{#1}\fi}%
+\def\dfl#1{\ifdim\small@test\bigdfl{#1}\else\smalldfl{#1}\fi}%
+\def\dsh#1{\ifdim\small@test\bigdsh{#1}\else\smalldsh{#1}\fi}%
+%
+%\check
+\def\b@adjust{\ifdim\y@ii>2.1\q@antum
+\multiply\q@antum by 2\relax\advance\b@char by 1\relax\fi
+}%
+\newcount\b@char
+\def\b@alkdefs{\b@char=0\relax
+\ifnum \b@p>0\relax\b@char=\b@p\relax\multiply\b@char by 6\relax
+  \advance\b@char by -6\relax\ifnum\b@char>54\relax\b@char=54\relax\fi\fi
+\ifnum \b@p<0\relax\b@char=-\b@p\relax\multiply\b@char by 6\relax
+  \advance\b@char by 58\relax\ifnum\b@char>118\relax\b@char=118\relax\fi\fi
+\q@antum=60pt\divide\q@antum by 32\relax\b@adjust
+\b@adjust
+\b@adjust
+\b@adjust
+\b@adjust
+\chardef\b@alk=\b@char}%
+%\check
+\def\s@lopdefs{\q@antum=60pt\divide\q@antum by 32\relax \def\s@lope{0.0}\relax
+\ifnum \b@p=1\relax\def\s@lope{0.05}\fi
+\ifnum \b@p>1\relax\b@char=\b@p\relax\multiply\b@char by 5\relax
+  \ifnum\b@char>50\relax\b@char=50\relax\fi
+  \edef\s@lope{0.\the\b@char}\fi
+\ifnum \b@p=-1\relax\def\s@lope{-0.05}\fi
+\ifnum \b@p<-1\relax\b@char=-\b@p\relax\multiply\b@char by 5\relax
+  \ifnum\b@char>50\relax\b@char=50\relax\fi
+  \edef\s@lope{-0.\the\b@char}\fi
+}%
+%\check
+\def\p@outre{%    \y@ii : longueur,   \b@p : pente,  \y@i : altitude
+\ifnum \b@p=0\relax
+  \y@iii=\y@i\y@iv=\y@i
+  \advance\y@iii by -\b@alkthick
+  \advance\y@iv by \b@alkthick
+  \vrule height \y@iv depth -\y@iii  width \y@ii
+%  \raise  \y@i\hbox{\vrule height \b@alkthick depth \b@alkthick
+%      width \y@ii}
+\else\b@alkdefs\beamfont
+  \global\y@iv=\z@
+  \loop\ifdim\y@iv<\y@ii
+    {\y@v=\y@ii\advance\y@v by -\y@iv
+    \advance\y@v by -\q@antum
+    \y@iii=\y@i
+    \advance\y@iii by \s@lope\y@iv
+    \ifdim\y@v<\z@\advance\y@iii by \s@lope\y@v\hskip\y@v\fi
+    \raise\y@iii\hbox to \q@antum{\b@alk\hss}\global\advance\y@iv by \q@antum
+    }\repeat
+\fi
+}%
+%\check
+\def\clefdefasymbol{\hbox to 3.2\Interligne{\musickeyfont
+     \kern -0.8\internote\hss\char"49\hss}}%
+\def\smallclefdefa{\hbox to 2.8\Interligne{\musickeyfont
+     \kern -0.64\internote\hss\char"4A\hss}}%
+%\check
+\def\clefdesolsymbol{\hbox to 3.2\Interligne{\musickeyfont
+     \kern -1.2\internote\hss\char"47\hss}}%
+\def\smallclefdesol{\hbox to 2.8\Interligne{\musickeyfont
+\kern -0.96\internote\hss\char"48\hss}}%
+%\check
+\def\clefdutsymbol{\hbox to 3.2\Interligne{\musickeyfont
+   \kern -0.8\internote\hss\char"4B\hss}}%
+\def\smallclefdut{\hbox to 2.8\Interligne{\musickeyfont
+   \kern -0.64\internote\hss\char"4C\hss}}%
+\def\gclefdut{\hbox to 3.2\Interligne{\musickeyfont
+   \kern 0.4\internote\hss\char"04\hss}}%
+\def\drumclefsymbol{\hbox to 3.2\Interligne{\musickeyfont
+   \kern 0.4\internote\hss\char"4D\hss}}%
+%
+\def\allabreve{{\kern \internote\musickeyfont\char"52}}%
+\def\meterC{{\kern \internote\musickeyfont\char"53}}%
+%
+\def\d@soup{\hbox{\kern -0.3\qn@width\musicnfont\char"3F}}%
+\def\q@soup{\hbox{\kern -0.3\qn@width\musicnfont\char"40}}%
+\def\h@soup{\hbox{\kern -0.3\qn@width\musicnfont\char"41}}%
+\def\s@soup{\hbox{\kern -0.3\qn@width\musicnfont\char"42}}%
+\def\p@orgue{\hbox{\kern -0.5\hn@width\musicnfont\char"50}}%
+\def\p@urgue{\hbox{\kern -0.5\hn@width\musicnfont\char"51}}%
+\def\trille#1{\hbox to #1{\leaders\hbox{\musicnfont\char"64}\hfill}}%
+\def\Trille#1{\hbox to #1{\it tr\leaders\hbox{\musicnfont\char"64}\hfill}}%
+%
+% Gregorian notes
+%
+\def\diamg#1{\getn@i{#1}\def\n@fon{\diamg}\def\n@sym{\d@iamg}\g@diamg}%
+\def\zdiamg#1{\getn@i{#1}\def\n@fon{\diamg}\def\n@sym{\d@iamg}\rlap{\g@diamg}}%
+\def\diamw#1{\getn@i{#1}\def\n@fon{\diamw}\def\n@sym{\d@iamw}\g@diamg}%
+\def\zdiamw#1{\getn@i{#1}\def\n@fon{\diamw}\def\n@sym{\d@iamw}\rlap{\g@diamg}}%
+\def\carrg#1{\getn@i{#1}\def\n@fon{\carrg}\def\n@sym{\c@arrg}\g@diamg}%
+\def\zcarrg#1{\getn@i{#1}\def\n@fon{\carrg}\def\n@sym{\c@arrg}\rlap{\g@diamg}}%
+\def\carqg#1{\getn@i{#1}\def\n@fon{\carqg}\def\n@sym{\c@arqg}\g@diamg}%
+\def\zcarqg#1{\getn@i{#1}\def\n@fon{\carqg}\def\n@sym{\c@arqg}\rlap{\g@diamg}}%
+\def\carpg#1{\getn@i{#1}\def\n@fon{\carpg}\def\n@sym{\c@arpg}\g@diamg}%
+\def\zcarpg#1{\getn@i{#1}\def\n@fon{\carpg}\def\n@sym{\c@arpg}\rlap{\g@diamg}}%
+%
+\def\g@diamg{\advancetrue\g@diam}%
+\def\g@diam{\global\n@raise=\wh@raise\ifnum\n@i<100\relax
+  \h@lines{\gr@width}\def\s@tem{\resetstem}\pl@symssq\fi}%
+ %\check
+%%%%%%%%%%%%%%%%%%%%%%%%% notes with black diamond heads %%%%%%%%%%%%%%%%%%%% 
+
+ %\check
+\def\yu{\advancetrue\yu@z}%
+\def\yup{\advancetrue\yup@z}%
+\def\yupp{\advancetrue\yupp@z}%
+\def\yuppp{\advancetrue\yuppp@z}%
+\def\yu@z#1{\getn@i{#1}\def\n@fon{\yu}\def\n@sym{\d@iamg}\g@qu}%
+\def\yup@z#1{\getn@i{#1}\def\n@fon{\yup}\def\n@sym{\d@iamgp}\g@qu}%
+\def\yupp@z#1{\getn@i{#1}\def\n@fon{\yupp}\def\n@sym{\d@iamgpp}\g@qu}%
+\def\yuppp@z#1{\getn@i{#1}\def\n@fon{\yuppp}\def\n@sym{\d@iamgppp}\g@qu}%
+\def\yl{\advancetrue\yl@z}%
+\def\ylp{\advancetrue\ylp@z}%
+\def\ylpp{\advancetrue\ylpp@z}%
+\def\ylppp{\advancetrue\ylppp@z}%
+\def\yl@z#1{\getn@i{#1}\def\n@fon{\yl}\def\n@sym{\d@iamg}\g@ql}%
+\def\ylp@z#1{\getn@i{#1}\def\n@fon{\ylp}\def\n@sym{\d@iamgp}\g@ql}%
+\def\ylpp@z#1{\getn@i{#1}\def\n@fon{\ylpp}\def\n@sym{\d@iamgpp}\g@ql}%
+\def\ylppp@z#1{\getn@i{#1}\def\n@fon{\ylppp}\def\n@sym{\d@iamgppp}\g@ql}%
+ %\check
+ %
+\def\d@iamgp{\hbox to \qn@width{\d@iamg\hss}\P@t}%
+\def\d@iamgpp{\hbox to \qn@width{\d@iamg\hss}\PP@t}%
+\def\d@iamgppp{\hbox to \qn@width{\d@iamg\hss}\PPP@t}%
+%
+\def\yh#1{\selectpoutre{#1}\yh@}%
+\def\yb#1{\selectpoutre{#1}\yb@}%
+\def\yh@#1{\getn@i{#1}\def\n@fon{\yh@}\def\n@sym{\d@iamg}\g@qh@}% % position
+\def\yb@#1{\getn@i{#1}\def\n@fon{\yb@}\def\n@sym{\d@iamg}\g@qb@} % #1 position
+%
+% x heads without stems
+\def\zy#1{\getn@i{#1}\def\n@fon{\zy}\def\n@sym{\d@iamg}\g@zq}
+\def\zyp#1{\getn@i{#1}\def\n@fon{\zyp}\def\n@sym{\d@iamgp}\g@zq}
+\def\zypp#1{\getn@i{#1}\def\n@fon{\zypp}\def\n@sym{\d@iamgpp}\g@zq}
+\def\zyppp#1{\getn@i{#1}\def\n@fon{\zyppp}\def\n@sym{\d@iamgppp}\g@zq}
+ %
+ % croches, doubles croches, triples croches, quadruple croches queue en
+ % haut et en bas pour percussion x
+ %
+\def\ycu{\advancetrue\mycu1}\def\yccu{\advancetrue\mycu2}
+\def\ycccu{\advancetrue\mycu3}\def\yccccu{\advancetrue\mycu4}%
+\def\ycl{\advancetrue\mycl1}\def\yccl{\advancetrue\mycl2}
+\def\ycccl{\advancetrue\mycl3}\def\yccccl{\advancetrue\mycl4}%
+%
+\def\yclp{\advancetrue\myclp1}\def\ycup{\advancetrue\mycup1}%
+\def\yclpp{\advancetrue\myclpp1}\def\ycupp{\advancetrue\mycupp1}%
+\def\yclppp{\advancetrue\myclppp1}\def\ycuppp{\advancetrue\mycuppp1}%
+ %
+\def\mycu#1#2{\getn@i{#2}\def\n@sym{\d@iamg}%
+\edef\n@fon{\noexpand\mycu #1}\g@cu{#1}}
+\def\mycup#1#2{\getn@i{#2}\def\n@sym{\d@iamgp}%
+\edef\n@fon{\noexpand\mycup #1}\g@cu{#1}}
+\def\mycupp#1#2{\getn@i{#2}\def\n@sym{\d@iamgpp}%
+\edef\n@fon{\noexpand\mycupp #1}\g@cu{#1}}
+\def\mycuppp#1#2{\getn@i{#2}\def\n@sym{\d@iamgppp}%
+\edef\n@fon{\noexpand\mycupp #1}\g@cu{#1}}
+ %
+\def\mycl#1#2{\getn@i{#2}\def\n@sym{\d@iamg}%
+\edef\n@fon{\noexpand\mycl #1}\g@cl{#1}}
+\def\myclp#1#2{\getn@i{#2}\def\n@sym{\d@iamgp}%
+\edef\n@fon{\noexpand\myclp #1}\g@cl{#1}}
+\def\myclpp#1#2{\getn@i{#2}\def\n@sym{\d@iamgpp}%
+\edef\n@fon{\noexpand\myclpp #1}\g@cl{#1}}
+\def\myclppp#1#2{\getn@i{#2}\def\n@sym{\d@iamgppp}%
+\edef\n@fon{\noexpand\myclppp #1}\g@cl{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% notes with white diamond heads %%%%%%%%%%%%%%%%%%%% 
+
+ %\check
+\def\du{\advancetrue\du@z}%
+\def\dup{\advancetrue\dup@z}%
+\def\dupp{\advancetrue\dupp@z}%
+\def\duppp{\advancetrue\duppp@z}%
+\def\du@z#1{\getn@i{#1}\def\n@fon{\du}\def\n@sym{\d@iamw}\g@qu}%
+\def\dup@z#1{\getn@i{#1}\def\n@fon{\dup}\def\n@sym{\d@iamwp}\g@qu}%
+\def\dupp@z#1{\getn@i{#1}\def\n@fon{\dupp}\def\n@sym{\d@iamwpp}\g@qu}%
+\def\duppp@z#1{\getn@i{#1}\def\n@fon{\duppp}\def\n@sym{\d@iamwppp}\g@qu}%
+\def\dl{\advancetrue\dl@z}%
+\def\dlp{\advancetrue\dlp@z}%
+\def\dlpp{\advancetrue\dlpp@z}%
+\def\dlppp{\advancetrue\dlppp@z}%
+\def\dl@z#1{\getn@i{#1}\def\n@fon{\dl}\def\n@sym{\d@iamw}\g@ql}%
+\def\dlp@z#1{\getn@i{#1}\def\n@fon{\dlp}\def\n@sym{\d@iamwp}\g@ql}%
+\def\dlpp@z#1{\getn@i{#1}\def\n@fon{\dlpp}\def\n@sym{\d@iamwpp}\g@ql}%
+\def\dlppp@z#1{\getn@i{#1}\def\n@fon{\dlppp}\def\n@sym{\d@iamwppp}\g@ql}%
+ %\check
+ %
+\def\d@iamwp{\hbox to \qn@width{\d@iamw\hss}\P@t}%
+\def\d@iamwpp{\hbox to \qn@width{\d@iamw\hss}\PP@t}%
+\def\d@iamwppp{\hbox to \qn@width{\d@iamw\hss}\PPP@t}%
+%
+\def\dh#1{\selectpoutre{#1}\dh@}%
+\def\db#1{\selectpoutre{#1}\db@}%
+\def\dh@#1{\getn@i{#1}\def\n@fon{\dh@}\def\n@sym{\d@iamw}\g@qh@}% % position
+\def\db@#1{\getn@i{#1}\def\n@fon{\db@}\def\n@sym{\d@iamw}\g@qb@} % #1 position
+%
+% x heads without stems
+\def\zd#1{\getn@i{#1}\def\n@fon{\zd}\def\n@sym{\d@iamw}\g@zq}
+\def\zdp#1{\getn@i{#1}\def\n@fon{\zdp}\def\n@sym{\d@iamwp}\g@zq}
+\def\zdpp#1{\getn@i{#1}\def\n@fon{\zdpp}\def\n@sym{\d@iamwpp}\g@zq}
+\def\zdppp#1{\getn@i{#1}\def\n@fon{\zdppp}\def\n@sym{\d@iamwppp}\g@zq}
+ %
+ % croches, doubles croches, triples croches, quadruple croches queue en
+ % haut et en bas pour percussion x
+ %
+\def\dcu{\advancetrue\mdcu1}\def\dccu{\advancetrue\mdcu2}
+\def\dcccu{\advancetrue\mdcu3}\def\dccccu{\advancetrue\mdcu4}%
+\def\dcl{\advancetrue\mdcl1}\def\dccl{\advancetrue\mdcl2}
+\def\dcccl{\advancetrue\mdcl3}\def\dccccl{\advancetrue\mdcl4}%
+%
+\def\dclp{\advancetrue\mdclp1}\def\dcup{\advancetrue\mdcup1}%
+\def\dclpp{\advancetrue\mdclpp1}\def\dcupp{\advancetrue\mdcupp1}%
+\def\dclppp{\advancetrue\mdclppp1}\def\dcuppp{\advancetrue\mdcuppp1}%
+ %
+\def\mdcu#1#2{\getn@i{#2}\def\n@sym{\d@iamw}%
+\edef\n@fon{\noexpand\mdcu #1}\g@cu{#1}}
+\def\mdcup#1#2{\getn@i{#2}\def\n@sym{\d@iamwp}%
+\edef\n@fon{\noexpand\mdcup #1}\g@cu{#1}}
+\def\mdcupp#1#2{\getn@i{#2}\def\n@sym{\d@iamwpp}%
+\edef\n@fon{\noexpand\mdcupp #1}\g@cu{#1}}
+\def\mdcuppp#1#2{\getn@i{#2}\def\n@sym{\d@iamwppp}%
+\edef\n@fon{\noexpand\mdcupp #1}\g@cu{#1}}
+ %
+\def\mdcl#1#2{\getn@i{#2}\def\n@sym{\d@iamw}%
+\edef\n@fon{\noexpand\mdcl #1}\g@cl{#1}}
+\def\mdclp#1#2{\getn@i{#2}\def\n@sym{\d@iamwp}%
+\edef\n@fon{\noexpand\mdclp #1}\g@cl{#1}}
+\def\mdclpp#1#2{\getn@i{#2}\def\n@sym{\d@iamwpp}%
+\edef\n@fon{\noexpand\mdclpp #1}\g@cl{#1}}
+\def\mdclppp#1#2{\getn@i{#2}\def\n@sym{\d@iamwppp}%
+\edef\n@fon{\noexpand\mdclppp #1}\g@cl{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% arpeges
+%
+\def\arpegesym#1{\hbox to \Interligne{\kern -1.2\Interligne
+\vbox to #1{\parindent=\z@
+\offinterlineskip\ifdim #1>4\Interligne\Arp@elem\fi\hrule
+\cleaders\arp@elem\vfill\kern -\interligne}\hss}}%
+\def\arp@elem{\vbox to \Interligne{\vss\musicnorfont\char"5A}}%
+\def\Arp@elem{\vbox to 4\Interligne{\vss\musicnorfont\char"5D}}%
+%
+\def\arpeggio#1#2{\zcharnote{#1}{\n@iii=#2\relax\advance\n@iii by 89\relax
+\musicnorfont\chardef\arp@el=\n@iii\relax\arp@el}\qsk}%
+\def\larpeggio#1#2{\lcharnote{#1}{\n@iii=#2\relax\advance\n@iii by 89\relax
+\musicnorfont\chardef\arp@el=\n@iii\relax\arp@el\kern -0.3\qn@width}\qsk}%
+%
+%
+% This skip aligns some ornaments which appear not to be centred precisely
+% on the notes
+\def\o@skp{\kern-.5\hd@skip}
+\def\mordant#1{\zcharnote{#1}{\musicnfont\char 89}}%
+\def\pince#1{\zcharnote{#1}{\musicnfont\char 87}}%
+\def\Pince#1{\zcharnote{#1}{\musicnfont\char 88}}%
+\def\Lpince#1{\zcharnote{#1}{\musicnfont\char 7}}%
+\def\Pincesw#1{\zcharnote{#1}{\musicnfont\char 11}}%
+\def\Pincenw#1{\zcharnote{#1}{\musicnfont\char 10}}%
+\def\Pincene#1{\zcharnote{#1}{\musicnfont\char 9}}%
+% \turn p      makes a turn             symbol at pitch p, causing no space
+% \backturn p  makes a backward turn    symbol at pitch p, causing no space
+% \coda p      makes a coda             ...
+% \segno p     makes the special "S"    ...
+\def\turn#1{\zcharnote{#1}{\o@skp\musicnfont\char"44}}
+\def\backturn#1{\zcharnote{#1}{\o@skp\musicnfont\char"43}}
+\def\coda#1{\zcharnote{#1}{\o@skp\musicnorfont\char"55}}
+\def\segno#1{\zcharnote{#1}{\o@skp\musicnorfont\char"56}}
+%
+\def\sforz#1{{\advance\transpose by -2\usf{#1}}}%
+\def\pz#1{{\advance\transpose by -2\upz{#1}}}%
+\def\ppz#1{\uppz{#1}}%
+\def\st#1{{\advance\transpose by -2\ust{#1}}}%
+%
+\def\usf#1{\zcharnote{#1}{\musicnfont\char 30}}%
+\def\lsf#1{\zcharnote{#1}{\musicnfont\char 31}}%
+\def\ust#1{\zcharnote{#1}{\musicnfont\char 26}}%
+\def\lst#1{\zcharnote{#1}{\musicnfont\char 27}}%
+\def\upz#1{\zcharnote{#1}{\musicnfont\char 24}}%
+\def\lpz#1{\zcharnote{#1}{\musicnfont\char 25}}%
+\def\uppz#1{\zcharnote{#1}{\musicnfont\char 28}}%
+\def\lppz#1{\zcharnote{#1}{\musicnfont\char 29}}%
+%
+% placement des accents au-dessus de poutres et non de tetes de notes
+\def\acc@balk{\global\stem@skip=\z@  %
+\y@ii=\b@z                     % a augmenter avec la pente
+\y@v=\locx@skip\advance\y@v by \stem@skip\advance\y@v by -\b@x
+\advance\y@ii by \s@lope\y@v
+\advance\y@ii by -\altportee
+\raise\y@ii\rlap{\kern\stem@skip\balk@accent}}%
+%\check
+\def\busf#1{\def\balk@accent{\musicnfont\char 30}\selectpoutre{#1}\acc@balk}%
+\def\blsf#1{\def\balk@accent{\musicnfont\char 31}\selectpoutre{#1}\acc@balk}%
+\def\bust#1{\def\balk@accent{\musicnfont\char 26}\selectpoutre{#1}\acc@balk}%
+\def\blst#1{\def\balk@accent{\musicnfont\char 27}\selectpoutre{#1}\acc@balk}%
+\def\bupz#1{\def\balk@accent{\musicnfont\char 24}\selectpoutre{#1}\acc@balk}%
+\def\blpz#1{\def\balk@accent{\musicnfont\char 25}\selectpoutre{#1}\acc@balk}%
+\def\buppz#1{\def\balk@accent{\musicnfont\char 28}\selectpoutre{#1}\acc@balk}%
+\def\blppz#1{\def\balk@accent{\musicnfont\char 29}\selectpoutre{#1}\acc@balk}%
+%
+% soufflets crescendo et decrescendo
+%
+\def\dimin{{\musicnorfont\char"10}}%
+\def\Dimin{{\musicnorfont\char"11}}%
+\def\DImin{{\musicnorfont\char"12}}%
+\def\DIMin{{\musicnorfont\char"13}}%
+\def\cresc{{\musicnorfont\char"14}}%
+\def\Cresc{{\musicnorfont\char"15}}%
+\def\CResc{{\musicnorfont\char"16}}%
+\def\CREsc{{\musicnorfont\char"17}}%
+%
+% colons for repeats (:| |: :||:)
+%
+%\check
+\def\w@coli{\selectinstr{\p@loop\raise\altportee
+  \hbox to \z@{\hss\musickeyfont\char 126\hss}\n@portee\repeat}}%
+%
+% long pauses
+%
+\def\PAuse{\hbox to \noteskip{\musicnorfont\char"3A\hss}\advance\locx@skip
+ by \noteskip}%
+\def\PAUSe{\hbox to \noteskip{\musicnorfont\char"3B\hss}\advance\locx@skip
+ by \noteskip}%
+\def\expause#1{\charnote{#1}{\musicnorfont\char 5\hss}} 
+\def\zexpause#1{\zcharnote{#1}{\musicnorfont\char 5\hss}} 
+\def\exhpause#1{\charnote{#1}{\musicnorfont\char 6\hss}} 
+\def\zexhpause#1{\zcharnote{#1}{\musicnorfont\char 6\hss}} 
+%
+% special song system left begins
+%
+\def\type@songsymbols{\raise\lowersongalt\llap{\musicnorfont\char 15}%
+\advance\lowersongalt by \uppersongalt
+\advance\lowersongalt by -\hlthick
+\raise\lowersongalt\llap{\musicnorfont\char 14}}
+%
+%
+% horizontal upper slur offset by #2 noteheads, total width #1
+%
+\def\h@uslur#1#2{\y@v=#1\relax\advance\y@v by -#2\hn@width
+\global\setbox\ch@box=\hbox{\slurnorfont\char31}% maximum of one part slurs
+\ifdim\wd\ch@box>\y@v
+  \global\n@iii=0\relax
+  \loop\global\setbox\ch@box=\hbox{\slurnorfont\char\n@iii}%
+  \ifdim\wd\ch@box<\y@v\global\advance\n@iii by 1\relax
+  \repeat
+  \hbox to #1{\kern #2\hn@width\hss\slurnorfont\char\n@iii\hss}%
+\else
+  \global\n@iii=79\relax
+  \loop\global\setbox\ch@box=\hbox{\slurnorfont\char\n@iii}%
+  \ifdim 2\wd\ch@box>\y@v\global\advance\n@iii by -1\relax
+  \repeat
+  \hbox to #1{\kern #2\hn@width\y@iv=\ht\ch@box\y@iii=-\ht\ch@box
+  \advance\y@iii by \t@y
+  \slurnorfont\char\n@iii
+  \leaders\hrule height \y@iv depth \y@iii\hfill
+  \advance\n@iii by 16\relax \char\n@iii}%
+\fi}
+%
+% horizontal lower slur offset by #2 noteheads, total width #1
+%
+\def\h@dslur#1#2{\y@v=#1\relax\advance\y@v by -#2\hn@width
+\global\setbox\ch@box=\hbox{\slurnorfont\char31}% maximum of one part slurs
+\ifdim\wd\ch@box>\y@v
+  \global\n@iii=32\relax
+  \loop\global\setbox\ch@box=\hbox{\slurnorfont\char\n@iii}%
+  \ifdim\wd\ch@box<\y@v\global\advance\n@iii by 1\relax
+  \repeat
+  \hbox to #1{\kern #2\hn@width\hss\slurnorfont\char\n@iii\hss}%
+\else
+  \global\n@iii=111\relax
+  \loop\global\setbox\ch@box=\hbox{\slurnorfont\char\n@iii}%
+  \ifdim 2\wd\ch@box>\y@v\global\advance\n@iii by -1\relax
+  \repeat
+  \hbox to #1{\kern #2\hn@width\y@iv=\dp\ch@box\y@iii=-\dp\ch@box
+  \advance\y@iii by \t@y
+  \slurnorfont\char\n@iii
+  \leaders\hrule height \y@iii depth \y@iv\hfill
+  \advance\n@iii by 16\relax \char\n@iii}%
+\fi}
+%
+% sames without offsets
+%
+\def\hdslur#1{\h@dslur {#1}0}
+\def\huslur#1{\h@uslur {#1}0}
+%
+% noter un debut de tenue
+%
+\def\ITenu#1{\selecttenue{#1}\I@tenu{70}}%
+\def\Ilegu#1#2{\selecttenue{#1}{\advance\locx@skip by -1.5\qn@width
+\I@tenu{70}{#2}}}%
+\def\Itenu#1{\selecttenue{#1}\I@tenu{66}}%
+\def\ilegu#1#2{\selecttenue{#1}{\advance\locx@skip by -1.5\qn@width
+\I@tenu{66}{#2}}}%
+\def\ITenl#1{\selecttenue{#1}\I@tenl{102}}%
+\def\Ilegl#1#2{\selecttenue{#1}\advance\locx@skip by -1.5\qn@width
+\I@tenl{102}{#2}\advance\locx@skip by 1.5\qn@width}%
+\def\Itenl#1{\selecttenue{#1}\I@tenl{98}}%
+\def\ilegl#1#2{\selecttenue{#1}{\advance\locx@skip by -1.5\qn@width
+\I@tenl{98}{#2}}}%
+%
+\def\I@tenall{\check@tenvoid\global\t@s=1\relax % etat en cours
+  \global\t@x=\locx@skip
+  \global\advance\t@x by 0.8\qd@skip
+  \global\t@y= 0.20\Interligne
+  \pl@base\global\t@z=\y@i\global\advance\t@z by\altportee
+  \setbox\ch@box=\hbox{\L@slur}}%
+%
+\def\I@tenu#1#2{\global\t@p=1\relax % sens=1
+  \global\t@w=#1\relax
+  \inhgetn@i{#2}%
+  \I@tenall
+  \global\advance\t@z by \ht\ch@box
+  \global\advance\t@z by 0.24\Interligne
+  \global\advance\t@z by -\t@y
+  \up@tenbox}%
+%
+\def\I@tenl#1#2{\global\t@p=-1\relax % sens= -1
+  \global\t@w=#1\relax
+  \inhgetn@i{#2}%
+  \I@tenall
+  \global\advance\t@z by -\dp\ch@box
+  \global\advance\t@z by -0.24\Interligne
+  \up@tenbox}%
+
+\def\Invertslur#1{\selecttenue{#1}\global\t@p=-\t@p
+\ifnum\t@w>63\relax
+ \ifnum\t@w<96\global\advance\t@w by 32\relax
+ \else\global\advance\t@w by -32\fi
+\fi}
+
+
+%
+%\check
+%
+\def\Tten{\tten}%
+\def\Tleg#1{\rlap{\qsk\tleg#1}}%
+%  
+\def\t@ten{\check@tenopen\y@i=\t@z\advance\y@i by -\altportee
+\y@ii=\locx@skip\advance\y@ii by -\t@x
+\ifnum\t@w=0\relax\else\advance\y@ii by 0.4\qd@skip\fi
+\ifnum\t@p>0\relax
+  \ifnum\t@s=2\relax
+    \raise\y@i\llap{\ifnum\t@w=0\relax
+                      \up@rleg\else
+                      \Up@rleg\kern -0.2\qd@skip\fi}%
+  \else
+    \raise\y@i\llap{\ifnum\t@w=0\relax
+                      \up@leg\else
+                      \Up@leg\kern -0.2\qd@skip\fi}%
+  \fi
+\else
+  \ifnum\t@s=2\relax
+    \raise\y@i\llap{\ifnum\t@w=0\relax
+                      \lo@rleg\else
+                      \Lo@rleg\kern -0.2\qd@skip\fi}%
+  \else
+    \raise\y@i\llap{\ifnum\t@w=0\relax
+                      \lo@leg\else
+                      \Lo@leg\kern -0.2\qd@skip\fi}%
+  \fi
+\fi
+\global\t@w=0\relax
+\global\t@s=0\relax
+\@uptenubox}%
+%
+%
+\def\L@slur{\slurnorfont\char\t@w}%
+\def\R@slur{\global\advance\t@w by 16\slurnorfont\char\t@w}%
+\newdimen\slur@off
+\newdimen\slur@maxlen
+%
+\def\leg@hrule{\leaders\hrule height \t@y\hfill}%
+%
+% complete slur of length #1 (up and down)
+\def\Up@leg{%    longueur \y@ii
+\hbox to \y@ii{\setbox\ch@box=\hbox{\L@slur}\slur@off=\ht\ch@box 
+  \advance\slur@off by -\t@y
+  \ifdim \y@ii>2\wd\ch@box
+    \raise -\slur@off\hbox{\L@slur}\leg@hrule\raise -\slur@off\hbox{\R@slur}%
+  \else
+    \raise -\slur@off\hbox{\huslur{\y@ii}}%
+  \fi}}%
+%
+\def\Lo@leg{%    longueur \y@ii
+\hbox to \y@ii{\setbox\ch@box=\hbox{\L@slur}\slur@off=-\dp\ch@box 
+  \advance\slur@off by -0.1pt
+  \ifdim \y@ii>2\wd\ch@box
+    \raise -\slur@off\hbox{\L@slur}\leg@hrule\raise -\slur@off\hbox{\R@slur}%
+  \else
+    \raise -\slur@off\hbox{\hdslur{\y@ii}}%
+  \fi}}%
+%
+% slur termination of length #1 (up and down)
+\def\Up@rleg{%    longueur \y@ii
+\hbox to \y@ii{\setbox\ch@box=\hbox{\L@slur}\slur@off=\ht\ch@box %
+  \advance\slur@off by -\t@y
+  \ifdim \y@ii>\wd\ch@box\leg@hrule
+  \else\hss\fi  \raise -\slur@off\hbox{\R@slur}}}%
+%
+\def\Lo@rleg{%    longueur \y@ii
+\hbox to \y@ii{\setbox\ch@box=\hbox{\L@slur}\slur@off=-\dp\ch@box %   
+  \advance\slur@off by -0.1pt
+  \ifdim \y@ii>\wd\ch@box\leg@hrule
+  \else\hss\fi  \raise -\slur@off\hbox{\R@slur}}}%
+%
+%\check
+%
+% slur beginning (left) (up and down)
+\def\Up@les{%    longueur \y@ii
+\hbox to \y@ii{\setbox\ch@box=\hbox{\L@slur}\slur@off=\ht\ch@box
+  \advance\slur@off by -\t@y
+  \UpLo@les}}%
+%
+%\check
+%
+\def\Lo@les{%    longueur \y@ii
+\hbox to \y@ii{\setbox\ch@box=\hbox{\L@slur}\slur@off=-\dp\ch@box
+  \advance\slur@off by -0.1pt
+  \UpLo@les}}%
+%
+%\check
+%
+\def\UpLo@les{\raise -\slur@off\hbox{\L@slur}%
+  \advance\y@ii by -\wd\ch@box
+  \ifdim \y@ii>\z@\leg@hrule
+  \else\hss
+%    \ifdim\y@ii<-.8\p@ \vrule height 1cm\fi
+  \fi}%
+%\check
+%
+\def\c@ten{%\rlap{\vrule height 1cm}
+     \y@ii=\x@skip\advance\y@ii by -\t@x
+     \global\t@x=-.8\p@  %<--
+     \ifnum\t@s=1\relax
+       \ifnum\t@w=0\relax
+           \ifnum\t@p>0\relax
+           \raise\t@z\llap{\up@les}\else
+           \raise\t@z\llap{\lo@les}\fi
+       \else
+           \ifnum\t@p>0\relax
+           \raise\t@z\llap{\Up@les}\else
+           \raise\t@z\llap{\Lo@les}\fi
+       \fi    
+     \else
+       \ifnum\t@s=2\relax
+         \slur@off=\t@z
+         \advance\slur@off by \t@y
+%         \advance\slur@off by 3\p@
+         \kern -\y@ii\vrule height \slur@off depth -\t@z width \y@ii
+       \fi
+     \fi
+     \global\t@s=2\relax            
+}%
+%
+\def\n@skmb{\nobreak\global\slur@maxlen=\z@
+% compute the maximum length of slurs to be handled
+  \ten@loop
+     \setbox\ch@box=\hbox{\ifnum\t@w=0\relax\lu@slur
+                           \else\L@slur\fi}\ifdim\slur@maxlen<\wd\ch@box
+     \global\slur@maxlen=\wd\ch@box\fi
+     \global\advance\n@l by 1\relax
+  \repeat
+% compute the maximum excess length of beginning slurs  
+  \global\slur@off=\z@
+  \ten@loop
+     \y@ii=\x@skip\advance\y@ii by \n@skip\advance\y@ii by -\t@x
+     \advance\y@ii by -\slur@maxlen
+     % \y@ii is the length that will be given to \c@ten for that slur/tie
+     % assuming \slur@maxlen left offset...
+     \ifnum\t@s=1\relax
+       \setbox\ch@box=\hbox{\ifnum\t@w=0\relax\lu@slur\else\L@slur\fi}%
+           {\advance\y@ii by -\wd\ch@box
+            \ifdim\y@ii<\slur@off \global\slur@off=\y@ii\fi}%
+     \fi
+     \global\advance\n@l by 1\relax
+  \repeat
+  \global\advance\slur@maxlen by \slur@off
+%
+  \nobreak\global\advance\n@skip by -\slur@maxlen}%
+\def\skip@b{\hskip \slur@maxlen
+   \global\advance\x@skip by\slur@maxlen}% %
+
+ %
+%
+%\check
+%
+% symboles slurn20 des liaisons et tenues
+%
+\newcount\t@wi
+\newcount\t@wii
+\newcount\t@wiii
+\newcount\t@wiv
+\newcount\t@wv
+\newcount\t@wvi
+%
+\let\wlog=\@plainwlog
+%
+\def\k@ii{\fontdimen 8\musictwenty}
+\def\k@iii{\fontdimen 9\musictwenty}
+\def\k@iiii{\fontdimen 10\musictwenty}
+\def\k@iiv{\fontdimen 11\musictwenty}
+\def\k@iv{\fontdimen 12\musictwenty}
+\def\k@ivi{\fontdimen 13\musictwenty}
+\def\k@ivii{\fontdimen 14\musictwenty}
+\def\k@iviii{\fontdimen 15\musictwenty}
+\def\k@iix{\fontdimen 16\musictwenty}
+%
+\def\internotei{\fontdimen 17\musictwenty}
+\def\internoteii{\fontdimen 18\musictwenty}
+\def\internoteiii{\fontdimen 19\musictwenty}
+\def\internoteiv{\fontdimen 20\musictwenty}
+\def\internotev{\fontdimen 21\musictwenty}
+\def\internotevi{\fontdimen 22\musictwenty}
+\def\internotevii{\fontdimen 23\musictwenty}
+\def\internoteviii{\fontdimen 24\musictwenty}
+\def\internoteix{\fontdimen 25\musictwenty}
+\def\c@height{\fontdimen 26\musictwenty}
+%
+\def\qn@width{\fontdimen 27\musictwenty}
+\def\hn@width{\fontdimen 28\musictwenty}
+\def\wn@width{\fontdimen 29\musictwenty}
+\def\sb@width{\fontdimen 30\musictwenty}
+\def\bv@width{\fontdimen 31\musictwenty}
+\def\gr@width{\fontdimen 32\musictwenty}
+%
+\def\clef@skip{\fontdimen 28\beamtwenty}
+\def\nullthick{\fontdimen 29\beamtwenty}
+\def\bbbb@xi{\fontdimen 30\beamtwenty}
+\def\bbbb@xii{\fontdimen 31\beamtwenty}
+\def\bbbb@xiii{\fontdimen 32\beamtwenty}
+\def\bbbb@xiv{\fontdimen 33\beamtwenty}
+\def\bbbb@xv{\fontdimen 34\beamtwenty}
+\def\bbbb@xvi{\fontdimen 35\beamtwenty}
+\def\bbbb@xvii{\fontdimen 36\beamtwenty}
+\def\bbbb@xviii{\fontdimen 37\beamtwenty}
+\def\bbbb@xix{\fontdimen 38\beamtwenty}
+\def\bbbb@xx{\fontdimen 39\beamtwenty}
+%
+\def\bbbbb@xi{\fontdimen 40\beamtwenty}
+\def\bbbbb@xii{\fontdimen 41\beamtwenty}
+\def\bbbbb@xiii{\fontdimen 42\beamtwenty}
+\def\bbbbb@xiv{\fontdimen 43\beamtwenty}
+\def\bbbbb@xv{\fontdimen 44\beamtwenty}
+\def\bbbbb@xvi{\fontdimen 45\beamtwenty}
+\def\bbbbb@xvii{\fontdimen 46\beamtwenty}
+\def\bbbbb@xviii{\fontdimen 47\beamtwenty}
+\def\bbbbb@xix{\fontdimen 48\beamtwenty}
+\def\bbbbb@xx{\fontdimen 49\beamtwenty}
+
+% this macro sets the new big (piano) braces (due to Andreas Egler)
+%  !!! Attention !!!
+% there is no checking of 
+% too small or large dimensions
+%
+\font\musext=musicbra
+\newcount\selbrace
+\def\mult@portee{\y@ii=\nbportees\interportee
+    \advance\y@ii by -\Interportee
+    \advance\y@ii by \nbportees\lthick
+    \advance\y@ii by -2\lthick
+%    
+    \selbrace=\y@ii\relax\select@brace%
+    \divide\y@ii by 2\raise\y@\llap{%
+    \raise\y@ii\llap{\musext\char\selbrace%
+    \kern.5\Interligne}}}%
+%
+\def\select@brace{\divide\selbrace by 65536%
+\advance\selbrace by -40\divide\selbrace by 2}%
+% dim to count means 1pt -> 65536 sp
+% 40 pt is the length of the smallest brace
+% the next brace is 2pt larger
+
+
+\catcode`\>=\catcode@gt
+\catcode`\<=\catcode@lt
+\catcode`\@=\catcodeat
+

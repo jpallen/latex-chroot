@@ -1,0 +1,626 @@
+% $Id: xfig.tex,v 1.4 1995/05/07 16:52:05 schrod Exp $
+%------------------------------------------------------------
+% Hacked together by Joachim Schrod <schrod@iti.informatik.th-darmstadt.de>
+% Put into public domain.
+
+%
+% Support for xfig pictures in plain TeX
+% orginally written for transfig 2.1.7
+% support last checked for transfig 3.1.3
+%
+
+
+% USAGE:
+%
+% To include xfig figures in plain TeX documents, just input these
+% macros and then input the (La)TeX file you got by exporting your
+% figure as `LaTeX picture' or by calling fig2dev with option `-L
+% latex'. No other ``language'' is supported by these macros; in
+% particular, `Combined PS/LaTeX' is not supported.
+
+% You can select the used types for text by redefining some macros:
+% \FigFontType<type> (with <type> equal `rm', `bf', `it', `sf', or
+% `tt') must expand to the external font name that's used for the
+% respective xfig font selection.
+%     \FigFontDefault specifies the font that's used for the `Default'
+% font selection. That macro is only accessed if you use the new xfig,
+% or if you repaired the no-NFSS code of fig2dev (in texfonts.h, see
+% comments at \xfig@bindSetFigFont implementation below).
+%
+% At the start of each figure \pictureHook is evaluated, you might
+% want to bind that to some code that does document-specific setup.
+% Each figure is set in a group, so you can rebind other control
+% sequences in that hook.
+
+
+% ------------------------------------------------------------
+
+% IMPLEMENTATION NOTES:
+%
+% The macros might not work in all circumstances, it's updated and improved
+% by need...
+%
+% In particular:
+%   -- The font selection in \SetFigFont could be improved.
+%   -- The environment code (\begin/\end) is very rough and should
+%      check for erroneous input.
+
+
+% Code structure:
+%
+% After general setup, code from DEK that implements most parts of
+% LaTeX's picture environment is used. Then we add definitions for the
+% missing and xfig-specific tags.
+%
+% In Emacs, each section starts on a new page.
+
+
+% ============================================================
+
+% standard setup:
+
+\ifx \CatEscape\undefined
+    \chardef\CatEscape=0
+    \chardef\CatOpen=1
+    \chardef\CatClose=2
+    \chardef\CatIgnore=9
+    \chardef\CatLetter=11
+    \chardef\CatOther=12
+    \chardef\CatActive=13               % \active of plain.tex
+    \chardef\CatInvalid=15
+
+    \chardef\CatAtCode=\catcode`\@
+    \chardef\CatUsCode=\catcode`\_
+\fi
+
+\catcode`\@=\CatLetter                  % top level macro file
+
+\begingroup
+    \catcode`\$=\CatIgnore
+    \catcode`\:=\CatIgnore
+    \message{xfig pictures, $Revision: 1.4 $}
+\endgroup
+
+
+% This macro file allocates registers and might be read in multiple
+% times, in groups. (Actually, this occured for the first time when we
+% wanted to use xfig pictures in Texinfo documents. There they are
+% typeset in a `tex' environment, and xfig is read in anew for each
+% figure.) As all register allocations are globally, we define some
+% macros that help us to define them only once.
+
+\def\xfig@newskip#1{%
+    \ifx #1\undefined  \csname newskip\endcsname #1\fi
+    }
+\def\xfig@newdimen#1{%
+    \ifx #1\undefined  \csname newdimen\endcsname #1\fi
+    }
+\def\xfig@newcount#1{%
+    \ifx #1\undefined  \csname newcount\endcsname #1\fi
+    }
+\def\xfig@newbox#1{%
+    \ifx #1\undefined  \csname newbox\endcsname #1\fi
+    }
+
+
+% ============================================================
+
+%% First comes an implementation of the picture environment's features,
+%% by the Grand Wizard of TeX Arcana himself. This is from picture.tex,
+%% I deleted the \cpic macro and the squines. \makebox did not support
+%% position specifiers, I substituted the definition by the one from
+%% LaTeX2e. In addition, all register allocations are made with the
+%% macros defined above.
+
+% --------------------------------------------------
+
+% Pictures (a subset of \LaTeX's conventions, plus squines)
+
+%% [start of change to DEK's code]
+%%
+%% At's catcode is changed above already.
+%% Allocation info for registers should go to log file.
+
+% \chardef\CatcodeAt=\catcode`\@
+% \catcode`\@=11 % enable private control sequences
+% \def\wlog#1{} % don't put allocation info into the log
+
+%% [end of change]
+
+\xfig@newskip\hsssglue \hsssglue=0pt plus 1fill minus 1fill
+\def\hsss{\hskip\hsssglue}
+
+\xfig@newdimen\unitlength \xfig@newdimen\linethickness
+\xfig@newdimen\@picheight \xfig@newdimen\@xdim \xfig@newdimen\@ydim \xfig@newdimen\@len
+\xfig@newdimen\@save
+\xfig@newcount\@multicount \xfig@newcount\@xarg \xfig@newcount\@yarg
+\xfig@newbox\@picbox \xfig@newbox\@mpbox
+
+\font\tenln=line10     \font\tenlnw=linew10
+\font\tencirc=lcircle10 \font\tencircw=lcirclew10
+
+\xfig@newdimen\@halfwidth
+
+\def\thinlines{\let\linefont=\tenln \let\circlefont=\tencirc
+  \linethickness=\fontdimen8\linefont \@halfwidth .5\linethickness}
+\def\thicklines{\let\linefont=\tenlnw \let\circlefont=\tencircw
+  \linethickness=\fontdimen8\linefont \@halfwidth .5\linethickness}
+\thinlines
+
+\def\beginpicture(#1,#2)(#3,#4){\@picheight=#2\unitlength
+  \setbox\@picbox=\hbox to#1\unitlength\bgroup \let\line=\@line
+    \kern-#3\unitlength \lower#4\unitlength\hbox\bgroup\ignorespaces}
+\def\endpicture{\egroup\hss\egroup
+  \ht\@picbox=\@picheight \dp\@picbox=\z@
+  \leavevmode\box\@picbox}
+
+\def\put(#1,#2)#3{\raise#2\unitlength\rlap{\kern#1\unitlength #3}\ignorespaces}
+
+\def\multiput(#1,#2)(#3,#4)#5#6{\@multicount=#5\relax
+ \@xdim=#1\unitlength \@ydim=#2\unitlength \setbox\@mpbox=\hbox{#6}%
+ \loop\ifnum\@multicount>0
+   \raise\@ydim\rlap{\kern\@xdim \unhcopy\@mpbox}%
+   \advance\@xdim#3\unitlength \advance\@ydim#4\unitlength
+   \advance\@multicount\m@ne \repeat\ignorespaces}
+
+\def\@ifnextchar#1#2#3{\let\@tempe=#1\def\@tempa{#2}\def\@tempb{#3}\futurelet
+    \@tempc\@ifnch}
+\def\@ifnch{\ifx \@tempc \@sptoken \let\@tempd\@xifnch
+      \else \ifx \@tempc \@tempe\let\@tempd\@tempa\else\let\@tempd\@tempb\fi
+      \fi \@tempd}
+
+%% [start of change to DEK's code]
+%%
+%% \makebox is called with an optional argument, the position
+%% specifier. The code below is copied from the LaTeX2e beta-test
+%% release.
+
+\def\makebox(#1,#2){%
+  \@ifnextchar[{\@makebox(#1,#2)}{\@makebox(#1,#2)[]}}
+
+\def\@nnil{\@nil}
+\def\@fornoop#1\@@#2#3{}
+\def\@tfor#1:=#2\do#3{\def\@fortmp{#2}\ifx\@fortmp\empty \else
+    \@tforloop#2\@nil\@nil\@@#1{#3}\fi}
+\def\@tforloop#1#2\@@#3#4{\def#3{#1}\ifx #3\@nnil
+       \let\@nextwhile\@fornoop \else
+      #4\relax\let\@nextwhile\@tforloop\fi\@nextwhile#2\@@#3{#4}}
+
+\long\def\@makebox(#1,#2)[#3]#4{%
+  \vbox to#2\unitlength
+   {\let\mb@b\vss \let\mb@l\hss\let\mb@r\hss
+    \let\mb@t\vss
+    \@tfor\@tempa :=#3\do{%
+      \if s\@tempa
+        \let\mb@l\relax\let\mb@r\relax
+      \else
+        \expandafter\let\csname mb@\@tempa\endcsname\relax
+      \fi}%
+    \mb@t
+    \hbox to #1\unitlength{\mb@l #4\mb@r}%
+    \mb@b
+    \kern\z@}}
+
+%% [end of change]
+
+\newif\ifneg
+\def\@line(#1,#2)#3{\@xarg=#1 \@yarg=#2 \@len=#3\unitlength \leavevmode
+ \ifnum\@xarg<0 \reverseline \else \negfalse \@ydim=\z@\fi
+ \ifnum\@xarg=0 \@vline
+ \else\ifnum\@yarg=0 \@hline \else\@sline\fi\fi
+ \ifneg\kern-\@len\else\@save=\@ydim\fi}
+\def\reverseline{\negtrue \kern-\@len \@xarg=-\@xarg
+ \@ydim=\@len \multiply\@ydim\@yarg \divide\@ydim\@xarg \@yarg=-\@yarg}
+
+\def\@hline{\vrule height.5\linethickness depth.5\linethickness width\@len}
+\def\@vline{\kern-.5\linethickness\vrule width\linethickness
+  \ifnum\@yarg<0 height\z@ depth\else depth\z@ height\fi\@len
+  \kern-.5\linethickness}
+
+\def\@sline{\setbox\@picbox=\hbox{\linefont \count@=\@xarg \multiply\count@ 8
+ \ifnum\@yarg>0 \advance\count@\@yarg \advance\count@-9
+ \else \advance\count@-\@yarg \advance\count@ 55 \fi \char\count@}%
+ \ifnum\@yarg<0 \@picheight=-\ht\@picbox \advance\@ydim\@picheight
+ \else \@picheight=\ht\@picbox \fi
+ \@xdim=\wd\@picbox \@save=\@ydim
+ \loop\ifdim\@xdim<\@len \raise\@ydim\copy\@picbox
+  \advance\@xdim\wd\@picbox \advance\@ydim\@picheight \repeat
+ \advance\@xdim-\@len \kern-\@xdim
+ \multiply\@xdim\@yarg \divide\@xdim\@xarg \advance\@ydim-\@xdim
+ \raise\@ydim\box\@picbox}
+
+\def\vector(#1,#2)#3{\@line(#1,#2){#3}%
+ \ifnum\@xarg=0 \@vvector \else\ifnum\@yarg=0 \@hvector \else\@svector\fi\fi}
+\def\@hvector{\ifneg\rlap{\linefont\char27}\else
+ \smash{\llap{\linefont\char45}}\fi} % we have to smash because of font bug
+\def\@vvector{\ifnum\@yarg<0 \raise-\@len\rlap{\linefont\char63}%
+ \else\setbox\@picbox=\rlap{\linefont\char54}\advance\@len-\ht\@picbox
+ \raise\@len\box\@picbox\fi}
+
+\def\@svector{\setbox\@picbox=\hbox to\z@{\linefont
+ \ifnum\@yarg<0 \count@=55 \@yarg=-\@yarg \else\count@=-9 \fi
+ \ifneg\multiply\@xarg16 \multiply\@yarg2
+ \else\hss % \llap
+  \ifnum\@xarg>2 \multiply\@xarg9 \multiply\@yarg2 \advance\count@29
+  \else\ifnum\@yarg>2 \multiply\@xarg16 \multiply\@yarg9 \advance\count@-20
+   \else\multiply\@xarg24 \multiply\@yarg3 \fi\fi\fi
+  \advance\count@\@xarg \advance\count@\@yarg \char\count@
+  \ifneg\hss\fi}% \rlap
+ \raise\@save\box\@picbox}
+
+\def\disk#1{\@len=#1\unitlength \count@='160 \@diskcirc}
+\def\circle#1{\@len=#1\unitlength \count@='140 \@diskcirc}
+\def\@diskcirc{\setbox\@picbox=\hbox{\circlefont\char\count@}\@xdim=\wd\@picbox
+ \leavevmode \ifdim\@len>15.499\@xdim \@bigdc \else \@smalldc\fi}
+\def\@bigdc{\ifnum\count@<'160 \@bigcirc
+ \else \@len=15\@xdim \@diskcirc\fi}
+\def\@smalldc{{\advance\@len-.5\@xdim
+ \loop\ifdim\@xdim<\@len \advance\count@\@ne \advance\@xdim\wd\@picbox\repeat
+ \hbox{\circlefont\char\count@}}}
+\def\@bigcirc{{\circlefont\count@=15
+ \setbox\@picbox=\hbox{\char\count@}\@xdim=\wd\@picbox
+ \ifdim\@len>2.5\@xdim \@len=2.5\@xdim\fi
+ \advance\@len-.125\wd\@picbox
+ \loop\ifdim\@xdim<\@len \advance\count@ 4 \advance\@xdim.25\wd\@picbox\repeat
+ \@ydim=.5\@xdim \advance\@ydim.5\linethickness
+ \setbox\@picbox=\vbox{\hbox{\char\count@\advance\count@-3\char\count@}%
+  \nointerlineskip
+  \hbox{\advance\count@\m@ne\char\count@\advance\count@\m@ne\char\count@}}%
+ \kern-\@ydim\lower\@ydim\box\@picbox}}
+
+\newif\ifovaltl \newif\ifovaltr \newif\ifovalbl \newif\ifovalbr
+\ovaltltrue \ovaltrtrue \ovalbltrue \ovalbrtrue
+\def\oval(#1,#2){\@xdim=#1\unitlength \@ydim=#2\unitlength
+ {\circlefont \setbox\@picbox=\hbox{\char0}
+ \ifdim\@xdim<\wd\@picbox \@xdim=\wd\@picbox\fi
+ \ifdim\@ydim<\wd\@picbox \@ydim=\wd\@picbox\fi
+ \@save=\@xdim \ifdim\@ydim<\@save \@save=\@ydim \fi
+ \count@=39
+ \loop \setbox\@picbox=\hbox{\char\count@}\ifdim\@save<\wd\@picbox
+  \advance\count@-4 \repeat
+ \setbox\strutbox=\hbox{\vrule height\ht\@picbox depth\dp\@picbox width\z@
+   \kern\wd\@picbox}%
+ \@save=.5\wd\@picbox \advance\@save-.5\linethickness
+ \setbox0=\hbox to\@xdim{\ifovaltl\char\count@\else\strut\fi
+  \kern-\@save\leaders\hrule height\ifovaltl\linethickness\else\z@\fi\hfil
+  \leaders\hrule height\ifovaltr\linethickness\else\z@\fi\hfil\kern\@save
+  \ifovaltr\advance\count@-3\char\count@\else\strut\fi\kern-\wd\@picbox}%
+  \advance\count@\m@ne
+ \setbox2=\hbox to\@xdim{\ifovalbl\char\count@\else\strut\fi
+  \kern-\@save\leaders\hrule height\ifovalbl\linethickness\else\z@\fi\hfil
+  \leaders\hrule height\ifovalbr\linethickness\else\z@\fi\hfil\kern\@save
+  \ifovalbr\advance\count@\m@ne\char\count@\else\strut\fi\kern-\wd\@picbox}%
+ \@save=\@ydim \advance\@save-\wd\@picbox \divide\@save 2
+ \setbox\@picbox=\vbox{\box0\nointerlineskip
+  \hbox to\@xdim{\vrule height\@save width\ifovaltl\linethickness\else\z@\fi
+    \hfil\ifovaltr\vrule width\linethickness\kern-\linethickness\fi}%
+  \nointerlineskip
+  \hbox to\@xdim{\vrule height\@save width\ifovalbl\linethickness\else\z@\fi
+    \hfil\ifovalbr\vrule width\linethickness\kern-\linethickness\fi}%
+  \nointerlineskip\box2}%
+  \@save=.5\@ydim \advance\@save.5\linethickness \leavevmode
+  \kern-.5\@xdim \kern-.5\linethickness \lower\@save\box\@picbox}}
+
+% ============================================================
+
+%% More picture environment tags, output by fig2dev
+
+
+%% The framebox tag was missing in DEK's code. Below is a copy from
+%% the 1994/06/01 version of ltboxes.dtx. Actually, we need only the
+%% \@framepicbox tag.
+
+% \DescribeMacro\framebox
+%  |\framebox| ...  : like |\makebox|, except it puts a `frame' around
+%            the box.  The frame is made of lines of thickness
+%            |\fboxrule|, separated by space |\fboxsep| from the
+%            text -- except for |\framebox(X,Y)| ... , where the
+%            thickness of the lines is as for the picture environment,
+%            and there is no separation added.
+
+\def\framebox(#1,#2){%
+  \@ifnextchar[{\@framebox(#1,#2)}{\@framebox(#1,#2)[]}%  ] (Emacs)
+  }
+\long\def\@framebox(#1,#2)[#3]#4{%
+  \frame{\makebox(#1,#2)[#3]{#4}}}
+
+\long\def\frame#1{%
+  \leavevmode
+  \hbox{%
+    \hskip-\linethickness
+    \vbox{%
+      \vskip-\linethickness
+      \hrule height\linethickness
+      \hbox{%
+        \vrule width\linethickness
+        #1%
+        \vrule width\linethickness}%
+      \hrule height\linethickness
+      \vskip -\linethickness}%
+    \hskip -\linethickness}}
+
+
+%% The dashbox tag was also missing. We copy it from ltpictur.dtx,
+%% 1994/05/22 v1.0e LaTeX Kernel (Picture Mode). The (missing)
+%% indentation is from there, not introduced by me. Sorry, but this
+%% must be emphasized.
+
+% \@wholewidth -> \linethickness
+% \@makepicbox -> \makebox
+
+\xfig@newdimen\@dashdim
+\xfig@newbox\@dashbox
+\xfig@newcount\@dashcnt
+
+\def\@whilenoop#1{}
+\def\@whilenum#1\do #2{\ifnum #1\relax #2\relax\@iwhilenum{#1\relax
+     #2\relax}\fi}
+\def\@iwhilenum#1{\ifnum #1\let\@nextwhile\@iwhilenum
+         \else\let\@nextwhile\@whilenoop\fi\@nextwhile{#1}}
+
+\def\dashbox#1(#2,#3){\leavevmode\hbox to\z@{\baselineskip \z@skip
+\lineskip \z@skip
+\@dashdim #2\unitlength
+\@dashcnt \@dashdim \advance\@dashcnt 200
+\@dashdim #1\unitlength\divide\@dashcnt \@dashdim
+\ifodd\@dashcnt\@dashdim \z@
+\advance\@dashcnt \@ne \divide\@dashcnt \tw@
+\else \divide\@dashdim \tw@ \divide\@dashcnt \tw@
+\advance\@dashcnt \m@ne
+\setbox\@dashbox \hbox{\vrule height \@halfwidth depth \@halfwidth
+width \@dashdim}\put(0,0){\copy\@dashbox}%
+\put(0,#3){\copy\@dashbox}%
+\put(#2,0){\hskip-\@dashdim\copy\@dashbox}%
+\put(#2,#3){\hskip-\@dashdim\box\@dashbox}%
+\multiply\@dashdim \thr@@
+\fi
+\setbox\@dashbox \hbox{\vrule height \@halfwidth depth \@halfwidth
+width #1\unitlength\hskip #1\unitlength}\count@\z@
+\put(0,0){\hskip\@dashdim \@whilenum \count@ <\@dashcnt
+\do{\copy\@dashbox\advance\count@ \@ne }}\count@\z@
+\put(0,#3){\hskip\@dashdim \@whilenum \count@ <\@dashcnt
+\do{\copy\@dashbox\advance\count@ \@ne }}%
+\@dashdim #3\unitlength
+\@dashcnt \@dashdim \advance\@dashcnt 200
+\@dashdim #1\unitlength\divide\@dashcnt \@dashdim
+\ifodd\@dashcnt \@dashdim \z@
+\advance\@dashcnt \@ne \divide\@dashcnt \tw@
+\else
+\divide\@dashdim \tw@ \divide\@dashcnt \tw@
+\advance\@dashcnt \m@ne
+\setbox\@dashbox\hbox{\hskip -\@halfwidth
+\vrule width \linethickness
+height \@dashdim}\put(0,0){\copy\@dashbox}%
+\put(#2,0){\copy\@dashbox}%
+\put(0,#3){\lower\@dashdim\copy\@dashbox}%
+\put(#2,#3){\lower\@dashdim\copy\@dashbox}%
+\multiply\@dashdim \thr@@
+\fi
+\setbox\@dashbox\hbox{\vrule width \linethickness
+height #1\unitlength}\count@\z@
+\put(0,0){\hskip -\@halfwidth \vbox{\@whilenum \count@ <\@dashcnt
+\do{\vskip #1\unitlength\copy\@dashbox\advance\count@ \@ne }%
+\vskip\@dashdim}}\count@\z@
+\put(#2,0){\hskip -\@halfwidth \vbox{\@whilenum \count@<\@dashcnt
+\do{\vskip #1\unitlength\copy\@dashbox\advance\count@ \@ne }%
+\vskip\@dashdim}}}\makebox(#2,#3)}
+
+
+% ============================================================
+
+%% Then we must supply the LaTeX tags that are inserted by fig2dev.
+
+% \setlength is the LaTeX PC way of setting a register.
+\def\setlength#1#2{#1=#2\relax}
+
+% --------------------------------------------------
+
+% \makeatletter is called to access private macros in the \SetFigFont
+% definition. Since we never expand that definition, we could ignore
+% the catcode change. But we should not define a macro with a nonsense
+% name...
+\ifx \makeatletter\undefined
+    \def\makeatletter{\catcode`\@=11 }  % <-- Space
+\fi
+
+% --------------------------------------------------
+
+% The real hassle in that macro file is the font switch code. Once
+% there was an interface, in transfig 2.1.7 & 2.1.8: A macro named
+% \SetFigFont was used to select the type for texts. The macro
+% definition itself is written by fig2dev, it is part of the figure
+% code.
+%
+% Then transfig 3 was released and the interface disappeared. There's
+% still the macro \SetFigFont and the macro definition is still
+% written by fig2dev, but it may be defined with 3 arguments or with 5
+% arguments, one cannot determine what's used. The second form is used
+% when NFSS is added to the defines of fig2dev and should be the
+% default. (After all, LaTeX2e subsumed NFSS.) The first form must be
+% used for LaTeX 2.09 w/OFSS.
+%
+% \SetFigFont is not defined if it is defined already when the figure
+% code is read. OK, one might think, let's define a plain TeX version.
+% (Actually, xfig.tex up to revision 1.3 did so.) But which interface
+% shall we use for our definition? In a typical installation one has
+% old documents with xfig pictures that were created with an old
+% fig2dev, we must therefore support the three-arg-variant. Newly
+% created figures will use the five-arg-variant, though. There is no
+% obvious way to determine which variant will be used in the
+% respective figure.
+
+% Please note that the information above -- and the one below about
+% the actual possible interfaces of \SetFigFont -- was determined by
+% looking at the output of example files and the code in setfigfont.c
+% and texfonts.h, as not even the comments in these files got updated
+% when the new \SetFigFont interface was introduced. (Sigh.)
+%
+% The changes were not even marked in the list of changes, I learned
+% about them when folks from the Net sent me complaints about revision
+% 1.1 of xfig.tex. (I hadn't installed xfig 3 at this time.)
+%
+% Do I really have to tell you what I think about these kinds of
+% changes, in terms of software quality? (Don't ask me when I'm in a
+% bad mood if you want polite answers.)
+
+% Well, here's the solution: As told above, I've analyzed the possible
+% expansions of \SetFigFont. I'll define macros for every cseq that's
+% in the expansion, one of these macros will bind \SetFigFont to
+% \SetFigFontOFSS or \SetFigFontNFSS, respectively. Let's have a look:
+%
+% OFSS: evaluates \@setsize. This macro has supposed to have 4
+% arguments (type, baselineskip, font-setup, font-setup). Then the
+% type specifier is evaluated by a \csname. Passing nothing there will
+% effectively be a nop.
+%
+% NFSS: The \SetFigfont expansion uses more cseqs, but is more
+% regular, too. We may supply empty expansions for everything that
+% shall setup the font parameters: \reset@font, \fontsize (2 args),
+% \fontfamily & \fontseries & \fontshape (each 1 arg). Then
+% \selectfont is evaluated, here we bind the appropriate expansion of
+% \SetFigFont.
+
+% Now we may setup the macro definitions, evaluate one pseudo
+% \SetFigFont and \SetFigFont will be bound to the correct expansion.
+%
+% The first argument must be a number, as the OFSS \SetFigFont version
+% assigns it to a count register.
+\def\xfig@bindSetFigFont{%
+    % OFSS
+    \def\@setsize##1##2##3##4{\let\SetFigFont\SetFigFontOFSS}%
+    % NFSS
+    \let\reset@font\relax
+    \def\fontsize##1##2{}%
+    \def\fontfamily##1{}%
+    \def\fontseries##1{}%
+    \def\fontshape##1{}%
+    \def\selectfont{\let\SetFigFont\SetFigFontNFSS}%
+    % Now bind correct \SetFigFont by evaluating \SetFigFont.
+    \SetFigFont{0}{}{}{}{}%
+    }
+
+% --------------------------------------------------
+
+% The interface of \SetFigFontOFSS:
+%   #1 is the size (w/o pt),
+%   #2 the baselineskip (w/o pt),
+%   #3 a plain TeX type specifier.
+%      If #3 is empty we assume that a default font should be taken.
+%      This default font can be named by \FigFontDefault. Note, that
+%      this parameter is not empty if you choose the font `Default' in
+%      xfig. You have to chang texfonts.h accordingly. I did it
+%      already for 2.1.7 and sent the diffs to the maintainer, but
+%      obviously he dumped them since they did not appear in 3.x.
+%
+% It's a pity, that we can't use the plain TeX type specifier. We
+% demand an appropriate font scaled to the correct size. This is not
+% the best solution, but nowadays most DVI drivers generate the fonts on
+% the fly anyhow.
+
+\def\FigFontDefault{cmr10}
+\def\FigFontType{\FigFontDefault\space}
+\def\FigFontTyperm{cmr10}
+\def\FigFontTypebf{cmbx10}
+\def\FigFontTypeit{cmti10}
+\def\FigFontTypesf{cmss10}
+\def\FigFontTypett{cmtt10}
+\def\SetFigFontOFSS#1#2#3{%
+    \font\FigFont \csname FigFontType#3\endcsname\space at #1pt
+    \FigFont
+    \baselineskip #2pt\relax
+    }
+
+% The interface of \SetFigFontNFSS:
+%   #1 is the size (w/o pt),
+%   #2 the baselineskip (w/o pt),
+%   #3 the NFSS font family (as a cseq),
+%   #4 the NFSS font series (as a cseq), and
+%   #5 the NFSS font shape (as a cseq).
+%
+% The current font state is reset before the arguments take effect.
+% The call to \SetFigFont doesn't use the full possibilities of NFSS;
+% only fixed combinations of arguments are supplied, as xfig itself
+% knows only about a fixed set of fonts (default, roman, bold, italic,
+% sans serif, and typewriter).
+
+% We map that interface back to the one of \SetFigFontOFSS. To do that
+% we redefine the NFSS font specifiers locally to create plain TeX
+% font specifiers. That's mostly easy, medium density (`md') series
+% and upright (`up') shape are ignored in plain anyhow. The default is
+% explicitely specified by \familydefault, we don't need to infer it.
+% But there is one exception: bold is specified as `roman bold', ie,
+% as `rmbf'. For that exception we just define a new FigFontType macro.
+
+\def\FigFontTypermbf{\FigFontTypebf}
+\def\SetFigFontNFSS#1#2#3#4#5{%
+    \begingroup
+        \let\familydefault\empty
+        \def\rmdefault{rm}%
+        \def\sfdefault{sf}%
+        \def\ttdefault{tt}%
+        \let\mddefault\empty
+        \def\bfdefault{bf}%
+        \let\updefault\empty
+        \def\itdefault{it}%
+        \xdef\FigFontSpec{#3#4#5}%
+    \endgroup
+    \SetFigFontOFSS{#1}{#2}{\FigFontSpec}%
+    }
+
+% --------------------------------------------------
+
+% Environments are enclosed in \begin{foo} ... \end{foo}.
+% I don't check if the call is ok -- this file is specific for
+% machine-generated code, that shall be correct by definition.
+%
+% We need to setup the correct \SetFigFont binding, as explained above.
+% And let's evaluate a hook to enable document specific adaptions.
+
+\def\begin#1{%
+    \begingroup
+        \def\end##1{%
+                \csname end##1\endcsname
+            \endgroup
+            }%
+        \xfig@bindSetFigFont
+        \csname #1Hook\endcsname
+        \csname begin#1\endcsname
+    }
+
+
+% ============================================================
+
+\catcode`\@=\CatAtCode
+
+\endinput
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% $Log: xfig.tex,v $
+% Revision 1.4  1995/05/07  16:52:05  schrod
+%     Determine \SetFigFont variant automatically. \OldXfig is not
+% looked at any more, \SetFigFontOld and \SetFigFontNew are renamed to
+% \SetFigFontOFSS and \SetFigFontNFSS.
+%
+% Revision 1.3  1995/04/17  00:01:08  schrod
+%     Don't allocate registers anew if xfig.tex is read in the second
+% time.
+%
+% Revision 1.2  1995/03/16  01:15:51  schrod
+%     Support output of transfig 3.1.1.
+%
+% Revision 1.1  1995/03/13  23:18:15  schrod
+%     Started to manage this package with CVS. Made minor code cleanup.
+%
+
+% 94-06-10 js  Initial revision.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Local Variables:
+mode: plain-tex
+TeX-master: t
+TeX-brace-indent-level: 4
+page-delimiter: "^% ==*$"
+End:

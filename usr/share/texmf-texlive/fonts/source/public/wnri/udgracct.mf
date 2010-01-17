@@ -1,0 +1,43 @@
+%
+% Washington Romanized Indic accent driver
+%
+% Macros to draw combination grave accent and underdot
+%
+
+cmchar "Dot accent";
+numeric dot_diam#; dot_diam#=max(dot_size#,cap_curve#);
+beginchar(oct"137",5u#,min(asc_height#,10/7x_height#+.5dot_diam#),0);
+define_whole_blacker_pixels(dot_diam);
+italcorr h#*slant+.5dot_diam#-2u#;
+adjust_fit(0,0);
+pickup tiny.nib; pos1(dot_diam,0); pos2(dot_diam,90);
+x1=x2=.5w; top y2r=h+1;
+if bot y2l<x_height+o+slab: y2l:=min(y2r-eps,x_height+o+slab+.5tiny); fi
+y1=.5[y2l,y2r]; dot(1,2);  % dot
+transform Tf; Tf = identity shifted (-.5w+ slant*(-h-.325desc_depth),aspect_ratio*(-h-.325desc_depth));
+savePicture(UdotPic); 
+endgroup;
+
+cmchar "Grave accent";
+beginchar(oct"022",9u#,min(asc_height#,2x_height#),0);
+adjust_fit(0,0);
+if serifs: pickup crisp.nib; x1-.5stem=hround 2u; x2=2/3[x1,w-x1];
+ y1+.5stem=h+eps; y2=max(2/3[h,x_height],x_height+o+hair);
+ numeric theta; theta=angle(z2-z1)+90;
+ pos1(stem,theta); pos2(hair,theta);
+ filldraw circ_stroke z1e--z2e;  % diagonal
+else: pickup fine.nib; pos1(stem,0); pos2(vair,0);
+ lft x1l=hround 1.5u; rt x2r=hround(.5w+.25u+.5vair);
+ top y1=h; bot y2=vround 2/3[h,x_height];
+ filldraw stroke z1e--z2e; fi  % diagonal
+makeACCENT(GravePic);
+endgroup;
+
+extra_endchar:=
+  " czu ap(GravePic);  czdm ap(UdotPic); ah; oechar; ";
+
+boolean dotson; dotson=false; % omit dots on i, j, and possibly etc.
+def cp = udgr enddef;
+
+% end of file udgracct.mf
+

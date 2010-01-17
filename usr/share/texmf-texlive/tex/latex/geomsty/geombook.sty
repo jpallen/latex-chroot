@@ -1,0 +1,249 @@
+% $Header: /a/tampa/h/tampa_a/fac/levy/texts/geombook/RCS/geombook.sty,v 1.13 94/07/22 09:55:37 levy Exp Locker: levy $
+
+%
+% This is the geom style book file, by Silvio Levy.
+% It contains modifications to book.sty of <24 Nov 89>.
+%
+% \typeout{Reading geombook.sty $Revision: 1.13 $ (changes to book.sty)}
+
+%  Marginpars go on right side of page.
+
+\@mparswitchfalse  
+
+% Input size-dependent information.  \@ptsize.sty is defined in book.sty.
+
+\input geombk1\@ptsize.sty\relax
+
+% Layout parameters
+
+\tolerance 1000
+\clubpenalty 10000
+\widowpenalty 10000
+\hfuzz=.1pt
+
+% syntatic sugar for \includeonly
+% \chap1{34} expands to chap1/1.3,chap1/1.4
+
+\def\chap#1#2{\ch@p#1#2!}
+\def\ch@p#1#2{\if#2!\else chap#1/#1.#2,\expandafter\ch@p\expandafter#1\fi}
+
+% First two levels of enumerations are (a) and (i), respectively,
+% rather than 1. and (a).
+
+\let\@@currentlabel\relax  %assign initial value
+
+\def\labelenumi{\theenumi}
+\def\theenumi{(\alph{enumi})}
+\def\p@enumi{\@@currentlabel}
+
+\def\labelenumii{\theenumii}
+\def\theenumii{(\roman{enumii})}
+\def\p@enumii{\@@currentlabel}
+
+\def\p@enumiii{\@@currentlabel}
+
+\def\p@enumiv{\@@currentlabel}
+
+% Less space around contents of \fbox (2pt instead of 3pt)
+
+\fboxsep = 2pt 
+
+% mess with \addcontentsline; \chapheadsize instead of \Huge
+
+\def\@part[#1]#2{\ifnum \c@secnumdepth >-2\relax  % IF secnumdepth > -2
+        \refstepcounter{part}                     %   THEN step part counter
+        \def\@tempa{\addcontentsline{toc}{part}}  %
+        \expandafter\@tempa\expandafter{\thepart  %        add toc line
+          \hspace{1em}#1}\else                    %   ELSE add unnumbered line
+        \addcontentsline{toc}{part}{#1}\fi        % FI
+   \markboth{}{}
+   {\centering                       
+    \ifnum \c@secnumdepth >-2\relax  % IF secnumdepth > -2
+      \huge\bf Part \thepart         %   THEN Print 'Part' and number
+    \par                             %         in \huge bold.
+    \vskip 20pt \fi                  %        Add space before title.
+    \chapheadsize \bf                % FI
+    #2\par}\@endpart}                
+
+\def\@spart#1{\ifnum \c@secnumdepth >-2\relax      % IF secnumdepth > -2
+        \def\@tempa{\addcontentsline{toc}{spart}}  %
+        \expandafter\@tempa\expandafter{#1}\else   %   ELSE add unnumbered line
+        \addcontentsline{toc}{spart}{#1}\fi        % FI
+        {\centering \chapheadsize \bf #1\par}\@endpart}
+
+% No explicit \@mkboth needed in \tableofcontents 
+% marks are automatically added by \chapter*
+
+\@ifundefined{contentsname}{\def\contentsname{Contents}}{}
+\def\tableofcontents{\@restonecolfalse\if@twocolumn\@restonecoltrue\onecolumn
+ \fi{\starredcontentsfalse\chapter*{\contentsname}}%
+ \@starttoc{toc}\if@restonecol\twocolumn\fi}
+
+% Contents line for chapter
+
+\def\l@chapter#1#2{\addpenalty{-\@highpenalty}  
+   \vskip 1.0em plus 1pt  % space above chapter line
+   \@tempdima 1.5em       % width of box holding chapter number
+   \begingroup
+     \def\\{\unskip\ \ignorespaces} % deal with \\ in chapter titles --SL
+     \hyphenpenalty10000            % prohibit hyphenation --SL
+     \parindent \z@ 
+     \rightskip \@pnumwidth plus 3em  % allow ragged right
+     \parfillskip -\rightskip         % when line wraps around --SL
+     \hangindent 1.5em    % hangindent is same as l@section below --SL
+     \bf                  % Boldface.
+     \leavevmode          % TeX command to enter horizontal mode.       
+      \advance\leftskip\@tempdima  %% added 5 Feb 88 to conform to 
+      \hskip -\leftskip            %% 25 Jan 88 change to \numberline
+     #1\nobreak\hfil \nobreak\hbox to\@pnumwidth{\hss #2}\par
+     \penalty\@highpenalty %% added 24 May 89 as suggested by J. Leichter
+   \endgroup}
+
+% Contents line for part is the same as for chapter
+
+\let\l@part\l@chapter
+\let\l@spart\l@chapter
+
+\let\l@schapter\l@chapter
+\def\l@ssection{\@dottedtocline{1}{1.5em}{0em}}
+\def\l@ssubsection{\@dottedtocline{2}{3.8em}{0em}}
+\def\l@ssubsubsection{\@dottedtocline{3}{7.0em}{0em}}
+\def\l@sparagraph{\@dottedtocline{4}{10em}{0em}}
+\def\l@ssubparagraph{\@dottedtocline{5}{12em}{0em}}
+
+% No explicit \@mkboth needed in \listoffigures \listoftables \thebibliography
+% marks are automatically added by \chapter*
+
+\@ifundefined{listfigurename}{\def\listfigurename{List of Figures}}{}
+\@ifundefined{listtablename}{\def\listtablename{List of Tables}}{}
+\def\listoffigures{\@restonecolfalse\if@twocolumn\@restonecoltrue\onecolumn
+ \fi\chapter*{\listfigurename}\@starttoc{lof}\if@restonecol
+ \twocolumn\fi}
+
+\def\listoftables{\@restonecolfalse\if@twocolumn\@restonecoltrue\onecolumn
+ \fi\chapter*{\listtablename}\@starttoc{lot}\if@restonecol
+ \twocolumn\fi}
+
+% no indentation for figure contents line, since there are
+% no higher-level entries
+
+\def\l@figure{\@dottedtocline{1}{0em}{2.3em}}
+\let\l@table\l@figure
+
+\@ifundefined{bibname}{\def\bibname{Bibliography}}{}
+\def\thebibliography#1{\chapter*{\bibname}\list
+ {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}\leftmargin\labelwidth
+ \advance\leftmargin\labelsep
+ \usecounter{enumi}}
+ \def\newblock{\hskip .11em plus .33em minus .07em}
+ \sloppy\clubpenalty4000\widowpenalty4000
+ \sfcode`\.=1000\relax}
+
+% Index uses two columns and smaller type.
+
+\@ifundefined{indexname}{\def\indexname{Index}}{}
+\def\theindex{\begingroup\chapter*{\indexname}\small
+    \parindent\z@
+    \parskip\z@ plus .3pt\relax\let\item\@idxitem
+    \begin{multicols}2}
+\def\endtheindex{\end{multicols}\endgroup}
+
+\def\glo#1{${}^{\dagger}$#1\index{\dag #1}}
+
+\@ifundefined{glossaryname}{\def\glossaryname{Glossary}}{}
+\newenvironment{theglossary}%
+  {\begingroup\chapter*{\glossaryname}\small
+    \begin{multicols}2}%
+  {\end{multicols}\endgroup}
+\def\entry{\medbreak\@ifnextchar[{\entry@}{\entry@@}}
+\def\entry@@#1{\par\noindent{\bf #1.}\enspace\ignorespaces}
+\def\entry@[#1]#2{\par\noindent{\bf #2} #1.\enspace\ignorespaces}
+
+% Indentation in index is smaller (12pt instead of 40pt)
+
+\def\@idxitem{\par\hangindent 12pt}
+
+% Allow more of the page to be taken by figures.
+
+\def\bottomfraction{.7}
+\def\floatpagefraction{.7}
+
+% Captions at set with a width somewhat smaller than the main text width
+
+\newdimen\@captionmargin\@captionmargin=\parindent
+\newdimen\@captionwidth %not set here because depends on hsize
+
+% left and right footers (normally set by RCS)
+
+\def\leftfoot{{}}
+\def\rightfoot{{}}
+
+% Definition of 'headings' page style.  
+
+\def\ps@headings{\let\@mkboth\markboth
+  \def\@oddfoot{\ifproofing\leftfoot\hfil\rightfoot\else\hfil\fi}%
+  \def\@evenfoot{\ifproofing\leftfoot\hfil\rightfoot\else\hfil\fi}%
+  \def\@evenhead{\footnotesize\rm\thepage\hfil\leftmark}%      Left heading.
+  \def\@oddhead{\footnotesize\rm\hbox{}\rightmark\hfil\thepage}%Right heading
+  \def\chaptermark##1{{%  Expand the \ifnum, not the ##1
+    \edef\@tempa{\ifnum \c@secnumdepth >\m@ne \@chapapp\ \thechapter. \fi}%
+    \expandafter \markboth \expandafter{\@tempa ##1}{}}}%
+  \def\schaptermark##1{\markboth {##1}{##1}}%
+  \def\ssectionmark##1{\markbothsame{##1}}%
+  \def\sectionmark##1{{%  Expand the \ifnum, not the ##1
+    \edef\@tempa{\ifnum \c@secnumdepth >\z@ \thesection. \fi}%
+    \expandafter \markright \expandafter{\@tempa ##1}}}}
+
+% footline in \ps@plain and \ps@chapter gets no page number
+
+\def\ps@chapter{\let\@mkboth\markboth
+  \def\@oddfoot{\ifproofing\leftfoot\hfil\rightfoot\else\hfil\fi}%
+  \def\@evenfoot{\ifproofing\leftfoot\hfil\rightfoot\else\hfil\fi}%
+  \def\@evenhead{\hfil}\def\@oddhead{\hfil}}
+
+\def\ps@plain{\let\@mkboth\@gobbletwo
+     \def\@oddhead{}\def\@oddfoot{}%
+     \def\@evenhead{}\let\@evenfoot\@oddfoot}
+
+% Put the new \ps@headings into effect.
+
+\ps@headings
+
+% $Log:	geombook.sty,v $
+%Revision 1.13  94/07/22  09:55:37  levy
+%\contentsname etc.
+%
+%Revision 1.12  1994/05/11  17:07:26  levy
+%*** empty log message ***
+%
+%Revision 1.11  1994/05/08  06:05:01  levy
+%schapter etc.
+%
+%Revision 1.10  1994/04/27  07:15:50  levy
+%ssectionmark
+%
+%Revision 1.9  1994/04/08  22:04:06  levy
+%initial value for @@currentlabel
+%
+%Revision 1.8  92/07/17  13:44:19  levy
+%*** empty log message ***
+%
+%Revision 1.7  92/07/13  21:54:25  levy
+%further cleaned up the environments
+%
+%Revision 1.6  92/07/13  08:46:31  levy
+%theoremSt -> Theorem
+%
+%Revision 1.5  92/06/18  16:55:56  levy
+%footers in chapter openers
+%caption width error
+%
+%Revision 1.4  92/04/07  09:09:09  levy
+%*** empty log message ***
+%
+%Revision 1.3  1992/03/20  22:39:40  levy
+%*** empty log message ***
+%
+%Revision 1.2  1992/03/20  19:17:42  levy
+%*** empty log message ***
+%

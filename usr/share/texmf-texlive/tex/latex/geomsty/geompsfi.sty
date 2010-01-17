@@ -1,0 +1,632 @@
+% $Header: /usr/home/levy/texts/geomsty/RCS/geompsfi.sty,v 1.18 95/12/06 13:40:51 levy Exp $
+
+% This is geompsfig.sty, based on psfig.tex by Trevor Darrell (as
+% modified by Stefan Bechtoslheim).
+%
+% It works with Latex and plain TeX (normally under the name geompsfi.tex).
+% Thanks to Ket Richter for working out the changes for Plain tex.
+
+% Copyright 1991, 1992, 1993 Silvio Levy
+
+% This file is part of the Geom Latex style files.  It is distributed in
+% the hope that it will be useful, but WITHOUT ANY WARRANTY.  The author
+% makes no representation as to its suitability for any purpose.
+
+% Permission is granted for use and non-profit distribution of this 
+% file provided that this notice is clearly maintained. The right to
+% distribute this file for profit or as part of any commercial
+% product is specifically reserved for the author.  If you make
+% changes to this file you cannot distribute it under the same name,
+% but you can distribute it under a different name provided it is not
+% for profit of as part of a commercial product, and provided that the
+% copyright line above and this notice are clearly maintained.
+
+% This version assumes that dimensions read from a PostScript file or
+% from a .lab file are in bp (big points).  Dimensions found in the
+% source TeX file (as in \psfig{...,height=2in}) are true dimensions
+% (that is, are not scaled pt -> bp).  This is all as it should be.
+
+\edef\atcatcode{\the\catcode`\@}
+\catcode`@=11 
+
+\newif\ifoldlabels \oldlabelsfalse
+\expandafter\ifx\csname @ifundefined\endcsname\relax 
+\long\def\@ifundefined#1#2#3{\expandafter\ifx\csname
+  #1\endcsname\relax#2\else#3\fi}
+\def\@iden#1{#1}
+%\newdimen\@tempdima
+\alloc@1\dimen\dimendef\insc@unt\@tempdima
+\def\@warning#1{\message{Warning: #1.}}
+\fi
+
+\@ifundefined{ps@init}{}{\endinput}
+
+\@ifundefined{hyperactivelabels}{\let\hyperactivelabels\relax}{}
+
+\newif\if@topspecials %false for Rokicki's dvips: \special is at bottom of box
+                      % true for dvitps, dvi2ps
+
+\input driver.chg % driver-dependent definitions (generally a symlink)
+
+\newcount\psfc@a
+\newcount\psfc@b
+\newcount\psfc@c
+\newcount\psfc@d
+\newcount\psfc@e
+\newcount\psfc@f
+\newcount\psfc@g
+\newcount\psfc@h
+\newcount\psfc@i
+\newcount\psfc@j
+\newcount\psscale@count
+\newtoks\psfigtoks@
+% A dimension register for temporarily storing a dimension in
+% \@pDimenToSpNumber.
+\newdimen\psfig@dimen
+%
+%\newwrite\@unused
+%\def\typeout#1{{\let\protect\string\immediate\write\@unused{#1}}}
+
+% Identifying message is here.
+% \typeout{psfig/tex 1.4.gcg / TeXPS}\fi
+%
+% @psdo control structure -- similar to Latex @for.
+% I redefined these with different names so that psfig can
+% be used with TeX as well as LaTeX, and so that it will not 
+% be vunerable to future changes in LaTeX's internal
+% control structure.
+\def\@nnil{\@nil}
+\def\@empty{}
+\def\@psdonoop#1\@@#2#3{}
+\def\@psdo#1:=#2\do#3{\edef\@psdotmp{#2}\ifx\@psdotmp\@empty \else
+    \expandafter\@psdoloop#2,\@nil,\@nil\@@#1{#3}\fi}
+\def\@psdoloop#1,#2,#3\@@#4#5{\def#4{#1}\ifx #4\@nnil \else
+       #5\def#4{#2}\ifx #4\@nnil \else#5\@ipsdoloop #3\@@#4{#5}\fi\fi}
+\def\@ipsdoloop#1,#2\@@#3#4{\def#3{#1}\ifx #3\@nnil 
+       \let\@nextwhile=\@psdonoop \else
+      #4\relax\let\@nextwhile=\@ipsdoloop\fi\@nextwhile#2\@@#3{#4}}
+\def\@tpsdo#1:=#2\do#3{\xdef\@psdotmp{#2}\ifx\@psdotmp\@empty \else
+    \@tpsdoloop#2\@nil\@nil\@@#1{#3}\fi}
+\def\@tpsdoloop#1#2\@@#3#4{\def#3{#1}\ifx #3\@nnil 
+       \let\@nextwhile=\@psdonoop \else
+      #4\relax\let\@nextwhile=\@tpsdoloop\fi\@nextwhile#2\@@#3{#4}}
+% 
+\def\psdraft{%
+  \def\@psdraft{0}
+  %\typeout{draft level now is \@psdraft \space.}
+}
+\def\psfull{%
+  \def\@psdraft{100}
+  %\typeout{draft level now is \@psdraft \space.}
+}
+\psfull
+\newif\if@prologfile
+\newif\if@postlogfile
+\newif\if@noisy
+\def\pssilent{%
+  \@noisyfalse
+}
+\def\psnoisy{%
+  \@noisytrue
+}
+%\psnoisy
+\pssilent
+% These are for the option list: 
+%  a specification of the form a = b maps to calling \@p@@sa{b}.
+\newif\if@bbllx
+\newif\if@bblly
+\newif\if@bburx
+\newif\if@bbury
+\newif\if@height
+\newif\if@width
+\newif\if@rheight
+\newif\if@rwidth
+\newif\if@clip
+\newif\if@proportional
+\newif\if@scale
+\newif\if@verbose
+\def\@p@@sclip#1{\@cliptrue}
+\def\@p@@sproportional#1{\@proportionaltrue}
+\def\@p@@sfile#1{% 
+  %\typeout{file is #1}
+  \def\@p@sfile{#1.ps}% 
+  \def\@labfile{#1.lab}% 
+}
+\def\@p@@sfigure#1{% 
+  \def\@p@sfile{#1.ps}% 
+  \def\@labfile{#1.lab}% 
+}
+% \@pDimenToSpNumber
+% ==================
+% Convert a dimension into scaled points.
+% #1: the name of macro which will expand to the dimension in
+%     scaled points, without the unit 'sp' though, i.e. as a pure
+%     integer.
+% #2: the dimension (not a dimension register, use
+%     \the if dimension is stored in a dimension register).
+\def\@pDimenToSpNumber #1#2{% 
+  \psfig@dimen = #2\relax
+  \edef#1{\number\psfig@dimen}%
+}
+\def\@p@@sbbllx#1{% 
+  %\typeout{bbllx is #1}
+  \@bbllxtrue
+  \@pDimenToSpNumber{\@p@sbbllx}{#1}% 
+}
+\def\@p@@sbblly#1{% 
+  %\typeout{bblly is #1}
+  \@bbllytrue
+  \@pDimenToSpNumber{\@p@sbblly}{#1}% 
+}
+\def\@p@@sbburx#1{%
+  %\typeout{bburx is #1}
+  \@bburxtrue
+  \@pDimenToSpNumber{\@p@sbburx}{#1}% 
+}
+\def\@p@@sbbury#1{%
+  %\typeout{bbury is #1}
+  \@bburytrue
+  \@pDimenToSpNumber{\@p@sbbury}{#1}% 
+}
+\def\@p@@sheight#1{%
+  \@heighttrue
+  \@pDimenToSpNumber{\@p@sheight}{#1}% 
+  %\typeout{Height is \@p@sheight}
+}
+\def\@p@@swidth#1{%
+  %\typeout{Width is #1}
+  \@widthtrue
+  \@pDimenToSpNumber{\@p@swidth}{#1}% 
+}
+\def\@p@@srheight#1{%
+  %\typeout{Reserved height is #1}
+  \@rheighttrue
+  \@pDimenToSpNumber{\@p@srheight}{#1}% 
+}
+\def\@p@@srwidth#1{%
+  %\typeout{Reserved width is #1}
+  \@rwidthtrue
+  \@pDimenToSpNumber{\@p@srwidth}{#1}% 
+}
+\def\@p@@ssilent#1{% 
+  \@verbosefalse
+}
+\def\@p@@sscale #1{% 
+  \def\@p@scale{#1}%
+  \@scaletrue
+}
+
+\def\@p@@sprolog#1{\@prologfiletrue\def\@prologfileval{#1}}
+\def\@p@@spostlog#1{\@postlogfiletrue\def\@postlogfileval{#1}}
+\def\@cs@name#1{\csname #1\endcsname}
+\def\@setparms#1=#2,{\def\@tempa{#2}\ifx\@tempa\@empty
+  \@warning{bad syntax (missing = or extra comma) in argument of \string\psfig}%
+  \else\@@setparms#1=#2,\fi}
+\def\@@setparms#1=#2=,{\@cs@name{@p@@s#1}{#2}}
+%
+% Initialize the defaults.
+%
+\def\ps@init@parms{%
+  \@bbllxfalse \@bbllyfalse
+  \@bburxfalse \@bburyfalse
+  \@heightfalse \@widthfalse
+  \@rheightfalse \@rwidthfalse
+  \@scalefalse
+  \def\@p@sbbllx{}\def\@p@sbblly{}%
+  \def\@p@sbburx{}\def\@p@sbbury{}%
+  \def\@p@sheight{}\def\@p@swidth{}%
+  \def\@p@srheight{}\def\@p@srwidth{}%
+  \def\@p@sfile{}%
+  \def\@labfile{}%
+  \def\@p@scost{10}%
+  \def\@sc{}%
+  \@prologfiletrue
+  \@postlogfilefalse
+  \@clipfalse
+  \@proportionalfalse
+  \if@noisy
+    \@verbosetrue
+  \else
+    \@verbosefalse
+  \fi
+}
+%
+% Go through the options setting things up.
+%
+\def\parse@ps@parms#1{%
+   \@psdo\@psfiga:=#1\do
+     {\expandafter\@setparms\@psfiga=,}% 
+}
+
+\newif\ifno@file
+\newif\ifno@bb
+\newif\ifnot@eof
+\newif\if@bbmatch
+\newif\if@crematch
+\newif\ifmathematica
+\newif\ifillustrator
+\newread\ps@stream
+\newread\lab@stream
+\newcount\@linecount
+\newcount\maxheaderlines
+\maxheaderlines=100
+
+%
+% Scan header of file, looking for ``BoundingBox'' and ``Creator'' lines
+%
+\def\scan@header{%
+  \openin\ps@stream=\@p@sfile
+  \openin\lab@stream=\@labfile
+  \ifeof\ps@stream
+    \relax %needed so the \@warning won't cause trouble
+    \@warning{cannot open \@p@sfile}
+    \no@filetrue
+  \else
+    \not@eoftrue
+    \ifno@bb \@bbmatchfalse \else \@bbmatchtrue \fi
+    \@crematchfalse
+    \catcode`\%=12
+    \catcode`\:=12 % in case punctuation is active (e.g., under french.sty)
+    \@linecount=\maxheaderlines
+    \loop
+      \read\ps@stream to \line@in
+      \global\psfigtoks@=\expandafter{\line@in}
+      \ifeof\ps@stream \not@eoffalse \fi
+      %\typeout{ looking at :: \the\psfigtoks@ }
+      \if@bbmatch \else \@bbtest{\psfigtoks@} \fi
+      \if@crematch \else \@cretest{\psfigtoks@} \fi
+      \if@crematch \if@bbmatch \not@eoffalse \fi \fi
+      \advance\@linecount-1
+      \ifnum\@linecount=0 \not@eoffalse \fi
+    \ifnot@eof \repeat
+  \fi
+  \catcode`\%=14
+}  
+
+% '% ' becomes a regular character for a very short time.
+{ 
+  \catcode`\%=12
+  \catcode`\:=12
+  \gdef\@bbtest#1{\expandafter\@bb@\the#1%%BoundingBox:\@bbtest\@bb@}
+  \global\long\def\@bb@#1%%BoundingBox:#2#3\@bb@{\ifx\@bbtest#2
+    \else\@bbmatchtrue\expandafter\bb@cull\the\psfigtoks@\fi}
+
+  \gdef\@cretest#1{\expandafter\@cre@\the#1%%Creator:\@cretest\@cre@}
+  \global\long\def\@cre@#1%%Creator:#2#3\@cre@{\ifx\@cretest#2
+    \else\@crematchtrue\@mathtest{\psfigtoks@}\@illtest{\psfigtoks@}\fi}
+}
+
+%
+% Takes action if ``Creator'' line contains ``Mathematica'' or ``Illustrator''
+%
+\def\@mathtest#1{\expandafter\@math@\the#1Mathematica\@mathtest\@math@}
+\long\def\@math@#1Mathematica#2#3\@math@{\ifx\@mathtest#2
+    \else\mathematicatrue \fi}
+
+\def\@illtest#1{\expandafter\@ill@\the#1Illustrator\@illtest\@ill@}
+\long\def\@ill@#1Illustrator#2#3\@ill@{\ifx\@illtest#2
+    \else\illustratortrue \fi}
+
+\def\bb@cull#1:{\expandafter\bb@@cull\@iden}
+\long\def\bb@@cull#1 #2 #3 #4 {%
+  \@pDimenToSpNumber{\@p@sbbllx}{#1bp}%
+  \@pDimenToSpNumber{\@p@sbblly}{#2bp}%
+  \@pDimenToSpNumber{\@p@sbburx}{#3bp}%
+  \@pDimenToSpNumber{\@p@sbbury}{#4bp}%
+  \no@bbfalse
+}
+
+% Compute \@bbw and \@bbh, the width and height of the
+% bounding box.
+\def\compute@bb{%
+  \no@bbfalse
+  \if@bbllx \else \no@bbtrue \fi
+  \if@bblly \else \no@bbtrue \fi
+  \if@bburx \else \no@bbtrue \fi
+  \if@bbury \else \no@bbtrue \fi
+  \scan@header 
+  \ifno@file
+  \else
+    \ifno@bb
+      \@warning{no bounding box found in \@p@sfile}
+      \no@filetrue
+    \else
+  % Now compute the size of the bounding box.
+      \psfc@c=\@p@sbburx
+      \psfc@b=\@p@sbbury
+      \advance\psfc@c by -\@p@sbbllx
+      \advance\psfc@b by -\@p@sbblly
+      \edef\@bbw{\number\psfc@c}
+      \edef\@bbh{\number\psfc@b}
+      %\typeout{\string\compute@bb: bbh = \@bbh, bbw = \@bbw}
+    \fi
+  \fi
+}
+
+%
+% \in@hundreds performs #1 * (#2 / #3) correct to the hundreds,
+%    then leaves the result in \@result.
+%
+% note: #3 should be a big number, or a multiple of 10.
+%
+\def\in@hundreds #1#2#3{% 
+  \psfc@g=#2
+  \psfc@d=#3
+  \divide\psfc@d 10
+  \psfc@a=\psfc@g  % First two digits #2/#3.
+  \divide\psfc@a by \psfc@d
+  \psfc@f=\psfc@a
+  \multiply\psfc@f by \psfc@d
+  \advance\psfc@g by -\psfc@f
+  \multiply\psfc@g by 10
+  \psfc@f=\psfc@g  % Third digit of #2/#3.
+  \divide\psfc@f by \psfc@d
+  \psfc@j=\psfc@f
+  \multiply\psfc@j by \psfc@d
+  \advance\psfc@g by -\psfc@j
+  \multiply\psfc@g by 10
+  \psfc@j=\psfc@g  % Third digit.
+  \divide\psfc@j by \psfc@d
+  \psfc@h=#1\psfc@i=0
+  \psfc@e=\psfc@h
+  \multiply\psfc@e by \psfc@a
+  \advance\psfc@i by \psfc@e
+  \psfc@e=\psfc@h
+  \divide\psfc@e by 10
+  \multiply\psfc@e by \psfc@f
+  \advance\psfc@i by \psfc@e
+  %
+  \psfc@e=\psfc@h
+  \divide\psfc@e by 100
+  \multiply\psfc@e by \psfc@j
+  \advance\psfc@i by \psfc@e
+  \divide\psfc@i 10
+  %
+  \edef\@result{\number\psfc@i}
+}
+% Scale a value #1 by the current scaling factor and reassign the new
+% scaled value.
+\def\@ScaleInHundreds #1{% 
+  \in@hundreds{#1}{\@p@scale}{100}%
+  \edef#1{\@result}% 
+}
+% 
+%
+% Compute width from height.
+\def\compute@wfromh{%
+  % computing : width = height * (bbw / bbh)
+  \in@hundreds{\@p@sheight}{\@bbw}{\@bbh}%
+  %\typeout{ \@p@sheight * \@bbw / \@bbh, = \@result }
+  \edef\@p@swidth{\@result}%
+  %\typeout{w from h: width is \@p@swidth}%
+}
+%
+% Compute height from width.
+%
+\def\compute@hfromw{%
+  % computing : height = width * (bbh / bbw)
+  \in@hundreds{\@p@swidth}{\@bbh}{\@bbw}%
+  %\typeout{ \@p@swidth * \@bbh / \@bbw = \@result }
+  \edef\@p@sheight{\@result}%
+  %\typeout{h from w : height is \@p@sheight}%
+}
+%
+% Compute height and width when both are given and proportionality
+% must be preserved.
+%
+\def\compute@minhw{%
+  \in@hundreds{\@p@swidth}{\@bbh}{\@bbw}%
+  \ifnum\@p@sheight<\@result
+    \in@hundreds{\@p@sheight}{\@bbw}{\@bbh}%
+    \edef\@p@swidth{\@result}%
+  \else
+    \edef\@p@sheight{\@result}%
+  \fi
+}
+%
+% Compute height and width, i.e. \@p@sheight and \@p@swidth.
+%
+\def\compute@handw{%
+  % If height is given.
+  \if@height 
+    % If width is given
+    \if@width
+      \if@proportional
+        \compute@minhw
+      \fi
+    \else
+      % Height, no width: compute width.
+      \compute@wfromh
+    \fi
+  \else 
+    % No height.
+    \if@width
+      % Width is given, no height though: compute it.
+      \compute@hfromw
+    \else
+      % Neither width no height is give.
+      \edef\@p@sheight{\@bbh}
+      \edef\@p@swidth{\@bbw}
+    \fi
+  \fi
+}
+% Compute the amount of space to reserve. Unless defined
+% using rheight and rwidth when \psfig is called, these values
+% default to \@p@sheight and \@p@swidth.
+\def\compute@resv{%
+  \if@rheight \else \edef\@p@srheight{\@p@sheight} \fi
+  \if@rwidth \else \edef\@p@srwidth{\@p@swidth} \fi
+}
+%
+%
+% \psfig
+% ======
+% usage: \psfig{file=, height=, width=, bbllx=, bblly=, bburx=, bbury=,
+%      rheight=, rwidth=, clip=, scale=, proportional=}
+%
+% "clip=" and "proportional=" are switches and take no value, 
+% but the `=' must be present.
+%
+\def\partest{\par}
+\def\psfig#1{% 
+  \vbox {%
+    \offinterlineskip
+    \ps@init@parms
+    \parse@ps@parms{#1}%
+    % Compute any missing sizes.
+    \compute@bb
+                \ifno@file\vbox{\hbox{{\tt\@p@sfile} not found}}%
+                \else
+    \compute@handw
+    \compute@resv
+    \if@scale
+      %\if@verbose \typeout{psfig: scaling by \@p@scale}\fi
+      % We now scale the width and height as reported to the PS printer.
+      \@ScaleInHundreds{\@p@swidth}% 
+      \@ScaleInHundreds{\@p@sheight}% 
+      \@ScaleInHundreds{\@p@srwidth}% 
+      \@ScaleInHundreds{\@p@srheight}% 
+    \fi
+    %
+    \ifnum\@p@scost<\@psdraft
+      %\if@verbose \typeout{psfig: including \@p@sfile \space}\fi
+      \if@topspecials\do@specials\fi
+      % Create a vbox to reserve the proper amount of space for the figure.
+      \vbox to \@p@srheight sp{%
+        \hbox to \@p@srwidth sp{}%
+        \vss
+      }%
+      \if@topspecials\else\do@specials\fi
+      \ifeof\lab@stream
+        %\if@verbose\typeout{psfig: no file \@labfile \space  found}\fi
+      \else{%
+        \hyperactivelabels
+        \not@eoftrue
+        \loop
+          \read\lab@stream to \line@in \ifx\line@in\partest\else\line@in\fi
+          \ifeof\lab@stream \not@eoffalse \fi
+        \ifnot@eof \repeat
+      }\fi
+    \else
+      % Draft mode: reserve the space for the figure and print the path name.
+      \vbox to \@p@srheight sp{%
+        \hbox to \@p@srwidth sp{%
+          \if@verbose
+            \@p@sfile
+          \fi
+        }%
+        \vss
+      }%
+    \fi
+  \fi
+  }%
+}
+
+\def\do@specials{\ps@init\ps@begin
+  \if@clip 
+     %\if@verbose \typeout{(clip)} \fi 
+    \ps@clip \fi
+  \if@prologfile \ps@prolog \fi \ps@include \if@postlogfile \ps@postlog \fi
+  \ps@end}
+
+\newbox\label@box
+\newdimen\x@lab \newdimen\y@lab
+\newdimen\x@aux \newdimen\y@aux
+\newdimen\hair\hair=3pt
+\def\setlabel#1#2#3#4#5{%
+  \setbox\label@box\hbox{$#1$}%
+  \x@lab.5\wd\label@box \x@lab#4\x@lab
+  \y@lab.5\ht\label@box\advance\y@lab.5\dp\label@box \y@lab#5\y@lab 
+% rotate lab clockwise by 22.5 degrees to get aux
+  \x@aux.92388\x@lab \advance\x@aux.38268\y@lab
+  \y@aux-.38268\x@lab \advance\y@aux.92388\y@lab
+% choose 
+  \ifdim\x@aux>0pt
+    \ifdim\y@aux>0pt
+      \ifdim\x@aux>\y@aux\advance\x@lab.7071\hair\advance\y@lab.7071\hair
+      \else\advance\y@lab\hair\fi
+    \else
+      \ifdim\x@aux>-\y@aux\advance\x@lab\hair
+      \else\advance\x@lab.7071\hair\advance\y@lab-.7071\hair\fi
+    \fi
+  \else
+    \ifdim\y@aux>0pt
+      \ifdim\x@aux>-\y@aux\advance\x@lab-.7071\hair\advance\y@lab.7071\hair
+      \else\advance\x@lab-\hair\fi
+    \else
+      \ifdim\x@aux>\y@aux\advance\y@lab-\hair
+      \else
+        \ifdim\x@aux<0pt 
+           \advance\x@lab-.7071\hair\advance\y@lab-.7071\hair\fi
+      \fi
+    \fi
+  \fi
+  \advance\x@lab.5\wd\label@box
+  \advance\y@lab.5\ht\label@box\advance\y@lab.5\dp\label@box
+  \x@aux=#2bp \ifoldlabels \else \advance\x@aux by -\@p@sbbllx sp \fi
+  \y@aux=#3bp \ifoldlabels \else \advance\y@aux by -\@p@sbblly sp \fi
+  \in@hundreds{\x@aux}{\@p@swidth}{\@bbw}
+  \edef\@xpos{\@result}
+  \in@hundreds{\y@aux}{\@p@sheight}{\@bbh}
+  \edef\@ypos{\@result}
+  \vbox to 0pt{%
+    \vss\hbox to\@p@srwidth sp{\hskip \@xpos sp \hskip-\x@lab 
+    \box\label@box\hss}\vskip \@ypos sp \vskip-\y@lab}}
+
+\catcode`@=\atcatcode
+
+% $Log:	geompsfi.sty,v $
+%Revision 1.18  95/12/06  13:40:51  levy
+%made geompsfi.tex work (\ifx\@ifundefined was wrong!)
+%
+%Revision 1.17  1994/06/23  04:36:58  levy
+%added \ifoldlabels for compatibility with behavior before version 1.11
+%
+%Revision 1.16  1994/04/29  00:19:21  levy
+%combined with geompsfi.tex
+%
+%Revision 1.16  1994/04/29  00:03:40  levy
+%leave plenty of space so patch geompsfi.tex works
+%
+%Revision 1.15  1994/04/03  07:07:57  levy
+%removed hair correction when x@lab and y@lab are both zero
+%
+%Revision 1.14  1993/09/16  22:22:38  levy
+%\catcode`\:=12 % in case punctuation is active (e.g., under french.sty)
+%
+%Revision 1.13  1993/08/27  23:04:27  levy
+%removed "true" from PS dimensions (so it works with \magnifications)
+%
+%Revision 1.12  93/08/16  12:28:46  levy
+%\ifundefined\hyperactivelabels
+%
+%Revision 1.11  93/07/19  02:17:24  levy
+%.lab coordinates should be world coordinates
+%
+%Revision 1.10  93/03/05  10:59:38  levy
+%error message when arguments of \psfig are incorrect
+%
+%Revision 1.9  1993/01/13  15:50:36  levy
+%expressed things in bp (correctly)
+%
+%Revision 1.8  1993/01/10  20:56:04  levy
+%inhundreds -> inthousands
+%
+%Revision 1.6  92/07/13  11:12:40  levy
+%better error message when bounding box not found
+%
+%Revision 1.5  92/06/15  22:05:22  levy
+%proportional scaling
+%
+%Revision 1.4  92/06/10  13:03:45  levy
+%extend header from 10 to 15 lines
+%
+%Revision 1.3  92/06/10  12:41:14  levy
+%scan header for "Creator" line
+%
+%Revision 1.2  92/04/07  09:09:17  levy
+%*** empty log message ***
+%
+% Revision 1.1  92/03/31  14:12:38  levy
+% Initial revision
+

@@ -1,0 +1,829 @@
+\relax
+
+\documentclass[twocolumn]{article}
+\usepackage{fontdoc}
+
+\title{The {\tt fontinst} cyrillic glyphs}
+\author{Werner Lemberg, Vladimir Volovich}
+\date{31 October 1998\\
+Version 0.2}
+
+\begin{document}
+\maketitle
+
+\metrics
+
+\needsfontinstversion{1.800}
+
+% \unfakable is a glyph which can't be faked.
+
+\setcommand\unfakable#1{
+   \setglyph{#1}
+      \ifisglyph{#1-not}\then
+         \moveup{\neg{\depth{#1-not}}}
+         \glyphrule{
+            \width{#1-not}
+         }{
+            \add{\depth{#1-not}}{\height{#1-not}}
+         }
+         \resetitalic{\italic{#1-not}}
+         \moveup{\depth{#1-not}}
+      \else
+         \glyphrule{500}{500}
+      \fi
+      \glyphwarning{missing glyph `#1'}
+   \endsetglyph
+}
+
+% A top accent is set by placing the center of the accent at the given
+% position along the width of the letter, raised up by the difference
+% between the height of the letter and the xheight.
+
+\setcommand\topaccent#1#2#3{
+   \push
+      \moveup{\max{0}{\sub{\height{#1}}{\int{xheight}}}}
+      \movert{\add{\sub{\scale{\width{#1}}{#3}}{\scale{\width{#2}}{500}}}
+         {\scale{\sub{\height{#1}}{\int{xheight}}}{\int{italicslant}}}}
+      \glyph{#2}{1000}
+   \pop
+   \glyph{#1}{1000}
+}
+
+% A bottom accent is set by placing the center of the accent at the given
+% position along the width of the letter.
+
+\setcommand\botaccent#1#2#3{
+   \push
+      \movert{\sub{\scale{\width{#1}}{#3}}{\scale{\width{#2}}{500}}}
+      \glyph{#2}{1000}
+   \pop
+   \glyph{#1}{1000}
+}
+
+% A c&sc glyph is created by shrinking the cap glyph, and adding extra
+% space.
+
+\setcommand\cscglyph#1{
+   \movert{\int{smallcapsextraspace}}
+   \glyph{#1}{\int{smallcapsscale}}
+   \movert{\int{smallcapsextraspace}}
+}
+
+% A c&sc accent is created by moving a shrunk accent up by the
+% difference between a scaled x and a scaled X.
+
+\setcommand\cscaccent#1{
+   \moveup{\scale{\int{xheight}}{\sub{1000}{\int{smallcapsscale}}}}
+   \cscglyph{#1}
+   \moveup{\scale{\int{xheight}}{\sub{\int{smallcapsscale}}{1000}}}
+}
+
+\comment{\section{Default values}}
+
+\setint{italicslant}{0}
+\setint{xheight}{\height{x}}
+\setint{capheight}{\height{A}}
+\setint{ascender}{\height{d}}
+\setint{descender}{\depth{g}}
+\setint{underlinethickness}{40}
+\setint{visiblespacedepth}{200}
+\setint{visiblespacewidth}{400}
+\setint{visiblespacesurround}{50}
+\setint{smallcapsscale}{800}
+\setint{smallcapskerning}{900}
+
+\ifisint{monowidth}\then
+   \setint{capspacing}{0}
+   \setint{smallcapsextraspace}
+      {\div{\scale{\width{x}}{\sub{1000}{\int{smallcapsscale}}}}{2}}
+\else
+   \setint{capspacing}{50}
+   \setint{smallcapsextraspace}{0}
+\fi
+
+\makeatletter
+\setcommand\cyrglyph#1#2#3 {
+  \@for\temp@a:=#2\do{
+    \ifisglyph{\temp@a}\then
+      \setglyph{#1}\glyph{\temp@a}{1000}\endsetglyph
+    \fi
+  }
+  \unfakable{#1}
+  \csname cyr@extra@#3\endcsname{#1}
+}
+\let\cyr@extra@\@gobble
+\expandafter\def\csname cyr@extra@*\endcsname#1{
+  \setglyph{#1small}
+    \cscglyph{#1}
+  \endsetglyph
+  \setleftrightkerning{#1small}{#1}{\int{smallcapskerning}}
+}
+\def\cyr@extra@A#1{
+  \setglyph{#1small}
+     \cscaccent{#1}
+  \endsetglyph
+}
+\makeatother
+
+\unfakable{cedilla}
+\unfakable{acute}
+\unfakable{dieresis}
+\unfakable{breve}
+\unfakable{dotlessi}
+\unfakable{endash}
+\unfakable{emdash}
+\cyrglyph{currency}{}
+\cyrglyph{angleleft}{}
+\cyrglyph{angleright}{}
+
+% MODIFIER LETTER LOW GRAVE ACCENT
+\cyrglyph{gravecross}{}
+
+% MODIFIER LETTER LOW ACUTE ACCENT
+\cyrglyph{acutecross}{}
+
+% COMBINING SHORT STROKE OVERLAY
+\cyrglyph{hcross}{}
+
+% CAPITAL CYRILLIC BREVE
+\cyrglyph{cyrBreve}{}A
+
+% CAPITAL CYRILLIC CIRCUMFLEX
+\cyrglyph{cyrFlex}{}A
+
+% CAPITAL DOUBLE GRAVE ACCENT
+\cyrglyph{dblGrave}{}A
+
+% CYRILLIC BREVE
+\cyrglyph{cyrbreve}{breve}A
+
+% CYRILLIC CIRCUMFLEX
+\cyrglyph{cyrflex}{}A
+
+% DOUBLE GRAVE ACCENT
+\cyrglyph{dblgrave}{}A
+
+% CYRILLIC CAPITAL LETTER IO
+\setglyph{CYRYO}\topaccent{CYRE}{dieresis}{500}\endsetglyph
+\cyrglyph{CYRYO}{}*
+
+% CYRILLIC CAPITAL LETTER DJE
+\cyrglyph{CYRDJE}{}*
+
+% CYRILLIC CAPITAL LETTER GJE
+\setglyph{CYRGJE}\topaccent{CYRG}{acute}{500}\endsetglyph
+\cyrglyph{CYRGJE}{}*
+
+% CYRILLIC CAPITAL LETTER UKRAINIAN IE
+\cyrglyph{CYRIE}{}*
+
+% CYRILLIC CAPITAL LETTER DZE
+\cyrglyph{CYRDZE}{S}*
+
+% CYRILLIC CAPITAL LETTER BYELORUSSIAN-UKRAINIAN I
+\cyrglyph{CYRII}{I}*
+
+% CYRILLIC CAPITAL LETTER YI
+\setglyph{CYRYI}\topaccent{I}{dieresis}{500}\endsetglyph
+\cyrglyph{CYRYI}{}*
+
+% CYRILLIC CAPITAL LETTER JE
+\cyrglyph{CYRJE}{J}*
+
+% CYRILLIC CAPITAL LETTER LJE
+\cyrglyph{CYRLJE}{}*
+
+% CYRILLIC CAPITAL LETTER NJE
+\cyrglyph{CYRNJE}{}*
+
+% CYRILLIC CAPITAL LETTER TSHE
+\cyrglyph{CYRTSHE}{}*
+
+% CYRILLIC CAPITAL LETTER KJE
+\setglyph{CYRKJE}\topaccent{CYRK}{acute}{500}\endsetglyph
+\cyrglyph{CYRKJE}{}*
+
+% CYRILLIC CAPITAL LETTER SHORT U
+\setglyph{CYRUSHRT}\topaccent{CYRU}{cyrbreve}{500}\endsetglyph
+\cyrglyph{CYRUSHRT}{}*
+
+% CYRILLIC CAPITAL LETTER DZHE
+\cyrglyph{CYRDZHE}{}*
+
+% CYRILLIC CAPITAL LETTER A
+\cyrglyph{CYRA}{}*
+
+% CYRILLIC CAPITAL LETTER BE
+\cyrglyph{CYRB}{}*
+
+% CYRILLIC CAPITAL LETTER VE
+\cyrglyph{CYRV}{}*
+
+% CYRILLIC CAPITAL LETTER GHE
+\cyrglyph{CYRG}{}*
+
+% CYRILLIC CAPITAL LETTER DE
+\cyrglyph{CYRD}{}*
+
+% CYRILLIC CAPITAL LETTER IE
+\cyrglyph{CYRE}{}*
+
+% CYRILLIC CAPITAL LETTER ZHE
+\cyrglyph{CYRZH}{}*
+
+% CYRILLIC CAPITAL LETTER ZE
+\cyrglyph{CYRZ}{}*
+
+% CYRILLIC CAPITAL LETTER I
+\cyrglyph{CYRI}{}*
+
+% CYRILLIC CAPITAL LETTER SHORT I
+\cyrglyph{CYRISHRT}{}*
+
+% CYRILLIC CAPITAL LETTER KA
+\cyrglyph{CYRK}{}*
+
+% CYRILLIC CAPITAL LETTER EL
+\cyrglyph{CYRL}{}*
+
+% CYRILLIC CAPITAL LETTER EM
+\cyrglyph{CYRM}{}*
+
+% CYRILLIC CAPITAL LETTER EN
+\cyrglyph{CYRN}{}*
+
+% CYRILLIC CAPITAL LETTER O
+\cyrglyph{CYRO}{}*
+
+% CYRILLIC CAPITAL LETTER PE
+\cyrglyph{CYRP}{}*
+
+% CYRILLIC CAPITAL LETTER ER
+\cyrglyph{CYRR}{}*
+
+% CYRILLIC CAPITAL LETTER ES
+\cyrglyph{CYRS}{}*
+
+% CYRILLIC CAPITAL LETTER TE
+\cyrglyph{CYRT}{}*
+
+% CYRILLIC CAPITAL LETTER U
+\cyrglyph{CYRU}{}*
+
+% CYRILLIC CAPITAL LETTER EF
+\cyrglyph{CYRF}{}*
+
+% CYRILLIC CAPITAL LETTER HA
+\cyrglyph{CYRH}{}*
+
+% CYRILLIC CAPITAL LETTER TSE
+\cyrglyph{CYRC}{}*
+
+% CYRILLIC CAPITAL LETTER CHE
+\cyrglyph{CYRCH}{}*
+
+% CYRILLIC CAPITAL LETTER SHA
+\cyrglyph{CYRSH}{}*
+
+% CYRILLIC CAPITAL LETTER SHCHA
+\cyrglyph{CYRSHCH}{}*
+
+% CYRILLIC CAPITAL LETTER HARD SIGN
+\cyrglyph{CYRHRDSN}{}*
+
+% CYRILLIC CAPITAL LETTER YERU
+\cyrglyph{CYRERY}{}*
+
+% CYRILLIC CAPITAL LETTER SOFT SIGN
+\cyrglyph{CYRSFTSN}{}*
+
+% CYRILLIC CAPITAL LETTER E
+\cyrglyph{CYREREV}{}*
+
+% CYRILLIC CAPITAL LETTER YU
+\cyrglyph{CYRYU}{}*
+
+% CYRILLIC CAPITAL LETTER YA
+\cyrglyph{CYRYA}{}*
+
+% CYRILLIC SMALL LETTER A
+\cyrglyph{cyra}{}
+
+% CYRILLIC SMALL LETTER BE
+\cyrglyph{cyrb}{}
+
+% CYRILLIC SMALL LETTER VE
+\cyrglyph{cyrv}{}
+
+% CYRILLIC SMALL LETTER GHE
+\cyrglyph{cyrg}{}
+
+% CYRILLIC SMALL LETTER DE
+\cyrglyph{cyrd}{}
+
+% CYRILLIC SMALL LETTER IE
+\cyrglyph{cyre}{}
+
+% CYRILLIC SMALL LETTER ZHE
+\cyrglyph{cyrzh}{}
+
+% CYRILLIC SMALL LETTER ZE
+\cyrglyph{cyrz}{}
+
+% CYRILLIC SMALL LETTER I
+\cyrglyph{cyri}{}
+
+% CYRILLIC SMALL LETTER SHORT I
+\cyrglyph{cyrishrt}{}
+
+% CYRILLIC SMALL LETTER KA
+\cyrglyph{cyrk}{}
+
+% CYRILLIC SMALL LETTER EL
+\cyrglyph{cyrl}{}
+
+% CYRILLIC SMALL LETTER EM
+\cyrglyph{cyrm}{}
+
+% CYRILLIC SMALL LETTER EN
+\cyrglyph{cyrn}{}
+
+% CYRILLIC SMALL LETTER O
+\cyrglyph{cyro}{}
+
+% CYRILLIC SMALL LETTER PE
+\cyrglyph{cyrp}{}
+
+% CYRILLIC SMALL LETTER ER
+\cyrglyph{cyrr}{}
+
+% CYRILLIC SMALL LETTER ES
+\cyrglyph{cyrs}{}
+
+% CYRILLIC SMALL LETTER TE
+\cyrglyph{cyrt}{}
+
+% CYRILLIC SMALL LETTER U
+\cyrglyph{cyru}{}
+
+% CYRILLIC SMALL LETTER EF
+\cyrglyph{cyrf}{}
+
+% CYRILLIC SMALL LETTER HA
+\cyrglyph{cyrh}{}
+
+% CYRILLIC SMALL LETTER TSE
+\cyrglyph{cyrc}{}
+
+% CYRILLIC SMALL LETTER CHE
+\cyrglyph{cyrch}{}
+
+% CYRILLIC SMALL LETTER SHA
+\cyrglyph{cyrsh}{}
+
+% CYRILLIC SMALL LETTER SHCHA
+\cyrglyph{cyrshch}{}
+
+% CYRILLIC SMALL LETTER HARD SIGN
+\cyrglyph{cyrhrdsn}{}
+
+% CYRILLIC SMALL LETTER YERU
+\cyrglyph{cyrery}{}
+
+% CYRILLIC SMALL LETTER SOFT SIGN
+\cyrglyph{cyrsftsn}{}
+
+% CYRILLIC SMALL LETTER E
+\cyrglyph{cyrerev}{}
+
+% CYRILLIC SMALL LETTER YU
+\cyrglyph{cyryu}{}
+
+% CYRILLIC SMALL LETTER YA
+\cyrglyph{cyrya}{}
+
+% CYRILLIC SMALL LETTER IO
+\setglyph{cyryo}\topaccent{cyre}{dieresis}{500}\endsetglyph
+\cyrglyph{cyryo}{}
+
+% CYRILLIC SMALL LETTER DJE
+\cyrglyph{cyrdje}{}
+
+% CYRILLIC SMALL LETTER GJE
+\setglyph{cyrgje}\topaccent{cyrg}{acute}{500}\endsetglyph
+\cyrglyph{cyrgje}{}
+
+% CYRILLIC SMALL LETTER UKRAINIAN IE
+\cyrglyph{cyrie}{}
+
+% CYRILLIC SMALL LETTER DZE
+\cyrglyph{cyrdze}{s}
+
+% CYRILLIC SMALL LETTER BYELORUSSIAN-UKRAINIAN I
+\cyrglyph{cyrii}{i}
+
+% CYRILLIC SMALL LETTER YI
+\setglyph{cyryi}\topaccent{dotlessi}{dieresis}{500}\endsetglyph
+\cyrglyph{cyryi}{}
+
+% CYRILLIC SMALL LETTER JE
+\cyrglyph{cyrje}{j}
+
+% CYRILLIC SMALL LETTER LJE
+\cyrglyph{cyrlje}{}
+
+% CYRILLIC SMALL LETTER NJE
+\cyrglyph{cyrnje}{}
+
+% CYRILLIC SMALL LETTER TSHE
+\cyrglyph{cyrtshe}{}
+
+% CYRILLIC SMALL LETTER KJE
+\setglyph{cyrkje}\topaccent{cyrk}{acute}{500}\endsetglyph
+\cyrglyph{cyrkje}{}
+
+% CYRILLIC SMALL LETTER SHORT U
+\setglyph{cyrushrt}\topaccent{cyru}{cyrbreve}{500}\endsetglyph
+\cyrglyph{cyrushrt}{}
+
+% CYRILLIC SMALL LETTER DZHE
+\cyrglyph{cyrdzhe}{}
+
+% CYRILLIC CAPITAL LETTER YAT
+\cyrglyph{CYRYAT}{}*
+
+% CYRILLIC SMALL LETTER YAT
+\cyrglyph{cyryat}{}
+
+% CYRILLIC CAPITAL LETTER BIG YUS
+\cyrglyph{CYRBYUS}{}*
+
+% CYRILLIC SMALL LETTER BIG YUS
+\cyrglyph{cyrbyus}{}
+
+% CYRILLIC CAPITAL LETTER FITA
+\cyrglyph{CYRFITA}{CYROTLD}*
+
+% CYRILLIC SMALL LETTER FITA
+\cyrglyph{cyrfita}{cyrotld}
+
+% CYRILLIC CAPITAL LETTER BARRED O
+\cyrglyph{CYROTLD}{CYRFITA}*
+
+% CYRILLIC SMALL LETTER BARRED O
+\cyrglyph{cyrotld}{cyrfita}
+
+% CYRILLIC CAPITAL LETTER IZHITSA
+\cyrglyph{CYRIZH}{}*
+
+% CYRILLIC SMALL LETTER IZHITSA
+\cyrglyph{cyrizh}{}
+
+% CYRILLIC CAPITAL LETTER GHE WITH UPTURN
+\cyrglyph{CYRGUP}{CYRG}*
+
+% CYRILLIC SMALL LETTER GHE WITH UPTURN
+\cyrglyph{cyrgup}{cyrg}
+
+% CYRILLIC CAPITAL LETTER GHE WITH STROKE
+\cyrglyph{CYRGHCRS}{}*
+
+% CYRILLIC SMALL LETTER GHE WITH STROKE
+\cyrglyph{cyrghcrs}{}
+
+% CYRILLIC CAPITAL LETTER GHE WITH MIDDLE HOOK
+\cyrglyph{CYRGHK}{}*
+
+% CYRILLIC SMALL LETTER GHE WITH MIDDLE HOOK
+\cyrglyph{cyrghk}{}
+
+% CYRILLIC CAPITAL LETTER ZHE WITH DESCENDER
+\cyrglyph{CYRZHDSC}{}*
+
+% CYRILLIC SMALL LETTER ZHE WITH DESCENDER
+\cyrglyph{cyrzhdsc}{}
+
+% CYRILLIC CAPITAL LETTER ZE WITH DESCENDER
+\setglyph{CYRZDSC}\botaccent{CYRZ}{cedilla}{500}\endsetglyph
+\cyrglyph{CYRZDSC}{}*
+
+% CYRILLIC SMALL LETTER ZE WITH DESCENDER
+\setglyph{cyrzdsc}\botaccent{cyrz}{cedilla}{500}\endsetglyph
+\cyrglyph{cyrzdsc}{}
+
+% CYRILLIC CAPITAL LETTER KA WITH DESCENDER
+\cyrglyph{CYRKDSC}{}*
+
+% CYRILLIC SMALL LETTER KA WITH DESCENDER
+\cyrglyph{cyrkdsc}{}
+
+% CYRILLIC CAPITAL LETTER KA WITH VERTICAL STROKE
+\cyrglyph{CYRKVCRS}{}*
+
+% CYRILLIC SMALL LETTER KA WITH VERTICAL STROKE
+\cyrglyph{cyrkvcrs}{}
+
+% CYRILLIC CAPITAL LETTER KA WITH STROKE
+\cyrglyph{CYRKHCRS}{}*
+
+% CYRILLIC SMALL LETTER KA WITH STROKE
+\cyrglyph{cyrkhcrs}{}
+
+% CYRILLIC CAPITAL LETTER BASHKIR KA
+\cyrglyph{CYRKBEAK}{}*
+
+% CYRILLIC SMALL LETTER BASHKIR KA
+\cyrglyph{cyrkbeak}{}
+
+% CYRILLIC CAPITAL LETTER EN WITH DESCENDER
+\cyrglyph{CYRNDSC}{}*
+
+% CYRILLIC SMALL LETTER EN WITH DESCENDER
+\cyrglyph{cyrndsc}{}
+
+% CYRILLIC CAPITAL LIGATURE EN GHE
+\cyrglyph{CYRNG}{}*
+
+% CYRILLIC SMALL LIGATURE EN GHE
+\cyrglyph{cyrng}{}
+
+% CYRILLIC CAPITAL LETTER PE WITH MIDDLE HOOK
+\cyrglyph{CYRPHK}{}*
+
+% CYRILLIC SMALL LETTER PE WITH MIDDLE HOOK
+\cyrglyph{cyrphk}{}
+
+% CYRILLIC CAPITAL LETTER ABKHASIAN HA
+\cyrglyph{CYRABHHA}{}*
+
+% CYRILLIC SMALL LETTER ABKHASIAN HA
+\cyrglyph{cyrabhha}{}
+
+% CYRILLIC CAPITAL LETTER ES WITH DESCENDER
+\setglyph{CYRSDSC}\botaccent{CYRS}{cedilla}{500}\endsetglyph
+\cyrglyph{CYRSDSC}{}*
+
+% CYRILLIC SMALL LETTER ES WITH DESCENDER
+\setglyph{cyrsdsc}\botaccent{cyrs}{cedilla}{500}\endsetglyph
+\cyrglyph{cyrsdsc}{}
+
+% CYRILLIC CAPITAL LETTER TE WITH DESCENDER
+\cyrglyph{CYRTDSC}{}*
+
+% CYRILLIC SMALL LETTER TE WITH DESCENDER
+\cyrglyph{cyrtdsc}{}
+
+% CYRILLIC CAPITAL LETTER STRAIGHT U
+\cyrglyph{CYRY}{}*
+
+% CYRILLIC SMALL LETTER STRAIGHT U
+\cyrglyph{cyry}{}
+
+% CYRILLIC CAPITAL LETTER STRAIGHT U WITH STROKE
+\cyrglyph{CYRYHCRS}{}*
+
+% CYRILLIC SMALL LETTER STRAIGHT U WITH STROKE
+\cyrglyph{cyryhcrs}{}
+
+% CYRILLIC CAPITAL LETTER HA WITH DESCENDER
+\cyrglyph{CYRHDSC}{}*
+
+% CYRILLIC SMALL LETTER HA WITH DESCENDER
+\cyrglyph{cyrhdsc}{}
+
+% CYRILLIC CAPITAL LIGATURE TE TSE
+\cyrglyph{CYRTETSE}{}*
+
+% CYRILLIC SMALL LIGATURE TE TSE
+\cyrglyph{cyrtetse}{}
+
+% CYRILLIC CAPITAL LETTER CHE WITH DESCENDER
+\cyrglyph{CYRCHRDSC}{}*
+
+% CYRILLIC SMALL LETTER CHE WITH DESCENDER
+\cyrglyph{cyrchrdsc}{}
+
+% CYRILLIC CAPITAL LETTER CHE WITH VERTICAL STROKE
+\cyrglyph{CYRCHVCRS}{}*
+
+% CYRILLIC SMALL LETTER CHE WITH VERTICAL STROKE
+\cyrglyph{cyrchvcrs}{}
+
+% CYRILLIC CAPITAL LETTER SHHA
+\cyrglyph{CYRSHHA}{}*
+
+% CYRILLIC SMALL LETTER SHHA
+\cyrglyph{cyrshha}{}
+
+% CYRILLIC CAPITAL LETTER ABKHASIAN CHE
+\cyrglyph{CYRABHCH}{}*
+
+% CYRILLIC SMALL LETTER ABKHASIAN CHE
+\cyrglyph{cyrabhch}{}
+
+% CYRILLIC CAPITAL LETTER ABKHASIAN CHE WITH DESCENDER
+\cyrglyph{CYRABHCHDSC}{}*
+
+% CYRILLIC SMALL LETTER ABKHASIAN CHE WITH DESCENDER
+\cyrglyph{cyrabhchdsc}{}
+
+% CYRILLIC LETTER PALOCHKA
+\cyrglyph{CYRpalochka}{I}
+
+% CYRILLIC CAPITAL LETTER KA WITH HOOK
+\cyrglyph{CYRKHK}{}*
+
+% CYRILLIC SMALL LETTER KA WITH HOOK
+\cyrglyph{cyrkhk}{}
+
+% CYRILLIC CAPITAL LETTER EN WITH HOOK
+\cyrglyph{CYRNHK}{}*
+
+% CYRILLIC SMALL LETTER EN WITH HOOK
+\cyrglyph{cyrnhk}{}
+
+% CYRILLIC CAPITAL LETTER KHAKASSIAN CHE
+\cyrglyph{CYRCHLDSC}{}*
+
+% CYRILLIC SMALL LETTER KHAKASSIAN CHE
+\cyrglyph{cyrchldsc}{}
+
+% CYRILLIC CAPITAL LIGATURE A IE
+\cyrglyph{CYRAE}{AE}*
+
+% CYRILLIC SMALL LIGATURE A IE
+\cyrglyph{cyrae}{ae}
+
+% CYRILLIC CAPITAL LETTER SCHWA
+\cyrglyph{CYRSCHWA}{}*
+
+% CYRILLIC SMALL LETTER SCHWA
+\cyrglyph{cyrschwa}{}
+
+% CYRILLIC CAPITAL LETTER ABKHASIAN DZE
+\cyrglyph{CYRABHDZE}{}*
+
+% CYRILLIC SMALL LETTER ABKHASIAN DZE
+\cyrglyph{cyrabhdze}{}
+
+% CYRILLIC CAPITAL LETTER ER WITH HOOK
+\cyrglyph{CYRRHK}{}*
+
+% CYRILLIC SMALL LETTER ER WITH HOOK
+\cyrglyph{cyrrhk}{}
+
+% NUMERO SIGN
+\cyrglyph{numero}{}
+
+% LEFT-POINTING ANGLE BRACKET
+\cyrglyph{cyrlangle}{angleleft}
+
+% RIGHT-POINTING ANGLE BRACKET
+\cyrglyph{cyrrangle}{angleright}
+
+% CYRILLIC CAPITAL LETTER DELTA
+\cyrglyph{CYRDELTA}{}*
+
+% CYRILLIC CAPITAL LETTER EPSILON
+\cyrglyph{CYREPS}{}*
+
+% CYRILLIC CAPITAL LETTER GHE WITH DESCENDER
+\cyrglyph{CYRGDSC}{}*
+
+% CYRILLIC CAPITAL LETTER GHE WITH STROKE AND DESCENDER
+\cyrglyph{CYRGDSCHCRS}{}*
+
+% CYRILLIC CAPITAL LETTER HA WITH STROKE
+\cyrglyph{CYRHHCRS}{}*
+
+% CYRILLIC CAPITAL LETTER HA WITH HOOK
+\cyrglyph{CYRHHK}{}*
+
+% CYRILLIC CAPITAL LETTER EL WITH DESCENDER
+\cyrglyph{CYRLDSC}{}*
+
+% CYRILLIC CAPITAL LETTER EL WITH HOOK
+\cyrglyph{CYRLHK}{}*
+
+% CYRILLIC CAPITAL LETTER EM WITH DESCENDER
+\cyrglyph{CYRMDSC}{}*
+
+% CYRILLIC CAPITAL LETTER EM WITH HOOK
+\cyrglyph{CYRMHK}{}*
+
+% CYRILLIC CAPITAL LETTER EN WITH LEFT HOOK
+\cyrglyph{CYRNLHK}{}*
+
+% CYRILLIC CAPITAL LETTER Q
+\cyrglyph{CYRQ}{Q}*
+
+% CYRILLIC CAPITAL LETTER ER WITH DESCENDER
+\cyrglyph{CYRRDSC}{}*
+
+% CYRILLIC CAPITAL LETTER ER WITH STROKE
+\cyrglyph{CYRRTICK}{}*
+
+% CYRILLIC CAPITAL LETTER ES WITH STROKE
+\cyrglyph{CYRSACRS}{}*
+
+% CYRILLIC CAPITAL LETTER W
+\cyrglyph{CYRW}{W}*
+
+% CYRILLIC SMALL LETTER DELTA
+\cyrglyph{cyrdelta}{}
+
+% CYRILLIC SMALL LETTER EPSILON
+\cyrglyph{cyreps}{}
+
+% CYRILLIC SMALL LETTER GHE WITH DESCENDER
+\cyrglyph{cyrgdsc}{}
+
+% CYRILLIC SMALL LETTER GHE WITH STROKE AND DESCENDER
+\cyrglyph{cyrgdschcrs}{}
+
+% CYRILLIC SMALL LETTER HA WITH STROKE
+\cyrglyph{cyrhhcrs}{}
+
+% CYRILLIC SMALL LETTER HA WITH HOOK
+\cyrglyph{cyrhhk}{}
+
+% CYRILLIC SMALL LETTER EL WITH DESCENDER
+\cyrglyph{cyrldsc}{}
+
+% CYRILLIC SMALL LETTER EL WITH HOOK
+\cyrglyph{cyrlhk}{}
+
+% CYRILLIC SMALL LETTER EM WITH DESCENDER
+\cyrglyph{cyrmdsc}{}
+
+% CYRILLIC SMALL LETTER EM WITH HOOK
+\cyrglyph{cyrmhk}{}
+
+% CYRILLIC SMALL LETTER EN WITH LEFT HOOK
+\cyrglyph{cyrnlhk}{}
+
+% CYRILLIC SMALL LETTER Q
+\cyrglyph{cyrq}{q}
+
+% CYRILLIC SMALL LETTER ER WITH DESCENDER
+\cyrglyph{cyrrdsc}{}
+
+% CYRILLIC SMALL LETTER ER WITH STROKE
+\cyrglyph{cyrrtick}{}
+
+% CYRILLIC SMALL LETTER ES WITH STROKE
+\cyrglyph{cyrsacrs}{}
+
+% CYRILLIC SMALL LETTER W
+\cyrglyph{cyrw}{w}
+
+% CYRILLIC EM DASH
+\setglyph{cyrdash}
+   \ifisint{monowidth}\then
+      \glyph{hyphen}{1000}
+      \glyph{hyphen}{1000}
+   \else
+      \glyph{emdash}{1000}
+   \fi
+\endsetglyph
+
+% CYRILLIC SMALL LETTER GHE VARIANT
+\cyrglyph{cyrvarg}{}
+
+% CYRILLIC SMALL LETTER BE VARIANT
+\cyrglyph{cyrvarb}{}
+
+% CYRILLIC SMALL LETTER DE VARIANT
+\cyrglyph{cyrvard}{}
+
+% CYRILLIC SMALL LETTER PE VARIANT
+\cyrglyph{cyrvarp}{}
+
+% CYRILLIC SMALL LETTER TE VARIANT
+\cyrglyph{cyrvart}{}
+
+% monotype-only variant glyphs
+
+% CYRILLIC CAPITAL LETTER ZHE BULGARIAN
+\cyrglyph{CYRZHBULG}{}*
+
+% CYRILLIC SMALL LETTER ZHE BULGARIAN
+\cyrglyph{cyrzhbulg}{}
+
+% CYRILLIC SMALL LETTER EF VARIANT
+\cyrglyph{cyrvarf}{}
+
+% CYRILLIC SMALL LETTER EM VARIANT
+\cyrglyph{cyrvarm}{}
+
+% CYRILLIC SMALL LETTER ZHE VARIANT
+\cyrglyph{cyrvarzh}{}
+
+% CYRILLIC SMALL LETTER VE VARIANT
+\cyrglyph{cyrvarv}{}
+
+% CYRILLIC SMALL LETTER TSE VARIANT
+\cyrglyph{cyrvarc}{}
+
+\endmetrics
+\end{document}

@@ -1,0 +1,63 @@
+% Copyright 2003-2005 Han The Thanh <hanthethanh@gmx.net>.
+% This file is part of vntex.  License: LPPL, version 1.3 or newer,
+% according to http://www.latex-project.org/lppl.txt
+
+% Computer Modern Roman upper case "Y" precomposed glyphs:
+% Inclusion:
+%               Y'      Y`      Y?      Y~      Y.
+
+begin_letter(y);
+    set_letter_dimens(y)(
+        13u#, cap_height#, 0,
+        cap_height#*slant + .45u#,
+        cap_serif_fit#, cap_serif_fit#
+    );
+    numeric left_stem, right_stem, outer_jut, dy, alpha;
+    left_stem = cap_stem - stem_corr;
+    right_stem = min(cap_hair if hefty: -2stem_corr fi, left_stem);
+    outer_jut = .75cap_jut;
+    x1l = w - x4r = l + letter_fit + outer_jut + .05u;
+    x2l = x5l = hround(.5w - .5left_stem);
+    x3r = x5r;
+    y1 = y4 = h;
+    y2 = y3 = y5 = .4h;
+    dy = y1 - y2;
+    alpha = ((x2l - x1l) ++ dy)/dy;
+    penpos1(alpha*left_stem, 0);
+    penpos2(alpha*left_stem, 0);
+    penpos3(alpha*right_stem, 0);
+    penpos4(alpha*right_stem, 0);
+    penpos5(left_stem, 0);
+    penpos6(left_stem, 0);
+    x5 = x6;
+    y6 = 0;
+    z0 = whatever[z1r, z2r] = whatever[z3l, z4l];
+    if y0 > y2 + cap_notch_cut: y0 := y2 + cap_notch_cut;
+        fill z0 + .5right{up} ... {z4 - z3}diag_end(3l, 4l, 1, 1, 4r, 3r) -- z5r
+        -- diag_end(5r, 6r, 1, 1, 6l, 5l) -- z5l -- diag_end(2l, 1l, 1, 1, 1r, 2r){z2 - z1}
+        ... {down}z0 + .5left -- cycle; % diagonals and stem
+    else: fill z0 -- diag_end(0, 4l, 1, 1, 4r, 3r) -- z5r
+        -- diag_end(5r, 6r, 1, 1, 6l, 5l) -- z5l
+        -- diag_end(2l, 1l, 1, 1, 1r, 0) -- cycle;
+    fi  % diagonals and stem
+    if serifs: numeric inner_jut;
+        pickup tiny.nib;
+        prime_points_inside(1, 2);
+        prime_points_inside(4, 3);
+        prime_points_inside(6, 5);
+        if rt x1'r + cap_jut + .5u + 1<=lft x4'l - cap_jut: inner_jut = cap_jut;
+        else: rt x1'r + inner_jut + .5u + 1=lft x4'l - inner_jut;
+        fi
+        dish_serif(1', 2, a, 1/3, outer_jut, b, 1/2, inner_jut);  % upper left serif
+        dish_serif(4', 3, c, .6, inner_jut, d, 1/2, outer_jut)(dark);  % upper right serif
+        dish_serif(6', 5, e, 1/3, cap_jut, f, 1/3, cap_jut);
+    fi  % lower serif
+    math_fit(.5u# - cap_height#*slant, ic# - 4u#);
+    set_letter_join(y, x6 if serifs: + .3max(0, left_stem - right_stem) fi, 
+                    .5w#);
+    penlabels(0, 1, 2, 3, 4, 5, 6);
+end_letter;
+
+input vnycomp;
+
+endinput;

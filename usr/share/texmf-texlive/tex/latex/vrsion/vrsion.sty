@@ -1,0 +1,366 @@
+%% 
+%% This is file `vrsion.sty',
+%% generated with the docstrip utility.
+%% 
+%% The original source files were:
+%% 
+%% vrsion.dtx  (with options: `paketkod')
+%% 
+%% Copyright (c) 1994-1997 by Mats Dahlgren <matsd@homenet.se>. 
+%% All rights reserved. See the file `vrsion.ins' for information 
+%% on how you may (re-)distribute the `vrsion' package files. 
+%% 
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesPackage{vrsion}%
+  [1997/02/22 version numbering of LaTeX files (v.1.41).]
+\newcounter{versionnr}
+\newcounter{versionnrten}[versionnr]
+\newcounter{versionnrhundred}[versionnrten]
+\@addtoreset{versionnrhundred}{versionnr}
+\newif\ifKeepversion \Keepversionfalse
+\newif\ifxspc \xspcfalse
+\newcommand{\keepversion}{\global\Keepversiontrue}
+\newcommand{\stepversion}{\global\Keepversionfalse}
+\DeclareOption{one}{%
+\DeclareRobustCommand{\version}{%
+  \ifKeepversion \else
+    \stepcounter{versionnr}%
+    \@skrivner
+  \fi
+  \theversionnr%
+  \@ifundefined{xspace}{}{\xspace}%
+}
+}
+\DeclareOption{ten}{%
+  \DeclareRobustCommand{\version}{%
+    \ifKeepversion \else
+      \stepcounter{versionnrten}%
+      \ifnum\theversionnrten=10\stepcounter{versionnr} \fi
+      \@skrivner
+    \fi
+    \theversionnr .\theversionnrten%
+    \@ifundefined{xspace}{}{\xspace}%
+  }
+}
+\DeclareOption{hundred}{%
+  \DeclareRobustCommand{\version}{%
+    \ifKeepversion \else
+      \stepcounter{versionnrhundred}%
+      \ifnum\theversionnrhundred=10\stepcounter{versionnrten} \fi
+      \ifnum\theversionnrten=10\stepcounter{versionnr} \fi
+      \@skrivner
+    \fi
+    \theversionnr .\theversionnrten\theversionnrhundred%
+    \@ifundefined{xspace}{}{\xspace}%
+  }
+}
+\DeclareOption{xspace}{\global\xspctrue}
+\DeclareOption*{\OptionNotUsed}
+\ExecuteOptions{one}
+\ProcessOptions
+\ifxspc\RequirePackage{xspace}\fi
+\def\vrsFile{\jobname.vrs}
+\newwrite\@vrs
+\newcounter{VrsNr}
+\def\@skrivner{%
+  \setcounter{VrsNr}{\@partaux}%
+  \addtocounter{VrsNr}{1}%
+  \let\@vrs=\theVrsNr%
+  \immediate\openout\@vrs\vrsFile%
+  \immediate\write\@vrs{\relax}%
+  \immediate\write\@vrs{%
+    \string\vrslabel{versionsnummer}{{\theversionnr}{\thepage}}}%
+  \immediate\write\@vrs{%
+    \string\vrslabel{versionsnummertio}{{\theversionnrten}{\thepage}}}%
+  \immediate\write\@vrs{%
+    \string\vrslabel{versionsnummerhundra}{{\theversionnrhundred}{\thepage}}
+}%
+  \immediate\closeout\@vrs{}%
+}
+\@ifundefined{bbl@ref}{\let\vrsref=\ref}{\let\vrsref=\bbl@ref}
+\@ifundefined{bbl@newlabel}{\let\vrslabel=\newlabel}%
+{\let\vrslabel=\bbl@newlabel}
+\IfFileExists{\vrsFile}{\@@input\vrsFile%
+    \setcounter{versionnr}{\vrsref{versionsnummer}}%
+    \setcounter{versionnrten}{\vrsref{versionsnummertio}}%
+    \setcounter{versionnrhundred}{\vrsref{versionsnummerhundra}}%
+  }{%
+    \typeout{No file \vrsFile.}%
+    \setcounter{versionnr}{\z@}%
+    \setcounter{versionnrten}{\z@}%
+    \setcounter{versionnrhundred}{\z@}%
+}
+\AtBeginDocument{%
+\@ifundefined{subject}{%
+\if@titlepage
+  \renewcommand\maketitle{\begin{titlepage}%
+  \let\footnotesize\small
+  \let\footnoterule\relax
+  \let \footnote \thanks
+  \null\vfil
+  \vskip 60\p@
+  \begin{center}%
+    {\LARGE \@title \par}%
+    \vskip 3em%
+    {\large
+     \lineskip .75em%
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+      \vskip 1.5em%
+    {\large \@date \par}%
+  \end{center}\par
+  \@thanks
+  \vfil\null
+  \end{titlepage}%
+  \setcounter{footnote}{0}%
+  \global\let\thanks\relax
+  \global\let\maketitle\relax
+  \global\let\@thanks\@empty
+  \global\let\@author\@empty
+  \global\let\@date\@empty
+  \global\let\@title\@empty
+  \global\let\title\relax
+  \global\let\author\relax
+  \global\let\date\relax
+  \global\let\and\relax
+}
+\else
+\renewcommand\maketitle{\par
+  \begingroup
+    \renewcommand\thefootnote{\@fnsymbol\c@footnote}%
+    \def\@makefnmark{\rlap{\@textsuperscript{\normalfont\@thefnmark}}}%
+    \long\def\@makefntext##1{\parindent 1em\noindent
+            \hb@xt@1.8em{%
+                \hss\@textsuperscript{\normalfont\@thefnmark}}##1}%
+    \if@twocolumn
+      \ifnum \col@number=\@ne
+        \@maketitle
+      \else
+        \twocolumn[\@maketitle]%
+      \fi
+    \else
+      \global\@topnum\z@
+      \@maketitle
+    \fi
+    \thispagestyle{plain}\@thanks
+  \endgroup
+  \setcounter{footnote}{0}%
+  \global\let\thanks\relax
+  \global\let\maketitle\relax
+  \global\let\@maketitle\relax
+  \global\let\@thanks\@empty
+  \global\let\@author\@empty
+  \global\let\@date\@empty
+  \global\let\@title\@empty
+  \global\let\title\relax
+  \global\let\author\relax
+  \global\let\date\relax
+  \global\let\and\relax
+}
+\def\@maketitle{%
+  \null
+  \vskip 2em%
+  \begin{center}%
+  \let \footnote \thanks
+    {\LARGE \@title \par}%
+    \vskip 1.5em%
+    {\large
+      \lineskip .5em%
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+    \vskip 1em%
+    {\large \@date}%
+  \end{center}%
+  \par
+  \vskip 1.5em}
+\fi%
+\renewenvironment{titlepage}{%
+      \if@twocolumn
+        \@restonecoltrue\onecolumn
+      \else
+        \@restonecolfalse
+      \fi
+      \thispagestyle{empty}%
+      \setcounter{page}\@ne
+    }%
+    {\if@restonecol\twocolumn \else \newpage \fi
+     \if@twoside\else
+        \setcounter{page}\@ne
+     \fi
+    }
+}{%
+\if@titlepage
+    \newcommand*\maketitle[1][1]{\begin{titlepage}%
+    \setcounter{page}{#1}
+    \let\footnotesize\small
+    \let\footnoterule\relax
+    \let\footnote\thanks
+    \ifx\@extratitle\@empty \else
+        \noindent\@extratitle\next@tpage\thispagestyle{empty}
+    \fi
+    \ifx\@titlehead\@empty \else
+        \noindent\begin{minipage}[t]{\textwidth}
+        \@titlehead
+        \end{minipage}\par
+    \fi
+    \null\vfill
+    \begin{center}
+    \ifx\@subject\@empty \else
+        {\Large \@subject \par}
+        \vskip 3em
+    \fi
+    {\huge {\sectfont \@title \par}}
+    \vskip 3em
+    {\Large \lineskip 0.75em
+    \begin{tabular}[t]{c}
+        \@author
+    \end{tabular}\par}
+    \vskip 1.5em
+    {\Large \@date \par}
+    \vskip \z@ \@plus3fill
+    {\Large \@publishers \par}
+    \vskip 3em
+    \end{center}\par
+    \@thanks
+    \vfill\null
+    \if@twoside\next@tpage
+        \noindent\begin{minipage}[t]{\textwidth}
+        \@uppertitleback
+        \end{minipage}\par
+        \vfill
+        \noindent\begin{minipage}[b]{\textwidth}
+        \@lowertitleback
+        \end{minipage}
+    \fi
+    \ifx\@dedication\@empty \else
+        \next@tpage\null\vfill
+        {\centering \Large \@dedication \par}
+        \vskip \z@ \@plus3fill
+        \if@twoside \next@tpage \fi
+    \fi
+    \end{titlepage}
+    \setcounter{footnote}{0}%
+    \global\let\thanks\relax
+    \global\let\maketitle\relax
+    \global\let\@thanks\@empty
+    \global\let\@author\@empty
+    \global\let\@date\@empty
+    \global\let\@title\@empty
+    \global\let\@extratitle\@empty
+    \global\let\@titlehead\@empty
+    \global\let\@subject\@empty
+    \global\let\@publishers\@empty
+    \global\let\@uppertitleback\@empty
+    \global\let\@lowertitleback\@empty
+    \global\let\@dedication\@empty
+    \global\let\author\relax
+    \global\let\title\relax
+    \global\let\extratitle\relax
+    \global\let\titlehead\relax
+    \global\let\subject\relax
+    \global\let\publishers\relax
+    \global\let\uppertitleback\relax
+    \global\let\lowertitleback\relax
+    \global\let\dedication\relax
+    \global\let\date\relax
+    \global\let\and\relax}
+\else
+     \newcommand*\maketitle[1][1]{\par
+       \begingroup
+         \renewcommand\thefootnote{\@fnsymbol\c@footnote}%
+         \def\@makefnmark{\rlap{\@textsuperscript{\normalfont\@thefnmark}}}%
+         \long\def\@makefntext##1{\parindent 1em\noindent
+            \hb@xt@1.8em{%
+                \hss\@textsuperscript{\normalfont\@thefnmark}}##1}%
+         \if@twocolumn
+           \ifnum \col@number=\@ne
+             \@maketitle
+           \else
+             \twocolumn[\@maketitle]%
+           \fi
+         \else
+           \global\@topnum\z@
+           \@maketitle
+         \fi
+         \thispagestyle{plain}\@thanks
+       \endgroup
+       \setcounter{footnote}{0}%
+       \let\thanks\relax
+       \let\maketitle\relax
+       \let\@maketitle\relax
+       \global\let\@thanks\@empty
+       \global\let\@author\@empty
+       \global\let\@date\@empty
+       \global\let\@title\@empty
+       \global\let\@extratitle\@empty
+       \global\let\@titlehead\@empty
+       \global\let\@subject\@empty
+       \global\let\@publishers\@empty
+       \global\let\@uppertitleback\@empty
+       \global\let\@lowertitleback\@empty
+       \global\let\@dedication\@empty
+       \global\let\author\relax
+       \global\let\title\relax
+       \global\let\extratitle\relax
+       \global\let\titlehead\relax
+       \global\let\subject\relax
+       \global\let\publishers\relax
+       \global\let\uppertitleback\relax
+       \global\let\lowertitleback\relax
+       \global\let\dedication\relax
+       \global\let\date\relax
+       \global\let\and\relax}
+\fi
+\def\@maketitle{%
+    \let\footnote\thanks
+    \ifx\@extratitle\@empty \else
+        \noindent\@extratitle \next@tpage \if@twoside \null\next@tpage \fi
+    \fi
+    \ifx\@titlehead\@empty \else
+        \noindent\begin{minipage}[t]{\textwidth}
+        \@titlehead
+        \end{minipage}\par
+    \fi
+    \null
+    \vskip 2em%
+    \begin{center}%
+    \ifx\@subject\@empty \else
+        {\Large \@subject \par}
+        \vskip 1.5em
+    \fi
+    {\huge \@title \par}%
+    \vskip 1.5em%
+    {\Large
+      \lineskip .5em%
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+    \vskip 1em%
+    {\Large \@date \par}%
+    \vskip \z@ \@plus 1em
+    {\Large \@publishers \par}
+    \ifx\@dedication\@empty \else
+        \vskip 2em
+        {\Large \@dedication \par}
+    \fi
+  \end{center}%
+  \par
+  \vskip 2em}%
+\renewenvironment{titlepage}{%
+      \if@twocolumn
+        \@restonecoltrue\onecolumn
+      \else
+        \@restonecolfalse
+      \fi
+      \thispagestyle{empty}%
+      \if@compatibility
+        \setcounter{page}{0}
+      \fi}%
+    {\if@restonecol\twocolumn \else \newpage \fi}%
+}%
+}
+\endinput
+%% 
+%% End of file `vrsion.sty'.

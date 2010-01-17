@@ -1,0 +1,63 @@
+%% This is frenchle.ldf (frenchle option for Babel) under LaTeX --bg 2006/09/27
+%%      to be used like this: \usepackage[frenchle]{babel}
+%%
+%%
+%       Copyright 2001-2006 Bernard GAULLE, Copyright notice: LPPL
+%%
+%%      checksum        = "31013 61 238 2743"
+%
+%
+\ProvidesFile{frenchle.ldf}% 
+%       [2001/04/12 v1.0 % Original file.
+%       [2001/06/07 v1.1 % Doc. & msg changes.
+%       [2003/11/19 v1.2 % french loaded before babel frenchle.
+%       [2005/03/21 v1.3 % pb francais/frenchb loaded before babel frenchle.
+%       [2005/03/23 v1.4 % global French option taken in account.
+        [2006/09/27 v1.5 % \main@language added before \selectlanguage.
+                         % \main@language moved at end after \ProcessOptions.
+                    Frenchle option of babel loading the French Light package]
+\ifx\undefined\captionsfrench
+\else\main@language{french}\selectlanguage{french}% Select again French
+\expandafter\ifx\csname endfrench\endcsname\relax
+\PackageError{frenchle}{-93- You are using two French options for Babel, %
+                        please choose only one.}
+\let\endfrench\stop\fi
+ \endfrench% but stop it until \begin{document}.
+\expandafter\endinput
+\fi
+\chardef\atcatcode=\catcode`\@\catcode`\@=11\relax
+\ifx\undefined\babel@core@loaded% still undefined (>3.5)?
+           \let\babel@core@loaded\main@language\fi%
+\ifx\undefined\originalTeX \let\originalTeX\empty \fi
+\originalTeX
+\ifx\undefined\l@french\@nopatterns{French}\adddialect\l@french0\fi
+
+\protected@write\@auxout{}{\protect% insure files integrity
+\csname auxWARNINGii\protect\endcsname{\protect\typeout
+            {-34- this file and other auxiliary files require to
+                  use the following}}}
+\protected@write\@auxout{}{\protect%
+\csname auxWARNINGii\protect\endcsname{\protect\typeout
+            {-34- LaTeX packages: frenchle and babel!}}}
+\protected@write\@auxout{}{\protect%
+\csname auxWARNINGii\protect\endcsname{\protect\typeout
+            {-34- check \protect\protect\protect\usepackage
+                  \protect\space or remove these files.
+                  Typesetting is aborted!}
+            \protect\stop}}%
+\let\auxWARNINGi=\@gobble% accept aux files produces by french
+\let\auxWARNINGii=\@gobble% and those produces by babel+french
+\InputIfFileExists{frenchle.sty}{}% load the light version package.
+  {\PackageError{frenchle}%
+   {-63- frenchle style file not found}%
+   {-63- Check if file exist somewhere in your system.}%
+   \let\endfrench\stop%
+  }%
+\endfrench% and stop it immediately until \begin{document}
+\let\noextrasfrancais\endfrench% bug in babel.sty version 3.5e
+\let\extrasfrancais\frenchTeXmods% ditto
+\let\captionsfrancais\captionsfrench%
+\catcode`\@=\atcatcode \let\atcatcode\relax
+\DeclareOption{french}{}\ProcessOptions% Now global option french is used.
+\main@language{french}%
+\endinput%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

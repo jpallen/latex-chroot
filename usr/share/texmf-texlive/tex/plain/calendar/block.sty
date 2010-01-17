@@ -1,0 +1,59 @@
+%%
+%%    FILE block.sty
+%%    
+\newcount\daysinrow
+\newcount\saveMonth
+\font\bf=cmbx12 at 16pt
+\font\Rm=cmr12 at 48pt
+\font\Bf=cmbx12 at 48pt
+\font\rm=cmr12
+\font\small=cmr10
+\footline={}
+\def\card{{\mute
+ \saveMonth=\Month
+ \def\beginday{
+  \ifnum\daysinrow=0\setbox1=\hbox{}\fi
+  \setbox0=\hbox to1.3em{\hss
+  \ifnum\Month=\saveMonth\the\Day\fi}}
+ \def\endday{\setbox1=\hbox{\unhbox1\box0}
+  \advance\daysinrow by1
+  \ifnum\daysinrow=7\box1\daysinrow=0\fi}
+% Local: from sunday ...
+ \Day=1\dayno
+ \prevday0\currentdate=\date
+ \Day=1\advancemonth \dayno
+% Local: ... to saturday.
+ \advance\date by-1 \nextday6 \lastdate=\date
+ \daysinrow=0
+ \baselineskip=9pt\small
+ \global\setbox3=\vbox to0.55in{\makeempty\vss}}}
+%
+\def\cstrut{\vrule width0pt depth0.3in}
+\baselineskip=14pt
+\parindent=0pt
+\vsize=5in \voffset=-0.2in
+\hsize=4in \hoffset=-0.25in
+\def\advancemonth{\ifnum\Month=12
+ \nextyear\Month=1\else
+ \advance\Month by1\fi}
+\def\beginday{\ifnum\Day=1
+  \setbox2=\box3{\advancemonth\card}\fi
+ \date=\currentdate\caldate
+ \centerline{\bf\uppercase
+  \expandafter{\themonth}}
+ \setbox0=\vbox\bgroup\noindent\rm}
+\def\endday{\egroup\vskip10pt
+ \centerline{\cstrut\copy2\quad
+  \hbox to1in{\Rm\weekday
+% Local: sundays in bf.
+   \ifnum\weekd=0\Bf\fi\ifholy\Bf\fi
+   \hss\the\Day\hss}\quad\copy3}
+ \centerline{\rm\theweekday}
+ \vskip20pt\box0\newpage}
+\def\newpage{\vfill\penalty-10000}
+%
+\Day=31\Month=12\dayno\lastdate=\date
+\Day=1\Month=1\dayno\currentdate=\date
+\card
+\leftskip=1em plus1fill\rightskip=1em plus1fill
+\def\epilog{}

@@ -1,0 +1,1360 @@
+apog_fact=0.75;
+apog_nhh=apog_fact*nhh;
+apog_nhh#=apog_fact*nhh#;
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%       NOTENKOEPFE UND FAEHNCHEN                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%
+%%notenkoepfe %
+%%%%%%%%%%%%%%%
+
+def drawnoteb(expr noteheadwidth, noteheadheight, theta_a, theta_b, theta_c,
+width_a, width_b)  =
+                                            %         .l
+            penpos1(width_a, theta_a);      %         .2
+                                            %         .r
+            penpos3(width_a, 180+theta_a);  %.l.1.r            .r.3.l
+                                            %         .r
+            penpos2(width_b, 180+theta_b);  %         .4
+                                            %         .l
+            penpos4(width_b, theta_b);    %
+            y1 = y3 = 0;
+            x2 = x4 = 1/2noteheadwidth;
+            x1l= 0; x3l = noteheadwidth; y2l = noteheadheight; y4l = -noteheadheight;
+            penstroke (z1e{up}..z2e{right}..z3e{down}..z4e{left}..cycle)
+            rotatedaround((origin +1/2noteheadwidth*right),theta_c);
+            enddef;
+%%%%%%%%%%%%%%%
+%    flags    %
+%%%%%%%%%%%%%%%
+%
+%
+pickup pencircle scaled (0.1pt);
+def penstrike text t =
+ forsuffixes e = l,r: path_.e:=t; endfor
+ if cycle path_.l: cyclestroke_
+ else: filldraw path_.l -- reverse path_.r -- cycle fi enddef;
+def flagshape(suffix i) (expr width, height, thicka, thin, shiftx, shifty) =
+           pair intersectionp;                             %
+           thick := 1/3 height;
+           sh[-3] = (shiftx, 0);
+           sh[i] = (shiftx, shifty);                                  %  .1
+           penpos[i](thick,90);                            %
+           penpos[i+1](  3thin ,90);                       %       .2
+           penpos[i+2](thin,0);                            %
+           penpos[i+3](thin,0);                            %           .3
+           x[i] =  -1/16mm;                                %
+           y[i]r =  height;                                %        .4
+           x[i+1] = 3/8width;                              %
+           y[i+1] = height - thick;                        %
+           y[i+3] = 0;
+           x[i+2]r  = x[i+3]+2s= width;
+           y[i+2]r = height - 2thick;
+           if i>1: intersectionp  = z[i-2];
+           else   : intersectionp = z[i+3];
+           fi;
+           penstrike (z[i]e{dir(angle(z[i+1]e-z[i]e)-15)}
+           ..z[i+1]e{z[i+1]e-z[i]e}
+           ..z[i+2]e{down}..intersectionp shifted (sh[i-4]-sh[i]))
+           shifted sh[i];
+           for n=0 upto 3:
+           k:=i+n;
+           penlabels(k);endfor;
+           enddef;
+
+def flagshaper(suffix i) (expr width, height, thicka, thin, shift) =
+           pair intersectionp;                             %
+           thick := 1/3 height;
+           sh[-3] := origin+shift;
+           sh[i] = shift;                                  %  .1
+           penpos[i](thick,90);                            %
+           penpos[i+1](  3thin ,90);                       %       .2
+           penpos[i+2](thin,0);                            %
+           penpos[i+3](thin,0);                            %           .3
+           x[i] =  0;                                      %
+           y[i]r =  height;                                %        .4
+           x[i+1] = 3/8width;                              %
+           y[i+1] = height - thick;                        %
+           y[i+3] = 0;
+           x[i+2]r  = x[i+3]+2s= width;
+           y[i+2]r = height - 2thick;
+           if i>1: intersectionp  = z[i-2];
+           else   : intersectionp = z[i+3];
+           fi;
+           penstrike (counterclockwise
+           (z[i]e{dir(angle(z[i+1]e-z[i]e)-15)}
+           ..z[i+1]e{z[i+1]e-z[i]e}
+           ..z[i+2]e{down}..intersectionp shifted (-sh[i-4]+sh[i]))
+           reflectedabout (z1r scaled 0.5,
+             z1r scaled 0.5+right) )
+           shifted sh[i];
+           enddef;
+
+%%%%%%%%%%%%%%%%%%%%%%
+% song system limits %
+%%%%%%%%%%%%%%%%%%%%%%
+beginchar(126,nhw#,nhh#,0);
+     clear;
+     z1=(-0.5nhw,-0.2pt);
+     z2=(0,-0.2pt);
+     z3=(0.7nhw,0.5nhh);
+     penpos1(0.4pt,90);
+     penpos2(0.4pt,90);
+     penpos3(0.1pt,135);
+     penstroke (z1e--z2e..z3e);
+endchar;
+beginchar(127,nhw#,-nhh#,0);
+     clear;
+     z1=(-0.5nhw,0.2pt);
+     z2=(0,0.2pt);
+     z3=(0.7nhw,-0.5nhh);
+     penpos1(0.4pt,90);
+     penpos2(0.4pt,90);
+     penpos3(0.1pt,135);
+     penstroke (z1e--z2e..z3e);
+endchar;
+
+%%%%%%%%%%%%%%%%
+% 4 crescendos %
+%%%%%%%%%%%%%%%%
+for n:=1 upto 4:
+  beginchar(15+n, 4*n*nhw#, (0.5+0.1*n)*nhh#, (0.5+0.1*n)*nhh#);
+    pickup pencircle scaled (0.4s);
+    draw   (0,(0.5+0.1*n)*nhh)--(4*n*nhw,0)--(0,-(0.5+0.1*n)*nhh);
+  endchar;
+endfor;
+%%%%%%%%%%%%%%%%%%
+% 4 decrescendos %
+%%%%%%%%%%%%%%%%%%
+for n:=1 upto 4:
+  beginchar(19+n, 4*n*nhw#, (0.5+0.1*n)*nhh#, (0.5+0.1*n)*nhh#);
+    pickup pencircle scaled (0.4s);
+    draw   (4*n*nhw,(0.5+0.1*n)*nhh)--(0,0)--(4*n*nhw,-(0.5+0.1*n)*nhh);
+  endchar;
+endfor;
+%%%%%%%%%%%%%%%
+%   accents   %
+%%%%%%%%%%%%%%%
+% point au-dessus de la note
+beginchar(24, nhw#, 1.0nhh#, 0.0nhh#);
+  clear;
+  pickup pencircle scaled 0.25nhh;
+  drawdot (0.5nhw, nhh);
+endchar;
+% point au-dessous de la note
+beginchar(25, nhw#, 0.0nhh#, 1.0nhh#);
+  clear;
+  pickup pencircle scaled 0.25nhh;
+  drawdot (0.5nhw, -nhh);
+endchar;
+% barre au-dessus de la note
+beginchar(26, nhw#, 1.0nhh#, 0.0nhh#);
+  clear;
+  pickup penrazor scaled 0.15nhh rotated 90;
+  draw (0.0nhw, nhh)--(1.0nhw, nhh);
+endchar;
+% trait au-dessous de la note
+beginchar(27, nhw#, 0.0nhh#, 1.0nhh#);
+  clear;
+  pickup penrazor scaled 0.15nhh rotated 90;
+  draw (0.0nhw, -nhh)--(1.0nhw, -nhh);
+endchar;
+% accent (pizz.) au-dessus de la note
+beginchar(28, nhw#, 1.0nhh#, 0.0nhh#);
+  clear;
+  dely:=1.2nhh;
+  rayon:=0.2nhh;
+  z1=(0.5nhw,dely+rayon);
+  z2=(0.5nhw-rayon,dely);
+  z3=(0.5nhw,dely-0.45nhh);
+  z4=(0.5nhw+rayon,dely);
+  fill z1{left}..{down}z2--z3--z4{up}..{left}cycle;
+endchar;
+% accent (pizz.) au-dessous de la note
+beginchar(29, nhw#, 0.0nhh#, 1.0nhh#);
+  clear;
+  rayon:=0.2nhh;
+  z1=(0.5nhw,nhh+rayon);
+  z2=(0.5nhw-rayon,nhh);
+  z3=(0.5nhw,0.55nhh);
+  z4=(0.5nhw+rayon,nhh);
+  fill (z1{left}..{down}z2--z3--z4{up}..{left}cycle) rotatedaround ((0.5nhw,0),180);
+endchar;
+% accent (sforz.) au-dessus de la note
+beginchar(30, nhw#, 1.5nhh#, 0.0nhh#);
+  clear;
+  z1=(1.2nhw,1.3nhh);
+  z2=(-0.2nhw,1.3nhh);
+  pickup pencircle scaled 0.5s;
+  draw z1--(x2,y2+0.3nhh);
+  draw z1--(x2,y2-0.3nhh);
+endchar;
+% accent (sforz.) au-dessous de la note
+beginchar(31, nhw#, 0.0nhh#, 1.0nhh#);
+  clear;
+  z1=(1.2nhw,-1.3nhh);
+  z2=(-0.2nhw,-1.3nhh);
+  pickup pencircle scaled 0.5s;
+  draw z1--(x2,y2+0.3nhh);
+  draw z1--(x2,y2-0.3nhh);
+endchar;
+%%%%%%%%%%%%%%%
+%   breve     %
+%%%%%%%%%%%%%%%
+beginchar(32, nhw#, 0.7nhh#, 0.7nhh#);
+  clear;
+  pickup pencircle scaled (4thinwidth);
+  draw (0,h)--(0,-d);
+  draw (w,h)--(w,-d);
+  fill (0,0.75h)--(w,0.75h)--(w,0.25h)--(0,0.25h)--cycle;
+  fill (0,-0.75d)--(w,-0.75d)--(w,-0.25d)--(0,-0.25d)--cycle;
+endchar;
+%%%%%%%%%%%%%%%
+%% volle Note %
+%%%%%%%%%%%%%%%
+beginchar(33, nhw#, .5nhh#, .5nhh#);
+          w:=w+2thinwidth;
+          drawnoteb(w, h, 0, 90, 20, w/2, nhh/2);
+endchar;
+%%%%%%%%%%%%%%%
+%% halbe Note %
+%%%%%%%%%%%%%%%
+beginchar(34, nhw#, .5nhh#, .5nhh#);
+          w:=w+2thinwidth;
+%         drawnoteb(w, h, 0, 90, 20, thinwidth, nhh/4);
+          drawnoteb(w, h, 0, 90, 20, 3*thinwidth, nhh/4);
+endchar;
+%%%%%%%%%%%%%%%
+%% ganze Note %
+%%%%%%%%%%%%%%%
+beginchar(35,1.5nhh#, .5nhh#, .5nhh#);
+%         drawnoteb(w, h, 0, 85, 0, nhh/3, thinwidth);
+          drawnoteb(w, h, 0, 85, 0, nhh/3, 3*thinwidth);
+endchar;
+%%%%%%%%%%%%%%%
+% semi-breve  %
+%%%%%%%%%%%%%%%
+beginchar(36, 2nhw#, 0.7nhh#, 0.7nhh#);
+  clear;
+  pickup pencircle scaled (4thinwidth);
+  draw (0,h)--(0,-d);
+  draw (w,h)--(w,-d);
+  fill (0,0.75h)--(w,0.75h)--(w,0.25h)--(0,0.25h)--cycle;
+  fill (0,-0.75d)--(w,-0.75d)--(w,-0.25d)--(0,-0.25d)--cycle;
+endchar;
+%%%%%%%%%%%%%%%
+%% volle kleine Note %
+%%%%%%%%%%%%%%%
+beginchar(37, apog_fact*nhw#, .50*apog_nhh#, .50*apog_nhh#);
+          w:=apog_fact*nhw;
+          w:=w+2thinwidth;
+          drawnoteb(w, h, 0, 90, 20, w/2, apog_nhh/2);
+endchar;
+%%%%%%%%%%%%%%%
+%% halbe Note %
+%%%%%%%%%%%%%%%
+beginchar(38, apog_fact*nhw#, apog_fact*0.5nhh#, apog_fact*0.5nhh#);
+          w:=w+2thinwidth;
+%         drawnoteb(w, h, 0, 90, 20, thinwidth, nhh/4);
+          drawnoteb(w, h, 0, 90, 20, 3*thinwidth, apog_nhh/4);
+endchar;
+%%%%%%%%%%%%%%%
+%% ganze Note %
+%%%%%%%%%%%%%%%
+beginchar(39, 1.5*apog_nhh#, apog_fact*0.5nhh#, apog_fact*0.5nhh#);
+%         drawnoteb(w, h, 0, 85, 0, nhh/3, thinwidth);
+          drawnoteb(w, h, 0, 85, 0, apog_nhh/3, 3*thinwidth);
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%
+%% "8flag nach unten" %
+%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(40, 0, 3nhh#, 0);
+          clear;
+          w:=0.8*nhw;
+          pickup pencircle scaled (0.1pt);
+          flagshape(1,w, h, nhh, 5thinwidth, 0, 0);
+          w:=0;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% "16flag nach unten" %
+%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(41, 0, 3.25nhh#, 0);
+          clear;
+          w:=0.8*nhw;
+          pickup pencircle scaled (0.1pt);
+          flagshape(1, w, 2.5nhh, 2/3nhh, 5thinwidth, 0, 0);
+          flagshape(5,.95 w, 2.25 nhh, 2/3nhh, 5thinwidth, 0, nhh);
+          w:=0;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% "32flag nach unten" %
+%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(42, 0, 3.75  nhh#, 0);
+          clear;
+          w:=0.8*nhw;
+          pickup pencircle scaled (0.1pt);
+          flagshape(1, w, 2.5nhh, 2/3nhh, 5thinwidth, 0, 0);
+          flagshape(5, .95w, 2.25 nhh, 2/3nhh, 5thinwidth, 0, nhh);
+          flagshape(9, .9w, 2   nhh, 2/3nhh, 5thinwidth, 0, 1.75nhh);
+          w:=0;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% "64flag nach unten" %
+%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(43, 0, 4.25nhh#, 0);
+          clear;
+          w:=0.8*nhw;
+          pickup pencircle scaled (0.1pt);
+          flagshape(1, w, 2.5nhh, 2/3nhh, 5thinwidth, 0, 0);
+          flagshape(5,.95 w, 2.25 nhh, 2/3nhh, 5thinwidth, 0, nhh);
+          flagshape(9,.9w, 2  nhh, 2/3nhh, 5thinwidth, 0, 1.75nhh);
+          flagshape(13,0.85w, 2nhh, 2/3nhh, 5thinwidth, 0, 2.25nhh);
+          w:=0;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% "128flag nach unten" %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(44, 0, 4.5nhh#, 0);
+          clear;
+          w:=0.8*nhw;
+          pickup pencircle scaled (0.1pt);
+          flagshape(1, w, 2.5nhh, 2/3nhh, 5thinwidth, 0, 0);
+          flagshape(5, w, 2.25nhh, 2/3nhh, 5thinwidth, 0, nhh);
+          flagshape(9, w, 2 nhh, 2/3nhh, 5thinwidth, 0, 1.75nhh);
+          flagshape(13,0.9 w, 2nhh, 2/3nhh, 5thinwidth, 0, 2.25nhh);
+          flagshape(17,0.9 w, 1.5nhh, 1/3nhh, 5thinwidth, 0, 3nhh);
+          w:=0;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%
+%% "8flag nach oben" %
+%%%%%%%%%%%%%%%%%%%%%%
+beginchar(45, 0, 3nhh#, 0);
+         clear;
+         w:=0.8*nhw;
+         pickup pencircle scaled (0.1pt);
+         flagshaper(1,w, h, nhh, 5thinwidth, origin);
+         penlabels(1,2,3,4);
+         w:=0;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%
+%% "16flag nach oben" %
+%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(46, 0, 3.25nhh#, 0);
+          clear;
+          w:=0.8*nhw;
+          pickup pencircle scaled (0.1pt);
+          flagshaper(1, w, 2.5nhh, 2/3nhh, 5thinwidth, (0,0.75nhh));
+          flagshaper(5, w, 2.25 nhh, 2/3nhh, 5thinwidth,(0,-0.25nhh));
+         penlabels(1,2,3,4,5,6,7,8);
+          w:=0;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%
+%% "32flag nach oben" %
+%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(47, 0, 3.75  nhh#, 0);
+          clear;
+         w:=0.8*nhw;
+          pickup pencircle scaled (0.1pt);
+          flagshaper(1, w, 2.5nhh, 2/3nhh, 5thinwidth, (0,1.5nhh));
+          flagshaper(5, w, 2.5nhh, 2/3nhh, 5thinwidth, (0,0.75nhh));
+          flagshaper(9, .95w, 2.25 nhh, 2/3nhh, 5thinwidth, origin);
+         penlabels(1,2,3,4,5,6,7,8,9,10,11,12);
+          w := 0;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%
+%% "64flag nach oben" %
+%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(48, 0, 4.25nhh#, 0);
+          clear;
+         w:=0.8*nhw;
+          pickup pencircle scaled (0.1pt);
+          flagshaper(1, w, 2.5nhh, 2/3nhh, 5thinwidth, (0,1.75nhh));
+          flagshaper(5, w, 2.25 nhh, 2/3nhh, 5thinwidth, (0,1nhh));
+          flagshaper(9,w, 2  nhh, 2/3nhh, 5thinwidth, (0,0.34nhh));
+          flagshaper(13,0.9w, 2nhh, 2/3nhh, 5thinwidth, (0,-0.32nhh));
+         penlabels(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16);
+          w := 0;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% "128flag nach oben" %
+%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(49, 0, 4.5nhh#, 0);
+          clear;
+         w:=0.8*nhw;
+          flagshaper(1, w, 2.25nhh, 2/3nhh, 5thinwidth, (0,2.5nhh));
+          flagshaper(5, w, 2.25nhh, 2/3nhh, 5thinwidth, (0,1.75nhh));
+          flagshaper(9, w, 2 nhh, 2/3nhh, 5thinwidth, (0,1nhh));
+          flagshaper(13,0.9 w, 2nhh, 2/3nhh, 5thinwidth, (0,0.5nhh));
+          flagshaper(17,0.9 w, 2nhh, 1/3nhh, 5thinwidth, (0,0nhh));
+          w := 0;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                            %
+%                VERSETZUNGSZEICHEN                          %
+%                                                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%
+%% "flat"  %
+%%%%%%%%%%%%
+def flat (expr reduction) =
+         clear; flatraise:=-0.1*nhh*reduction;
+         penpos4(7/24reduction*nhh, 25);%/5,20           %  1
+         penpos3(reduction*nhh/6,-90);%/5,20             %
+         penpos6(reduction*nhh/6,-90);%/5,20             %
+         penpos2(reduction*nhh/5, 90);%/5,20             %
+         y1 =  h;                                        %      4
+         x1 = x2 = x3 = reduction*s; x4 = reduction*(nhw-s); %  2
+         y4 = reduction*s;                               %
+         y2l - y3r =  1/4h; y2l = 0;                     %  3
+         currentpen:= pencircle scaled 3thinwidth;
+         penstroke  (z2e...z4e...z3e{3left+2down}) shifted (0,flatraise);%right ,sw
+         draw (z1--z3) shifted (0,flatraise) ;
+         penlabels(1,2,3,4);
+enddef;
+%
+beginchar(50, nhw#, 2nhh#, 2nhh#);
+ flat (1.0);
+endchar;
+%
+%%%%%%%%%%
+%% "bb"  %
+%%%%%%%%%%
+beginchar(51,2nhw#, 2nhh#, 2nhh#);
+         flat (1.0); 
+         draw (z1--z3) shifted ((w/2 - 1.5s),flatraise);
+		 penstroke (z2e..z4e...z3e{3left+2down})shifted ((w/2
+		 -1.5s),flatraise);
+endchar;
+%%%%%%%%%%%%%
+%% "sharp"  %
+%%%%%%%%%%%%%
+def sharp ( expr reduction ) =
+         clear;
+         penpos3(3/8reduction*nhh,90);
+         penpos4(3/8reduction*nhh,90);
+         penpos5(3/8reduction*nhh,90);
+         penpos6(3/8reduction*nhh,90);
+         y1 + y2 = -0.5reduction*s; y1 - y2 = 2h - reduction*s;
+         x1 = x2 =  reduction*s; y3 = 1/4reduction*nhh;
+         y4l = y3r; x3= 0; x4 = 0.8*reduction*nhw;
+         y5 = -y4; y6 = -y3; x5 = x3; x6 = x4;
+         currentpen:=  pencircle scaled 3thinwidth;
+         draw z1--z2;
+         draw (z1--z2) shifted (w-2reduction*s,reduction*s);
+         penstroke  z3e--z4e;
+         penstroke (z5e--z6e) ;
+         penlabels(1,2,3,4,5,6);
+enddef;
+%
+beginchar(52, 0.8nhw#, 1.5nhh#, 1.5nhh#);
+  sharp(1.0);
+endchar;
+%
+%%%%%%%%%%
+%% "xx"  %
+%%%%%%%%%%%
+beginchar(53, nhw#, .5nhw#, .5nhw#);
+         clear;
+         z1 = (0.150w, h-0.150w); z2 = (w-0.150w, h-0.150w);
+         z3 = (0.150w,-h+0.150w); z4 = (w-0.150w,-h+0.150w);
+         currentpen:= pencircle scaled .2nhh;
+         draw z1--z4; draw z3--z2;
+         currentpen:= pensquare scaled .30w;
+         drawdot z1; drawdot z2; drawdot z3; drawdot z4;
+endchar;
+%%%%%%%%%%%%%%%
+% "natural"  %
+%%%%%%%%%%%%%%%
+def natural =
+         clear;
+         reduction:=w/(0.8*nhw);
+         penpos3(3/8reduction*nhh,90);
+         penpos4(3/8reduction*nhh,90);
+         penpos7(3/8reduction*nhh,90);
+         penpos8(3/8reduction*nhh,90);
+         x1 = x2 = x3 = x7 = 0.75*reduction*s;
+         x5 = x6 = x4 = x8 = w-x1;
+         y1 =  h;  y3 =  0.30reduction*nhh ;
+         y4l = y3r-0.5*reduction*s ;
+         y6 = -y1; y5 = -y2;
+         y7l = y2;
+         y7 = -y4; y8 = -y3;
+         currentpen:= pencircle scaled 3thinwidth;
+         draw z1--z2;
+         draw z5--z6;
+         penstroke  z3e--z4e;
+         penstroke  z7e--z8e;
+enddef;
+%
+beginchar(54, 0.8nhw#, 1.5nhh#, 1.5nhh#);
+  natural;
+endchar;
+%
+%%%%%%%%%%%%%%%%
+%% "1/4 flat"  %
+%%%%%%%%%%%%%%%%
+beginchar(55, nhw#, 2nhh#, 2nhh#);
+         clear;
+         penpos4(7/24nhh, 25);%/5,20           %  1
+         penpos3(nhh/6,-90);%/5,20             %
+         penpos2(nhh/6, 90);%/5,20             %
+         y1 =  h;                              %         4
+         x1 = x2 = x3 = w-s; x4 =2w-3s;        %  2
+         y4 = s;                               %
+         y2l - y3r =  1/4h; y2l = 0;           %  3
+         currentpen:= pencircle scaled 3thinwidth;
+         penstroke  (counterclockwise
+         (z2e...z4e...z3e{3left+2down}) reflectedabout(z1 ,z3));
+         draw z1--z3;
+         penlabels(1,2,3,4);
+endchar;
+%%%%%%%%%%%%%%%%
+%% "3/4 flat"  %
+%%%%%%%%%%%%%%%%
+beginchar(56, 2nhw#, 2nhh#, 2nhh#);
+         clear;
+         penpos4(7/24nhh, 25);%/5,20           %  1
+         penpos3(nhh/6,-90);%/5,20             %
+         penpos2(nhh/6, 90);%/5,20             %
+         y1 =  h;                              %         4
+         x1 = x2 = x3 = w/2; x4 =x1+nhw-2s;    %  2
+         y4 = s;                               %
+         y2l - y3r =  1/4h; y2l = 0;           %  3
+         currentpen:= pencircle scaled 3thinwidth;
+         penstroke  z2e...z4e...z3e{3left+2down};
+         penstroke  (counterclockwise
+         (z2e...z4e...z3e{3left+2down}) reflectedabout(z1 ,z3));
+         draw z1--z3;
+         penlabels(1,2,3,4);
+endchar;
+%
+% Gregorian notes
+%
+beginchar(57, nhw#, .5nhh#, .5nhh#);
+  fill (0.5w-0.8h,0)--(0.5w,h)--(0.5w+0.8h,0)--(0.5w,-h)--cycle;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                             %
+%                      PAUSEN                                 %
+%                                                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%
+%% "dp" %
+%%%%%%%%%
+beginchar(58,1/2nhw#, 3nhh#, 0);
+         clear;
+         penpos1(nhh,90);
+         penpos2(nhh,90);
+         y1r = y2r = h;
+         x1r =  0; x2r = w;
+         currentpen:= pencircle;
+         penstroke z1e--z2e;
+labels(1,2);
+endchar;
+%%%%%%%%%%
+%% "ddp" %
+%%%%%%%%%%
+beginchar(59,1/2nhw#, 3nhh#, 0);
+         clear;
+         penpos1(2nhh,90);
+         penpos2(2nhh,90);
+         y1r = y2r = h;
+         x1r =  0; x2r = w;
+         currentpen:= pencircle;
+         penstroke z1e--z2e;
+labels(1,2);
+endchar;
+%%%%%%%%%%%%%%%%%%
+%% "ganze Pause" %
+%%%%%%%%%%%%%%%%%%
+beginchar(60, nhw#, 3nhh#, 0);
+         clear;
+         penpos1(nhh/2,90);
+         penpos2(nhh/2,90);
+         y1r = y2r = h;
+         x1r =  0; x2r = w;
+         currentpen:= pencircle;
+         penstroke z1e--z2e;
+endchar;
+%
+%%%%%%%%%%%%%%%%%%
+%% "halbe Pause" %
+%%%%%%%%%%%%%%%%%%
+beginchar(61, nhw#, 2.5nhh#, 0);
+         clear;
+         penpos1(nhh/2,90);
+         penpos2(nhh/2,90);
+         y1r = y2r = h;
+         x1r =  0; x2r = w;
+         currentpen:= pencircle;
+         penstroke z1e--z2e;
+endchar;
+%%%%%%%%%%%%%%%%%%%%
+%% "viertel Pause" %
+%%%%%%%%%%%%%%%%%%%%
+beginchar(62, nhw#, 4nhh#, 0);                             % .1
+         clear;                                            %         .2
+         thin := 5 thinwidth; thick := 1/2 nhh;            %    8..3
+         alpha_a = -50; alpha_b = -50;                     %   .4
+         penpos1 ( thin, (alpha_a+90));                  %        .5
+         penpos5 ( thin, alpha_b);                       %   .6
+         penpos2 ( thick, alpha_a   );                  %
+         penpos4 ( thick, alpha_b   );                  %        .7
+         penpos3 ( thick, 1/2(alpha_a+alpha_b));
+         x3r:=9/10[x3,x3r];
+         penpos8 ( thick, 1/2(alpha_a+alpha_b));
+         x8l:=9/10[x8,x8l];
+         penpos6 ( 2/3thick, alpha_b);
+         penpos7 ( 1/2thick, 10);
+         y1l = h - 2s;
+         x1l =  2s;
+         z2r =  z1 +(nhh* right) rotated alpha_a;
+         z5 =  z4l+(nhh* right) rotated alpha_b;
+         z3  = 1/3[z2,z4];
+         z8  = 2/3[z2,z4];
+         z4  = (w,h) scaled .55;
+         y6r = 1.45nhh;
+         x6l = x4l;
+         x7 = 0.9w; y7= nhh;
+         currentpen:= pencircle scaled thin;
+         draw z1--z2r; draw z5--z4l;
+         penstroke z2e..z3e..z8e..z4e;
+         penstroke z5e{nw}..z6e..z7e;
+endchar;
+%%%%%%%%%%%%%%%%%%%
+%% "achtel Pause" %
+%%%%%%%%%%%%%%%%%%%
+beginchar(63, 2nhh#, 3nhh#, 0)
+          clear;
+          %punkte f"ur achtelpause, 16. und 32. Pause
+          x1=y1= nhh; x2=7/4nhh; y2=11/4nhh;
+          x3=x4=1/2nhh; y4=3nhh; y3=10/4nhh;
+          currentpen := pencircle scaled 4thinwidth;
+          draw z1..z2;
+          currentpen := pensquare rotated45 scaled(2*thinwidth);
+          draw z2..z3{up+left};
+          fill z3..z4..z3..cycle;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% "sechzehntel Pause" %
+%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(64,2nhh#, 3nhh#, 0)
+          clear;
+          %punkte f"ur achtelpause, 16. und 32. Pause
+          x1=y1= nhh; x2=7/4nhh; y2=11/4nhh;
+          x3=x4=1/2nhh; y4=3nhh; y3=10/4nhh;
+%
+          x5=x2; y5=y2;
+          y6=0; x6=x5-1/3y5;
+          currentpen := pencircle scaled 4thinwidth;
+          draw z5..z6;
+          currentpen := pensquare rotated45 scaled(2*thinwidth);
+          draw z2..z3{up+left};
+          draw z2..z3{up+left} shifted(-1/3nhh,-nhh);
+          fill z3..z4..z3..cycle;
+          fill z3..z4..z3..cycle shifted(-1/3nhh,-nhh);
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% "zweiunddreissigstel Pause" %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(65,2nhh#, 4nhh#, 0)
+          clear;
+          %punkte f"ur achtelpause, 16. und 32. Pause
+          x1=y1= nhh; x2=7/4nhh; y2=11/4nhh;
+          x3=x4=1/2nhh; y4=3nhh; y3=10/4nhh;
+%
+          x5=x2+1/6nhh; y5=y2+nhh;
+          y6=0; x6=x5-1/3y5;
+          currentpen := pencircle scaled 4thinwidth;
+          draw z5..z6;
+          currentpen := pensquare rotated45 scaled(2*thinwidth);
+          draw z2..z3{up+left} shifted( 1/6nhh,nhh);
+          draw z2..z3{up+left} shifted(-1/6nhh, 0);
+          draw z2..z3{up+left} shifted(-3/6nhh,-nhh);
+          fill z3..z4..z3..cycle shifted( 1/6nhh, nhh);
+          fill z3..z4..z3..cycle shifted(-1/6nhh, 0);
+          fill z3..z4..z3..cycle shifted(-3/6nhh,-nhh);
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% "vierundsechzigstel Pause" %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(66,2nhh#, 5nhh#, 0)
+          clear;
+          %punkte f"ur achtelpause, 16. und 32. Pause
+          x1=y1= nhh; x2=7/4nhh; y2=11/4nhh;
+          x3=x4=1/2nhh; y4=3nhh; y3=10/4nhh;
+%
+          x5=x2+1/3nhh; y5=y2+2nhh;
+          y6=0; x6=x5-1/3y5;
+          currentpen := pencircle scaled 4thinwidth;
+          draw z5..z6;
+          currentpen := pensquare rotated45 scaled(2*thinwidth);
+          draw z2..z3{up+left} shifted( 1/3nhh, 2nhh);
+          draw z2..z3{up+left} shifted(     0,nhh);
+          draw z2..z3{up+left} shifted(-1/3nhh, 0);
+          draw z2..z3{up+left} shifted(-2/3nhh,-nhh);
+          fill z3..z4..z3..cycle shifted( 1/3nhh, 2nhh);
+          fill z3..z4..z3..cycle shifted(   0, nhh);
+          fill z3..z4..z3..cycle shifted(-1/3nhh,0);
+          fill z3..z4..z3..cycle shifted(-2/3nhh,-nhh);
+endchar;
+%%%%%%%%%%%%%%%%%%%
+% ornements       %
+%%%%%%%%%%%%%%%%%%%
+beginchar (67, 2nhw#, nhh#, 0);
+  clear;
+  x1=0.2w; y1=h; x6=w-x1; y6=h-y1;
+  x2=0; y2=0.5h; x5=w-x2; y5=h-y2;
+  x3=0.25w; y3=0; x4=w-x3; y4=h-y3;
+  pickup pencircle scaled 4thinwidth;
+  penpos1 (5thinwidth,90);
+  penpos2 (5thinwidth, 180);
+  penpos3 (0.3nhw, -10);
+  penpos4 (0.3nhw, -10);
+  penpos5 (5thinwidth, 180);
+  penpos6 (5thinwidth, 90);
+  penstroke (z1e..{down}z2e{down}..{right}z3e{right}..{right}z4e{right}..{down}z5e{down}..z6e)  ;
+  pickup pencircle scaled 2s  ;
+  drawdot (x1,y1-s)  ;
+  drawdot (x6,y6+s)  ;
+endchar;
+beginchar (68, 2nhw#, nhh#, 0);
+  clear;
+  x1=0.2w; y1=0; x6=w-x1; y6=h-y1;
+  x2=0; y2=0.5h; x5=w-x2; y5=h-y2;
+  x3=0.25w; y3=h; x4=w-x3; y4=h-y3;
+  pickup pencircle scaled 4thinwidth;
+  penpos1 (5thinwidth,-90);
+  penpos2 (5thinwidth, -180);
+  penpos3 (0.3nhw, 10);
+  penpos4 (0.3nhw, 10);
+  penpos5 (5thinwidth, -180);
+  penpos6 (5thinwidth, -90);
+  penstroke (z1e..{up}z2e{up}..{right}z3e{right}..{right}z4e{right}..{up}z5e{up}..z6e);
+  pickup pencircle scaled 2s;
+  drawdot (x1,y1+s);
+  drawdot (x6,y6-s);
+endchar;
+%%%%%%%%%%%%%%%
+% appogiature %
+%%%%%%%%%%%%%%%
+beginchar(69, apog_fact*nhw#, 3*apog_nhh#, .50*apog_nhh#);
+          clear;
+          w:=apog_fact*nhw;
+          flagshape(1,w, 3*apog_nhh, apog_nhh, 4thinwidth,  w,0);
+          clear;
+          w:=apog_fact*nhw;
+          w:=w+2thinwidth;
+          drawnoteb(w, 0.5apog_nhh, 0, 90, 20, w/2, apog_nhh/2);
+          clear;
+          pickup pencircle scaled 4thinwidth;
+          w:=apog_fact*nhw;
+          draw (w,0)--(w,h);
+          x1=-0.1w; y1=0.6apog_nhh; x2=2w; y2=y1+0.6*(x2-x1);
+          draw z1--z2;
+%
+         w:=apog_fact*nhw;
+endchar;
+beginchar(70, apog_fact*nhw#, 0.5apog_nhh#, 3*apog_nhh#);
+          clear;
+          w:=apog_fact*nhw;
+          flagshaper(1,w, 3apog_nhh, apog_nhh, 5thinwidth,  (0,-3apog_nhh));
+          clear;
+          w:=apog_fact*nhw;
+          w:=w+2thinwidth;
+          drawnoteb(w, 0.5apog_nhh, 0, 90, 20, w/2, apog_nhh/2);
+          pickup pencircle scaled 4thinwidth;
+          draw (0,0)--(0,-d);
+          clear;
+          w:=apog_fact*nhw;
+          x1=-0.3w; y1=-1.6apog_nhh; x2=1.3w; y2=y1+0.6*(x2-x1);
+          draw z1--z2;
+%
+         w:=apog_fact*nhw;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                             %
+%                   NOTENSCHLUESSEL                           %
+%                                                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% VIOLINSCHLUESSEL %
+%%%%%%%%%%%%%%%%%%%%
+def violin(expr width, beginleft, begindown, thick, penthick) =
+x10=x3=x2=x8;
+y6l=56/15width+y12r;
+x11-x4=width;
+x5=x4+13/15width;
+x2=x4+31/45 width;
+x1=x4+7/15width;
+x4=beginleft;
+x2-x12=4/15 width;
+x9+2/5width=x6;
+x6-4/15width=x7;
+x9=x4+1/5width;
+y12r=begindown;
+y2r=y4=2y11;
+y8=y12r+4/15width;
+y2r=y12r+28/15width;
+y1=y12r+width;
+y3r=y12r+13/15width;
+y7=y12r+116/45width;
+y5=y12r+16/5width;
+y5-y10=y11;
+y9=y12r+2/15width;
+y13=y8; x13=x8-0.6s;
+penpos1(0,180);
+penpos2(thick,90);
+penpos3(penthick+1/16thick,-90);
+penpos4(5/4thick,120);
+penpos5(5/6thick,-120);
+penpos6(5/3thick,-85);
+penpos7(1/2thick,0);
+penpos8(penthick,0);
+penpos13(penthick,0);
+penpos9(5/4thick,170);
+penpos10(5/6thick,180);
+penpos11(thick,0);
+penpos12(penthick,-90);
+pickup pencircle scaled 1s;
+%
+%  penstroke z1e{2left}..z2e..z11e..z3e
+%  ..z4e{right+up}..z10e..{up}z5e..z6e;
+%  penstroke z6e{down+left}..{down}z7e--z8e;
+% fill z8l{2down+right}..z12l..z9l
+%  --z9r..z12r..{up}z8r..cycle;
+%  pickup pencircle scaled 1s;
+%  fill z9l{3/2right+up}..{right+2down}z9r..cycle;
+penstroke z1e{2left}..z2e..z11e..z3e
+..z4e{right+up}..z10e..{up}z5e..z6e;
+penstroke z6e{down+left}..{down}z7e--z8e
+{2down+right}..z12e..{2left+up}z9e;
+pickup pencircle scaled 2.5s;
+drawdot (x9+0.4s,y9+0.8s);
+%
+penlabels(1,2,3,4,5,6,7,8,9,10,11,12);
+enddef;
+%
+beginchar(71,3.25nhw#, 6nhh#, 2nhh#);
+clear;
+violin(15/8nhh,1.75nhh,-1.5nhh,0.4nhh,0.111nhh);
+endchar;
+
+%%%%%%%%violin-schluessel verkleinert%%%%%%%%
+beginchar(72,2.60nhw#, 6nhh#, 2nhh#);
+clear;
+violin(12/8nhh,1.40nhh,-1.2nhh,0.32nhh,1/10nhh);
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%
+% BASS--SCHLUESSEL %%
+%%%%%%%%%%%%%%%%%%%%%
+% clef de fa par D. Taupin %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def bass (expr reduction) =
+  clear;
+  x2=0.80*reduction*nhw; y2=3nhh;
+  x1=x2+1.25*reduction*s; y1=y2;
+  x3=x2+0.71*reduction*nhw; y3=y2+reduction*nhh;
+  x4=x3+0.71*reduction*nhw; y4=y2-0.2*reduction*nhh;
+  x6=x2-6*reduction*thinwidth; y6=y2-2.2*reduction*nhh;
+  x7=x4+0.50*reduction*nhw; x8=x7;
+  y7=y2+0.38*reduction*nhh; y8=y2-0.38*reduction*nhh;
+%
+  currentpen:=pencircle scaled (4*reduction*thinwidth);
+  penpos2(6*reduction*thinwidth,180);
+  penpos3(6*reduction*thinwidth, 90);
+  penpos4(0.5*reduction*nhh,0);
+  penpos6(0.3*reduction*nhh,-30);
+  penstroke(z2e{up}..{right}z3e{right}..{down}z4e{down}..{left+0.1down}z6);
+  currentpen := pencircle scaled (0.4reduction*nhh);
+  pickup pencircle scaled (2*(x2-x1));
+         drawdot z1;
+  pickup pencircle scaled 1.7s;
+  drawdot z7; drawdot z8;
+enddef;
+%
+beginchar(73, 3nhw#, 4nhh#, 0);
+  bass(1.0);
+endchar;
+
+%%%%%%verkleinerter bass-schluessel%%%%%%%%%
+beginchar(74, 2.4*nhw#, 4nhh#, 0);
+  bass(0.8);
+endchar;
+
+%%%%%%%%%%%%%%%%%%%
+% ALT--SCHLUESSEL %
+%%%%%%%%%%%%%%%%%%%
+def alt(expr height, beginleft, begindown, thick) =
+x1=x7;
+x2=x8;
+y1-y7=height;
+y2-y8=height;
+y7=begindown;
+x7=beginleft;
+x2=x1+1/4height;
+x6l=x8l;
+y5=y7+1/2height;
+y9=y7+1/9height;
+x5=x3;
+y4=y5+0.120height;
+x4-x7=height+3thinwidth;
+x4-x5=1/2height+3thinwidth;
+y3-y5=2/7height;
+y8=y7;
+y6=y7;
+x9=0.62x5+0.38x4;
+x10=x9; y10=y7+height;
+x11=0.5x3+0.5x6; y11=y3; penpos11(1/2thick,0);
+penpos8(1/4thick,180);
+penpos2(1/4thick,180);
+penpos1(thick,180);
+penpos7(thick,180);
+penpos6(thick,0);
+penpos5(1/10thick,0);
+penpos9(1/3thick,90);
+penpos3(1/2thick,0);
+penpos4(thick,180);
+penpos10(1/3thick,-90);
+
+pickup pencircle scaled 1s;
+fill z7l--z1l--z1r--z7r--cycle;
+fill z8l--z2l--z2r--z8r--cycle;
+penstroke z5e..{left+2down}z6e;
+penstroke z5e{right+4down}..{right}z9e{right}..{up}z4e{up}..{left}z10e{left}..{left+4down}z11e;
+
+
+pickup pencircle scaled 1s;
+penstroke
+ (counterclockwise(z7e--z1e)reflectedabout(z7,z8));
+penstroke
+(counterclockwise(z8e--z2e)reflectedabout(z7,z8));
+penstroke
+(counterclockwise(z5e..{left+2down}z6e)reflectedabout(z7,z8));
+penstroke
+(counterclockwise (z5e{right+4down}..{right}z9e{right}..{up}z4e{up}..{left}z10e{left}..{left+4down}z11e)
+reflectedabout(z7,z8));
+
+pickup pencircle scaled 2.5s;
+drawdot (x3+0.1nhh, y3);
+drawdot (x3+0.1nhh, 2y7-y3);
+penlabels(1,2,3,4,5,6,7,8);
+enddef;
+
+%%%%%%%%%%%Altschl"usseL%%%%%%%%%%%
+beginchar(75,3.5nhw#, 4nhh#, 0nhh#);
+clear;
+alt(2nhh,1.25nhh,2nhh,0.4nhh);
+endchar;
+
+%%%%%%%%%Verkleinerter Altschluessel%%%%%%%%%
+beginchar(76,2.8nhw#, 4nhh#, 0nhh#);
+clear;
+alt(1.6nhh,1.00nhh,2nhh,0.32nhh);
+endchar;
+
+%%%%%%%%%Baritonschluessel%%%%%%%%%
+beginchar(77,3.5nhw#, 4nhh#, 0nhh#);
+clear;
+alt(2nhh,1.25nhh,4nhh,2/5nhh);
+endchar;
+
+%%%%%%%%%Mezzosopranschluessel%%%%%%%%%
+beginchar(78,3.5nhw#, 4nhh#, 0nhh#);
+clear;
+alt(2nhh,1.25nhh,1nhh,2/5nhh);
+endchar;
+
+%%%%%%%%%Sopranschluessel%%%%%%%%%
+beginchar(79,3.5nhw#, 4nhh#, 0nhh#);
+clear;
+alt(2nhh,1.25nhh,0nhh,2/5nhh);
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                             %
+%                   SONDERZEICHEN                             %
+%                                                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+def alla_breve (expr trans) =
+         thin := 5thinwidth; thick := 1/2 nhh;
+         penpos1(thin, 0);
+         penpos2(thin, -90);
+         penpos3(thick,180);
+         penpos4(thin, 90);
+         penpos5(thin, 45);
+         penpos6(3/4thick,45);
+         2x2r = 2x4r = x1 + 2s = w;
+         x3r = 0; 2y1 = 3y2 = y4r = h;
+         y3r = 2/3h;
+         x5 = w -2s;
+         y5 = h -2s;
+         z6r = z5r;
+         penstroke (z1e..z2e..z3e..z4e..z5e) transformed trans;
+         currentpen := pencircle scaled (2/3thick);
+         drawdot z6;
+enddef;
+
+
+%%%%%%%%%%%%%%%
+% "fermate1" %%
+%%%%%%%%%%%%%%%
+beginchar(80, 2nhw#, 1.25nhh#, 0);
+         clear;
+         penpos2(nhh/3,90);
+         penpos4(nhh/3,90);
+         y2r =1.2h;
+         z1 =  origin; 2x2l = 2x4l = x3 = w; y4l = y3 = 0;
+         penstroke z1..z2e..z3;
+         currentpen:= pencircle scaled (nhh/3);
+         drawdot z4;
+endchar;
+%%%%%%%%%%%%%%%
+% "fermate2" %%
+%%%%%%%%%%%%%%%
+beginchar(81, 2nhw#, 0, 1.25nhh#);
+         clear;
+         penpos2(nhh/3,90);
+         penpos4(nhh/3,90);
+         y2l = -1.2d;
+         z1 =  origin; 2x2l = 2x4 = x3 = w;
+         y4r = y3 = 0;
+         penstroke (z1..z2e..z3);
+         currentpen := pencircle scaled (nhh/3);
+         drawdot z4;
+endchar;
+%%%%%%%%%%%%%%%%
+% "allabreve" %%
+%%%%%%%%%%%%%%%%
+beginchar(82, 2nhh#, 3nhh#, 0);
+         clear;
+         alla_breve(identity);
+         z7 = z4 + 2/16 h *up;
+         z8 = z2 + 2/16 h *down;
+         currentpen := pencircle scaled (thin);
+         draw z7--z8;
+endchar;
+%%%%%%%%
+% "C" %%
+%%%%%%%%
+beginchar(83, 2nhh#, 3nhh#, 0);
+         clear;
+         alla_breve(identity);
+endchar;
+%%%%%%%%%%%%%%%
+% "reverseC" %%
+%%%%%%%%%%%%%%%
+beginchar(84, 2nhh#, 3nhh#, 0);
+         clear;
+         transform T;
+    xxpart T = -yypart T; xypart T = yxpart T; % T is a reflection
+    (w/2,0) transformed T = (w/2,0);  (w/2,1) transformed T = (w/2,1);
+         thin := 5thinwidth; thick := 1/2 nhh;
+         penpos1(thin, 0);
+         penpos2(thin, -90);
+         penpos3(thick,180);
+         penpos4(thin, 90);
+         penpos5(thin, 45);
+         penpos6(3/4thick,45);
+         2x2r = 2x4r = x1 + 2s = w;
+         x3r = 0; 2y1 = 3y2 = y4r = h;
+         y3r = 2/3h;
+         x5 = w -2s;
+         y5 = h -2s;
+         z6r = z5r;
+         penstroke (counterclockwise
+         (z1e..z2e..z3e..z4e..z5e) transformed T);
+         currentpen := pencircle scaled (2/3thick);
+         drawdot (z6 transformed T);
+endchar;
+%%%%%%%%%%%%%%%
+% reprises sym%
+%%%%%%%%%%%%%%%
+beginchar(85, 2nhw#, 3nhh#, 0);
+  clear;
+  x1=0.5w; y1=0.5h;
+  x2=0.5nhh; y2=y1;
+  x3=x1; y3=y1+nhh;
+  x4=2x1-x2; y4=2y1-y2;
+  x5=2x1-x3; y5=2y1-y3;
+  pickup pencircle scaled 4thinwidth;
+  draw (x1,0)--(x1,h);
+  draw (0,y1)--(w,y1);
+  pickup pencircle xscaled 10thinwidth yscaled 4thinwidth;
+  draw z2..z3..z4..z5..cycle;
+endchar;
+beginchar(86, 3nhw#, 3nhw#, 0);
+  clear;
+  x1=0.5w; y1=0.5h;
+  x2=x1; y2=y1+0.4h;
+  x3=2x1-x2; y3=2y1-y2;
+  x4=x1-0.4h; y4=y1;
+  x5=2x1-x4; y5=2y1-y4;
+  x6=x1+0.4w; y6=y1+0.4h;
+  x7=2x1-x6; y7=2y1-y6;
+  pickup pencircle scaled 10thinwidth;
+ drawdot z2; drawdot z3;
+ drawdot z4; drawdot z5;
+  pickup pencircle scaled 4thinwidth;
+  draw z6--z7;
+%
+  x8=x1-0.3w; y8=y1+0.3h;
+  x9=2x1-x8; y9=2y1-y8;
+%
+  draw z8--z9;
+endchar;
+%%%%%%%%%%%%%%%
+%   " pince"  %
+%%%%%%%%%%%%%%%
+def pince =
+         clear;
+         x1=-0.125w; y1=0.25h;
+         x2=1/8w; y2=8/10h;
+         x3=0.5w-x2; y3=h-y2;
+         x4=0.5w+x2; y4=y2;
+         x5=0.5w+x3; y5=y3;
+         x6=w-x1; y6=h-y1;
+         pickup pencircle xscaled 0.40nhh yscaled 0.1nhh rotated 45;
+         draw (z1--z2--z3--z4--z5--z6);
+enddef;
+%
+beginchar(87, 1.2nhw#, 0.8nhh#, 0);
+  pince;
+endchar;
+%
+beginchar(88, 1.8nhw#, 0.8nhh#, 0);
+  w:=2w/3;
+  pince;
+  draw (z4--z5--z6) shifted (0.5w,0);
+endchar;
+%%%%%%%%%%%%%%%
+%  "mordant"  %
+%%%%%%%%%%%%%%%
+beginchar(89, 1.2nhw#, 0.8nhh#, 0);
+  pince;
+  pickup pencircle scaled (4thinwidth);
+  draw (0.5w,-0.4h)--(0.5w,1.4h);
+endchar;
+%%%%%%%%%%%%%%%
+%  arpeggio  %%
+%%%%%%%%%%%%%%%
+def arpegel =
+         clear;
+         y1=0; x1=0.5w;
+         y2=0.3nhh; x2=8/10w;
+         y3=nhh-y2; x3=w-x2;
+         y4=nhh; x4=0.5w;
+         pickup pencircle xscaled 0.40nhh yscaled 0.1nhh rotated 45;
+         draw (z1..z2..z3..z4);
+enddef;
+%
+beginchar(90, 0.4nhw#, nhh#, 0);
+  arpegel;
+endchar;
+for jj=1 upto 9:
+  beginchar(90+jj, 0.4nhw#, (1+jj)*nhh#, 0);
+  arpegel;
+  for kk=1 upto jj:
+         draw (z1..z2..z3..z4) shifted (0,kk*nhh);
+  endfor;
+endchar;
+endfor;
+%%%%%%%%%%%%%%%
+%  "trille"  %%
+%%%%%%%%%%%%%%%
+def arp_elem =
+         clear;
+         x1=0; y1=0.5h;
+         x2=1/3nhw; y2=8/10h;
+         x3=nhw-x2; y3=h-y2;
+         x4=nhw; y4=0.5h;
+         pickup pencircle xscaled 0.33nhh yscaled 0.1nhh rotated 45;
+         draw (z1..z2..z3..z4);
+enddef;
+%
+beginchar(100, nhw#, 0.45nhh#, 0);
+  arp_elem;
+endchar;
+%
+for jj=1 upto 9:
+  beginchar(100+jj, (jj+1)*nhw#, 0.45nhh#, 0);
+    arp_elem;
+    for kk=1 upto jj:
+         draw (z1..z2..z3..z4) shifted (kk*nhw,0);
+    endfor;
+  endchar;
+endfor;
+%%%%%%%%%%%%%%%%%%%%%%%
+%% "8flag nach unten" %
+%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(110, 0, 3apog_nhh#, 0);
+     clear;
+     w:=0.8*apog_fact*nhw;
+     flagshape(1,w, h, apog_nhh, 5thinwidth, 0, 0);
+     w:=0;
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% "16flag nach unten" %
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar(111, 0, 3.25apog_nhh#, 0);
+     clear;
+     w:=0.8*apog_fact*nhw;
+     flagshape(1, w, 2.5apog_nhh, 2/3apog_nhh, 5thinwidth, 0, 0);
+     flagshape(5,.95 w, 2.25 apog_nhh, 2/3apog_nhh, 5thinwidth, 0, apog_nhh);
+     w:=0;
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% "32flag nach unten" %
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar(112, 0, 3.75apog_nhh#, 0);
+     clear;
+     w:=0.8*apog_fact*nhw;
+     flagshape(1, w, 2.5apog_nhh, 2/3apog_nhh, 5thinwidth, 0, 0);
+     flagshape(5, .95w, 2.25 apog_nhh, 2/3apog_nhh, 5thinwidth, 0, apog_nhh);
+     flagshape(9, .9w, 2  apog_nhh, 2/3apog_nhh, 5thinwidth, 0, 1.75apog_nhh);
+     w:=0;
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% "64flag nach unten" %
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar(113, 0, 4.25apog_nhh#, 0);
+     clear;
+     w:=0.8*apog_fact*nhw;
+     flagshape(1, w, 2.5apog_nhh, 2/3apog_nhh, 5thinwidth, 0, 0);
+     flagshape(5,.95 w, 2.25 apog_nhh, 2/3apog_nhh, 5thinwidth, 0, apog_nhh);
+     flagshape(9,.9w, 2 apog_nhh, 2/3apog_nhh, 5thinwidth, 0, 1.75apog_nhh);
+     flagshape(13,0.85w, 2apog_nhh, 2/3apog_nhh, 5thinwidth, 0, 2.25apog_nhh);
+     w:=0;
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% "128flag nach unten" %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar(114, 0, 4.5apog_nhh#, 0);
+     clear;
+     w:=0.8*apog_fact*nhw;
+     flagshape(1, w, 2.5apog_nhh, 2/3apog_nhh, 5thinwidth, 0, 0);
+     flagshape(5, w, 2.25apog_nhh, 2/3apog_nhh, 5thinwidth, 0, apog_nhh);
+     flagshape(9, w, 2 apog_nhh, 2/3apog_nhh, 5thinwidth, 0, 1.75apog_nhh);
+     flagshape(13,0.9 w, 2apog_nhh, 2/3apog_nhh, 5thinwidth, 0, 2.25apog_nhh);
+     flagshape(17,0.9 w, 1.5apog_nhh, 1/3apog_nhh, 5thinwidth, 0, 3apog_nhh);
+     w:=0;
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%
+%% "8flag nach oben" %
+%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar(115, 0, 3apog_nhh#, 0);
+     clear;
+     w:=0.8*apog_fact*nhw;
+     flagshaper(1,w, h, apog_nhh, 5thinwidth, origin);
+     penlabels(1,2,3,4);
+     w:=0;
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% "16flag nach oben" %
+%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar(116, 0, 3.25apog_nhh#, 0);
+     clear;
+     w:=0.8*apog_fact*nhw;
+     flagshaper(1, w, 2.5apog_nhh, 2/3apog_nhh, 5thinwidth, (0,0.75apog_nhh));
+     flagshaper(5, w, 2.25 apog_nhh, 2/3apog_nhh, 5thinwidth,(0,-0.25apog_nhh));
+     penlabels(1,2,3,4,5,6,7,8);
+     w:=0;
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% "32flag nach oben" %
+%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar(117, 0, 3.75apog_nhh#, 0);
+     clear;
+     w:=0.8*apog_fact*nhw;
+     flagshaper(1, w, 2.5apog_nhh, 2/3apog_nhh, 5thinwidth, (0,1.5apog_nhh));
+     flagshaper(5, w, 2.5apog_nhh, 2/3apog_nhh, 5thinwidth, (0,0.75apog_nhh));
+     flagshaper(9, .95w, 2.25 apog_nhh, 2/3apog_nhh, 5thinwidth, origin);
+     penlabels(1,2,3,4,5,6,7,8,9,10,11,12);
+     w := 0;
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% "64flag nach oben" %
+%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar(118, 0, 4.25apog_nhh#, 0);
+     clear;
+     w:=0.8*apog_fact*nhw;
+     flagshaper(1, w, 2.5apog_nhh, 2/3apog_nhh, 5thinwidth, (0,1.75apog_nhh));
+     flagshaper(5, w, 2.25 apog_nhh, 2/3apog_nhh, 5thinwidth, (0,1apog_nhh));
+     flagshaper(9,w, 2 apog_nhh, 2/3apog_nhh, 5thinwidth, (0,0.34apog_nhh));
+     flagshaper(13,0.9w, 2apog_nhh, 2/3apog_nhh, 5thinwidth, (0,-0.32apog_nhh));
+     penlabels(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16);
+     w := 0;
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% "128flag nach oben" %
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar(119, 0, 4.5apog_nhh#, 0);
+     clear;
+     w:=0.8*apog_fact*nhw;
+     flagshaper(1, w, 2.25apog_nhh, 2/3apog_nhh, 5thinwidth, (0,2.5apog_nhh));
+     flagshaper(5, w, 2.25apog_nhh, 2/3apog_nhh, 5thinwidth, (0,1.75apog_nhh));
+     flagshaper(9, w, 2 apog_nhh, 2/3apog_nhh, 5thinwidth, (0,1apog_nhh));
+     flagshaper(13,0.9 w, 2apog_nhh, 2/3apog_nhh, 5thinwidth, (0,0.5apog_nhh));
+     flagshaper(17,0.9 w, 2apog_nhh, 1/3apog_nhh, 5thinwidth, (0,0apog_nhh));
+     w := 0;
+endchar;
+%%%%%%%%%%%%%%%%
+% kleine versetzungen
+%%%%%%%%%%%%%%%%
+beginchar(120, apog_fact*nhw#, 2apog_fact*nhh#, 2apog_fact*nhh#);
+ flat (apog_fact);
+endchar;
+beginchar(121,2*apog_fact*nhw#, 2*apog_fact*nhh#, 2*apog_fact*nhh#);
+         flat (apog_fact);
+         draw (z1--z3) shifted ((w/2 - 1.5s),0);
+         penstroke (z2e..z4e...z3e{3left+2down})shifted ((w/2 -1.5s),0);
+endchar;
+beginchar(122, 0.8apog_fact*nhw#, 1.5apog_fact*nhh#, 1.5apog_fact*nhh#);
+  sharp(apog_fact);
+endchar;
+beginchar(123, apog_fact*nhw#, .5nhw#, .5nhw#);
+         clear;
+         z1 = (0.150w, h-0.150w); z2 = (w-0.150w, h-0.150w);
+         z3 = (0.150w,-h+0.150w); z4 = (w-0.150w,-h+0.150w);
+         pwidth:=0.2*apog_fact*nhh;
+         currentpen:= pencircle scaled pwidth;
+         draw z1--z4; draw z3--z2;
+         currentpen:= pensquare scaled .30w;
+         drawdot z1; drawdot z2; drawdot z3; drawdot z4;
+endchar;
+beginchar(124, 0.8apog_fact*nhw#, 1.5apog_fact*nhh#, 1.5apog_fact*nhh#);
+  natural;
+endchar;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% volle Note mit | -->  |O|%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+beginchar(125,1.5nhh#, .5nhh#, .5nhh#);
+          drawnoteb(w, h, 0, 85, 0, nhh/3, 3*thinwidth);
+          pickup pensquare scaled 0.2w;
+          draw (-0.05w,-0.4nhh)--(-0.05w,0.4nhh);
+          draw (1.05w,-0.4nhh)--(1.05w,0.4nhh);
+endchar;
+

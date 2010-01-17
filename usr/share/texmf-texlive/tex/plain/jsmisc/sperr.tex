@@ -1,0 +1,116 @@
+% $Id: sperr.tex,v 1.2 1995/04/16 23:27:04 schrod Exp $
+%---------------------------------------------------------
+% Written by Joachim Schrod <schrod@iti.informatik.th-darmstadt.de>.
+% This file is distributed without any copyright restriction.
+
+
+%
+% Makro-Datei zum Sperren von Zeichenfolgen.
+%
+% Bitte sperrt damit keine Gemeinen.
+%
+%                                Joachim Schrod
+%
+
+%
+% Benutzung: \sperr{TEXT}{KERNING}
+%     Wenn in TEXT mehrere Token als eines behandelt werden sollen
+%     (z.B. Umlaute), m\"ussen diese Tokens geklammert werden.
+%
+
+
+\ifx \CatEscape\undefined
+    \chardef\CatEscape=0
+    \chardef\CatOpen=1
+    \chardef\CatClose=2
+    \chardef\CatIgnore=9
+    \chardef\CatLetter=11
+    \chardef\CatOther=12
+    \chardef\CatActive=13               % \active of plain.tex
+    \chardef\CatInvalid=15
+
+    \chardef\CatAtCode=\catcode`\@
+    \chardef\CatUsCode=\catcode`\_
+\fi
+
+\catcode`\@=\CatLetter                  % top level macro file
+\catcode`\_=\CatLetter
+
+\begingroup
+    \catcode`\$=\CatIgnore
+    \catcode`\:=\CatIgnore
+    \message{Text sperren, $Revision: 1.2 $}
+\endgroup
+
+
+\let\end_list=\relax
+\edef\empty_list{\end_list}
+
+\def\split#1#2\end_list{%
+   \edef\sec_char{#1}%
+   \toks@={#2\end_list}%
+   }
+
+\def\do_split{%
+   \expandafter \split \the\toks@ \end_list
+   }
+
+\def\next_char{%
+   \edef\first_char{\sec_char}%
+   \do_split
+   }
+
+
+
+\newdimen\sperr_width
+
+\def\sperr#1#2{%        % Text, Sperrbreite
+   \toks@={#1\end_list}%
+   \sperr_width=#2\relax
+   \do_split
+   \next_char           % initialize pipeline
+   \ifx \sec_char\empty_list  #1%     % nur 1 Zeichen
+   \else  \do_sperr
+   \fi
+   }
+
+
+\newif \if@loop
+
+\def\do_sperr{%
+   \loop
+      \set_char         % Zeichen und nachfolgendes Kerning setzen
+      \next_char
+      \ifx \sec_char\empty_list
+         \first_char
+         \@loopfalse
+      \else  \@looptrue
+      \fi
+      \if@loop
+   \repeat
+   }
+
+
+
+
+\newbox\kern_box
+\newdimen\kern_width
+
+\def\set_char{%
+   \setbox\kern_box=\hbox{\first_char\sec_char}%
+   \kern_width=\wd\kern_box
+   \setbox\kern_box=\hbox{\hbox{\first_char}\hbox{\sec_char}}%
+   \advance \kern_width by -\wd\kern_box
+   \advance \kern_width by \sperr_width
+   \first_char \kern\kern_width
+   }
+
+
+
+
+\catcode`\@=\CatAtCode
+\catcode`\_=\CatUsCode
+
+
+
+\endinput

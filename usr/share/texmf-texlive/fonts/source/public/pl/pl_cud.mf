@@ -1,0 +1,146 @@
+% ---------------------------------------------------------------------------
+% This is PL_CUD.MF ({\bif{}polskie i francuskie cudzys\l{}owy}, i.e., Polish
+% and French quotation marks: ,, << and >>) in text format.
+% The program is based on excerpts from the COMLIG.MF and ROMSUB.MF files.
+% ---------------------------------------------------------------------------
+% PL VERSION 1.09, April 13th, 2001 -- released for BachoTeX 2001
+% ---------------------------------------------------------------------------
+% AUTHORS: {\bif{}Bogus\l{}aw Jackowski \& Marek Ry\'cko}
+% ---------------------------------------------------------------------------
+% This file belongs to the public domain under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% 
+% In particular, only the authors are entitled to modify this file.
+% 
+% For details see either the file MEXINFO.POL or MEXINFO.ENG.
+% ---------------------------------------------------------------------------
+
+
+% ---------------------------------------------------------------------------
+%%% italcorr corrital
+%%% beginchar beginchar_twice
+%%% endfor repeat_once
+% ---------------------------------------------------------------------------
+
+cmchar "Polish opening quotes";
+if ligs>0:
+% in typical fonts the Polish opening quotation mark is based on COMLIG's
+% |"Closing quotes"|:
+beginchar(polish_opening_quotes,7u#+max(2u#,dot_size#),dot_size#,
+  comma_depth#);
+ adjust_fit(0,0);
+ x2+.5dot_size=hround(w-1.2u);
+ y2+.5dot_size=h;
+ x2-x1=hround(1.5u+max(2u,dot_size));
+ y2=y1;
+ comma(1,a,dot_size,.25u,comma_depth); % left dot and tail
+ comma(2,b,dot_size,.25u,comma_depth); % right dot and tail
+ penlabels(1,2);
+else:
+% in tt-like fonts the Polish opening quotation mark are based on ROMSUB's
+% |"Straight double quote"|:
+beginchar(polish_opening_quotes,9u#,asc_height#,0);
+ numeric top_width#,spread#,shifth_down;
+ top_width#=if serifs: flare# else: stem# fi;
+ spread#=max(3u#,top_width#+.5u#); define_pixels(spread);
+ adjust_fit(0,0);
+ numeric the_shift;
+ x1=x2; x3=x4=w-x1; x3-x1=spread+2; y1=y3;
+ y2=y4=max(.5[bar_height,x_height]+.5vair,h-x_height)-the_shift;
+ if serifs:
+  y1=flare/2; the_shift=h-.5stem-y1;
+  pickup crisp.nib;
+  pos1(flare,0); pos2(vair,0); pos3(flare,0); pos4(vair,0);
+  filldraw circ_stroke (z1e--z2e); % left stem and bulb
+  filldraw circ_stroke (z3e--z4e); % right stem and bulb
+ else:
+  top y1=stem; the_shift=h-y1;
+  pickup fine.nib;
+  pos1(stem,0); pos2(vair,0); pos3(stem,0); pos4(vair,0);
+  filldraw stroke z1e--z2e; % left stem
+  filldraw stroke z3e--z4e; % right stem
+ fi
+ charht:=dot_size#; chardp:=desc_depth#;
+ penlabels(1,2,3,4);
+fi
+endchar;
+% ------------------------------------------------------------------------
+cmchar "French opening quotes";
+beginchar_twice(
+  if not serifs or monospace:
+   french_opening_quotes,9u#,2bar_height#,0
+  else:
+   french_opening_quotes,10u#,2bar_height#,0
+  fi
+ );
+ adjust_fit(0,0);
+ pickup fine.nib;
+ numeric the_shift,shift_corr;
+ the_shift=hround(max(3u,1.7stem)); shift_corr=the_shift-3u;
+ pos1(qvair,0); pos2(if monospace: qvair else: stem fi,0); pos3(qvair,0);
+ rt x1r=rt x3r=hround(5u-shift_corr)-eps;
+ lft x2l=hround(if not monospace: 2 fi\\ u-shift_corr)-eps;
+ bot y3=0; y2=good.y(h/2); top y1=2y2;
+ for i:=1,2,3:
+  forsuffixes $:=r, ,l: z[i]'$=z[i]$ + the_shift*right; endfor
+ endfor
+ if not serifs or monospace:
+  filldraw stroke z1e--z2e--z3e; filldraw stroke z1'e--z2'e--z3'e;
+ else:
+  filldraw stroke
+   z1e{(x2e-x1e),1.8(y2e-y1e)}..{curl1}z2e{curl1}..
+   {(x3e-x2e),1.8(y3e-y2e)}z3e;
+  filldraw stroke
+   z1'e{(x2'e-x1'e),1.8(y2'e-y1'e)}..{curl1}z2'e{curl1}..
+   {(x3'e-x2'e),1.8(y3'e-y2'e)}z3'e;
+ fi;
+% italic correction is set to |0| in |beginchar|, so let's correct it
+ corrital z1'r;
+ penlabels(1,2,3,1',2',3');
+repeat_once
+endchar; % French opening quotes
+% ------------------------------------------------------------------------
+cmchar "French closing quotes";
+ beginchar_twice(
+  if not serifs or monospace:
+   french_closing_quotes,9u#,2bar_height#,0
+  else:
+   french_closing_quotes,10u#,2bar_height#,0
+  fi
+ );
+ adjust_fit(0,0);
+ pickup fine.nib;
+ numeric the_shift,shift_corr;
+ the_shift=hround(max(3u,1.7stem)); shift_corr=the_shift-3u;
+ pos1(qvair,0); pos2(if monospace: qvair else: stem fi,0); pos3(qvair,0);
+ lft x1l=lft x3l=w-hround(5u-shift_corr)+eps;
+ rt x2r=w-hround(if not monospace: 2 fi\\ u-shift_corr)+eps;
+ bot y3=0; y2=good.y(h/2); top y1=2y2;
+ for i:=1,2,3:
+  forsuffixes $:=r, ,l: z[i]'$=z[i]$ + the_shift*left; endfor
+ endfor
+ if not serifs or monospace:
+  filldraw stroke z1e--z2e--z3e; filldraw stroke z1'e--z2'e--z3'e;
+ else:
+  filldraw stroke
+   z1e{(x2e-x1e),1.8(y2e-y1e)}..{curl1}z2e{curl1}..
+   {(x3e-x2e),1.8(y3e-y2e)}z3e;
+  filldraw stroke
+   z1'e{(x2'e-x1'e),1.8(y2'e-y1'e)}..{curl1}z2'e{curl1}..
+   {(x3'e-x2'e),1.8(y3'e-y2'e)}z3'e;
+ fi;
+% italic correction is set to |0| in |beginchar|, so let's correct it
+ corrital z2r;
+ penlabels(1,2,3,1',2',3');
+repeat_once
+endchar; % French closing quotes
+% ------------------------------------------------------------------------
+if ligs>0: % no ligatures in tt fonts
+ ligtable ",": "," =: polish_opening_quotes;
+ ligtable "<": "<" =: french_opening_quotes;
+ ligtable ">": ">" =: french_closing_quotes;
+fi
+% ------------------------------------------------------------------------
+endinput;
+%%\end
+

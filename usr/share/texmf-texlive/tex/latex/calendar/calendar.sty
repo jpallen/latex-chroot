@@ -1,0 +1,741 @@
+%%
+%% This is file `calendar.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% calendar.dtx  (with options: `style')
+%% This file is part of the Calendar package,
+%% Copyright (C) 1996, 1997 Frank Bennett, Jr.
+%% All rights reserved.
+%% ------------------------------------------
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% You are not allowed to change this file.  You may however copy
+%% this file to a file with a different name and then change the
+%% copy if (a) you do not charge for the modified code, (b) you
+%% acknowledge the author of this file in the new file, if it
+%% is distributed to others, and (c) you attach these same
+%% conditions to the new file.
+%% 
+%% You are not allowed to distribute this file alone.  You are not
+%% allowed to take money for the distribution or use of this file
+%% (or a changed version) except for a nominal charge for copying
+%% etc.
+%% 
+%% You are allowed to distribute this file under the condition that
+%% it is distributed with all of its contents, intact.
+%% 
+%% For error reports, or offers to help make this a more powerful,
+%% friendlier, and altogether more thrilling package, please contact me on
+%% fb@soas.ac.uk.  Better yet, make a contribution to
+%% my pension.  Account details available on request.
+%% ------------------------------------------
+%% 
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{calendar}
+          [1998/01/17 18:14:52 3.1.1.1 Calendar engine (Frank Bennett)]
+\DeclareOption{english}{\PassOptionsToPackage{\CurrentOption}{dates}}
+\DeclareOption{german}{\PassOptionsToPackage{\CurrentOption}{dates}}
+\ProcessOptions
+\RequirePackage{dates}[1997/10/29]
+\RequirePackage{keyval}
+\def\cal@parseincrement#1#2#{%
+  \def\cal@incr{#1}%
+  \def\cal@subgroup@setup{#2}}%
+\long\def\newcalendar#1#2#3#4#5#6#7#8#9{%
+  \expandafter\def\csname cal@#1@bridge\endcsname{%
+    \def\cal@output{#2}%
+    \def\cal@first@weekday{#3}%
+    \def\cal@group@length{#4}%
+    \def\cal@subgroup@length{#5}%
+    \def\cal@item@sep@real{#6}%
+    \cal@parseincrement#7{}%
+    \def\cal@header{#8}%
+    \def\cal@footer{#9}}%
+    \@newcalendar{#1}}
+\long\def\@newcalendar#1#2#3#4#5#6#7#8#9{%
+  \expandafter\def\csname#1\endcsname##1##2{%
+    #4%
+    \gdef\cal@optionslist{##1}%
+    \setkeys{opt}{##1}%
+    \gdef\cal@files{##2}%
+    \dateread{}}%
+  \expandafter\def\csname end#1\endcsname{\relax%
+    \ifnum\dates@subrange@start=0%
+      \dates@subrange@start\dates@date%
+      \dates@subrange@end\dates@date%
+    \fi%
+    \global\dates@date\dates@subrange@start%
+    \caldate%
+    \cal@date@base\dates@date%
+    \cal@range@start\dates@subrange@start%
+    \cal@range@end\dates@subrange@end%
+    #5%
+    \dates@range@limit\cal@range@end%
+    \csname cal@#1@bridge\endcsname%
+    \def\cal@groupbreak{#2}%
+    \def\cal@subgroupbreak{#3}%
+    \long\def\cal@entry@sep{#6}%
+    \def\cal@item@init{#7}%
+    \def\cal@entry@init{#8}%
+    \long\def\cal@item@text{#9}%
+  \@ifundefined{color}%
+   {\let\textcolor\@gobble%
+    \let\colorbox\@gobble}%
+   {}%
+    \ifcat$\cal@files$%
+    \else%
+      \dates@requiremonthtrue%
+      \dates@requiredaytrue%
+      \expandafter\cal@input\cal@files,,\end%
+    \fi%
+    \cal@sorts%
+    \global\dates@date\cal@range@start%
+    \caldate%
+    \cal@top}}%
+\def\cal@check@colon#1:#2#{%
+  \def\dates@arg@a{#1}%
+  \def\dates@arg@b{#2}}
+\def\cal@input#1,#2,\end{%
+  \ifcat$#1$%
+    \let\cal@input@next\relax%
+    \global\let\cal@files\relax%
+  \else%
+    \advance\cal@engine by 1%
+    \cal@check@colon#1:{}%
+    \ifcat$\dates@arg@b$%
+      \expandafter\edef\csname cal@\the\cal@engine @color\endcsname{}%
+      \xdef\cal@color{}%
+    \else%
+      \expandafter\dates@strip@colon\dates@arg@b%
+      \expandafter\edef%
+        \csname cal@\the\cal@engine @color\endcsname{\dates@arg@b}%
+      \gdef\cal@color{:\dates@arg@b}%
+    \fi%
+    \xdef\cal@input@file{\dates@arg@a}%
+    \let\cal@input@next\cal@input%
+    \xdef\cal@files{#2,,\noexpand\end}%
+    \IfFileExists{\cal@input@file.eve}%
+      {\PackageWarning{Calendar}%
+         {Using freeze file \cal@input@file.eve}%
+       \expandafter\ifx\csname\cal@input@file @cal@engine\endcsname%
+       \relax%
+         \@@input\cal@input@file.eve\relax%
+       \fi}%
+      {\IfFileExists{\cal@input@file.cld}%
+        {\expandafter\ifx%
+           \csname\cal@input@file @cal@engine\endcsname%
+         \relax%
+           \cal@dofreezefalse%
+           \gdef\cal@exceptionlist{}%
+           \expandafter\cal@read%
+           \@@input\cal@input@file.cld\relax{}%
+           \ifcal@dofreeze%
+             \immediate\closeout\cal@freeze@file%
+           \fi%
+         \fi}%
+        {\@missingfileerror{\cal@input@file}{cld}}}%
+  \fi%
+  \expandafter\edef%
+    \csname\cal@input@file @cal@engine\endcsname{\the\cal@engine}%
+  \expandafter\cal@input@next\cal@files}
+\def\cal@input@next@default{\expandafter\cal@input@clone\cal@files}
+\def\cal@append{%
+  \ifcal@holidays%
+    \cal@except%
+  \else%
+    \cal@checkexception%
+    \ifcal@useentry%
+      \ifcal@noexport%
+      \else%
+        \ifcal@dofreeze%
+          \cal@freeze%
+        \fi%
+      \fi%
+      \ifcal@noload%
+      \else%
+        \ifnum\dates@date<\cal@range@start%
+        \else%
+          \ifnum\dates@date>\cal@range@end%
+          \else%
+            \cal@list@init{events}%
+            \cal@list@init{appointments}\relax%
+            \ifnum\dates@time@start=0%
+              \cal@list@append{events}%
+            \else%
+              \cal@list@append{appointments}%
+            \fi%
+          \fi%
+        \fi%
+      \fi%
+    \fi%
+  \fi}
+\def\cal@list@append#1{%
+  \cal@reg@a=%
+    \expandafter\expandafter\expandafter{%
+    \csname\the\dates@date @#1\endcsname}%
+  \cal@reg@b\expandafter{\theshorttext}%
+  \cal@reg@c\expandafter{\thelongtext}%
+  \expandafter\edef%
+  \csname\the\dates@date @#1\endcsname{%
+    \the\cal@reg@a%
+    \noexpand\cal@delim%
+    {\the\dates@time@start}%
+    {\the\dates@time@end}%
+    {\ifcal@noexport%
+       0%
+     \else%
+       \the\cal@engine%
+     \fi}%
+    {\the\cal@reg@b}%
+    {\the\cal@reg@c}}}%
+\def\cal@list@init#1{%
+  \expandafter\ifx%
+  \csname\the\dates@date @#1\endcsname%
+  \relax%
+    \expandafter\def%
+    \csname\the\dates@date @#1\endcsname%
+      {}%
+  \fi}
+\def\cal@read{%
+  \dateread{\cal@append}}
+\def\cal@sorts{%
+  \global\dates@date\cal@range@start%
+  \let\cal@@sorts@next\cal@@sorts%
+  \cal@@sorts}
+\def\cal@@sorts{\relax%
+  \ifnum\dates@date>\cal@range@end%
+    \let\cal@@sorts@next\cal@@sorts@exit%
+  \else%
+    \expandafter\ifx%
+    \csname\the\dates@date @events\endcsname\relax%
+    \else%
+      \cal@sort{\the\dates@date @events}%
+    \fi%
+    \expandafter\ifx%
+    \csname\the\dates@date @appointments\endcsname\relax%
+    \else%
+      \cal@sort{\the\dates@date @appointments}%
+    \fi%
+    \global\advance\dates@date by 1%
+  \fi%
+  \cal@@sorts@next}
+\def\cal@@sorts@exit{%
+  \global\dates@date\cal@range@start%
+  \caldate}
+\def\cal@sort@init{%
+  \cal@sort@A=-1%
+  \cal@sort@B=0%
+  \cal@sort@C=0%
+  \cal@sort@D{}%
+  \cal@sort@E{}%
+  \global\let\cal@sort@new\cal@sort@list%
+  \cal@appendright%
+  \let\cal@sort@list\cal@sort@new%
+  \gdef\cal@sort@new{}%
+  \cal@sort@passonetrue}
+\def\cal@sort#1{%
+  \expandafter\let\expandafter\cal@sort@list\csname#1\endcsname%
+  \cal@sort@init%
+  \global\let\cal@delim\cal@@sort%
+  \cal@sort@list%
+  \expandafter\let\csname#1\endcsname\cal@sort@new}
+\def\cal@@sort#1#2#3#4#5{%
+  \cal@sort@a=#1%
+  \cal@sort@b=#2%
+  \cal@sort@c=#3%
+  \cal@sort@d{#4}%
+  \cal@sort@e{#5}%
+  \let\cal@@sort@next\relax%
+  \ifnum\cal@sort@a=-1\relax%
+    \message{.}%
+    \cal@appendright%
+    \ifcal@nosortchange%
+    \else%
+      \cal@nosortchangetrue%
+      \cal@sort@passonetrue%
+      \cal@sort@swap%
+      \cal@appendright%
+      \let\cal@@sort@next\cal@sort@new%
+      \gdef\cal@sort@new{}%
+    \fi%
+  \else%
+    \ifcal@sort@passone%
+    \else%
+    \ifnum\cal@sort@A>\cal@sort@a\relax%
+      \cal@nosortchangefalse%
+      \cal@sort@swap%
+      \cal@appendright%
+    \else%
+        \cal@appendright%
+    \fi%
+  \fi%
+  \cal@sort@swap%
+  \cal@sort@passonefalse%
+  \fi%
+  \cal@@sort@next}
+\def\cal@appendright{%
+  \cal@reg@a\expandafter{\cal@sort@new}%
+  \xdef\cal@sort@new{%
+    \the\cal@reg@a%
+    \noexpand\cal@delim%
+    {\the\cal@sort@A}%
+    {\the\cal@sort@B}%
+    {\the\cal@sort@C}%
+    {\the\cal@sort@D}%
+    {\the\cal@sort@E}}}
+\def\cal@sort@swap{%
+  \cal@count@a\cal@sort@a%
+  \cal@sort@a\cal@sort@A%
+  \cal@sort@A\cal@count@a%
+  \cal@count@a\cal@sort@b%
+  \cal@sort@b\cal@sort@B%
+  \cal@sort@B\cal@count@a%
+  \cal@count@a\cal@sort@c%
+  \cal@sort@c\cal@sort@C%
+  \cal@sort@C\cal@count@a%
+  \cal@reg@a\expandafter{\the\cal@sort@d}%
+  \cal@sort@d\expandafter{\the\cal@sort@D}%
+  \cal@sort@D\expandafter{\the\cal@reg@a}%
+  \cal@reg@a\expandafter{\the\cal@sort@e}%
+  \cal@sort@e\expandafter{\the\cal@sort@E}%
+  \cal@sort@E\expandafter{\the\cal@reg@a}}
+\def\cal@top{\relax%
+  \ifnum\tracingdates>0%
+    \message{^^J\themonth}%
+  \fi%
+  \let\cal@add@date@item\cal@add@date@item@default%
+  \advance\cal@range@end by 1%
+  \global\cal@subgroup@count0%
+  \global\cal@group@count0%
+  \cal@subgroup@len\cal@subgroup@length%
+  \advance\cal@subgroup@len by -1\relax%
+  \global\cal@group@len\cal@group@length%
+  \cal@first@weekd\cal@first@weekday\relax%
+  \ifnum\cal@first@weekd=0%
+    \cal@last@weekd=6%
+  \else%
+    \cal@last@weekd\cal@first@weekd%
+    \advance\cal@last@weekd by -1%
+  \fi%
+  \cal@subgroup@setup%
+  \cal@output{\cal@header}\cal@begin@subgroup}
+\def\cal@begin@subgroup{%
+  \global\cal@subgroup@count=0%
+  \global\def\cal@item@sep{}%
+  \ifnum\dates@date<\cal@range@end\relax%
+    \ifnum\cal@group@count=\cal@group@len\relax%
+      \ifnum\tracingdates>0%
+        \message{^^J\themonth}%
+      \fi%
+      \global\cal@group@count=0%
+      \global\cal@group@len\cal@group@length%
+      \cal@subgroup@setup%
+      \cal@output{\cal@groupbreak}\relax%
+      \ifnum\cal@first@weekd<7%
+        \let\next\cal@pad@start%
+      \else%
+        \let\next\cal@add@date@item%
+      \fi%
+    \else%
+      \ifnum\cal@first@weekd<7\relax%
+        \let\next\cal@pad@start%
+      \else%
+        \let\next\cal@add@date@item%
+      \fi%
+    \fi%
+  \else%
+    \cal@output{\cal@footer}%
+    \let\next\relax%
+  \fi%
+  \next}
+\def\cal@add@date@item@default{\relax%
+  \ifnum\cal@group@count=\cal@group@len\relax%
+    \ifnum\cal@first@weekd<7%
+      \let\next\cal@pad@end%
+    \else%
+      \let\next\cal@begin@subgroup%
+    \fi%
+    \if\cal@incr G%
+      \global\advance\dates@date by 1%
+      \caldate%
+    \fi%
+    \if\cal@incr z%
+      \global\advance\dates@date by1%
+    \fi%
+  \else\relax%
+    \ifnum\cal@subgroup@count>\cal@subgroup@len\relax%
+      \if\cal@incr z%
+        \global\dates@date\cal@date@base%
+      \fi%
+      \ifnum\dates@date<\cal@range@end%
+        \if\cal@incr S%
+          \global\advance\dates@date by1%
+          \caldate%
+        \fi%
+        \cal@subgroup@setup%
+        \cal@output{\cal@subgroupbreak}%
+      \fi%
+      \let\next\cal@begin@subgroup%
+    \else%
+      \cal@output{\cal@item@sep}%
+      \global\def\cal@item@sep{\cal@item@sep@real}\relax%
+      \ifnum\tracingdates>0%
+        \message{\theday}%
+      \fi%
+      \cal@item@init%
+      \cal@output{\cal@item@text}%
+      \if\cal@incr I%
+        \global\advance\dates@date by 1%
+        \caldate%
+      \fi%
+      \if\cal@incr z%
+        \global\advance\dates@date by 1%
+        \caldate%
+      \fi%
+      \global\advance\cal@subgroup@count by 1\relax%
+      \global\advance\cal@group@count by 1\relax%
+      \let\next\cal@add@date@item%
+    \fi%
+  \fi%
+  \next}
+\def\cal@pad@start{%
+  \cal@temp@count\dates@date%
+  \bgroup%
+    \global\cal@offset=\dates@date%
+    \prevday\cal@first@weekd%
+    \global\advance\cal@offset by -\dates@date%
+  \egroup%
+  \global\dates@date\cal@temp@count%
+  \cal@pad@@start}
+\def\cal@pad@@start{\relax%
+  \ifnum\cal@offset=0\relax%
+    \global\def\cal@item@sep{}%
+    \let\next\cal@add@date@item%
+  \else%
+    \global\def\cal@item@sep{\cal@item@sep@real}%
+    \cal@output{\cal@item@sep}%
+    \global\advance\cal@offset by -1\relax%
+    \global\advance\cal@subgroup@count by 1\relax%
+    \let\next\cal@pad@@start%
+  \fi%
+  \next}
+\def\cal@pad@end{%
+  \cal@temp@count\dates@date%
+  \bgroup%
+    \global\cal@offset=\dates@date\relax%
+    \nextday\cal@last@weekd%
+    \advance\dates@date by -\cal@offset%
+    \global\cal@offset\dates@date\relax%
+    \ifnum\cal@offset=6%
+      \global\cal@offset=0%
+    \else%
+      \global\advance\cal@offset by 1%
+    \fi%
+  \egroup%
+  \global\dates@date\cal@temp@count%
+  \cal@pad@@end}
+\def\cal@pad@@end{\relax%
+  \ifnum\cal@offset=0\relax%
+    \let\next\cal@begin@subgroup%
+  \else%
+    \cal@output{\cal@item@sep}%
+    \global\advance\cal@offset by -1%
+    \global\advance\cal@subgroup@count by 1\relax%
+    \let\next\cal@pad@@end%
+  \fi%
+  \next}
+\def\ifanyitem#1#2{%
+  \gdef\cal@temp{#1}%
+  \expandafter\ifx%
+  \csname\the\dates@date @events\endcsname%
+  \relax%
+    \expandafter\ifx%
+    \csname\the\dates@date @appointments\endcsname%
+    \relax%
+      \gdef\cal@temp{#2}%
+    \fi%
+  \fi%
+  \let\next\cal@temp%
+  \next}
+\def\getanycolor{%
+  \gdef\calcolor{}%
+  \global\let\cal@delim\get@anycolor%
+  \csname\the\dates@date @events\endcsname%
+  \csname\the\dates@date @appointments\endcsname}
+\def\get@anycolor#1#2#3#4#5{%
+  \ifcat$\calcolor$%
+    \expandafter\ifx%
+    \csname cal@#3@color\endcsname%
+    \relax%
+    \else%
+      \xdef\calcolor{\csname cal@#3@color\endcsname}%
+    \fi%
+  \fi}
+\def\cal@get@events{%
+  \def\theevents{}%
+  \gdef\cal@entry@macro{\theevents}%
+  \expandafter\let%
+  \expandafter\cal@dumplist\csname\the\dates@date @events\endcsname%
+  \cal@print@items}
+\def\cal@get@appointments{%
+  \gdef\theappointments{}%
+  \gdef\cal@entry@macro{\theappointments}%
+  \expandafter\let%
+  \expandafter\cal@dumplist%
+  \csname\the\dates@date @appointments\endcsname%
+  \cal@print@items}
+\def\cal@print@items{%
+  \cal@sort@passonetrue%
+  \@ifnextchar[%
+   {\cal@@print@items}%
+   {\cal@@print@items[-1/-1]}}
+\def\cal@@print@items#1[#2/#3]{%
+  \cal@select@start=#2%
+  \cal@select@end=#3%
+  \@ifnextchar[%
+   {\cal@@@print@items}%
+   {\cal@@@print@items[-1]}}
+\def\cal@@@print@items#1[#2]{%
+  \cal@engine@limit=#2%
+  \global\let\cal@delim\cal@print@format%
+  \cal@dumplist}
+\def\cal@print@format#1#2#3#4#5{\relax%
+  \ifcat$#4$%
+  \else%
+    \def\theshorttext{#4}%
+    \ifcat$#5$%
+      \let\thelongtext\theshorttext%
+    \else%
+      \def\thelongtext{#5}%
+    \fi%
+    \global\dates@time@start#1\relax%
+    \global\dates@time@end#2\relax%
+    \mod{60}\dates@time@start\cal@minutes@start%
+    \cal@hours@start\dates@three%
+    \divide\cal@hours@start by60%
+    \mod{60}\dates@time@end\cal@minutes@end%
+    \cal@hours@end\dates@three%
+    \divide\cal@hours@end by60%
+    \ifnum\cal@minutes@start<10%
+      \xdef\cal@minutes@start@mac{%
+        0\the\cal@minutes@start}%
+    \else%
+      \xdef\cal@minutes@start@mac{%
+        \the\cal@minutes@start}%
+    \fi%
+    \ifnum\cal@minutes@end<10%
+      \xdef\cal@minutes@end@mac{%
+        0\the\cal@minutes@end}%
+    \else%
+      \xdef\cal@minutes@end@mac{%
+        \the\cal@minutes@end}%
+    \fi%
+    \xdef\cal@appt@start@text{%
+      \the\cal@hours@start:\cal@minutes@start@mac}%
+    \xdef\cal@appt@end@text{%
+      \the\cal@hours@end:\cal@minutes@end@mac}%
+    \cal@doeventfalse%
+    \cal@doapptfalse\relax%
+    \ifnum\cal@engine@limit>-1\relax%
+      \ifnum#3=\cal@engine@limit%
+        \cal@doeventtrue%
+      \fi%
+    \else%
+        \cal@doeventtrue%
+    \fi\relax%
+    \ifnum\cal@select@start>-1\relax%
+      \ifnum\dates@time@start<\cal@select@end%
+        \ifnum\dates@time@end>\cal@select@start%
+          \cal@doappttrue%
+        \else
+          \ifnum\dates@time@end=\cal@select@start%
+            \ifnum\dates@time@start=\dates@time@end%
+              \cal@doappttrue%
+            \fi%
+          \fi%
+        \fi%
+      \fi%
+    \else%
+      \cal@doappttrue%
+    \fi%
+    \ifcal@doappt%
+      \ifcal@doevent%
+        \xdef\calcolor{\csname cal@#3@color\endcsname}%
+        \ifcal@sort@passone%
+          \cal@reg@a{}%
+        \else%
+          \cal@reg@a\expandafter{\cal@entry@sep}%
+        \fi%
+        \cal@times@init%
+        \global\let\cal@textcolor\relax%
+        \cal@entry@init%
+        \global%
+        \global\let\cal@textcolor\cal@textcolor@default%
+        \cal@reg@b\expandafter{\cal@entry@text}%
+        \cal@reg@c%
+         \expandafter\expandafter%
+         \expandafter{\cal@entry@macro}%
+        \expandafter\xdef\cal@entry@macro{%
+           \the\cal@reg@c%
+           \the\cal@reg@a%
+           \the\cal@reg@b}%
+        \cal@sort@passonefalse%
+      \fi%
+    \fi%
+  \fi}
+\def\cal@times@init{%
+  \mod{60}\dates@time@start\dates@one%
+  \dates@three\dates@time@start%
+  \divide\dates@three by 60%
+  \ifnum\dates@one<10\relax%
+    \xdef\cal@temp{0\the\dates@one}%
+  \else%
+    \xdef\cal@temp{\the\dates@one}%
+  \fi%
+  \xdef\thetimestart{\the\dates@three:\cal@temp}%
+  \mod{60}\dates@time@end\dates@one%
+  \dates@three\dates@time@end%
+  \divide\dates@three by 60%
+  \ifnum\dates@one<10\relax%
+    \xdef\cal@temp{0\the\dates@one}%
+  \else%
+    \xdef\cal@temp{\the\dates@one}%
+  \fi%
+  \xdef\thetimeend{\the\dates@three:\cal@temp}}
+\def\cal@textcolor@default#1#2{%
+  \@ifundefined{color}
+    {\ifcat$#1$#2\else\textbf{#2}\fi}
+    {\ifcat$#1$#2\else\textcolor{#1}{#2}\fi}}
+\global\let\cal@textcolor\cal@textcolor@default
+\def\fremac{%
+  \immediate\openout\cal@freeze@file=\cal@input@file.eve\relax
+  \cal@dofreezetrue%
+}
+{\catcode`\%=12\xdef\cal@percent{%}}
+\def\cal@freeze{%
+  \immediate\write\cal@freeze@file\relax%
+  {\string\event%
+    {\the\dates@date}%
+    {\the\dates@time@start}%
+    {\the\dates@time@end}%
+    {\theshorttext}%
+    {\thelongtext}\cal@percent}}
+\def\event#1#2#3#4#5{%
+  \global\dates@date=#1\relax%
+  \global\dates@time@start=#2\relax%
+  \global\dates@time@end=#3\relax%
+  \def\theshorttext{#4}%
+  \def\thelongtext{#5}%
+  \cal@append}
+\def\ranmac{%
+  \global\let\dates@@@read\cal@@@read@ranmac}%
+\def\cal@@@read@ranmac{%
+  \global\let\dates@@@read\dates@@@read@default%
+  \@ifoverword\dates@serious@brace%
+    {\expandafter\cal@get@range\@gobble}%
+    {\cal@get@range}%
+    {\message{This can't happen.}}}
+\def\cal@get@range{%
+  \cal@noexporttrue%
+  \expandafter\ifx%
+  \csname\@overword @range@loaded\endcsname%
+  \relax%
+    \expandafter\def%
+    \csname\@overword @range@loaded\endcsname{%
+      1}%
+  \else%
+    \cal@noloadtrue%
+  \fi%
+  \IfFileExists{\@overword.cld}%
+    {\expandafter\cal@get@@range\@overword.cld rAN }%
+    {\@missingfileerror{\@overword}{cld}}}
+\def\cal@get@@range{%
+  \expandafter\dates@read\@@input}
+\def\rANmac{%
+  \cal@holidaysfalse%
+  \cal@noloadfalse\cal@noexportfalse}
+\def\holmac{%
+  \cal@holidaystrue%
+    \global\let\dates@@@read\cal@@@read@ranmac}%
+\def\cal@except{%
+  \cal@reg@a\expandafter{\cal@exceptionlist}%
+  \xdef\cal@exceptionlist{%
+    \noexpand\cal@delim{\the\dates@date}\the\cal@reg@a}}
+\def\cal@checkexception{%
+  \cal@useentrytrue%
+  \global\let\cal@delim\cal@@checkexception%
+  \cal@exceptionlist}
+\def\cal@@checkexception#1{\relax%
+  \ifnum\dates@date=#1\relax\cal@useentryfalse\fi}
+\def\lismac{%
+  \global\let\dates@@@read\cal@pass@list}
+\def\cal@grablist#1\end{%
+  \def\cal@grabbedlist{#1}}
+\def\cal@pass@list{%
+  \expandafter\cal@grablist\cal@files%
+  \global\let\dates@@@read\dates@@@read@default%
+  \@ifoverword\dates@serious@brace%
+    {\xdef\cal@files{%
+       \@overword\cal@color,\cal@grabbedlist\noexpand\end}%
+     \expandafter\dates@read\@gobble}%
+    {\message{I don't think I'm supposed to do this}%
+     \xdef\cal@files{%
+       \@overword\cal@color,\cal@grabbedlist\noexpand\end}}%
+    {\message{This can't happen}}}
+\newcount\cal@first@weekd
+\newcount\cal@range@start
+\newcount\cal@range@end
+\newcount\cal@temp@count
+\newcount\cal@last@weekd
+\newcount\cal@subgroup@len
+\newcount\cal@offset
+\newcount\cal@subgroup@count
+\newcount\cal@group@count
+\newcount\cal@group@len
+\newcount\cal@engine
+\newcount\cal@engine@limit
+\newcount\cal@select@start
+\newcount\cal@select@end
+\newcount\cal@hours@start
+\newcount\cal@minutes@start
+\newcount\cal@hours@end
+\newcount\cal@minutes@end
+\newcount\tracingdates
+\tracingdates=1
+\def\cal@sort@new{}
+\newtoks\cal@reg@a
+\newtoks\cal@reg@b
+\newtoks\cal@reg@c
+\newcount\cal@sort@A
+\newcount\cal@sort@B
+\newcount\cal@sort@C
+\newtoks\cal@sort@D
+\newtoks\cal@sort@E
+\newcount\cal@sort@a
+\newcount\cal@sort@b
+\newcount\cal@sort@c
+\newtoks\cal@sort@d
+\newtoks\cal@sort@e
+\newcount\cal@count@a
+\newwrite\cal@freeze@file
+\newif\ifcal@sort@passone
+\newif\ifcal@nosortchange
+\newif\ifcal@dofreeze
+\newif\ifcal@noload
+\newif\ifcal@noexport
+\newif\ifcal@holidays
+\newif\ifcal@useentry
+\newif\ifcal@doevent
+\newif\ifcal@doappt
+\def\cal@insert#1{#1}
+\expandafter\edef\csname cal@0@color\endcsname{black}
+\def\theappointments{}
+\def\theevents{}
+\def\cal@exceptionlist{}
+\newcount\cal@date@base
+\endinput
+%%
+%% End of file `calendar.sty'.

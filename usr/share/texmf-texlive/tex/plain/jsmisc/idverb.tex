@@ -1,0 +1,215 @@
+% $Id: idverb.doc,v 1.1 1995/03/13 23:18:11 schrod Exp $
+%----------------------------------------------------------------------
+% Written by Joachim Schrod <schrod@iti.informatik.th-darmstadt.de>.
+% Copyright conditions see below.
+
+%
+% idverb.doc  ---  typeset identifiers verbatim
+%
+% [plain TeX in MAKEPROG]
+% (history at end)
+
+
+%%%%
+%%%%
+%%%% These TeX macros were documented with the documentation system
+%%%% MAKEPROG and automatically converted to the current form.
+%%%% If you have MAKEPROG available you may transform it back to
+%%%% the original input: Remove every occurence of three percents
+%%%% and one optional blank from the beginning of a line and remove
+%%%% every line which starts with four percents.  The following lex
+%%%% program will do this:
+%%%%
+%%%%	%%
+%%%%
+%%%%	^%%%\ ?   ;
+%%%%	^%%%%.*\n ;
+%%%%
+%%%%	If you just want to print the documentation you may fetch
+%%%% the archive print-makeprog.tar.Z from ftp.th-darmstadt.de (directory
+%%%% pub/tex/latex). It contains *all* used styles -- but beware, they
+%%%% may not be in a documented form...
+%%%%
+%%%%
+%%% \input progdoc
+
+%%% \input names.sty
+%%% \def\v{{\tt \vbar\/}}
+
+
+
+%%% \title{Identifiers Verbatim \`a la {\ttitlefont WEB}}
+
+
+
+%%% \chap Introduction.
+
+%%% This macro files allows to write identifiers in a \WEB{} like style,
+%%% i.e.\ as {\tt \origvert identifier\origvert\/}. The identifiers are
+%%% typeset verbatim in the monospace type face. The macros
+%%% |\makevertother| and |\makevertactive| are available to activate and
+%%% deactivate the special behaviour of the vertical bar.
+
+
+%%% \sect This macro file uses the namespace |idv|.
+
+%%% \beginprog
+\ifx \IdvLoaded\undefined
+    \def\IdvLoaded{$Revision: 1.1 $}
+\else \endinput \fi                     % <-- one line!
+%%% \endprog
+
+
+%%% \sect These macros are supported. Send bug reports, comments and
+%%% repairs.
+
+%%% The reference version may be retrieved via anonymous ftp from
+%%% |ftp.th-darmstadt.de| [130.83.47.112], directory |pub/tex/plain|. It's
+%%% placed there as a gzipped tar file. (The information on the
+%%% IP~number is dated March 13, 1995. It might have changed, also this is very
+%%% unlikely. Use your friendly nameserver.)
+
+
+%%% \sect This is freely distributable software; you can redistribute it
+%%% and/or modify it under the terms of the GNU General Public License as
+%%% published by the Free Software Foundation; either version~2 of the
+%%% License, or (at your option) any later version.
+
+%%% This software is distributed in the hope that it will be useful, but
+%%% {\bf without any warranty\/}; without even the implied warranty of
+%%% {\bf merchantability\/} or {\bf fitness for a particular purpose}.  See
+%%% the GNU General Public License for more details.
+
+%%% You should have received a copy of the GNU General Public License in
+%%% the file |License| along with this package; if not, write to the Free
+%%% Software Foundation, Inc., 675~Mass Ave, Cambridge, MA~02139,~USA.
+
+
+%%% \sect But before we start we declare some shorthands for category
+%%% codes. By declaring the at sign~(`|@|') as well as the
+%%% underscore~`(|_|)' as letters we can use them in our macros. (I agree
+%%% with D.~Knuth that |\identifier_several_words_long| is more readable
+%%% than |\IdentifierSeveralWordsLong| and in every case better than
+%%% |\p@@@s|.) With the at sign we can use the ``private'' Plain macros
+%%% and with the underscore we can make our own macros more readable. But
+%%% as we have to restore these category codes at the end of this macro
+%%% file we store their former values in control sequences. This method is
+%%% better than to use a group because not all macros have to be defined
+%%% global this way.
+
+%%% Only the first macro file read in defines the |Cat| cseqs.
+
+%%% \beginprog
+\ifx \CatEscape\undefined
+    \chardef\CatEscape=0
+    \chardef\CatOpen=1
+    \chardef\CatClose=2
+    \chardef\CatIgnore=9
+    \chardef\CatLetter=11
+    \chardef\CatOther=12
+    \chardef\CatActive=13               % \active of plain.tex
+    \chardef\CatInvalid=15
+
+    \chardef\CatAtCode=\catcode`\@
+    \chardef\CatUsCode=\catcode`\_
+\fi
+
+\catcode`\@=\CatLetter                  % top level macro file
+\catcode`\_=\CatLetter
+%%% \endprog
+
+
+%%% \sect Let's identify this macro file against the user and in the Log file.
+
+%%% \beginprog
+\begingroup
+    \catcode`\$=\CatIgnore
+    \catcode`\:=\CatIgnore
+    \message{Verbatim identifiers, $Revision: 1.1 $}
+\endgroup
+%%% \endprog
+
+
+%%% \sect The usual verbatim macros use |\dospecials| to change the
+%%% catcode of all special characters. We have to add `\v' to this list.
+%%% The old meaning is stored in |\idv_OrigDospecials|.
+
+%%% \beginprog
+\let\idv_OrigDospecials=\dospecials
+\begingroup
+    \def\do#1{\noexpand\do\noexpand#1}
+    \xdef\dospecials{\idv_OrigDospecials\do\|}
+\endgroup
+\let\idv_dospecials=\dospecials
+
+\def\makevertactive{\catcode`\|\CatActive \let\dospecials\idv_dospecials}
+\def\makevertother{\catcode`\|\CatOther \let\dospecials\idv_OrigDospecials}
+
+\makevertactive
+%%% \endprog
+
+
+%%% \sect Now we can define `\v'. This definition is a little bit tricky,
+%%% as it redefines itself to |\egroup| to close the hbox. But if the hbox
+%%% is ended, `\v' is restored to its original meaning. |\origvert| is
+%%% given the original meaning of `\v'. |\vbar| is the character from the
+%%% current font that has the ASCII code of a vertical bar, sometimes this
+%%% {\it is\/} a vertical bar.
+
+%%% \beginprog
+\let\origvert=|
+\chardef\vbar=`\|
+
+\def\idv_setup_verbatim{%
+    \def\do##1{\catcode`##1\CatOther}\idv_OrigDospecials
+    \parskip\z@skip \parindent\z@
+    \obeylines \obeyspaces \frenchspacing
+    \tt
+    }
+
+\def|{%
+    \leavevmode
+    \hbox\bgroup
+        \let\par\space \idv_setup_verbatim
+        \let|\egroup
+    }
+%%% \endprog
+
+
+%%% \sect We are finished;
+%%% restore the catcodes and prevent from following garbage.
+
+%%% \beginprog
+\catcode`\@=\CatAtCode
+\catcode`\_=\CatUsCode
+
+\endinput
+%%% \endprog
+
+
+%%% %% \sect {\it Acknowledgements:}\quad I would like to thank XXX
+
+
+%%% \bye
+
+%%% 
+%%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% %
+%%% % $Log: idverb.doc,v $
+%%% % Revision 1.1  1995/03/13  23:18:11  schrod
+%%% %     Started to manage this package with CVS. Made minor code cleanup.
+%%% %
+
+%%% %
+%%% % Pre-CVS Log:
+%%% %
+%%% % 27 Jul 89 js  Initial revision.
+
+
+%%% 
+%%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Local Variables:
+%%% mode: plain-TeX
+%%% TeX-master: t
+%%% TeX-brace-indent-level: 4
+%%% End:

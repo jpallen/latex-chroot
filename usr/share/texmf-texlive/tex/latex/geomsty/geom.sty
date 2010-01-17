@@ -1,0 +1,597 @@
+% $Header: /usr/home/levy/texts/geomsty/RCS/geom.sty,v 1.21 95/08/02 16:22:57 levy Exp Locker: levy $
+% NFSS2 mods 95/06/18 by J Rawnsley
+
+% Test for LaTeX2e
+\def\format@e{LaTeX2e}
+
+\ifx\fmtname\format@e
+ \ProvidesPackage{geom}[95/06/18]
+\fi
+
+\ifx\DeclareFontShape\@undefined
+\else
+ \let\normalshape\normalfont
+ \let\mediumseries\relax
+\fi
+
+%
+% This is the geom style master file, by Silvio Levy.
+% It contains modifications to latex.tex and lplain.tex.
+% LATEX VERSION 2.09 <14 January 1991>
+%
+\typeout{Reading Geometry Center style by Silvio Levy, $Revision: 1.21 $}
+\typeout{NFSS2 compatibility by J. Rawnsley, Maths Institute, Warwick 95/06/18}
+
+% Find out which style has been loaded (book or article).
+% If \chapter is undefined we assume the style is article, otherwise book.
+
+\def\@article{\@@article} \def\@book{\@@book}
+\@ifundefined{chapter}{\def\@style{\@@article}}{\def\@style{\@@book}}
+
+% Load an appropriate file with changes to book.sty or article.sty.
+
+\ifx\@style\@book \input geombook.sty \else \input geomart.sty \fi
+
+% Load in other definitions.
+
+\input geomenv.sty  % environments
+\input geomfig.sty  % figures
+\input geomfnt.sty  % new fonts
+\input geomindx.sty % indexing macros 
+\ifx\fmtname\format@e
+ %\usepackage{multicol} % two-column formatting
+ \input multicol.sty % two-column formatting
+\else
+ \input multicol.sty % two-column formatting
+\fi
+%      ****************************************
+%      *            USEFUL HACKS              *
+%      ****************************************
+%
+% \@@warning and \@warning don't need the word ``LaTeX''.
+%
+\def\@@warning#1{\typeout{Warning: #1.}}
+
+%      **********************************************
+%      *     SPACING / LINE AND PAGE BREAKING       *
+%      **********************************************
+
+% Avoid the lack of spacing after a list when the first item is run-in.
+
+\def\endtrivlist{\if@newlist\@noitemerr\fi 
+   \if@inlabel\indent\fi 
+   \ifhmode\unskip \par\fi 
+%   \if@noparlist \else
+      \ifdim\lastskip >\z@ \@tempskipa\lastskip \vskip -\lastskip
+         \advance\@tempskipa\parskip \advance\@tempskipa -\@outerparskip 
+         \vskip\@tempskipa
+   \fi\@endparenv
+%  \fi
+}
+\let\endcenter=\endtrivlist
+\let\endflushleft=\endtrivlist
+\let\endflushright=\endtrivlist
+\let\endverbatim=\endtrivlist
+\expandafter\let\csname endverbatim*\endcsname =\endtrivlist
+
+%     ****************************************
+%     *           FILE HANDLING              *
+%     ****************************************
+%
+% Proofing is true by default.
+%
+\newif\ifproofing\proofingtrue
+\def\include#1{\ifproofing\@include#1 \else\input{#1.tex}\fi}
+\def\noproofing{\noexpand\proofingfalse}
+\def\@proofingfalse{\proofingfalse}
+\def\checkproofing{\ifx\@partlist\@proofingfalse\proofingfalse\fi}
+\def\includeonly#1{\@partswtrue\edef\@partlist{#1}\checkproofing}
+
+%          ****************************************
+%          *      CROSS-REFERENCING MACROS        *
+%          ****************************************
+
+\let\@xf\expandafter
+%
+% The main differences between these macros and LaTeX's are that keys
+% are not expanded, and the first field in the record's value contains
+% the type of object referred to.  For example,
+% \newlabel{square torus in space}{{problem 1.1.1}{5}}
+% This information is read at the time the record is formed
+% from the \object@type.  Expansion of the key is inhibited by storing
+% it into the token list \@key, with everything protected by \noexpand's.
+%
+\def\object@type{??}
+\def\setlabeltype#1{\edef\object@type{#1}}
+\newtoks\@key
+\def\set@key#1{{\aftergroup\@key\aftergroup{\sanitize#1\endsanity}}}
+
+%
+% These are the user-level macros:
+%
+% \fullref{...} expands to   theorem~3.7
+% \Fullref{...} expands to   Theorem~3.7
+% \ref{...}     expands to   3.7
+% \pageref{...} expands to   377
+
+\def\fullref{\@ref{\@xf\@car}}
+\def\Fullref{\@ref{\@xf\@xf\@xf\cap@first\@xf\@car}}
+\def\pageref{\@ref{\@xf\@cdr}}
+\def\ref{\@ref{\@xf\@xf\@xf\discard@first\@xf\@car}}
+\def\reftype{\@ref{\@xf\@xf\@xf\discard@second\@xf\@car}}
+\def\Reftype{\@ref{\@xf\@xf\@xf\@xf\@xf\@xf\@xf\discard@second
+                                        \@xf\@xf\@xf\cap@first\@xf\@car}}
+\def\cap@first#1{\uppercase{#1}}
+\def\discard@first#1~{}
+\def\discard@second#1~\preref{#1\@gobble}
+
+%
+% This is similar to \ref in LaTeX, but has two arguments: the second
+% is the key, which is not expanded; the first is an operator to be
+% applied to the value of the record.
+%
+\newtoks\@value
+\def\@ref#1{\@ifnextchar*{\@r@f{#1}}{\@r@f{#1}+}}
+\def\@r@f#1#2#3{\set@key{#3}\@ifundefined{r@\the\@key}%
+ {{\bf ??}\@warning{Reference `\expand@key' %on page \thepage\space 
+                undefined}}%
+ {\@value=\@xf\@xf\@xf{\csname r@\the\@key\endcsname}#1\the\@value\@nil\null}%
+  \if#2*\refindex{#3} (#3)\else\refinvindex{#3}\fi}
+\def\expand@key{\@xf\empty\the\@key}
+
+\def\@lbibitem[#1]#2{\set@key{#2}\item[\@biblabel{#1}]\if@filesw
+      \xdef\@gtempa{\immediate\write\@auxout{\string\bibcite{\the\@key}{#1}}}
+      \@gtempa\fi\ignorespaces}
+
+%
+% Like \label in LaTeX, but follows the conventions explained at the
+% top of this file.  The \label* variant creates a more comprehensive
+% index entry.
+%
+\def\preref#1{#1}
+\def\label{\@ifnextchar*{\l@bel}{\l@bel+}}
+\def\l@bel#1#2{\set@key{#2}\@bsphack\if@filesw 
+  {\let\thepage\relax
+    \xdef\@gtempa{\write\@auxout{\string\newlabel{\the\@key}%
+      {{\object@type\string~\string\preref{\@currentlabel}}%
+       {\string\preref{\thepage}}}%
+  }}}\@gtempa 
+  \if@nobreak \ifvmode\nobreak\fi\fi\fi\@esphack
+  \if#1*\labelindex{#2}\else\index{#2}\fi\ignorespaces}
+
+\def\newlabel{\bgroup\@sanitize\afterassignment\@readlabel\global\@key}
+\def\bibcite{\bgroup\@sanitize\afterassignment\@readbibcite\global\@key}
+\def\@readlabel{\egroup\r@adlabel r}
+\def\@readbibcite{\egroup\r@adlabel b}
+\def\r@adlabel#1#2{\@ifundefined{#1@\the\@key}{}%
+    {\@warning{Label `\expand@key' multiply defined}}%
+  \global\@namedef{#1@\the\@key}{#2}}
+
+%
+% sanitize
+%
+\def\citeseparator{,}
+\def\@citex[#1]#2{\set@key{#2}\if@filesw
+  \xdef\@gtempa{\immediate\write\@auxout{\string\citation{\the\@key}}}\@gtempa\fi
+  \let\@citea\@empty
+  \@xf\@cite\@xf{\@xf\@for\@xf\@citeb\@xf:\@xf=\the\@key\do
+    {\@citea\def\@citea{\citeseparator\penalty\@m\ }%
+     \def\@tempa##1##2\@nil{\edef\@citeb{\if##1\space##2\else##1##2\fi}}%
+     \expandafter\@tempa\@citeb\@nil
+     \@ifundefined{b@\@citeb}{{\reset@font\bf ?}\@warning
+       {Citation `\@citeb' %on page \thepage \space 
+                undefined}}%
+     {\csname b@\@citeb\endcsname}}}{#1}}
+
+%
+% add a preref
+%
+\def\@cite#1#2{\preref{[{#1\if@tempswa , #2\fi}]}}
+
+\def\nocite#1{\set@key{#1}\@bsphack\if@filesw
+  \xdef\@gtempa{\immediate\write\@auxout{\string\citation{\the\@key}}}\@gtempa\fi
+  \@esphack}
+
+\def\@testdef #1#2#3{\set@key{#2}\def\@tempa{#3}%
+  \@xf\ifx\csname #1@\the\@key\endcsname\@tempa\else\@tempswatrue\fi}
+
+\def\\{\let\stoken= } \\
+\def\sanitize{\futurelet\next\sanswitch}
+\def\sanswitch{\let\@tempa\relax \ifx\next\endsanity \let\@tempa\endsanity
+  \else\ifcat\noexpand\next\stoken\aftergroup\space\let\@tempa\eat
+   \else\ifcat\noexpand\next\bgroup\aftergroup{\let\@tempa\eat
+    \else\ifcat\noexpand\next\egroup\aftergroup}\let\@tempa\eat
+     \else\let\@tempa\copytoken\fi\fi\fi\fi \@tempa}
+\def\eat{\afterassignment\sanitize \let\next= }
+\long\def\copytoken#1{%
+  \ifcat\noexpand#1##\aftergroup\string\aftergroup\string##\aftergroup\string
+    \else\ifcat\noexpand#1\noexpand~\aftergroup\string
+      \else\ifcat\noexpand#1\relax\aftergroup\str@ng \fi\fi\fi
+  \aftergroup#1\sanitize}
+\def\endsanity\endsanity{}
+\def\str@ng#1{\string#1\expandafter\if@secondletter\string #1\next\nex}
+\def\if@secondletter#1#2#3\nex{\ifx #2\next\else\ifnum`#2<`A \else
+  \ifnum`#2<`Z \space\else\ifnum`#2<`a \else\ifnum`#2<`z \space\fi\fi\fi\fi\fi}
+
+% Labels are automatically added to theorems, section headings and the
+% like if \autolabel is true.
+
+\newif\ifautolabel\autolabeltrue
+
+%          ****************************************
+%          *            ENVIRONMENTS              *
+%          ****************************************
+
+\long\def\@writefile#1#2{\@ifundefined{tf@#1}{}{
+\edef\@tempa{\immediate\write\csname tf@#1\endcsname}
+{\aftergroup\@tempa\aftergroup{\sanitize #2\endsanity}}}}
+
+%      **********************************************
+%      *               MATH ENVIRONMENTS            *
+%      **********************************************
+
+%% following RmS 91/09/29: \reset@font added.
+
+\def\@eqnnum{{\reset@font\rm (\theequation)}}
+
+%
+% set object type
+%
+\def\equation{$$ % $$ BRACE MATCHING HACK
+  \def\object@type{equation}\refstepcounter{equation}}
+
+%% following RmS 92/01/10: put \hbox around \@eqnnum 
+
+\def\endequation{\eqno \hbox{\@eqnnum}% $$ BRACE MATCHING HACK
+$$\global\@ignoretrue}
+
+\def\eqnarray{\def\object@type{equation}%
+  \stepcounter{equation}\edef\@currentlabel{\theequation}%
+\global\@eqnswtrue\m@th
+\global\@eqcnt\z@\tabskip\@centering\let\\\@eqncr
+$$\halign to\displaywidth\bgroup\@eqnsel\hskip\@centering
+  $\displaystyle\tabskip\z@{##}$&\global\@eqcnt\@ne
+  \hskip 2\arraycolsep \hfil${##}$\hfil
+  &\global\@eqcnt\tw@ \hskip 2\arraycolsep $\displaystyle\tabskip\z@{##}$\hfil
+   \tabskip\@centering&\llap{##}\tabskip\z@\cr}
+\def\@eqncr{{\ifnum0=`}\fi\@ifstar{\global\@eqpen\@M
+    \@yeqncr}{\global\@eqpen\interdisplaylinepenalty \@yeqncr}%
+    \edef\@currentlabel{\theequation}}
+
+%
+% allow equations to be numbered with other environments
+%
+
+\def\equationwith#1{%
+  \@xf\edef\@xf\c@equation\@xf{\csname c@#1\endcsname}%
+  \@xf\let\@xf\theequation\csname the#1\endcsname
+}
+
+%
+% Bring back \eqalign from plain TeX (for less than full-width alignments)
+%
+\def\eqalign#1{\null\,\vcenter{\openup\jot\m@th
+  \ialign{\strut\hfil$\displaystyle{##}$&$\displaystyle{{}##}$\hfil
+      \crcr#1\crcr}}\,}
+
+%       ****************************************
+%       *         THE LIST ENVIRONMENT         *
+%       ****************************************
+
+% make the \listparindent non-zero
+
+\def\list#1#2{\ifnum \@listdepth >5\relax \@toodeep 
+     \else \global\advance\@listdepth\@ne \fi
+  \rightmargin \z@ \listparindent.8\parindent \itemindent\z@
+  \csname @list\romannumeral\the\@listdepth\endcsname 
+  \def\@itemlabel{#1}\let\makelabel\@mklab \@nmbrlistfalse #2\relax
+  \@trivlist
+  \parskip\parsep \parindent\listparindent
+  \advance\linewidth -\rightmargin \advance\linewidth -\leftmargin
+  \advance\@totalleftmargin \leftmargin
+  \parshape \@ne \@totalleftmargin \linewidth 
+  \ignorespaces}
+
+% for bibliography
+\def\@mklab#1{#1\hskip 0pt plus .0001fil\relax}
+
+% Use \unhbox instead of \box for labels like theorems etc.
+% Add normalshape
+% Removed a \penalty0 to avoid line ending with blank space
+%
+% to make part (a) of an enumerate that immediate follows a label
+% start on a fresh line, change the last line of \@item to:
+%
+%\def\@item[#1]{\if@noparitem \@donoparitem
+% ...
+%       \hskip \labelsep}\vrule width 0pt \ignorespaces}
+%
+\def\@item[#1]{\if@noparitem \@donoparitem
+  \else \if@inlabel \indent \par \fi
+         \ifhmode \unskip\unskip \par \fi 
+         \if@newlist \if@nobreak \@nbitem \else
+                        \addpenalty\@beginparpenalty
+                        \addvspace\@topsep \addvspace{-\parskip}\fi
+           \else \addpenalty\@itempenalty \addvspace\itemsep 
+          \fi 
+    \global\@inlabeltrue 
+\fi
+\everypar{\global\@minipagefalse\global\@newlistfalse 
+          \if@inlabel\global\@inlabelfalse \hskip -\parindent \unhbox\@labels
+%             \penalty\z@ \fi
+             \fi
+          \everypar{}}\global\@nobreakfalse
+\if@noitemarg \@noitemargfalse \if@nmbrlist \refstepcounter{\@listctr}\fi \fi
+\setbox\@tempboxa\hbox{\makelabel{#1}}%
+%\setbox\@tempboxa\hbox{\makelabel{\normalshape #1}}% this would kill \sc
+\global\setbox\@labels
+ \hbox{\unhbox\@labels \hskip \itemindent
+       \hskip -\labelwidth \hskip -\labelsep 
+       \ifdim \wd\@tempboxa >\labelwidth 
+                \unhbox\@tempboxa
+          \else \hbox to\labelwidth {\makelabel{\normalshape #1}}\fi
+       \hskip \labelsep}\ignorespaces}
+
+%      ****************************************
+%      *        ITEMIZE AND ENUMERATE         *
+%      ****************************************
+
+% Save \@currentlabel to allow correct label in the cases like this:
+% 
+% \begin{theorem}
+% \begin{equation}       
+% \end{equation}       
+% \begin{enumerate}
+%   \label
+%
+
+\def\enumerate{\ifnum \@enumdepth >3 \@toodeep\else
+      \advance\@enumdepth \@ne
+      \edef\@enumctr{enum\romannumeral\the\@enumdepth}\list
+      {\csname label\@enumctr\endcsname}{\usecounter
+        {\@enumctr}\def\makelabel##1{\hss\llap{\normalshape ##1}}}\fi
+         \let\@@currentlabel\@currentlabel}
+
+% commented out Jan 11 93; had been added to version 1.14, but I have no
+% idea how it was supposed to work, or what unrobustness it was trying
+% to solve (see log).  With this code, \@@currentlabel was never assigned.
+%
+%        \let\@savecurrentlabel\@currentlabel}
+%
+%\@ifundefined{@@currentlabel}{\@currentlabel}{\@savecurrentlabel}
+
+%       ****************************************
+%       *         THEOREM ENVIRONMENTS         *
+%       ****************************************
+
+%       See geomenv.sty
+
+%     *****************************************
+%     *              SECTIONING               *
+%     *****************************************
+
+% Allow up to \presection at bottom of page before new section
+% to encourage section to start on fresh page
+
+\newskip\presection \presection 0pt plus 10ex \relax
+
+\def\@startsection#1#2#3#4#5#6{\if@noskipsec \leavevmode \fi
+   \par \@tempskipa #4\relax
+   \@afterindenttrue
+   \ifdim \@tempskipa <\z@ \@tempskipa -\@tempskipa \@afterindentfalse\fi
+   \advance\@tempskipa by\presection
+   \if@nobreak \everypar{}\else
+     \addpenalty{\@secpenalty}\addvspace{\@tempskipa}%
+     \allowbreak\vskip -\presection \fi \@ifstar
+     {\@ssect{#1}{#2}{#3}{#4}{#5}{#6}}{\@dblarg{\@sect{#1}{#2}{#3}{#4}{#5}{#6}}}}
+
+% Add a . after section number instead of skipping 1em 
+% Mess with \addcontentsline
+% Automatic labels
+
+\def\@sect#1#2#3#4#5#6[#7]#8{\def\object@type{#1}%
+     \ifnum #2>\c@secnumdepth\def\@svsec{}\def\@tempb{}%
+     \else\refstepcounter{#1}\edef\@svsec{\csname the#1\endcsname. }%
+       \edef\@tempb{\noexpand\numberline{\csname the#1\endcsname}} \fi
+     \@tempskipa #5\relax
+     \def\@tempa{\addcontentsline{toc}{#1}}%
+     \ifdim \@tempskipa>\z@ 
+        \begingroup #6\relax
+          \@hangfrom{\hskip #3\relax\@svsec}{\interlinepenalty \@M #8\par}%
+        \endgroup
+        \csname #1mark\endcsname{#7}%
+        \expandafter\@tempa\expandafter{\@tempb #7}%
+        \ifautolabel\label*{#8}\fi
+     \else
+        \def\@svsechd{#6\hskip #3\relax
+           \@svsec #8\csname #1mark\endcsname {#7}%
+           \expandafter\@tempa\expandafter{\@tempb #7}%
+           \ifautolabel\label*{#8}\fi}\fi
+     \@xsect{#5}}
+
+% Add automatic content line and label
+
+\def\@ssect#1#2#3#4#5#6#7{%
+     \ifnum #2>\c@secnumdepth\def\@tempb{}%
+     \else \def\@tempb{\numberline{}}\fi
+     \@tempskipa #5\relax
+     \def\@tempa{\addcontentsline{toc}{s#1}}%
+     \ifdim \@tempskipa>\z@
+        \begingroup #6\relax
+           \@hangfrom{\hskip #3}{\interlinepenalty \@M #7\par}%
+        \endgroup
+        \csname s#1mark\endcsname{#7}%
+        \ifstarredcontents\expandafter\@tempa\expandafter{\@tempb #7}\fi
+        \ifautolabel\label*{#7}\fi
+     \else 
+        \def\@svsechd{#6\hskip #3\relax #7%
+           \csname s#1mark\endcsname {#7}%
+        \ifautolabel\label*{#7}\fi}\fi
+     \@xsect{#5}}
+
+\newif\ifstarredcontents\starredcontentstrue
+\def\ssubsectionmark#1{}
+\def\ssubsubsectionmark#1{}
+\def\sparagraphmark#1{}
+\def\ssubparagraphmark#1{}
+
+%     *****************************************
+%     *        TABLE OF CONTENTS, ETC.        *
+%     *****************************************
+
+% Don't expand macros when writing lines for the table of contents.
+
+\def\addcontentsline#1#2#3{\if@filesw \begingroup
+\set@key{#3}%
+\let\label\@gobble \let\index\@gobble \let\glossary\@gobble
+  {\let\thepage\relax
+\xdef\@gtempa{\write \@auxout{\string\@writefile{#1}{\noexpand\string
+     \noexpand\contentsline{#2}{\the\@key}{\thepage}}}}\@gtempa}
+   \if@nobreak \ifvmode\nobreak\fi\fi\endgroup\fi}
+
+\long\def\addtocontents#1#2{\if@filesw \begingroup
+\set@key{#2}%
+\let\label\@gobble \let\index\@gobble \let\glossary\@gobble
+\edef\@tempa{\write \@auxout {\string\@writefile{#1}{\the\@key}}}\@tempa
+  \if@nobreak \ifvmode\nobreak\fi\fi\endgroup\fi}
+
+%     ****************************************
+%     *               FLOATS                 *
+%     ****************************************
+
+% Make marginal pars tiny and ragged right
+
+\long\def\@savemarbox#1#2{\global\setbox#1\vtop{\hsize\marginparwidth 
+   \@parboxrestore\marginparstyle #2}}
+
+\def\marginparstyle{\tiny\normalshape\mediumseries\raggedright}
+
+%          ****************************************
+%          *    INITIAL DECLARATION COMMANDS      *
+%          ****************************************
+
+% Don't expand macros in marks.
+
+\newtoks\@mark
+\def\markboth#1#2{{\global\@mark={{#1}{#2}}{%
+     \mark{\the\@mark}}\if@nobreak\ifvmode\nobreak\fi\fi}}
+
+\def\markbothsame#1{{\global\@mark={{#1}{#1}}{%
+     \mark{\the\@mark}}\if@nobreak\ifvmode\nobreak\fi\fi}}
+
+\def\markright#1{{\expandafter\@markright\the\@mark
+     {#1}\mark{\the\@mark}}\if@nobreak\ifvmode\nobreak\fi\fi}
+
+\def\@markright#1#2#3{\global\@mark{{#1}{#3}}}
+
+\@mark{{}{}}
+
+%     ****************************************
+%     *               OUTPUT                 *
+%     ****************************************
+
+% CHECK if this bug really has disappeared.
+% the two lines after ``here was the bug'' 
+% avoid disappearing \write's before a \marginpar
+% at the top of a page (SL 900302).  The bug is exemplified by
+% \documentstyle{article}
+% \begin{document}
+% \label{foo}\marginpar{foo}
+% \end{document}
+%
+\def\@specialoutput{\ifnum\outputpenalty > -\@Mii
+    \@doclearpage
+  \else
+    \ifnum \outputpenalty <-\@Miii
+       \ifnum\outputpenalty<-\@MM \deadcycles\z@\fi
+       \global\setbox\@holdpg\vbox{\unvbox\@cclv}%
+    \else  % here was the bug
+        \ifdim\ht\@cclv=\pagegoal\else
+        \setbox\@tempboxa\vsplit\@cclv to\z@ \unvbox\@tempboxa\fi
+        \setbox\@tempboxa\box\@cclv
+        \@pagedp\dp\@holdpg \@pageht\ht\@holdpg
+        \unvbox\@holdpg
+        \@next\@currbox\@currlist{\ifnum\count\@currbox >\z@
+           \ifvoid\footins\else\advance\@pageht\ht\footins
+             \advance\@pageht\skip\footins \advance\@pagedp\dp\footins
+             \insert\footins{\unvbox\footins}\fi
+            \@addtocurcol\else
+           \ifvoid\footins\else\insert\footins{\unvbox\footins}\fi
+            \@addmarginpar\fi}\@latexbug
+    \ifnum \outputpenalty <\z@ \penalty\interlinepenalty\fi
+  \fi\fi}
+
+% Avoid headers on blank pages 
+\def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else
+    \thispagestyle{plain}\hbox{}\newpage\if@twocolumn\hbox{}\newpage\fi\fi\fi}
+
+% $Log:	geom.sty,v $
+%Revision 1.21  95/08/02  16:22:57  levy
+%introduced cite separator
+%
+%Revision 1.20  95/07/18  18:19:57  levy
+%\normalshape migrated from \@item to \enumerate, so \sc will work w/
+%\description, say
+%
+%Revision 1.19  95/07/03  14:08:49  levy
+%NFSS2 changes by John Rawnsley
+%
+%Revision 1.19  95/07/03  14:07:58  levy
+%*** empty log message ***
+%
+%Revision 1.17  93/08/04  10:00:53  levy
+%fixed problem with \ssectionmark (so running heads for Bibliography etc.
+%are correct).
+%
+%Revision 1.16  93/01/31  16:15:20  levy
+%created \marginparstyle
+%
+%Revision 1.16  93/01/12  01:50:02  levy
+%*** empty log message ***
+%
+%Revision 1.15  1992/08/25  19:53:57  levy
+%fixed \@mklab (previous fix was nonsense)
+%
+%Revision 1.14  92/08/25  19:33:50  levy
+%@@currentlabel more robust
+%
+%Revision 1.13  92/07/31  09:50:26  levy
+%redefine \@mklab
+%
+%Revision 1.12  92/07/17  13:44:12  levy
+%*** empty log message ***
+%
+%Revision 1.11  92/07/13  21:54:14  levy
+%further cleaned up the environments
+%
+%Revision 1.10  92/07/13  11:11:48  levy
+%*** empty log message ***
+%
+%Revision 1.9  92/07/13  08:57:20  levy
+%changes to geomenv.sty
+%
+%Revision 1.8  1992/07/06  19:04:42  levy
+%sanitize \bibcite, \cite
+%
+%Revision 1.7  92/06/26  18:46:57  levy
+%\reftype
+%
+%Revision 1.6  92/06/03  11:25:59  levy
+%*** empty log message ***
+%
+%Revision 1.5  92/04/16  12:58:26  levy
+%*** empty log message ***
+%
+%Revision 1.4  92/04/07  09:09:03  levy
+%*** empty log message ***
+%
+%Revision 1.3  1992/03/21  02:37:06  levy
+%*** empty log message ***
+%
+%Revision 1.2  1992/03/20  22:39:40  levy
+%*** empty log message ***
+%
+%Revision 1.1  1992/03/20  19:09:34  levy
+%Initial revision
+%
+

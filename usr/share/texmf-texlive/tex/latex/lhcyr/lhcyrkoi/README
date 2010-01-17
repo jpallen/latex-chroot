@@ -1,0 +1,182 @@
+
+  LHCYR 1.0 (c) 1998 V.V.Zhytnikov (vvzhy@td.lpi.ac.ru)
+  The LaTeX 2e style for Russian typesetting in bilingual environment
+  Available at CTAN:/tex-archive/macros/latex/contrib/supported/lhcyr
+  Main CTAN sites:   ctan.tug.org   ftp.dante.de   ftp.tex.ac.uk
+
+  This package is free. You may modify and use it for whatever
+  purpose you want. But you are not allowed to redistribute modified
+  version under the same name.
+
+  CONTENTS
+
+      1. General Features
+      2. Installing Fonts
+      3. Generating Format File
+      4. Using lhcyrwin Style
+
+
+  1. GENERAL FEATURES
+
+     LaTeX 2e style lhcyrkoi is intended for typesetting Russian or
+     bilingual English-Russian documents. Other latin-alphabet
+     languages will probably work as well but none where tested.
+
+     The style is based on the so called lh-fonts in the KOI-8
+     encoding which is standard for Russian in the UNIX world.
+     It works by replacing each standard TeX computer modern text
+     font by the analogous lh-font (e.g. cmr10 -> kcr10 etc
+     replacing all 'cm' by 'kc').  Upper part of an lh-font (character
+     codes 0-127) exactly coincides with the corresponding cm-font and
+     its lower part (codes 128-255) contains Russian alphabet in the
+     KOI-8 encoding together with some extra symbols such as
+     Russian number sign and angular double quotes.
+
+     The installation described below is teTeX specific but provides
+     rather good idea how the package can be installed with other
+     TeX distributives. Below $TEXMF stands for the main teTeX directory.
+     You can find out about the actual value of the $TEXMF by the command
+       kpsexpand '$TEXMF'
+
+     The lhcyrkoi package consists of the following files:
+
+        README             - this file
+
+        lhcyrkoi.sty       - LaTeX 2e style file
+
+        ot1kcdh.fd         - LaTeX 2e font driver files
+        ot1kcfib.fd
+        ot1kcfr.fd
+        ot1kcr.fd
+        ot1kcss.fd
+        ot1kctt.fd
+        ot1kcvtt.fd
+
+        hyphen.cfg         - LaTeX 2e hyphenation configuration file
+        rhyphen.tex        - Russian hyphenation patterns by A.Slepukhin
+                             in the KOI-8 encoding
+
+        kcmf.tgz           - header files for lh-fonts in KOI-8 encoding
+	maketfms.sh        - shell script for *.tfm files generating
+	special.kc         - font description file
+
+        karabas.tex        - sample and test files
+        kniga.tex
+        otchet.tex
+        pismo.tex
+        rusfonts.tex
+        statya.tex
+
+
+  2. INSTALLING FONTS
+
+     First of all make sure that you have metafont sources for
+     standard cm (Knuth's computer modern) fonts. They are used to form
+     the upper part of the lh-fonts. If not then get them at
+       CTAN: /tex-archive/fonts/cm
+
+     Next get latest lh-fonts distributive. It available at
+       CTAN: /tex-archive/fonts/cyrillic/lh
+       ftp:  ftp.vsu.ru/pub/tex
+
+     Create some temporary directory and unpack .zip or .tar.gz lh-font
+     archive. Go into the subdirectory /tex and create in it directory
+     /tex/wrk (if absent). Return to /tex and run plain TeX on 24cm-kc.tex
+       tex 24cm-kc.tex
+     This will create several files in the /tex/wkr directory.
+     Copy all *.mf files from the directory /mf (about 750K) and
+     from the directory /tex/wrk into the place where your Metafont
+     looks for *.mf source files (say $TEXMF/fonts/source/public/lh).
+
+     Unpack kcmf.tgz into the same directory
+       tar zvxf kcmf.tgz
+
+     Append the file special.kc to the file $TEXMF/fontname/special.map
+       cat special.kc >> special.map
+     Do not forget >> or you'll owerwrite your special.map! It is better
+     to save it before appending special.kc to be on the safe side.
+
+     Refresh teTeX database by running
+       texhash
+
+     Create *.tfm files
+       sh maketfms.sh
+     This step takes from several minutes up to one hour depending
+     on your computer.
+
+     If you have testfont.tex you may test lh-fonts by running
+       tex testfont
+     when prompted for font name type
+       kcr10
+       \table\end
+     and print or preview the resulting tesfont.dvi.
+
+
+  3. GENERATING FORMAT FILE
+
+     To enable correct Russian hyphenation you have to create a new
+     LaTeX 2e format file. With the lhcyrkoi style both English and Russian
+     languages are represented as one combined language (from the TeX's
+     point of view). With such setup you can freely mix English and Russian
+     words with correct hyphenation for both languages without any
+     language switching commands. This approach is orthogonal to the method
+     used by the standard LaTeX babel package. With babel each language is
+     stored separately (you may have more than two languages but must
+     use explicit language switching commands). If the babel package is
+     installed on your system you must disable it (at least temporary
+     during LaTeX format generation).
+
+     Rename any hyphen.cfg file to something else. In teTeX this file
+     resides in the babel's directory $TEXMF/tex/generic/babel. Rename
+     it to hyphen.cfg.babel or something like this.
+
+     Copy the file  hyphen.cfg  into $TEXMF/tex/latex/base
+
+     Copy the file  rhyphen.tex  into $TEXMF/tex/generic/hyphen
+
+     Make sure that you have the file ushyph1.tex (directory
+     $TEXMF/tex/generic/hyphen) and this file is the original
+     Knuth's US-English hyphenation patterns file. If this haphenation
+     table has other name or if you want to use some other English
+     hyphenation tables (say UK-patterns) edit hyphen.cfg and replace
+     {ushyph1.tex} by desired pattern file name.
+
+     Refresh teTeX database by running
+       texhash
+
+     Go into directory $TEXMF/web2c and create new LaTeX format file
+       initex latex.ltx
+
+
+  4. USING lhcyrkoi STYLE
+
+     Copy lhcyrkoi.sty and all *.fd files into the directory
+     $TEXMF/tex/latex/ and refresh teTeX files database
+       texhash
+
+     To use lhcyrkoi stile include the line
+
+       \usepackage{lhcyrkoi}
+
+     into the LaTeX document header. With this style you can freely
+     type English and Russian in the KOI-8 encoding. Besides you get
+     three extra commands
+        \No  \<  \>
+     for Russian number sign and Russian angular double quotes.
+
+     With the additional [russtyle] option enabled
+
+       \usepackage[russtyle]{lhcyrkoi}
+
+     all English texts such as "Chapter", "Appendix" are replaced
+     by the corresponding Russian translations "Glava","Prilozhenie" etc.
+
+     You may test lhcyrkoi style by latexing test files
+       karabas.tex
+       rusfonts.tex
+     and sample files
+       kniga.tex
+       otchet.tex
+       pismo.tex
+       statya.tex
+

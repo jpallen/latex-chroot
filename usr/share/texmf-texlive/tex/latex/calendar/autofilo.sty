@@ -1,0 +1,395 @@
+%%
+%% This is file `autofilo.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% autofilo.dtx  (with options: `style')
+%% This file is part of the Calendar package,
+%% Copyright (C) 1996, 1997 Frank Bennett, Jr.
+%% All rights reserved.
+%% ------------------------------------------
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% You are not allowed to change this file.  You may however copy
+%% this file to a file with a different name and then change the
+%% copy if (a) you do not charge for the modified code, (b) you
+%% acknowledge the author of this file in the new file, if it
+%% is distributed to others, and (c) you attach these same
+%% conditions to the new file.
+%% 
+%% You are not allowed to distribute this file alone.  You are not
+%% allowed to take money for the distribution or use of this file
+%% (or a changed version) except for a nominal charge for copying
+%% etc.
+%% 
+%% You are allowed to distribute this file under the condition that
+%% it is distributed with all of its contents, intact.
+%% 
+%% For error reports, or offers to help make this a more powerful,
+%% friendlier, and altogether more thrilling package, please contact me on
+%% fb@soas.ac.uk.  Better yet, make a contribution to
+%% my pension.  Account details available on request.
+%% ------------------------------------------
+%% 
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{autofilo}
+          [1997/12/05 12:14:08 2.4 Filofax page outlines (Frank Bennett)]
+\newif\if@usequadruplecolumn
+\DeclareOption{fourcolumn}{\@usequadruplecolumntrue}
+\ProcessOptions
+\RequirePackage{lscape}
+\RequirePackage{keyval}
+\newif\if@quadruplecolumn
+\newbox\@leftleftcolumn
+\newbox\@leftrightcolumn
+\newbox\@rightleftcolumn
+\newbox\@rightrightcolumn
+\newcount\af@punchcluster
+\newcount\af@punchgroups
+\newlength\af@interspace
+\newlength\af@intraspace
+\newlength\af@grip
+\newlength\af@punchmargin
+\newcount\af@punchsize
+\newlength\af@punchwidth
+\newlength\af@halfpunchwidth
+\newcount\af@subtempcount
+\newcount\af@tempcount
+\newlength\af@textwidth
+\newlength\af@marginrel
+\newlength\af@halftextwidth
+\newlength\af@textheight
+\newlength\af@topmargin
+\newlength\af@bottommargin
+\newcount\col@no
+\newlength\af@jawspread
+\newlength\af@halfjawspread
+\newlength\af@jawline
+\def\quadruplecolumn{%
+  \clearpage
+  \global\columnwidth\textwidth
+  \global\advance\columnwidth-3\columnsep
+  \global\divide\columnwidth by4\relax
+  \global\hsize\columnwidth
+  \global\linewidth\columnwidth
+  \global\@twocolumntrue
+  \global\@quadruplecolumntrue
+  \global\@firstcolumntrue
+  \col@number=4\relax}
+\def \@opcol {%
+  \if@twocolumn
+    \if@quadruplecolumn
+      \@outputqdrplcol
+    \else
+      \@outputdblcol
+    \fi
+  \else
+    \@outputpage
+  \fi
+  \global \@mparbottom \z@ \global \@textfloatsheight \z@
+  \@floatplacement}
+\def\@outputqdrplcol{%
+  \ifcase\col@no
+    \global\@firstcolumnfalse
+    \global \setbox\@leftleftcolumn \box\@outputbox
+  \or
+    \global \setbox\@leftrightcolumn \box\@outputbox
+  \or
+    \global \setbox\@rightleftcolumn \box\@outputbox
+  \or
+    \global \@firstcolumntrue
+    \global\setbox\@rightrightcolumn\box\@outputbox
+    \setbox\@outputbox \vbox to\textwidth{%
+                           \hb@xt@\textheight {%
+         \vrule height\columnwidth depth0pt width0pt
+                          \box\@rightrightcolumn \hss}%
+                           \vfill
+                           \hrule \@width\columnseprule
+                           \vfill
+                         \hb@xt@\textheight {%
+         \vrule height\columnwidth depth0pt width0pt
+                             \box\@rightleftcolumn \hss}%
+                           \vfill
+                           \hrule \@width\columnseprule
+                           \vfill
+                         \hb@xt@\textheight {%
+         \vrule height\columnwidth depth0pt width0pt
+                             \box\@leftrightcolumn \hss}%
+                           \vfill
+                           \hrule \@width\columnseprule
+                           \vfill
+                         \hb@xt@\textheight {%
+                             \box\@leftleftcolumn \hss}%
+                              }%
+    \@combinedblfloats
+    \@outputpage
+    \begingroup
+      \@dblfloatplacement
+      \@startdblcolumn
+      \@whilesw\if@fcolmade \fi
+        {\@outputpage
+         \@startdblcolumn}%
+    \endgroup
+  \fi
+  \global\advance\col@no by1\relax
+  \ifnum\col@no=4\relax\global\col@no=0\fi}
+\def\@outputdblcol{%
+  \if@firstcolumn
+    \global \@firstcolumnfalse
+    \global \setbox\@leftcolumn \box\@outputbox
+  \else
+    \global \@firstcolumntrue
+    \setbox\@outputbox \vbox to\textwidth{%
+                         \hbox to\textheight{%
+                             \box\@outputbox}%
+                           \vfil
+                           \hrule \@width\columnseprule
+                           \vfil
+                           \hbox to\textheight{%
+                             \box\@leftcolumn}}%
+    \@combinedblfloats
+    \@outputpage
+    \begingroup
+      \@dblfloatplacement
+      \@startdblcolumn
+      \@whilesw\if@fcolmade \fi
+        {\@outputpage
+         \@startdblcolumn}%
+    \endgroup
+  \fi
+}
+\def\af@circle{\hbox{\hskip\af@halfpunchwidth%
+                     \ifnum\af@jawspread>0\relax%
+                       \hskip-\af@halfjawspread%
+                       \hskip-\af@jawline%
+                         \vrule depth\af@halfpunchwidth%
+                                height\af@halfpunchwidth%
+                                width\af@jawline%
+                       \hskip\af@halfjawspread%
+                     \else%
+                       \vrule depth\af@halfpunchwidth%
+                              height\af@halfpunchwidth%
+                              width0pt%
+                     \fi%
+                     \circle{\af@punchsize}%
+                     \hskip-\af@punchwidth%
+                     \ifnum\af@jawspread>0\relax%
+                       \hskip\af@halfjawspread%
+                         \vrule depth\af@halfpunchwidth%
+                                height\af@halfpunchwidth
+                                width\af@jawline%
+                       \hskip-\af@halfjawspread%
+                       \hskip-\af@jawline%
+                     \fi%
+                     \hskip-\af@halfpunchwidth}}
+\def\af@group{%
+  \bgroup%
+    \af@tempcount=0%
+    \af@circle%
+    \loop\advance\af@tempcount by1\relax%
+    \ifnum\af@tempcount<\af@punchcluster%
+      \hskip\af@intraspace\relax\af@circle%
+    \repeat%
+  \egroup}
+\def\af@circles{%
+  \af@tempcount=0\relax%
+  \af@group%
+  \loop\advance\af@tempcount by1\relax%
+  \ifnum\af@tempcount<\af@punchgroups%
+    \hskip\af@interspace\relax\af@group%
+  \repeat%
+  \af@tempcount=0}
+\def\af@punches{%
+  \hbox to\af@textheight{\hfil\af@circles\hskip\af@halfpunchwidth\relax\hfil}}
+\def\@@@innerframe{%
+  \moveright-\af@topmargin%
+  \vbox to 0pt{%
+    \vskip\topmargin%
+    \vbox to0pt{\hrule width\af@textheight\vss}%
+    \hbox to\af@textheight{\llap{\vrule height\af@textwidth}%
+      \hfil\vrule height\af@textwidth}%
+    \vskip-\af@halftextwidth%
+    \vbox to0pt{\hrule width\af@textheight\vss}%
+    \vskip-\af@halftextwidth%
+    \vskip\af@grip%
+    \nointerlineskip\af@punches\nointerlineskip%
+    \vskip-\af@punchwidth%
+    \vskip-\af@grip%
+    \vskip\af@textwidth%
+    \vskip-\af@punchwidth%
+    \vskip-\af@grip%
+    \nointerlineskip\af@punches\nointerlineskip%
+    \vskip\af@grip%
+    \vbox to0pt{\hrule width\af@textheight\vss}%
+    \vss}}%
+\newif\if@latextwoe
+\@ifundefined{if@compatibility}{\@latextwoefalse}{\@latextwoetrue}
+\if@latextwoe
+\def\@outputpage{%
+\begingroup           % the \endgroup is put in by \aftergroup
+  \let \protect \noexpand
+  \@resetactivechars
+  \let\-\@dischyph
+  \let\'\@acci\let\`\@accii\let\=\@acciii
+  \let\\\@normalcr
+  \let\par\@@par          %% 15 Sep 87
+  \shipout \vbox{%
+    \set@typeset@protect
+    \aftergroup \endgroup
+    \aftergroup \set@typeset@protect
+  \if@specialpage
+    \global\@specialpagefalse\@nameuse{ps@\@specialstyle}%
+  \fi
+  \if@twoside
+    \ifodd\count\z@ \let\@thehead\@oddhead \let\@thefoot\@oddfoot
+         \let\@themargin\oddsidemargin
+    \else \let\@thehead\@evenhead
+       \let\@thefoot\@evenfoot \let\@themargin\evensidemargin
+    \fi
+  \fi
+  \reset@font
+  \normalsize
+  \baselineskip\z@skip \lineskip\z@skip \lineskiplimit\z@
+    \@begindvi
+    \moveright\@themargin %<<<<<<<<<<<<<<<<<<<<< added
+    \vtop{\@@@innerframe  %<<<<<<<<<<<<<<<<<<<<< added
+    \vskip \topmargin
+    \vskip \af@marginrel
+      \moveright\af@topmargin%     <<<<<<<<<<<< Bennett
+      \vbox{%             %<<<<<<<<<<<<<<<<<<<<< modified
+      \setbox\@tempboxa \vbox to\headheight{%
+        \vfil
+        \color@hbox
+          \normalcolor
+          \hb@xt@\textwidth {%
+            \let \label \@gobble
+            \let \index \@gobble
+            \let \glossary \@gobble %% 21 Jun 91
+            \@thehead
+            }%
+        \color@endbox
+        }%                        %% 22 Feb 87
+      \dp\@tempboxa \z@
+      \box\@tempboxa
+      \vskip \headsep
+      \box\@outputbox
+      \baselineskip \footskip
+      \color@hbox
+        \normalcolor
+        \hb@xt@\textwidth{%
+          \let \label \@gobble
+          \let \index \@gobble      %% 22 Feb 87
+          \let \glossary \@gobble   %% 21 Jun 91
+          \@thefoot
+          }%
+      \color@endbox
+      }}%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< One more close bracket added
+    }%
+\global \@colht \textheight
+\stepcounter{page}%
+\let\firstmark\botmark
+}
+\else
+\message{Sorry, autofilo.sty works only with LaTeX2e}
+\fi
+\headheight=0pt
+\headsep=0pt
+\footskip=0pt
+\marginparwidth=0pt
+\marginparsep=0pt
+\pagestyle{empty}
+\parindent=0pt
+\raggedbottom
+\columnseprule=0.0pt%
+\raggedright
+\define@key{opt}{pageheight}{%
+  \af@textheight=#1\relax}
+\define@key{opt}{pagewidth}{%
+  \af@halftextwidth=#1\relax}
+\define@key{opt}{columnsep}{%
+  \columnsep=#1\relax}
+\define@key{opt}{punchcluster}{%
+  \af@punchcluster=#1}
+\define@key{opt}{punchgroups}{%
+  \af@punchgroups=#1}
+\define@key{opt}{interspace}{%
+  \af@interspace=#1}
+\define@key{opt}{intraspace}{%
+  \af@intraspace=#1}
+\define@key{opt}{grip}{%
+  \af@grip=#1}
+\define@key{opt}{punchmargin}{%
+  \af@punchmargin=#1}
+\define@key{opt}{punchpoints}{%
+  \af@punchsize=#1}
+\define@key{opt}{topspace}{%
+  \af@topmargin=#1}
+\define@key{opt}{bottomspace}{%
+  \af@bottommargin=#1}
+\define@key{opt}{jawspread}{%
+  \af@jawspread=#1}
+\define@key{opt}{jawline}{%
+  \af@jawline=#1}
+\af@textheight=172mm
+\af@halftextwidth=95mm
+\columnsep=14pt
+\af@punchcluster=3
+\af@punchgroups=2
+\af@interspace=51.25mm
+\af@intraspace=19.25mm
+\af@grip=5mm
+\af@punchmargin=2mm
+\af@punchsize=15
+\af@topmargin=2pt
+\af@bottommargin=0pt\relax
+\af@jawline=0.4pt%
+\def\autofilo#1{%
+  \setkeys{opt}{#1}%
+  \oddsidemargin=-1in\relax%
+   \af@textwidth\paperwidth%
+   \advance\af@textwidth by-\af@textheight%
+   \divide\af@textwidth by2\relax%
+   \advance\oddsidemargin by\af@textwidth%
+  \evensidemargin=-1in\relax%
+   \advance\evensidemargin by\af@textwidth%
+  \topmargin=-1in\relax%
+   \af@textwidth\paperheight%
+   \advance\af@textwidth by-\af@halftextwidth%
+   \advance\af@textwidth by-\af@halftextwidth%
+   \divide\af@textwidth by2\relax%
+   \advance\topmargin by\af@textwidth\relax%
+  \landscape%
+  \af@halfjawspread\af@jawspread%
+  \divide\af@halfjawspread by2\relax%
+  \af@punchwidth=\af@punchsize pt%
+  \af@halfpunchwidth\af@punchwidth%
+  \divide\af@halfpunchwidth by2%
+  \textheight\af@textheight%
+  \advance\textheight by-\af@topmargin%
+  \advance\textheight by-\af@bottommargin%
+  \af@textwidth\af@halftextwidth%
+  \multiply\af@textwidth by2\relax%
+  \textwidth=\af@textwidth%
+  \advance\textwidth by-2\af@punchwidth%
+  \advance\textwidth by-2\af@grip%
+  \advance\textwidth by-2\af@punchmargin%
+  \af@marginrel\af@grip%
+  \advance\af@marginrel by\af@punchmargin%
+  \advance\af@marginrel by\af@punchwidth%
+  \vsize\textheight%
+  \hsize\textwidth%
+  \@colroom\vsize%
+  \@colht\vsize%
+  \if@usequadruplecolumn%
+    \quadruplecolumn%
+  \else%
+    \twocolumn%
+  \fi}
+\def\endautofilo{%
+  \endlandscape}
+
+\endinput
+%%
+%% End of file `autofilo.sty'.

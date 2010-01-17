@@ -1,0 +1,39 @@
+mode_setup;
+font_setup;
+
+font_coding_scheme:="Ibycus4 /based on TLG/";
+input ibycus4.map; % File which can be read by both TeX and MF
+picture barypicture;
+string currenttitle;
+string subtitle;
+extra_endchar:=extra_endchar&"charcode:=charcode+code_offset";
+% Add _ to the macro names used by iff to avoid confusion.
+def use_it_ = 
+  if unknown barypicture: 
+    if known savedpicture: barypicture := savedpicture; fi fi
+  enddef;
+def lose_it_ = let endchar = fi; let ; = fix_ semi_
+  if false: enddef; 
+% redefine readfrom, to take advantage of path searching
+% This requires a METAFONT compiled with Karl Berry's kpathsea
+def readfrom(expr filename) = 
+   scantokens ("input " & filename); enddef;
+input ibyupr4
+input ibyacc4
+input ibylwr4
+input romand
+input ibypnct4
+input ibylig4
+
+font_slant slant; font_x_height x_height#;
+if monospace: font_normal_space 9u#; % no stretching or shrinking
+ font_quad 18u#;
+ font_extra_space 9u#;
+else: font_normal_space 6u#+2letter_fit#;
+ font_normal_stretch 3u#; font_normal_shrink 2u#;
+ font_quad 18u#+4letter_fit#;
+ font_extra_space 2u#;
+fi
+
+input version4
+bye.

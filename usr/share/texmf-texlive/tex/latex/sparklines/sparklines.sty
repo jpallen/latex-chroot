@@ -1,0 +1,64 @@
+%%% sparklines.sty Version 1.0
+%%%
+%%% What Are Sparklines?
+%%% Sparklines are intense, simple, wordlike graphics (so named by Edward Tufte).
+%%% In lieu of a more detailed introduction, Professor Tufte's site has an early
+%%% release of a chapter on sparklines, see www.edwardtufte.com. A PHP
+%%% implementation can be found at http://sparkline.sourceforge.net/.
+%%%
+%%% Notice that the package does NOT run with pictex!
+%%%
+%%% Copyright 2005 Andreas Loeffler
+%%% ========================================================================
+%%% LICENCE:
+%%% This file may be distributed under the terms of the LaTeX Project Public
+%%% License, as described in lppl.txt in the base LaTeX distribution.
+%%% Either version 1 or, at your option, any later version.
+%%% ========================================================================
+%%% al@wacc.de
+%%%
+%%% MODIFICATION HISTORY:
+%%% Apr 21, 2005
+%%% version 1.1: bug removed thanks to Mathias Hofmann <mathias.hofmann@web.de>
+%%% Dec 12, 2004
+%%% version 1.0: first version of sparklines
+
+\RequirePackage{pgf} \ProvidesPackage{sparklines}
+      [2005/01/01 v1.0 Sparklines (see more on sparklines at www.EdwardTufte.com)]
+
+% defines sparkline environment
+\newenvironment{sparkline}[1]{\begin{pgfpicture}{0ex}{0ex}{#1 ex}{1.75ex}
+ \pgfsetlinewidth{0.2pt} %line width of 0.2 pt
+ \pgfsetxvec{\pgfpoint{#1 ex}{0pt}} % says that on unit on the x axes is #1 times the size of x
+ \pgfsetyvec{\pgfpoint{0pt}{1.75ex}} % says that on unit on the y axes is 1.75 times the size of x
+ } {\pgfstroke \end{pgfpicture} }
+
+% defines sparkdot with color
+\def\sparkdot #1 #2 #3 {%
+    {\pgfmoveto{\pgforigin}\color{#3}\pgfcircle[fill]{\pgfxy(#1,#2)}{1.2pt}}%
+}
+
+% definies sparkrectangle
+\def\sparkrectangle #1 #2 {%
+    {\pgfmoveto{\pgforigin}\color[rgb]{0.9,0.9,0.9} \pgfrect[fill]{\pgfxy(0, #1)}{\pgfxy(1, #2)}}}
+
+% taken from pictex
+\def\@shouldIstop#1#2{%
+  \def\first{#1}%
+  \def\second{#2}%
+  \futurelet\nextchar\@testnext}
+\def\@testnext{%
+    \ifx \nextchar /
+      \let\next=\first
+    \else
+      \let\next=\second
+    \fi
+  \next}
+
+% defines sparkline-plot
+\def\spark #1 #2 {%
+  \pgfmoveto{\pgfxy(#1,#2)} %
+  \@SPARK}
+\def\@SPARK#1 #2 {%
+  \pgflineto{\pgfxy(#1,#2)} %
+  \@shouldIstop{\pgfstroke\ignorespaces}{\@SPARK}}

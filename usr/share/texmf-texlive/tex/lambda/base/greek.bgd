@@ -1,0 +1,311 @@
+\makeatletter
+     \ocp\Uppercase=uppercase
+     \ocplist\UppercaseOCP=
+     \addbeforeocplist 3000 \Uppercase
+     \nullocplist
+	 \ocp\Identity=id
+	 \ocp\GrTexUni=grpo2uni
+	 \ocp\GrTexTildeUni=grpotilde2uni
+     \ocp\GrMacUni=macgr2uni
+     \ocp\GrIsoUni=isogr2uni
+     \ocp\GrIsoUniVerbatim=isogr2uni-verbatim
+%     \ocp\GrIsoUniVerbatim=id
+	 \ocp\GrMixedUni=mixedgreek2uni
+     \ocp\GrUniToFont=uni2greek
+     \ocp\GrUniToFontVerbatim=uni2greek-verbatim
+%     \ocp\GrUniToFontVerbatim=id
+     \ocp\GrMedBeta=medbeta
+	 \ocp\GrApostrophe=apostr2psili
+     \ocp\InvertediotaOCP=inverted-iota-upsilon
+     \ocp\lunatesigmaOCP=lunatesigma
+     \ocplist\GreekIsoOCP=
+     \addbeforeocplist 500 \GrIsoUni
+     \addbeforeocplist 1750 \GrMedBeta
+     \addbeforeocplist 2000 \GrApostrophe
+     \addbeforeocplist 3500 \GrUniToFont
+     \nullocplist
+     \ocplist\nomedbeta=
+     \addbeforeocplist 1750 \Identity
+     \nullocplist
+     \ocplist\nograpostrophe=
+     \addbeforeocplist 2000 \Identity
+     \nullocplist
+     \ocplist\invertediota=
+     \addbeforeocplist 2050 \InvertediotaOCP
+     \nullocplist
+     \ocplist\lunatesigma=
+     \addbeforeocplist 2100 \lunatesigmaOCP
+     \nullocplist
+     \ocplist\GreekMacOCP=
+     \addbeforeocplist 500 \GrMacUni
+     \addbeforeocplist 1750 \GrMedBeta
+     \addbeforeocplist 2000 \GrApostrophe
+     \addbeforeocplist 3500 \GrUniToFont
+     \nullocplist
+     \ocplist\GreekMacOCPnomedbeta=
+     \addbeforeocplist 500 \GrMacUni
+     %\addbeforeocplist 1750 \GrMedBeta
+     \addbeforeocplist 2000 \GrApostrophe
+     \addbeforeocplist 3500 \GrUniToFont
+     \nullocplist
+     \ocplist\GreekTexOCP=
+     \addbeforeocplist 500 \GrTexUni
+     \addbeforeocplist 1750 \GrMedBeta
+     \addbeforeocplist 2000 \GrApostrophe
+     \addbeforeocplist 3500 \GrUniToFont
+     \nullocplist
+     \ocplist\GreekTexTildeOCP=
+     \addbeforeocplist 500 \GrTexTildeUni
+     \addbeforeocplist 1750 \GrMedBeta
+     \addbeforeocplist 2000 \GrApostrophe
+     \addbeforeocplist 3500 \GrUniToFont
+     \nullocplist
+     \ocplist\GreekMixedOCP=
+     \addbeforeocplist 500 \GrMixedUni
+     \addbeforeocplist 1750 \GrMedBeta
+     \addbeforeocplist 2000 \GrApostrophe
+     \addbeforeocplist 3500 \GrUniToFont
+     \nullocplist
+     \ocplist\GreekVerbatimOCP=
+     \addbeforeocplist 500 \GrIsoUniVerbatim
+     \addbeforeocplist 3500 \GrUniToFontVerbatim
+     \nullocplist
+\def\tmp@iso{iso}
+\def\tmp@mac{mac}
+\def\tmp@tex{tex}
+\def\tmp@textilde{textilde}
+\def\tmp@mixed{mixed}
+\let\eventualNMB=\relax
+\let\eventualNGA=\relax
+\let\eventualIIU=\relax
+\let\eventualLS=\relax
+\def\GreekOCP{\pushocplist\GreekIsoOCP\eventualNMB\eventualNGA\eventualIIU\eventualLS}
+\def\GreekLetterStigma{ΣΤ}
+\def\GreekSmallLetterStigma{στ}
+\def\GreekSmallLetterDigamma{^^^^03dd}
+\define@key{greek}{input}[iso]{%
+\def\@tmpa{#1}\ifx\@tmpa\tmp@iso\def\GreekOCP{\pushocplist\GreekIsoOCP\eventualNMB\eventualNGA\eventualIIU\eventualLS}%
+\else\ifx\@tmpa\tmp@mac\def\GreekOCP{\pushocplist\GreekMacOCP\eventualNMB\eventualNGA\eventualIIU\eventualLS}%
+\else\ifx\@tmpa\tmp@tex\def\GreekOCP{\pushocplist\GreekTexOCP\eventualNMB\eventualNGA\eventualIIU\eventualLS}%
+\else\ifx\@tmpa\tmp@textilde\def\GreekOCP{\pushocplist\GreekTexTildeOC\eventualNMB\eventualNGA\eventualIIU\eventualLSP}%
+\else\ifx\@tmpa\tmp@mixed\def\GreekOCP{\pushocplist\GreekMixedOCP\eventualNMB\eventualNGA\eventualIIU\eventualLS}%
+\fi\fi\fi\fi\fi}
+
+\def\tmp@oneform{oneform}
+\def\tmp@twoform{twoform}
+\define@key{greek}{beta}[twoform]{\def\@tmpa{#1}\ifx\@tmpa\tmp@oneform\def\eventualNMB{\pushocplist\nomedbeta}%
+\typeout{Option: Form of beta = oneform}%
+\else\let\eventualNMB=\relax\typeout{Option: Form of beta = twoform}\fi}
+\def\tmp@apolatin{latin}
+\def\tmp@apogreek{different}
+\define@key{greek}{apostrophe}[different]{\def\@tmpa{#1}\ifx\@tmpa\tmp@apolatin\def\eventualNGA{\pushocplist\nograpostrophe}%
+\else\let\eventualNGA=\relax\fi}
+\def\tmp@stigma{stigma}
+\def\tmp@sigmatau{sigmatau}
+\def\tmp@oldstigma{oldstigma}
+\define@key{greek}{numbersix}[sigmatau]{\def\@tmpa{#1}\ifx\@tmpa\tmp@stigma%
+\def\GreekSmallLetterStigma{^^^^03db}\def\GreekLetterStigma{^^^^03da}%
+\else\ifx\@tmpa\tmp@oldstigma%
+\def\GreekSmallLetterStigma{^^^^03db}\def\GreekLetterStigma{^^^^03fd}\else%
+\def\GreekSmallLetterStigma{στ}\def\GreekLetterStigma{ΣΤ}\fi\fi}
+\def\tmp@yes{yes}
+\def\tmp@no{no}
+\define@key{greek}{invertediota}[no]{\def\@tmpa{#1}\ifx\@tmpa\tmp@yes\def\eventualIIU{\pushocplist\invertediota}%
+\typeout{Option: Inverted iota = yes}%
+\else\let\eventualIIU=\relax\typeout{Option: Inverted iota = no}\fi}
+\def\tmp@std{std}
+\def\tmp@alt{alt}
+\define@key{greek}{digamma}[std]{\def\@tmpa{#1}\ifx\@tmpa\tmp@alt\def\GreekSmallLetterDigamma{^^^^03fb}%
+\else\GreekSmallLetterDigamma{^^^^03dd}\fi}
+\def\tmp@lunate{lunate}
+\define@key{greek}{sigma}[twoform]{\def\@tmpa{#1}\ifx\@tmpa\tmp@lunate\def\eventualLS{\pushocplist\lunatesigma}%
+\else\let\eventualLS=\relax\fi}
+
+
+\catcode`\@=11
+\def\greekmarks{%
+\def\markboth##1##2{\gdef\@themark{{\GreekOCP##1}{\GreekOCP##2}}{%
+\let\protect\@unexpandable@protect%
+\let\label\relax \let\index\relax \let\glossary\relax%
+\mark{\@themark}}\if@nobreak\ifvmode\nobreak\fi\fi}
+\def\markright##1{{\let\protect\@unexpandable@protect%
+\let\label\relax \let\index\relax \let\glossary\relax%
+\expandafter\@markright\@themark{##1}\mark{\@themark}}\if@nobreak\ifvmode\nobreak\fi\fi}%
+\def\@markright##1##2##3{\gdef\@themark{{\GreekOCP##1}{\GreekOCP##3}}}}
+
+\def\monocaptions{\def\refname{Αναφορές}%
+   \def\abstractname{Περίληψη}%
+   \def\bibname{Βιβλιογραφία}%
+   \def\prefacename{Πρόλογος}%
+   \def\chaptername{Κεφάλαιο}%
+   \def\appendixname{Παράρτημα}%
+   \def\contentsname{Περιεχόμενα}%
+   \def\listfigurename{Κατάλογος σχημάτων}%
+   \def\listtablename{Κατάλογος πινάκων}%
+   \def\indexname{Ευρετήριο}%
+   \def\figurename{Σχήμα}%
+   \def\tablename{Πίνακας}%
+   \def\partname{Μέρος}%
+   \def\pagename{Σελίδα}%
+   \def\seename{βλέπε}%
+   \def\alsoname{βλέπε επίσης}%
+   \def\enclname{Συνημμένα}%
+   \def\ccname{Κοινοποίηση}%
+   \def\headtoname{Προς}%
+   \def\proofname{Απόδειξη}% for AMS-\LaTeX
+  \def\today{\number\day \space%
+    \ifcase\month\or
+    Ιανουαρίου\or Φεβρουαρίου\or Μαρτίου\or Απριλίου\or
+    Μαΐου\or Ιουνίου\or Ιουλίου\or Αυγούστου\or
+    Σεπτεμβρίου\or Οκτωβρίου\or Νοεμβρίου\or Δεκεμβρίου\fi
+    \space \number\year}    
+}
+\def\polydemocaptions{\def\refname{>Αναφορ`ες}%
+   \def\abstractname{Περίληψη}%
+   \def\bibname{Βιβλιογραφία}%
+   \def\prefacename{Πρόλογος}%
+   \def\chaptername{Κεφάλαιο}%
+   \def\appendixname{Παράρτημα}%
+   \def\contentsname{Περιεχόμενα}%
+   \def\listfigurename{Κατάλογος σχημάτων}%
+   \def\listtablename{Κατάλογος πινάκων}%
+   \def\indexname{Ε>υρετήριο}%
+   \def\figurename{Σχ=ημα}%
+   \def\tablename{Πίνακας}%
+   \def\partname{Μέρος}%
+   \def\pagename{Σελίδα}%
+   \def\seename{βλέπετ}%
+   \def\alsoname{βλέπε >επίσης}%
+   \def\enclname{Συνημμένα}%
+   \def\ccname{Κοινοποίηση}%
+   \def\headtoname{Πρ`ος}%
+   \def\proofname{>Απόδειξη}% for AMS-\LaTeX
+  \def\today{\number\day \space%
+    \ifcase\month\or
+    >Ιανουαρίου\or Φεβρουαρίου\or Μαρτίου\or >Απριλίου\or
+    Μαΐου\or >Ιουνίου\or >Ιουλίου\or Α>υγούστου\or
+    Σεπτεμβρίου\or >Οκτωβρίου\or Νοεμβρίου\or Δεκεμβρίου\fi
+    \space \number\year}    
+}
+\def\polykathacaptions{\def\refname{>Αναφορα`ι}%
+   \def\abstractname{Περίληψις}%
+   \def\bibname{Βιβλιογραφία}%
+   \def\prefacename{Πρόλογος}%
+   \def\chaptername{Κεφάλαιον}%
+   \def\appendixname{Παράρτημα}%
+   \def\contentsname{Περιεχόμενα}%
+   \def\listfigurename{Κατάλογος σχημάτων}%
+   \def\listtablename{Κατάλογος πινάκων}%
+   \def\indexname{Ε>υρετήριον}%
+   \def\figurename{Σχ=ημα}%
+   \def\tablename{Πίναξ}%
+   \def\partname{Μέρος}%
+   \def\pagename{Σελ`ις}%
+   \def\seename{<όρα}%
+   \def\alsoname{<όρα >επίσης}%
+   \def\enclname{Συνημμένα}%
+   \def\ccname{Κοινοποίησις}%
+   \def\headtoname{Πρ`ος}%
+   \def\proofname{>Απόδειξις}% for AMS-\LaTeX
+  \def\today{\number\day \space%
+    \ifcase\month\or
+    >Ιανουαρίου\or Φεβρουαρίου\or Μαρτίου\or >Απριλίου\or
+    Μαΐου\or >Ιουνίου\or >Ιουλίου\or Α>υγούστου\or
+    Σεπτεμβρίου\or >Οκτωβρίου\or Νοεμβρίου\or Δεκεμβρίου\fi
+    \space \number\year}    
+}
+
+\monocaptions
+\def\tmp@monotonic{monotonic}
+\def\tmp@polytonic{polytonic}
+\define@key{greek}{accents}[monotonic]{\def\@tmpa{#1}\ifx\@tmpa\tmp@monotonic%
+\monocaptions\else\polydemocaptions\fi}
+\def\tmp@katharevousa{katharevousa}
+\define@key{greek}{style}[katharevousa]{\def\@tmpa{#1}\ifx\@tmpa\tmp@katharevousa%
+\polykathacaptions\fi}
+  \def\greek@alph#1{%
+  \greeknumber{#1}}
+\def\greek@Alph#1{%
+   \uppercase{\greeknumber{#1}}}
+  \let\@alph\@greek@alph
+  \let\@Alph\@greek@Alph
+  \def\labelitemi{--}%
+  \def\labelitemii{--}%
+  \def\labelitemiii{--}%
+  \def\labelitemiv{--}
+
+\newcounter{hundredmillions}
+\newcounter{tenmillions}
+\newcounter{millions}
+\newcounter{hundredthousands}
+\newcounter{tenthousands}
+\newcounter{thousands}
+\newcounter{hundreds}
+\newcounter{tens}
+\newcounter{units}
+\newcounter{belowhundred}
+\newcounter{grnumber}
+\def\numbersix{^^^^03db}
+\def\grnumbertmp#1#2#3{\ifcase\value{#1}\or ρ\or σ\or τ\or υ\or φ\or χ\or ψ\or ω\or =π\else rien\fi%
+\ifcase\value{#2}\or ι\or κ\or λ\or μ\or ν\or ξ\or ο\or π\or =χ\else rien\fi%
+\ifcase\value{#3}\or α\or \/β\/\or γ\or δ\or ε\or \numbersix\or ζ\or η\or θ\else rien\fi}
+\def\greeknumber#1{%
+\setcounter{grnumber}{#1}%
+\ifthenelse{\value{grnumber} > 999999999}{\typeout{Number too big!}}{%
+\ifthenelse{\value{grnumber} > 999999}{^^^^0375^^^^0375\kern.5pt}{\ifthenelse{\value{grnumber} > 999}{^^^^0375\kern.5pt}{}}%
+\setcounter{hundredmillions}{\value{grnumber}/100000000}%
+\addtocounter{grnumber}{-100000000*\value{hundredmillions}}%
+\setcounter{tenmillions}{\value{grnumber}/10000000}%
+\addtocounter{grnumber}{-10000000*\value{tenmillions}}%
+\setcounter{millions}{\value{grnumber}/1000000}%
+\addtocounter{grnumber}{-1000000*\value{millions}}%
+\setcounter{hundredthousands}{\value{grnumber}/100000}%
+\addtocounter{grnumber}{-100000*\value{hundredthousands}}%
+\setcounter{tenthousands}{\value{grnumber}/10000}%
+\addtocounter{grnumber}{-10000*\value{tenthousands}}%
+\setcounter{thousands}{\value{grnumber}/1000}%
+\addtocounter{grnumber}{-1000*\value{thousands}}%
+\setcounter{hundreds}{\value{grnumber}/100}%
+\addtocounter{grnumber}{-100*\value{hundreds}}%
+\setcounter{tens}{\value{grnumber}/10}%
+\addtocounter{grnumber}{-10*\value{tens}}%
+\setcounter{units}{\value{grnumber}}%
+\grnumbertmp{hundredmillions}{tenmillions}{millions}\grnumbertmp{hundredthousands}{tenthousands}{thousands}\grnumbertmp{hundreds}{tens}{units}%
+\setcounter{belowhundred}{\value{hundreds}+\value{tens}+\value{units}}%
+\ifthenelse{\value{belowhundred}>0}{^^^^0374}{}}}
+
+\def\greektoday{\greeknumber{\number\day} \space%
+    \ifcase\month\or
+    >Ιανουαρίου\or Φεβρουαρίου\or Μαρτίου\or >Απριλίου\or
+    Μαΐου\or >Ιουνίου\or >Ιουλίου\or Α>υγούστου\or
+    Σεπτεμβρίου\or >Οκτωβρίου\or Νοεμβρίου\or Δεκεμβρίου\fi
+    \space \greeknumber{\number\year}}
+
+\def\OTPGreekIso{\GreekOCP}
+
+\newenvironment{greek}[1][]{%
+\setkeys{greek}{#1}\def\addcontentsline##1##2##3{%
+  \addtocontents{##1}{\protect\contentsline{##2}{\protect\GreekOCP##3}{\thepage}}}%
+\def\@wrindex##1{%
+   \protected@write\@indexfile{}%
+      {\string\indexentry{##1}{\thepage}} \endgroup
+ \@esphack}%
+\protect\language=\l@greek\protect\greeklccodes\protect\greekmarks%
+\def\verbatim@font{\clearocplists\pushocplist\GreekVerbatimOCP\usefont{UT1}{monospace}{m}{n}}%
+\protect\GreekOCP}{}
+\newcommand{\localgreek}[1]{{\GreekOCP#1}}
+
+\language=\l@greek
+\greeklccodes
+\greekmarks
+
+\def\@wrindex#1{%
+   \protected@write\@indexfile{}%
+      {\string\indexentry{{\protect\OTPGreekIso#1}}{\thepage}} \endgroup
+ \@esphack}%
+
+\def\verbatim@font{\clearocplists\pushocplist\GreekVerbatimOCP\usefont{UT1}{monospace}{m}{n}}
+
+\GreekOCP
+
+\endinput

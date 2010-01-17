@@ -1,0 +1,86 @@
+% orn10.mf -- 10pt Ornaments
+% copyright 1993 Jeroen Hellingman
+% last edit: 16-MAR-1993
+
+mode_setup;
+
+%%%%% parameters
+
+ht# :=          1.667mm#;       % height of characters
+u#  :=          0.8333mm#;      % unit width (.5ht)
+rm# :=          0.5mm#;         % space inbetween characters
+slant :=        0;              % slant of characters
+
+rot =           145;            % angle of pen
+thick# :=       0.5pt#;         % thickness of thickest lines (was 0.666)
+thin# :=        0.2pt#;         % thickness of thinnest lines (was 0.416)
+subthick# :=    0.3pt#;         % thickness of thickest lines in subscribed characters (was 0.416)
+
+font_size               10pt#;
+font_identifier :=      "ORN10";
+
+%%%%%% dimensions
+
+uw# :=  0.1u#;      % unit of width
+uh# :=  0.05ht#;    % unit of height
+
+define_pixels(rm,u,uw,uh);
+define_whole_pixels(ht);
+
+currenttransform := currenttransform shifted (.5rm, 0);
+
+%%%%%% set the remaining font parameters
+
+font_slant          := slant;
+font_quad           := 20uw#;
+font_x_height       := 20uh#;
+font_normal_space   := 14uw#;
+font_normal_stretch := 8uw#;
+font_normal_shrink  := 2uw#;
+
+currenttransform := currenttransform slanted slant;
+
+%%%%%% pen definitions
+
+penwd# :=thick# * cosd(rot-90);
+usthick# := thick#;
+mb# := .2ht#;
+define_pixels(penwd,usthick,mb);
+define_blacker_pixels(thin,thick,subthick);
+thin := max(thin,1); subthick := max(subthick,1);
+smoothing := 0;
+pickup pencircle xscaled thick yscaled thin rotated rot;
+scpenwd := pen_rt - pen_lft;
+frame_pen := savepen;
+pickup pencircle xscaled subthick yscaled thin rotated rot;
+sub_pen := savepen;
+
+%%%%%% character definitions
+
+beginchar(1,150uw#+rm#,5uh#,5uh#) "ornament 1";
+    numeric width; width = 150uw;
+    numeric height; height = 4uh;
+    
+    z1=(0, 0);
+    z2=(width, 0);
+    pickup penrazor scaled thin rotated 90;
+    draw z1--z2;
+    
+    z3=(.5width-height, 0);
+    z4=(.5width, height);
+    z5=(.5width+height, 0);
+    z6=(.5width, -height);
+
+    fill z3{up}..z4{right}..z5{down}..z6{left}..cycle;
+    
+    z7=(15uw, .5thin);
+    z8=(.5width - 14uw, .9height);
+    z9=(.5width - 7uw, 0);
+    z10=(x8, -.9height);
+    z11=(x7, -.5thin);
+    
+    fill z7{right}..z8{right}..z9{down}..z10{left}..z11{left}..cycle;
+    fill (z7{right}..z8{right}..z9{down}..z10{left}..z11{left}..cycle) reflectedabout ((.5width, 0), (.5width, 1));
+
+    penlabels(1,2,3,4,5,6,7,8,9,10,11);
+endchar;

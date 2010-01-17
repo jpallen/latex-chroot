@@ -1,0 +1,168 @@
+% $Header: /u/levy/texts/geomsty/RCS/geomfig.sty,v 1.10 95/07/20 13:42:16 levy Exp Locker: levy $
+
+\@ifundefined{multifig}{}{\endinput}
+\input geompsfi.sty
+
+% set \object@type
+
+\def\@xfloat#1[#2]{\ifhmode \@bsphack\@floatpenalty -\@Mii\else
+   \@floatpenalty-\@Miii\fi\def\@captype{#1}\ifinner
+      \@parmoderr\@floatpenalty\z@
+    \else\@next\@currbox\@freelist{\@tempcnta\csname ftype@#1\endcsname
+       \multiply\@tempcnta\@xxxii\advance\@tempcnta\sixt@@n
+       \@tfor \@tempa :=#2\do
+                        {\if\@tempa h\advance\@tempcnta \@ne\fi
+                         \if\@tempa t\advance\@tempcnta \tw@\fi
+                         \if\@tempa b\advance\@tempcnta 4\relax\fi
+                         \if\@tempa p\advance\@tempcnta 8\relax\fi
+         }\global\count\@currbox\@tempcnta}\@fltovf\fi
+    \def\object@type{#1}%
+    \global\setbox\@currbox\vbox\bgroup
+    \hsize\columnwidth \@parboxrestore}
+
+%
+% Higher-level environments for figures
+%
+
+\newenvironment{Table}{\@ifnextchar[%]
+                {\@Float{table}}{\@Float{table}[htbp]}}{\end@Float{table}}
+\newenvironment{Figure}{\@ifnextchar[%]
+                {\@Float{figure}}{\@Float{figure}[htbp]}}{\end@Float{figure}}
+%
+% #1 = type   #2 = placement   #3 = label   #4 = title   #5 = caption
+%
+
+\def\@Float#1[#2]#3#4#5{%
+  \begin{#1}[#2]%
+    \def\the@label{#3}%
+    \def\the@title{#4}%
+    \def\the@caption{#5}%
+}
+
+\def\end@Float#1{%
+  \expandafter\caption\expandafter[\the@title]{%
+   {\bf\the@title\ifx\the@caption\empty\else\ifx\the@title\empty\else. \fi\fi}%
+   \ignorespaces\the@caption}%
+  \expandafter\label\expandafter*\expandafter{\the@label}%
+  \end{#1}}
+
+\def\masterpicpath{} % Needs redefining -- may need change in catcodes
+
+%
+% Definitions for figures
+%
+% Driver will look for figure in file .../chap3/2 (for book) or .../2 (art)
+%
+\ifx\@style\@book 
+\def\picpath{\masterpicpath chap\thechapter/\arabic{section}/}
+\else
+\def\picpath{\masterpicpath\thesection/}
+\fi
+%
+% User macros: 
+% \fig, \doublefig, \triplefig
+% followed by <optional placement>{filename}{title}{caption}
+%
+\def\fig{\multifig1}
+\def\doublefig{\multifig2}
+\def\triplefig{\multifig3}
+\def\multifig#1{\ifvmode\else\unskip\fi\@ifnextchar[{\@fig#1}{\@fig#1[htbp]}}
+%
+\def\@vtick{\vrule depth6pt width.2pt}
+\def\@htick{\vrule height.2pt width6pt}
+\def\@figbox#1{\setbox0=\psfig{figure=\picpath #1}\dimen0=\wd0
+  \ifproofing
+  \vbox{\offinterlineskip
+    \hbox to \dimen0{\@htick\hfil\@htick}\kern -.4pt
+    \hbox to \dimen0{\@vtick\hfil\@vtick}\kern -6pt
+    \box0
+    \kern -6pt\hbox to \dimen0{\@vtick\hfil\@vtick}%
+    \kern -.4pt\hbox to \dimen0{\@htick\hfil\@htick}}%
+  \else\box0\fi}
+
+%
+% #1 = number of parts #2 = placement #3 = filename(=label) #4 = title
+% #5 = caption
+%
+
+\def\@fig#1[#2]{%
+  \def\@tempb{\@@fig{#1}[#2]}%
+  \def\@tempa{\egroup\expandafter\@tempb\expandafter{\thea@label}}%
+  \bgroup\@sanitize\afterassignment\@tempa\gdef\thea@label}
+
+\def\@@fig#1[#2]#3#4#5{%
+  \begin{Figure}[#2]{#3}{#4}{#5}%
+    {\hyperactivelabels
+     \centerline{\ifnum#1=1 \@figbox{#3}\else\valign{\vfil##\vfil\cr
+       \@figbox{#3-1}\cr \noalign{\hfil}\@figbox{#3-2}\cr
+       \ifnum#1>2 \noalign{\hfil}\@figbox{#3-3}\cr\fi}\fi}}%
+  \end{Figure}%
+}
+
+%
+\let\hyperactivelabels\relax    % redefine as appropriate
+%
+
+\long\def\@caption#1[#2]#3{\par
+       \def\@tempa{\addcontentsline{\csname ext@#1\endcsname}{#1}}
+       \edef\@tempb{\noexpand\numberline{\csname the#1\endcsname}}
+       \expandafter\@tempa\expandafter{\@tempb\ignorespaces #2}\begingroup
+    \@parboxrestore
+    \normalsize
+    \@makecaption{\csname fnum@#1\endcsname}{%
+        \setlanguage\language  % put in a whatsit so that later \unhbox
+                               % will know what language it is
+        \ignorespaces #3}\par
+  \endgroup}
+
+\newskip\captionskip
+\captionskip=10pt
+%
+% Redefined from book.sty.
+%
+\long\def\@makecaption#1#2{%
+    \vskip\captionskip
+    \setbox\@tempboxa\hbox{%
+      \ifproofing\@ifundefined{the@label}{}
+        {\hbox to 0pt{\vbox to 0pt{\vss\hbox{\tiny\the@label}\bigskip}\hss}}\fi
+      \small\sf{\bf #1. }\ignorespaces #2}%
+    \@captionwidth=\hsize \advance\@captionwidth-2\@captionmargin
+    \ifdim \wd\@tempboxa >\@captionwidth {%
+        \rightskip=\@captionmargin\leftskip=\@captionmargin
+        \unhbox\@tempboxa\par}%
+      \else
+        \hbox to\hsize{\hfil\box\@tempboxa\hfil}%
+    \fi}
+
+% $Log:	geomfig.sty,v $
+%Revision 1.10  95/07/20  13:42:16  levy
+%\captionskip
+%
+%Revision 1.9  1994/08/12  17:35:53  levy
+%allows empty title in figure (ie. \fig{filename}{}{foo})
+%> allows _ ^ \ & # $ % ~ in file names
+%
+%Revision 1.8  93/09/16  22:14:30  levy
+%language whatsit in caption
+%
+%Revision 1.7  92/07/17  13:44:23  levy
+%*** empty log message ***
+%
+%Revision 1.6  92/06/25  22:31:08  levy
+%tables
+%
+%Revision 1.5  92/06/18  16:55:16  levy
+%caption width error
+%
+%Revision 1.4  92/06/10  12:42:10  levy
+%geompsfig -> geompsfi
+%
+%Revision 1.3  92/05/27  02:08:42  levy
+%moved \hyperactivelabels to before figure (instead of caption!)
+%
+%Revision 1.2  1992/04/07  09:43:26  levy
+%commented out log line
+%
+% Revision 1.1  92/04/07  09:09:00  levy
+% Initial revision
+

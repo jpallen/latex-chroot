@@ -1,0 +1,108 @@
+% lisa.mf by Raymond Chen (rjc@math.princeton.edu) 
+ 
+% Lisa Simpson. 
+ 
+% Dependencies: 
+% 
+%       eye_right  dimple     tau 
+%           |        |         | 
+%         nose       |        vertical part of tau 
+%           |  \     | 
+%           |    mouth 
+%  ear   eye_left    | 
+% |   \  /  |       chin 
+% neck hair lashes  / 
+%    \            / 
+%      \        / 
+%        pearls 
+% 
+% The ordering is so that we draw the pearls as early as possible. 
+ 
+pictureof(Lisa, 24u#, 24u#, 0); 
+    pickup thinpen; 
+ 
+    localpath eye_left, eye_right; 
+    eye_right = superellipse( (16u, 10.1u), (14u, 12u), (11.5u, 10u), 
+                (13.75u, 8u), .7); 
+    draw eye_right; 
+ 
+    localpath nose; 
+    nose = preclip((14u, 10u).. (16.5u, 8.7u){right} ... 
+                   (19.3u, 7.5u){down} ... (17u, 6.5u){left}, eye_right); 
+    draw nose; 
+ 
+    localpath dimple; dimple = dimplepath( (11.8u, 6u), (10.9u, 5.5u)); 
+    draw dimple; 
+ 
+    localpath mouth; 
+    mouth = prepostclip( 
+           (18.3u, 6.8u).. tension infinity and 3.. 
+           (20u, 5.6u){down} .. tension 5 and 1 .. 
+           (16u, 4.7u){left} .. 
+           (11.5u, 5.8u), nose, dimple); 
+    draw mouth; 
+ 
+    localpath ear; 
+    ear = (8.5u, 7.9u) .. (7u, 6.5u) ..(8.3u, 5.5u); 
+    draw ear; 
+ 
+    localpath chin; 
+            z1c = (15.7u, 5.5u); 
+            z2c = (15.5u, 4.1u); 
+            z3c = (15u, 3.6u); 
+            z4c = (13.5u, 0u); 
+    chin = preclip(z1c{down}..z2c..z3c..{z4c-z3c}z4c, mouth); 
+    draw chin; 
+ 
+    localpath neck; 
+    neck = preclip((8u, 5.8u){dir -60}..{-dir 60}(8u,3.2u)..(6.75u,u), ear); 
+    draw neck; 
+ 
+    % For efficiency, we draw the pearls as soon as it becomes possible. 
+    if pearl > 0: 
+    pickup lacepen; 
+    overdraw fullcircle scaled .9pearl shifted (7.5u, 2.7u); % far left 
+    overdraw fullcircle scaled .95pearl shifted (13.7u, 1.4u); % far right 
+    overdraw fullcircle scaled .95pearl shifted (8.8u, 2.3u); % left of center 
+    overdraw fullcircle scaled pearl shifted (12u, 1.5u);  % right of center 
+    overdraw fullcircle scaled pearl shifted (10.3u, 1.7u); % center 
+    pickup thinpen; 
+    fi 
+ 
+    drawtau( (7.5u, 6.8u), (8.5u, 7.2u), (8.1u, 6u), (8.1u, 7.3u) ); 
+ 
+    eye_left = prepostclip( 
+                (17.2u, 8.2u){right}.. 
+                (19.25u, 10.5u){up}.. 
+                (17u, 12.2u){left}.. 
+                {down}(15.3u, 10.5u), nose, eye_right); 
+    draw eye_left; 
+ 
+    localpath hair; 
+    hair = prepostclip((18u, 11.3u) :: (21u, 13u) :: 
+           %(18.5u, 16u) :: 
+           (18.7u, 15.5u) :: 
+           %(19.25u, 19.25u) :: 
+           (19.5u, 19u) :: 
+           (16u, 18u) :: (14u, 21u) :: (11.6u, 18.7u) :: 
+           (8u, 20u) ..tension 3..  (7u, 17.5u) ..tension 3..  (3u, 16u) :: 
+           (4.75u, 13.75u) :: (2.5u, 11.5u) :: (4.5u, 9.5u) :: (3.3u, 7u) :: 
+           (6u, 6.7u) :: (6.5u, 4.25u) :: (8u, 5.8u), eye_left, ear); 
+    draw hair; 
+ 
+    pickup lashpen; 
+    localpath lash; 
+ 
+    rlash((12u, 10.5u), (11u, 11.7u), 3); 
+    rlash((12.75u, 11.25u), (12.2u, 12.8u), 3); 
+    rlash((14u, 12u), (14.2u, 13.5u), -3); 
+    rlash((15u, 11.7u), (15.5u, 12.9u), -3); 
+ 
+    llash((17.0u, 12.0u), (17.6u, 13.1u), -3); 
+    llash((18.2u, 11.8u), (18.9u, 13.1u), -2); 
+    llash((18.9u, 11.4u), (19.8u, 12.1u), -2); 
+    llash((19.0u, 10.4u), (20.3u, 11.1u), -2); 
+ 
+    eyepos(Lisa, 12.5u#, 9.75u#, 16.8u#, 9.75u#); 
+ 
+endpicture; 

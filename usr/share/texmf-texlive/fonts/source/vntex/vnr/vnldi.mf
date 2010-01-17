@@ -1,0 +1,55 @@
+% Copyright 2003-2005 Han The Thanh <hanthethanh@gmx.net>.
+% This file is part of vntex.  License: LPPL, version 1.3 or newer,
+% according to http://www.latex-project.org/lppl.txt
+
+% Computer Modern Roman Italic "d-bar" precomposed glyph:
+% Inclusion:
+%               dd
+
+vnchar casename "dd";
+beginchar(vn_code(d.bar_), 9u#, max(asc_height#, 1.45x_height#), 0);
+    italcorr max(1/3x_height#*slant + .5hair# + .5u#,
+        h#*slant + .5stem# - 2u#) if math_fitting: -.5u# fi;
+    adjust_fit(0, 0);
+    pickup fine.nib;
+    pos0(hair, 0);
+    pos1(vair, 90);
+    pos2(curve, 180);
+    pos3(vair, 270);
+    x0 = x4;
+    x1 = x3 = .5[x0, x2];
+    lft x2r = hround(1.5u - .5curve);
+    x4 + .5stem = hround(w - 2.5u + .5stem);
+    top y1r = x_height + oo;
+    bot y3r=-oo;
+    y0 = y2 = .5[y1, y3];
+    filldraw stroke super_arc.e(0, 1) & pulled_arc.e(1, 2)
+    & pulled_arc.e(2, 3) & super_arc.e(3, 0);  % bowl
+    x5 = x0;
+    x7 = w;
+    hook_out(5, 6, 7);  % closing hook
+    pickup tiny.nib;
+    pos5'(stem, 0);
+    pos4(stem, 0);
+    z5' = z5;
+    top y4 = h;
+    filldraw stroke z4e -- z5'e;  % stem
+    sloped_serif.l(4, 5', a, 1/3, jut, serif_drop);  % serif
+    bar_thickness := .3[vair, stem];
+    pos8(bar_thickness, 90);
+    pos9(bar_thickness, 90);
+    if serifs:
+        top y8r = top y9r = .6[y1, h - (serif_drop + slab)] + .5bar_thickness;
+        lft x8 = hround(tiny.lft x0l - 1.5max(jut, u)) - eps;
+        rt x9 = hround(tiny.rt x0r + max(jut, u)) + eps;
+    else:
+        top y8r = top y9r = .6[y1, y4]  + .5bar_thickness;
+        lft x8 = hround(tiny.lft x0l - 1.5vair) - eps;
+        rt x9 = hround(tiny.rt x0r + vair) + eps;
+    fi
+    filldraw stroke z8e -- z9e;                               % bar
+    math_fit( - .3x_height#*slant + .5curve# - u#, ic#);
+    penlabels(0, 1, 2, 3, 4, 5, 6, 7);
+endchar;
+
+endinput;

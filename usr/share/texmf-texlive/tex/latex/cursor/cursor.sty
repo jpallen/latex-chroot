@@ -1,0 +1,134 @@
+%%%=====================================================
+%%%  @LaTeX-file{
+%%%     author          = "Werenfried F.M. Spit",
+%%%     version         = "1.1",
+%%%     date            = "20/01/1999",
+%%%     filename        = "WSartikel.cls",
+%%%     address         = "Berberisweg 488
+%%%                     =  NL-3053 PL  Rotterdam
+%%%                     =  Nederland",
+%%%     e-mail          = "W.Spit@witbo.nl",
+%%%     telephone       = "+31-10-4.186.136",
+%%%     telephone2      = "+31-70-3.700.709",
+%%%     telefax2        = "+31-70-3.600.098",
+%%%     checksum        = "55762 134 325 4092",
+%%%     codetable       = "ISO/ASCII",
+%%%     keywords        = "LaTeX2e documentstyle",
+%%%     supported       = "yes",
+%%%     abstract        = "cursors in formulas",
+%%% }
+%%%=====================================================
+%%%
+%%% usage:
+%%%  \Lc{<formulapart>} puts a left-pointing cursor below <formulapart>;
+%%%                     the cursorheight and width are adapted to it
+%%%  \Rc{<formulapart>} puts a right-pointing cursor below <formulapart>;
+%%%  \LRc{<p1>}{<p2>}   puts a left and right-pointing cursor below <p1>
+%%                      and <p2>
+%%%
+%%% if the formulapart is empty a standard width is used instead of an
+%%% adapted width
+%%%
+%%% \cursorheight{<formula>} print <formula> and adapt the heights of the
+%%% cursor(s) in it to the heigth of the complete formula
+%%%
+%%%
+%%% all heigths and widths are calculated for display style printing
+%%% all commands can be used in math mode only except
+%%%
+%%% \cursorformula{<formula>} print formula as displayed formula and
+%%% adapt the heights of the cursor(s)in it to the heigth of the complete formula
+%%%
+%%% adaptable parameters:
+%%%
+%%%  \cursorlinew    line width cursor     (0.5pt)
+%%%
+%%% version history
+%%%           20  1.1      added \displaystyle to calculation of cursor width
+%%%   1999/01/18  1.0      first working version
+%%%
+%%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesFile{cursor.sty}[1999/01/20 v1.1 Specialized document class (WS)]
+\newlength{\ruled}
+\newlength{\ruleh}
+\newlength{\rulew}
+\newlength{\rulewr}
+\newlength{\rulewl}
+
+\newlength{\cursorlinew} \setlength{\cursorlinew}{0.5pt}
+
+
+
+\def\cursorformula#1{$$\cursorheight{#1}$$}
+
+\def\cursorheight#1{\bgroup%
+\let\LRc=\relax%
+\let\Lc=\relax%
+\let\Rc=\relax%
+\settoheight{\ruleh}{$\displaystyle #1$}\settodepth{\ruled}{$\displaystyle #1$}%
+\addtolength{\ruled}{0.5ex}%
+\addtolength{\ruleh}{\ruled}%
+\addtolength{\ruleh}{0.5ex}%
+\let\Lc=\l@cursor%
+\let\Rc=\r@cursor%
+\let\LRc=\lr@cursor%
+#1
+\egroup}
+
+
+
+\def\L@cursor#1{%
+\settoheight{\ruleh}{$\displaystyle #1$}%
+\settodepth{\ruled}{$\displaystyle #1$}%
+\addtolength{\ruled}{0.5ex}%
+\addtolength{\ruleh}{\ruled}%
+\addtolength{\ruleh}{0.5ex}
+\l@cursor{#1}%
+}
+
+
+\def\R@cursor#1{%
+\settoheight{\ruleh}{$\displaystyle #1$}%
+\settodepth{\ruled}{$\displaystyle #1$}%
+\addtolength{\ruled}{0.5ex}%
+\addtolength{\ruleh}{\ruled}%
+\addtolength{\ruleh}{0.5ex}
+\r@cursor{#1}%
+}
+
+
+\def\LR@cursor#1#2{%
+\settoheight{\ruleh}{$\displaystyle #1 #2$}%
+\settodepth{\ruled}{$\displaystyle #1 #2$}%
+\addtolength{\ruled}{0.5ex}%
+\addtolength{\ruleh}{\ruled}%
+\addtolength{\ruleh}{0.5ex}
+\lr@cursor{#1}{#2}%
+}
+
+
+\def\l@cursor#1{\settowidth{\rulewl}{$#1$}%
+\ifdim\rulewl=\z@\rulewl=1em\else\settowidth{\rulewl}{$\displaystyle #1\,$}\fi%
+\,\rlap{\rule[-\ruled]{\cursorlinew}{\ruleh}%
+\rule[-\ruled]{\rulewl}{\cursorlinew}}\,#1}
+
+\def\r@cursor#1{\settowidth{\rulewr}{$#1$}%
+\ifdim\rulewr=\z@\rulewr=1em\else\settowidth{\rulewr}{$\displaystyle\,#1$}\fi%
+#1\,\llap{\rule[-\ruled]{\rulewr}{\cursorlinew}%
+\rule[-\ruled]{\cursorlinew}{\ruleh}}\,}
+
+\def\lr@cursor#1#2{%
+\settowidth{\rulewl}{$#1$}\settowidth{\rulewr}{$#2$}%
+\ifdim\rulewl=\z@\rulewl=1em\else\settowidth{\rulewl}{$\displaystyle #1\,$}\fi%
+\ifdim\rulewr=\z@\rulewr=1em\else\settowidth{\rulewr}{$\displaystyle\,#2$}\fi%
+#1\,\llap{\rule[-\ruled]{\rulewl}{\cursorlinew}}%
+\rule[-\ruled]{\cursorlinew}{\ruleh}%
+\rlap{\rule[-\ruled]{\rulewr}{\cursorlinew}}\,#2}
+
+
+%\global
+\global\let\Lc=\L@cursor
+\global\let\Rc=\R@cursor
+\global\let\LRc=\LR@cursor
+\endinput

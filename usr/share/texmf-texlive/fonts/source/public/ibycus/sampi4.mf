@@ -1,0 +1,27 @@
+% Rather mechanical design.  A tipped
+% close parenthesis, with two legs near
+% the center.
+cmchar "sampi";
+beginchar(sampi,10u# ,asc_height#,desc_depth#);
+italcorr body_height#*slant-.5u#;
+adjust_fit(0,0); pickup fine.nib;
+pos1(vair,0); pos2(.75[hair,stem],0); pos3(vair,0);
+rt x1r=rt x3r=hround(u); lft x2l=hround(x1+4u);
+top y1=h-u; y2=.5[y1,y3]=math_axis;
+numeric sampi_tilt; 
+x4 = w-2u; y4=y3; sampi_tilt=angle(z4-z1)+90;
+pos6(vstem,90); pos7(vstem,90);
+pos2'(.75[hair,stem],sampi_tilt); pos3'(vair,sampi_tilt);
+forsuffixes $=6,7,8,9:
+  pos$'(vstem,90+sampi_tilt); endfor
+x5=3(x2-x1); x6l=x7l=x2l; 
+y5=y6l+.15(y1-y3)=y7r-.15(y1-y3)=y2;
+x8=x9=.2(x2-x1); y8=y6;y9=y7;
+forsuffixes $=2,3,5,6,7,8,9:
+  z$'=z$ rotatedaround(z1,sampi_tilt); endfor
+y5':=min(y5',y1-eps);
+filldraw stroke z1e{z5'-z1}...z2'e
+ ...{z3'-z5'}z3'e;  % arc
+filldraw stroke z6'e--z8'e; filldraw stroke z7'e--z9'e;
+penlabels(1,forsuffixes $=2,3,6,7,8,9:$',endfor 4); endchar;
+

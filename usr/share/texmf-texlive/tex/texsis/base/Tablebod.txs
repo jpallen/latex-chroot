@@ -1,0 +1,91 @@
+%% Tablebod.txs  (TeXsis version 2.16)  
+%  $Revision: 16.0 $  :  $Date: 1994/11/11 19:37:06 $  :  $Author: myers $
+%======================================================================*
+% Old-style Figure macros               -  This file is a part of TeXsis
+%                       (C) copyright 1991 by Eric Myers and Frank Paige.
+%
+% SIMPLE(R) RULED TABLES:  \Tablebody
+%
+%       The following macros make simple ruled tables with automatic spacing,
+% i.e. no vertical struts are needed. Taken from TechRpt with modifications as
+% in TeXsis 2.11.  These are included for backward compatability
+% and will eventually be phased out.
+     
+%       \Tablebody actually begins the table body, with the \halign template.
+% #1 is number of columns. \Tableskipsize is set by \singlespaced,
+% \doublespaced, etc. in TXSmacs.
+%======================================================================*
+\catcode`@=11                                   % make @ a letter for this file
+     
+\def\Tablebody#1{%                                      % #1 = no. columns
+   \hbox to \hsize\bgroup                               % start hbox for table
+   \hss $$ \vbox\bgroup                                 % centered displaymath
+   \offinterlineskip                                    % No interline glue
+   \def\tablerule{\noalign{\hrule}}                     % simple rule
+   \def\T@bleskip{\Tableskip{#1}{\Tableskipsize}}       % nice skip
+   \def\T@blerule{\T@bleskip\tablerule\T@bleskip}       % nice rule
+   \def\Cr{\cr\T@bleskip}                               % \cr and nice skip
+   \def\CR{\cr\T@blerule}                               % \cr and nice rule
+   \def\CRCR{\cr\T@bleskip\tablerule                    % \cr and nice double
+      \Tableskip{#1}{1pt}\tablerule\T@bleskip}          % rule
+   \def~{\phantom{0}}                                   % ~ is digit-width space
+     \halign\bgroup                                     % start \halign
+      \vrule##                                          % do leftmost vrule
+      &&\quad\hfil##\hfil\quad\strut                    % repeat for each column
+      &\vrule##\crcr                                    % vrule on the right
+   \tablerule                                           % hrule at top of table
+   \T@bleskip}                                          % add some space
+
+\def\tablebody{\Tablebody}                              % synonym
+     
+%       \endTablebody closes \Tablebody.
+     
+\def\endTablebody{                                      %
+   \bottomrule                                          % put rule at bottom
+   \crcr\egroup                                         % close the \halign
+   \egroup $$                                           % close vbox, math
+   \hss\egroup}                                         % close the hbox
+     
+\def\endtablebody{\endTablebody}                        % synonym
+
+%       \Tablebodyleft is just like \Tablebody except that the columns are
+% set flush left.
+     
+\def\Tablebodyleft#1{%                                  % #1 = no. columns
+   \hbox to \hsize\bgroup                               % start hbox for table
+   \hss $$ \vbox\bgroup                                 % centered displaymath
+   \offinterlineskip                                    % No interline glue
+   \def\tablerule{\noalign{\hrule}}                     % simple rule
+   \def\T@bleskip{\Tableskip{#1}{\Tableskipsize}}       % nice skip
+   \def\T@blerule{\T@bleskip\tablerule\T@bleskip}       % nice rule
+   \def\Cr{\cr\T@bleskip}                               % \cr and nice skip
+   \def\CR{\cr\T@blerule}                               % \cr and nice rule
+   \def\CRCR{\cr\T@bleskip\tablerule                    % \cr and nice double
+      \Tableskip{#1}{1pt}\tablerule\T@bleskip}          % rule
+   \def~{\phantom{0}}                                   % ~ is digit-width space
+     \halign\bgroup                                     % start \halign
+      \vrule##                                          % do leftmost vrule
+      &&\quad##\hfil\quad\strut                         % repeat for each column
+      &\vrule##\crcr                                    % vrule on the right
+   \tablerule                                           % hrule at top of table
+   \T@bleskip}                                          % add some space
+     
+%       \Tableskip#1#2 produces a vertical skip with rules of height #2 for
+% a table with #1 columns.
+%       \tablerule produces just a rule.
+%       \Tablerule#1#2 produces a rule with a skip of dimen #2 on each side
+% for a table with #1 columns.
+     
+\def\Tableskip#1#2{height #2 \global\mscount#1%
+        \gloop\ifnum\mscount>\z@ \Tsk@p\repeat\cr}
+\def\Tsk@p{&\omit&\global\advance\mscount\m@ne}
+     
+\def\Tablerule#1#2{\Tableskip#1#2\tablerule\Tableskip#1#2}
+     
+%       \bottomrule is a horizontal rule across the table. It is turned off
+% by \nobottomrule (locally to the \halign)
+     
+\def\bottomrule{\tablerule}
+\def\nobottomrule{\let\bottomrule=\relax}
+     
+%>>> EOF Tablebod.txs <<<

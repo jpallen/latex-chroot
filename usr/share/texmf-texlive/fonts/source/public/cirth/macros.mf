@@ -1,0 +1,69 @@
+% Copyright 1992 Jo Grant  jaymin@maths.tcd.ie
+% c/o 44 Bancroft Avenue, Tallaght, Dublin 24, Ireland.
+% Everyone is granted permission to copy, and redistribute
+% this file, provided that a currently-dated copy of this
+% copyright notice is included in the copy.
+% License is granted to produce fonts based on the information
+% in this file, provided that such fonts are redistributed
+% without charge to any third party and not used for
+% monetary gain. To use them in a commercially related environment
+% you must first acquire a liscence from Jo Grant at the
+% above address.
+
+def runepen = 
+	pickup pencircle xscaled pen_xthick yscaled pen_ythick rotated 40; 
+	enddef;
+def dotpen = 
+       pickup pencircle xscaled dotpen_xthick yscaled dotpen_ythick rotated 40; 
+	enddef;
+def runedot (expr p) =
+	dotpen;
+	draw (p + (dotwid, 0)){up}..{left}(p + (0, dotwid))..
+		{down}(p + (-dotwid, 0))..{right}(p + (0, -dotwid))..cycle;
+	enddef;
+def filldot (expr p) =
+	dotpen;
+	filldraw (p + (dotwid, 0)){up}..{left}(p + (0, dotwid))..
+		{down}(p + (-dotwid, 0))..{right}(p + (0, -dotwid))..cycle;
+	enddef;
+def serif (expr p) =
+	if serifs:
+		runepen;
+		draw (p - (serwid, 0))--(p + (serwid, 0));
+	fi;
+	enddef;
+def leftserif (expr p) =
+	if serifs:
+		runepen;
+		draw (p - (serwid, 0))--p;
+	fi;
+	enddef;
+def rightserif (expr p) =
+	if serifs:
+		runepen;
+		draw p--(p + (serwid, 0));
+	fi;
+	enddef;
+
+def adjust_fit(expr left_adj, right_adj) =
+	l := -hround(left_adj*hppp)-letter_fit;
+	interim xoffset := -l;
+	charwd := charwd+2letter_fit# + left_adj + right_adj;
+	r := l+hround(charwd*hppp);
+	w := r-hround(right_adj*hppp) - letter_fit;
+	enddef;
+
+extra_beginchar := extra_beginchar & "runepen;adjust_fit(0,0);";
+
+def makebox(text r) =
+	r((-letter_fit,0), (w+letter_fit,0));
+	r((-letter_fit,h), (w+letter_fit,h));
+	r((-letter_fit,0), (-letter_fit,h));
+	r((w+letter_fit,0), (w+letter_fit,h));
+	r((0,0), (0,h));
+	r((w,0), (w,h));
+	if charic<>0:
+		r((w+charic*hppp,h.o_),(w+charic*hppp,.5h.o_)); 
+	fi
+	enddef;
+

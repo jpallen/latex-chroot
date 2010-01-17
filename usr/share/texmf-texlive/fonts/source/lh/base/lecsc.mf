@@ -1,0 +1,129 @@
+%
+% lecsc.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Driver file, called by parameter files for "caps and small caps" fonts
+% - modified EXCSC.MF in European Computer Modern fonts (ec fonts)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+LHver_check(3,5); % like |version_check| in ec
+
+
+input lxpseudo;
+
+mode_setup; font_setup;
+pseudo_setup;    % |pseudo_setup| from ec
+
+% upper part exr(u/l)(lett/west/east) changed to cyrillic glyphs
+%vvv
+if roman_ec:
+   input exrulett;
+fi
+%<<<
+input lgcyru;  % input Cyrillic uppercase shapes
+
+input lgcyrsym;  % floating symbols in Cyrillic
+input lgengsym;  % latin symbols
+input lgromp;    % roman & ?
+input lgrdigit;  % roman digits
+
+is_small_cap:=true;
+%%% fine higher
+% the `higher' values are used while putting accents and attaching ogoneks
+forsuffixes $=u,o,letter_fit,x_height,bar_height,body_height,stem:
+ higher.$.#:=$.#; higher.$:=$;
+endfor
+
+%%% fine lower
+begingroup
+forsuffixes $= u, width_adj, cap_serif_fit, letter_fit,
+ body_height, cap_height, x_height, bar_height, comma_depth,
+ flare, dot_size, cap_hair, stem, cap_stem, cap_curve, cap_ess,
+ cap_jut, beak_jut, beak, slab, cap_bar, cap_band, cap_notch_cut,
+ o, apex_o: save $; $.#:=lower.$.#; endfor
+fudge:=lower.fudge;
+
+% optional part:
+forsuffixes $ = depth_corr, left_corr, top_breadth_corr, tip_breadth_corr,
+  tip_xcorr, tip_ycorr, pre_angle, post_angle, pre_limit, post_limit,
+  pre_lightness, post_lightness, pre_deflexion, post_deflexion, cap_flat,
+  ogonek_pen#: if known lower.$: $:=lower.$; fi
+endfor
+
+input lxpseudo;  % Recalculate pseudoparameters
+
+font_setup; pseudo_setup; % now try again with |lower| settings
+
+% upper part exr(u/l)(lett/west/east) changed to cyrillic glyphs
+%vvv
+if roman_ec:
+  extra_endchar:=extra_endchar&"charcode:=charcode+code_offset";
+  code_offset:=ASCII"a" - ASCII"A";
+  input exrulett;
+  code_offset:=0;
+fi
+%<<<
+input lgcyru;  % input Cyrillic uppercase shapes
+
+input lgcspl;  % Small Caps dotless I, J and FF-ligatures for ec_roman
+
+input lypseudo; % Recalculate pseudoparameters for capital accents
+
+font_setup; pseudo_setup;  % now try again with |lower| settings
+
+input lycyracc; % Accents for capital letters with small cap parameters
+if old_cyr:
+   input lgocyrac; % Cyrillic Old Slav accents & signs
+fi
+
+
+endgroup;
+
+
+% Fontparameter
+%
+font_coding_scheme:="TeX Cyrillic Font Encoding - "&enc_name;
+boundarychar:=oct"027";
+font_slant slant; 
+font_x_height x_height#;
+font_cap_height cap_height#;
+font_asc_height asc_height#;
+font_acc_cap_height (cap_height#+acc_height#);
+font_desc_depth desc_depth#;
+font_max_height (max(asc_height#,body_height#,
+  cap_height#+acc_height#));
+font_max_depth (max(desc_depth#,paren_depth#,the_ogonek_depth#));
+% font_digit_width % set inside the digits file
+% font_cap_stem    % set after the programme of the capital I
+font_baselineskip max(1.2*designsize,body_height#+paren_depth#);
+
+if monospace: font_normal_space 9u#; % no stretching or shrinking
+   font_quad 18u#;
+   font_extra_space 9u#;
+   input llmligtb;   % do the ligature programs for monospaced fonts
+else: font_normal_space 6u#+2letter_fit#;
+   font_normal_stretch 3u#; font_normal_shrink 2u#;
+   font_quad 18u#+4letter_fit#;
+   font_extra_space 2u#;
+   TITLEfont:=false; SmallCapsfont:=true; ROMANfont:=false;
+   input llvligtb;   % do the ligature programs, not for monospaced fonts
+   if roman_ec: input llcligtb; fi
+   k#:=-.5u#; kk#:=-1.5u#; kkk#:=-2u#; % three degrees of kerning
+   scantokens("input "&(substring(fonteq-2,fonteq) of param_base)&"liker"); % Cyrillic ligs & kerns
+fi
+
+bye.
+%end of file

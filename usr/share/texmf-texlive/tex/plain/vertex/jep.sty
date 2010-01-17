@@ -1,0 +1,184 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     This is the Journal of Economic Perspectives style
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     Load special fonts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\font\twentyBaskB=cmbx12 at 20pt      %chapter titles
+\font\sixteenBaskR=cmr12 at 16pt     %authors names
+\font\tenBaskI=cmti10 at 10pt         %running heads
+\font\twelveBaskB=cmbx12 at 12pt      %article subheads
+\font\elevenBaskI=cmti10 at 11pt       %article subsection
+\font\twentyfourBaskB=cmbx12 at 24pt  %symposium title
+\font\twentyBaskR=cmr12 at 20pt      %department subhead
+\font\bigR=cmr12 at 39pt  %first letter of article
+
+
+%  Use the following definitions if you have a LaserWriter.
+%    The PostScript fonts look much better when scaled.
+%
+%\font\twentyBaskB=psmtimb at 20pt      %chapter titles
+%\font\sixteenBaskR=psmtimr at 16pt     %authors names
+%\font\tenBaskI=psmtimi at 10pt         %running heads
+%\font\twelveBaskB=psmtimb at 12pt      %article subheads
+%\font\elevenBaskI=psmtimi at 11pt       %article subsection
+%\font\twentyfourBaskB=psmtimb at 24pt  %symposium title
+%\font\twentyBaskR=psmtimr at 20pt      %department subhead
+%\font\bigR=psmtimr at 39pt  %first letter of article
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Set pagesize
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\hsize=30pc
+\vsize=53pc
+\hoffset=1in
+\voffset=0in
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Headline and footline
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\emskip{\hskip 1em}
+
+\def\dropstrut{\vrule height 0pt width 0pt depth 6pc}
+
+\nopagenumbers
+\def\rightheadline{\hbox to \fullsize{\hfil{\tenpoint\it \runtitle}\emskip{\tenpoint\folio}}\dropstrut}
+\def\leftheadline{\hbox to \fullsize{\tenpoint\folio\emskip {\tenpoint\it Economic Perspectives}\hfil}\dropstrut}
+\headline={\ifodd\pageno\rightheadline \else\leftheadline\fi}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Define topmatter style
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\TitleFont{\twentyBaskB}
+\def\AuthorFont{\sixteenBaskR}
+
+\def\DoLeftTitle#1{
+    \titlepage\global
+    \LeftBox
+       \titlebox
+       \TitleFont
+       {24pt}
+       {#1}}
+
+\def\title#1{\DoLeftTitle{#1}}
+
+\def\author#1{\DoLeftAuthor{#1}}
+
+\def\affil#1{\global\setbox\affilbox\vbox{\nineit\hfil#1\hfil}}
+
+\def\thanks#1{\global\setbox\thanksbox\hbox{\it \vrule height 4pt width 4pt depth 0pt\hskip3pt #1}}
+
+\def\date#1{\global\setbox\datebox\vbox{\tenrm #1 \hfil}}
+
+\def\abstract#1{\global\setbox\abstractbox\vbox{\ninepoint\hsize=23pc \noindent #1}}
+
+\def\keywords#1{}
+\def\address#1{}
+
+\def\topmatter{\relax}
+\def\endtopmatter{\DoTop}
+\def\document{\DoPaper\noindent}
+
+\def\SectionFont{\twelveBaskB}
+\RomanSectionfalse
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     Big letter to start first paragraph
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\start#1{\hang\hangafter=-3\hangindent=30pt
+ \vbox to 0pt{
+   \vskip 9pt\hsize=.25in
+      \hbox{\hfil\bigR #1\hss}
+         \vss}\noindent}
+
+
+\bigskipamount=32pt plus 2pt minus 2pt
+\medskipamount=14pt plus 2pt minus 2pt
+
+%%Modified \DoLeftSection in VerTeX to eliminate numbers and \noindent
+
+\def\DoLeftSection#1{
+   \BigBreak
+   \SubsectionNumber=0
+   \LeftBox
+        \sectionbox
+        \SectionFont
+        \normalbaselineskip
+        {#1}
+   \line{\box\sectionbox\hfil}
+   \global\advance\SectionNumber by 1
+   \nobreak\medskip}
+
+\def\section#1\par{\DoLeftSection{#1}}
+
+\def\subsection#1\par{\BigBreak\noindent{\elevenBaskI #1}\nobreak\medskip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\RefFont=\eightpoint
+
+\def\Refs{
+\medskip\noindent\unhbox\thanksbox\par
+\vskip 75pt plus 5pt minus 5pt\goodbreak
+\line{\tenpoint\bf References \hfil\par}
+\vskip 20pt
+\RefFont\baselineskip=10pt
+\parindent=1em}
+
+\def\by#1{\setbox\bybox\hbox{\eightpoint\bf #1}}
+
+\def\SetRef{\vskip 2pt
+  \ifjour\jourfalse\vbox{
+     \unhbox\bybox, ``\unhbox\paperbox,'' 
+     \unhbox\jourbox, \unhbox\yrbox, {\unhbox\volbox}, 
+     \ifvoid\nobox\relax\else (\unhbox\nobox), \fi
+     \unhbox\pagesbox. \par}\fi
+
+  \ifbook\bookfalse\par\vbox{
+     \unhbox\bybox\space {\it \unhbox\bookbox}. \unhbox\publaddrbox : 
+         \unhbox\publbox , \unhbox\yrbox.\par}\fi
+
+ \ifinbook\inbookfalse\par\vbox{
+     \unhbox\bybox, ``\unhbox\paperbox,'' in 
+     {\it \unhbox\bookbox}, ed. by {\rm \unhbox\editorbox}.
+     \unhbox\publaddrbox : \unhbox\publbox, \unhbox\yrbox: 
+     \ifvoid\pagesbox\relax\else, \unhbox\pagesbox .\fi\par}\fi
+
+ \ifunpublished\unpublishedfalse\par\vbox{
+     \unhbox\bybox, ``\unhbox\paperbox,'' 
+     \unhbox\yrbox, \unhbox\paperinfobox .\par}\fi
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Set the paper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\titlehead{\line{\it\hfil Economic Perspectives\emskip Volume 1, Number 1 \emskip July, 1987 \emskip Pages 63--70}}
+\def\titlefoot{\line{\hfil}}
+
+\def\DoTop{
+\vglue 7pc
+\line{\box\titlebox\hfil}
+\vskip 1pc
+\line{\box\authorbox\hfil}
+\vskip 4pc}
+
+\def\DoPaper{\relax}
+
+
+\tenpoint
+\parindent=20pt
+\newdimen\fullsize \fullsize=30pc
+\topskip=3.5pc
+\def\footnoterule{}

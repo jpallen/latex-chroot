@@ -1,0 +1,34 @@
+%
+% Washington Romanized Indic accent driver
+%
+% Macros to draw cedilla accents 
+%
+
+% cdilorigin marks where the top of the connector starts
+if unknown cdilorigin: numeric cdilorigin; cdilorigin=-o; fi
+
+cmchar "Cedilla accent";
+beginchar(oct"030",8u#,0,.875desc_depth#);
+adjust_fit(0,0);
+x1=.5w+.5u;
+if serifs: pickup crisp.nib; pos1(stem,0); pos2(stem,0);
+ pos3(vair,90); pos4(stem,0); pos5(vair,-90);
+ x1=x2; z3l=z2l; x4=x2+1.5u; x5=x3-1.5u;
+ if monospace: top else: bot fi y1=cdilorigin; 
+ bot y2=-vround 2/7d-o; y4=.5[y3,y5]; bot y5=-d-o;
+ filldraw stroke z1e--z2e;  % stem
+ filldraw stroke z3e{right}...z4e{down}...{left}z5e;  % hook
+else: pickup fine.nib; pos1(vair,0); top y1=-o-2;
+ pos2(.5[vair,stem],0); bot y2=-d-o; x2=x1-1.25u;
+ filldraw stroke z1e--z2e; fi  % diagonal
+ makeACCENT(CedilPic);
+endgroup;
+extra_endchar:=
+  " czd ap(CedilPic);  ah; oechar; ";
+
+boolean dotson; dotson=true; % don't omit dots on i, j, and possibly etc.
+
+def cp = cdil enddef;
+
+% end of file cdilacct.mf
+

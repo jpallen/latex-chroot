@@ -1,0 +1,3550 @@
+%%
+%% This is file `pmhg.mf',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% hieroglf.dtx  (with options: `maj')
+%% 
+%%  Copyright 2000 Peter R. Wilson
+%% 
+%%  This program is provided under the terms of the
+%%  LaTeX Project Public License distributed from CTAN
+%%  archives in directory macros/latex/base/lppl.txt.
+%% 
+%% Author: Peter Wilson (CUA)
+%%         now at: peter.r.wilson@boeing.com
+%% 
+%% PMHG.MF Program file for poor man's hieroglyphic font.
+%%
+%% It is a concatenation of parts of the font definitions
+%% from the hieroglyphic package. The fonts in that package
+%% are declared to be in the public domain, so these font
+%% definitions are similarly in the public domain.
+%%
+true_design_size# := 14pt#;
+%%%input Hibzrstp;
+
+%%%%%%%%%%%%%%%%%%%% file Hibzrstp.mf from the hieroglyph package %%%%%%
+
+default_design_size# := 10pt#;
+if designsize = 0: designsize := default_design_size#; fi;
+
+if unknown mag: mag := 1; fi;
+mag := mag * designsize / default_design_size#;
+
+u# := default_design_size# / true_design_size#;
+
+designsize := default_design_size#;
+
+def cand (text q) = startif true q else: false fi enddef;
+def cor (text q) = startif true true else: q fi enddef;
+tertiarydef p startif true = if p: enddef;
+
+if unknown mode cor ((mode = proof) or (mode = smoke)):
+  % Given in inches:
+  if unknown proof_size: proof_size := 7; fi;
+
+  % Given in pixels per inch:
+  if unknown proof_resolution: proof_resolution := 300; fi;
+
+  % Set up the new mode to be the same as the old one, except for the
+  % resolution.
+  original_mode := if known mode: mode else: proof fi;
+  mode_def bzr_proof_mode =
+    if original_mode = proof:
+      proof_;
+    else:
+      smoke_;
+    fi;
+    pixels_per_inch
+      := (proof_size * proof_resolution)
+         * (72.27 / proof_resolution)
+         * (72.27 / designsize);
+  enddef;
+  mode := bzr_proof_mode;
+fi;
+
+if (known proofing) cand (proofing > 2):
+  save_proofing := proofing;
+fi
+
+mode_setup;
+
+if known save_proofing:
+  proofing := save_proofing;
+fi;
+
+define_pixels (u);
+
+special "titlefont cmss8";
+
+
+def general_label (text point_list, suffixes) =
+  forsuffixes point_suffix = ,suffixes:
+    forsuffixes point = point_list:
+      % Unfortunately, the way in which the |str| operator formats its
+      % argument (which is an arbitrary suffix) cannot be changed, so
+      % the proofsheets end up showing "0 0" for the variable |z[0][0]|.
+      makelabel (str point.point_suffix, z.point.point_suffix);
+    endfor
+  endfor
+enddef;
+
+def proof_labels (text t) =
+  % We need to delimit the arguments here, so \MF\ knows where the
+  % second |text| argument begins.  Our output uses the suffix |"s"| for
+  % startpoints of segments, and the suffixes |"c1"| and |"c2"| for
+  % control points.
+  if proofing > 1: general_label (t) (s); fi;
+  if proofing > 2: general_label (t) (c1,c2); fi;
+enddef;
+
+autorounding := 0; % 0 avant pour les deux!
+%%% granularity:=0;
+smoothing := 0;
+
+path temp_path;
+
+def fill_or_unfill expr p =
+  temp_path := p;
+  if turningnumber temp_path > 0: fill else: unfill fi temp_path;
+enddef;
+
+turningcheck := 1;
+
+def begin_no_dimen_char (expr c) =
+  begingroup
+  transform save_currenttransform;
+  save_currenttransform := currenttransform;
+  charcode:=if known c: byte c else: 0 fi;
+  charic:=0; clearxy; clearit; clearpen; scantokens extra_beginchar;
+enddef;
+
+def end_no_dimen_char =
+  currenttransform := save_currenttransform;
+  endchar;
+enddef;
+
+def set_char_dimens (expr w_sharp,h_sharp,d_sharp) =
+ charwd:=w_sharp;      charht:=h_sharp;       chardp:=d_sharp;
+ w:=hround(charwd*hppp); h:=vround(charht*hppp); d:=vround(chardp*hppp);
+enddef;
+
+def move (expr h_amount, v_amount) =
+  currenttransform := currenttransform shifted (h_amount, v_amount);
+enddef;
+
+def hmove (expr amount) = move (amount, 0); enddef;
+def vmove (expr amount) = move (0, amount); enddef;
+
+%%
+%% BEGINNING OF PATCH
+%%
+def depart= -31; enddef;
+
+transform modif;
+modif := identity;
+def mamodif=  identity; enddef;
+
+def beginchar(expr c,w_sharp,h_sharp,d_sharp) =
+ begingroup
+ charcode:=c + depart;
+ charwd:=w_sharp;      charht:=h_sharp;       chardp:=d_sharp;
+ w:=hround(charwd*hppp); h:=vround(charht*hppp); d:=vround(chardp*hppp);
+ charic:=0; clearxy; clearit; clearpen; scantokens extra_beginchar;
+ transform save_currenttransform;
+ save_currenttransform= currenttransform;
+ modif:= mamodif;
+ currenttransform:= currenttransform transformed modif;
+ enddef;
+
+def endchar =
+ scantokens extra_endchar;
+ if proofing>0: makebox(proofrule); fi
+ chardx:=w;     % desired width of the character in pixels
+ shipit;
+ if displaying>0: makebox(screenrule); showit; fi
+ currenttransform:= save_currenttransform;
+ endgroup enddef;
+
+%%%%%%%%%%%%%%%%%%%% end of file Hibzrstp.mf %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+font_coding_scheme := "Poor Man's Hieroglyphs";
+font_identifier := "pmhg";
+font_normal_space 2pt#;
+
+side# := 2pt#;
+
+%% A2: man pointing at his mouth
+%% (code as I(73) 73+31 = 104)
+beginchar (104, 12.749u# + side#, 17.744u#, 0.000u#);
+  "A2";
+  z33\0\0s = (0.482u,8.672u);
+  z33\0\0 = (5.401u,10.415u);
+  z33\0\1 = (6.467u,8.598u);
+  z33\0\2 = (6.467u,5.541u);
+  z33\0\3 = (6.022u,5.541u);
+  z33\0\4c1 = (5.682u,6.417u);
+  z33\0\4c2 = (3.120u,8.839u);
+  z33\0\4 = (2.340u,7.538u);
+  z33\0\5c1 = (1.197u,5.629u);
+  z33\0\5c2 = (5.269u,3.047u);
+  z33\0\5 = (0.000u,0.482u);
+  z33\0\6 = (0.000u,0.000u);
+  z33\0\7 = (5.782u,0.240u);
+  z33\0\8 = (12.527u,0.000u);
+  z33\0\9c1 = (11.896u,1.017u);
+  z33\0\9c2 = (10.644u,0.867u);
+  z33\0\9 = (10.279u,1.607u);
+  z33\0\10c1 = (10.011u,2.156u);
+  z33\0\10c2 = (10.278u,2.799u);
+  z33\0\10 = (10.279u,3.372u);
+  z33\0\11c1 = (10.277u,5.615u);
+  z33\0\11c2 = (9.641u,8.036u);
+  z33\0\11 = (10.840u,10.118u);
+  z33\0\12c1 = (11.829u,8.140u);
+  z33\0\12c2 = (11.955u,7.059u);
+  z33\0\12 = (11.742u,4.837u);
+  z33\0\13c1 = (11.640u,3.767u);
+  z33\0\13c2 = (11.169u,3.083u);
+  z33\0\13 = (11.322u,1.927u);
+  z33\0\14c1 = (11.780u,2.096u);
+  z33\0\14c2 = (12.380u,2.334u);
+  z33\0\14 = (12.570u,2.811u);
+  z33\0\15c1 = (12.888u,3.412u);
+  z33\0\15c2 = (12.563u,4.403u);
+  z33\0\15 = (12.570u,5.068u);
+  z33\0\16 = (12.749u,7.709u);
+  z33\0\17c1 = (12.748u,8.573u);
+  z33\0\17c2 = (12.018u,10.815u);
+  z33\0\17 = (11.627u,11.627u);
+  z33\0\18c1 = (11.262u,12.382u);
+  z33\0\18c2 = (10.468u,12.750u);
+  z33\0\18 = (10.301u,13.149u);
+  z33\0\19c1 = (10.030u,13.799u);
+  z33\0\19c2 = (11.529u,17.741u);
+  z33\0\19 = (8.191u,17.744u);
+  z33\0\20c1 = (5.327u,17.746u);
+  z33\0\20c2 = (6.043u,15.169u);
+  z33\0\20 = (4.806u,14.225u);
+  z33\0\21 = (3.624u,13.721u);
+  z33\0\22c1 = (2.401u,12.841u);
+  z33\0\22c2 = (0.017u,10.220u);
+  z33\1\0s = (9.395u,13.490u);
+  z33\1\0 = (8.637u,15.630u);
+  z33\1\1 = (6.745u,16.863u);
+  z33\1\2c1 = (9.201u,17.234u);
+  z33\1\2c2 = (10.919u,16.079u);
+  z33\2\0s = (8.191u,15.177u);
+  z33\2\0c1 = (7.584u,12.276u);
+  z33\2\0c2 = (10.108u,13.176u);
+  z33\2\0 = (10.840u,11.322u);
+  z33\2\1c1 = (9.148u,10.518u);
+  z33\2\1c2 = (9.832u,6.122u);
+  z33\2\1 = (9.079u,5.375u);
+  z33\2\2c1 = (8.745u,5.043u);
+  z33\2\2c2 = (7.693u,4.891u);
+  z33\2\2 = (7.227u,4.818u);
+  z33\2\3 = (6.572u,9.945u);
+  z33\2\4 = (5.541u,12.045u);
+  z33\2\5c1 = (6.294u,12.168u);
+  z33\2\5c2 = (7.817u,12.550u);
+  z33\2\5 = (6.888u,13.635u);
+  z33\2\6 = (6.112u,14.255u);
+  z33\2\7c1 = (5.604u,14.962u);
+  z33\2\7c2 = (6.583u,14.979u);
+  z33\2\7 = (6.986u,14.936u);
+  z33\2\8 = (6.986u,15.418u);
+  z33\3\0s = (6.504u,12.768u);
+  z33\3\0 = (4.119u,11.299u);
+  z33\3\1 = (2.168u,10.359u);
+  z33\3\2c1 = (3.310u,13.450u);
+  z33\3\2c2 = (4.682u,12.247u);
+  z33\3\2 = (5.300u,13.490u);
+  z33\4\0s = (6.263u,4.336u);
+  z33\4\0 = (3.854u,3.613u);
+  z33\4\1 = (3.372u,6.745u);
+  z33\4\2c1 = (4.870u,6.596u);
+  z33\4\2c2 = (5.591u,5.611u);
+  z33\5\0s = (9.636u,4.577u);
+  z33\5\0c1 = (9.636u,0.804u);
+  z33\5\0c2 = (9.524u,1.366u);
+  z33\5\0 = (6.260u,1.442u);
+  z33\5\1 = (2.891u,1.204u);
+  z33\5\2c1 = (3.305u,3.075u);
+  z33\5\2c2 = (7.896u,4.422u);
+  fill_or_unfill z33\0\0s
+    --z33\0\0
+    --z33\0\1
+    --z33\0\2
+    --z33\0\3
+    ..controls z33\0\4c1 and z33\0\4c2..z33\0\4
+    ..controls z33\0\5c1 and z33\0\5c2..z33\0\5
+    --z33\0\6
+    --z33\0\7
+    --z33\0\8
+    ..controls z33\0\9c1 and z33\0\9c2..z33\0\9
+    ..controls z33\0\10c1 and z33\0\10c2..z33\0\10
+    ..controls z33\0\11c1 and z33\0\11c2..z33\0\11
+    ..controls z33\0\12c1 and z33\0\12c2..z33\0\12
+    ..controls z33\0\13c1 and z33\0\13c2..z33\0\13
+    ..controls z33\0\14c1 and z33\0\14c2..z33\0\14
+    ..controls z33\0\15c1 and z33\0\15c2..z33\0\15
+    --z33\0\16
+    ..controls z33\0\17c1 and z33\0\17c2..z33\0\17
+    ..controls z33\0\18c1 and z33\0\18c2..z33\0\18
+    ..controls z33\0\19c1 and z33\0\19c2..z33\0\19
+    ..controls z33\0\20c1 and z33\0\20c2..z33\0\20
+    --z33\0\21
+    ..controls z33\0\22c1 and z33\0\22c2..cycle;
+  fill_or_unfill z33\1\0s
+    --z33\1\0
+    --z33\1\1
+    ..controls z33\1\2c1 and z33\1\2c2..cycle;
+  fill_or_unfill z33\2\0s
+    ..controls z33\2\0c1 and z33\2\0c2..z33\2\0
+    ..controls z33\2\1c1 and z33\2\1c2..z33\2\1
+    ..controls z33\2\2c1 and z33\2\2c2..z33\2\2
+    --z33\2\3
+    --z33\2\4
+    ..controls z33\2\5c1 and z33\2\5c2..z33\2\5
+    --z33\2\6
+    ..controls z33\2\7c1 and z33\2\7c2..z33\2\7
+    --z33\2\8
+    --cycle;
+  fill_or_unfill z33\3\0s
+    --z33\3\0
+    --z33\3\1
+    ..controls z33\3\2c1 and z33\3\2c2..z33\3\2
+    --cycle;
+  fill_or_unfill z33\4\0s
+    --z33\4\0
+    --z33\4\1
+    ..controls z33\4\2c1 and z33\4\2c2..cycle;
+  fill_or_unfill z33\5\0s
+    ..controls z33\5\0c1 and z33\5\0c2..z33\5\0
+    --z33\5\1
+    ..controls z33\5\2c1 and z33\5\2c2..cycle;
+  proof_labels (
+    33\0\0,
+    33\0\1,
+    33\0\2,
+    33\0\3,
+    33\0\4,
+    33\0\5,
+    33\0\6,
+    33\0\7,
+    33\0\8,
+    33\0\9,
+    33\0\10,
+    33\0\11,
+    33\0\12,
+    33\0\13,
+    33\0\14,
+    33\0\15,
+    33\0\16,
+    33\0\17,
+    33\0\18,
+    33\0\19,
+    33\0\20,
+    33\0\21,
+    33\0\22,
+    33\1\0,
+    33\1\1,
+    33\1\2,
+    33\2\0,
+    33\2\1,
+    33\2\2,
+    33\2\3,
+    33\2\4,
+    33\2\5,
+    33\2\6,
+    33\2\7,
+    33\2\8,
+    33\2\9,
+    33\3\0,
+    33\3\1,
+    33\3\2,
+    33\3\3,
+    33\4\0,
+    33\4\1,
+    33\4\2,
+    33\5\0,
+    33\5\1,
+    33\5\2,
+);
+endchar; % A2
+
+
+%% A28. Man with raised arms.
+%% (code as Y(89) 89+31 = 120)
+beginchar (120, 11.332u# + side#, 18.029u#, 0.000u#);
+  "A28";
+  z62\0\0s = (0.000u,18.029u);   z62\0\0c1 = (0.039u,17.276u);
+  z62\0\0c2 = (1.481u,13.837u);   z62\0\0 = (1.972u,13.256u);
+  z62\0\1c1 = (2.699u,12.397u);   z62\0\1c2 = (4.029u,12.670u);
+  z62\0\1 = (4.552u,12.223u);   z62\0\2c1 = (5.270u,11.610u);
+  z62\0\2c2 = (5.224u,10.208u);   z62\0\2 = (4.336u,9.839u);
+  z62\0\3 = (4.948u,8.566u);   z62\0\4 = (3.641u,1.379u);
+  z62\0\5 = (1.927u,0.684u);   z62\0\6 = (1.927u,0.203u);
+  z62\0\7c1 = (6.311u,-1.170u);   z62\0\7c2 = (4.615u,4.822u);
+  z62\0\7 = (6.278u,4.903u);   z62\0\8c1 = (6.907u,4.934u);
+  z62\0\8c2 = (8.278u,1.237u);   z62\0\8 = (5.541u,0.925u);
+  z62\0\9 = (5.541u,0.203u);   z62\0\10c1 = (6.119u,0.203u);
+  z62\0\10c2 = (7.440u,0.112u);   z62\0\10 = (7.873u,0.518u);
+  z62\0\11c1 = (8.808u,1.397u);   z62\0\11c2 = (7.563u,9.975u);
+  z62\0\11 = (8.271u,11.926u);  z62\0\12c1 = (8.675u,13.040u);
+  z62\0\12c2 = (9.676u,12.467u);  z62\0\12 = (10.308u,13.262u);
+  z62\0\13c1 = (10.652u,13.695u);  z62\0\13c2 = (11.740u,17.295u);
+  z62\0\13 = (11.173u,17.594u);  z62\0\14c1 = (10.601u,17.896u);
+  z62\0\14c2 = (10.174u,17.157u);  z62\0\14 = (10.078u,16.705u);
+  z62\0\15c1 = (9.705u,14.955u);  z62\0\15c2 = (10.283u,13.907u);
+  z62\0\15 = (7.950u,13.693u);  z62\0\16c1 = (8.806u,19.335u);
+  z62\0\16c2 = (2.784u,16.978u);  z62\0\16 = (4.336u,13.693u);
+  z62\0\17c1 = (0.564u,13.740u);  z62\0\17c2 = (3.512u,17.272u);
+  z62\1\0s = (7.227u,14.416u);  z62\1\0c1 = (6.879u,15.524u);
+  z62\1\0c2 = (7.215u,15.698u);  z62\1\0 = (5.781u,15.861u);
+  z62\1\1 = (5.781u,16.343u);  z62\1\2c1 = (7.175u,16.204u);
+  z62\1\2c2 = (7.685u,15.880u);  z62\2\0s = (6.022u,14.898u);
+  z62\2\0c1 = (6.384u,12.937u);  z62\2\0c2 = (7.169u,13.552u);
+  z62\2\0 = (7.519u,12.824u);  z62\2\1c1 = (8.065u,11.690u);
+  z62\2\1c2 = (6.892u,10.044u);  z62\2\1 = (5.781u,9.839u);
+  z62\2\2 = (5.611u,13.565u);  z62\2\3 = (4.818u,14.657u);
+  z62\3\0s = (7.468u,9.116u);  z62\3\0c1 = (7.113u,8.002u);
+  z62\3\0c2 = (7.568u,6.917u);  z62\3\0 = (7.338u,6.274u);
+  z62\3\1c1 = (7.228u,5.968u);  z62\3\1c2 = (7.033u,5.853u);
+  z62\3\1 = (6.716u,5.817u);  z62\3\2c1 = (4.885u,5.607u);
+  z62\3\2c2 = (5.264u,9.719u);
+  fill_or_unfill z62\0\0s
+    ..controls z62\0\0c1 and z62\0\0c2..z62\0\0
+    ..controls z62\0\1c1 and z62\0\1c2..z62\0\1
+    ..controls z62\0\2c1 and z62\0\2c2..z62\0\2
+    --z62\0\3    --z62\0\4    --z62\0\5    --z62\0\6
+    ..controls z62\0\7c1 and z62\0\7c2..z62\0\7
+    ..controls z62\0\8c1 and z62\0\8c2..z62\0\8
+    --z62\0\9
+    ..controls z62\0\10c1 and z62\0\10c2..z62\0\10
+    ..controls z62\0\11c1 and z62\0\11c2..z62\0\11
+    ..controls z62\0\12c1 and z62\0\12c2..z62\0\12
+    ..controls z62\0\13c1 and z62\0\13c2..z62\0\13
+    ..controls z62\0\14c1 and z62\0\14c2..z62\0\14
+    ..controls z62\0\15c1 and z62\0\15c2..z62\0\15
+    ..controls z62\0\16c1 and z62\0\16c2..z62\0\16
+    ..controls z62\0\17c1 and z62\0\17c2..cycle;
+  fill_or_unfill z62\1\0s
+    ..controls z62\1\0c1 and z62\1\0c2..z62\1\0
+    --z62\1\1
+    ..controls z62\1\2c1 and z62\1\2c2..cycle;
+  fill_or_unfill z62\2\0s
+    ..controls z62\2\0c1 and z62\2\0c2..z62\2\0
+    ..controls z62\2\1c1 and z62\2\1c2..z62\2\1
+    --z62\2\2    --z62\2\3    --cycle;
+  fill_or_unfill z62\3\0s
+    ..controls z62\3\0c1 and z62\3\0c2..z62\3\0
+    ..controls z62\3\1c1 and z62\3\1c2..z62\3\1
+    ..controls z62\3\2c1 and z62\3\2c2..cycle;
+endchar; % A28
+
+
+%% D1. Man's head in profile.
+%% (code as Q(81) 81+31 = 112)
+beginchar (112, 9.197u# + side#, 8.871u#, 0.000u#);
+  "D1";
+  z32\0\0s = (0.000u,3.851u);  z32\0\0c1 = (0.075u,3.245u);
+  z32\0\0c2 = (0.844u,3.732u);  z32\0\0 = (0.778u,3.123u);
+  z32\0\1c1 = (0.905u,1.801u);  z32\0\1c2 = (0.869u,1.324u);
+  z32\0\1 = (0.723u,0.442u);  z32\0\2c1 = (1.068u,0.407u);
+  z32\0\2c2 = (1.302u,0.317u);  z32\0\2 = (1.665u,0.442u);
+  z32\0\3c1 = (2.107u,0.511u);  z32\0\3c2 = (2.518u,0.947u);
+  z32\0\3 = (2.919u,0.986u);  z32\0\4c1 = (3.440u,1.037u);
+  z32\0\4c2 = (4.199u,-0.053u);  z32\0\4 = (6.022u,0.000u);
+  z32\0\5c1 = (9.824u,0.111u);  z32\0\5c2 = (10.897u,7.849u);
+  z32\0\5 = (5.541u,8.798u);  z32\0\6c1 = (4.348u,9.010u);
+  z32\0\6c2 = (3.169u,8.766u);  z32\0\6 = (2.213u,7.995u);
+  z32\0\7c1 = (1.579u,7.484u);  z32\0\7c2 = (1.269u,6.777u);
+  z32\0\7 = (1.068u,5.950u);  z32\0\8c1 = (0.582u,5.274u);
+  z32\0\8c2 = (0.202u,4.513u);  z32\1\0s = (7.709u,1.683u);
+  z32\1\0c1 = (3.871u,2.694u);  z32\1\0c2 = (8.669u,4.546u);
+  z32\1\0 = (4.577u,5.746u);  z32\1\1c1 = (3.584u,6.038u);
+  z32\1\1c2 = (2.987u,6.250u);  z32\1\1 = (1.927u,6.260u);
+  z32\1\2c1 = (3.658u,10.462u);  z32\1\2c2 = (10.910u,7.565u);
+  z32\2\0s = (5.348u,4.895u);  z32\2\0c1 = (5.561u,5.047u);
+  z32\2\0c2 = (6.353u,4.407u);  z32\2\0 = (5.531u,3.280u);
+  z32\2\1c1 = (5.531u,2.792u);  z32\2\1c2 = (5.772u,2.060u);
+  z32\2\1 = (6.745u,0.719u);  z32\2\2c1 = (4.453u,0.720u);
+  z32\2\2c2 = (5.129u,0.972u);  z32\2\2 = (3.348u,1.751u);
+  z32\2\3c1 = (2.255u,1.480u);  z32\2\3c2 = (1.359u,1.438u);
+  z32\2\3 = (1.243u,2.075u);  z32\2\4c1 = (1.488u,3.478u);
+  z32\2\4c2 = (1.032u,3.759u);  z32\2\4 = (0.752u,3.899u);
+  z32\2\5c1 = (0.815u,4.745u);  z32\2\5c2 = (1.068u,5.253u);
+  z32\2\5 = (1.512u,5.506u);  z32\2\6 = (1.639u,5.760u);
+  z32\2\7c1 = (2.273u,5.739u);  z32\2\7c2 = (2.913u,5.576u);
+  z32\2\7 = (3.342u,5.500u);  z32\2\8c1 = (4.628u,5.124u);
+  z32\2\8c2 = (4.010u,4.269u);  z32\3\0s = (1.588u,4.851u);
+  z32\3\0c1 = (1.775u,4.371u);  z32\3\0c2 = (3.428u,4.317u);
+  z32\3\0 = (3.641u,4.851u);  z32\3\1c1 = (2.921u,5.197u);
+  z32\3\1c2 = (2.175u,5.171u);
+  fill_or_unfill z32\0\0s
+    ..controls z32\0\0c1 and z32\0\0c2..z32\0\0
+    ..controls z32\0\1c1 and z32\0\1c2..z32\0\1
+    ..controls z32\0\2c1 and z32\0\2c2..z32\0\2
+    ..controls z32\0\3c1 and z32\0\3c2..z32\0\3
+    ..controls z32\0\4c1 and z32\0\4c2..z32\0\4
+    ..controls z32\0\5c1 and z32\0\5c2..z32\0\5
+    ..controls z32\0\6c1 and z32\0\6c2..z32\0\6
+    ..controls z32\0\7c1 and z32\0\7c2..z32\0\7
+    ..controls z32\0\8c1 and z32\0\8c2..cycle;
+  fill_or_unfill z32\1\0s
+    ..controls z32\1\0c1 and z32\1\0c2..z32\1\0
+    ..controls z32\1\1c1 and z32\1\1c2..z32\1\1
+    ..controls z32\1\2c1 and z32\1\2c2..cycle;
+  fill_or_unfill z32\2\0s
+    ..controls z32\2\0c1 and z32\2\0c2..z32\2\0
+    ..controls z32\2\1c1 and z32\2\1c2..z32\2\1
+    ..controls z32\2\2c1 and z32\2\2c2..z32\2\2
+    ..controls z32\2\3c1 and z32\2\3c2..z32\2\3
+    ..controls z32\2\4c1 and z32\2\4c2..z32\2\4
+    ..controls z32\2\5c1 and z32\2\5c2..z32\2\5
+    --z32\2\6
+    ..controls z32\2\7c1 and z32\2\7c2..z32\2\7
+    ..controls z32\2\8c1 and z32\2\8c2..cycle;
+  fill_or_unfill z32\3\0s
+    ..controls z32\3\0c1 and z32\3\0c2..z32\3\0
+    ..controls z32\3\1c1 and z32\3\1c2..cycle;
+endchar; % D1
+
+
+%% D2: full face
+%% (code as E(69) 69+31 = 100)
+%% (code as q(113) 113+31 = 144)
+beginchar (144, 7.553u# + side#, 8.079u#, 0.000u#);
+  "D2";
+  z33\0\0s = (0.829u,5.895u);  z33\0\0c1 = (-0.154u,5.895u);
+  z33\0\0c2 = (-0.400u,4.667u);  z33\0\0 = (0.829u,3.930u);
+  z33\0\1c1 = (1.074u,3.439u);  z33\0\1c2 = (1.811u,2.456u);
+  z33\0\1 = (2.794u,0.982u);  z33\0\2 = (2.794u,0.000u);
+  z33\0\3 = (4.759u,0.000u);  z33\0\4 = (4.759u,0.982u);
+  z33\0\5c1 = (5.742u,2.456u);  z33\0\5c2 = (6.478u,3.439u);
+  z33\0\5 = (6.724u,3.930u);  z33\0\6c1 = (7.952u,4.667u);
+  z33\0\6c2 = (7.706u,5.895u);  z33\0\6 = (6.724u,5.895u);
+  z33\0\7c1 = (5.742u,8.843u);  z33\0\7c2 = (1.811u,8.843u);
+  z33\1\0s = (6.724u,5.404u);  z33\1\0c1 = (7.706u,5.404u);
+  z33\1\0c2 = (7.215u,4.421u);  z33\1\0 = (6.233u,3.930u);
+  z33\1\1c1 = (5.250u,2.211u);  z33\1\1c2 = (4.759u,1.474u);
+  z33\1\1 = (3.776u,1.474u);  z33\1\2c1 = (2.794u,1.474u);
+  z33\1\2c2 = (2.303u,2.211u);  z33\1\2 = (1.320u,3.930u);
+  z33\1\3c1 = (0.338u,4.421u);  z33\1\3c2 = (-0.154u,5.404u);
+  z33\1\3 = (0.829u,5.404u);  z33\1\4c1 = (2.794u,7.860u);
+  z33\1\4c2 = (4.759u,7.860u);  z33\2\0s = (4.309u,5.198u);
+  z33\2\0c1 = (4.309u,4.461u);  z33\2\0c2 = (5.782u,4.461u);
+  z33\2\0 = (5.782u,5.198u);  z33\3\0s = (2.556u,2.694u);
+  z33\3\0c1 = (2.556u,2.202u);  z33\3\0c2 = (5.012u,2.202u);
+  z33\3\0 = (5.012u,2.694u);  z33\4\0s = (1.694u,5.160u);
+  z33\4\0c1 = (1.694u,4.423u);  z33\4\0c2 = (3.168u,4.423u);
+  z33\4\0 = (3.168u,5.160u);
+  fill_or_unfill z33\0\0s
+    ..controls z33\0\0c1 and z33\0\0c2..z33\0\0
+    ..controls z33\0\1c1 and z33\0\1c2..z33\0\1
+    --z33\0\2    --z33\0\3    --z33\0\4
+    ..controls z33\0\5c1 and z33\0\5c2..z33\0\5
+    ..controls z33\0\6c1 and z33\0\6c2..z33\0\6
+    ..controls z33\0\7c1 and z33\0\7c2..cycle;
+  fill_or_unfill z33\1\0s
+    ..controls z33\1\0c1 and z33\1\0c2..z33\1\0
+    ..controls z33\1\1c1 and z33\1\1c2..z33\1\1
+    ..controls z33\1\2c1 and z33\1\2c2..z33\1\2
+    ..controls z33\1\3c1 and z33\1\3c2..z33\1\3
+    ..controls z33\1\4c1 and z33\1\4c2..cycle;
+  fill_or_unfill z33\2\0s
+    ..controls z33\2\0c1 and z33\2\0c2..z33\2\0
+    --cycle;
+  fill_or_unfill z33\3\0s
+    ..controls z33\3\0c1 and z33\3\0c2..z33\3\0
+    --cycle;
+  fill_or_unfill z33\4\0s
+    ..controls z33\4\0c1 and z33\4\0c2..z33\4\0
+    --cycle;
+endchar; % D2
+
+
+%% D4 An eye.
+%% (code as e(101) 101+31 = 132)
+beginchar (132, 17.146u# + side#, 5.017u#, 0.000u#);
+  "D4";
+  z35\0\0s = (17.146u,2.935u);  z35\0\0 = (15.625u,2.935u);
+  z35\0\1c1 = (10.096u,5.838u);  z35\0\1c2 = (4.379u,5.305u);
+  z35\0\1 = (2.942u,3.764u);  z35\0\2c1 = (2.409u,3.193u);
+  z35\0\2c2 = (1.307u,1.993u);  z35\0\2 = (0.000u,0.884u);
+  z35\0\3 = (0.654u,0.474u);  z35\0\4 = (1.309u,1.047u);
+  z35\0\5c1 = (4.253u,-0.344u);  z35\0\5c2 = (8.022u,-0.659u);
+  z35\0\5 = (15.625u,2.036u);  z35\0\6 = (17.077u,2.036u);
+  z35\1\0s = (14.660u,2.489u);  z35\1\0c1 = (9.069u,0.625u);
+  z35\1\0c2 = (4.987u,0.448u);  z35\1\0 = (1.970u,1.601u);
+  z35\1\1c1 = (3.429u,4.037u);  z35\1\1c2 = (6.079u,4.448u);
+  z35\1\1 = (8.627u,4.155u);  z35\1\2c1 = (11.174u,3.862u);
+  z35\1\2c2 = (13.617u,2.866u);  z35\2\0s = (6.938u,4.933u);
+  z35\2\0c1 = (3.451u,4.470u);  z35\2\0c2 = (4.581u,0.105u);
+  z35\2\0 = (7.209u,0.304u);  z35\2\1c1 = (9.933u,0.511u);
+  z35\2\1c2 = (10.271u,4.895u);  z35\3\0s = (6.756u,4.082u);
+  z35\3\0c1 = (8.893u,4.271u);  z35\3\0c2 = (9.026u,1.478u);
+  z35\3\0 = (7.264u,1.204u);  z35\3\1c1 = (5.423u,0.917u);
+  z35\3\1c2 = (4.808u,3.599u);
+  fill_or_unfill z35\0\0s
+    --z35\0\0
+    ..controls z35\0\1c1 and z35\0\1c2..z35\0\1
+    ..controls z35\0\2c1 and z35\0\2c2..z35\0\2
+    --z35\0\3    --z35\0\4
+    ..controls z35\0\5c1 and z35\0\5c2..z35\0\5
+    --z35\0\6    --cycle;
+  fill_or_unfill z35\1\0s
+    ..controls z35\1\0c1 and z35\1\0c2..z35\1\0
+    ..controls z35\1\1c1 and z35\1\1c2..z35\1\1
+    ..controls z35\1\2c1 and z35\1\2c2..cycle;
+  fill_or_unfill z35\2\0s
+    ..controls z35\2\0c1 and z35\2\0c2..z35\2\0
+    ..controls z35\2\1c1 and z35\2\1c2..cycle;
+  fill_or_unfill z35\3\0s
+    ..controls z35\3\0c1 and z35\3\0c2..z35\3\0
+    ..controls z35\3\1c1 and z35\3\1c2..cycle;
+endchar; % D4
+
+
+%% D21: a pointy ellipse, or mouth
+%% (code as r(114) 114+31 = 145)
+beginchar (145, 17.532u# + side#, 4.914u#, 0.000u#);
+  "D21";
+  z52\0\0s = (17.532u,2.457u);  z52\0\0c1 = (13.149u,5.744u);
+  z52\0\0c2 = (4.383u,5.744u);  z52\0\0 = (0.000u,2.457u);
+  z52\0\1c1 = (4.383u,-0.831u);  z52\0\1c2 = (13.149u,-0.831u);
+  z52\1\0s = (16.437u,2.457u);  z52\1\0c1 = (14.519u,1.635u);
+  z52\1\0c2 = (11.509u,0.944u);  z52\1\0 = (8.766u,0.950u);
+  z52\1\1c1 = (5.750u,0.957u);  z52\1\1c2 = (3.698u,1.224u);
+  z52\1\1 = (1.370u,2.457u);  z52\1\2c1 = (3.698u,3.416u);
+  z52\1\2c2 = (6.023u,3.970u);  z52\1\2 = (8.766u,3.964u);
+  z52\1\3c1 = (11.783u,3.957u);  z52\1\3c2 = (14.245u,3.279u);
+  fill_or_unfill z52\0\0s
+    ..controls z52\0\0c1 and z52\0\0c2..z52\0\0
+    ..controls z52\0\1c1 and z52\0\1c2..cycle;
+  fill_or_unfill z52\1\0s
+    ..controls z52\1\0c1 and z52\1\0c2..z52\1\0
+    ..controls z52\1\1c1 and z52\1\1c2..z52\1\1
+    ..controls z52\1\2c1 and z52\1\2c2..z52\1\2
+    ..controls z52\1\3c1 and z52\1\3c2..cycle;
+endchar; % D21
+
+
+%% D36: a forearm and hand
+%% (code as a(97) 97+31 = 128)
+%% (code as A(65) 65+31 = 96)
+beginchar (96, 18.328u# + side#, 5.598u#, 0.000u#);
+  "D36";
+  z69\0\0s = (15.422u,1.609u);
+  z69\0\0 = (9.159u,1.638u);  z69\0\1 = (6.267u,1.427u);
+  z69\0\2c1 = (3.977u,1.549u);  z69\0\2c2 = (4.014u,3.167u);
+  z69\0\2 = (0.969u,1.917u);  z69\0\3c1 = (0.891u,1.128u);
+  z69\0\3c2 = (3.543u,2.109u);  z69\0\3 = (3.615u,0.940u);
+  z69\0\4c1 = (2.670u,0.339u);  z69\0\4c2 = (0.027u,1.622u);
+  z69\0\4 = (0.000u,0.476u);  z69\0\5c1 = (0.840u,0.214u);
+  z69\0\5c2 = (1.763u,0.004u);  z69\0\5 = (2.648u,0.000u);
+  z69\0\6 = (6.986u,0.445u);  z69\0\7 = (17.917u,0.395u);
+  z69\0\8c1 = (18.406u,0.774u);  z69\0\8c2 = (18.315u,2.448u);
+  z69\0\8 = (18.320u,3.042u);  z69\0\9c1 = (18.324u,3.501u);
+  z69\0\9c2 = (18.372u,4.502u);  z69\0\9 = (18.184u,4.895u);
+  z69\0\10c1 = (17.845u,5.603u);  z69\0\10c2 = (16.233u,5.933u);
+  z69\0\10 = (15.823u,5.144u);  z69\0\11c1 = (15.544u,4.609u);
+  z69\0\11c2 = (15.428u,2.296u);  z69\1\0s = (17.587u,0.876u);
+  z69\1\0c1 = (13.966u,1.319u);  z69\1\0c2 = (17.541u,7.304u);
+  z69\1\0 = (17.598u,3.285u);
+  fill_or_unfill z69\0\0s
+    --z69\0\0    --z69\0\1
+    ..controls z69\0\2c1 and z69\0\2c2..z69\0\2
+    ..controls z69\0\3c1 and z69\0\3c2..z69\0\3
+    ..controls z69\0\4c1 and z69\0\4c2..z69\0\4
+    ..controls z69\0\5c1 and z69\0\5c2..z69\0\5
+    --z69\0\6    --z69\0\7
+    ..controls z69\0\8c1 and z69\0\8c2..z69\0\8
+    ..controls z69\0\9c1 and z69\0\9c2..z69\0\9
+    ..controls z69\0\10c1 and z69\0\10c2..z69\0\10
+    ..controls z69\0\11c1 and z69\0\11c2..cycle;
+  fill_or_unfill z69\1\0s
+    ..controls z69\1\0c1 and z69\1\0c2..z69\1\0
+    --cycle;
+endchar; % D36
+
+
+%% D46: a mitt
+%% (code as d(100) 100+31 = 131)
+beginchar (131, 17.000u# + side#, 5.558u#, 0.000u#);
+  "D46";
+  z79\0\0s = (3.284u,3.373u);  z79\0\0c1 = (-1.287u,3.975u);
+  z79\0\0c2 = (-0.979u,0.007u);  z79\0\0 = (3.284u,0.000u);
+  z79\0\1 = (17.000u,0.416u);  z79\0\2 = (16.998u,3.725u);
+  z79\0\3c1 = (15.015u,3.708u);  z79\0\3c2 = (12.289u,4.189u);
+  z79\0\3 = (10.579u,4.509u);  z79\0\4c1 = (6.678u,5.858u);
+  z79\0\4c2 = (3.470u,5.953u);  z79\0\4 = (3.951u,4.135u);
+  z79\0\5c1 = (4.112u,3.654u);  z79\0\5c2 = (6.944u,3.975u);
+  z79\0\5 = (7.960u,3.013u);  z79\1\0s = (16.363u,3.083u);
+  z79\1\0 = (16.346u,1.193u);  z79\1\1 = (14.632u,1.205u);
+  z79\1\2 = (8.850u,0.723u);  z79\1\3 = (3.069u,0.723u);
+  z79\1\4c1 = (0.017u,0.739u);  z79\1\4c2 = (-0.004u,3.280u);
+  z79\1\4 = (3.069u,2.650u);  z79\1\5c1 = (5.225u,2.655u);
+  z79\1\5c2 = (7.725u,2.383u);  z79\1\5 = (9.289u,2.829u);
+  z79\1\6c1 = (7.796u,4.562u);  z79\1\6c2 = (4.630u,4.024u);
+  z79\1\6 = (4.593u,4.349u);  z79\1\7c1 = (4.152u,6.593u);
+  z79\1\7c2 = (11.977u,2.770u);
+  fill_or_unfill z79\0\0s
+    ..controls z79\0\0c1 and z79\0\0c2..z79\0\0
+    --z79\0\1    --z79\0\2
+    ..controls z79\0\3c1 and z79\0\3c2..z79\0\3
+    ..controls z79\0\4c1 and z79\0\4c2..z79\0\4
+    ..controls z79\0\5c1 and z79\0\5c2..z79\0\5
+    --cycle;
+  fill_or_unfill z79\1\0s
+    --z79\1\0    --z79\1\1    --z79\1\2    --z79\1\3
+    ..controls z79\1\4c1 and z79\1\4c2..z79\1\4
+    ..controls z79\1\5c1 and z79\1\5c2..z79\1\5
+    ..controls z79\1\6c1 and z79\1\6c2..z79\1\6
+    ..controls z79\1\7c1 and z79\1\7c2..cycle;
+endchar; % D46
+
+
+%%% D47. Palm of hand.
+%%% (code as P(80) 80+31 = 111)
+beginchar (111, 17.566u# + side#, 4.327u#, 0.000u#);
+  "D47";
+  z80\0\0s = (5.461u,4.327u);  z80\0\0c1 = (5.841u,2.049u);
+  z80\0\0c2 = (8.256u,2.694u);  z80\0\0 = (10.038u,2.652u);
+  z80\0\1 = (10.038u,2.170u);  z80\0\2c1 = (8.450u,2.170u);
+  z80\0\2c2 = (7.028u,2.230u);  z80\0\2 = (5.461u,2.513u);
+  z80\0\3c1 = (4.546u,2.678u);  z80\0\3c2 = (1.477u,3.625u);
+  z80\0\3 = (0.897u,3.517u);  z80\0\4c1 = (0.395u,3.424u);
+  z80\0\4c2 = (0.114u,3.132u);  z80\0\4 = (0.000u,2.639u);
+  z80\0\5c1 = (-0.526u,0.354u);  z80\0\5c2 = (5.167u,0.020u);
+  z80\0\5 = (6.665u,0.003u);  z80\0\6c1 = (8.021u,-0.013u);
+  z80\0\6c2 = (9.454u,0.027u);  z80\0\6 = (10.760u,0.434u);
+  z80\0\7 = (12.929u,1.398u);  z80\0\8c1 = (13.826u,1.565u);
+  z80\0\8c2 = (14.895u,1.431u);  z80\0\8 = (15.819u,1.398u);
+  z80\0\9c1 = (18.062u,1.490u);  z80\0\9c2 = (18.171u,3.727u);
+  z80\0\9 = (16.059u,3.645u);  z80\0\10 = (12.756u,3.357u);
+  z80\0\11c1 = (11.371u,3.466u);  z80\0\11c2 = (10.438u,4.404u);
+  z80\0\11 = (8.833u,4.327u);  z80\1\0s = (10.038u,3.615u);
+  z80\1\0c1 = (12.912u,2.713u);  z80\1\0c2 = (13.460u,2.382u);
+  z80\1\0 = (16.542u,3.133u);  z80\1\1 = (16.783u,2.176u);
+  z80\1\2 = (13.031u,2.176u);  z80\1\3c1 = (12.013u,2.038u);
+  z80\1\3c2 = (11.082u,1.234u);  z80\1\3 = (10.038u,0.975u);
+  z80\1\4c1 = (8.557u,0.609u);  z80\1\4c2 = (1.372u,0.561u);
+  z80\1\4 = (0.683u,1.996u);  z80\1\5c1 = (0.270u,2.856u);
+  z80\1\5c2 = (1.308u,2.917u);  z80\1\5 = (1.848u,2.795u);
+  z80\1\6c1 = (4.094u,2.289u);  z80\1\6c2 = (6.250u,1.527u);
+  z80\1\6 = (8.592u,1.457u);  z80\1\7c1 = (10.131u,1.411u);
+  z80\1\7c2 = (11.752u,2.028u);  z80\1\7 = (9.797u,3.374u);
+  fill_or_unfill z80\0\0s
+    ..controls z80\0\0c1 and z80\0\0c2..z80\0\0
+    --z80\0\1
+    ..controls z80\0\2c1 and z80\0\2c2..z80\0\2
+    ..controls z80\0\3c1 and z80\0\3c2..z80\0\3
+    ..controls z80\0\4c1 and z80\0\4c2..z80\0\4
+    ..controls z80\0\5c1 and z80\0\5c2..z80\0\5
+    ..controls z80\0\6c1 and z80\0\6c2..z80\0\6
+    --z80\0\7
+    ..controls z80\0\8c1 and z80\0\8c2..z80\0\8
+    ..controls z80\0\9c1 and z80\0\9c2..z80\0\9
+    --z80\0\10
+    ..controls z80\0\11c1 and z80\0\11c2..z80\0\11
+    --cycle;
+  fill_or_unfill z80\1\0s
+    ..controls z80\1\0c1 and z80\1\0c2..z80\1\0
+    --z80\1\1    --z80\1\2
+    ..controls z80\1\3c1 and z80\1\3c2..z80\1\3
+    ..controls z80\1\4c1 and z80\1\4c2..z80\1\4
+    ..controls z80\1\5c1 and z80\1\5c2..z80\1\5
+    ..controls z80\1\6c1 and z80\1\6c2..z80\1\6
+    ..controls z80\1\7c1 and z80\1\7c2..z80\1\7
+    --cycle;
+endchar; % D47
+
+
+%% D54: legs walking leftwards
+%% (code as U(85) 85+31 = 116)
+%% (code as L(76) 76+31 = 107)
+beginchar (107, 10.043u# + side#, 7.983u#, 0.000u#);
+  "D54";
+  z88\0\0s = (0.000u,0.963u);  z88\0\0 = (0.241u,0.000u);
+  z88\0\1 = (3.301u,0.518u);  z88\0\2 = (6.745u,6.745u);
+  z88\0\3c1 = (7.666u,5.981u);  z88\0\3c2 = (8.001u,5.197u);
+  z88\0\3 = (8.416u,4.095u);  z88\0\4c1 = (9.989u,-0.087u);
+  z88\0\4c2 = (7.088u,2.355u);  z88\0\4 = (6.263u,0.241u);
+  z88\0\5c1 = (6.844u,0.253u);  z88\0\5c2 = (9.399u,0.347u);
+  z88\0\5 = (9.732u,0.647u);  z88\0\6c1 = (10.785u,1.595u);
+  z88\0\6c2 = (9.007u,7.983u);  z88\0\6 = (6.989u,7.983u);
+  z88\0\7c1 = (4.516u,7.983u);  z88\0\7c2 = (5.267u,1.710u);
+  fill_or_unfill z88\0\0s
+    --z88\0\0    --z88\0\1    --z88\0\2
+    ..controls z88\0\3c1 and z88\0\3c2..z88\0\3
+    ..controls z88\0\4c1 and z88\0\4c2..z88\0\4
+    ..controls z88\0\5c1 and z88\0\5c2..z88\0\5
+    ..controls z88\0\6c1 and z88\0\6c2..z88\0\6
+    ..controls z88\0\7c1 and z88\0\7c2..cycle;
+endchar; % D54
+
+
+%% D58: leg and foot
+%% (code as b(98) 98+31 = 129)
+beginchar (129, 9.836u# + side#, 16.353u#, 0.000u#);
+  "D58";
+  z92\0\0s = (7.558u,16.134u);  z92\0\0c1 = (6.778u,15.139u);
+  z92\0\0c2 = (7.527u,8.027u);  z92\0\0 = (7.558u,6.263u);
+  z92\0\1c1 = (7.485u,1.739u);  z92\0\1c2 = (0.817u,2.085u);
+  z92\0\1 = (0.088u,0.842u);  z92\0\2c1 = (-0.380u,0.042u);
+  z92\0\2c2 = (1.097u,0.008u);  z92\0\2 = (1.493u,0.000u);
+  z92\0\3 = (6.311u,0.198u);  z92\0\4c1 = (7.107u,0.198u);
+  z92\0\4c2 = (7.908u,-0.089u);  z92\0\4 = (8.707u,0.035u);
+  z92\0\5c1 = (9.112u,0.098u);  z92\0\5c2 = (9.358u,0.194u);
+  z92\0\5 = (9.632u,0.557u);  z92\0\6c1 = (10.065u,1.351u);
+  z92\0\6c2 = (9.685u,3.346u);  z92\0\6 = (9.632u,4.335u);
+  z92\0\7 = (9.499u,15.995u);  z92\0\8c1 = (9.028u,16.550u);
+  z92\0\8c2 = (8.169u,16.352u);  z92\1\0s = (8.961u,0.722u);
+  z92\1\0 = (2.698u,0.722u);  z92\1\1c1 = (4.054u,1.922u);
+  z92\1\1c2 = (6.176u,2.208u);  z92\1\1 = (7.449u,3.465u);
+  z92\1\2c1 = (9.291u,5.284u);  z92\1\2c2 = (7.462u,12.926u);
+  z92\1\2 = (8.238u,15.658u);  z92\1\3 = (8.881u,14.882u);
+  z92\1\4 = (8.720u,7.708u);
+  fill_or_unfill z92\0\0s
+    ..controls z92\0\0c1 and z92\0\0c2..z92\0\0
+    ..controls z92\0\1c1 and z92\0\1c2..z92\0\1
+    ..controls z92\0\2c1 and z92\0\2c2..z92\0\2
+    --z92\0\3
+    ..controls z92\0\4c1 and z92\0\4c2..z92\0\4
+    ..controls z92\0\5c1 and z92\0\5c2..z92\0\5
+    ..controls z92\0\6c1 and z92\0\6c2..z92\0\6
+    --z92\0\7
+    ..controls z92\0\8c1 and z92\0\8c2..cycle;
+  fill_or_unfill z92\1\0s
+    --z92\1\0
+    ..controls z92\1\1c1 and z92\1\1c2..z92\1\1
+    ..controls z92\1\2c1 and z92\1\2c2..z92\1\2
+    --z92\1\3    --z92\1\4    --cycle;
+endchar; % D58
+
+
+%% E23: A lion lying down
+%% (code as l(108) = 108+31 = 139)
+beginchar (139, 17.288u# + side#, 7.010u#, 0.000u#);
+  "E23";
+  z55\0\0s = (4.577u,2.690u);  z55\0\0c1 = (4.426u,0.077u);
+  z55\0\0c2 = (1.837u,1.353u);  z55\0\0 = (0.000u,0.763u);
+  z55\0\1 = (0.000u,0.301u);  z55\0\2 = (5.502u,0.301u);
+  z55\0\3 = (6.766u,0.845u);  z55\0\4 = (10.840u,1.003u);
+  z55\0\5 = (10.600u,0.246u);  z55\0\6c1 = (11.421u,0.017u);
+  z55\0\6c2 = (16.303u,-0.169u);  z55\0\6 = (16.931u,0.246u);
+  z55\0\7c1 = (18.276u,1.020u);  z55\0\7c2 = (15.533u,3.569u);
+  z55\0\7 = (14.695u,3.893u);  z55\0\8 = (15.417u,5.099u);
+  z55\0\9c1 = (12.738u,5.073u);  z55\0\9c2 = (13.048u,3.553u);
+  z55\0\9 = (9.955u,4.214u);  z55\0\10c1 = (8.491u,4.526u);
+  z55\0\10c2 = (8.068u,7.437u);  z55\0\10 = (5.347u,6.972u);
+  z55\0\11c1 = (4.792u,6.877u);  z55\0\11c2 = (2.583u,4.731u);
+  z55\0\11 = (2.632u,4.179u);  z55\0\12c1 = (2.693u,3.496u);
+  z55\0\12c2 = (4.009u,2.815u);  z55\1\0s = (5.781u,6.544u);
+  z55\1\0 = (6.504u,6.303u);  z55\2\0s = (8.191u,4.376u);
+  z55\2\0 = (6.745u,3.893u);  z55\2\1 = (6.504u,6.062u);
+  z55\2\2c1 = (7.466u,5.850u);  z55\2\2c2 = (7.979u,5.338u);
+  z55\3\0s = (5.300u,5.581u);  z55\3\0c1 = (6.216u,4.989u);
+  z55\3\0c2 = (6.597u,4.122u);  z55\3\0 = (5.161u,3.837u);
+  z55\3\1c1 = (4.665u,3.738u);  z55\3\1c2 = (4.103u,4.033u);
+  z55\3\1 = (3.613u,4.135u);  z55\3\2 = (3.854u,4.858u);
+  z55\3\3 = (5.300u,4.858u);  z55\4\0s = (12.768u,2.449u);
+  z55\4\0 = (7.135u,1.613u);  z55\4\1 = (5.059u,1.003u);
+  z55\4\2c1 = (6.022u,2.341u);  z55\4\2c2 = (7.345u,3.787u);
+  z55\4\2 = (9.114u,3.612u);  z55\4\3 = (11.460u,3.273u);
+  z55\4\4c1 = (12.325u,3.308u);  z55\4\4c2 = (12.366u,3.185u);
+  z55\5\0s = (16.622u,1.003u);  z55\5\0c1 = (15.199u,1.235u);
+  z55\5\0c2 = (13.442u,1.807u);  z55\5\0 = (13.249u,3.412u);
+  z55\5\1c1 = (15.022u,3.251u);  z55\5\1c2 = (15.814u,2.541u);
+  z55\6\0s = (13.972u,1.243u);  z55\6\0 = (11.563u,1.243u);
+  fill_or_unfill z55\0\0s
+    ..controls z55\0\0c1 and z55\0\0c2..z55\0\0
+    --z55\0\1    --z55\0\2    --z55\0\3    --z55\0\4    --z55\0\5
+    ..controls z55\0\6c1 and z55\0\6c2..z55\0\6
+    ..controls z55\0\7c1 and z55\0\7c2..z55\0\7
+    --z55\0\8
+    ..controls z55\0\9c1 and z55\0\9c2..z55\0\9
+    ..controls z55\0\10c1 and z55\0\10c2..z55\0\10
+    ..controls z55\0\11c1 and z55\0\11c2..z55\0\11
+    ..controls z55\0\12c1 and z55\0\12c2..cycle;
+  fill_or_unfill z55\1\0s
+    --z55\1\0    --cycle;
+  fill_or_unfill z55\2\0s
+    --z55\2\0    --z55\2\1
+    ..controls z55\2\2c1 and z55\2\2c2..cycle;
+  fill_or_unfill z55\3\0s
+    ..controls z55\3\0c1 and z55\3\0c2..z55\3\0
+    ..controls z55\3\1c1 and z55\3\1c2..z55\3\1
+    --z55\3\2    --z55\3\3    --cycle;
+  fill_or_unfill z55\4\0s
+    --z55\4\0    --z55\4\1
+    ..controls z55\4\2c1 and z55\4\2c2..z55\4\2
+    --z55\4\3
+    ..controls z55\4\4c1 and z55\4\4c2..cycle;
+  fill_or_unfill z55\5\0s
+    ..controls z55\5\0c1 and z55\5\0c2..z55\5\0
+    ..controls z55\5\1c1 and z55\5\1c2..cycle;
+  fill_or_unfill z55\6\0s
+    --z55\6\0    --cycle;
+endchar; % E23
+
+
+%% F1. An ox head.
+%% (code as K(75) 75+31 = 106)
+%% (code as X(88) 88+31 = 119)
+beginchar (119, 8.026u# + side#, 8.087u#, 0.000u#);
+  "F1";
+  z32\0\0s = (0.744u,8.087u);  z32\0\0 = (1.984u,5.678u);
+  z32\0\1 = (0.000u,0.911u);  z32\0\2 = (1.467u,0.000u);
+  z32\0\3 = (6.376u,0.526u);  z32\0\4 = (6.767u,4.233u);
+  z32\0\5c1 = (7.823u,4.835u);  z32\0\5c2 = (8.183u,5.148u);
+  z32\0\5 = (7.971u,6.401u);  z32\0\6 = (5.803u,5.678u);
+  z32\0\7 = (7.008u,8.087u);  z32\0\8 = (4.358u,6.318u);
+  z32\1\0s = (3.639u,5.302u);  z32\1\0c1 = (6.050u,5.699u);
+  z32\1\0c2 = (7.211u,2.079u);  z32\1\0 = (5.055u,1.103u);
+  z32\1\1c1 = (4.404u,0.808u);  z32\1\1c2 = (3.611u,0.872u);
+  z32\1\1 = (2.912u,0.792u);  z32\1\2c1 = (-1.360u,0.301u);
+  z32\1\2c2 = (1.868u,4.461u);  z32\2\0s = (6.810u,5.175u);
+  z32\3\0s = (2.672u,3.028u);  z32\3\0 = (3.635u,4.233u);
+  z32\3\1c1 = (2.716u,4.071u);  z32\3\1c2 = (2.544u,3.984u);
+  fill_or_unfill z32\0\0s
+    --z32\0\0    --z32\0\1    --z32\0\2    --z32\0\3    --z32\0\4
+    ..controls z32\0\5c1 and z32\0\5c2..z32\0\5
+    --z32\0\6    --z32\0\7    --z32\0\8    --cycle;
+  fill_or_unfill z32\1\0s
+    ..controls z32\1\0c1 and z32\1\0c2..z32\1\0
+    ..controls z32\1\1c1 and z32\1\1c2..z32\1\1
+    ..controls z32\1\2c1 and z32\1\2c2..cycle;
+  fill_or_unfill z32\2\0s
+    --cycle;
+  fill_or_unfill z32\3\0s
+    --z32\3\0
+    ..controls z32\3\1c1 and z32\3\1c2..cycle;
+endchar; % F1
+
+
+%% F34: stoppered jar
+%% (code as G(71) 71+31 = 102)
+beginchar (102, 8.179u# + side#, 7.922u#, 0.000u#);
+  "F34";
+  z65\0\0s = (2.168u,7.922u);  z65\0\0 = (1.927u,6.477u);
+  z65\0\1c1 = (1.174u,6.696u);  z65\0\1c2 = (0.019u,6.971u);
+  z65\0\1 = (0.000u,5.759u);  z65\0\2c1 = (-0.013u,4.961u);
+  z65\0\2c2 = (1.117u,4.366u);  z65\0\2 = (1.482u,3.576u);
+  z65\0\3c1 = (1.896u,2.678u);  z65\0\3c2 = (2.014u,1.538u);
+  z65\0\3 = (2.611u,0.730u);  z65\0\4c1 = (2.993u,0.213u);
+  z65\0\4c2 = (3.455u,0.000u);  z65\0\4 = (4.094u,0.000u);
+  z65\0\5c1 = (6.062u,0.000u);  z65\0\5c2 = (6.110u,2.494u);
+  z65\0\5 = (6.709u,3.817u);  z65\0\6c1 = (7.075u,4.624u);
+  z65\0\6c2 = (8.368u,5.128u);  z65\0\6 = (8.163u,5.992u);
+  z65\0\7c1 = (7.801u,7.510u);  z65\0\7c2 = (6.390u,6.037u);
+  z65\0\7 = (5.781u,7.922u);  z65\1\0s = (5.059u,7.441u);
+  z65\1\0 = (3.131u,7.200u);  z65\2\0s = (7.468u,5.995u);
+  z65\2\0 = (6.144u,4.299u);  z65\2\1c1 = (5.738u,3.433u);
+  z65\2\1c2 = (4.750u,-1.275u);  z65\2\1 = (2.945u,1.453u);
+  z65\2\2c1 = (2.334u,2.377u);  z65\2\2c2 = (2.429u,3.584u);
+  z65\2\2 = (1.889u,4.500u);  z65\2\3 = (0.722u,5.995u);
+  z65\2\4 = (4.336u,6.473u);
+  fill_or_unfill z65\0\0s
+    --z65\0\0
+    ..controls z65\0\1c1 and z65\0\1c2..z65\0\1
+    ..controls z65\0\2c1 and z65\0\2c2..z65\0\2
+    ..controls z65\0\3c1 and z65\0\3c2..z65\0\3
+    ..controls z65\0\4c1 and z65\0\4c2..z65\0\4
+    ..controls z65\0\5c1 and z65\0\5c2..z65\0\5
+    ..controls z65\0\6c1 and z65\0\6c2..z65\0\6
+    ..controls z65\0\7c1 and z65\0\7c2..z65\0\7
+    --cycle;
+  fill_or_unfill z65\1\0s
+    --z65\1\0    --cycle;
+  fill_or_unfill z65\2\0s
+    --z65\2\0
+    ..controls z65\2\1c1 and z65\2\1c2..z65\2\1
+    ..controls z65\2\2c1 and z65\2\2c2..z65\2\2
+    --z65\2\3    --z65\2\4    --cycle;
+endchar; % F34
+
+
+%% F40: organ pipes
+%% (code as R(82) 82+31 = 113)
+%% (code as Z(90) 90+31 = 121)
+beginchar (121, 16.316u# + side#, 14.206u#, 0.000u#);
+  "F40";
+  z71\0\0s = (4.285u,5.936u);  z71\0\0 = (5.730u,5.213u);
+  z71\0\1 = (5.730u,5.919u);  z71\0\2 = (9.101u,5.919u);
+  z71\0\3 = (11.240u,5.296u);  z71\0\4 = (12.476u,6.177u);
+  z71\0\5 = (13.805u,3.768u);  z71\0\6c1 = (14.197u,2.801u);
+  z71\0\6c2 = (14.119u,0.433u);  z71\0\6 = (15.157u,0.071u);
+  z71\0\7c1 = (16.775u,-0.494u);  z71\0\7c2 = (16.295u,2.307u);
+  z71\0\7 = (16.079u,3.045u);  z71\0\8c1 = (15.779u,4.066u);
+  z71\0\8c2 = (15.314u,5.080u);  z71\0\8 = (14.662u,5.926u);
+  z71\0\9c1 = (13.698u,7.176u);  z71\0\9c2 = (12.595u,7.215u);
+  z71\0\9 = (12.759u,9.068u);  z71\0\10c1 = (12.968u,11.411u);
+  z71\0\10c2 = (15.066u,14.204u);  z71\0\10 = (11.281u,14.114u);
+  z71\0\11c1 = (10.011u,14.083u);  z71\0\11c2 = (6.276u,14.577u);
+  z71\0\11 = (5.563u,13.574u);  z71\0\12c1 = (5.222u,13.098u);
+  z71\0\12c2 = (4.952u,11.623u);  z71\0\12 = (4.798u,10.995u);
+  z71\0\13c1 = (4.597u,10.166u);  z71\0\13c2 = (4.416u,8.858u);
+  z71\0\13 = (3.979u,8.155u);  z71\0\14c1 = (3.606u,7.558u);
+  z71\0\14c2 = (2.966u,7.291u);  z71\0\14 = (2.481u,6.806u);
+  z71\0\15c1 = (1.941u,6.264u);  z71\0\15c2 = (1.217u,5.180u);
+  z71\0\15 = (0.872u,4.490u);  z71\0\16c1 = (0.520u,3.787u);
+  z71\0\16c2 = (-1.075u,-0.585u);  z71\0\16 = (1.132u,0.083u);
+  z71\0\17c1 = (2.864u,0.607u);  z71\0\17c2 = (1.351u,3.779u);
+  z71\1\0s = (6.454u,13.404u);  z71\1\0c1 = (6.634u,12.209u);
+  z71\1\0c2 = (6.176u,8.343u);  z71\1\0 = (5.008u,7.863u);
+  z71\2\0s = (8.380u,13.404u);  z71\2\0c1 = (8.257u,12.033u);
+  z71\2\0c2 = (7.805u,8.349u);  z71\2\0 = (6.454u,7.863u);
+  z71\2\1c1 = (6.521u,9.307u);  z71\2\1c2 = (6.915u,12.896u);
+  z71\3\0s = (9.585u,13.404u);  z71\3\0 = (8.863u,7.863u);
+  z71\3\1 = (7.900u,8.104u);  z71\4\0s = (11.271u,13.404u);
+  z71\4\0 = (10.067u,7.863u);  z71\4\1 = (9.585u,7.863u);
+  z71\4\2 = (9.345u,8.104u);  z71\4\3c1 = (9.640u,9.576u);
+  z71\4\3c2 = (10.045u,12.539u);  z71\5\0s = (12.717u,13.163u);
+  z71\5\0c1 = (12.686u,11.778u);  z71\5\0c2 = (12.457u,8.376u);
+  z71\5\0 = (11.030u,7.863u);  z71\6\0s = (11.513u,7.140u);
+  z71\6\0 = (11.513u,6.659u);  z71\6\1 = (4.767u,6.659u);
+  z71\6\2 = (4.767u,7.140u);  z71\7\0s = (1.395u,2.804u);
+  z71\7\0 = (1.154u,0.877u);
+  fill_or_unfill z71\0\0s
+    --z71\0\0    --z71\0\1    --z71\0\2    --z71\0\3    --z71\0\4    --z71\0\5
+    ..controls z71\0\6c1 and z71\0\6c2..z71\0\6
+    ..controls z71\0\7c1 and z71\0\7c2..z71\0\7
+    ..controls z71\0\8c1 and z71\0\8c2..z71\0\8
+    ..controls z71\0\9c1 and z71\0\9c2..z71\0\9
+    ..controls z71\0\10c1 and z71\0\10c2..z71\0\10
+    ..controls z71\0\11c1 and z71\0\11c2..z71\0\11
+    ..controls z71\0\12c1 and z71\0\12c2..z71\0\12
+    ..controls z71\0\13c1 and z71\0\13c2..z71\0\13
+    ..controls z71\0\14c1 and z71\0\14c2..z71\0\14
+    ..controls z71\0\15c1 and z71\0\15c2..z71\0\15
+    ..controls z71\0\16c1 and z71\0\16c2..z71\0\16
+    ..controls z71\0\17c1 and z71\0\17c2..cycle;
+  fill_or_unfill z71\1\0s
+    ..controls z71\1\0c1 and z71\1\0c2..z71\1\0
+    --cycle;
+  fill_or_unfill z71\2\0s
+    ..controls z71\2\0c1 and z71\2\0c2..z71\2\0
+    ..controls z71\2\1c1 and z71\2\1c2..cycle;
+  fill_or_unfill z71\3\0s
+    --z71\3\0    --z71\3\1    --cycle;
+  fill_or_unfill z71\4\0s
+    --z71\4\0    --z71\4\1    --z71\4\2
+    ..controls z71\4\3c1 and z71\4\3c2..cycle;
+  fill_or_unfill z71\5\0s
+    ..controls z71\5\0c1 and z71\5\0c2..z71\5\0
+    --cycle;
+  fill_or_unfill z71\6\0s
+    --z71\6\0    --z71\6\1    --z71\6\2    --cycle;
+  fill_or_unfill z71\7\0s
+    --z71\7\0    --cycle;
+endchar; % F40
+
+
+%% G1: a falcon in profile
+%% (code as A(65) 65+31 = 96)
+%% (code as a(97) 97+31 = 128)
+beginchar (128, 15.899u# + side#, 17.164u#, 0.000u#);
+  "G1";
+  z32\0\0s = (0.482u,15.514u);  z32\0\0 = (0.723u,15.273u);
+  z32\0\1c1 = (1.489u,15.375u);  z32\0\1c2 = (2.628u,15.514u);
+  z32\0\1 = (3.228u,14.892u);  z32\0\2c1 = (3.843u,14.255u);
+  z32\0\2c2 = (3.514u,12.552u);  z32\0\2 = (3.707u,11.660u);
+  z32\0\3 = (4.490u,9.492u);  z32\0\4c1 = (5.042u,7.603u);
+  z32\0\4c2 = (5.459u,3.570u);  z32\0\4 = (4.490u,1.818u);
+  z32\0\5c1 = (3.469u,0.030u);  z32\0\5c2 = (0.863u,2.552u);
+  z32\0\5 = (0.000u,0.096u);  z32\0\6 = (11.081u,0.096u);
+  z32\0\7c1 = (10.576u,1.677u);  z32\0\7c2 = (9.338u,1.301u);
+  z32\0\7 = (7.950u,1.301u);  z32\0\8 = (8.191u,2.987u);
+  z32\0\9 = (9.636u,2.505u);  z32\0\10 = (10.118u,4.674u);
+  z32\0\11c1 = (11.597u,2.734u);  z32\0\11c2 = (12.753u,-0.622u);
+  z32\0\11 = (15.899u,0.096u);  z32\0\12 = (15.601u,2.265u);
+  z32\0\13c1 = (15.044u,4.208u);  z32\0\13c2 = (11.994u,8.802u);
+  z32\0\13 = (10.680u,10.455u);  z32\0\14c1 = (9.776u,11.593u);
+  z32\0\14c2 = (8.400u,12.583u);  z32\0\14 = (7.693u,13.828u);
+  z32\0\15c1 = (7.205u,14.686u);  z32\0\15c2 = (7.353u,16.521u);
+  z32\0\15 = (6.808u,16.961u);  z32\0\16c1 = (6.158u,17.487u);
+  z32\0\16c2 = (1.942u,16.905u);  z32\0\16 = (1.237u,16.476u);
+  z32\0\17c1 = (0.816u,16.219u);  z32\0\17c2 = (0.694u,15.927u);
+  z32\1\0s = (7.468u,12.142u);  z32\1\0c1 = (2.270u,12.313u);
+  z32\1\0c2 = (8.088u,7.679u);  z32\1\0 = (8.948u,6.339u);
+  z32\1\1c1 = (9.487u,5.499u);  z32\1\1c2 = (9.394u,4.423u);
+  z32\1\1 = (9.395u,3.469u);  z32\1\2 = (7.981u,4.068u);
+  z32\1\3 = (4.526u,11.660u);  z32\1\4 = (3.372u,16.237u);
+  z32\1\5c1 = (7.797u,16.277u);  z32\1\5c2 = (6.332u,16.505u);
+  z32\2\0s = (4.796u,15.777u);  z32\3\0s = (13.731u,4.192u);
+  z32\3\0c1 = (12.368u,4.893u);  z32\3\0c2 = (8.039u,7.768u);
+  z32\3\0 = (7.197u,8.872u);  z32\3\1c1 = (6.474u,9.738u);
+  z32\3\1c2 = (5.399u,11.470u);  z32\3\1 = (7.197u,11.575u);
+  z32\3\2c1 = (7.681u,11.600u);  z32\3\2c2 = (8.195u,11.622u);
+  z32\3\2 = (8.604u,11.405u);  z32\3\3c1 = (10.006u,10.659u);
+  z32\3\3c2 = (13.224u,5.786u);  z32\4\0s = (6.022u,7.324u);
+  z32\4\0 = (6.986u,3.710u);  z32\4\1c1 = (5.511u,4.360u);
+  z32\4\1c2 = (5.475u,5.944u);  z32\5\0s = (11.081u,5.155u);
+  z32\5\0c1 = (13.154u,3.964u);  z32\5\0c2 = (14.139u,2.942u);
+  z32\5\0 = (14.695u,0.578u);  z32\5\1c1 = (13.162u,1.331u);
+  z32\5\1c2 = (10.961u,3.287u);  z32\6\0s = (13.972u,4.192u);
+  z32\7\0s = (7.227u,1.060u);  z32\7\0 = (5.300u,1.301u);
+  z32\7\1 = (5.781u,3.228u);  z32\7\2c1 = (7.239u,2.855u);
+  z32\7\2c2 = (7.211u,2.445u);
+  fill_or_unfill z32\0\0s
+    --z32\0\0
+    ..controls z32\0\1c1 and z32\0\1c2..z32\0\1
+    ..controls z32\0\2c1 and z32\0\2c2..z32\0\2
+    --z32\0\3
+    ..controls z32\0\4c1 and z32\0\4c2..z32\0\4
+    ..controls z32\0\5c1 and z32\0\5c2..z32\0\5
+    --z32\0\6
+    ..controls z32\0\7c1 and z32\0\7c2..z32\0\7
+    --z32\0\8    --z32\0\9    --z32\0\10
+    ..controls z32\0\11c1 and z32\0\11c2..z32\0\11
+    --z32\0\12
+    ..controls z32\0\13c1 and z32\0\13c2..z32\0\13
+    ..controls z32\0\14c1 and z32\0\14c2..z32\0\14
+    ..controls z32\0\15c1 and z32\0\15c2..z32\0\15
+    ..controls z32\0\16c1 and z32\0\16c2..z32\0\16
+    ..controls z32\0\17c1 and z32\0\17c2..cycle;
+  fill_or_unfill z32\1\0s
+    ..controls z32\1\0c1 and z32\1\0c2..z32\1\0
+    ..controls z32\1\1c1 and z32\1\1c2..z32\1\1
+    --z32\1\2    --z32\1\3    --z32\1\4
+    ..controls z32\1\5c1 and z32\1\5c2..cycle;
+  fill_or_unfill z32\2\0s
+    --cycle;
+  fill_or_unfill z32\3\0s
+    ..controls z32\3\0c1 and z32\3\0c2..z32\3\0
+    ..controls z32\3\1c1 and z32\3\1c2..z32\3\1
+    ..controls z32\3\2c1 and z32\3\2c2..z32\3\2
+    ..controls z32\3\3c1 and z32\3\3c2..cycle;
+  fill_or_unfill z32\4\0s
+    --z32\4\0
+    ..controls z32\4\1c1 and z32\4\1c2..cycle;
+  fill_or_unfill z32\5\0s
+    ..controls z32\5\0c1 and z32\5\0c2..z32\5\0
+    ..controls z32\5\1c1 and z32\5\1c2..cycle;
+  fill_or_unfill z32\6\0s
+    --cycle;
+  fill_or_unfill z32\7\0s
+    --z32\7\0    --z32\7\1
+    ..controls z32\7\2c1 and z32\7\2c2..cycle;
+endchar; % G1
+
+
+%% G17:  bird in profile but head looking out
+%% (code as m(109) 109+31 = 140)
+beginchar (140, 16.379u# + side#, 17.653u#, 0.000u#);
+  "G17";
+  z50\0\0s = (3.620u,1.743u);  z50\0\0c1 = (2.365u,2.029u);
+  z50\0\0c2 = (0.028u,2.327u);  z50\0\0 = (0.000u,0.560u);
+  z50\0\1 = (7.209u,0.552u);  z50\0\2 = (8.205u,3.162u);
+  z50\0\3 = (9.407u,2.674u);  z50\0\4 = (10.140u,4.356u);
+  z50\0\5c1 = (11.518u,1.448u);  z50\0\5c2 = (12.706u,-0.796u);
+  z50\0\5 = (16.379u,0.225u);  z50\0\6 = (15.905u,1.673u);
+  z50\0\7c1 = (16.753u,2.555u);  z50\0\7c2 = (14.380u,4.980u);
+  z50\0\7 = (13.764u,5.780u);  z50\0\8 = (10.046u,11.583u);
+  z50\0\9 = (7.202u,14.772u);  z50\0\10c1 = (6.627u,15.552u);
+  z50\0\10c2 = (6.721u,16.741u);  z50\0\10 = (6.215u,17.242u);
+  z50\0\11c1 = (5.815u,17.640u);  z50\0\11c2 = (5.196u,17.623u);
+  z50\0\11 = (4.674u,17.635u);  z50\0\12c1 = (4.183u,17.648u);
+  z50\0\12c2 = (2.759u,17.705u);  z50\0\12 = (2.368u,17.512u);
+  z50\0\13c1 = (1.794u,17.228u);  z50\0\13c2 = (1.797u,16.521u);
+  z50\0\13 = (1.778u,15.967u);  z50\0\14c1 = (1.638u,12.002u);
+  z50\0\14c2 = (3.566u,11.804u);  z50\0\14 = (4.186u,8.967u);
+  z50\0\15c1 = (4.695u,6.635u);  z50\0\15c2 = (4.361u,3.981u);
+  z50\1\0s = (5.867u,15.703u);  z50\1\0 = (2.494u,15.481u);
+  z50\1\1 = (2.501u,16.686u);  z50\1\2c1 = (3.725u,16.679u);
+  z50\1\2c2 = (5.391u,17.087u);  z50\2\0s = (3.925u,13.063u);
+  z50\2\0 = (4.407u,13.061u);  z50\2\1 = (4.900u,14.986u);
+  z50\2\2 = (6.105u,15.219u);  z50\2\3 = (8.954u,11.822u);
+  z50\2\4 = (12.796u,5.545u);  z50\2\5c1 = (11.481u,6.065u);
+  z50\2\5c2 = (5.220u,10.392u);  z50\2\5 = (5.562u,11.778u);
+  z50\2\6c1 = (5.675u,12.239u);  z50\2\6c2 = (6.874u,12.686u);
+  z50\2\6 = (7.298u,13.044u);  z50\2\7c1 = (-0.045u,12.897u);
+  z50\2\7c2 = (11.248u,5.797u);  z50\2\7 = (12.427u,4.742u);
+  z50\2\8c1 = (13.438u,3.838u);  z50\2\8c2 = (14.939u,1.958u);
+  z50\2\8 = (15.418u,0.712u);  z50\2\9c1 = (10.849u,0.753u);
+  z50\2\9c2 = (12.397u,4.018u);  z50\2\9 = (9.184u,5.806u);
+  z50\2\10 = (8.931u,3.640u);  z50\2\11c1 = (7.677u,4.436u);
+  z50\2\11c2 = (3.742u,11.219u);  z50\2\11 = (3.047u,12.828u);
+  z50\2\12c1 = (2.717u,13.592u);  z50\2\12c2 = (2.598u,14.421u);
+  z50\2\12 = (2.493u,15.240u);  z50\3\0s = (5.340u,7.515u);
+  z50\3\0c1 = (5.600u,7.125u);  z50\3\0c2 = (5.888u,6.737u);
+  z50\3\0 = (6.080u,6.306u);  z50\3\1c1 = (7.294u,3.575u);
+  z50\3\1c2 = (3.973u,4.128u);  z50\4\0s = (12.755u,6.281u);
+  z50\5\0s = (7.002u,3.410u);  z50\5\0c1 = (6.965u,1.453u);
+  z50\5\0c2 = (6.683u,1.400u);  z50\5\0 = (4.824u,1.736u);
+  z50\5\1 = (5.318u,3.660u);
+  fill_or_unfill z50\0\0s
+    ..controls z50\0\0c1 and z50\0\0c2..z50\0\0
+    --z50\0\1    --z50\0\2    --z50\0\3    --z50\0\4
+    ..controls z50\0\5c1 and z50\0\5c2..z50\0\5
+    --z50\0\6
+    ..controls z50\0\7c1 and z50\0\7c2..z50\0\7
+    --z50\0\8    --z50\0\9
+    ..controls z50\0\10c1 and z50\0\10c2..z50\0\10
+    ..controls z50\0\11c1 and z50\0\11c2..z50\0\11
+    ..controls z50\0\12c1 and z50\0\12c2..z50\0\12
+    ..controls z50\0\13c1 and z50\0\13c2..z50\0\13
+    ..controls z50\0\14c1 and z50\0\14c2..z50\0\14
+    ..controls z50\0\15c1 and z50\0\15c2..cycle;
+  fill_or_unfill z50\1\0s
+    --z50\1\0    --z50\1\1
+    ..controls z50\1\2c1 and z50\1\2c2..cycle;
+  fill_or_unfill z50\2\0s
+    --z50\2\0    --z50\2\1    --z50\2\2    --z50\2\3    --z50\2\4
+    ..controls z50\2\5c1 and z50\2\5c2..z50\2\5
+    ..controls z50\2\6c1 and z50\2\6c2..z50\2\6
+    ..controls z50\2\7c1 and z50\2\7c2..z50\2\7
+    ..controls z50\2\8c1 and z50\2\8c2..z50\2\8
+    ..controls z50\2\9c1 and z50\2\9c2..z50\2\9
+    --z50\2\10
+    ..controls z50\2\11c1 and z50\2\11c2..z50\2\11
+    ..controls z50\2\12c1 and z50\2\12c2..z50\2\12
+    --cycle;
+  fill_or_unfill z50\3\0s
+    ..controls z50\3\0c1 and z50\3\0c2..z50\3\0
+    ..controls z50\3\1c1 and z50\3\1c2..cycle;
+  fill_or_unfill z50\4\0s
+    --cycle;
+  fill_or_unfill z50\5\0s
+    ..controls z50\5\0c1 and z50\5\0c2..z50\5\0
+    --z50\5\1    --cycle;
+endchar; % G17
+
+
+%% G36: bird (wr)
+%% (code as Z(90) 90+31 = 121)
+%% (code as R(82) 82+31 = 113)
+beginchar (113, 17.104u# + side#, 11.458u#, 0.000u#);
+  "G36";
+  z70\0\0s = (0.000u,10.358u);  z70\0\0 = (0.000u,9.877u);
+  z70\0\1c1 = (0.461u,9.641u);  z70\0\1c2 = (0.931u,9.443u);
+  z70\0\1 = (1.290u,9.054u);  z70\0\2 = (4.946u,3.613u);
+  z70\0\3c1 = (5.134u,3.212u);  z70\0\3c2 = (5.214u,2.849u);
+  z70\0\3 = (5.118u,2.410u);  z70\0\4c1 = (4.550u,-0.197u);
+  z70\0\4c2 = (1.694u,2.019u);  z70\0\4 = (0.482u,0.000u);
+  z70\0\5 = (9.154u,0.000u);  z70\0\6 = (7.709u,1.204u);
+  z70\0\7 = (8.191u,2.649u);  z70\0\8 = (16.381u,0.481u);
+  z70\0\9c1 = (15.806u,2.562u);  z70\0\9c2 = (16.530u,1.812u);
+  z70\0\9 = (17.104u,3.372u);  z70\0\10 = (14.433u,4.277u);
+  z70\0\11 = (11.564u,5.417u);  z70\0\12 = (6.273u,9.300u);
+  z70\0\13c1 = (5.667u,9.839u);  z70\0\13c2 = (4.641u,11.277u);
+  z70\0\13 = (3.851u,11.458u);  z70\0\14c1 = (2.875u,11.681u);
+  z70\0\14c2 = (0.963u,10.633u);  z70\1\0s = (5.300u,8.913u);
+  z70\1\0c1 = (3.206u,8.243u);  z70\1\0c2 = (3.384u,8.278u);
+  z70\1\0 = (4.095u,6.263u);  z70\1\1c1 = (3.373u,6.811u);
+  z70\1\1c2 = (1.402u,9.318u);  z70\1\1 = (1.763u,10.283u);
+  z70\1\2c1 = (1.870u,10.569u);  z70\1\2c2 = (2.151u,10.692u);
+  z70\1\2 = (2.424u,10.764u);  z70\1\3c1 = (3.964u,11.170u);
+  z70\1\3c2 = (4.670u,10.072u);  z70\2\0s = (11.804u,4.095u);
+  z70\2\0c1 = (9.049u,4.222u);  z70\2\0c2 = (4.852u,5.135u);
+  z70\2\0 = (4.095u,8.190u);  z70\2\1 = (5.541u,8.672u);
+  z70\3\0s = (4.336u,6.263u);  z70\4\0s = (4.577u,6.022u);
+  z70\4\0c1 = (7.312u,3.929u);  z70\4\0c2 = (12.000u,3.047u);
+  z70\4\0 = (15.417u,2.890u);  z70\4\1 = (15.417u,1.686u);
+  z70\4\2c1 = (12.740u,1.969u);  z70\4\2c2 = (9.962u,4.417u);
+  z70\4\2 = (7.227u,2.890u);  z70\5\0s = (6.745u,2.649u);
+  z70\5\0c1 = (7.032u,1.503u);  z70\5\0c2 = (6.954u,1.097u);
+  z70\5\0 = (5.781u,0.722u);  z70\6\0s = (3.462u,10.135u);
+  z70\6\0c1 = (3.230u,10.490u);  z70\6\0c2 = (2.706u,10.201u);
+  z70\6\0 = (2.851u,9.912u);  z70\6\1c1 = (3.013u,9.587u);
+  z70\6\1c2 = (3.645u,9.822u);
+  fill_or_unfill z70\0\0s
+    --z70\0\0
+    ..controls z70\0\1c1 and z70\0\1c2..z70\0\1
+    --z70\0\2
+    ..controls z70\0\3c1 and z70\0\3c2..z70\0\3
+    ..controls z70\0\4c1 and z70\0\4c2..z70\0\4
+    --z70\0\5    --z70\0\6    --z70\0\7    --z70\0\8
+    ..controls z70\0\9c1 and z70\0\9c2..z70\0\9
+    --z70\0\10    --z70\0\11    --z70\0\12
+    ..controls z70\0\13c1 and z70\0\13c2..z70\0\13
+    ..controls z70\0\14c1 and z70\0\14c2..cycle;
+  fill_or_unfill z70\1\0s
+    ..controls z70\1\0c1 and z70\1\0c2..z70\1\0
+    ..controls z70\1\1c1 and z70\1\1c2..z70\1\1
+    ..controls z70\1\2c1 and z70\1\2c2..z70\1\2
+    ..controls z70\1\3c1 and z70\1\3c2..cycle;
+  fill_or_unfill z70\2\0s
+    ..controls z70\2\0c1 and z70\2\0c2..z70\2\0
+    --z70\2\1    --cycle;
+  fill_or_unfill z70\3\0s
+    --cycle;
+  fill_or_unfill z70\4\0s
+    ..controls z70\4\0c1 and z70\4\0c2..z70\4\0
+    --z70\4\1
+    ..controls z70\4\2c1 and z70\4\2c2..z70\4\2
+    --cycle;
+  fill_or_unfill z70\5\0s
+    ..controls z70\5\0c1 and z70\5\0c2..z70\5\0
+    --cycle;
+  fill_or_unfill z70\6\0s
+    ..controls z70\6\0c1 and z70\6\0c2..z70\6\0
+    ..controls z70\6\1c1 and z70\6\1c2..cycle;
+endchar; % G36
+
+
+%% G43: a small bird standing up in profile
+%% (code as w(119) 119+31 = 150)
+beginchar (150, 12.188u# + side#, 17.371u#, 0.000u#);
+  "G43";
+  z77\0\0s = (0.723u,16.381u);  z77\0\0 = (0.723u,15.899u);
+  z77\0\1 = (2.003u,14.904u);  z77\0\2 = (2.522u,12.527u);
+  z77\0\3 = (5.624u,5.540u);  z77\0\4 = (4.577u,1.445u);
+  z77\0\5c1 = (3.101u,1.377u);  z77\0\5c2 = (0.304u,1.772u);
+  z77\0\5 = (0.000u,0.000u);  z77\0\6 = (9.395u,0.000u);
+  z77\0\7 = (7.950u,1.204u);  z77\0\8 = (8.913u,5.299u);
+  z77\0\9c1 = (9.714u,5.367u);  z77\0\9c2 = (11.932u,5.621u);
+  z77\0\9 = (12.177u,6.538u);  z77\0\10c1 = (12.363u,7.234u);
+  z77\0\10c2 = (11.099u,8.549u);  z77\0\10 = (10.705u,9.154u);
+  z77\0\11 = (6.403u,14.716u);  z77\0\12c1 = (5.993u,15.304u);
+  z77\0\12c2 = (5.916u,16.035u);  z77\0\12 = (5.437u,16.587u);
+  z77\0\13c1 = (5.188u,16.873u);  z77\0\13c2 = (4.929u,17.065u);
+  z77\0\13 = (4.573u,17.200u);  z77\0\14c1 = (3.231u,17.710u);
+  z77\0\14c2 = (1.878u,16.980u);  z77\1\0s = (7.468u,12.045u);
+  z77\1\0c1 = (6.334u,11.350u);  z77\1\0c2 = (6.183u,11.190u);
+  z77\1\0 = (6.504u,9.877u);  z77\1\1c1 = (5.142u,10.559u);
+  z77\1\1c2 = (4.167u,11.971u);  z77\1\1 = (5.781u,13.008u);
+  z77\1\2c1 = (3.995u,13.471u);  z77\1\2c2 = (4.263u,12.099u);
+  z77\1\2 = (4.336u,10.840u);  z77\1\3 = (2.168u,15.899u);
+  z77\1\4 = (2.168u,16.381u);  z77\1\5c1 = (5.269u,17.376u);
+  z77\1\5c2 = (4.497u,16.048u);  z77\1\5 = (5.717u,14.234u);
+  z77\1\6c1 = (6.260u,13.428u);  z77\1\6c2 = (6.977u,12.939u);
+  z77\2\0s = (3.132u,16.381u);  z77\2\0 = (3.132u,15.658u);
+  z77\2\1 = (3.854u,15.899u);  z77\3\0s = (11.563u,6.504u);
+  z77\3\0c1 = (7.921u,5.772u);  z77\3\0c2 = (5.400u,6.024u);
+  z77\3\0 = (4.577u,10.358u);  z77\3\1 = (7.227u,8.913u);
+  z77\3\2 = (6.986u,11.081u);  z77\3\3c1 = (8.971u,11.404u);
+  z77\3\3c2 = (10.815u,8.120u);  z77\4\0s = (4.458u,10.602u);
+  z77\5\0s = (6.745u,5.781u);  z77\5\0c1 = (8.474u,4.047u);
+  z77\5\0c2 = (8.002u,1.235u);  z77\5\0 = (5.300u,1.204u);
+  fill_or_unfill z77\0\0s
+    --z77\0\0    --z77\0\1    --z77\0\2    --z77\0\3    --z77\0\4
+    ..controls z77\0\5c1 and z77\0\5c2..z77\0\5
+    --z77\0\6    --z77\0\7    --z77\0\8
+    ..controls z77\0\9c1 and z77\0\9c2..z77\0\9
+    ..controls z77\0\10c1 and z77\0\10c2..z77\0\10
+    --z77\0\11
+    ..controls z77\0\12c1 and z77\0\12c2..z77\0\12
+    ..controls z77\0\13c1 and z77\0\13c2..z77\0\13
+    ..controls z77\0\14c1 and z77\0\14c2..cycle;
+  fill_or_unfill z77\1\0s
+    ..controls z77\1\0c1 and z77\1\0c2..z77\1\0
+    ..controls z77\1\1c1 and z77\1\1c2..z77\1\1
+    ..controls z77\1\2c1 and z77\1\2c2..z77\1\2
+    --z77\1\3    --z77\1\4
+    ..controls z77\1\5c1 and z77\1\5c2..z77\1\5
+    ..controls z77\1\6c1 and z77\1\6c2..cycle;
+  fill_or_unfill z77\2\0s
+    --z77\2\0    --z77\2\1    --cycle;
+  fill_or_unfill z77\3\0s
+    ..controls z77\3\0c1 and z77\3\0c2..z77\3\0
+    --z77\3\1    --z77\3\2
+    ..controls z77\3\3c1 and z77\3\3c2..cycle;
+  fill_or_unfill z77\4\0s
+    --cycle;
+  fill_or_unfill z77\5\0s
+    ..controls z77\5\0c1 and z77\5\0c2..z77\5\0
+    --cycle;
+endchar; % G43
+
+
+%% H8: The egg sign (tilted ellipse).
+%% (code as O(79) 79+31 = 110)
+beginchar (110, 6.176u# + side#, 8.644u#, 0.000u#);
+  "H8";
+  z40\0\0s = (1.112u,8.644u);  z40\0\0c1 = (-2.114u,7.227u);
+  z40\0\0c2 = (2.364u,-0.989u);  z40\0\0 = (5.183u,0.015u);
+  z40\0\1c1 = (7.767u,0.935u);  z40\0\1c2 = (5.151u,9.387u);
+  z40\1\0s = (1.950u,8.132u);  z40\1\0c1 = (4.118u,7.717u);
+  z40\1\0c2 = (5.423u,3.971u);  z40\1\0 = (5.312u,2.035u);
+  z40\1\1c1 = (5.056u,-2.442u);  z40\1\1c2 = (-2.061u,7.364u);
+  fill_or_unfill z40\0\0s
+    ..controls z40\0\0c1 and z40\0\0c2..z40\0\0
+    ..controls z40\0\1c1 and z40\0\1c2..cycle;
+  fill_or_unfill z40\1\0s
+    ..controls z40\1\0c1 and z40\1\0c2..z40\1\0
+    ..controls z40\1\1c1 and z40\1\1c2..cycle;
+endchar; % H8
+
+
+%% I9: horizontal snake
+%% (code as f(102) 102+31 = 133)
+beginchar (133, 17.586u# + side#, 5.776u#, 0.000u#);
+  "I9";
+  z41\0\0s = (0.000u,5.776u);  z41\0\0 = (0.000u,5.294u);
+  z41\0\1 = (1.204u,4.331u);  z41\0\2c1 = (0.976u,4.246u);
+  z41\0\2c2 = (0.763u,4.211u);  z41\0\2 = (0.558u,4.059u);
+  z41\0\3c1 = (-1.327u,2.673u);  z41\0\3c2 = (2.135u,2.350u);
+  z41\0\3 = (2.572u,2.129u);  z41\0\4c1 = (3.328u,1.748u);
+  z41\0\4c2 = (3.719u,0.973u);  z41\0\4 = (4.581u,0.666u);
+  z41\0\5c1 = (6.081u,0.016u);  z41\0\5c2 = (8.030u,0.759u);
+  z41\0\5 = (9.636u,0.666u);  z41\0\6c1 = (12.228u,0.624u);
+  z41\0\6c2 = (15.059u,-0.685u);  z41\0\6 = (17.586u,0.476u);
+  z41\0\7 = (16.810u,1.259u);  z41\0\8 = (13.490u,1.531u);
+  z41\0\9 = (9.154u,2.773u);  z41\0\10 = (5.442u,2.439u);
+  z41\0\11 = (2.650u,4.331u);  z41\0\12 = (4.095u,5.776u);
+  z41\0\13 = (1.927u,5.506u);  z41\1\0s = (2.891u,3.367u);
+  z41\1\0 = (0.963u,3.126u);  z41\1\1 = (0.963u,3.608u);
+  z41\2\0s = (3.613u,2.885u);  z41\3\0s = (3.854u,2.644u);
+  z41\3\0c1 = (6.153u,1.024u);  z41\3\0c2 = (6.375u,2.081u);
+  z41\3\0 = (8.672u,2.081u);  z41\3\1c1 = (9.639u,2.081u);
+  z41\3\1c2 = (10.653u,1.736u);  z41\3\1 = (11.563u,1.438u);
+  z41\3\2c1 = (10.682u,1.190u);  z41\3\2c2 = (9.608u,1.458u);
+  z41\3\2 = (8.672u,1.438u);  z41\3\3c1 = (7.348u,1.406u);
+  z41\3\3c2 = (3.886u,0.334u);
+  fill_or_unfill z41\0\0s
+    --z41\0\0    --z41\0\1
+    ..controls z41\0\2c1 and z41\0\2c2..z41\0\2
+    ..controls z41\0\3c1 and z41\0\3c2..z41\0\3
+    ..controls z41\0\4c1 and z41\0\4c2..z41\0\4
+    ..controls z41\0\5c1 and z41\0\5c2..z41\0\5
+    ..controls z41\0\6c1 and z41\0\6c2..z41\0\6
+    --z41\0\7    --z41\0\8    --z41\0\9    --z41\0\10    --z41\0\11
+    --z41\0\12    --z41\0\13    --cycle;
+  fill_or_unfill z41\1\0s
+    --z41\1\0    --z41\1\1    --cycle;
+  fill_or_unfill z41\2\0s
+    --cycle;
+  fill_or_unfill z41\3\0s
+    ..controls z41\3\0c1 and z41\3\0c2..z41\3\0
+    ..controls z41\3\1c1 and z41\3\1c2..z41\3\1
+    ..controls z41\3\2c1 and z41\3\2c2..z41\3\2
+    ..controls z41\3\3c1 and z41\3\3c2..cycle;
+endchar;  % I9
+
+
+%% I10: snake with dropping tail
+%% (code as D(68) 68+31 = 99)
+beginchar (99, 15.899u# + side#, 6.745u#, 10.600u#);
+  "I10";
+  z42\0\0s = (2.168u,4.577u);  z42\0\0 = (1.869u,3.132u);
+  z42\0\1c1 = (1.697u,1.693u);  z42\0\1c2 = (2.360u,1.469u);
+  z42\0\1 = (3.614u,1.446u);  z42\0\2c1 = (6.350u,1.397u);
+  z42\0\2c2 = (8.864u,2.071u);  z42\0\2 = (11.563u,1.070u);
+  z42\0\3c1 = (14.672u,-0.083u);  z42\0\3c2 = (13.899u,-2.250u);
+  z42\0\3 = (13.753u,-4.818u);  z42\0\4c1 = (13.683u,-6.058u);
+  z42\0\4c2 = (14.057u,-7.262u);  z42\0\4 = (14.427u,-8.431u);
+  z42\0\5c1 = (14.736u,-9.409u);  z42\0\5c2 = (14.882u,-10.002u);
+  z42\0\5 = (15.899u,-10.359u);  z42\0\6 = (15.186u,-6.504u);
+  z42\0\7c1 = (15.091u,-4.320u);  z42\0\7c2 = (16.039u,-1.852u);
+  z42\0\7 = (15.530u,0.241u);  z42\0\8c1 = (14.546u,4.295u);
+  z42\0\8c2 = (6.481u,3.776u);  z42\0\8 = (3.372u,2.891u);
+  z42\0\9c1 = (3.359u,3.784u);  z42\0\9c2 = (3.876u,4.958u);
+  z42\0\9 = (3.516u,5.768u);  z42\0\10c1 = (2.486u,8.085u);
+  z42\0\10c2 = (-1.652u,5.671u);  z42\0\10 = (0.976u,4.804u);
+  z42\1\0s = (2.650u,5.300u);  z42\1\0 = (0.821u,5.680u);
+  z42\1\1c1 = (1.626u,6.588u);  z42\1\1c2 = (2.761u,6.175u);
+  z42\2\0s = (14.936u,-2.409u);  z42\2\0c1 = (14.570u,-1.518u);
+  z42\2\0c2 = (14.566u,-0.612u);  z42\2\0 = (13.980u,0.216u);
+  z42\2\1c1 = (12.073u,2.910u);  z42\2\1c2 = (7.586u,2.229u);
+  z42\2\1 = (4.818u,2.168u);  z42\2\2c1 = (6.243u,3.217u);
+  z42\2\2c2 = (13.053u,2.897u);  z42\2\2 = (14.297u,1.392u);
+  z42\2\3c1 = (15.132u,0.383u);  z42\2\3c2 = (14.936u,-1.180u);
+  fill_or_unfill z42\0\0s
+    --z42\0\0
+    ..controls z42\0\1c1 and z42\0\1c2..z42\0\1
+    ..controls z42\0\2c1 and z42\0\2c2..z42\0\2
+    ..controls z42\0\3c1 and z42\0\3c2..z42\0\3
+    ..controls z42\0\4c1 and z42\0\4c2..z42\0\4
+    ..controls z42\0\5c1 and z42\0\5c2..z42\0\5
+    --z42\0\6
+    ..controls z42\0\7c1 and z42\0\7c2..z42\0\7
+    ..controls z42\0\8c1 and z42\0\8c2..z42\0\8
+    ..controls z42\0\9c1 and z42\0\9c2..z42\0\9
+    ..controls z42\0\10c1 and z42\0\10c2..z42\0\10
+    --cycle;
+  fill_or_unfill z42\1\0s
+    --z42\1\0
+    ..controls z42\1\1c1 and z42\1\1c2..cycle;
+  fill_or_unfill z42\2\0s
+    ..controls z42\2\0c1 and z42\2\0c2..z42\2\0
+    ..controls z42\2\1c1 and z42\2\1c2..z42\2\1
+    ..controls z42\2\2c1 and z42\2\2c2..z42\2\2
+    ..controls z42\2\3c1 and z42\2\3c2..cycle;
+endchar;  % I10
+
+
+%% K1. A fish.
+%% (code as F(70) 70+31 = 101)
+beginchar (101, 17.658u# + side#, 8.816u#, 0.000u#);
+  "K1";
+  z32\0\0s = (7.799u,0.000u);  z32\0\0 = (7.558u,1.204u);
+  z32\0\1 = (13.339u,0.963u);  z32\0\2 = (13.098u,2.409u);
+  z32\0\3c1 = (14.327u,2.396u);  z32\0\3c2 = (16.068u,1.130u);
+  z32\0\3 = (16.658u,1.310u);  z32\0\4c1 = (18.022u,1.725u);
+  z32\0\4c2 = (18.048u,6.132u);  z32\0\4 = (16.445u,6.066u);
+  z32\0\5c1 = (15.936u,6.045u);  z32\0\5c2 = (14.422u,5.086u);
+  z32\0\5 = (13.821u,4.818u);  z32\0\6 = (15.507u,8.672u);
+  z32\0\7 = (4.448u,8.816u);  z32\0\8 = (2.073u,6.146u);
+  z32\0\9 = (0.000u,3.602u);  z32\0\10 = (0.826u,2.481u);
+  z32\0\11 = (3.703u,1.656u);  z32\1\0s = (14.544u,7.950u);
+  z32\1\0 = (12.814u,5.454u);  z32\1\1 = (7.076u,6.711u);
+  z32\1\2 = (3.703u,6.711u);  z32\1\3c1 = (4.253u,7.935u);
+  z32\1\3c2 = (4.481u,8.372u);  z32\1\3 = (5.872u,8.427u);
+  z32\1\4 = (11.412u,8.191u);  z32\1\5c1 = (12.500u,8.186u);
+  z32\1\5c2 = (13.477u,8.209u);  z32\2\0s = (14.062u,4.095u);
+  z32\2\0c1 = (13.316u,1.907u);  z32\2\0c2 = (6.428u,1.681u);
+  z32\2\0 = (4.426u,2.168u);  z32\2\1c1 = (5.177u,3.939u);
+  z32\2\1c2 = (6.645u,2.976u);  z32\2\1 = (8.280u,3.372u);
+  z32\2\2 = (4.185u,5.300u);  z32\2\3c1 = (4.612u,1.387u);
+  z32\2\3c2 = (2.761u,3.198u);  z32\2\3 = (0.812u,3.613u);
+  z32\2\4c1 = (3.063u,8.065u);  z32\2\4c2 = (10.552u,5.444u);
+  z32\3\0s = (16.471u,1.927u);  z32\3\0c1 = (15.039u,2.633u);
+  z32\3\0c2 = (14.846u,2.778u);  z32\3\0 = (14.544u,4.336u);
+  z32\3\1c1 = (17.285u,6.189u);  z32\3\1c2 = (17.432u,4.002u);
+  z32\4\0s = (2.499u,4.577u);  z32\4\0 = (2.499u,3.854u);
+  z32\4\1 = (3.221u,3.854u);  z32\4\2 = (3.221u,4.577u);
+  fill_or_unfill z32\0\0s
+    --z32\0\0    --z32\0\1    --z32\0\2
+    ..controls z32\0\3c1 and z32\0\3c2..z32\0\3
+    ..controls z32\0\4c1 and z32\0\4c2..z32\0\4
+    ..controls z32\0\5c1 and z32\0\5c2..z32\0\5
+    --z32\0\6    --z32\0\7    --z32\0\8    --z32\0\9    --z32\0\10
+    --z32\0\11    --cycle;
+  fill_or_unfill z32\1\0s
+    --z32\1\0    --z32\1\1    --z32\1\2
+    ..controls z32\1\3c1 and z32\1\3c2..z32\1\3
+    --z32\1\4
+    ..controls z32\1\5c1 and z32\1\5c2..cycle;
+  fill_or_unfill z32\2\0s
+    ..controls z32\2\0c1 and z32\2\0c2..z32\2\0
+    ..controls z32\2\1c1 and z32\2\1c2..z32\2\1
+    --z32\2\2
+    ..controls z32\2\3c1 and z32\2\3c2..z32\2\3
+    ..controls z32\2\4c1 and z32\2\4c2..cycle;
+  fill_or_unfill z32\3\0s
+    ..controls z32\3\0c1 and z32\3\0c2..z32\3\0
+    ..controls z32\3\1c1 and z32\3\1c2..cycle;
+  fill_or_unfill z32\4\0s
+    --z32\4\0    --z32\4\1    --z32\4\2    --cycle;
+endchar; % K1
+
+
+%% M3: a branch
+%% (code as c(99) 99+31 = 130)
+%% (code as N(78) 78+31 = 109)
+beginchar (109, 16.863u# + side#, 4.105u#, 0.000u#);
+  "M3";
+  z34\0\0s = (0.000u,4.105u);  z34\0\0c1 = (0.245u,2.350u);
+  z34\0\0c2 = (1.152u,1.827u);  z34\0\0 = (2.409u,0.733u);
+  z34\0\1 = (0.723u,0.733u);  z34\0\2c1 = (2.218u,-1.688u);
+  z34\0\2c2 = (7.643u,2.733u);  z34\0\2 = (10.118u,1.937u);
+  z34\0\3 = (8.431u,0.973u);  z34\0\4 = (11.804u,1.674u);
+  z34\0\5 = (16.863u,1.214u);  z34\0\6 = (16.863u,2.178u);
+  z34\0\7 = (5.541u,3.383u);  z34\0\8 = (5.541u,2.901u);
+  z34\0\9 = (7.709u,2.901u);  z34\0\10c1 = (6.977u,2.123u);
+  z34\0\10c2 = (6.277u,1.882u);  z34\0\10 = (5.300u,1.504u);
+  z34\0\11c1 = (2.091u,0.263u);  z34\0\11c2 = (2.138u,2.778u);
+  fill_or_unfill z34\0\0s
+    ..controls z34\0\0c1 and z34\0\0c2..z34\0\0
+    --z34\0\1
+    ..controls z34\0\2c1 and z34\0\2c2..z34\0\2
+    --z34\0\3    --z34\0\4    --z34\0\5    --z34\0\6    --z34\0\7
+    --z34\0\8    --z34\0\9
+    ..controls z34\0\10c1 and z34\0\10c2..z34\0\10
+    ..controls z34\0\11c1 and z34\0\11c2..cycle;
+endchar; % M3
+
+
+%% M8: A lotus pool.
+%% (code as L(76) 76+31 = 107)
+%% (code as E(69) 69+31 = 100)
+beginchar (100, 16.674u# + side#, 8.723u#, 0.000u#);
+  "M8";
+  z39\0\0s = (0.294u,8.699u);  z39\0\0c1 = (0.981u,7.666u);
+  z39\0\0c2 = (2.042u,6.753u);  z39\0\0 = (1.953u,5.601u);
+  z39\0\1c1 = (1.868u,4.488u);  z39\0\1c2 = (0.796u,4.280u);
+  z39\0\1 = (0.321u,3.401u);  z39\0\2c1 = (-0.933u,1.076u);
+  z39\0\2c2 = (1.625u,0.054u);  z39\0\2 = (3.447u,0.051u);
+  z39\0\3c1 = (5.281u,0.047u);  z39\0\3c2 = (14.440u,-0.164u);
+  z39\0\3 = (15.470u,0.293u);  z39\0\4c1 = (16.298u,0.660u);
+  z39\0\4c2 = (16.663u,1.333u);  z39\0\4 = (16.674u,2.219u);
+  z39\0\5c1 = (16.699u,4.239u);  z39\0\5c2 = (15.127u,3.935u);
+  z39\0\5 = (14.850u,5.135u);  z39\0\6c1 = (14.577u,6.317u);
+  z39\0\6c2 = (15.889u,7.369u);  z39\0\6 = (16.246u,8.699u);
+  z39\0\7 = (12.280u,8.743u);  z39\0\8c1 = (13.742u,6.473u);
+  z39\0\8c2 = (14.038u,6.865u);  z39\0\8 = (14.047u,4.628u);
+  z39\0\9 = (11.879u,4.628u);  z39\0\10 = (11.879u,8.241u);
+  z39\0\11 = (11.397u,8.241u);  z39\0\12 = (11.397u,4.628u);
+  z39\0\13 = (8.506u,4.628u);  z39\0\14c1 = (8.515u,6.833u);
+  z39\0\14c2 = (8.823u,6.694u);  z39\0\14 = (10.077u,8.743u);
+  z39\0\15 = (6.199u,8.743u);  z39\0\16 = (6.338u,8.000u);
+  z39\0\17c1 = (7.703u,6.843u);  z39\0\17c2 = (7.777u,6.346u);
+  z39\0\17 = (7.784u,4.628u);  z39\0\18 = (5.616u,4.628u);
+  z39\0\19 = (5.616u,8.241u);  z39\0\20 = (5.134u,8.241u);
+  z39\0\21 = (5.134u,4.628u);  z39\0\22c1 = (2.215u,4.630u);
+  z39\0\22c2 = (1.533u,5.994u);  z39\0\22 = (3.929u,8.000u);
+  z39\0\23 = (3.929u,8.723u);  z39\1\0s = (3.054u,8.218u);
+  z39\1\0c1 = (2.605u,7.096u);  z39\1\0c2 = (2.057u,7.096u);
+  z39\1\0 = (1.609u,8.218u);  z39\2\0s = (8.988u,8.241u);
+  z39\2\0c1 = (8.400u,7.213u);  z39\2\0c2 = (7.890u,7.213u);
+  z39\2\0 = (7.302u,8.241u);  z39\3\0s = (15.252u,8.000u);
+  z39\3\0 = (15.252u,7.518u);  z39\3\1c1 = (14.247u,7.258u);
+  z39\3\1c2 = (13.971u,7.232u);  z39\3\1 = (13.565u,8.241u);
+  z39\4\0s = (1.772u,3.782u);  z39\4\0c1 = (3.225u,4.046u);
+  z39\4\0c2 = (13.943u,4.070u);  z39\4\0 = (15.000u,3.629u);
+  z39\4\1c1 = (16.265u,3.102u);  z39\4\1c2 = (16.516u,1.547u);
+  z39\4\1 = (15.201u,0.951u);  z39\4\2c1 = (14.724u,0.735u);
+  z39\4\2c2 = (13.855u,0.774u);  z39\4\2 = (13.324u,0.773u);
+  z39\4\3 = (3.447u,0.773u);  z39\4\4c1 = (1.320u,0.784u);
+  z39\4\4c2 = (-0.931u,2.509u);
+  fill_or_unfill z39\0\0s
+    ..controls z39\0\0c1 and z39\0\0c2..z39\0\0
+    ..controls z39\0\1c1 and z39\0\1c2..z39\0\1
+    ..controls z39\0\2c1 and z39\0\2c2..z39\0\2
+    ..controls z39\0\3c1 and z39\0\3c2..z39\0\3
+    ..controls z39\0\4c1 and z39\0\4c2..z39\0\4
+    ..controls z39\0\5c1 and z39\0\5c2..z39\0\5
+    ..controls z39\0\6c1 and z39\0\6c2..z39\0\6
+    --z39\0\7
+    ..controls z39\0\8c1 and z39\0\8c2..z39\0\8
+    --z39\0\9    --z39\0\10    --z39\0\11    --z39\0\12    --z39\0\13
+    ..controls z39\0\14c1 and z39\0\14c2..z39\0\14
+    --z39\0\15    --z39\0\16
+    ..controls z39\0\17c1 and z39\0\17c2..z39\0\17
+    --z39\0\18    --z39\0\19    --z39\0\20    --z39\0\21
+    ..controls z39\0\22c1 and z39\0\22c2..z39\0\22
+    --z39\0\23    --cycle;
+  fill_or_unfill z39\1\0s
+    ..controls z39\1\0c1 and z39\1\0c2..z39\1\0
+    --cycle;
+  fill_or_unfill z39\2\0s
+    ..controls z39\2\0c1 and z39\2\0c2..z39\2\0
+    --cycle;
+  fill_or_unfill z39\3\0s
+    --z39\3\0
+    ..controls z39\3\1c1 and z39\3\1c2..z39\3\1
+    --cycle;
+  fill_or_unfill z39\4\0s
+    ..controls z39\4\0c1 and z39\4\0c2..z39\4\0
+    ..controls z39\4\1c1 and z39\4\1c2..z39\4\1
+    ..controls z39\4\2c1 and z39\4\2c2..z39\4\2
+    --z39\4\3
+    ..controls z39\4\4c1 and z39\4\4c2..cycle;
+endchar; % M8
+
+
+%% M17: a machette
+%% (code as i(105) 105+31 = 136)
+beginchar (136, 4.197u# + side#, 17.824u#, 0.000u#);
+  "M17";
+  z48\0\0s = (1.412u,17.824u);  z48\0\0c1 = (1.533u,16.738u);
+  z48\0\0c2 = (-0.254u,7.357u);  z48\0\0 = (0.020u,6.582u);
+  z48\0\1c1 = (0.024u,4.308u);  z48\0\1c2 = (2.993u,6.108u);
+  z48\0\1 = (2.993u,0.000u);  z48\0\2 = (4.197u,0.000u);
+  z48\0\3 = (4.197u,13.009u);  z48\0\4c1 = (4.171u,14.928u);
+  z48\0\4c2 = (3.494u,16.916u);  z48\1\0s = (2.029u,16.622u);
+  z48\1\0 = (3.096u,15.176u);  z48\1\1 = (3.041u,4.308u);
+  z48\1\2 = (0.749u,7.026u);
+  fill_or_unfill z48\0\0s
+    ..controls z48\0\0c1 and z48\0\0c2..z48\0\0
+    ..controls z48\0\1c1 and z48\0\1c2..z48\0\1
+    --z48\0\2    --z48\0\3
+    ..controls z48\0\4c1 and z48\0\4c2..cycle;
+  fill_or_unfill z48\1\0s
+    --z48\1\0    --z48\1\1    --z48\1\2    --cycle;
+endchar; % M17
+
+
+%% N29: triangle with wavy hypotenuse
+%% (code as q(113) 113+31 = 144)
+%% (code as K(75) 75+31 = 106)
+beginchar (106, 7.468u# + side#, 7.649u#, 0.000u#);
+  "N29";
+  z60\0\0s = (0.000u,0.000u);  z60\0\0 = (7.468u,0.000u);
+  z60\0\1 = (7.083u,6.951u);  z60\0\2c1 = (6.513u,8.259u);
+  z60\0\2c2 = (4.994u,7.504u);  z60\0\2 = (4.358u,6.700u);
+  z60\0\3c1 = (3.551u,5.680u);  z60\0\3c2 = (3.170u,4.484u);
+  z60\0\3 = (2.551u,3.372u);  z60\0\4c1 = (1.828u,2.075u);
+  z60\0\4c2 = (0.439u,1.425u);  z60\1\0s = (6.504u,6.986u);
+  z60\1\0 = (6.504u,0.722u);  z60\1\1 = (1.445u,0.722u);
+  z60\1\2 = (3.150u,3.131u);  z60\1\3 = (5.152u,6.601u);
+  fill_or_unfill z60\0\0s
+    --z60\0\0    --z60\0\1
+    ..controls z60\0\2c1 and z60\0\2c2..z60\0\2
+    ..controls z60\0\3c1 and z60\0\3c2..z60\0\3
+    ..controls z60\0\4c1 and z60\0\4c2..cycle;
+  fill_or_unfill z60\1\0s
+    --z60\1\0    --z60\1\1    --z60\1\2    --z60\1\3    --cycle;
+endchar;  % N29
+
+
+%% N35: long jagged line
+%% (code as n(110) 110+31 = 141)
+beginchar (141, 15.398u# + side#, 2.357u#, 0.000u#);
+  "N35";
+  z66\0\0s = (1.194u,2.357u);  z66\0\0 = (0.032u,1.291u);
+  z66\0\1 = (0.000u,0.097u);  z66\0\2 = (1.194u,1.259u);
+  z66\0\3 = (2.486u,0.162u);  z66\0\4 = (3.745u,1.227u);
+  z66\0\5 = (5.068u,0.162u);  z66\0\6 = (6.327u,1.227u);
+  z66\0\7 = (7.650u,0.129u);  z66\0\8 = (8.942u,1.227u);
+  z66\0\9 = (10.233u,0.129u);  z66\0\10 = (11.524u,1.227u);
+  z66\0\11 = (12.847u,0.000u);  z66\0\12 = (14.074u,1.259u);
+  z66\0\13 = (15.398u,0.097u);  z66\0\14 = (15.365u,1.227u);
+  z66\0\15 = (14.042u,2.324u);  z66\0\16 = (12.847u,1.259u);
+  z66\0\17 = (11.492u,2.324u);  z66\0\18 = (10.233u,1.227u);
+  z66\0\19 = (8.942u,2.357u);  z66\0\20 = (7.650u,1.227u);
+  z66\0\21 = (6.359u,2.357u);  z66\0\22 = (5.100u,1.227u);
+  z66\0\23 = (3.745u,2.324u);  z66\0\24 = (2.518u,1.388u);
+  fill_or_unfill z66\0\0s
+    --z66\0\0    --z66\0\1    --z66\0\2    --z66\0\3    --z66\0\4
+    --z66\0\5    --z66\0\6    --z66\0\7    --z66\0\8    --z66\0\9
+    --z66\0\10    --z66\0\11    --z66\0\12    --z66\0\13    --z66\0\14
+    --z66\0\15    --z66\0\16    --z66\0\17    --z66\0\18    --z66\0\19
+    --z66\0\20    --z66\0\21    --z66\0\22    --z66\0\23    --z66\0\24
+    --cycle;
+endchar;  % N35
+
+
+%% N37: Rectangular slab
+%% (code as S(83) 83+31 = 114)
+%% (code as z(121) 121+31 = 153)
+beginchar (153, 17.586u# + side#, 4.336u#, 0.000u#);
+  "N37";
+  z69\0\0s = (0.000u,4.336u);  z69\0\0 = (0.000u,0.000u);
+  z69\0\1 = (17.586u,0.000u);  z69\0\2 = (17.586u,4.336u);
+  z69\1\0s = (16.863u,3.614u);  z69\1\0 = (16.863u,0.723u);
+  z69\1\1 = (0.723u,0.723u);  z69\1\2 = (0.723u,3.614u);
+  fill_or_unfill z69\0\0s
+    --z69\0\0    --z69\0\1    --z69\0\2    --cycle;
+  fill_or_unfill z69\1\0s
+    --z69\1\0    --z69\1\1    --z69\1\2    --cycle;
+endchar;  % N37
+
+
+%% O1. rectangle with part of base open (house).
+%% (code as j(106) 106+31 = 137)
+beginchar (137, 14.213u# + side#, 7.468u#, 0.000u#);
+  "O1";
+  z32\0\0s = (0.000u,7.468u);  z32\0\0 = (0.000u,0.000u);
+  z32\0\1 = (4.577u,0.000u);  z32\0\2 = (4.577u,0.722u);
+  z32\0\3 = (0.723u,0.722u);  z32\0\4 = (0.723u,6.745u);
+  z32\0\5 = (13.490u,6.745u);  z32\0\6 = (13.490u,0.722u);
+  z32\0\7 = (9.636u,0.722u);  z32\0\8 = (9.636u,0.000u);
+  z32\0\9 = (14.213u,0.000u);  z32\0\10 = (14.213u,7.468u);
+  fill_or_unfill z32\0\0s
+    --z32\0\0    --z32\0\1    --z32\0\2    --z32\0\3    --z32\0\4
+    --z32\0\5    --z32\0\6    --z32\0\7    --z32\0\8    --z32\0\9
+    --z32\0\10    --cycle;
+endchar; % O1
+
+
+%% O4: square spiral
+%% (code as h(104) 104+31 = 135)
+beginchar (135, 10.359u# + side#, 8.190u#, 0.000u#);
+  "O4";
+  z35\0\0s = (0.000u,8.190u);  z35\0\0 = (0.000u,0.000u);
+  z35\0\1 = (0.963u,0.000u);  z35\0\2 = (0.963u,7.227u);
+  z35\0\3 = (9.395u,7.227u);  z35\0\4 = (9.395u,0.963u);
+  z35\0\5 = (5.300u,0.963u);  z35\0\6 = (5.300u,5.540u);
+  z35\0\7 = (4.336u,5.540u);  z35\0\8 = (4.336u,0.000u);
+  z35\0\9 = (10.359u,0.000u);  z35\0\10 = (10.359u,8.190u);
+  fill_or_unfill z35\0\0s
+    --z35\0\0    --z35\0\1    --z35\0\2    --z35\0\3    --z35\0\4
+    --z35\0\5    --z35\0\6    --z35\0\7    --z35\0\8    --z35\0\9
+    --z35\0\10    --cycle;
+endchar;  % O4
+
+
+%% O34: Horizontal line with two blobs
+%% (code as z(122) 122+31 = 153)
+%% (code as S(83) 83+31 = 114)
+beginchar (114, 16.863u# + side#, 2.542u#, 0.000u#);
+  "O34";
+  z65\0\0s = (-0.007u,1.572u);  z65\0\0 = (-0.007u,1.044u);
+  z65\0\1 = (5.138u,1.044u);  z65\0\2c1 = (5.930u,0.516u);
+  z65\0\2c2 = (7.777u,0.120u);  z65\0\2 = (8.436u,1.044u);
+  z65\0\3c1 = (8.964u,0.120u);  z65\0\3c2 = (10.679u,0.384u);
+  z65\0\3 = (11.602u,1.044u);  z65\0\4 = (16.879u,1.044u);
+  z65\0\5 = (16.879u,1.572u);  z65\0\6 = (11.602u,1.572u);
+  z65\0\7c1 = (10.679u,2.231u);  z65\0\7c2 = (8.964u,2.495u);
+  z65\0\7 = (8.436u,1.572u);  z65\0\8c1 = (7.777u,2.495u);
+  z65\0\8c2 = (6.062u,2.231u);  z65\0\8 = (5.138u,1.572u);
+  z65\1\0s = (5.666u,1.308u);  z65\1\0c1 = (6.194u,1.703u);
+  z65\1\0c2 = (7.645u,1.703u);  z65\1\0 = (8.172u,1.308u);
+  z65\1\1c1 = (7.645u,0.912u);  z65\1\1c2 = (6.194u,0.912u);
+  z65\2\0s = (8.700u,1.308u);  z65\2\0c1 = (9.096u,1.703u);
+  z65\2\0c2 = (10.547u,1.703u);  z65\2\0 = (11.206u,1.308u);
+  z65\2\1c1 = (10.547u,0.912u);  z65\2\1c2 = (9.096u,0.912u);
+  fill_or_unfill z65\0\0s
+    --z65\0\0    --z65\0\1
+    ..controls z65\0\2c1 and z65\0\2c2..z65\0\2
+    ..controls z65\0\3c1 and z65\0\3c2..z65\0\3
+    --z65\0\4    --z65\0\5    --z65\0\6
+    ..controls z65\0\7c1 and z65\0\7c2..z65\0\7
+    ..controls z65\0\8c1 and z65\0\8c2..z65\0\8
+    --cycle;
+  fill_or_unfill z65\1\0s
+    ..controls z65\1\0c1 and z65\1\0c2..z65\1\0
+    ..controls z65\1\1c1 and z65\1\1c2..cycle;
+  fill_or_unfill z65\2\0s
+    ..controls z65\2\0c1 and z65\2\0c2..z65\2\0
+    ..controls z65\2\1c1 and z65\2\1c2..cycle;
+endchar;  % O34
+
+
+%% Q3: a square
+%% (code as p(112) 112+31 = 143)
+beginchar (143, 5.300u# + side#, 6.986u#, 0.000u#);
+  "Q3";
+  z34\0\0s = (0.000u,6.986u);  z34\0\0 = (0.000u,0.000u);
+  z34\0\1 = (5.300u,0.000u);  z34\0\2 = (5.300u,6.986u);
+  z34\1\0s = (4.577u,6.263u);  z34\1\0 = (4.577u,0.723u);
+  z34\1\1 = (0.723u,0.723u);  z34\1\2 = (0.723u,6.263u);
+  fill_or_unfill z34\0\0s
+    --z34\0\0    --z34\0\1    --z34\0\2    --cycle;
+  fill_or_unfill z34\1\0s
+    --z34\1\0    --z34\1\1    --z34\1\2    --cycle;
+endchar; % Q3
+
+
+%% R7:  A bucket with something sticking up.
+%% (code as B(66) 66+31 = 97)
+beginchar (97, 7.709u# + side#, 13.249u#, 0.000u#);
+  "R7";
+  z38\0\0s = (1.445u,13.249u);  z38\0\0c1 = (1.650u,12.116u);
+  z38\0\0c2 = (3.518u,8.187u);  z38\0\0 = (2.552u,7.473u);
+  z38\0\1c1 = (2.129u,7.160u);  z38\0\1c2 = (0.838u,7.156u);
+  z38\0\1 = (0.241u,6.986u);  z38\0\2 = (1.135u,2.891u);
+  z38\0\3c1 = (1.210u,2.310u);  z38\0\3c2 = (1.135u,1.282u);
+  z38\0\3 = (1.382u,0.793u);  z38\0\4c1 = (1.835u,-0.103u);
+  z38\0\4c2 = (5.723u,0.241u);  z38\0\4 = (6.745u,0.241u);
+  z38\0\5 = (7.949u,7.227u);  z38\0\6c1 = (7.395u,7.229u);
+  z38\0\6c2 = (6.568u,7.173u);  z38\0\6 = (6.088u,7.473u);
+  z38\0\7c1 = (4.809u,8.274u);  z38\0\7c2 = (4.664u,12.563u);
+  z38\1\0s = (2.890u,11.563u);  z38\2\0s = (3.131u,11.322u);
+  z38\2\0 = (5.058u,7.468u);  z38\2\1c1 = (3.356u,7.109u);
+  z38\2\1c2 = (2.696u,9.996u);  z38\3\0s = (7.226u,6.504u);
+  z38\3\0 = (5.980u,1.342u);  z38\3\1c1 = (5.481u,0.711u);
+  z38\3\1c2 = (2.463u,0.764u);  z38\3\1 = (2.067u,1.521u);
+  z38\3\2 = (0.963u,6.504u);
+  fill_or_unfill z38\0\0s
+    ..controls z38\0\0c1 and z38\0\0c2..z38\0\0
+    ..controls z38\0\1c1 and z38\0\1c2..z38\0\1
+    --z38\0\2
+    ..controls z38\0\3c1 and z38\0\3c2..z38\0\3
+    ..controls z38\0\4c1 and z38\0\4c2..z38\0\4
+    --z38\0\5
+    ..controls z38\0\6c1 and z38\0\6c2..z38\0\6
+    ..controls z38\0\7c1 and z38\0\7c2..cycle;
+  fill_or_unfill z38\1\0s
+    --cycle;
+  fill_or_unfill z38\2\0s
+    --z38\2\0
+    ..controls z38\2\1c1 and z38\2\1c2..cycle;
+  fill_or_unfill z38\3\0s
+    --z38\3\0
+    ..controls z38\3\1c1 and z38\3\1c2..z38\3\1
+    --z38\3\2    --cycle;
+endchar; % R7
+
+
+%% S12:  fringed piano stool (nbw)
+%% (code as v(118) 118+31 = 149)
+beginchar (149, 17.104u# + side#, 8.913u#, 0.000u#);
+  "S12";
+  z43\0\0s = (1.927u,0.482u);  z43\0\0c1 = (1.927u,1.592u);
+  z43\0\0c2 = (1.522u,7.119u);  z43\0\0 = (2.685u,7.319u);
+  z43\0\1c1 = (3.175u,7.404u);  z43\0\1c2 = (4.328u,6.524u);
+  z43\0\1 = (4.818u,6.263u);  z43\0\2 = (4.336u,4.336u);
+  z43\0\3 = (5.552u,5.522u);  z43\0\4 = (5.300u,3.854u);
+  z43\0\5 = (6.504u,5.059u);  z43\0\6 = (6.924u,3.588u);
+  z43\0\7c1 = (7.733u,4.397u);  z43\0\7c2 = (7.803u,4.537u);
+  z43\0\7 = (7.662u,4.432u);  z43\0\8 = (8.432u,5.059u);
+  z43\0\9 = (8.432u,3.372u);  z43\0\10c1 = (9.597u,3.412u);
+  z43\0\10c2 = (9.632u,3.130u);  z43\0\10 = (9.456u,4.994u);
+  z43\0\11 = (10.118u,3.613u);  z43\0\12 = (10.600u,3.613u);
+  z43\0\13 = (10.863u,5.065u);  z43\0\14 = (12.286u,3.854u);
+  z43\0\15 = (12.045u,5.541u);  z43\0\16 = (13.490u,4.336u);
+  z43\0\17 = (13.009u,6.263u);  z43\0\18 = (15.418u,7.468u);
+  z43\0\19 = (15.899u,0.241u);  z43\0\20 = (17.344u,0.241u);
+  z43\0\21 = (17.344u,5.541u);  z43\0\22c1 = (17.330u,6.730u);
+  z43\0\22c2 = (17.229u,7.758u);  z43\0\22 = (16.128u,8.467u);
+  z43\0\23c1 = (14.814u,9.311u);  z43\0\23c2 = (6.193u,8.917u);
+  z43\0\23 = (4.095u,8.913u);  z43\0\24c1 = (-0.427u,8.906u);
+  z43\0\24c2 = (0.218u,5.855u);  z43\0\24 = (0.241u,2.409u);
+  z43\0\25c1 = (0.244u,1.970u);  z43\0\25c2 = (0.204u,1.224u);
+  z43\0\25 = (0.487u,0.867u);  z43\0\26c1 = (0.819u,0.448u);
+  z43\0\26c2 = (1.451u,0.498u);  z43\1\0s = (14.213u,7.468u);
+  z43\1\0c1 = (11.513u,5.676u);  z43\1\0c2 = (9.178u,4.907u);
+  z43\1\0 = (6.022u,6.112u);  z43\1\1c1 = (5.382u,6.357u);
+  z43\1\1c2 = (4.416u,6.803u);  z43\1\1 = (4.136u,7.476u);
+  z43\1\2c1 = (3.742u,8.421u);  z43\1\2c2 = (4.969u,8.420u);
+  z43\1\2 = (5.541u,8.430u);  z43\1\3c1 = (7.460u,8.466u);
+  z43\1\3c2 = (13.129u,8.957u);  z43\2\0s = (15.928u,7.070u);
+  z43\2\0 = (16.701u,7.140u);  z43\2\1c1 = (16.490u,6.120u);
+  z43\2\1c2 = (17.581u,0.950u);  z43\2\1 = (16.315u,1.126u);
+  z43\3\0s = (1.120u,7.316u);  z43\3\0 = (1.472u,7.034u);
+  z43\3\1c1 = (1.331u,1.196u);  z43\3\1c2 = (1.402u,1.196u);
+  z43\3\1 = (1.331u,1.196u);  z43\3\2 = (0.733u,1.266u);
+  z43\4\0s = (5.422u,5.062u);
+  fill_or_unfill z43\0\0s
+    ..controls z43\0\0c1 and z43\0\0c2..z43\0\0
+    ..controls z43\0\1c1 and z43\0\1c2..z43\0\1
+    --z43\0\2    --z43\0\3    --z43\0\4    --z43\0\5    --z43\0\6
+    ..controls z43\0\7c1 and z43\0\7c2..z43\0\7
+    --z43\0\8    --z43\0\9
+    ..controls z43\0\10c1 and z43\0\10c2..z43\0\10
+    --z43\0\11    --z43\0\12    --z43\0\13    --z43\0\14    --z43\0\15
+    --z43\0\16    --z43\0\17    --z43\0\18    --z43\0\19    --z43\0\20
+    --z43\0\21
+    ..controls z43\0\22c1 and z43\0\22c2..z43\0\22
+    ..controls z43\0\23c1 and z43\0\23c2..z43\0\23
+    ..controls z43\0\24c1 and z43\0\24c2..z43\0\24
+    ..controls z43\0\25c1 and z43\0\25c2..z43\0\25
+    ..controls z43\0\26c1 and z43\0\26c2..cycle;
+  fill_or_unfill z43\1\0s
+    ..controls z43\1\0c1 and z43\1\0c2..z43\1\0
+    ..controls z43\1\1c1 and z43\1\1c2..z43\1\1
+    ..controls z43\1\2c1 and z43\1\2c2..z43\1\2
+    ..controls z43\1\3c1 and z43\1\3c2..cycle;
+  fill_or_unfill z43\2\0s
+    --z43\2\0
+    ..controls z43\2\1c1 and z43\2\1c2..z43\2\1
+    --cycle;
+  fill_or_unfill z43\3\0s
+    --z43\3\0
+    ..controls z43\3\1c1 and z43\3\1c2..z43\3\1
+    --z43\3\2    --cycle;
+  fill_or_unfill z43\4\0s
+    --cycle;
+endchar; % S12
+
+
+%% S29: tall hook
+%% (code as s(115) 115+31 = 146)
+beginchar (146, 3.216u# + side#, 16.750u#, 0.000u#);
+  "S29";
+  z63\0\0s = (0.000u,0.000u);  z63\0\0 = (0.838u,0.030u);
+  z63\0\1 = (0.821u,14.333u);  z63\0\2c1 = (0.838u,15.981u);
+  z63\0\2c2 = (2.414u,15.981u);  z63\0\2 = (2.414u,14.209u);
+  z63\0\3 = (2.414u,5.544u);  z63\0\4 = (3.201u,5.544u);
+  z63\0\5 = (3.216u,14.504u);  z63\0\6c1 = (3.201u,17.557u);
+  z63\0\6c2 = (0.051u,17.557u);  z63\0\6 = (0.034u,14.333u);
+  fill_or_unfill z63\0\0s
+    --z63\0\0    --z63\0\1
+    ..controls z63\0\2c1 and z63\0\2c2..z63\0\2
+    --z63\0\3    --z63\0\4    --z63\0\5
+    ..controls z63\0\6c1 and z63\0\6c2..z63\0\6
+    --cycle;
+endchar;  % S29
+
+
+%% S39: shepherd's crook (awt)
+%% (code as y(121) 121+31 = 152)
+%% (code as ?(63) 63+31 = 94)
+beginchar (94, 3.854u# + side#, 17.345u#, 0.000u#);
+  "S39";
+  z74\0\0s = (0.484u,13.357u);  z74\0\0 = (1.351u,13.253u);
+  z74\0\1c1 = (1.169u,14.445u);  z74\0\1c2 = (1.188u,15.777u);
+  z74\0\1 = (1.961u,16.100u);  z74\0\2c1 = (3.141u,16.592u);
+  z74\0\2c2 = (3.358u,14.959u);  z74\0\2 = (3.372u,14.213u);
+  z74\0\3 = (3.372u,0.241u);  z74\0\4 = (4.095u,0.241u);
+  z74\0\5 = (4.095u,14.213u);  z74\0\6c1 = (4.087u,19.120u);
+  z74\0\6c2 = (-0.312u,17.646u);
+  fill_or_unfill z74\0\0s
+    --z74\0\0
+    ..controls z74\0\1c1 and z74\0\1c2..z74\0\1
+    ..controls z74\0\2c1 and z74\0\2c2..z74\0\2
+    --z74\0\3    --z74\0\4    --z74\0\5
+    ..controls z74\0\6c1 and z74\0\6c2..cycle;
+endchar;
+
+
+%% S41: hanging piece of string (Dwm)
+%% (code as 0(48) 48+31 = 79)
+%% (code as c(99) 99+31 = 130)
+beginchar (130, 5.064u# + side#, 17.147u#, 0.000u#);
+  "S41";
+  z76\0\0s = (3.903u,12.649u);  z76\0\0c1 = (3.361u,13.686u);
+  z76\0\0c2 = (2.532u,14.515u);  z76\0\0 = (2.532u,14.930u);
+  z76\0\1 = (2.532u,15.759u);  z76\0\2c1 = (2.947u,16.589u);
+  z76\0\2c2 = (5.435u,16.589u);  z76\0\2 = (5.020u,17.003u);
+  z76\0\3c1 = (2.117u,17.833u);  z76\0\3c2 = (-0.371u,14.930u);
+  z76\0\3 = (0.043u,12.027u);  z76\0\4c1 = (0.043u,11.197u);
+  z76\0\4c2 = (0.458u,13.686u);  z76\0\4 = (1.702u,14.515u);
+  z76\0\5c1 = (2.117u,14.100u);  z76\0\5c2 = (2.532u,13.686u);
+  z76\0\5 = (3.073u,12.649u);  z76\0\6c1 = (3.488u,11.820u);
+  z76\0\6c2 = (1.829u,10.161u);  z76\0\6 = (2.532u,8.709u);
+  z76\0\7c1 = (3.488u,7.258u);  z76\0\7c2 = (1.415u,5.599u);
+  z76\0\7 = (2.532u,4.562u);  z76\0\8c1 = (1.495u,2.903u);
+  z76\0\8c2 = (1.288u,2.073u);  z76\0\8 = (2.117u,0.000u);
+  z76\0\9c1 = (2.532u,0.000u);  z76\0\9c2 = (2.117u,1.244u);
+  z76\0\9 = (2.117u,1.659u);  z76\0\10c1 = (2.117u,2.488u);
+  z76\0\10c2 = (2.739u,2.903u);  z76\0\10 = (2.947u,2.903u);
+  z76\0\11c1 = (3.154u,2.903u);  z76\0\11c2 = (3.776u,2.488u);
+  z76\0\11 = (3.776u,1.659u);  z76\0\12c1 = (3.776u,1.244u);
+  z76\0\12c2 = (3.361u,0.000u);  z76\0\12 = (3.776u,0.000u);
+  z76\0\13c1 = (4.605u,2.073u);  z76\0\13c2 = (4.398u,2.903u);
+  z76\0\13 = (3.361u,4.562u);  z76\0\14c1 = (2.659u,5.599u);
+  z76\0\14c2 = (4.318u,7.672u);  z76\0\14 = (3.361u,8.709u);
+  z76\0\15c1 = (2.659u,10.161u);  z76\0\15c2 = (4.318u,11.820u);
+  fill_or_unfill z76\0\0s
+    ..controls z76\0\0c1 and z76\0\0c2..z76\0\0
+    --z76\0\1
+    ..controls z76\0\2c1 and z76\0\2c2..z76\0\2
+    ..controls z76\0\3c1 and z76\0\3c2..z76\0\3
+    ..controls z76\0\4c1 and z76\0\4c2..z76\0\4
+    ..controls z76\0\5c1 and z76\0\5c2..z76\0\5
+    ..controls z76\0\6c1 and z76\0\6c2..z76\0\6
+    ..controls z76\0\7c1 and z76\0\7c2..z76\0\7
+    ..controls z76\0\8c1 and z76\0\8c2..z76\0\8
+    ..controls z76\0\9c1 and z76\0\9c2..z76\0\9
+    ..controls z76\0\10c1 and z76\0\10c2..z76\0\10
+    ..controls z76\0\11c1 and z76\0\11c2..z76\0\11
+    ..controls z76\0\12c1 and z76\0\12c2..z76\0\12
+    ..controls z76\0\13c1 and z76\0\13c2..z76\0\13
+    ..controls z76\0\14c1 and z76\0\14c2..z76\0\14
+    ..controls z76\0\15c1 and z76\0\15c2..cycle;
+endchar; % S41
+
+
+%% T3: Upright with a ball at the top
+%% (code as ?(63) 63+31 = 94)
+%% (code as u(117) 117+31 = 148)
+beginchar (148, 3.853u# + side#, 17.436u#, 0.000u#);
+  "T3";
+  z34\0\0s = (1.561u,0.000u);  z34\0\0 = (2.284u,0.000u);
+  z34\0\1 = (2.284u,10.118u);  z34\0\2c1 = (2.298u,12.877u);
+  z34\0\2c2 = (3.432u,12.589u);  z34\0\2 = (3.827u,14.454u);
+  z34\0\3c1 = (4.025u,15.389u);  z34\0\3c2 = (3.106u,17.445u);
+  z34\0\3 = (2.034u,17.436u);  z34\0\4c1 = (1.021u,17.427u);
+  z34\0\4c2 = (-0.062u,15.627u);  z34\0\4 = (0.000u,14.695u);
+  z34\0\5c1 = (0.113u,13.018u);  z34\0\5c2 = (1.557u,12.748u);
+  z34\0\5 = (1.561u,9.877u);  z34\1\0s = (1.586u,16.027u);
+  z34\1\0c1 = (3.996u,16.148u);  z34\1\0c2 = (3.128u,13.490u);
+  z34\1\0 = (2.201u,13.049u);  z34\1\1c1 = (1.310u,12.626u);
+  z34\1\1c2 = (-0.361u,15.136u);
+  fill_or_unfill z34\0\0s
+    --z34\0\0    --z34\0\1
+    ..controls z34\0\2c1 and z34\0\2c2..z34\0\2
+    ..controls z34\0\3c1 and z34\0\3c2..z34\0\3
+    ..controls z34\0\4c1 and z34\0\4c2..z34\0\4
+    ..controls z34\0\5c1 and z34\0\5c2..z34\0\5
+    --cycle;
+  fill_or_unfill z34\1\0s
+    ..controls z34\1\0c1 and z34\1\0c2..z34\1\0
+    ..controls z34\1\1c1 and z34\1\1c2..cycle;
+endchar; % T3
+
+
+%% T14. Throw stick.
+%% (code as 7(55) 55+31 = 86)
+%% (code as /(47) 47+31 = 78)
+beginchar (78, 4.817u# + side#, 16.880u#, 0.000u#);
+  "T14";
+  z49\0\0s = (0.000u,16.863u);  z49\0\0c1 = (1.276u,14.384u);
+  z49\0\0c2 = (3.848u,12.804u);  z49\0\0 = (3.854u,9.877u);
+  z49\0\1 = (3.854u,0.000u);  z49\0\2 = (4.817u,0.000u);
+  z49\0\3 = (4.817u,10.600u);  z49\0\4c1 = (4.783u,12.416u);
+  z49\0\4c2 = (3.367u,13.795u);  z49\0\4 = (2.308u,15.177u);
+  z49\0\5c1 = (1.597u,16.105u);  z49\0\5c2 = (1.287u,17.030u);
+  fill_or_unfill z49\0\0s
+    ..controls z49\0\0c1 and z49\0\0c2..z49\0\0
+    --z49\0\1    --z49\0\2    --z49\0\3
+    ..controls z49\0\4c1 and z49\0\4c2..z49\0\4
+    ..controls z49\0\5c1 and z49\0\5c2..cycle;
+endchar; % T14
+
+
+%% U36: upright club
+%% (code as 4(52) 52+31 = 83)
+%% (code as J(74) 74+31 = 105)
+beginchar (105, 3.371u# + side#, 17.516u#, 0.000u#);
+  "U36";
+  z70\0\0s = (0.481u,0.000u);  z70\0\0 = (3.131u,0.000u);
+  z70\0\1 = (2.890u,6.746u);  z70\0\2 = (3.371u,14.214u);
+  z70\0\3c1 = (3.366u,15.331u);  z70\0\3c2 = (3.280u,17.157u);
+  z70\0\3 = (1.914u,17.472u);  z70\0\4c1 = (0.137u,17.883u);
+  z70\0\4c2 = (0.014u,15.637u);  z70\0\4 = (0.000u,14.454u);
+  z70\0\5 = (0.722u,6.746u);  z70\1\0s = (1.459u,16.644u);
+  z70\1\0c1 = (2.651u,16.405u);  z70\1\0c2 = (2.634u,15.474u);
+  z70\1\0 = (2.648u,14.454u);  z70\1\1 = (2.167u,3.373u);
+  z70\1\2c1 = (2.170u,2.841u);  z70\1\2c2 = (2.436u,1.047u);
+  z70\1\2 = (2.028u,0.764u);  z70\1\3c1 = (1.033u,0.072u);
+  z70\1\3c2 = (1.440u,2.848u);  z70\1\3 = (1.459u,3.132u);
+  z70\1\4 = (1.459u,6.987u);  z70\1\5c1 = (1.435u,8.927u);
+  z70\1\5c2 = (-0.331u,15.602u);
+  fill_or_unfill z70\0\0s
+    --z70\0\0    --z70\0\1    --z70\0\2
+    ..controls z70\0\3c1 and z70\0\3c2..z70\0\3
+    ..controls z70\0\4c1 and z70\0\4c2..z70\0\4
+    --z70\0\5    --cycle;
+  fill_or_unfill z70\1\0s
+    ..controls z70\1\0c1 and z70\1\0c2..z70\1\0
+    --z70\1\1
+    ..controls z70\1\2c1 and z70\1\2c2..z70\1\2
+    ..controls z70\1\3c1 and z70\1\3c2..z70\1\3
+    --z70\1\4
+    ..controls z70\1\5c1 and z70\1\5c2..cycle;
+endchar; % U36
+
+
+%% V4 a small balloon hanging down.
+%% (code as o(111) = 111+31 = 142)
+beginchar (142, 14.454u# + side#, 16.393u#, 0.000u#);
+  "V4";
+  z35\0\0s = (0.000u,8.454u);  z35\0\0 = (0.000u,7.709u);
+  z35\0\1c1 = (0.747u,7.708u);  z35\0\1c2 = (2.716u,7.789u);
+  z35\0\1 = (3.162u,7.092u);  z35\0\2c1 = (3.630u,6.361u);
+  z35\0\2c2 = (1.412u,3.700u);  z35\0\2 = (2.414u,1.959u);
+  z35\0\3c1 = (3.296u,0.427u);  z35\0\3c2 = (5.218u,1.182u);
+  z35\0\3 = (5.658u,2.651u);  z35\0\4c1 = (6.101u,4.127u);
+  z35\0\4c2 = (5.059u,5.648u);  z35\0\4 = (4.577u,6.986u);
+  z35\0\5c1 = (5.460u,6.787u);  z35\0\5c2 = (6.788u,6.323u);
+  z35\0\5 = (7.674u,6.580u);  z35\0\6c1 = (9.204u,7.023u);
+  z35\0\6c2 = (8.273u,9.961u);  z35\0\6 = (4.577u,7.950u);
+  z35\0\7c1 = (4.577u,9.133u);  z35\0\7c2 = (4.428u,12.042u);
+  z35\0\7 = (4.819u,13.008u);  z35\0\8c1 = (5.970u,15.848u);
+  z35\0\8c2 = (9.863u,16.583u);  z35\0\8 = (11.463u,13.727u);
+  z35\0\9c1 = (12.615u,11.672u);  z35\0\9c2 = (12.247u,9.205u);
+  z35\0\9 = (12.089u,6.986u);  z35\0\10c1 = (11.980u,5.457u);
+  z35\0\10c2 = (12.449u,3.811u);  z35\0\10 = (13.009u,2.409u);
+  z35\0\11c1 = (13.430u,1.352u);  z35\0\11c2 = (13.581u,0.784u);
+  z35\0\11 = (14.454u,0.000u);  z35\0\12c1 = (14.618u,1.699u);
+  z35\0\12c2 = (12.848u,4.020u);  z35\0\12 = (12.947u,6.745u);
+  z35\0\13c1 = (13.059u,9.851u);  z35\0\13c2 = (13.533u,15.923u);
+  z35\0\13 = (9.154u,16.356u);  z35\0\14c1 = (8.334u,16.437u);
+  z35\0\14c2 = (7.268u,16.406u);  z35\0\14 = (6.504u,16.086u);
+  z35\0\15c1 = (2.249u,14.303u);  z35\0\15c2 = (4.808u,9.334u);
+  z35\0\15 = (3.269u,8.454u);  z35\0\16c1 = (2.952u,8.301u);
+  z35\0\16c2 = (0.553u,8.431u);  z35\1\0s = (7.709u,7.950u);
+  z35\1\0 = (7.709u,7.227u);  z35\1\1 = (5.541u,7.468u);
+  z35\2\0s = (4.336u,5.781u);  z35\2\0c1 = (4.539u,5.304u);
+  z35\2\0c2 = (4.722u,4.844u);  z35\2\0 = (4.841u,4.336u);
+  z35\2\1c1 = (5.591u,1.131u);  z35\2\1c2 = (2.256u,0.950u);
+  z35\2\1 = (3.018u,4.095u);  z35\2\2c1 = (3.236u,4.993u);
+  z35\2\2c2 = (3.542u,5.358u);
+  fill_or_unfill z35\0\0s
+    --z35\0\0
+    ..controls z35\0\1c1 and z35\0\1c2..z35\0\1
+    ..controls z35\0\2c1 and z35\0\2c2..z35\0\2
+    ..controls z35\0\3c1 and z35\0\3c2..z35\0\3
+    ..controls z35\0\4c1 and z35\0\4c2..z35\0\4
+    ..controls z35\0\5c1 and z35\0\5c2..z35\0\5
+    ..controls z35\0\6c1 and z35\0\6c2..z35\0\6
+    ..controls z35\0\7c1 and z35\0\7c2..z35\0\7
+    ..controls z35\0\8c1 and z35\0\8c2..z35\0\8
+    ..controls z35\0\9c1 and z35\0\9c2..z35\0\9
+    ..controls z35\0\10c1 and z35\0\10c2..z35\0\10
+    ..controls z35\0\11c1 and z35\0\11c2..z35\0\11
+    ..controls z35\0\12c1 and z35\0\12c2..z35\0\12
+    ..controls z35\0\13c1 and z35\0\13c2..z35\0\13
+    ..controls z35\0\14c1 and z35\0\14c2..z35\0\14
+    ..controls z35\0\15c1 and z35\0\15c2..z35\0\15
+    ..controls z35\0\16c1 and z35\0\16c2..cycle;
+  fill_or_unfill z35\1\0s
+    --z35\1\0    --z35\1\1    --cycle;
+  fill_or_unfill z35\2\0s
+    ..controls z35\2\0c1 and z35\2\0c2..z35\2\0
+    ..controls z35\2\1c1 and z35\2\1c2..z35\2\1
+    ..controls z35\2\2c1 and z35\2\2c2..cycle;
+endchar; % V4
+
+
+%% V13: Pair of sugar tongs
+%% (code as T(84) 84+31 = 115)
+beginchar (115, 16.805u# + side#, 4.390u#, 0.000u#);
+  "V13";
+  z44\0\0s = (15.821u,1.146u);  z44\0\0 = (5.463u,1.146u);
+  z44\0\1c1 = (4.177u,1.154u);  z44\0\1c2 = (3.293u,1.682u);
+  z44\0\1 = (2.090u,1.823u);  z44\0\2c1 = (1.311u,1.915u);
+  z44\0\2c2 = (-0.795u,1.487u);  z44\0\2 = (0.311u,0.391u);
+  z44\0\3c1 = (1.104u,-0.505u);  z44\0\3c2 = (4.260u,0.422u);
+  z44\0\3 = (5.463u,0.391u);  z44\0\4 = (14.376u,0.391u);
+  z44\0\5c1 = (14.907u,0.425u);  z44\0\5c2 = (15.752u,0.368u);
+  z44\0\5 = (16.203u,0.670u);  z44\0\6c1 = (17.237u,1.363u);
+  z44\0\6c2 = (16.846u,2.932u);  z44\0\6 = (15.796u,3.378u);
+  z44\0\7c1 = (15.113u,3.668u);  z44\0\7c2 = (11.723u,3.555u);
+  z44\0\7 = (10.762u,3.555u);  z44\0\8 = (5.944u,3.555u);
+  z44\0\9c1 = (4.650u,3.557u);  z44\0\9c2 = (4.274u,3.617u);
+  z44\0\9 = (3.054u,4.059u);  z44\0\10c1 = (-0.065u,5.187u);
+  z44\0\10c2 = (-0.465u,3.114u);  z44\0\10 = (0.912u,2.695u);
+  z44\0\11c1 = (1.860u,2.407u);  z44\0\11c2 = (3.659u,2.831u);
+  z44\0\11 = (4.740u,2.833u);  z44\0\12c1 = (6.279u,2.835u);
+  z44\0\12c2 = (14.481u,3.062u);  z44\0\12 = (15.276u,2.596u);
+  z44\0\13c1 = (15.884u,2.239u);  z44\0\13c2 = (15.839u,1.756u);
+  z44\1\0s = (2.572u,3.555u);  z44\1\0c1 = (1.748u,3.026u);
+  z44\1\0c2 = (1.229u,2.927u);  z44\1\0 = (0.645u,3.796u);
+  z44\2\0s = (2.813u,0.905u);  z44\2\0 = (0.645u,0.664u);
+  z44\2\1 = (0.645u,1.146u);
+  fill_or_unfill z44\0\0s
+    --z44\0\0
+    ..controls z44\0\1c1 and z44\0\1c2..z44\0\1
+    ..controls z44\0\2c1 and z44\0\2c2..z44\0\2
+    ..controls z44\0\3c1 and z44\0\3c2..z44\0\3
+    --z44\0\4
+    ..controls z44\0\5c1 and z44\0\5c2..z44\0\5
+    ..controls z44\0\6c1 and z44\0\6c2..z44\0\6
+    ..controls z44\0\7c1 and z44\0\7c2..z44\0\7
+    --z44\0\8
+    ..controls z44\0\9c1 and z44\0\9c2..z44\0\9
+    ..controls z44\0\10c1 and z44\0\10c2..z44\0\10
+    ..controls z44\0\11c1 and z44\0\11c2..z44\0\11
+    ..controls z44\0\12c1 and z44\0\12c2..z44\0\12
+    ..controls z44\0\13c1 and z44\0\13c2..cycle;
+  fill_or_unfill z44\1\0s
+    ..controls z44\1\0c1 and z44\1\0c2..z44\1\0
+    --cycle;
+  fill_or_unfill z44\2\0s
+    --z44\2\0    --z44\2\1    --cycle;
+endchar;  % V13
+
+
+%% V24:  vertical line with center ellipse (wD)
+%% (code as 6(54) 54+31 = 85)
+%% (code as U(85) 85+31 = 116)
+beginchar (116, 3.136u# + side#, 17.344u#, 0.000u#);
+  "V24";
+  z55\0\0s = (1.058u,17.344u);  z55\0\0 = (1.058u,13.249u);
+  z55\0\1 = (0.000u,10.118u);  z55\0\2 = (1.094u,5.059u);
+  z55\0\3 = (1.094u,0.000u);  z55\0\4 = (2.083u,0.000u);
+  z55\0\5 = (2.083u,6.022u);  z55\0\6 = (3.136u,9.636u);
+  z55\0\7 = (2.094u,13.249u);  z55\0\8 = (2.094u,17.344u);
+  z55\1\0s = (1.817u,12.045u);  z55\1\0c1 = (2.720u,10.183u);
+  z55\1\0c2 = (2.528u,9.347u);  z55\1\0 = (1.817u,7.468u);
+  z55\1\1 = (1.335u,7.468u);  z55\1\2c1 = (0.490u,9.258u);
+  z55\1\2c2 = (0.434u,10.275u);  z55\1\2 = (1.335u,12.045u);
+  fill_or_unfill z55\0\0s
+    --z55\0\0    --z55\0\1    --z55\0\2    --z55\0\3    --z55\0\4
+    --z55\0\5    --z55\0\6    --z55\0\7    --z55\0\8    --cycle;
+  fill_or_unfill z55\1\0s
+    ..controls z55\1\0c1 and z55\1\0c2..z55\1\0
+    --z55\1\1
+    ..controls z55\1\2c1 and z55\1\2c2..z55\1\2
+    --cycle;
+endchar; % V24
+
+
+%% V28: Twisted flax
+%% (code as H(72) 72+31 = 103)
+beginchar (103, 4.450u# + side#, 17.255u#, 0.000u#);
+  "V28";
+  z59\0\0s = (0.000u,0.036u);  z59\0\0 = (0.482u,0.036u);
+  z59\0\1 = (1.927u,3.409u);  z59\0\2 = (2.409u,3.409u);
+  z59\0\3 = (3.870u,0.028u);  z59\0\4 = (4.450u,0.000u);
+  z59\0\5 = (2.964u,4.132u);  z59\0\6c1 = (2.778u,5.069u);
+  z59\0\6c2 = (3.485u,5.858u);  z59\0\6 = (3.541u,6.782u);
+  z59\0\7c1 = (3.589u,7.582u);  z59\0\7c2 = (3.106u,8.197u);
+  z59\0\7 = (3.068u,8.950u);  z59\0\8 = (3.516u,10.877u);
+  z59\0\9c1 = (3.545u,11.625u);  z59\0\9c2 = (3.052u,12.298u);
+  z59\0\9 = (3.203u,13.045u);  z59\0\10c1 = (3.454u,14.290u);
+  z59\0\10c2 = (4.693u,15.171u);  z59\0\10 = (3.648u,16.604u);
+  z59\0\11c1 = (2.669u,17.947u);  z59\0\11c2 = (0.769u,17.038u);
+  z59\0\11 = (0.793u,15.454u);  z59\0\12c1 = (0.806u,14.567u);
+  z59\0\12c2 = (1.427u,13.882u);  z59\0\12 = (1.506u,13.045u);
+  z59\0\13c1 = (1.574u,12.314u);  z59\0\13c2 = (1.099u,11.616u);
+  z59\0\13 = (1.062u,10.877u);  z59\0\14c1 = (1.026u,10.170u);
+  z59\0\14c2 = (1.437u,9.623u);  z59\0\14 = (1.458u,8.950u);
+  z59\0\15c1 = (1.481u,8.220u);  z59\0\15c2 = (1.041u,7.530u);
+  z59\0\15 = (1.030u,6.782u);  z59\0\16c1 = (1.018u,5.928u);
+  z59\0\16c2 = (1.600u,5.207u);  z59\0\16 = (1.523u,4.373u);
+  z59\1\0s = (2.650u,13.527u);  z59\1\0 = (2.168u,13.527u);
+  z59\1\1c1 = (0.149u,17.589u);  z59\1\1c2 = (4.681u,17.562u);
+  z59\2\0s = (2.317u,12.124u);  z59\2\0c1 = (3.031u,11.856u);
+  z59\2\0c2 = (3.001u,9.803u);  z59\2\0 = (2.347u,9.565u);
+  z59\2\1c1 = (1.633u,9.892u);  z59\2\1c2 = (1.722u,11.916u);
+  z59\3\0s = (2.409u,8.227u);  z59\3\0c1 = (2.977u,6.991u);
+  z59\3\0c2 = (3.010u,6.444u);  z59\3\0 = (2.168u,5.336u);
+  z59\3\1c1 = (1.668u,6.541u);  z59\3\1c2 = (1.465u,7.201u);
+  fill_or_unfill z59\0\0s
+    --z59\0\0    --z59\0\1    --z59\0\2    --z59\0\3    --z59\0\4    --z59\0\5
+    ..controls z59\0\6c1 and z59\0\6c2..z59\0\6
+    ..controls z59\0\7c1 and z59\0\7c2..z59\0\7
+    --z59\0\8
+    ..controls z59\0\9c1 and z59\0\9c2..z59\0\9
+    ..controls z59\0\10c1 and z59\0\10c2..z59\0\10
+    ..controls z59\0\11c1 and z59\0\11c2..z59\0\11
+    ..controls z59\0\12c1 and z59\0\12c2..z59\0\12
+    ..controls z59\0\13c1 and z59\0\13c2..z59\0\13
+    ..controls z59\0\14c1 and z59\0\14c2..z59\0\14
+    ..controls z59\0\15c1 and z59\0\15c2..z59\0\15
+    ..controls z59\0\16c1 and z59\0\16c2..z59\0\16
+    --cycle;
+  fill_or_unfill z59\1\0s
+    --z59\1\0
+    ..controls z59\1\1c1 and z59\1\1c2..cycle;
+  fill_or_unfill z59\2\0s
+    ..controls z59\2\0c1 and z59\2\0c2..z59\2\0
+    ..controls z59\2\1c1 and z59\2\1c2..cycle;
+  fill_or_unfill z59\3\0s
+    ..controls z59\3\0c1 and z59\3\0c2..z59\3\0
+    ..controls z59\3\1c1 and z59\3\1c2..cycle;
+endchar;  % V28
+
+
+%% V31: Bowl with small handle
+%% (code as k(107) 107+31 = 138)
+beginchar (138, 17.252u# + side#, 5.244u#, 0.000u#);
+  "V31";
+  z62\0\0s = (0.000u,5.244u);  z62\0\0c1 = (0.335u,0.575u);
+  z62\0\0c2 = (7.394u,-0.832u);  z62\0\0 = (11.081u,0.449u);
+  z62\0\1c1 = (12.794u,1.045u);  z62\0\1c2 = (13.573u,2.027u);
+  z62\0\1 = (14.936u,3.076u);  z62\0\2c1 = (15.442u,0.705u);
+  z62\0\2c2 = (17.419u,0.854u);  z62\0\2 = (17.252u,2.594u);
+  z62\0\3c1 = (17.053u,4.666u);  z62\0\3c2 = (15.506u,5.241u);
+  z62\0\3 = (13.731u,5.244u);  z62\1\0s = (14.213u,4.280u);
+  z62\1\0c1 = (13.001u,-0.504u);  z62\1\0c2 = (2.997u,-0.009u);
+  z62\1\0 = (0.963u,4.280u);  z62\2\0s = (15.658u,4.040u);
+  z62\2\0 = (16.622u,2.111u);  z62\2\1c1 = (15.615u,2.456u);
+  z62\2\1c2 = (15.322u,3.014u);
+  fill_or_unfill z62\0\0s
+    ..controls z62\0\0c1 and z62\0\0c2..z62\0\0
+    ..controls z62\0\1c1 and z62\0\1c2..z62\0\1
+    ..controls z62\0\2c1 and z62\0\2c2..z62\0\2
+    ..controls z62\0\3c1 and z62\0\3c2..z62\0\3
+    --cycle;
+  fill_or_unfill z62\1\0s
+    ..controls z62\1\0c1 and z62\1\0c2..z62\1\0
+    --cycle;
+  fill_or_unfill z62\2\0s
+    --z62\2\0
+    ..controls z62\2\1c1 and z62\2\1c2..cycle;
+endchar;  % V31
+
+
+%% W11: Chockstone of a stone arch, with a triangle
+%% (code as g(103) 103+31 = 134)
+beginchar (134, 9.395u# + side#, 8.431u#, 0.000u#);
+  "W11";
+  z44\0\0s = (0.241u,8.431u);  z44\0\0 = (1.069u,6.931u);
+  z44\0\1 = (0.000u,1.204u);  z44\0\2c1 = (2.626u,0.170u);
+  z44\0\2c2 = (7.668u,0.222u);  z44\0\2 = (9.468u,1.456u);
+  z44\0\3 = (7.976u,7.064u);  z44\0\4 = (8.851u,8.402u);
+  z44\1\0s = (6.986u,7.468u);  z44\1\0 = (8.336u,2.416u);
+  z44\1\1c1 = (8.195u,0.447u);  z44\1\1c2 = (1.971u,1.326u);
+  z44\1\1 = (0.723u,1.927u);  z44\1\2c1 = (3.118u,7.785u);
+  z44\1\2c2 = (-0.953u,7.468u);  z44\2\0s = (4.336u,6.263u);
+  z44\2\0c1 = (4.101u,5.611u);  z44\2\0c2 = (3.246u,2.860u);
+  z44\2\0 = (3.553u,2.330u);  z44\2\1c1 = (3.920u,1.698u);
+  z44\2\1c2 = (5.788u,1.794u);  z44\2\1 = (5.915u,2.675u);
+  z44\2\2 = (4.818u,6.263u);  z44\3\0s = (5.059u,4.336u);
+  z44\3\0 = (5.300u,2.650u);  z44\3\1 = (4.095u,2.650u);
+  z44\3\2 = (4.577u,4.336u);
+  fill_or_unfill z44\0\0s
+    --z44\0\0    --z44\0\1
+    ..controls z44\0\2c1 and z44\0\2c2..z44\0\2
+    --z44\0\3    --z44\0\4    --cycle;
+  fill_or_unfill z44\1\0s
+    --z44\1\0
+    ..controls z44\1\1c1 and z44\1\1c2..z44\1\1
+    ..controls z44\1\2c1 and z44\1\2c2..cycle;
+  fill_or_unfill z44\2\0s
+    ..controls z44\2\0c1 and z44\2\0c2..z44\2\0
+    ..controls z44\2\1c1 and z44\2\1c2..z44\2\1
+    --z44\2\2    --cycle;
+  fill_or_unfill z44\3\0s
+    --z44\3\0    --z44\3\1    --z44\3\2    --cycle;
+endchar;  % W11
+
+
+%% X1: Upper half of circle
+%% (code as t(116) 116+31 = 147)
+beginchar (147, 8.913u# + side#, 4.760u#, 0.000u#);
+  "X1";
+  z32\0\0s = (0.000u,0.000u);  z32\0\0 = (8.913u,0.000u);
+  z32\0\1c1 = (8.613u,6.425u);  z32\0\1c2 = (0.300u,6.425u);
+  z32\1\0s = (8.191u,0.723u);  z32\1\0 = (0.723u,0.723u);
+  z32\1\1c1 = (1.785u,4.957u);  z32\1\1c2 = (7.128u,4.957u);
+  fill_or_unfill z32\0\0s
+    --z32\0\0
+    ..controls z32\0\1c1 and z32\0\1c2..cycle;
+  fill_or_unfill z32\1\0s
+    --z32\1\0
+    ..controls z32\1\1c1 and z32\1\1c2..cycle;
+endchar; %  X1
+
+
+%% Y1* (aka Y1v) upright board with a W on it
+%% (code as 9(57) 57+31 = 88)
+%% (code as V(86) 86+31 = 117)
+beginchar (117, 4.095u# + side#, 17.345u#, 0.000u#);
+  "Y1*";
+  z40\0\0s = (1.686u,17.345u);  z40\0\0 = (1.686u,10.600u);
+  z40\0\1c1 = (-0.008u,10.639u);  z40\0\1c2 = (-0.108u,6.333u);
+  z40\0\1 = (1.686u,6.504u);  z40\0\2 = (1.686u,0.000u);
+  z40\0\3 = (4.095u,0.000u);  z40\0\4 = (4.095u,17.345u);
+  z40\1\0s = (3.373u,16.863u);  z40\1\0 = (3.373u,0.723u);
+  z40\1\1 = (2.409u,0.723u);  z40\1\2 = (2.409u,16.863u);
+  z40\2\0s = (1.714u,9.744u);  z40\2\0 = (1.681u,7.360u);
+  z40\2\1 = (0.919u,8.155u);  z40\2\2 = (0.952u,9.214u);
+  z40\3\0s = (2.030u,6.662u);  z40\3\0 = (1.454u,7.055u);
+  z40\3\1 = (0.418u,5.544u);  z40\3\2 = (0.981u,5.126u);
+  z40\4\0s = (0.980u,11.981u);  z40\4\0 = (0.404u,11.588u);
+  z40\4\1 = (1.452u,10.052u);  z40\4\2 = (2.029u,10.445u);
+  fill_or_unfill z40\0\0s
+    --z40\0\0
+    ..controls z40\0\1c1 and z40\0\1c2..z40\0\1
+    --z40\0\2    --z40\0\3    --z40\0\4    --cycle;
+  fill_or_unfill z40\1\0s
+    --z40\1\0    --z40\1\1    --z40\1\2    --cycle;
+  fill_or_unfill z40\2\0s
+    --z40\2\0    --z40\2\1    --z40\2\2    --cycle;
+  fill_or_unfill z40\3\0s
+    --z40\3\0    --z40\3\1    --z40\3\2    --cycle;
+  fill_or_unfill z40\4\0s
+    --z40\4\0    --z40\4\1    --z40\4\2    --cycle;
+endchar; % Y1*
+
+
+%% Z1: short vertical bar
+%% (code as 1(49) 49+31 = 80)
+%% (code as |(124) 124+31 = 155)
+beginchar (155, 0.723u# + side#, 7.227u#, 0.000u#);
+  "Z1";
+  z32\0\0s = (0.000u,7.227u);  z32\0\0 = (0.000u,0.000u);
+  z32\0\1 = (0.723u,0.000u);  z32\0\2 = (0.723u,7.227u);
+  fill_or_unfill z32\0\0s
+    --z32\0\0    --z32\0\1    --z32\0\2    --cycle;
+endchar; % Z1
+
+
+%% Z7: spiral
+%% (code as W(87) 87+31 = 118)
+beginchar (118, 5.720u# + side#, 9.319u#, 0.000u#);
+  "Z7";
+  z40\0\0s = (4.646u,0.000u);  z40\0\0 = (4.887u,0.241u);
+  z40\0\1 = (4.887u,0.723u);  z40\0\2c1 = (2.963u,1.925u);
+  z40\0\2c2 = (-1.492u,6.231u);  z40\0\2 = (2.247u,8.148u);
+  z40\0\3c1 = (3.399u,8.738u);  z40\0\3c2 = (5.200u,7.509u);
+  z40\0\3 = (4.815u,6.269u);  z40\0\4c1 = (4.677u,5.825u);
+  z40\0\4c2 = (3.915u,5.065u);  z40\0\4 = (3.512u,5.651u);
+  z40\0\5c1 = (3.371u,5.855u);  z40\0\5c2 = (3.270u,6.694u);
+  z40\0\5 = (3.201u,6.986u);  z40\0\6c1 = (2.014u,6.196u);
+  z40\0\6c2 = (1.806u,4.768u);  z40\0\6 = (3.445u,4.416u);
+  z40\0\7c1 = (6.648u,3.729u);  z40\0\7c2 = (6.545u,9.699u);
+  z40\0\7 = (2.719u,9.319u);  z40\0\8c1 = (1.875u,9.235u);
+  z40\0\8c2 = (1.184u,8.616u);  z40\0\8 = (0.718u,7.946u);
+  z40\0\9c1 = (-1.411u,4.882u);  z40\0\9c2 = (1.564u,0.909u);
+  fill_or_unfill z40\0\0s
+    --z40\0\0    --z40\0\1
+    ..controls z40\0\2c1 and z40\0\2c2..z40\0\2
+    ..controls z40\0\3c1 and z40\0\3c2..z40\0\3
+    ..controls z40\0\4c1 and z40\0\4c2..z40\0\4
+    ..controls z40\0\5c1 and z40\0\5c2..z40\0\5
+    ..controls z40\0\6c1 and z40\0\6c2..z40\0\6
+    ..controls z40\0\7c1 and z40\0\7c2..z40\0\7
+    ..controls z40\0\8c1 and z40\0\8c2..z40\0\8
+    ..controls z40\0\9c1 and z40\0\9c2..cycle;
+endchar;  % Z7
+
+
+%% Z11: Crossed planks.
+%% (code as +(43) 43+31 = 74)
+beginchar (74, 10.600u# + side#, 17.104u#, 0.000u#);
+  "Z11";
+  z46\0\0s = (4.336u,17.104u);  z46\0\0 = (4.336u,9.395u);
+  z46\0\1 = (0.000u,9.395u);  z46\0\2 = (0.000u,7.227u);
+  z46\0\3 = (4.336u,7.227u);  z46\0\4 = (4.336u,0.000u);
+  z46\0\5 = (6.263u,0.000u);  z46\0\6 = (6.263u,7.227u);
+  z46\0\7 = (10.600u,7.227u);  z46\0\8 = (10.600u,9.395u);
+  z46\0\9 = (6.263u,9.395u);  z46\0\10 = (6.263u,17.104u);
+  z46\1\0s = (5.541u,16.140u);  z46\1\0 = (5.541u,0.723u);
+  z46\1\1 = (5.059u,0.723u);  z46\1\2 = (5.059u,16.140u);
+  z46\2\0s = (4.336u,8.672u);  z46\2\0 = (4.336u,7.950u);
+  z46\2\1 = (0.723u,7.950u);  z46\2\2 = (0.723u,8.672u);
+  z46\3\0s = (9.877u,8.672u);  z46\3\0 = (9.877u,7.950u);
+  z46\3\1 = (6.263u,7.950u);  z46\3\2 = (6.263u,8.672u);
+  fill_or_unfill z46\0\0s
+    --z46\0\0    --z46\0\1    --z46\0\2    --z46\0\3    --z46\0\4
+    --z46\0\5    --z46\0\6    --z46\0\7    --z46\0\8    --z46\0\9
+    --z46\0\10    --cycle;
+  fill_or_unfill z46\1\0s
+    --z46\1\0    --z46\1\1    --z46\1\2    --cycle;
+  fill_or_unfill z46\2\0s
+    --z46\2\0    --z46\2\1    --z46\2\2    --cycle;
+  fill_or_unfill z46\3\0s
+    --z46\3\0    --z46\3\1    --z46\3\2    --cycle;
+endchar; % Z11
+
+
+%% Aa1: horizontally shaded circle
+%% (code as x(120) 120+31 = 151)
+%% (code as C(67) 67+31 = 98)
+beginchar (98, 8.183u# + side#, 8.249u#, 0.000u#);
+  "Aa1";
+  z32\0\0s = (8.157u,4.040u);  z32\0\0c1 = (8.157u,9.664u);
+  z32\0\0c2 = (-0.023u,9.664u);  z32\0\0 = (-0.023u,4.040u);
+  z32\0\1c1 = (-0.023u,-1.327u);  z32\0\1c2 = (8.157u,-1.327u);
+  z32\1\0s = (7.390u,4.040u);  z32\1\0c1 = (7.134u,-0.305u);
+  z32\1\0c2 = (1.000u,-0.305u);  z32\1\0 = (0.744u,4.040u);
+  z32\1\1c1 = (0.744u,8.386u);  z32\1\1c2 = (7.390u,8.386u);
+  z32\2\0s = (7.193u,6.336u);  z32\2\0 = (1.314u,6.336u);
+  z32\2\1 = (0.803u,5.825u);  z32\2\2 = (7.193u,5.825u);
+  z32\3\0s = (7.747u,3.528u);  z32\3\0 = (0.590u,3.528u);
+  z32\3\1 = (0.590u,3.016u);  z32\3\2 = (7.747u,3.016u);
+  z32\4\0s = (7.154u,2.254u);  z32\4\0 = (1.020u,2.254u);
+  z32\4\1 = (1.187u,1.735u);  z32\4\2 = (6.680u,1.735u);
+  z32\5\0s = (7.618u,5.007u);  z32\5\0 = (0.461u,5.007u);
+  z32\5\1 = (0.461u,4.496u);  z32\5\2 = (7.618u,4.496u);
+  fill_or_unfill z32\0\0s
+    ..controls z32\0\0c1 and z32\0\0c2..z32\0\0
+    ..controls z32\0\1c1 and z32\0\1c2..cycle;
+  fill_or_unfill z32\1\0s
+    ..controls z32\1\0c1 and z32\1\0c2..z32\1\0
+    ..controls z32\1\1c1 and z32\1\1c2..cycle;
+  fill_or_unfill z32\2\0s
+    --z32\2\0    --z32\2\1    --z32\2\2    --cycle;
+  fill_or_unfill z32\3\0s
+    --z32\3\0    --z32\3\1    --z32\3\2    --cycle;
+  fill_or_unfill z32\4\0s
+    --z32\4\0    --z32\4\1    --z32\4\2    --cycle;
+  fill_or_unfill z32\5\0s
+    --z32\5\0    --z32\5\1    --z32\5\2    --cycle;
+endchar;  % Aa1
+
+
+%% Aa12: horizontal parallels joined at left
+%% (code as M(77) 77+31 = 108)
+beginchar (108, 16.863u# + side#, 4.096u#, 0.000u#);
+  "Aa12";
+  z43\0\0s = (0.241u,0.241u);  z43\0\0 = (17.104u,0.241u);
+  z43\0\1 = (17.104u,0.964u);  z43\0\2 = (1.927u,0.964u);
+  z43\0\3c1 = (5.650u,4.349u);  z43\0\3c2 = (7.436u,3.139u);
+  z43\0\3 = (11.804u,3.132u);  z43\0\4 = (17.104u,3.132u);
+  z43\0\5 = (17.104u,3.855u);  z43\0\6 = (13.731u,3.855u);
+  z43\0\7c1 = (9.041u,3.862u);  z43\0\7c2 = (3.064u,5.385u);
+  fill_or_unfill z43\0\0s
+    --z43\0\0    --z43\0\1    --z43\0\2
+    ..controls z43\0\3c1 and z43\0\3c2..z43\0\3
+    --z43\0\4    --z43\0\5    --z43\0\6
+    ..controls z43\0\7c1 and z43\0\7c2..cycle;
+endchar;  % Aa12
+
+
+%% PW created char (the door sign)
+%% (code as C(67) 67+31 = 98)
+%% (code as x(120) 120+31 = 151)
+beginchar (151, 4u# + side#, 16.750u#, 0.000u#);
+  "PW1";
+%% the exterior
+  numeric lw; lw:=0.723u;  % `linewidth'
+  x5=x6=0;                 % left vertical
+  x1=x2=4u; % w-side;            % right vertical
+  x8=x7=x4=x3=0.5[x5,x1];  % center vertical
+  y1=y8=0;                 % bottom horizontal
+  y6=y7=y8+(x7-x6);        % bottom mid horizontal
+  y3=y2=h;                 % top horizontal
+  y5=y4=y3-(x7-x6);        % top mid horizontal
+%% the interior
+  x25=x26=x5+lw;
+  x28=x27=x24=x23=x8+lw;
+  x21=x22=x1-lw;
+  y21=y28=y1+lw;
+  y26=y27=y6+lw;
+  y25=y24=y5-lw;
+  y23=y22=y3-lw;
+  fill_or_unfill z1--z2--z3--z4--z5--z6--z7--z8--cycle;
+  fill_or_unfill z28--z27--z26--z25--z24--z23--z22--z21--cycle;
+  proof_labels(1,2,3,4,5,6,7,8,21,22,23,24,25,26,27,28);
+endchar; % PW1
+
+
+%% PW2: two machettes
+%% (code as y(121) 121+31 = 152)
+%% numeric width = (4.197u# + pwshift)
+beginchar (152, 10.197u# + side#, 17.824u#, 0.000u#);
+  "PW2";
+  numeric pwshift; pwshift := 6u;
+%% first machette
+  z48\0\0s = (1.412u,17.824u);  z48\0\0c1 = (1.533u,16.738u);
+  z48\0\0c2 = (-0.254u,7.357u);  z48\0\0 = (0.020u,6.582u);
+  z48\0\1c1 = (0.024u,4.308u);  z48\0\1c2 = (2.993u,6.108u);
+  z48\0\1 = (2.993u,0.000u);  z48\0\2 = (4.197u,0.000u);
+  z48\0\3 = (4.197u,13.009u);  z48\0\4c1 = (4.171u,14.928u);
+  z48\0\4c2 = (3.494u,16.916u);  z48\1\0s = (2.029u,16.622u);
+  z48\1\0 = (3.096u,15.176u);  z48\1\1 = (3.041u,4.308u);
+  z48\1\2 = (0.749u,7.026u);
+  fill_or_unfill z48\0\0s
+    ..controls z48\0\0c1 and z48\0\0c2..z48\0\0
+    ..controls z48\0\1c1 and z48\0\1c2..z48\0\1
+    --z48\0\2    --z48\0\3
+    ..controls z48\0\4c1 and z48\0\4c2..cycle;
+  fill_or_unfill z48\1\0s
+    --z48\1\0    --z48\1\1    --z48\1\2    --cycle;
+
+%% second machette is the first shifted right by pwshift
+  z1 = z48\0\0s shifted(pwshift, 0);
+  z2 = z48\0\0c1 shifted(pwshift, 0);
+  z3 = z48\0\0c2 shifted(pwshift, 0);
+  z4 = z48\0\0 shifted (pwshift, 0);
+  z5 = z48\0\1c1 shifted (pwshift, 0);
+  z6 = z48\0\1c2 shifted (pwshift, 0);
+  z7 = z48\0\1 shifted (pwshift, 0);
+  z8 = z48\0\2 shifted (pwshift, 0);
+  z9 = z48\0\3 shifted (pwshift, 0);
+  z10 = z48\0\4c1 shifted (pwshift, 0);
+  z11 = z48\0\4c2 shifted (pwshift, 0);
+  z12 = z48\1\0s shifted (pwshift, 0);
+  z13 = z48\1\0 shifted (pwshift, 0);
+  z14 = z48\1\1 shifted (pwshift, 0);
+  z15 = z48\1\2 shifted (pwshift, 0);
+  fill_or_unfill z1
+    ..controls z2 and z3..z4
+    ..controls z5 and z6..z7
+    --z8    --z9
+    ..controls z10 and z11..cycle;
+  fill_or_unfill z12
+    --z13    --z14    --z15    --cycle;
+endchar; % PW2
+
+
+%% F31: three brambles hanging down (ms)
+%% (code as Delta(1) 1+31 = 32)
+beginchar (32, 8.122u#+side#, 16.893u#, 0.000u#);
+  "F31";
+  z62\0\0s = (1.238u,10.489u);  z62\0\0 = (4.280u,12.476u);
+  z62\0\1 = (8.122u,13.851u);  z62\0\2 = (7.331u,15.471u);
+  z62\0\3 = (3.885u,13.286u);  z62\0\4 = (0.447u,12.109u);
+  z62\1\0s = (2.129u,7.974u);  z62\1\0 = (1.926u,11.602u);
+  z62\1\1 = (1.027u,11.663u);  z62\1\2 = (0.331u,8.097u);
+  z62\2\0s = (2.188u,3.224u);  z62\2\0 = (1.738u,6.829u);
+  z62\2\1 = (0.836u,6.829u);  z62\2\2 = (0.386u,3.224u);
+  z62\3\0s = (2.183u,0.000u);  z62\3\0 = (1.733u,3.605u);
+  z62\3\1 = (0.831u,3.605u);  z62\3\2 = (0.381u,0.000u);
+  z62\4\0s = (4.945u,9.232u);  z62\4\0 = (4.495u,12.837u);
+  z62\4\1 = (4.945u,16.893u);  z62\4\2 = (3.143u,16.893u);
+  z62\4\3 = (3.594u,12.837u);  z62\4\4 = (3.143u,9.232u);
+  z62\5\0s = (4.997u,6.481u);  z62\5\0 = (4.547u,10.086u);
+  z62\5\1 = (3.645u,10.086u);  z62\5\2 = (3.195u,6.481u);
+  z62\6\0s = (4.991u,3.224u);  z62\6\0 = (4.541u,6.829u);
+  z62\6\1 = (3.639u,6.829u);  z62\6\2 = (3.189u,3.224u);
+  z62\7\0s = (4.986u,0.000u);  z62\7\0 = (4.536u,3.605u);
+  z62\7\1 = (3.635u,3.605u);  z62\7\2 = (3.184u,0.000u);
+  z62\8\0s = (7.645u,12.023u);  z62\8\0 = (4.227u,13.257u);
+  z62\8\1 = (0.818u,15.499u);  z62\8\2 = (0.000u,13.893u);
+  z62\8\3 = (3.819u,12.454u);  z62\8\4 = (6.827u,10.417u);
+  z62\9\0s = (7.761u,7.922u);  z62\9\0 = (7.256u,11.520u);
+  z62\9\1 = (6.355u,11.506u);  z62\9\2 = (5.958u,7.895u);
+  z62\10\0s = (7.734u,3.212u);  z62\10\0 = (7.284u,6.817u);
+  z62\10\1 = (6.383u,6.817u);  z62\10\2 = (5.932u,3.212u);
+  z62\11\0s = (7.730u,-0.012u);  z62\11\0 = (7.279u,3.594u);
+  z62\11\1 = (6.378u,3.594u);  z62\11\2 = (5.927u,-0.012u);
+  z62\12\0s = (2.194u,6.481u);  z62\12\0 = (1.743u,10.086u);
+  z62\12\1 = (0.842u,10.086u);  z62\12\2 = (0.392u,6.481u);
+  z62\13\0s = (7.740u,6.469u);  z62\13\0 = (7.290u,10.074u);
+  z62\13\1 = (6.388u,10.074u);  z62\13\2 = (5.938u,6.469u);
+  fill_or_unfill z62\0\0s
+    --z62\0\0    --z62\0\1    --z62\0\2    --z62\0\3    --z62\0\4    --cycle;
+  fill_or_unfill z62\1\0s
+    --z62\1\0    --z62\1\1    --z62\1\2    --cycle;
+  fill_or_unfill z62\2\0s
+    --z62\2\0    --z62\2\1    --z62\2\2    --cycle;
+  fill_or_unfill z62\3\0s
+    --z62\3\0    --z62\3\1    --z62\3\2    --cycle;
+  fill_or_unfill z62\4\0s
+    --z62\4\0    --z62\4\1    --z62\4\2    --z62\4\3    --z62\4\4    --cycle;
+  fill_or_unfill z62\5\0s
+    --z62\5\0    --z62\5\1    --z62\5\2    --cycle;
+  fill_or_unfill z62\6\0s
+    --z62\6\0    --z62\6\1    --z62\6\2    --cycle;
+  fill_or_unfill z62\7\0s
+    --z62\7\0    --z62\7\1    --z62\7\2    --cycle;
+  fill_or_unfill z62\8\0s
+    --z62\8\0    --z62\8\1    --z62\8\2    --z62\8\3    --z62\8\4    --cycle;
+  fill_or_unfill z62\9\0s
+    --z62\9\0    --z62\9\1    --z62\9\2    --cycle;
+  fill_or_unfill z62\10\0s
+    --z62\10\0    --z62\10\1    --z62\10\2    --cycle;
+  fill_or_unfill z62\11\0s
+    --z62\11\0    --z62\11\1    --z62\11\2    --cycle;
+  fill_or_unfill z62\12\0s
+    --z62\12\0    --z62\12\1    --z62\12\2    --cycle;
+  fill_or_unfill z62\13\0s
+    --z62\13\0    --z62\13\1    --z62\13\2    --cycle;
+endchar;
+
+
+%% G26: an ibis on a post
+%% (code as Theta(2) 2+31 = 33)
+beginchar (33, 16.417u#+side#, 17.184u#, 0.000u#);
+  "G26";
+  z59\0\0s = (0.000u,13.250u);  z59\0\0c1 = (0.757u,13.785u);
+  z59\0\0c2 = (2.400u,15.478u);  z59\0\0 = (3.334u,15.206u);
+  z59\0\1c1 = (4.287u,14.929u);  z59\0\1c2 = (3.736u,13.312u);
+  z59\0\1 = (4.032u,12.527u);  z59\0\2c1 = (4.517u,11.241u);
+  z59\0\2c2 = (5.852u,10.696u);  z59\0\2 = (6.567u,9.615u);
+  z59\0\3c1 = (7.346u,8.439u);  z59\0\3c2 = (6.465u,5.731u);
+  z59\0\3 = (5.249u,5.203u);  z59\0\4c1 = (4.723u,4.975u);
+  z59\0\4c2 = (2.397u,5.059u);  z59\0\4 = (1.686u,5.059u);
+  z59\0\5 = (1.686u,3.614u);  z59\0\6c1 = (4.909u,3.614u);
+  z59\0\6c2 = (9.008u,4.600u);  z59\0\6 = (9.154u,0.000u);
+  z59\0\7 = (9.877u,0.000u);  z59\0\8 = (9.877u,3.614u);
+  z59\0\9 = (11.563u,3.614u);  z59\0\10 = (11.563u,5.059u);
+  z59\0\11 = (10.118u,5.059u);  z59\0\12 = (10.359u,8.432u);
+  z59\0\13c1 = (11.154u,8.496u);  z59\0\13c2 = (11.972u,8.704u);
+  z59\0\13 = (12.768u,8.591u);  z59\0\14c1 = (13.611u,8.472u);
+  z59\0\14c2 = (14.279u,8.058u);  z59\0\14 = (15.175u,8.147u);
+  z59\0\15c1 = (15.683u,8.197u);  z59\0\15c2 = (16.719u,8.559u);
+  z59\0\15 = (16.341u,9.266u);  z59\0\16c1 = (16.154u,9.615u);
+  z59\0\16c2 = (14.641u,10.203u);  z59\0\16 = (14.213u,10.421u);
+  z59\0\17c1 = (9.520u,12.821u);  z59\0\17c2 = (10.177u,13.013u);
+  z59\0\17 = (4.818u,13.009u);  z59\0\18c1 = (4.902u,13.948u);
+  z59\0\18c2 = (5.587u,15.601u);  z59\0\18 = (5.443u,16.356u);
+  z59\0\19c1 = (4.969u,18.842u);  z59\0\19c2 = (-0.069u,15.136u);
+  z59\1\0s = (15.176u,8.673u);  z59\1\0c1 = (14.066u,8.814u);
+  z59\1\0c2 = (13.121u,9.220u);  z59\1\0 = (11.976u,9.189u);
+  z59\1\1c1 = (9.389u,9.119u);  z59\1\1c2 = (6.523u,9.722u);
+  z59\1\1 = (5.300u,12.270u);  z59\1\2c1 = (6.341u,12.295u);
+  z59\1\2c2 = (7.401u,12.448u);  z59\1\2 = (8.431u,12.270u);
+  z59\1\3c1 = (9.855u,11.986u);  z59\1\3c2 = (14.467u,9.816u);
+  z59\2\0s = (9.395u,5.059u);  z59\2\0 = (6.504u,5.300u);
+  z59\2\1 = (8.190u,8.914u);  z59\2\2c1 = (10.058u,7.998u);
+  z59\2\2c2 = (9.400u,6.787u);  z59\3\0s = (9.395u,3.614u);
+  z59\3\0 = (9.154u,2.891u);  z59\3\1 = (8.672u,3.614u);
+  fill_or_unfill z59\0\0s
+    ..controls z59\0\0c1 and z59\0\0c2..z59\0\0
+    ..controls z59\0\1c1 and z59\0\1c2..z59\0\1
+    ..controls z59\0\2c1 and z59\0\2c2..z59\0\2
+    ..controls z59\0\3c1 and z59\0\3c2..z59\0\3
+    ..controls z59\0\4c1 and z59\0\4c2..z59\0\4
+    --z59\0\5
+    ..controls z59\0\6c1 and z59\0\6c2..z59\0\6
+    --z59\0\7    --z59\0\8    --z59\0\9    --z59\0\10    --z59\0\11    --z59\0\12
+    ..controls z59\0\13c1 and z59\0\13c2..z59\0\13
+    ..controls z59\0\14c1 and z59\0\14c2..z59\0\14
+    ..controls z59\0\15c1 and z59\0\15c2..z59\0\15
+    ..controls z59\0\16c1 and z59\0\16c2..z59\0\16
+    ..controls z59\0\17c1 and z59\0\17c2..z59\0\17
+    ..controls z59\0\18c1 and z59\0\18c2..z59\0\18
+    ..controls z59\0\19c1 and z59\0\19c2..cycle;
+  fill_or_unfill z59\1\0s
+    ..controls z59\1\0c1 and z59\1\0c2..z59\1\0
+    ..controls z59\1\1c1 and z59\1\1c2..z59\1\1
+    ..controls z59\1\2c1 and z59\1\2c2..z59\1\2
+    ..controls z59\1\3c1 and z59\1\3c2..cycle;
+  fill_or_unfill z59\2\0s
+    --z59\2\0    --z59\2\1
+    ..controls z59\2\2c1 and z59\2\2c2..cycle;
+  fill_or_unfill z59\3\0s
+    --z59\3\0    --z59\3\1    --cycle;
+endchar;
+
+
+%% G26*: an ibis walking
+%% (code as Lambda(3) 3+31 = 34)
+beginchar (34, 17.176u#+side#, 17.690u#, 0.000u#);
+  "G26*";
+  z60\0\0s = (0.000u,12.527u);  z60\0\0c1 = (1.707u,13.586u);
+  z60\0\0c2 = (0.866u,15.559u);  z60\0\0 = (3.613u,15.418u);
+  z60\0\1c1 = (3.536u,14.499u);  z60\0\1c2 = (3.028u,13.124u);
+  z60\0\1 = (3.424u,12.296u);  z60\0\2c1 = (3.752u,11.609u);
+  z60\0\2c2 = (4.485u,11.178u);  z60\0\2 = (5.059u,10.718u);
+  z60\0\3c1 = (8.157u,8.232u);  z60\0\3c2 = (9.439u,7.709u);
+  z60\0\3 = (7.776u,3.855u);  z60\0\4c1 = (6.426u,0.725u);
+  z60\0\4c2 = (7.154u,1.354u);  z60\0\4 = (4.095u,0.482u);
+  z60\0\5 = (8.191u,0.000u);  z60\0\6 = (7.227u,0.723u);
+  z60\0\7 = (9.636u,6.987u);  z60\0\8 = (10.118u,6.987u);
+  z60\0\9 = (10.394u,1.697u);  z60\0\10 = (8.672u,0.000u);
+  z60\0\11 = (12.286u,0.000u);  z60\0\12 = (11.224u,1.476u);
+  z60\0\13 = (10.840u,7.709u);  z60\0\14 = (16.540u,7.366u);
+  z60\0\15c1 = (19.752u,8.828u);  z60\0\15c2 = (10.471u,12.758u);
+  z60\0\15 = (9.395u,13.076u);  z60\0\16c1 = (7.517u,13.631u);
+  z60\0\16c2 = (5.637u,12.605u);  z60\0\16 = (4.882u,12.922u);
+  z60\0\17c1 = (3.346u,13.566u);  z60\0\17c2 = (7.092u,17.767u);
+  z60\0\17 = (3.854u,17.690u);  z60\0\18c1 = (1.943u,17.645u);
+  z60\0\18c2 = (0.043u,14.219u);  z60\1\0s = (3.372u,16.605u);
+  z60\2\0s = (4.463u,16.540u);  z60\3\0s = (15.177u,9.396u);
+  z60\3\0c1 = (13.424u,8.702u);  z60\3\0c2 = (9.320u,10.190u);
+  z60\3\0 = (7.709u,11.082u);  z60\3\1 = (8.913u,11.564u);
+  z60\3\2 = (6.745u,12.046u);  z60\3\3c1 = (7.452u,9.661u);
+  z60\3\3c2 = (11.277u,8.854u);  z60\3\3 = (13.490u,8.673u);
+  z60\3\4c1 = (10.690u,7.562u);  z60\3\4c2 = (6.430u,9.527u);
+  z60\3\4 = (5.059u,12.046u);  z60\3\5 = (7.950u,12.509u);
+  z60\3\6c1 = (9.966u,12.509u);  z60\3\6c2 = (13.473u,10.504u);
+  z60\4\0s = (15.245u,8.182u);
+  fill_or_unfill z60\0\0s
+    ..controls z60\0\0c1 and z60\0\0c2..z60\0\0
+    ..controls z60\0\1c1 and z60\0\1c2..z60\0\1
+    ..controls z60\0\2c1 and z60\0\2c2..z60\0\2
+    ..controls z60\0\3c1 and z60\0\3c2..z60\0\3
+    ..controls z60\0\4c1 and z60\0\4c2..z60\0\4
+    --z60\0\5    --z60\0\6    --z60\0\7    --z60\0\8    --z60\0\9
+    --z60\0\10    --z60\0\11    --z60\0\12    --z60\0\13    --z60\0\14
+    ..controls z60\0\15c1 and z60\0\15c2..z60\0\15
+    ..controls z60\0\16c1 and z60\0\16c2..z60\0\16
+    ..controls z60\0\17c1 and z60\0\17c2..z60\0\17
+    ..controls z60\0\18c1 and z60\0\18c2..cycle;
+  fill_or_unfill z60\1\0s
+    --cycle;
+  fill_or_unfill z60\2\0s
+    --cycle;
+  fill_or_unfill z60\3\0s
+    ..controls z60\3\0c1 and z60\3\0c2..z60\3\0
+    --z60\3\1    --z60\3\2
+    ..controls z60\3\3c1 and z60\3\3c2..z60\3\3
+    ..controls z60\3\4c1 and z60\3\4c2..z60\3\4
+    --z60\3\5
+    ..controls z60\3\6c1 and z60\3\6c2..cycle;
+  fill_or_unfill z60\4\0s
+    --cycle;
+endchar;
+
+
+%% G27: a short-necked ibis pecking
+%% (code as Xi(4) 4+31 = 35)
+beginchar (35, 16.910u#+side#, 12.315u#, 0.000u#);
+  "G27";
+  z61\0\0s = (0.529u,6.305u);  z61\0\0 = (1.492u,9.919u);
+  z61\0\1c1 = (1.548u,7.468u);  z61\0\1c2 = (3.139u,6.110u);
+  z61\0\1 = (4.624u,8.714u);  z61\0\2c1 = (7.115u,6.722u);
+  z61\0\2c2 = (7.948u,6.209u);  z61\0\2 = (7.123u,2.932u);
+  z61\0\3c1 = (6.968u,2.317u);  z61\0\3c2 = (6.819u,1.371u);
+  z61\0\3 = (6.238u,1.014u);  z61\0\4c1 = (5.146u,0.344u);
+  z61\0\4c2 = (4.368u,1.692u);  z61\0\4 = (2.938u,0.282u);
+  z61\0\5c1 = (4.032u,0.066u);  z61\0\5c2 = (9.359u,-0.363u);
+  z61\0\5 = (9.901u,0.599u);  z61\0\6 = (9.901u,5.823u);
+  z61\0\7c1 = (13.270u,5.790u);  z61\0\7c2 = (13.429u,3.528u);
+  z61\0\7 = (16.910u,5.100u);  z61\0\8c1 = (16.368u,6.795u);
+  z61\0\8c2 = (14.205u,7.789u);  z61\0\8 = (12.815u,8.764u);
+  z61\0\9c1 = (10.960u,10.064u);  z61\0\9c2 = (5.392u,14.161u);
+  z61\0\9 = (3.419u,11.364u);  z61\0\10c1 = (0.411u,15.015u);
+  z61\0\10c2 = (-0.828u,7.322u);  z61\1\0s = (1.974u,11.846u);
+  z61\1\0 = (2.456u,9.437u);  z61\2\0s = (14.501u,6.546u);
+  z61\2\0 = (7.036u,8.910u);  z61\2\1 = (5.106u,10.641u);
+  z61\2\2 = (6.069u,8.714u);  z61\2\3c1 = (4.987u,9.101u);
+  z61\2\3c2 = (4.761u,9.387u);  z61\2\3 = (3.893u,8.473u);
+  z61\2\4c1 = (3.732u,9.068u);  z61\2\4c2 = (3.818u,9.546u);
+  z61\2\4 = (3.893u,10.158u);  z61\2\5c1 = (4.358u,14.529u);
+  z61\2\5c2 = (13.264u,7.960u);  z61\3\0s = (2.456u,9.196u);
+  z61\3\0 = (3.660u,8.473u);  z61\3\1c1 = (2.835u,7.895u);
+  z61\3\1c2 = (2.128u,8.099u);  z61\4\0s = (6.310u,8.714u);
+  z61\5\0s = (6.656u,8.264u);  z61\6\0s = (7.274u,7.991u);
+  z61\6\0 = (12.574u,6.546u);  z61\6\1c1 = (10.782u,5.843u);
+  z61\6\1c2 = (8.544u,6.826u);  z61\6\1 = (7.033u,7.750u);
+  z61\7\0s = (8.180u,6.305u);  z61\7\0c1 = (9.712u,4.973u);
+  z61\7\0c2 = (9.201u,2.600u);  z61\7\0 = (9.201u,0.764u);
+  z61\7\1 = (7.515u,0.764u);  z61\7\2 = (8.180u,4.378u);
+  z61\8\0s = (15.223u,5.100u);  z61\8\0 = (12.574u,6.305u);
+  fill_or_unfill z61\0\0s
+    --z61\0\0
+    ..controls z61\0\1c1 and z61\0\1c2..z61\0\1
+    ..controls z61\0\2c1 and z61\0\2c2..z61\0\2
+    ..controls z61\0\3c1 and z61\0\3c2..z61\0\3
+    ..controls z61\0\4c1 and z61\0\4c2..z61\0\4
+    ..controls z61\0\5c1 and z61\0\5c2..z61\0\5
+    --z61\0\6
+    ..controls z61\0\7c1 and z61\0\7c2..z61\0\7
+    ..controls z61\0\8c1 and z61\0\8c2..z61\0\8
+    ..controls z61\0\9c1 and z61\0\9c2..z61\0\9
+    ..controls z61\0\10c1 and z61\0\10c2..cycle;
+  fill_or_unfill z61\1\0s
+    --z61\1\0
+    --cycle;
+  fill_or_unfill z61\2\0s
+    --z61\2\0    --z61\2\1    --z61\2\2
+    ..controls z61\2\3c1 and z61\2\3c2..z61\2\3
+    ..controls z61\2\4c1 and z61\2\4c2..z61\2\4
+    ..controls z61\2\5c1 and z61\2\5c2..cycle;
+  fill_or_unfill z61\3\0s
+    --z61\3\0
+    ..controls z61\3\1c1 and z61\3\1c2..cycle;
+  fill_or_unfill z61\4\0s
+    --cycle;
+  fill_or_unfill z61\5\0s
+    --cycle;
+  fill_or_unfill z61\6\0s
+    --z61\6\0
+    ..controls z61\6\1c1 and z61\6\1c2..z61\6\1
+    --cycle;
+  fill_or_unfill z61\7\0s
+    ..controls z61\7\0c1 and z61\7\0c2..z61\7\0
+    --z61\7\1    --z61\7\2    --cycle;
+  fill_or_unfill z61\8\0s
+    --z61\8\0    --cycle;
+endchar;
+
+
+%% G28: a long-necked ibis pecking
+%% (code as Pi(5) 5+31 = 36)
+beginchar (36, 20.626u#+side#, 10.514u#, 0.000u#);
+  "G28";
+  z62\0\0s = (0.000u,6.022u);  z62\0\0c1 = (1.302u,6.853u);
+  z62\0\0c2 = (1.064u,8.015u);  z62\0\0 = (3.132u,8.351u);
+  z62\0\1c1 = (4.703u,8.607u);  z62\0\1c2 = (4.812u,7.723u);
+  z62\0\1 = (6.026u,7.228u);  z62\0\2c1 = (6.827u,6.901u);
+  z62\0\2c2 = (7.624u,7.096u);  z62\0\2 = (8.431u,6.914u);
+  z62\0\3c1 = (9.703u,6.626u);  z62\0\3c2 = (11.355u,5.020u);
+  z62\0\3 = (10.980u,3.613u);  z62\0\4c1 = (9.878u,-0.517u);
+  z62\0\4c2 = (7.249u,2.042u);  z62\0\4 = (6.022u,0.000u);
+  z62\0\5 = (7.709u,0.163u);  z62\0\6 = (14.454u,0.481u);
+  z62\0\7 = (13.972u,5.058u);  z62\0\8c1 = (14.744u,5.075u);
+  z62\0\8c2 = (15.632u,5.292u);  z62\0\8 = (16.381u,5.185u);
+  z62\0\9c1 = (17.553u,5.018u);  z62\0\9c2 = (17.875u,4.429u);
+  z62\0\9 = (19.231u,4.838u);  z62\0\10c1 = (22.624u,5.864u);
+  z62\0\10c2 = (18.956u,7.416u);  z62\0\10 = (17.826u,8.024u);
+  z62\0\11c1 = (16.434u,8.773u);  z62\0\11c2 = (15.016u,9.718u);
+  z62\0\11 = (13.490u,10.170u);  z62\0\12c1 = (9.251u,11.423u);
+  z62\0\12c2 = (8.299u,8.888u);  z62\0\12 = (6.990u,8.951u);
+  z62\0\13c1 = (6.159u,8.990u);  z62\0\13c2 = (5.779u,10.068u);
+  z62\0\13 = (4.809u,10.278u);  z62\0\14c1 = (3.817u,10.493u);
+  z62\0\14c2 = (0.969u,8.509u);  z62\0\14 = (0.446u,7.695u);
+  z62\0\15c1 = (0.110u,7.172u);  z62\0\15c2 = (0.056u,6.622u);
+  z62\1\0s = (19.272u,6.504u);  z62\1\0 = (11.106u,7.669u);
+  z62\1\1 = (9.877u,9.154u);  z62\1\2c1 = (9.151u,6.581u);
+  z62\1\2c2 = (13.753u,6.398u);  z62\1\2 = (15.417u,6.263u);
+  z62\1\3 = (15.417u,5.788u);  z62\1\4 = (12.286u,5.788u);
+  z62\1\5 = (6.745u,7.708u);  z62\1\6c1 = (12.071u,11.658u);
+  z62\1\6c2 = (14.157u,9.174u);  z62\2\0s = (4.787u,9.373u);
+  z62\3\0s = (5.300u,9.154u);  z62\4\0s = (5.541u,8.913u);
+  z62\5\0s = (5.663u,8.434u);  z62\6\0s = (18.549u,5.299u);
+  z62\6\0 = (17.586u,5.540u);  z62\7\0s = (12.286u,5.058u);
+  z62\7\0c1 = (12.818u,4.743u);  z62\7\0c2 = (13.429u,4.423u);
+  z62\7\0 = (13.704u,3.832u);  z62\7\1c1 = (14.068u,3.051u);
+  z62\7\1c2 = (13.570u,1.252u);  z62\7\1 = (12.733u,0.933u);
+  z62\7\2c1 = (12.140u,0.656u);  z62\7\2c2 = (11.227u,0.881u);
+  z62\7\2 = (10.600u,0.933u);  z62\7\3 = (11.806u,3.372u);
+  fill_or_unfill z62\0\0s
+    ..controls z62\0\0c1 and z62\0\0c2..z62\0\0
+    ..controls z62\0\1c1 and z62\0\1c2..z62\0\1
+    ..controls z62\0\2c1 and z62\0\2c2..z62\0\2
+    ..controls z62\0\3c1 and z62\0\3c2..z62\0\3
+    ..controls z62\0\4c1 and z62\0\4c2..z62\0\4
+    --z62\0\5    --z62\0\6    --z62\0\7
+    ..controls z62\0\8c1 and z62\0\8c2..z62\0\8
+    ..controls z62\0\9c1 and z62\0\9c2..z62\0\9
+    ..controls z62\0\10c1 and z62\0\10c2..z62\0\10
+    ..controls z62\0\11c1 and z62\0\11c2..z62\0\11
+    ..controls z62\0\12c1 and z62\0\12c2..z62\0\12
+    ..controls z62\0\13c1 and z62\0\13c2..z62\0\13
+    ..controls z62\0\14c1 and z62\0\14c2..z62\0\14
+    ..controls z62\0\15c1 and z62\0\15c2..cycle;
+  fill_or_unfill z62\1\0s
+    --z62\1\0    --z62\1\1
+    ..controls z62\1\2c1 and z62\1\2c2..z62\1\2
+    --z62\1\3    --z62\1\4    --z62\1\5
+    ..controls z62\1\6c1 and z62\1\6c2..cycle;
+  fill_or_unfill z62\2\0s
+    --cycle;
+  fill_or_unfill z62\3\0s
+    --cycle;
+  fill_or_unfill z62\4\0s
+    --cycle;
+  fill_or_unfill z62\5\0s
+    --cycle;
+  fill_or_unfill z62\6\0s
+    --z62\6\0    --cycle;
+  fill_or_unfill z62\7\0s
+    ..controls z62\7\0c1 and z62\7\0c2..z62\7\0
+    ..controls z62\7\1c1 and z62\7\1c2..z62\7\1
+    ..controls z62\7\2c1 and z62\7\2c2..z62\7\2
+    --z62\7\3    --cycle;
+endchar;
+
+
+%% Z6: stick with a V at righthand end
+%% (code as Sigma(6) 6+31 = 37)
+beginchar (37, 17.812u#+side#, 9.154u#, 0.000u#);
+  "Z6";
+  z39\0\0s = (0.241u,9.154u);  z39\0\0 = (0.000u,7.950u);
+  z39\0\1 = (13.968u,3.990u);  z39\0\2 = (17.104u,0.000u);
+  z39\0\3 = (17.812u,0.699u);  z39\0\4 = (15.540u,3.797u);
+  z39\0\5 = (17.458u,5.449u);  z39\0\6 = (16.986u,6.364u);
+  z39\0\7 = (15.177u,4.818u);
+  fill_or_unfill z39\0\0s
+    --z39\0\0    --z39\0\1    --z39\0\2    --z39\0\3    --z39\0\4
+    --z39\0\5    --z39\0\6    --z39\0\7    --cycle;
+endchar;
+
+
+%% A1: Kneeling man pointing
+%% (code as Upsilon(7) 7+31 = 38)
+%%beginchar (32, 13.490u#, 17.826u#, 0.000u#);
+beginchar (38, 13.490u#+side#, 17.826u#, 0.000u#);
+  "A1";
+  z32\0\0s = (6.986u,13.490u);  z32\0\0c1 = (5.734u,12.830u);
+  z32\0\0c2 = (4.749u,11.724u);  z32\0\0 = (3.763u,10.591u);
+  z32\0\1 = (2.002u,12.281u);  z32\0\2c1 = (1.748u,12.963u);
+  z32\0\2c2 = (1.261u,13.873u);  z32\0\2 = (0.241u,13.972u);
+  z32\0\3c1 = (-0.169u,13.191u);  z32\0\3c2 = (0.708u,13.320u);
+  z32\0\3 = (0.903u,12.541u);  z32\0\4c1 = (0.416u,12.281u);
+  z32\0\4c2 = (0.806u,11.728u);  z32\0\4 = (1.391u,11.598u);
+  z32\0\5 = (3.739u,9.086u);  z32\0\6 = (6.263u,10.840u);
+  z32\0\7 = (6.504u,5.781u);  z32\0\8c1 = (5.858u,6.247u);
+  z32\0\8c2 = (2.226u,9.941u);  z32\0\8 = (2.232u,7.003u);
+  z32\0\9 = (2.778u,4.002u);  z32\0\10c1 = (2.954u,2.417u);
+  z32\0\10c2 = (0.428u,1.546u);  z32\0\10 = (0.000u,0.241u);
+  z32\0\11 = (6.022u,0.702u);  z32\0\12 = (8.632u,0.702u);
+  z32\0\13 = (12.527u,0.482u);  z32\0\14 = (10.406u,1.774u);
+  z32\0\15 = (10.406u,8.431u);  z32\0\16 = (13.490u,7.709u);
+  z32\0\17c1 = (13.275u,10.070u);  z32\0\17c2 = (11.486u,12.990u);
+  z32\0\17 = (9.877u,13.731u);  z32\0\18c1 = (9.476u,14.172u);
+  z32\0\18c2 = (10.296u,14.660u);  z32\0\18 = (10.562u,15.413u);
+  z32\0\19c1 = (11.120u,17.558u);  z32\0\19c2 = (7.583u,19.092u);
+  z32\0\19 = (6.476u,16.579u);  z32\0\20c1 = (5.962u,15.872u);
+  z32\0\20c2 = (5.544u,15.165u);  z32\0\20 = (6.251u,15.390u);
+  z32\0\21c1 = (6.251u,14.634u);  z32\0\21c2 = (6.589u,14.409u);
+  z32\0\21 = (7.087u,14.329u);  z32\0\22c1 = (7.473u,14.329u);
+  z32\0\22c2 = (7.409u,14.007u);  z32\1\0s = (9.154u,14.695u);
+  z32\1\0c1 = (9.567u,16.868u);  z32\1\0c2 = (8.022u,16.275u);
+  z32\1\0 = (7.468u,17.104u);  z32\1\1c1 = (8.501u,18.205u);
+  z32\1\1c2 = (11.226u,16.366u);  z32\2\0s = (7.931u,14.711u);
+  z32\2\0c1 = (6.943u,14.694u);  z32\2\0c2 = (6.261u,15.718u);
+  z32\2\0 = (6.997u,16.581u);  z32\2\1c1 = (7.302u,16.068u);
+  z32\2\1c2 = (8.610u,15.918u);  z32\2\1 = (8.609u,15.591u);
+  z32\2\2 = (8.546u,14.722u);  z32\2\3c1 = (8.683u,14.115u);
+  z32\2\3c2 = (9.290u,14.408u);  z32\2\3 = (9.173u,13.840u);
+  z32\2\4c1 = (9.010u,12.651u);  z32\2\4c2 = (10.482u,13.462u);
+  z32\2\4 = (10.086u,11.784u);  z32\2\5 = (9.731u,9.918u);
+  z32\2\6 = (9.231u,10.044u);  z32\2\7c1 = (9.088u,10.512u);
+  z32\2\7c2 = (7.590u,11.279u);  z32\2\7 = (7.227u,11.081u);
+  z32\2\8c1 = (6.757u,10.269u);  z32\2\8c2 = (8.941u,9.661u);
+  z32\2\8 = (8.982u,8.832u);  z32\2\9 = (9.618u,8.583u);
+  z32\2\10 = (9.632u,7.705u);  z32\2\11c1 = (9.694u,5.540u);
+  z32\2\11c2 = (9.293u,5.395u);  z32\2\11 = (7.227u,5.059u);
+  z32\2\12c1 = (7.232u,6.830u);  z32\2\12c2 = (7.526u,10.663u);
+  z32\2\12 = (6.263u,12.045u);  z32\2\13 = (7.880u,13.480u);
+  z32\3\0s = (10.840u,11.081u);  z32\3\0c1 = (11.159u,10.590u);
+  z32\3\0c2 = (11.523u,9.826u);  z32\3\0 = (11.668u,9.389u);
+  z32\3\1 = (10.613u,9.680u);  z32\4\0s = (6.263u,4.577u);
+  z32\4\0c1 = (4.619u,3.776u);  z32\4\0c2 = (3.779u,3.298u);
+  z32\4\0 = (3.603u,5.520u);  z32\4\1c1 = (3.533u,6.235u);
+  z32\4\1c2 = (3.414u,6.510u);  z32\4\1 = (3.603u,7.227u);
+  z32\5\0s = (2.650u,1.445u);  z32\5\0c1 = (2.907u,3.036u);
+  z32\5\0c2 = (7.018u,4.463u);  z32\5\0 = (8.533u,4.697u);
+  z32\5\1c1 = (10.033u,4.928u);  z32\5\1c2 = (10.418u,1.658u);
+  z32\5\1 = (7.956u,1.699u);  z32\5\2 = (5.781u,1.920u);
+  fill_or_unfill z32\0\0s
+    ..controls z32\0\0c1 and z32\0\0c2..z32\0\0
+    --z32\0\1
+    ..controls z32\0\2c1 and z32\0\2c2..z32\0\2
+    ..controls z32\0\3c1 and z32\0\3c2..z32\0\3
+    ..controls z32\0\4c1 and z32\0\4c2..z32\0\4
+    --z32\0\5    --z32\0\6    --z32\0\7
+    ..controls z32\0\8c1 and z32\0\8c2..z32\0\8
+    --z32\0\9
+    ..controls z32\0\10c1 and z32\0\10c2..z32\0\10
+    --z32\0\11    --z32\0\12    --z32\0\13    --z32\0\14    --z32\0\15
+    --z32\0\16
+    ..controls z32\0\17c1 and z32\0\17c2..z32\0\17
+    ..controls z32\0\18c1 and z32\0\18c2..z32\0\18
+    ..controls z32\0\19c1 and z32\0\19c2..z32\0\19
+    ..controls z32\0\20c1 and z32\0\20c2..z32\0\20
+    ..controls z32\0\21c1 and z32\0\21c2..z32\0\21
+    ..controls z32\0\22c1 and z32\0\22c2..cycle;
+  fill_or_unfill z32\1\0s
+    ..controls z32\1\0c1 and z32\1\0c2..z32\1\0
+    ..controls z32\1\1c1 and z32\1\1c2..cycle;
+  fill_or_unfill z32\2\0s
+    ..controls z32\2\0c1 and z32\2\0c2..z32\2\0
+    ..controls z32\2\1c1 and z32\2\1c2..z32\2\1
+    --z32\2\2
+    ..controls z32\2\3c1 and z32\2\3c2..z32\2\3
+    ..controls z32\2\4c1 and z32\2\4c2..z32\2\4
+    --z32\2\5    --z32\2\6
+    ..controls z32\2\7c1 and z32\2\7c2..z32\2\7
+    ..controls z32\2\8c1 and z32\2\8c2..z32\2\8
+    --z32\2\9    --z32\2\10
+    ..controls z32\2\11c1 and z32\2\11c2..z32\2\11
+    ..controls z32\2\12c1 and z32\2\12c2..z32\2\12
+    --z32\2\13    --cycle;
+  fill_or_unfill z32\3\0s
+    ..controls z32\3\0c1 and z32\3\0c2..z32\3\0
+    --z32\3\1    --cycle;
+  fill_or_unfill z32\4\0s
+    ..controls z32\4\0c1 and z32\4\0c2..z32\4\0
+    ..controls z32\4\1c1 and z32\4\1c2..z32\4\1
+    --cycle;
+  fill_or_unfill z32\5\0s
+    ..controls z32\5\0c1 and z32\5\0c2..z32\5\0
+    ..controls z32\5\1c1 and z32\5\1c2..z32\5\1
+    --z32\5\2    --cycle;
+endchar;
+
+
+%% F20: Tongue (ns)
+%% (code as Phi(8) 8+31 = 39)
+%%beginchar (51, 17.353u#, 13.250u#, 0.000u#);
+beginchar (39, 17.353u#+side#, 13.250u#, 0.000u#);
+  "F20";
+  z51\0\0s = (17.112u,0.000u);  z51\0\0 = (17.353u,0.241u);
+  z51\0\1 = (16.094u,2.650u);  z51\0\2 = (14.462u,9.395u);
+  z51\0\3 = (16.629u,9.395u);  z51\0\4 = (16.629u,9.877u);
+  z51\0\5c1 = (14.076u,10.962u);  z51\0\5c2 = (11.191u,11.327u);
+  z51\0\5 = (8.439u,11.322u);  z51\0\6c1 = (6.032u,11.319u);
+  z51\0\6c2 = (3.304u,10.515u);  z51\0\6 = (0.970u,11.082u);
+  z51\0\7 = (1.453u,13.250u);  z51\0\8c1 = (0.039u,13.007u);
+  z51\0\8c2 = (-0.651u,10.694u);  z51\0\8 = (0.766u,10.055u);
+  z51\0\9c1 = (1.293u,9.817u);  z51\0\9c2 = (2.532u,9.871u);
+  z51\0\9 = (3.140u,9.878u);  z51\0\10 = (9.644u,10.118u);
+  z51\0\11c1 = (16.720u,10.107u);  z51\0\11c2 = (13.331u,3.308u);
+  fill_or_unfill z51\0\0s
+    --z51\0\0    --z51\0\1    --z51\0\2    --z51\0\3    --z51\0\4
+    ..controls z51\0\5c1 and z51\0\5c2..z51\0\5
+    ..controls z51\0\6c1 and z51\0\6c2..z51\0\6
+    --z51\0\7
+    ..controls z51\0\8c1 and z51\0\8c2..z51\0\8
+    ..controls z51\0\9c1 and z51\0\9c2..z51\0\9
+    --z51\0\10
+    ..controls z51\0\11c1 and z51\0\11c2..cycle;
+endchar;
+
+
+%% Y4: Scribe (sb)
+%% (code as Psi(9) 9+31 = 40)
+%%beginchar (35, 14.398u#, 17.497u#, 0.000u#);
+beginchar (40, 14.398u#+side#, 17.497u#, 0.000u#);
+  "Y4";
+  z35\0\0s = (5.967u,8.913u);  z35\0\0c1 = (5.303u,9.656u);
+  z35\0\0c2 = (2.672u,11.573u);  z35\0\0 = (2.510u,12.070u);
+  z35\0\1c1 = (2.021u,13.572u);  z35\0\1c2 = (4.793u,15.149u);
+  z35\0\1 = (3.663u,16.410u);  z35\0\2c1 = (2.677u,17.510u);
+  z35\0\2c2 = (0.500u,17.430u);  z35\0\2 = (0.024u,15.850u);
+  z35\0\3c1 = (-0.255u,14.922u);  z35\0\3c2 = (1.450u,13.797u);
+  z35\0\3 = (1.564u,12.523u);  z35\0\4c1 = (1.658u,11.469u);
+  z35\0\4c2 = (0.870u,10.940u);  z35\0\4 = (0.943u,10.139u);
+  z35\0\5c1 = (1.027u,9.216u);  z35\0\5c2 = (1.623u,8.599u);
+  z35\0\5 = (1.631u,7.468u);  z35\0\6 = (1.631u,0.000u);
+  z35\0\7 = (2.353u,0.000u);  z35\0\8 = (2.353u,8.672u);
+  z35\0\9c1 = (6.113u,7.741u);  z35\0\9c2 = (3.562u,5.101u);
+  z35\0\9 = (5.107u,3.791u);  z35\0\10c1 = (6.209u,2.857u);
+  z35\0\10c2 = (7.771u,3.611u);  z35\0\10 = (7.863u,5.060u);
+  z35\0\11 = (7.863u,6.986u);  z35\0\12c1 = (7.396u,7.242u);
+  z35\0\12c2 = (7.057u,7.405u);  z35\0\12 = (6.834u,7.963u);
+  z35\0\13c1 = (6.452u,8.917u);  z35\0\13c2 = (6.562u,15.074u);
+  z35\0\13 = (7.145u,15.845u);  z35\0\14c1 = (8.676u,17.872u);
+  z35\0\14c2 = (10.994u,16.229u);  z35\0\14 = (11.026u,13.972u);
+  z35\0\15 = (11.026u,9.154u);  z35\0\16 = (8.858u,9.154u);
+  z35\0\17 = (8.858u,0.241u);  z35\0\18 = (14.398u,0.241u);
+  z35\0\19 = (14.398u,9.154u);  z35\0\20 = (11.749u,9.154u);
+  z35\0\21c1 = (11.749u,10.603u);  z35\0\21c2 = (11.945u,14.774u);
+  z35\0\21 = (11.453u,15.890u);  z35\0\22c1 = (10.319u,18.465u);
+  z35\0\22c2 = (6.017u,18.064u);  z35\0\22 = (5.967u,13.972u);
+  z35\1\0s = (2.113u,16.863u);  z35\1\0 = (2.113u,15.659u);
+  z35\2\0s = (0.908u,15.900u);  z35\2\0 = (1.390u,14.936u);
+  z35\3\0s = (3.558u,15.900u);  z35\3\0 = (2.835u,15.177u);
+  z35\4\0s = (2.835u,15.177u);  z35\5\0s = (1.631u,14.936u);
+  z35\5\0 = (2.353u,13.972u);  z35\6\0s = (2.594u,14.695u);
+  z35\7\0s = (5.967u,7.227u);  z35\7\0c1 = (4.911u,7.791u);
+  z35\7\0c2 = (2.555u,9.440u);  z35\7\0 = (2.353u,10.600u);
+  z35\7\1c1 = (4.350u,10.181u);  z35\7\1c2 = (5.197u,9.001u);
+  z35\8\0s = (13.676u,8.431u);  z35\8\0 = (13.676u,0.964u);
+  z35\8\1 = (9.581u,0.964u);  z35\8\2 = (9.581u,8.431u);
+  z35\9\0s = (11.529u,7.761u);  z35\9\0c1 = (9.905u,7.161u);
+  z35\9\0c2 = (10.857u,5.565u);  z35\9\0 = (11.955u,5.940u);
+  z35\9\1c1 = (13.043u,6.311u);  z35\9\1c2 = (12.777u,7.618u);
+  z35\10\0s = (12.230u,6.263u);  z35\10\0 = (11.026u,6.504u);
+  z35\10\1c1 = (11.610u,7.490u);  z35\10\1c2 = (12.043u,7.341u);
+  z35\11\0s = (6.931u,6.467u);  z35\11\0 = (7.177u,5.303u);
+  z35\11\1c1 = (7.355u,2.183u);  z35\11\1c2 = (3.337u,5.642u);
+  z35\11\1 = (6.002u,6.467u);  z35\11\2c1 = (6.294u,6.515u);
+  z35\11\2c2 = (6.629u,6.494u);  z35\12\0s = (11.320u,4.626u);
+  z35\12\0c1 = (9.933u,3.665u);  z35\12\0c2 = (11.082u,2.340u);
+  z35\12\0 = (12.135u,2.792u);  z35\12\1c1 = (13.085u,3.201u);
+  z35\12\1c2 = (12.896u,4.793u);
+  fill_or_unfill z35\0\0s
+    ..controls z35\0\0c1 and z35\0\0c2..z35\0\0
+    ..controls z35\0\1c1 and z35\0\1c2..z35\0\1
+    ..controls z35\0\2c1 and z35\0\2c2..z35\0\2
+    ..controls z35\0\3c1 and z35\0\3c2..z35\0\3
+    ..controls z35\0\4c1 and z35\0\4c2..z35\0\4
+    ..controls z35\0\5c1 and z35\0\5c2..z35\0\5
+    --z35\0\6    --z35\0\7    --z35\0\8
+    ..controls z35\0\9c1 and z35\0\9c2..z35\0\9
+    ..controls z35\0\10c1 and z35\0\10c2..z35\0\10
+    --z35\0\11
+    ..controls z35\0\12c1 and z35\0\12c2..z35\0\12
+    ..controls z35\0\13c1 and z35\0\13c2..z35\0\13
+    ..controls z35\0\14c1 and z35\0\14c2..z35\0\14
+    --z35\0\15    --z35\0\16    --z35\0\17    --z35\0\18    --z35\0\19
+    --z35\0\20
+    ..controls z35\0\21c1 and z35\0\21c2..z35\0\21
+    ..controls z35\0\22c1 and z35\0\22c2..z35\0\22
+    --cycle;
+  fill_or_unfill z35\1\0s
+    --z35\1\0    --cycle;
+  fill_or_unfill z35\2\0s
+    --z35\2\0    --cycle;
+  fill_or_unfill z35\3\0s
+    --z35\3\0    --cycle;
+  fill_or_unfill z35\4\0s
+    --cycle;
+  fill_or_unfill z35\5\0s
+    --z35\5\0    --cycle;
+  fill_or_unfill z35\6\0s
+    --cycle;
+  fill_or_unfill z35\7\0s
+    ..controls z35\7\0c1 and z35\7\0c2..z35\7\0
+    ..controls z35\7\1c1 and z35\7\1c2..cycle;
+  fill_or_unfill z35\8\0s
+    --z35\8\0    --z35\8\1    --z35\8\2    --cycle;
+  fill_or_unfill z35\9\0s
+    ..controls z35\9\0c1 and z35\9\0c2..z35\9\0
+    ..controls z35\9\1c1 and z35\9\1c2..cycle;
+  fill_or_unfill z35\10\0s
+    --z35\10\0
+    ..controls z35\10\1c1 and z35\10\1c2..cycle;
+  fill_or_unfill z35\11\0s
+    --z35\11\0
+    ..controls z35\11\1c1 and z35\11\1c2..z35\11\1
+    ..controls z35\11\2c1 and z35\11\2c2..cycle;
+  fill_or_unfill z35\12\0s
+    ..controls z35\12\0c1 and z35\12\0c2..z35\12\0
+    ..controls z35\12\1c1 and z35\12\1c2..cycle;
+endchar;
+
+
+%% Z2: plural (3 short vertical lines).
+%% (code as Omega(10) 10+31 = 41)
+%%beginchar (33, 17.345u#, 5.300u#, 0.000u#);
+beginchar (41, 17.345u#+side#, 5.300u#, 0.000u#);
+  "Z2";
+  z33\0\0s = (0.000u,5.300u);  z33\0\0 = (0.000u,0.000u);
+  z33\0\1 = (0.963u,0.000u);  z33\0\2 = (0.963u,5.300u);
+  z33\1\0s = (8.191u,5.300u);  z33\1\0 = (8.191u,0.000u);
+  z33\1\1 = (9.154u,0.000u);  z33\1\2 = (9.154u,5.300u);
+  z33\2\0s = (16.381u,5.300u);  z33\2\0 = (16.381u,0.000u);
+  z33\2\1 = (17.345u,0.000u);  z33\2\2 = (17.345u,5.300u);
+  fill_or_unfill z33\0\0s
+    --z33\0\0    --z33\0\1    --z33\0\2    --cycle;
+  fill_or_unfill z33\1\0s
+    --z33\1\0    --z33\1\1    --z33\1\2    --cycle;
+  fill_or_unfill z33\2\0s
+    --z33\2\0    --z33\2\1    --z33\2\2    --cycle;
+endchar;
+
+
+%% Z4: dual (2 short sloping lines).
+%% (code as ff(11) 11+31 = 42)
+%%beginchar (37, 7.361u#, 6.369u#, 0.000u#);
+beginchar (42, 7.361u#+side#, 6.369u#, 0.000u#);
+  "Z4";
+  z37\0\0s = (2.714u,5.848u);  z37\0\0 = (6.614u,0.246u);
+  z37\0\1 = (7.361u,0.766u);  z37\0\2 = (3.461u,6.369u);
+  z37\1\0s = (0.000u,5.602u);  z37\1\0 = (3.901u,0.000u);
+  z37\1\1 = (4.648u,0.520u);  z37\1\2 = (0.747u,6.123u);
+  fill_or_unfill z37\0\0s
+    --z37\0\0    --z37\0\1    --z37\0\2    --cycle;
+  fill_or_unfill z37\1\0s
+    --z37\1\0    --z37\1\1    --z37\1\2    --cycle;
+endchar;
+
+
+%% C11: numeral 1,000,000 (man kneeling with upraised arms)
+%% (code as 7(55) 55+31 = 86)
+%%beginchar (42, 13.972u#, 17.135u#, 0.000u#);
+beginchar (86, 13.972u#+side#, 17.135u#, 0.000u#);
+  "C11";
+  z42\0\0s = (4.782u,10.334u);  z42\0\0c1 = (4.097u,10.541u);
+  z42\0\0c2 = (2.976u,10.724u);  z42\0\0 = (2.361u,10.891u);
+  z42\0\1c1 = (1.865u,12.176u);  z42\0\1c2 = (1.573u,14.132u);
+  z42\0\1 = (1.193u,14.570u);  z42\0\2c1 = (1.135u,16.030u);
+  z42\0\2c2 = (0.843u,16.352u);  z42\0\2 = (0.346u,16.322u);
+  z42\0\3c1 = (0.250u,15.022u);  z42\0\3c2 = (0.084u,13.869u);
+  z42\0\3 = (0.843u,13.782u);  z42\0\4c1 = (1.223u,9.606u);
+  z42\0\4c2 = (1.719u,9.547u);  z42\0\4 = (4.063u,9.343u);
+  z42\0\5c1 = (3.939u,9.191u);  z42\0\5c2 = (3.526u,8.797u);
+  z42\0\5 = (3.732u,8.690u);  z42\0\6c1 = (3.862u,8.623u);
+  z42\0\6c2 = (4.008u,8.570u);  z42\0\6 = (4.423u,8.950u);
+  z42\0\7 = (4.613u,9.070u);  z42\0\8c1 = (6.038u,8.809u);
+  z42\0\8c2 = (5.781u,5.554u);  z42\0\8 = (5.781u,4.793u);
+  z42\0\9c1 = (4.576u,5.262u);  z42\0\9c2 = (3.793u,6.962u);
+  z42\0\9 = (2.594u,7.101u);  z42\0\10c1 = (0.231u,7.376u);
+  z42\0\10c2 = (2.730u,3.007u);  z42\0\10 = (1.776u,1.571u);
+  z42\0\11c1 = (1.366u,0.953u);  z42\0\11c2 = (0.638u,0.768u);
+  z42\0\11 = (0.000u,0.457u);  z42\0\12 = (0.987u,0.000u);
+  z42\0\13 = (3.855u,0.215u);  z42\0\14 = (7.505u,0.413u);
+  z42\0\15 = (10.136u,0.038u);  z42\0\16 = (11.081u,0.216u);
+  z42\0\17c1 = (9.787u,1.895u);  z42\0\17c2 = (8.919u,0.240u);
+  z42\0\17 = (8.913u,3.348u);  z42\0\18c1 = (8.911u,4.625u);
+  z42\0\18c2 = (8.738u,7.574u);  z42\0\18 = (9.424u,8.618u);
+  z42\0\19c1 = (10.114u,9.668u);  z42\0\19c2 = (12.268u,8.839u);
+  z42\0\19 = (12.861u,10.241u);  z42\0\20c1 = (13.196u,11.033u);
+  z42\0\20c2 = (13.144u,12.068u);  z42\0\20 = (13.326u,12.907u);
+  z42\0\21c1 = (13.548u,13.929u);  z42\0\21c2 = (13.946u,14.508u);
+  z42\0\21 = (13.972u,15.634u);  z42\0\22c1 = (13.036u,15.288u);
+  z42\0\22c2 = (12.297u,14.919u);  z42\0\22 = (12.398u,13.799u);
+  z42\0\23c1 = (12.660u,10.879u);  z42\0\23c2 = (11.719u,9.930u);
+  z42\0\23 = (8.913u,10.334u);  z42\0\24c1 = (8.913u,11.100u);
+  z42\0\24c2 = (9.016u,12.542u);  z42\0\24 = (8.646u,13.198u);
+  z42\0\25c1 = (8.368u,13.691u);  z42\0\25c2 = (8.038u,13.911u);
+  z42\0\25 = (7.552u,14.192u);  z42\0\26 = (6.347u,14.327u);
+  z42\0\27c1 = (5.786u,14.054u);  z42\0\27c2 = (5.410u,13.676u);
+  z42\0\27 = (5.248u,12.970u);  z42\0\28c1 = (4.956u,12.723u);
+  z42\0\28c2 = (4.742u,12.306u);  z42\0\28 = (4.641u,11.800u);
+  z42\0\29c1 = (4.877u,11.653u);  z42\0\29c2 = (5.001u,11.473u);
+  z42\0\29 = (4.978u,11.304u);  z42\0\30c1 = (4.843u,11.057u);
+  z42\0\30c2 = (5.271u,10.741u);  z42\1\0s = (7.217u,9.227u);
+  z42\1\0c1 = (7.466u,11.921u);  z42\1\0c2 = (7.685u,12.072u);
+  z42\1\0 = (5.870u,13.442u);  z42\1\1c1 = (6.864u,14.647u);
+  z42\1\1c2 = (8.310u,13.442u);  z42\1\1 = (8.482u,12.224u);
+  z42\1\2c1 = (8.542u,11.348u);  z42\1\2c2 = (8.558u,10.944u);
+  z42\1\2 = (8.493u,9.899u);  z42\2\0s = (5.589u,13.097u);
+  z42\2\0c1 = (6.194u,12.880u);  z42\2\0c2 = (6.757u,12.115u);
+  z42\2\0 = (6.667u,11.122u);  z42\2\1c1 = (6.071u,10.933u);
+  z42\2\1c2 = (5.860u,10.522u);  z42\2\1 = (5.270u,10.851u);
+  z42\2\2c1 = (5.192u,11.288u);  z42\2\2c2 = (5.326u,11.897u);
+  z42\2\2 = (4.917u,11.910u);  z42\2\3c1 = (4.891u,12.411u);
+  z42\2\3c2 = (5.550u,12.820u);  z42\3\0s = (6.745u,10.093u);
+  z42\3\0 = (6.745u,8.407u);  z42\3\1 = (8.913u,9.611u);
+  z42\3\2c1 = (8.870u,7.689u);  z42\3\2c2 = (8.486u,5.044u);
+  z42\3\2 = (6.459u,4.311u);  z42\3\3 = (6.459u,7.395u);
+  z42\3\4 = (5.781u,9.852u);  z42\4\0s = (5.234u,4.244u);
+  z42\4\0 = (2.983u,2.798u);  z42\4\1c1 = (1.537u,6.856u);
+  z42\4\1c2 = (2.288u,7.802u);  z42\5\0s = (8.191u,4.552u);
+  z42\5\0c1 = (9.327u,1.016u);  z42\5\0c2 = (5.690u,0.481u);
+  z42\5\0 = (3.789u,0.964u);  z42\5\1 = (3.132u,0.698u);
+  z42\5\2 = (2.168u,0.939u);  z42\6\0s = (6.826u,14.092u);
+  z42\6\0 = (7.286u,13.863u);  z42\6\1 = (7.286u,16.392u);
+  z42\6\2c1 = (7.286u,16.977u);  z42\6\2c2 = (7.946u,16.448u);
+  z42\6\2 = (7.961u,16.887u);  z42\6\3c1 = (7.970u,17.138u);
+  z42\6\3c2 = (7.578u,17.135u);  z42\6\3 = (7.353u,17.135u);
+  z42\6\4c1 = (6.813u,17.135u);  z42\6\4c2 = (6.846u,16.484u);
+  z42\6\4 = (6.824u,16.200u);  z42\6\5c1 = (6.835u,15.806u);
+  z42\6\5c2 = (6.210u,15.783u);  z42\6\5 = (6.205u,15.412u);
+  z42\6\6c1 = (6.199u,15.063u);  z42\6\6c2 = (6.779u,14.984u);
+  z42\6\6 = (6.835u,14.319u);  z42\7\0s = (6.166u,10.555u);
+  z42\7\0 = (6.322u,10.243u);  z42\7\1 = (5.372u,10.175u);
+  z42\7\2 = (5.614u,10.383u);  z42\8\0s = (5.419u,12.331u);
+  z42\8\0c1 = (5.653u,12.255u);  z42\8\0c2 = (5.838u,12.271u);
+  z42\8\0 = (6.167u,12.321u);  z42\8\1c1 = (5.967u,12.545u);
+  z42\8\1c2 = (5.439u,12.573u);
+  fill_or_unfill z42\0\0s
+    ..controls z42\0\0c1 and z42\0\0c2..z42\0\0
+    ..controls z42\0\1c1 and z42\0\1c2..z42\0\1
+    ..controls z42\0\2c1 and z42\0\2c2..z42\0\2
+    ..controls z42\0\3c1 and z42\0\3c2..z42\0\3
+    ..controls z42\0\4c1 and z42\0\4c2..z42\0\4
+    ..controls z42\0\5c1 and z42\0\5c2..z42\0\5
+    ..controls z42\0\6c1 and z42\0\6c2..z42\0\6
+    --z42\0\7
+    ..controls z42\0\8c1 and z42\0\8c2..z42\0\8
+    ..controls z42\0\9c1 and z42\0\9c2..z42\0\9
+    ..controls z42\0\10c1 and z42\0\10c2..z42\0\10
+    ..controls z42\0\11c1 and z42\0\11c2..z42\0\11
+    --z42\0\12    --z42\0\13    --z42\0\14    --z42\0\15    --z42\0\16
+    ..controls z42\0\17c1 and z42\0\17c2..z42\0\17
+    ..controls z42\0\18c1 and z42\0\18c2..z42\0\18
+    ..controls z42\0\19c1 and z42\0\19c2..z42\0\19
+    ..controls z42\0\20c1 and z42\0\20c2..z42\0\20
+    ..controls z42\0\21c1 and z42\0\21c2..z42\0\21
+    ..controls z42\0\22c1 and z42\0\22c2..z42\0\22
+    ..controls z42\0\23c1 and z42\0\23c2..z42\0\23
+    ..controls z42\0\24c1 and z42\0\24c2..z42\0\24
+    ..controls z42\0\25c1 and z42\0\25c2..z42\0\25
+    --z42\0\26
+    ..controls z42\0\27c1 and z42\0\27c2..z42\0\27
+    ..controls z42\0\28c1 and z42\0\28c2..z42\0\28
+    ..controls z42\0\29c1 and z42\0\29c2..z42\0\29
+    ..controls z42\0\30c1 and z42\0\30c2..cycle;
+  fill_or_unfill z42\1\0s
+    ..controls z42\1\0c1 and z42\1\0c2..z42\1\0
+    ..controls z42\1\1c1 and z42\1\1c2..z42\1\1
+    ..controls z42\1\2c1 and z42\1\2c2..z42\1\2
+    --cycle;
+  fill_or_unfill z42\2\0s
+    ..controls z42\2\0c1 and z42\2\0c2..z42\2\0
+    ..controls z42\2\1c1 and z42\2\1c2..z42\2\1
+    ..controls z42\2\2c1 and z42\2\2c2..z42\2\2
+    ..controls z42\2\3c1 and z42\2\3c2..cycle;
+  fill_or_unfill z42\3\0s
+    --z42\3\0    --z42\3\1
+    ..controls z42\3\2c1 and z42\3\2c2..z42\3\2
+    --z42\3\3    --z42\3\4    --cycle;
+  fill_or_unfill z42\4\0s
+    --z42\4\0
+    ..controls z42\4\1c1 and z42\4\1c2..cycle;
+  fill_or_unfill z42\5\0s
+    ..controls z42\5\0c1 and z42\5\0c2..z42\5\0
+    --z42\5\1    --z42\5\2    --cycle;
+  fill_or_unfill z42\6\0s
+    --z42\6\0    --z42\6\1
+    ..controls z42\6\2c1 and z42\6\2c2..z42\6\2
+    ..controls z42\6\3c1 and z42\6\3c2..z42\6\3
+    ..controls z42\6\4c1 and z42\6\4c2..z42\6\4
+    ..controls z42\6\5c1 and z42\6\5c2..z42\6\5
+    ..controls z42\6\6c1 and z42\6\6c2..z42\6\6
+    --cycle;
+  fill_or_unfill z42\7\0s
+    --z42\7\0    --z42\7\1    --z42\7\2    --cycle;
+  fill_or_unfill z42\8\0s
+    ..controls z42\8\0c1 and z42\8\0c2..z42\8\0
+    ..controls z42\8\1c1 and z42\8\1c2..cycle;
+endchar;
+
+
+%% D50: numeral 10,000 (looks like a ship's ventilator)
+%% (code as 5(53) 53+31 = 84)
+%%beginchar (84, 3.582u#, 17.331u#, 0.000u#);
+beginchar (84, 3.582u#+side#, 17.331u#, 0.000u#);
+  "D50";
+  z84\0\0s = (0.001u,0.014u);  z84\0\0c1 = (1.814u,0.015u);
+  z84\0\0c2 = (2.849u,-0.293u);  z84\0\0 = (2.891u,1.942u);
+  z84\0\1 = (3.582u,9.629u);  z84\0\2c1 = (3.569u,11.174u);
+  z84\0\2c2 = (2.697u,12.734u);  z84\0\2 = (2.853u,14.227u);
+  z84\0\3c1 = (2.955u,15.213u);  z84\0\3c2 = (4.145u,17.753u);
+  z84\0\3 = (1.928u,17.279u);  z84\0\4c1 = (0.020u,16.871u);
+  z84\0\4c2 = (-0.106u,14.324u);  z84\0\4 = (0.041u,12.781u);
+  z84\0\5 = (0.482u,8.687u);  z84\1\0s = (0.964u,14.709u);
+  z84\1\0c1 = (3.684u,12.042u);  z84\1\0c2 = (2.421u,8.134u);
+  z84\1\0 = (2.190u,4.832u);  z84\1\1c1 = (2.134u,4.027u);
+  z84\1\1c2 = (2.301u,1.467u);  z84\1\1 = (1.560u,1.018u);
+  z84\1\2c1 = (0.509u,0.382u);  z84\1\2c2 = (0.747u,3.008u);
+  z84\1\2 = (0.791u,3.387u);  z84\1\3 = (1.205u,8.446u);
+  z84\1\4c1 = (1.202u,10.426u);  z84\1\4c2 = (0.223u,12.840u);
+  fill_or_unfill z84\0\0s
+    ..controls z84\0\0c1 and z84\0\0c2..z84\0\0
+    --z84\0\1
+    ..controls z84\0\2c1 and z84\0\2c2..z84\0\2
+    ..controls z84\0\3c1 and z84\0\3c2..z84\0\3
+    ..controls z84\0\4c1 and z84\0\4c2..z84\0\4
+    --z84\0\5    --cycle;
+  fill_or_unfill z84\1\0s
+    ..controls z84\1\0c1 and z84\1\0c2..z84\1\0
+    ..controls z84\1\1c1 and z84\1\1c2..z84\1\1
+    ..controls z84\1\2c1 and z84\1\2c2..z84\1\2
+    --z84\1\3
+    ..controls z84\1\4c1 and z84\1\4c2..cycle;
+endchar;
+
+
+%% I8: numeral 100,000 (a mongoose)
+%% (code as 6(54) 54+31 = 85)
+%%beginchar (40, 13.204u#, 17.105u#, 0.000u#);
+beginchar (85, 13.204u#+side#, 17.105u#, 0.000u#);
+  "I8";
+  z40\0\0s = (12.765u,0.000u);  z40\0\0c1 = (14.104u,2.910u);
+  z40\0\0c2 = (12.145u,9.931u);  z40\0\0 = (10.043u,12.276u);
+  z40\0\1c1 = (8.801u,13.662u);  z40\0\1c2 = (7.244u,14.308u);
+  z40\0\1 = (5.783u,15.365u);  z40\0\2c1 = (4.056u,16.613u);
+  z40\0\2c2 = (2.415u,18.220u);  z40\0\2 = (0.335u,16.021u);
+  z40\0\3c1 = (-0.138u,15.534u);  z40\0\3c2 = (-0.092u,15.078u);
+  z40\0\3 = (0.335u,14.600u);  z40\0\4c1 = (1.074u,13.806u);
+  z40\0\4c2 = (2.032u,13.533u);  z40\0\4 = (2.627u,12.523u);
+  z40\0\5c1 = (3.616u,10.842u);  z40\0\5c2 = (3.654u,8.485u);
+  z40\0\5 = (5.441u,7.207u);  z40\0\6c1 = (6.118u,6.723u);
+  z40\0\6c2 = (8.023u,7.001u);  z40\0\6 = (8.911u,6.985u);
+  z40\0\7c1 = (12.345u,6.922u);  z40\0\7c2 = (10.867u,1.899u);
+  z40\1\0s = (12.043u,5.300u);  z40\1\0c1 = (11.170u,6.504u);
+  z40\1\0c2 = (10.873u,8.449u);  z40\1\0 = (9.152u,8.672u);
+  z40\1\1 = (9.874u,7.949u);  z40\1\2c1 = (8.611u,7.299u);
+  z40\1\2c2 = (7.162u,8.231u);  z40\1\2 = (7.069u,9.637u);
+  z40\1\3c1 = (7.033u,10.173u);  z40\1\3c2 = (7.307u,10.810u);
+  z40\1\3 = (7.465u,11.322u);  z40\1\4c1 = (6.073u,10.193u);
+  z40\1\4c2 = (6.377u,9.797u);  z40\1\4 = (6.502u,8.190u);
+  z40\1\5 = (5.150u,8.748u);  z40\1\6 = (2.406u,15.176u);
+  z40\1\7 = (1.443u,15.417u);  z40\1\8 = (1.443u,15.899u);
+  z40\1\9c1 = (3.915u,16.915u);  z40\1\9c2 = (3.656u,15.966u);
+  z40\1\9 = (5.538u,14.606u);  z40\1\10c1 = (9.328u,11.866u);
+  z40\1\10c2 = (11.801u,10.481u);
+  fill_or_unfill z40\0\0s
+    ..controls z40\0\0c1 and z40\0\0c2..z40\0\0
+    ..controls z40\0\1c1 and z40\0\1c2..z40\0\1
+    ..controls z40\0\2c1 and z40\0\2c2..z40\0\2
+    ..controls z40\0\3c1 and z40\0\3c2..z40\0\3
+    ..controls z40\0\4c1 and z40\0\4c2..z40\0\4
+    ..controls z40\0\5c1 and z40\0\5c2..z40\0\5
+    ..controls z40\0\6c1 and z40\0\6c2..z40\0\6
+    ..controls z40\0\7c1 and z40\0\7c2..cycle;
+  fill_or_unfill z40\1\0s
+    ..controls z40\1\0c1 and z40\1\0c2..z40\1\0
+    --z40\1\1
+    ..controls z40\1\2c1 and z40\1\2c2..z40\1\2
+    ..controls z40\1\3c1 and z40\1\3c2..z40\1\3
+    ..controls z40\1\4c1 and z40\1\4c2..z40\1\4
+    --z40\1\5    --z40\1\6    --z40\1\7    --z40\1\8
+    ..controls z40\1\9c1 and z40\1\9c2..z40\1\9
+    ..controls z40\1\10c1 and z40\1\10c2..cycle;
+endchar;
+
+
+%% M12: numeral 1,000 (a lotus)
+%% (code as 4(52) 52+31 = 83)
+%%beginchar (43, 5.781u#, 17.752u#, 0.000u#);
+beginchar (83, 5.781u#+side#, 17.752u#, 0.000u#);
+  "M12";
+  z43\0\0s = (2.650u,13.731u);  z43\0\0 = (2.650u,3.372u);
+  z43\0\1 = (0.482u,4.095u);  z43\0\2 = (1.686u,3.132u);
+  z43\0\3 = (0.000u,0.000u);  z43\0\4 = (5.781u,0.000u);
+  z43\0\5 = (4.095u,3.132u);  z43\0\6 = (5.300u,4.336u);
+  z43\0\7 = (3.613u,3.613u);  z43\0\8 = (3.613u,13.972u);
+  z43\0\9 = (5.300u,14.454u);  z43\0\10 = (5.300u,14.936u);
+  z43\0\11 = (3.854u,15.659u);  z43\0\12 = (3.854u,16.140u);
+  z43\0\13 = (5.300u,17.345u);  z43\0\14c1 = (-0.747u,19.305u);
+  z43\0\14c2 = (-1.505u,14.175u);  z43\1\0s = (4.095u,17.104u);
+  z43\1\0 = (2.891u,16.140u);  z43\1\1 = (4.095u,14.454u);
+  z43\1\2c1 = (-0.807u,13.915u);  z43\1\2c2 = (0.196u,18.040u);
+  z43\2\0s = (4.818u,0.964u);  z43\2\0 = (0.963u,0.964u);
+  z43\2\1c1 = (1.913u,2.745u);  z43\2\1c2 = (3.883u,2.824u);
+  fill_or_unfill z43\0\0s
+    --z43\0\0    --z43\0\1    --z43\0\2    --z43\0\3    --z43\0\4
+    --z43\0\5    --z43\0\6    --z43\0\7    --z43\0\8    --z43\0\9
+    --z43\0\10    --z43\0\11    --z43\0\12    --z43\0\13
+    ..controls z43\0\14c1 and z43\0\14c2..cycle;
+  fill_or_unfill z43\1\0s
+    --z43\1\0    --z43\1\1
+    ..controls z43\1\2c1 and z43\1\2c2..cycle;
+  fill_or_unfill z43\2\0s
+    --z43\2\0
+    ..controls z43\2\1c1 and z43\2\1c2..cycle;
+endchar;
+
+
+%% V1: numeral 100 (a coil of rope)
+%% (code as 3(51) 51+31 = 82)
+%%beginchar (32, 4.415u#, 9.110u#, 0.000u#);
+beginchar (82, 4.415u#+side#, 9.110u#, 0.000u#);
+  "V1";
+  z32\0\0s = (3.557u,0.000u);  z32\0\0 = (4.040u,0.000u);
+  z32\0\1 = (4.281u,0.241u);  z32\0\2c1 = (3.562u,3.301u);
+  z32\0\2c2 = (1.219u,4.407u);  z32\0\2 = (0.843u,6.264u);
+  z32\0\3c1 = (0.443u,8.237u);  z32\0\3c2 = (2.933u,8.981u);
+  z32\0\3 = (3.462u,7.691u);  z32\0\4c1 = (3.838u,6.715u);
+  z32\0\4c2 = (2.243u,5.499u);  z32\0\4 = (1.872u,7.691u);
+  z32\0\5 = (1.390u,7.691u);  z32\0\6c1 = (1.496u,4.682u);
+  z32\0\6c2 = (4.225u,5.255u);  z32\0\6 = (4.415u,6.990u);
+  z32\0\7c1 = (4.702u,9.639u);  z32\0\7c2 = (0.876u,9.825u);
+  z32\0\7 = (0.117u,7.464u);  z32\0\8c1 = (-0.544u,5.410u);
+  z32\0\8c2 = (1.748u,3.455u);  z32\0\8 = (2.701u,1.927u);
+  z32\0\9c1 = (3.079u,1.321u);  z32\0\9c2 = (3.300u,0.661u);
+  fill_or_unfill z32\0\0s
+    --z32\0\0    --z32\0\1
+    ..controls z32\0\2c1 and z32\0\2c2..z32\0\2
+    ..controls z32\0\3c1 and z32\0\3c2..z32\0\3
+    ..controls z32\0\4c1 and z32\0\4c2..z32\0\4
+    --z32\0\5
+    ..controls z32\0\6c1 and z32\0\6c2..z32\0\6
+    ..controls z32\0\7c1 and z32\0\7c2..z32\0\7
+    ..controls z32\0\8c1 and z32\0\8c2..z32\0\8
+    ..controls z32\0\9c1 and z32\0\9c2..cycle;
+endchar;
+
+
+%% V20: numeral 10 (a cattle hobble)
+%% (code as 2(50) 50+31 = 81)
+%%beginchar (51, 5.830u#, 6.186u#, 0.000u#);
+beginchar (81, 5.830u#+side#, 6.186u#, 0.000u#);
+  "V20";
+  z51\0\0s = (0.025u,0.000u);  z51\0\0 = (0.748u,0.000u);
+  z51\0\1c1 = (0.748u,0.945u);  z51\0\1c2 = (0.638u,2.776u);
+  z51\0\1 = (0.904u,3.613u);  z51\0\2c1 = (1.554u,5.660u);
+  z51\0\2c2 = (4.001u,5.863u);  z51\0\2 = (4.841u,3.851u);
+  z51\0\3c1 = (5.211u,2.967u);  z51\0\3c2 = (5.084u,1.017u);
+  z51\0\3 = (5.084u,0.000u);  z51\0\4 = (5.806u,0.000u);
+  z51\0\5c1 = (5.806u,1.207u);  z51\0\5c2 = (5.955u,3.257u);
+  z51\0\5 = (5.530u,4.337u);  z51\0\6c1 = (4.542u,6.847u);
+  z51\0\6c2 = (1.277u,6.815u);  z51\0\6 = (0.301u,4.337u);
+  z51\0\7c1 = (-0.124u,3.258u);  z51\0\7c2 = (0.025u,1.206u);
+  fill_or_unfill z51\0\0s
+    --z51\0\0
+    ..controls z51\0\1c1 and z51\0\1c2..z51\0\1
+    ..controls z51\0\2c1 and z51\0\2c2..z51\0\2
+    ..controls z51\0\3c1 and z51\0\3c2..z51\0\3
+    --z51\0\4
+    ..controls z51\0\5c1 and z51\0\5c2..z51\0\5
+    ..controls z51\0\6c1 and z51\0\6c2..z51\0\6
+    ..controls z51\0\7c1 and z51\0\7c2..cycle;
+endchar;
+
+def mamodif= identity  reflectedabout((w/2,h), (w/2,0)); enddef;
+def depart= 128 -31; enddef;
+%% repeat the above list of characters now
+
+bye.
+

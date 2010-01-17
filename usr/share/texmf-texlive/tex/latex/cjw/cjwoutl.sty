@@ -1,0 +1,187 @@
+%%
+%% This is file `cjwoutl.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cjwoutl.dtx  (with options: `package')
+%% 
+%% Copyright (C) 1995 by Colin J. Wynne
+%% 
+%% This file is part of cjwoutl, a package
+%% for generating outlines with LaTeX2e.
+%% 
+\def\fileversion{0.6}
+\def\filedate{1996/04/26}
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%%
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{cjwoutl}
+  [1995/04/24 v0.5 Auto-Numbered Outlines--CJW]
+
+\DeclareOption*{%
+  \PackageWarning{cjwoutl}{Unknown option `\CurrentOption'}}
+
+\ProcessOptions
+
+\newif\ifoutl@group
+\newlength{\aboveoutlskip}
+  \setlength{\aboveoutlskip}{\abovedisplayskip}
+\newlength{\belowoutlskip}
+  \setlength{\belowoutlskip}{\belowdisplayskip}
+\newlength{\outlindent}
+  \setlength{\outlindent}{\parindent}
+\newcounter {outl@indsize}
+\newcounter {outl@lastind}
+\newcounter {outli}            % I.
+\newcounter {outlii} [outli]   %   A.
+\newcounter {outliii}[outlii]  %     1.
+\newcounter {outliv} [outliii] %       a.
+\newcounter {outlv}  [outliv]  %         i.
+\newcounter {outlvi} [outlv]   %          (a)
+\newcounter {outlvii}[outlvi]  %            (i)
+\newcounter {outldef}[outlvii]
+\renewcommand{\theoutli}    {\Roman{outli}}
+\renewcommand{\theoutlii}   {\Alph{outlii}}
+\renewcommand{\theoutliii}  {\arabic{outliii}}
+\renewcommand{\theoutliv}   {\alph{outliv}}
+\renewcommand{\theoutlv}    {\roman{outlv}}
+\renewcommand{\theoutlvi}   {\alph{outlvi}}
+\renewcommand{\theoutlvii}  {\roman{outlvii}}
+\renewcommand{\theoutldef}  {}
+\newcommand{\labeloutli}    {\theoutli.}
+\newcommand{\labeloutlii}   {\theoutlii.}
+\newcommand{\labeloutliii}  {\theoutliii.}
+\newcommand{\labeloutliv}   {\theoutliv.}
+\newcommand{\labeloutlv}    {\theoutlv.}
+\newcommand{\labeloutlvi}   {(\theoutlvi)}
+\newcommand{\labeloutlvii}  {(\theoutlvii)}
+\newcommand{\labeloutldef}  {\ensuremath{\bullet}}
+\renewcommand{\p@outli}     {}
+\renewcommand{\p@outlii}    {\theoutli.}
+\renewcommand{\p@outliii}   {\p@outlii\theoutlii.}
+\renewcommand{\p@outliv}    {\p@outliii\theoutliii.}
+\renewcommand{\p@outlv}     {\p@outliv\theoutliv.}
+\renewcommand{\p@outlvi}    {\p@outlv\labeloutlv.}
+\renewcommand{\p@outlvii}   {\p@outlvi\labeloutlvi.}
+\renewcommand{\p@outldef}   {\p@outlvii\ldots}
+\newenvironment{outline}[1][keep]%
+  {\def\@tempa{#1} \def\@tempb{new}
+   \ifx\@tempa\@tempb
+     \outl@reset
+   \fi
+   \penalty\predisplaypenalty\vspace{\aboveoutlskip}}%
+  {\par\endgroup\global\outl@groupfalse%
+   \penalty\postdisplaypenalty\vspace{\belowoutlskip}}
+\newcommand{\outl@reset}{%
+  \setcounter{outli}  {0}
+  \setcounter{outlii} {0}
+  \setcounter{outliii}{0}
+  \setcounter{outliv} {0}
+  \setcounter{outlv}  {0}
+  \setcounter{outlvi} {0}
+  \setcounter{outlvii}{0}}
+\newcommand{\outlstyle}[1]{%
+  \@ifundefined{ols@#1}
+    {\PackageWarning{cjwoutl}{Outline style `#1' is undefined.  Using
+                              style `plain' instead}%
+     \def\outl@style{\ols@plain}}
+    {\def\outl@style{\csname ols@#1\endcsname}}}
+\def\ols@plain{\@empty}
+\def\ols@firstpar#1\par{%
+  \bgroup\firstparfont #1\par\egroup}
+
+\DeclareOldFontCommand{\firstparfont}{\normalfont\itshape}{\relax}
+\outlstyle{plain}
+\newcommand{\ol}[2]{%
+  \outl@checkgroups \outl@processlvl{#1}%
+  \ifnum \c@outl@indsize < 1\relax%
+    \setcounter{outl@indsize}{0}%
+    \leftskip = 0pt%
+  \else%
+    \leftskip = \c@outl@indsize\outlindent%
+  \fi%
+  \noindent\theoutlabel{#2}%
+  \ignorespaces\outl@style}
+\newcommand{\npp}[1]{\ol{#1}{\null}\null\indent}
+\newcommand{\unpp}[1]{\ol{#1}{\null}}
+\newcommand{\outl}[1]{%
+  \outl@checkgroups \outl@processlvl{#1}%
+  \ifnum \c@outl@indsize < 1\relax%
+    \setcounter{outl@indsize}{0}%
+    \leftskip = 0pt%
+  \else%
+    \leftskip = \c@outl@indsize\outlindent%
+  \fi%
+  \noindent\outl@label{\c@outl@indsize}%
+  \ignorespaces\outl@style}
+\newcommand{\outl@checkgroups}{%
+  \ifoutl@group
+    \par\endgroup\global\outl@groupfalse
+    \smallbreak
+  \fi
+  \setcounter{outl@lastind}{\c@outl@indsize}
+  \smallbreak
+  \begingroup
+    \global\outl@grouptrue}
+\newcommand{\outl@processlvl}[1]{%
+  \def\@tempa{+}\def\@tempb{-}\def\@tempc{=}
+  \def\@tempd{#1}
+  \ifx\@tempa\@tempd
+    \addtocounter{outl@indsize}{1}
+  \else\ifx\@tempb\@tempd
+         \addtocounter{outl@indsize}{-1}
+       \else\ifx\@tempc\@tempd
+              % Nothing---stay at same level.
+            \else
+              \setcounter{outl@indsize}{\@tempd}
+              \addtocounter{outl@indsize}{-1}
+            \fi
+       \fi
+  \fi}
+\newcommand{\outl@label}[1]{%
+  \ifcase #1
+    \@dolabeli\or\@dolabelii\or\@dolabeliii%
+    \or\@dolabeliv\or\@dolabelv\or\@dolabelvi%
+    \or\@dolabelvii\else\@dolabeldef%
+  \fi}
+\@ifundefined{labelfont}
+  {\DeclareOldFontCommand{\labelfont}%
+    {\normalfont\bfseries\mathversion{bold}}{\mathbf}}
+  {} % Do nothing---|\labelfont| is already defined
+\newcommand{\theoutlabel}[1]{%
+  \llap{\hbox{\labelfont#1\enskip}}}
+\newcommand{\@dolabeli}{%
+  \refstepcounter{outli}\theoutlabel{\labeloutli}}
+\newcommand{\@dolabelii}{%
+  \refstepcounter{outlii}\theoutlabel{\labeloutlii}}
+\newcommand{\@dolabeliii}{%
+  \refstepcounter{outliii}\theoutlabel{\labeloutliii}}
+\newcommand{\@dolabeliv}{%
+  \refstepcounter{outliv}\theoutlabel{\labeloutliv}}
+\newcommand{\@dolabelv}{%
+  \refstepcounter{outlv}\theoutlabel{\labeloutlv}}
+\newcommand{\@dolabelvi}{%
+  \refstepcounter{outlvi}\theoutlabel{\labeloutlvi}}
+\newcommand{\@dolabelvii}{%
+  \refstepcounter{outlvii}\theoutlabel{\labeloutlvii}}
+\newcommand{\@dolabeldef}{%
+  \refstepcounter{outldef}\theoutlabel{\labeloutldef}}
+\endinput
+%%
+%% End of file `cjwoutl.sty'.

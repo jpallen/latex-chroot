@@ -1,0 +1,197 @@
+%
+% lcyrbeg.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% File with macros which emulate exbase.mf from ec fonts (J"org Knappen)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Contents:
+%
+%  *) font booleans (mostly for ec); slitex used in SliTeX cm fonts
+%  *) macros for processing chars twice: for some accents
+%  *) routines to generate the parameter sets by extrapolation
+%  ** macros for accenting moved in file lcyrdefs.mf
+%
+
+LHver_check(3,5); % like |version_check| in ec
+
+if unknown slitex:
+   boolean slitex; slitex := false; fi % |true| simulates behaviour of |sroman|
+if unknown one_serif:
+   boolean one_serif; one_serif:=true; fi % |false| suppresses base serif on `1'
+if unknown classic_serif:
+   boolean classic_serif;  classic_serif := false; fi
+if unknown suppress_i_dot:
+   boolean suppress_i_dot; suppress_i_dot :=false; fi
+if unknown hach_sharp:
+   boolean hach_sharp; hach_sharp:=false; fi
+if unknown classic_sharp_s: boolean classic_sharp_s;
+   if ebbase=1:
+      classic_sharp_s:=true; % Chooses shape of sharp s (CMBRIGHT)
+   else:
+      classic_sharp_s:=false; % Chooses shape of sharp s
+   fi
+fi % Chooses shape of sharp s
+if unknown true_mono:
+   boolean true_mono; true_mono:=false; % |true| forces ligatures to monowidth
+fi
+if unknown knuthian_ae:
+   boolean knuthian_ae; knuthian_ae:=false; fi % |true| reproduces cm italic \ae
+if unknown fancy_thorn:
+   boolean fancy_thorn; fancy_thorn:=false; fi % |true| produces \th with fancier bulb
+if unknown is_small_cap:
+   boolean is_small_cap; is_small_cap:=false; fi
+tracingstats:=1; % Print statistics at the end of run
+
+
+%
+%
+%
+% some extra font parameters
+%
+def font_cap_height expr x = fontdimen 8: x enddef;
+def font_asc_height expr x = fontdimen 9: x enddef;
+def font_acc_cap_height expr x = fontdimen 10: x enddef;
+def font_desc_depth expr x = fontdimen 11: x enddef;
+def font_max_height expr x = fontdimen 12: x enddef;
+def font_max_depth  expr x = fontdimen 13: x enddef;
+def font_digit_width expr x = fontdimen 14: x enddef;
+def font_cap_stem expr x = fontdimen 15: x enddef;
+def font_baselineskip  expr x = fontdimen 16: x enddef;
+
+
+
+%
+%      XXXXXXX       The following routines generate the parameter
+%      X     X       sets by extrapolation
+%      X     X
+%      X     X
+%      X     X
+%   XXXX     XXXX
+%    X         X
+%     X       X
+%      X     X
+%       X   X
+%        X X
+%         X
+%
+%
+%                     needed variables
+%
+
+vardef simple_gendef@#(text aa)(text t)=
+ string s[];
+ s1:="";
+ s2:=str @#;
+ index:=1;
+ forsuffixes $=t: ydata[index]:=$ if s1<>s2: *@# fi;
+                 index:=index+1;
+ endfor;
+ if numpoints>(index-1): errmessage "Missing parameter"; message str aa; fi;
+ if numpoints<(index-1): errmessage "Too many parameters"; message str aa; fi;
+ aa:=ydata[merke];
+ if gencheck: message str aa fi;
+enddef;
+
+vardef extended_gendef@#(text aa)(text t)=
+ string s[];
+ s1:="";
+ s2:=str @#;
+ index:=1;
+ forsuffixes $=t: ydata[index]:=$ if s1<>s2: *@# fi;
+                 index:=index+1;
+ endfor;
+ if numpoints>(index-1): errmessage "Missing parameter"; message str aa; fi;
+ if numpoints<(index-1): errmessage "Too many parameters"; message str aa; fi;
+ if gensize>basedata[numpoints]:
+   numeric hilf [];
+   hilf[1]:=(ydata[numpoints]-ydata[numpoints-1])/(basedata[numpoints]-basedata[numpoints-1]);
+   hilf[2]:=(ydata[numpoints]-ydata[numpoints-2])/(basedata[numpoints]-basedata[numpoints-2]);
+   hilf[3]:=ydata[numpoints]-hilf1*basedata[numpoints];
+   hilf[4]:=ydata[numpoints]-hilf2*basedata[numpoints];
+   spy:=(hilf[1]*gensize+hilf[3])/2+(hilf[2]*gensize+hilf[4])/2;
+   aa:=spy;
+ else:
+ for index = 1 upto numpoints-1:
+    interval[index]:=basedata[index+1]-basedata[index];
+ endfor;
+ for index=1 upto numpoints:
+    spline[1][index]:=ydata[index];
+ endfor;
+ for index=2 upto numpoints-1:
+    alpha[index]:=3*((spline[1][index+1]*interval[index-1])%
+                   -(spline[1][index]*(basedata[index+1]-basedata[index-1]))%
+                   +(spline[1][index-1]*interval[index]))%
+                   /(interval[index-1]*interval[index]);
+ endfor;
+ spl[1]:=0;
+ spmu[1]:=0;
+ spz[1]:=0;
+ for index=2 upto numpoints-1:
+    spl[index]:=2*(basedata[index+1]-basedata[index-1])%
+                 -interval[index-1]*spmu[index-1];
+    spmu[index]:=interval[index]/spl[index];
+    spz[index]:=(alpha[index]-interval[index-1]*spz[index-1])/spl[index];
+ endfor;
+ spline[3][numpoints]:=0;
+ for index=numpoints-1 downto 1:
+    spline[3][index]:=spz[index]-spmu[index]*spline[3][index+1];
+ endfor;
+ for index=numpoints -1 downto 1:
+    spline[2][index]:=(spline[1][index+1]-spline[1][index])/interval[index]%
+             -interval[index]*(spline[3][index+1]*spline[3][index])/3;
+    spline[4][index]:=(spline[3][index+1]-spline[3][index])/(3*interval[index]);
+ endfor;
+ location:=1;
+ for term=1 upto numpoints-1:
+    if gensize > basedata[term]: location:=term; fi
+ endfor;
+ spx:=gensize-basedata[location];
+ spy:=((spline[4][location]*spx+spline[3][location])*spx+spline[2][location])*spx+spline[1][location];
+ aa:=spy; fi;
+ if gencheck: message str aa fi;
+enddef;
+
+vardef basedef(text t)=
+ boolean basevalue; boolean gencheck;
+ numeric index; numeric ergbnis; numeric location; numeric term;
+ numeric numpoints; numeric spx; numeric spy;
+ numeric basedata[]; numeric interval[]; numeric alpha[];
+ numeric spl[]; numeric spmu[]; numeric spz[];
+ numeric ydata[]; numeric spline[][];
+ basevalue:=false; gencheck:=false;
+ index:=1;
+ forsuffixes $=t: basedata[index]:=$;
+                 if $=gensize: basevalue:=true; merke:=index; fi;
+                 index:=index+1;
+ endfor;
+ numpoints:=index-1;
+ if numpoints<3: errmessage "Not enough reference points"; fi
+ if basevalue: def gendef=simple_gendef enddef; else:
+               def gendef=extended_gendef enddef; fi
+enddef;
+
+def clear_extra_memory= % Release ressources hold by the extrapolation routine
+ numeric index; numeric ergbnis; numeric location; numeric term;
+ numeric numpoints; numeric spx; numeric spy;
+ numeric basedata[]; numeric interval[]; numeric alpha[];
+ numeric spl[]; numeric spmu[]; numeric spz[];
+ numeric ydata[]; numeric spline[][];
+ numeric hilf []; string s[];
+enddef;
+
+endinput;
+%end of file

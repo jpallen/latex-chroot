@@ -1,0 +1,36 @@
+% fixpdfmag.tex
+% Author: Javier Bezos, 2007
+%
+% This is Public Domain. You are free to use, copy, modify, 
+% distribute or whatever you want without restrictions. It is
+% unsupported, so please, do not contact the author, just
+% modify the file.
+%
+% Unfortunately, pdftex  has changed recently its behaviour and
+% now the page size is affected by \magnification, usually not a
+% wanted effect. It has been proposed to modify Plain TeX when
+% used with pdftex, by making a few changes in the pdftex.ini
+% file, but many people do not know or simply do not want to
+% modify Plain TeX or a custom made format. This file provides
+% an alternative which requires to modify the documents, as
+% the following example illustrates:
+%
+% \magnification3000
+% \input fixpdfmag % <- after \magnification
+% 
+% Hello
+% \bye
+%
+% If you are using a custom page size, it is preserved,
+% as it just converts pt units to truept ones.
+
+\ifx\pdfpageheight\undefined\else
+  \begingroup
+  \catcode`\@=11
+  \global\pdfpageheight\expandafter\getf@ctor\the\pdfpageheight truept
+  \global\pdfpagewidth\expandafter\getf@ctor\the\pdfpagewidth truept
+  \global\pdfhorigin\expandafter\getf@ctor\the\pdfhorigin truept
+  \global\pdfvorigin\expandafter\getf@ctor\the\pdfvorigin truept
+  \endgroup
+\fi
+\endinput

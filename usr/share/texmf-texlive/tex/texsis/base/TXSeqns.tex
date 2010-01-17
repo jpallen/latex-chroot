@@ -1,0 +1,259 @@
+%% file: TXSeqns.tex - Equation Numbering - TeXsis version 2.18
+%% @(#) $Id: TXSeqns.tex,v 18.0 1999/07/09 17:24:29 myers Exp $
+%======================================================================*
+%
+%  These macros use \tag from TXStags to number equations automatically,
+%  including chapter and section numbers if \showchapIDtrue and
+%  \showsectIDtrue are used. To obtain automatic equation numbers in
+%  ordinary displayed equations, use \EQN in place of \eqno:
+%       $$
+%       <math mode material> \EQN <tag>
+%       $$
+%  The <tag> can include almost anything, including a number. A ; is used
+%  for multi-part equations, with the equation number only being 
+%  incremented for <tag>;a. For example,
+%       $$ <first part> \EQN <tag>;a $$
+%       ...
+%       $$ <second part> \EQN <tag>;b $$
+%  This usage requires that <tag>;<letter> NOT be surrounded by {}; \EQN 
+%  takes as its argument everything up to the $$.
+%
+%  To construct multi-part equations with \EQN, use \EQNalign and 
+%  \EQNdisplaylines in place of the \eqalign and \displaylines of plain
+%  TeX. For equations aligned at the & sign, use
+%       $$
+%       \EQNalign{
+%       <eqn 1 left> & <eqn 1 right> \EQN <tag1> \cr
+%       <eqn 2 left> & <eqn 2 right> \EQN <tag2> \cr
+%       ...}
+%       $$
+%  For centered equations with less space than between separate equations,
+%  use instead
+%       $$
+%       \EQNdisplaylines{
+%       <eqn 1 > \EQN <tag1> \cr
+%       <eqn 2 > \EQN <tag2> \cr
+%       ...}
+%       $$
+%  The \EQN can be omitted on any of the lines, or the ; construction can be
+%  used for multi-part numbers. (Note that these macros actually redefine
+%  \EQN to be & inside of the \halign and typeset the equation number in the 
+%  same way as does \eqalignno in plain TeX.)
+%
+%  Several macros are provided to use a tag to refer to a previous
+%  equation:
+%       \Eq{<tag>}      ==>     Eq.~(<number>)
+%       \Eqs{<tag>}     ==>     Eqs.~(<number>)
+%       \Ep{<tag>}      ==>     (<number>)
+%  Compound constructions are possible, e.g.
+%       \Eqs{<tag1>}-\Ep{<tag2>} ==> Eqs.~(<number1>)-(<number2>)
+%
+%  Note: there may be difficulties with using parentheses in labels
+%  if \onparens is set.
+%
+% This file is a part of TeXsis.
+% (C) Copyright 1986, 1997 by Eric Myers and Frank E. Paige
+%======================================================================*
+\message{Equation numbering.}
+
+% Counters and such:
+
+\newcount\eqnum         \eqnum=\z@      % equation number in section
+\def\@chaptID{}         \def\@sectID{}  % start with these null
+
+%  Equation Label Tracing: \eqnotracetrue allows you to trace equation
+%  numbers by internal label when you print a rough draft of the document.
+%  Both the external sequential equation number and the internal label are
+%  printed, one over the other.
+
+\newif\ifeqnotrace      \eqnotracefalse % start with it off
+
+%----------------------------------------------------------------------*
+%  \EQN <label> $$ gets everything up to the "$$" as the equation
+%  label and passes it to \EQNOparse for processing. Then it does the
+%  final "$$".  \@EQN does the work.
+
+\def\EQN{%      turns off special characters and calls \@EQN
+   \begingroup                          % what follows is local
+   \quoteoff\offparens                  % make sure ",(, ) not active
+   \@EQN}                               % go get label
+
+\def\@EQN#1$${%         gets everything up to $$ and parses as the label
+   \endgroup                            % end group from \EQN
+   \if ?#1? \EQNOparse *;;\endlist      % if no label, tag with "*"
+   \else \EQNOparse#1;;\endlist\fi      % parse the label
+   $$}                                  % then end equation with $$
+
+%  \EQNOparse <label>;;\endlist  parses <text> as an equation number
+%  label. It separates out letters, if present. (eg. label;a for equation a,
+%  but ";" does not appear in output.)  It tags the label and puts the equation
+%  number in the display by calling \@EQNOdisplay.
+
+\def\EQNOparse#1;#2;#3\endlist{% parse equation label, look for ``;''
+  \if ?#3?\relax                                % if #3 is null, no ";" present
+    \global\advance\eqnum by\@ne                % so advance count 
+    \edef\tnum{\@chaptID\@sectID\the\eqnum}%    % construct eqn number
+    \Eqtag{#1}{\tnum}%                          % tag the eqn number
+    \@EQNOdisplay{#1}%                          % display equation number
+  \else\stripblanks #2\endlist                  % remove any blanks
+    \edef\p@rt{\tok}%                           % and save in \p@rt
+    \if a\p@rt\relax                            % if ";" present is it ";a"?
+      \global\advance\eqnum by\@ne\fi           % yes: advance counter anyway
+    \edef\tnum{\@chaptID\@sectID\the\eqnum}%    % construct eqn number
+    \Eqtag{#1}{\tnum}%                          % and tag equation #nn
+    \edef\tnum{\@chaptID\@sectID\the\eqnum\p@rt}% also make eqn # w/ letter
+    \Eqtag{#1;\p@rt}{\tnum}%                    %   and tag #nn;x
+    \@EQNOdisplay{#1;#2}%                       % display equation number
+  \fi                                           %
+  \global\let\?=\tnum                           % \? is last eqn # (ala PHYZZX)
+  \relax}%                                      % end of definition
+
+%  \Eqtag#1#2 is like \tag for the equation number, (in future, have it
+%  not write to the .aux file if the label begins with "*").
+
+\def\Eqtag#1#2{\tag{Eq.#1}{#2}}
+
+
+%  \@EQNOdisplay{<label>} writes the equation number, which is in \tnum.
+%  If \eqnotracetrue then we also put the label in the margin, in \tt.
+
+\def\@EQNOdisplay#1{% display equation number besides equation
+   \@eqno                                       % begin eqn number
+   \ifeqnotrace                                 % tracing labels? then...
+     \rlap{\phantom{(\tnum)}%                   % skip over number to margin
+        \quad{\tenpoint\tt["#1"]}}\fi           % put ["label"] in margin
+     \linkname{Eq.#1}{(\tnum)}%                 % and the equation number
+   }
+ 
+
+\let\@eqno=\eqno                                % usual interpretation
+
+\def\endlist{\endlist}                          % just so it has a def
+
+%----------------------------------------------------------------------*
+% Reference equations in the text.  The \linkto makes these HyperTeXt
+% links if \htmltrue is set.
+
+\def\Eq#1{\linkto{Eq.#1}{Eq.~($\use{Eq.#1}$)}}  % \Eq  prints  "Eq. (nn)"
+\def\Eqs#1{\linkto{Eq.#1}{Eqs.~($\use{Eq.#1}$)}}% \Eqs prints  "Eqs. (nn)"
+\def\Ep#1{\linkto{Eq.#1}{($\use{Eq.#1}$)}}      % \Ep  prints just "(nn)"
+
+%----------------------------------------------------------------------*
+%  \EQNdisplaylines is just like \displaylines, as described in 
+%  The TeXbook, except that you can also use \EQN for equation numbers.
+%  syntax: "\EQNdisplaylines{... <equation> \EQN <label> \cr ...ditto...\cr}"
+
+\def\EQNdisplaylines#1{%                % make \EQN re-\def local
+   \@EQNcr                              % change \def of \EQN to get label
+   \displ@y                             % reduce interline spacing (from Plain)
+   \halign{%                            % alignment
+      \hbox to\displaywidth{%           % full width
+      $\@lign\hfil\displaystyle##\hfil$}% centered displaystyle
+      &\llap{$\@lign\@@EQN{##}$}\crcr   % then eqn number template
+   #1\crcr}%                            % now apply template to argument
+   \@EQNuncr}                           % put \EQN back to normal
+
+
+%  \EQNalign is just like \eqalign except that you can use \EQN to get
+%  equation numbers.  Just put ...\EQN <label> \cr on a line you want to get
+%  a label.
+
+\long\def\EQNalign#1{%  replacement for \eqalign using \EQN
+   \@EQNcr                               % re-def \EQN to see label before \cr
+   \displ@y                              % reduce interline spacing
+     \tabskip=\centering                 % leftskip for LHS
+   \halign to\displaywidth{%             % alignment
+   \hfil$\relax\displaystyle{##}$%       % template for LHS
+     \tabskip=0pt                        % no skip between LHS and RHS
+   &$\relax\displaystyle{{}##}$\hfil     % template for RHS
+     \tabskip=\centering                 % rightskip for RHS
+   &\llap{$\relax\@@EQN{##}$}%           % template for eqn number, parses label
+     \tabskip=0pt\crcr                   % no skip at end of eqn number
+    #1\crcr}%                            % now apply template to argument
+   }
+
+
+%  \@@EQN parses and displays the equation number using \EQNOparse.
+%  Here \@eqno is disabled in \@EQNOdisplay by \@EQNcr.
+
+\def\@@EQN#1{\if ?#1? \EQNOparse *;;\endlist    % if empty, label *
+         \else \EQNOparse#1;;\endlist\fi}       % otherwise label with #1
+
+
+%  \@EQNcr changes definition of \EQN so it is an alignment tab.
+%  Everything up to the \cr is then passed to \EQNOparse by the \@@EQN in
+%  the template.  Also changes \@eqno to \relax for \@EQNOdisplay. 
+%  \@EQNuncr changes everything back to normal.
+
+\def\@EQNcr{%  changes definition of \EQN to & for aligned equations
+   \let\EQN=&                           % \EQN is alignment tab
+   \let\@eqno=\relax}                   % don't do \eqno in \EQNalign
+
+\def\@EQNuncr{%  changes definition of \EQN back to normal
+   \let\EQN=\@EQN                       % \EQN is as usual
+   \let\@eqno=\eqno}                    % make \@eqno be \eqno
+
+                                        
+%  \EQNdoublealign makes a double equation alignment, i.e. three
+%  columns. \EQN works as usual.
+
+\def\EQNdoublealign#1{%                 % make re-def of \EQN local
+   \@EQNcr                              % re-def \EQN to see label before \cr
+   \displ@y                             % reduce interline spacing
+   \tabskip=\centering                  % leftskip for LHS
+   \halign to\displaywidth{%            %
+      \hfil$\relax\displaystyle{##}$%   % template for LHS
+      \tabskip=0pt                      % no skip between LHS and middle
+   &$\relax\displaystyle{{}##}$\hfil%   % template for middle
+      \tabskip=0pt                      % no skip between middle and RHS
+   &$\relax\displaystyle{{}##}$\hfil%   % template for RHS
+      \tabskip=\centering               % rightskip for RHS
+   &\llap{$\relax\@@EQN{##}$}%          % eqn number template parses label
+      \tabskip=0pt\crcr                 % no skip at end of eqn number
+   #1\crcr}%                            % now apply template to argument
+   \@EQNuncr}%                          % put \EQN back to normal
+
+%----------------------------------------------------------------------*
+%  Alternate def of \displaylines lets you put in equation numbers
+%  just like \eqalignno (or use \EQNdisplaylines in eqns.tex).
+%
+%%\def\displaylines#1{%
+%%   \displ@y                            % reduce interline spacing
+%%   \halign{\hbox to \displaywidth{$\hfil\displaystyle##\hfil$}%
+%%           &\llap{$##$}\crcr           % then eqn number
+%%    #1\crcr}}                          % now apply template
+
+
+%----------------------------------------------------------------------*
+%  \eqn<label> $$ is like \EQN except that it uses the PHYZZX
+%  protocols. It defines the control sequence \"label" to be the equation
+%  number.
+
+\def\eqn#1$${\edef\tok\string#1         % expand cs name to letters
+   \xdef#1{\NX\use{Eq.\tok}}%           % make cs refer to this eqn number
+   \EQNOparse \tok;;\endlist $$}        % now process eqn number as usual
+
+
+%----------------------------------------------------------------------*
+% \eqnmark puts a marker at the left edge of a displayed equation to
+% show that it's important.  This is better than putting a box around
+% the equation.  Change \eqnmarker to be whatever symbol you want.
+% Note that this works with \eqno and \EQN and \eqalign{     }\eqno or
+% \EQN, but not \eqalignno oe \EQNalign.
+
+
+\def\eqnmarker{\triangleright}          % change to whatever mark you want
+
+\def\eqnmark{\quoteoff\offparens\@eqnmark}
+\def\@eqnmark#1$${\@@eqnmark#1\eqno\eqno\endlist}
+\def\@@eqnmark#1\eqno#2\eqno#3\endlist{\def\EQN{\relax}%
+   \if ?#3? \@EQNmark#1\EQN\EQN\endlist         %
+   \else\displaylines{\hbox to 0pt{$\eqnmarker$\hss}\hfill{#1}\hfill %
+                      \hbox to 0pt{\hss$#2$}}\fi$$}
+\def\@EQNmark#1\EQN#2\EQN#3\endlist{%
+   \if ?#3?\displaylines{\hbox to 0pt{$\eqnmarker$\hss}\hfill{#1}\hfill}%
+   \else \let\@eqno=\relax                      %
+      \EQNdisplaylines{\hbox to 0pt{$\eqnmarker$\hss}\hfill{#1}\hfill %
+                \hbox to 0pt{\hss$\EQNOparse#2;;\endlist$}}\fi}
+
+%>>> EOF TXSeqns.tex <<<

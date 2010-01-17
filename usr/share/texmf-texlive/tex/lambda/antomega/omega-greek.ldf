@@ -1,0 +1,524 @@
+%% This file is part of the ANTOMEGA project version 0.6
+%% -----------------------------------------------------
+%% 
+%% It may be distributed under the terms of the LaTeX Project Public
+%% License, as described in lppl.txt in the base LaTeX distribution.
+%% Either version 1.0 or, at your option, any later version.
+%% Copyright (C) 2001 -- 2003 by Alexej Kryukov
+%% Please report errors to: A.M. Kryukov <basileia@yandex.ru>
+
+\makeatletter
+
+   \LoadOCPByName{\GrTexUni}{texgrk2uni}
+   \LoadOCPByName{\GrTexTildeUni}{bblgrk2uni}
+   \LoadOCPByName{\GrMacUni}{macgr2uni}
+   \LoadOCPByName{\GrIsoUni}{isogrk2uni}
+   \LoadOCPByName{\GrIsoUniVerbatim}{in88597}
+
+   \LoadOCPByName{\GreekUniToTex}{uni2lgr}
+   \LoadOCPByName{\GreekUniToPunctuation}{greek2punct}
+
+   \LoadOCPByName{\GrMedBeta}{medbeta}
+   \LoadOCPByName{\DoubleRhoBreathings}{rhobre}
+   \LoadOCPByName{\DoubleRhoNoBreathings}{rhonobre}
+   \LoadOCPByName{\GrApostrophe}{apostr2psili}
+   \LoadOCPByName{\InvertediotaOCP}{inverted-iota-upsilon}
+   \LoadOCPByName{\lunatesigmaOCP}{lunatesigma}
+
+   \ocplist\GreekIsoOCP=
+      \addbeforeocplist 500 \GrIsoUni
+   \nullocplist
+
+   \ocplist\GreekMacOCP=
+      \addbeforeocplist 500 \GrMacUni
+   \nullocplist
+
+   \ocplist\GreekTexOCP=
+      \addbeforeocplist 500 \GrTexUni
+   \nullocplist
+
+   \ocplist\GreekTexTildeOCP=
+      \addbeforeocplist 500 \GrTexTildeUni
+   \nullocplist
+
+   \ocplist\GreekPunctOCP=
+      \addbeforeocplist 2000 \GreekUniToPunctuation
+   \nullocplist
+
+   % 1750 and 2000 are reserved according to ANTOMEGA conventions,
+   % so we start from 2100
+   
+   \ocplist\medbeta=
+      \addbeforeocplist 2100 \GrMedBeta
+   \nullocplist
+
+   \ocplist\rhonobreathings=
+      \addbeforeocplist 2200 \DoubleRhoNoBreathings
+   \nullocplist
+
+   \ocplist\rhobreathings=
+      \addbeforeocplist 2200 \DoubleRhoBreathings
+   \nullocplist
+
+   \ocplist\grapostrophe=
+      \addbeforeocplist 2300 \GrApostrophe
+   \nullocplist
+
+   \ocplist\invertediota=
+      \addbeforeocplist 2400 \InvertediotaOCP
+   \nullocplist
+
+   \ocplist\lunatesigma=
+      \addbeforeocplist 2500 \lunatesigmaOCP
+   \nullocplist
+
+   \ocplist\GreekVerbatimOCP=
+      \addbeforeocplist 500 \GrIsoUniVerbatim
+   \nullocplist
+
+   \ocplist\GreekUniOutOCP=
+      \addbeforeocplist 3500 \LatinUniToLig
+   \nullocplist
+
+   \ocplist\GreekOmegaOutOCP=
+      \addbeforeocplist 3500 \UniToOmega
+   \nullocplist
+
+   \ocplist\GreekTexOutOCP=
+      \addbeforeocplist 3500 \GreekUniToTex
+   \nullocplist
+
+\ifx\l@greek\@undefined
+  \ant@nopatterns{Greek}
+  \adddialect\l@greek0
+\fi
+
+% Test if Greek lccodes/uccodes were loaded and
+% load them if necessary.
+\ifx\equal{\lccode"0390}{"0390}\else%
+   \InputIfFileExists{uni0370.def}{}{%
+      \ant@nocodes{Greek}{Unicode}{0370--03ff}}
+   \InputIfFileExists{uni1f00.def}{}{%
+      \ant@nocodes{Polytonic Greek}{Unicode}{1f00--1fff}}
+\fi
+
+\def\anwtonos{^^^^0374}
+\def\katwtonos{^^^^0375}
+\def\Qoppa{^^^^03d8}
+\def\qoppa{^^^^03d9}
+\def\Stigma{\GreekLetterStigma}
+\def\stigma{\GreekSmallLetterStigma}
+\def\Sampi{^^^^03e0}
+\def\sampi{^^^^03e1}
+\def\Digamma{^^^^03dc}
+\def\digamma{^^^^03dd}
+\def\euro{^^^^20ac}
+\def\permill{^^^^2030}
+
+\def\tmp@yes{yes}
+\def\tmp@no{no}
+
+\def\greek@stigma{%
+   \def\GreekLetterStigma{^^^^03a3^^^^03a4}%
+   \def\GreekSmallLetterStigma{^^^^03c3^^^^03c4}%
+   \def\GreekSmallLetterDigamma{^^^^03dd}}%
+
+\def\nogreek@stigma{%
+   \let\GreekLetterStigma\@undefined%
+   \let\GreekSmallLetterStigma\@undefined%
+   \let\GreekSmallLetterDigamma\@undefined}
+
+\def\greek@punctuation{%
+   \def\LeftDoubleQuotationMark{^^^^201c}%
+   \def\RightDoubleQuotationMark{^^^^201d}%
+   \def\GreekErotimatiko{\unskip\kern.1667em;}%
+   \def\ExclamationMark{\unskip\kern.1667em!}%
+   \def\GreekAnoTeleia{\unskip\kern.1667em^^^^0387}%
+   \def\Colon{\unskip\kern.1667em:}%
+   \def\LeftPointingDoubleAngleQuotationMark{^^^^00ab\kern.1667em}%
+   \def\RightPointingDoubleAngleQuotationMark{\unskip\kern.1667em^^^^00bb}}
+
+\def\nogreek@punctuation{%
+   \def\LeftDoubleQuotationMark{^^^^201c}%
+   \def\RightDoubleQuotationMark{^^^^201d}%
+   \let\GreekErotimatiko\@undefined%
+   \def\ExclamationMark{!}%
+   \let\GreekAnoTeleia\@undefined%
+   \def\Colon{:}%
+   \def\LeftPointingDoubleAngleQuotationMark{^^^^00ab}%
+   \def\RightPointingDoubleAngleQuotationMark{^^^^00bb}}
+
+\let\eventualMB=\relax
+\let\eventualGA=\relax
+\let\eventualRHO=\relax
+\let\eventualIIU=\relax
+\let\eventualLS=\relax
+
+\let\greekrm=\rmdefault
+\let\greeksf=\sfdefault
+\let\greektt=\ttdefault
+
+\def\greek@font{\fontfamily{\greekrm}%
+   \fontencoding{\greekencoding}\selectfont%
+   \let\rmdefault=\greekrm\let\sfdefault=\greeksf%
+   \let\ttdefault=\greektt\let\encodingdefault=\greekencoding}
+
+\def\eventualElPunct{\protect\pushocplist\GreekPunctOCP}
+\def\eventualElInput{\protect\pushocplist\BasicInputOCP}
+\def\eventualElAccents{\protect\pushocplist\BasicAccentsOCP}
+
+\def\greek@OCP{\protect\clearocplists%
+     \eventualElPunct%
+     \eventualElInput%
+     \eventualElAccents%
+     \eventualMB%
+     \eventualRHO%
+     \eventualGA%
+     \eventualIIU%
+     \eventualLS%
+     \eventualElOutput}
+
+\def\tmp@iso{iso}
+\def\tmp@mac{mac}
+\def\tmp@tex{tex}
+\def\tmp@textilde{textilde}
+\def\tmp@utf{utf-8}
+\def\tmp@ucs{ucs-2}
+
+\define@key{greek}{input}[ucs]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@iso\def\eventualElInput{\pushocplist\GreekIsoOCP}%
+      \typeout{Option: Greek input encoding=iso}%
+   \else\ifx\@tmpa\tmp@mac\def\eventualElInput{\pushocplist\GreekMacOCP}%
+      \typeout{Option: Greek input encoding=mac}%
+   \else\ifx\@tmpa\tmp@tex\def\eventualElInput{\pushocplist\GreekTexOCP}%
+      \typeout{Option: Greek input encoding=tex}%
+   \else\ifx\@tmpa\tmp@textilde\def\eventualElInput{\pushocplist\GreekTexTildeOCP}%
+      \typeout{Option: Greek input encoding=textilde}%
+   \else\ifx\@tmpa\tmp@utf\def\eventualElInput{\pushocplist\BasicInputUtfOCP}%
+      \typeout{Option: Greek input encoding=utf-8}%
+   \else\def\eventualElInput{\pushocplist\GreekUcsOCP}%
+      \typeout{Option: Greek input encoding=ucs-2}%
+\fi\fi\fi\fi\fi}
+
+\def\tmp@uni{unicode}
+\def\tmp@omlgc{omega}
+\def\tmp@texout{tex}
+\def\eventualElOutput{\pushocplist\GreekUniOutOCP}
+\def\greekencoding{UT1}
+
+\define@key{greek}{output}[unicode]{%
+\def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@texout%
+      \def\eventualElOutput{\pushocplist\GreekTexOutOCP}%
+      \def\greekencoding{LGR}%
+   \else\ifx\@tmpa\tmp@omlgc%
+      \def\eventualElOutput{\pushocplist\GreekOmegaOutOCP}%
+      \def\greekencoding{UT1}%
+      \ifx\equal{\lccode"07C1}{"1FD3}\else%
+         \InputIfFileExists{lgc0700.def}{}%
+            {\ant@nocodes{Polytonic Greek}{omlgc}{0700--07ff}}\fi
+   \else%
+      \def\eventualElOutput{\pushocplist\GreekUniOutOCP}%
+      \def\greekencoding{UT1}%
+   \fi\fi%
+   \ifx\greekencoding\uniencoding\else%
+      \ant@load@encoding{\greekencoding}%
+   \fi%
+}
+
+\def\tmp@oneform{oneform}
+\def\tmp@twoform{twoform}
+
+\define@key{greek}{beta}[oneform]{\def\@tmpa{#1}\ifx\@tmpa\tmp@twoform%
+   \def\eventualMB{\pushocplist\medbeta}%
+   \typeout{Option: Form of beta = twoform}%
+\else\let\eventualMB=\relax%
+   \typeout{Option: Form of beta = oneform}\fi}
+
+\def\tmp@breathings{breathings}
+\def\tmp@nobreathings{nobreathings}
+\def\tmp@asis{asis}
+\define@key{greek}{doublerho}[asis]{\def\@tmpa{#1}%
+\ifx\@tmpa\tmp@breathings%
+   \def\eventualRHO{\pushocplist\rhobreathings}%
+   \typeout{Option: double rho with breathings}%
+\else\ifx\@tmpa\tmp@nobreathings%
+   \def\eventualRHO{\pushocplist\rhonobreathings}%
+   \typeout{Option: double rho without breathings}%
+\else\let\eventualRHO=\relax\fi\fi}
+
+\def\tmp@apolatin{latin}
+\def\tmp@apogreek{different}
+\define@key{greek}{apostrophe}[latin]{\def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@different\def\eventualGA{\pushocplist\grapostrophe}
+   \typeout{option: Greek apostrophe=different}%
+\else\let\eventualGA=\relax%
+   \typeout{option: Greek apostrophe=latin}\fi}
+
+\def\tmp@stigma{stigma}
+\def\tmp@sigmatau{sigmatau}
+\def\tmp@oldstigma{oldstigma}
+\define@key{greek}{numbersix}[sigmatau]{%
+      \def\@tmpa{#1}\ifx\@tmpa\tmp@stigma%
+      \def\greek@stigma{%
+         \def\GreekSmallLetterStigma{^^^^03db}%
+         \def\GreekLetterStigma{^^^^03da}}%
+   \else\ifx\@tmpa\tmp@oldstigma%
+      \def\greek@stigma{%
+         \def\GreekSmallLetterStigma{^^^^03db}%
+         \def\GreekLetterStigma{^^^^03fd}}%
+   \else%
+      \def\greek@stigma{%
+         \def\GreekSmallLetterStigma{^^^^03c3^^^^03c4}%
+         \def\GreekLetterStigma{^^^^03a3^^^^03a4}}\fi\fi}
+
+\define@key{greek}{invertediota}[no]{\def\@tmpa{#1}\ifx\@tmpa\tmp@yes
+   \def\eventualIIU{\pushocplist\invertediota}%
+   \typeout{Option: Inverted iota = yes}%
+\else\let\eventualIIU=\relax\typeout{Option: Inverted iota = no}\fi}
+
+\def\tmp@std{std}
+\def\tmp@alt{alt}
+\define@key{greek}{digamma}[std]{\def\@tmpa{#1}
+\ifx\@tmpa\tmp@alt\def\GreekSmallLetterDigamma{^^^^03fb}%
+\else\GreekSmallLetterDigamma{^^^^03dd}\fi}
+
+\def\tmp@lunate{lunate}
+\define@key{greek}{sigma}[twoform]{\def\@tmpa{#1}\ifx\@tmpa\tmp@lunate%
+   \def\eventualLS{\pushocplist\lunatesigma}%
+   \typeout{Option: sigma=lunate}%
+\else\let\eventualLS=\relax%
+   \typeout{Option: sigma=twoform}\fi}
+
+\def\monocaptions{%
+   \def\refname{\localgreek{^^^^0391^^^^03bd^^^^03b1^^^^03c6^^^^03bf^^^^03c1^^^^03ad^^^^03c2}}%
+   \def\abstractname{\localgreek{^^^^03a0^^^^03b5^^^^03c1^^^^03af^^^^03bb^^^^03b7^^^^03c8^^^^03b7}}%
+   \def\bibname{\localgreek{^^^^0392^^^^03b9^^^^03b2^^^^03bb^^^^03b9^^^^03bf^^^^03b3^^^^03c1^^^^03b1^^^^03c6^^^^03af^^^^03b1}}%
+   \def\prefacename{\localgreek{^^^^03a0^^^^03c1^^^^03cc^^^^03bb^^^^03bf^^^^03b3^^^^03bf^^^^03c2}}%
+   \def\chaptername{\localgreek{^^^^039a^^^^03b5^^^^03c6^^^^03ac^^^^03bb^^^^03b1^^^^03b9^^^^03bf}}%
+   \def\appendixname{\localgreek{^^^^03a0^^^^03b1^^^^03c1^^^^03ac^^^^03c1^^^^03c4^^^^03b7^^^^03bc^^^^03b1}}%
+   \def\contentsname{\localgreek{^^^^03a0^^^^03b5^^^^03c1^^^^03b9^^^^03b5^^^^03c7^^^^03cc^^^^03bc^^^^03b5^^^^03bd^^^^03b1}}%
+   \def\listfigurename{\localgreek{^^^^039a^^^^03b1^^^^03c4^^^^03ac^^^^03bb^^^^03bf^^^^03b3^^^^03bf^^^^03c2 ^^^^03c3^^^^03c7^^^^03b7^^^^03bc^^^^03ac^^^^03c4^^^^03c9^^^^03bd}}%
+   \def\listtablename{\localgreek{^^^^039a^^^^03b1^^^^03c4^^^^03ac^^^^03bb^^^^03bf^^^^03b3^^^^03bf^^^^03c2 ^^^^03c0^^^^03b9^^^^03bd^^^^03ac^^^^03ba^^^^03c9^^^^03bd}}%
+   \def\indexname{\localgreek{^^^^0395^^^^03c5^^^^03c1^^^^03b5^^^^03c4^^^^03ae^^^^03c1^^^^03b9^^^^03bf}}%
+   \def\figurename{\localgreek{^^^^03a3^^^^03c7^^^^03ae^^^^03bc^^^^03b1}}%
+   \def\tablename{\localgreek{^^^^03a0^^^^03af^^^^03bd^^^^03b1^^^^03ba^^^^03b1^^^^03c2}}%
+   \def\partname{\localgreek{^^^^039c^^^^03ad^^^^03c1^^^^03bf^^^^03c2}}%
+   \def\pagename{\localgreek{^^^^03a3^^^^03b5^^^^03bb^^^^03af^^^^03b4^^^^03b1}}%
+   \def\seename{\localgreek{^^^^03b2^^^^03bb^^^^03ad^^^^03c0^^^^03b5}}%
+   \def\alsoname{\localgreek{^^^^03b2^^^^03bb^^^^03ad^^^^03c0^^^^03b5 ^^^^03b5^^^^03c0^^^^03af^^^^03c3^^^^03b7^^^^03c2}}%
+   \def\enclname{\localgreek{^^^^03a3^^^^03c5^^^^03bd^^^^03b7^^^^03bc^^^^03bc^^^^03ad^^^^03bd^^^^03b1}}%
+   \def\ccname{\localgreek{^^^^039a^^^^03bf^^^^03b9^^^^03bd^^^^03bf^^^^03c0^^^^03bf^^^^03af^^^^03b7^^^^03c3^^^^03b7}}%
+   \def\headtoname{\localgreek{^^^^03a0^^^^03c1^^^^03bf^^^^03c2}}%
+   \def\proofname{\localgreek{^^^^0391^^^^03c0^^^^03cc^^^^03b4^^^^03b5^^^^03b9^^^^03be^^^^03b7}}% for AMS-\LaTeX
+   \def\today{\localgreek{\number\day\space%
+      \ifcase\month\or%
+      ^^^^0399^^^^03b1^^^^03bd^^^^03bf^^^^03c5^^^^03b1^^^^03c1^^^^03af^^^^03bf^^^^03c5\or
+      ^^^^03a6^^^^03b5^^^^03b2^^^^03c1^^^^03bf^^^^03c5^^^^03b1^^^^03c1^^^^03af^^^^03bf^^^^03c5\or
+      ^^^^039c^^^^03b1^^^^03c1^^^^03c4^^^^03af^^^^03bf^^^^03c5\or
+      ^^^^0391^^^^03c0^^^^03c1^^^^03b9^^^^03bb^^^^03af^^^^03bf^^^^03c5\or%
+      ^^^^039c^^^^03b1^^^^0390^^^^03bf^^^^03c5\or
+      ^^^^0399^^^^03bf^^^^03c5^^^^03bd^^^^03af^^^^03bf^^^^03c5\or
+      ^^^^0399^^^^03bf^^^^03c5^^^^03bb^^^^03af^^^^03bf^^^^03c5\or
+      ^^^^0391^^^^03c5^^^^03b3^^^^03bf^^^^03cd^^^^03c3^^^^03c4^^^^03bf^^^^03c5\or%
+      ^^^^03a3^^^^03b5^^^^03c0^^^^03c4^^^^03b5^^^^03bc^^^^03b2^^^^03c1^^^^03af^^^^03bf^^^^03c5\or
+      ^^^^039f^^^^03ba^^^^03c4^^^^03c9^^^^03b2^^^^03c1^^^^03af^^^^03bf^^^^03c5\or
+      ^^^^039d^^^^03bf^^^^03b5^^^^03bc^^^^03b2^^^^03c1^^^^03af^^^^03bf^^^^03c5\or
+      ^^^^0394^^^^03b5^^^^03ba^^^^03b5^^^^03bc^^^^03b2^^^^03c1^^^^03af^^^^03bf^^^^03c5\fi%
+      \space\number\year}}}
+
+\def\polydemocaptions{%
+   \def\refname{\localgreek{^^^^1f08^^^^03bd^^^^03b1^^^^03c6^^^^03bf^^^^03c1^^^^1f73^^^^03c2}}%
+   \def\abstractname{\localgreek{^^^^03a0^^^^03b5^^^^03c1^^^^1f77^^^^03bb^^^^03b7^^^^03c8^^^^03b7}}%
+   \def\bibname{\localgreek{^^^^0392^^^^03b9^^^^03b2^^^^03bb^^^^03b9^^^^03bf^^^^03b3^^^^03c1^^^^03b1^^^^03c6^^^^1f77^^^^03b1}}%
+   \def\prefacename{\localgreek{^^^^03a0^^^^03c1^^^^1f79^^^^03bb^^^^03bf^^^^03b3^^^^03bf^^^^03c2}}%
+   \def\chaptername{\localgreek{^^^^039a^^^^03b5^^^^03c6^^^^1f71^^^^03bb^^^^03b1^^^^03b9^^^^03bf}}%
+   \def\appendixname{\localgreek{^^^^03a0^^^^03b1^^^^03c1^^^^1f71^^^^03c1^^^^03c4^^^^03b7^^^^03bc^^^^03b1}}%
+   \def\contentsname{\localgreek{^^^^03a0^^^^03b5^^^^03c1^^^^03b9^^^^03b5^^^^03c7^^^^1f79^^^^03bc^^^^03b5^^^^03bd^^^^03b1}}%
+   \def\listfigurename{\localgreek{^^^^039a^^^^03b1^^^^03c4^^^^1f71^^^^03bb^^^^03bf^^^^03b3^^^^03bf^^^^03c2 ^^^^03c3^^^^03c7^^^^03b7^^^^03bc^^^^1f71^^^^03c4^^^^03c9^^^^03bd}}%
+   \def\listtablename{\localgreek{^^^^039a^^^^03b1^^^^03c4^^^^1f71^^^^03bb^^^^03bf^^^^03b3^^^^03bf^^^^03c2 ^^^^03c0^^^^03b9^^^^03bd^^^^1f71^^^^03ba^^^^03c9^^^^03bd}}%
+   \def\indexname{\localgreek{^^^^0395^^^^1f51^^^^03c1^^^^03b5^^^^03c4^^^^1f75^^^^03c1^^^^03b9^^^^03bf}}%
+   \def\figurename{\localgreek{^^^^03a3^^^^03c7^^^^1fc6^^^^03bc^^^^03b1}}%
+   \def\tablename{\localgreek{^^^^03a0^^^^1f77^^^^03bd^^^^03b1^^^^03ba^^^^03b1^^^^03c2}}%
+   \def\partname{\localgreek{^^^^039c^^^^1f73^^^^03c1^^^^03bf^^^^03c2}}%
+   \def\pagename{\localgreek{^^^^03a3^^^^03b5^^^^03bb^^^^1f77^^^^03b4^^^^03b1}}%
+   \def\seename{\localgreek{^^^^03b2^^^^03bb^^^^1f73^^^^03c0^^^^03b5}}%
+   \def\alsoname{\localgreek{^^^^03b2^^^^03bb^^^^1f73^^^^03c0^^^^03b5 ^^^^1f10^^^^03c0^^^^1f77^^^^03c3^^^^03b7^^^^03c2}}%
+   \def\enclname{\localgreek{^^^^03a3^^^^03c5^^^^03bd^^^^03b7^^^^03bc^^^^03bc^^^^1f73^^^^03bd^^^^03b1}}%
+   \def\ccname{\localgreek{^^^^039a^^^^03bf^^^^03b9^^^^03bd^^^^03bf^^^^03c0^^^^03bf^^^^1f77^^^^03b7^^^^03c3^^^^03b7}}%
+   \def\headtoname{\localgreek{^^^^03a0^^^^03c1^^^^1f78^^^^03c2}}%
+   \def\proofname{\localgreek{^^^^1f08^^^^03c0^^^^1f79^^^^03b4^^^^03b5^^^^03b9^^^^03be^^^^03b7}}% for AMS-\LaTeX
+   \def\today{\localgreek{number\day \space%
+      \ifcase\month\or%
+      ^^^^1f38^^^^03b1^^^^03bd^^^^03bf^^^^03c5^^^^03b1^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^03a6^^^^03b5^^^^03b2^^^^03c1^^^^03bf^^^^03c5^^^^03b1^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^039c^^^^03b1^^^^03c1^^^^03c4^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^1f08^^^^03c0^^^^03c1^^^^03b9^^^^03bb^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^039c^^^^03b1^^^^1fd3^^^^03bf^^^^03c5\or
+      ^^^^1f38^^^^03bf^^^^03c5^^^^03bd^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^1f38^^^^03bf^^^^03c5^^^^03bb^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^0391^^^^1f50^^^^03b3^^^^03bf^^^^1f7b^^^^03c3^^^^03c4^^^^03bf^^^^03c5\or
+      ^^^^03a3^^^^03b5^^^^03c0^^^^03c4^^^^03b5^^^^03bc^^^^03b2^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^1f48^^^^03ba^^^^03c4^^^^03c9^^^^03b2^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^039d^^^^03bf^^^^03b5^^^^03bc^^^^03b2^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^0394^^^^03b5^^^^03ba^^^^03b5^^^^03bc^^^^03b2^^^^03c1^^^^1f77^^^^03bf^^^^03c5\fi%
+      \space \number\year}}}
+
+\def\polykathacaptions{%
+   \def\refname{\localgreek{^^^^1f08^^^^03bd^^^^03b1^^^^03c6^^^^03bf^^^^03c1^^^^03b1^^^^1f77}}%
+   \def\abstractname{\localgreek{^^^^03a0^^^^03b5^^^^03c1^^^^1f77^^^^03bb^^^^03b7^^^^03c8^^^^03b9^^^^03c2}}%
+   \def\bibname{\localgreek{^^^^0392^^^^03b9^^^^03b2^^^^03bb^^^^03b9^^^^03bf^^^^03b3^^^^03c1^^^^03b1^^^^03c6^^^^1f77^^^^03b1}}%
+   \def\prefacename{\localgreek{^^^^03a0^^^^03c1^^^^1f79^^^^03bb^^^^03bf^^^^03b3^^^^03bf^^^^03c2}}%
+   \def\chaptername{\localgreek{^^^^039a^^^^03b5^^^^03c6^^^^1f71^^^^03bb^^^^03b1^^^^03b9^^^^03bf^^^^03bd}}%
+   \def\appendixname{\localgreek{^^^^03a0^^^^03b1^^^^03c1^^^^1f71^^^^03c1^^^^03c4^^^^03b7^^^^03bc^^^^03b1}}%
+   \def\contentsname{\localgreek{^^^^03a0^^^^03b5^^^^03c1^^^^03b9^^^^03b5^^^^03c7^^^^1f79^^^^03bc^^^^03b5^^^^03bd^^^^03b1}}%
+   \def\listfigurename{\localgreek{^^^^039a^^^^03b1^^^^03c4^^^^1f71^^^^03bb^^^^03bf^^^^03b3^^^^03bf^^^^03c2 ^^^^03c3^^^^03c7^^^^03b7^^^^03bc^^^^1f71^^^^03c4^^^^03c9^^^^03bd}}%
+   \def\listtablename{\localgreek{^^^^039a^^^^03b1^^^^03c4^^^^1f71^^^^03bb^^^^03bf^^^^03b3^^^^03bf^^^^03c2 ^^^^03c0^^^^03b9^^^^03bd^^^^1f71^^^^03ba^^^^03c9^^^^03bd}}%
+   \def\indexname{\localgreek{^^^^0395^^^^1f51^^^^03c1^^^^03b5^^^^03c4^^^^1f75^^^^03c1^^^^03b9^^^^03bf^^^^03bd}}%
+   \def\figurename{\localgreek{^^^^03a3^^^^03c7^^^^1fc6^^^^03bc^^^^03b1}}%
+   \def\tablename{\localgreek{^^^^03a0^^^^1f77^^^^03bd^^^^03b1^^^^03be}}%
+   \def\partname{\localgreek{^^^^039c^^^^1f73^^^^03c1^^^^03bf^^^^03c2}}%
+   \def\pagename{\localgreek{^^^^03a3^^^^03b5^^^^03bb^^^^1f76^^^^03c2}}%
+   \def\seename{\localgreek{^^^^1f45^^^^03c1^^^^03b1}}%
+   \def\alsoname{\localgreek{^^^^1f45^^^^03c1^^^^03b1 ^^^^1f10^^^^03c0^^^^1f77^^^^03c3^^^^03b7^^^^03c2}}%
+   \def\enclname{\localgreek{^^^^03a3^^^^03c5^^^^03bd^^^^03b7^^^^03bc^^^^03bc^^^^1f73^^^^03bd^^^^03b1}}%
+   \def\ccname{\localgreek{^^^^039a^^^^03bf^^^^03b9^^^^03bd^^^^03bf^^^^03c0^^^^03bf^^^^1f77^^^^03b7^^^^03c3^^^^03b9^^^^03c2}}%
+   \def\headtoname{\localgreek{^^^^03a0^^^^03c1^^^^1f78^^^^03c2}}%
+   \def\proofname{\localgreek{^^^^1f08^^^^03c0^^^^1f79^^^^03b4^^^^03b5^^^^03b9^^^^03be^^^^03b9^^^^03c2}}% for AMS-\LaTeX
+   \def\today{\localgreek{\number\day \space%
+      \ifcase\month\or%
+      ^^^^1f38^^^^03b1^^^^03bd^^^^03bf^^^^03c5^^^^03b1^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^03a6^^^^03b5^^^^03b2^^^^03c1^^^^03bf^^^^03c5^^^^03b1^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^039c^^^^03b1^^^^03c1^^^^03c4^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^1f08^^^^03c0^^^^03c1^^^^03b9^^^^03bb^^^^1f77^^^^03bf^^^^03c5\or%
+      ^^^^039c^^^^03b1^^^^1fd3^^^^03bf^^^^03c5\or
+      ^^^^1f38^^^^03bf^^^^03c5^^^^03bd^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^1f38^^^^03bf^^^^03c5^^^^03bb^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^0391^^^^1f50^^^^03b3^^^^03bf^^^^1f7b^^^^03c3^^^^03c4^^^^03bf^^^^03c5\or%
+      ^^^^03a3^^^^03b5^^^^03c0^^^^03c4^^^^03b5^^^^03bc^^^^03b2^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^1f48^^^^03ba^^^^03c4^^^^03c9^^^^03b2^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^039d^^^^03bf^^^^03b5^^^^03bc^^^^03b2^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+      ^^^^0394^^^^03b5^^^^03ba^^^^03b5^^^^03bc^^^^03b2^^^^03c1^^^^1f77^^^^03bf^^^^03c5\fi%
+      \space \number\year}}}
+
+\def\greek@captions{\monocaptions}
+\def\tmp@monotonic{monotonic}
+\def\tmp@polytonic{polytonic}
+\define@key{greek}{accents}[monotonic]{\def\@tmpa{#1}\ifx\@tmpa\tmp@monotonic%
+\def\greek@captions{\monocaptions}\else\def\greek@captions{\polydemocaptions}\fi}
+
+\def\tmp@katharevousa{katharevousa}
+\define@key{greek}{style}[katharevousa]{\def\@tmpa{#1}\ifx\@tmpa\tmp@katharevousa%
+\def\greek@captions{\polykathacaptions}\fi}
+
+\newcounter{hundredmillions}
+\newcounter{tenmillions}
+\newcounter{millions}
+\newcounter{hundredthousands}
+\newcounter{tenthousands}
+\newcounter{thousands}
+\newcounter{hundreds}
+\newcounter{tens}
+\newcounter{units}
+\newcounter{belowhundred}
+\newcounter{grnumber}
+
+\def\greek@numbers{%
+\def\greek@alph##1{\protect\greeknumber{##1}}%
+\def\greek@Alph##1{\uppercase{\protect\greeknumber{##1}}}%
+\def\alph##1{\expandafter\greek@alph\csname c@##1\endcsname}%
+\def\Alph##1{\expandafter\greek@Alph\csname c@##1\endcsname}%
+\def\labelitemi{--}%
+\def\labelitemii{--}%
+\def\labelitemiii{--}%
+\def\labelitemiv{--}%
+%
+\def\grnumbertmp##1##2##3{\ifcase\value{##1}\or ^^^^03c1\or ^^^^03c3\or%
+   ^^^^03c4\or ^^^^03c5\or ^^^^03c6\or ^^^^03c7\or ^^^^03c8\or ^^^^03c9\or%
+   ^^^^03c0\else\@ctrerr\fi%
+\ifcase\value{##2}\or ^^^^03b9\or ^^^^03ba\or ^^^^03bb\or ^^^^03bc\or%
+   ^^^^03bd\or ^^^^03be\or ^^^^03bf\or ^^^^03c0\or ^^^^03c7\else\@ctrerr\fi%
+\ifcase\value{##3}\or ^^^^03b1\or ^^^^03b2 \or ^^^^03b3\or ^^^^03b4\or ^^^^03b5\or%
+   \GreekSmallLetterStigma\or ^^^^03b6\or ^^^^03b7\or ^^^^03b8\else\@ctrerr\fi}%
+\def\greeknumber##1{%
+   \setcounter{grnumber}{##1}%
+   \ifthenelse{\value{grnumber}>999999999}{\typeout{Number too big!}}{%
+      \ifthenelse{\value{grnumber}>999999}{^^^^0375^^^^0375\kern.5pt}{%
+	 \ifthenelse{\value{grnumber}>999}{^^^^0375\kern.5pt}{}}%
+      \setcounter{hundredmillions}{\value{grnumber}/100000000}%
+      \addtocounter{grnumber}{-100000000*\value{hundredmillions}}%
+      \setcounter{tenmillions}{\value{grnumber}/10000000}%
+      \addtocounter{grnumber}{-10000000*\value{tenmillions}}%
+      \setcounter{millions}{\value{grnumber}/1000000}%
+      \addtocounter{grnumber}{-1000000*\value{millions}}%
+      \setcounter{hundredthousands}{\value{grnumber}/100000}%
+      \addtocounter{grnumber}{-100000*\value{hundredthousands}}%
+      \setcounter{tenthousands}{\value{grnumber}/10000}%
+      \addtocounter{grnumber}{-10000*\value{tenthousands}}%
+      \setcounter{thousands}{\value{grnumber}/1000}%
+      \addtocounter{grnumber}{-1000*\value{thousands}}%
+      \setcounter{hundreds}{\value{grnumber}/100}%
+      \addtocounter{grnumber}{-100*\value{hundreds}}%
+      \setcounter{tens}{\value{grnumber}/10}%
+      \addtocounter{grnumber}{-10*\value{tens}}%
+      \setcounter{units}{\value{grnumber}}%
+      \grnumbertmp{hundredmillions}{tenmillions}{millions}%
+	 \grnumbertmp{hundredthousands}{tenthousands}{thousands}%
+	 \grnumbertmp{hundreds}{tens}{units}%
+      \setcounter{belowhundred}{\value{hundreds}+\value{tens}+\value{units}}%
+      \ifthenelse{\value{belowhundred}>0}{^^^^0374}{}}}%
+%
+\def\greektoday{\greeknumber{\number\day} \space%
+   \ifcase\month\or%
+   ^^^^1f38^^^^03b1^^^^03bd^^^^03bf^^^^03c5^^^^03b1^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+   ^^^^03a6^^^^03b5^^^^03b2^^^^03c1^^^^03bf^^^^03c5^^^^03b1^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+   ^^^^039c^^^^03b1^^^^03c1^^^^03c4^^^^1f77^^^^03bf^^^^03c5\or
+   ^^^^1f08^^^^03c0^^^^03c1^^^^03b9^^^^03bb^^^^1f77^^^^03bf^^^^03c5\or
+   ^^^^039c^^^^03b1^^^^1fd3^^^^03bf^^^^03c5\or
+   ^^^^1f38^^^^03bf^^^^03c5^^^^03bd^^^^1f77^^^^03bf^^^^03c5\or
+   ^^^^1f38^^^^03bf^^^^03c5^^^^03bb^^^^1f77^^^^03bf^^^^03c5\or
+   ^^^^0391^^^^1f50^^^^03b3^^^^03bf^^^^1f7b^^^^03c3^^^^03c4^^^^03bf^^^^03c5\or
+   ^^^^03a3^^^^03b5^^^^03c0^^^^03c4^^^^03b5^^^^03bc^^^^03b2^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+   ^^^^1f48^^^^03ba^^^^03c4^^^^03c9^^^^03b2^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or
+   ^^^^039d^^^^03bf^^^^03b5^^^^03bc^^^^03b2^^^^03c1^^^^1f77^^^^03bf^^^^03c5\or 
+   ^^^^0394^^^^03b5^^^^03ba^^^^03b5^^^^03bc^^^^03b2^^^^03c1^^^^1f77^^^^03bf^^^^03c5\fi%
+   \space \greeknumber{\number\year}}}
+
+\def\nogreek@numbers{%
+   \let\greek@alph\@undefined%
+   \let\greek@Alph\@undefined%
+   \let\numbersix\@undefined%
+   \let\grnumbertmp\@undefined%
+   \let\greeknumber\@undefined%
+   \let\greektoday\@undefined%
+   \def\alph##1{\expandafter\@alph\csname c@##1\endcsname}%
+   \def\Alph##1{\expandafter\@Alph\csname c@##1\endcsname}}
+
+\def\greek@language{\language=\l@greek}
+
+\def\noextras@greek{%
+   \nogreek@numbers%
+   \nogreek@punctuation%
+   \nogreek@stigma}
+
+\def\blockextras@greek{%
+   \greek@language%
+   \local@hyphenmins{greek}{1}{1}%
+   \greek@punctuation%
+   \local@marks{greek}%
+   \greek@stigma%
+   \greek@captions%
+   \greek@numbers%
+   \greek@OCP%
+   \greek@font}{}
+
+\def\inlineextras@greek{%
+   \greek@language%
+   \local@hyphenmins{greek}{1}{1}%
+   \greek@punctuation%
+   \greek@stigma%
+   \greek@OCP%
+   \greek@font}
+
+\endinput

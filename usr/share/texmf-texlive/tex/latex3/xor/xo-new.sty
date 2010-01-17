@@ -1,0 +1,303 @@
+%%
+%% This is file `xo-new.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xo-new.dtx  (with options: `package,progress')
+%% 
+%% Not for distribution
+%% 
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%% 
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+\def\@tempa#1: #2.dtx,v #3 #4 #5 #6 #7${
+  \ProvidesPackage{#2}[#4 #3 #5 #6]}
+\@tempa$Id: xo-new.dtx,v 1.25 2000/08/11 07:14:23 latex3 Exp $
+\IgnoreWhiteSpace
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\flushbottom
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\iftrue %  using Frank's changes built on 1.15
+
+
+\def\final@column {
+   \setbox\@outputbox \box\@cclv
+
+   \ifvoid\footins
+   \else
+     \setbox\@outputbox \vbox {
+       \boxmaxdepth \@maxdepth
+       \advance\skip\footins -\dp\@outputbox % already limited to \@maxdepth
+       \unvbox \@outputbox
+       \advance\skip\footins
+          \ifdim\dp\footins>\@maxdepth \@maxdepth \else \dp\footins \fi
+       \vskip \skip\footins
+       \ifdim \pagesetup@grid@point@sep > \z@
+         \vfil
+       \fi
+       \color@begingroup
+         \normalcolor
+         \footnoterule
+         \unvbox \footins
+       \color@endgroup
+      }
+   \fi
+   \global\setbox\csname col@box@\the\curr@col@count\endcsname
+          \vbox to \csname col@ht@ \the\curr@col@count\endcsname %<-----
+          { % this should one day become \@colht
+                                % or else
+           \@texttop
+           \dimen@ \dp\@outputbox
+           \unvbox \@outputbox
+           \vskip -\dimen@
+           \@textbottom
+           }%
+   \global \maxdepth \@maxdepth
+}
+\let \produce@final@column \final@column
+
+\def\make@area@floats@box #1#2 {
+  \@ifundefined{area@#1}   % test only needed because of missing integration
+     {
+     }
+     {
+  \setup@this@area{#1} % needed below when typesetting floats
+
+  \setbox #2 \box\voidb@x                % <-------- FMi
+  \def \@elt { \typeset@float@in@box {#2} }
+    \csname area@#1\endcsname
+  \let \@elt \relax
+
+  \expandafter
+  \release@floats
+    \csname area@#1\endcsname
+     }
+}
+
+\def\typeset@float@in@box #1 #2 {
+  \gdef\this@float@box {#2}         % <------------- FMi
+  \expandafter
+  \extract@this@float@actual@structure \the\toks #2
+
+  \update@this@area@columns
+     {
+      \expandafter
+      \gdecrement@num
+        \csname col@ \this@area@type
+            @floats@ \the\count@ @number\endcsname
+     }
+
+  \setbox #1 \vbox {
+    \ifvoid #1
+    \else       % experimental FMi
+      \unvbox #1                            % experimental FMi
+      \vskip \pagesetup@float@float@sep     % experimental FMi
+    \fi                                     % experimental FMi
+    \typeset@this@float@and@caption
+    }
+  }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def \myfinalpage {
+    \mbox@addtopage (\pagebodylefthpos, -\headsep)
+       {page:~\thepage}
+  \forall@columns{
+     \dimen \the\curr@col@count
+            \z@
+  }
+  \expandafter\mount@top@areas@loop
+      \top@areas
+      \relax\relax\relax
+  \forall@columns{
+
+     \advance \dimen \the\curr@col@count
+              by %NEEDED!!!!!
+              \csname col@t@delta@ \the\curr@col@count \endcsname
+
+     \advance \dimen \the\curr@col@count
+              \csname col@ht@ \the\curr@col@count \endcsname
+
+     \setlength \@tempdima
+        {\pagebodylefthpos - \columndisplacement
+                           + \columndisplacement * \curr@col@count }
+
+     \mbox@addtopage ( \the\@tempdima ,\the\dimen\curr@col@count  )
+         { \box \csname col@box@ \the\curr@col@count \endcsname }
+
+     \advance \dimen \the\curr@col@count
+              by %NEEDED!!!!!
+              \csname col@b@delta@ \the\curr@col@count \endcsname
+  }
+  \def\col@of@focus{0}               % temp solution see below
+  \expandafter\mount@bot@areas@loop
+      \bot@areas
+      \relax\relax\relax
+  \setlength \@tempdima
+     {\pagebodylefthpos + \columndisplacement * \col@count }
+   \mbox@addtopage ( \the\@tempdima , \textheight )
+      { \box \saved@footins } % TEMP FMi
+  \expandafter
+  \ifx\csname area@m1\the\curr@col@count\endcsname\relax
+  \else
+    \curr@col@count\col@count
+    \advance\curr@col@count\@ne
+    \make@area@floats@box {m\the\curr@col@count1}\@tempboxa
+    \setlength \@tempdima
+       {\pagebodylefthpos + \columndisplacement * \col@count }
+     \mbox@addtopage ( \the\@tempdima , \textheight )
+        { \vbox to\textheight{\vfil \unvbox \@tempboxa \vfil }}
+  \fi
+  \ifShowGrid
+    \ifdim \pagesetup@grid@point@sep > \z@
+      \@tempcnta\textheight
+      \@tempcntb\topskip
+      \advance\@tempcnta -\@tempcntb
+      \@tempdimb\pagesetup@grid@point@sep
+      \@tempcntb\@tempdimb
+      \divide\@tempcnta\@tempcntb
+      \advance\@tempcnta\@ne
+
+      \setlength \@tempdimb
+       {\pagebodylefthpos + \columndisplacement * \col@count
+                          - \columnsep }
+      \count@\@tempdimb
+
+      \sbox\grid@box{
+               \setlength\unitlength{1sp}
+               \begin{picture}(0,0)
+                 \multiput(0,0)(0,\@tempcntb){\@tempcnta}
+                   {\line(1,0){\count@}}
+               \end{picture}
+               }
+
+      \mbox@addtopage ( 0pt ,\textheight  )
+             {  \box\grid@box }
+
+    \fi
+  \fi
+}
+
+\newbox\grid@box
+
+\newif\ifShowGrid
+\ShowGridtrue
+
+
+\def\mbox@addtopage (#1,#2)#3{%
+  \global \setbox\page@box
+    \hbox {
+      \unhbox \page@box
+      \mbox@put  (#1,#2) {#3}
+    }
+}
+
+\def\mount@top@areas@loop#1#2#3{
+  \ifx#1\relax
+  \else
+    \mount@top@area#1#2#3
+    \expandafter\mount@top@areas@loop
+  \fi}
+
+\def\mount@top@area#1#2#3 {
+  \make@area@floats@box {#1#2#3}\@tempboxa
+
+  \ifvoid \@tempboxa
+  \else
+
+    \setlength \@tempdimb
+        { \dimen#2 + \ht\@tempboxa + \dp\@tempboxa }
+
+    \setlength \@tempdima
+        {\pagebodylefthpos - \columndisplacement + \columndisplacement * #2 }
+
+    \mbox@addtopage ( \the\@tempdima ,\the\@tempdimb  )
+         { \box \@tempboxa }
+
+    \count@ #2\relax
+    \advance\count@ #3\relax
+    \loop
+      \advance\count@\m@ne
+      \dimen \count@ =  \@tempdimb
+      \advance\dimen \count@
+          \ifnum \csname col@t@floats@ \the\count@ @number\endcsname > \z@
+            \pagesetup@float@area@sep
+          \else
+            \pagesetup@float@text@sep
+          \fi
+    \ifnum #2 < \count@
+    \repeat
+
+  \fi
+}
+
+\def\mount@bot@areas@loop#1#2#3{
+  \ifx#1\relax
+  \else
+    \mount@bot@area#1#2#3
+    \expandafter\mount@bot@areas@loop
+  \fi}
+
+\def\mount@bot@area#1#2#3 {
+  \make@area@floats@box {#1#2#3}\@tempboxa
+
+  \ifvoid \@tempboxa
+  \else
+
+    \setlength \@tempdimb
+        { \dimen#2 + \ht\@tempboxa + \dp\@tempboxa }
+
+    \ifnum \col@of@focus < #2 \relax
+      \def\col@of@focus{#2}
+      \advance\@tempdimb
+            \pagesetup@float@text@sep
+    \else
+      \advance\@tempdimb
+            \pagesetup@float@area@sep
+    \fi
+
+    \setlength \@tempdima
+        {\pagebodylefthpos - \columndisplacement + \columndisplacement * #2 }
+
+    \mbox@addtopage ( \the\@tempdima ,\the\@tempdimb  )
+         { \box \@tempboxa }
+
+    \dimen #2 = \@tempdimb
+
+  \fi
+}
+
+
+\def\top@areas{t13 t12 t22 t32 t11 t21 t31}
+
+\def\bot@areas{b11 b12 b13 b21 b22 b31 b32}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\let\make@page@box\myfinalpage
+
+\fi % end of stuff modifying xo-final 1.15
+
+
+\endinput
+%%
+%% End of file `xo-new.sty'.

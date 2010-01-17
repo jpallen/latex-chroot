@@ -1,0 +1,51 @@
+% TUN.TEX
+
+% Marek Ry\'cko
+
+% Macro \tun
+% Text UNderline
+
+% version 0.1,  9.10.94
+% version 0.3,  1.5.1996
+%   -- english description
+
+
+% uses SPLIT
+% uses MAP
+
+
+\newbox\boxA
+\newdimen\dimenA
+\newdimen\dimenB
+
+
+\def\tun
+    %#1%
+    {\map
+        {\ifx\mapcur\space
+            \space
+        \else
+            \tunel\mapcur
+        \fi
+        }%
+        %{#1}%
+    }
+\def\tunel
+    #1% what to underline
+    {{%
+    #1%
+    \setbox\boxA\hbox{#1}%
+    \dimenA-\tunsep
+    \dimenB-\dimenA \advance\dimenB\tunwd
+    \llap{\hbox to\wd\boxA{\hss
+        \vrule height\dimenA depth\dimenB width\tunfac\wd\boxA
+        \hss}}%
+    }}
+
+% default parameters:
+% underline separator width
+    \def\tunsep {.25ex}%
+% underline width
+    \def\tunwd  {.09ex}%
+% underline factor of letter width:
+    \def\tunfac  {1}%

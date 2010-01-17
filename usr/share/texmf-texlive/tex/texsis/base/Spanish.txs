@@ -1,0 +1,111 @@
+%% file: Spanish.txs  (TeXsis version 2.17)
+%  $Revision: 1.3 $  :  $Date: 1997/07/07 21:10:44 $  :  $Author: myers $
+%======================================================================*
+% Native language support for TeXsis in Spanish
+%
+% These macros make small changes to TeXsis so that names for things
+% like tables, figures and references are in Spanish rather than
+% English.
+%
+% Many thanks to Romano Giannetti <romano@iet.unipi.it> for the original.
+% Updated on 1997/07/07 by David Su\'arez de Lis <fafefito@uscmail.usc.es>
+%======================================================================*
+\message{TeXsis en Espa\~nol.}
+
+% If this file has already been loaded, just invoke \Spanish and quit
+
+\ifx\undefined\Spanish
+\else
+  \Spanish
+  \expandafter\endinput
+\fi
+
+% Look for spanish.sty, the Babel-TeX style for Spanish, if needed
+
+\ifx\undefined\captionsspanish          % has spanish.sty been loaded?
+  \immediate\openin\patchfile=spanish.sty % try to open it
+  \ifeof\patchfile                      % EOF?  Then it's not there
+     \emsg{> You need the Babel-TeX file spanish.sty in your input path...}%
+  \fi                                   %
+  \immediate\closein\patchfile          % close it
+  \input spanish.sty \relax             % try to read it anyway
+\fi
+
+
+\def\Spanish{% re-define TeXsis macros for Spanish
+%
+% Referencing macros are re-defined. 
+% 
+%
+  \def\Corollary##1{corolario~\use{Cor.##1}}
+  \def\Definition##1{definici\'on~\use{Def.##1}}
+%
+%
+% Better without abbreviation, even if it's only one.
+%  
+  \def\Fig##1{figura~\use{Fg.##1}}
+%
+% or, if abbreviation is used, then it goes with first letter in capital 
+% \def\Fig##1{Fig.~\use{Fg.##1}}
+
+  \def\Fg##1{\use{Fg.##1}}
+  \def\Figs##1{figuras~\use{Fg.##1}}
+  \def\Lemma##1{lema~\use{Lem.##1}}
+  \def\Ref##1{ref.~\use{Ref.##1}}
+%
+% 
+%
+  \def\Tab##1{tabla~\use{Tb.##1}}
+  \def\Tbl##1{tabla~\use{Tb.##1}}
+  \def\Theorem##1{teorema~\use{Thm.##1}}
+%
+% Names used in longer macros are re-defined.
+%
+  \def\AbstractName{Resumen}%
+  \def\FigureName{Figura}%
+  \def\TableName{Tabla}%
+
+% -----
+% If we ever give these things names:
+%
+% \def\TheoremName{Teorema}
+% \def\LemmaName{Lema}
+% \def\ProofName{Demostraci\'non}
+% -----
+
+% Referring to equations can be done in a wide variety of contexts. So,
+% I think it better to have equation references with only the number in
+% parenthesis (that is, by the way, the way _I_ prefere do references
+% to equations: " ...come si vede nella (2.3) la corrente ..." (Romano)
+%
+% However it is often used in a similar way as in English but with the
+% name of the item explicitly stated: "...como se ve en la
+%  ecuaci\'on (2.5)..." , or even "...como se ve en la Ec. (2.5)..." 
+% so I guess it is better to put it both ways, one of them commented out. 
+% I will put the second one as the default, as it seems to be most widely 
+% used in Spain...  (David)
+
+% Also, the manual shows you how to do it the first way, and the second
+% is more specialized to Spanish, so let's use that.  (Eric)
+
+
+%% \def\Eq##1{($\use{Eq.##1}$)}    \def\Eqs##1{($\use{Eq.##1}$)}
+
+\def\Eq##1{ecuaci\'on~($\use{Eq.##1}$)}
+\def\Eqs##1{ecuaciones~($\use{Eq.##1}$)}
+
+% Select the language
+
+  \selectlanguage{spanish}
+
+% Default reference style should be for the European style
+
+  \Eurostyletrue
+}
+
+
+% Make it so:
+
+\Spanish
+
+%>>EOF Spanish.txs <<<

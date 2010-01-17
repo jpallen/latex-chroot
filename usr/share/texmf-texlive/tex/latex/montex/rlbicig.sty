@@ -1,0 +1,191 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% File: rlbicig.sty
+% Date: October 1st, 2001
+% Author: Oliver Corff
+% (c) 2001 Ulaanbaatar, Macau, Berlin
+%
+% No options.
+%
+% NB: This package requires eLaTeX2e!
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Identification
+%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{rlbicig}
+	[2001/10/01 v0.8 Horizontal/Vertical Support for mls]
+%
+%
+% Preliminary declarations
+%
+% Well, I think, I'll shamelessly copy code from
+% the Hebrew package and redefine a few things:
+%
+%	\eL
+%	\R
+%
+% \RtoLtrue means that the main mode is currently Mongolian, Manju RL.
+% \RtoLfalse means that the main mode is currently Latin, Cyrillic LR.
+
+%\newif\ifRtoL
+
+% Change the main mode to Hebrew RL or English LR (default mode).
+% This is the only place the \ifRtoL value changes. Inner mode changes
+% with \eL{} \R{} \rmbox{} and \lmbox{} does not change it.
+%
+\def\setRtoL{\RtoLtrue\beginR}
+\def\setLtoR{\RtoLfalse\beginL}
+
+% Macros for changing direction, taken from TUGboat.
+% Usage: \eL{English Text} and \R{Mongol Bicig}.
+% Numbers should also be enclosed in \eL{}, as in \eL{123}.
+
+\let\next=\
+\def\eL{\protect\pL}
+\def\pL{\protect\afterassignment\moreL \let\next= }
+\def\moreL{\bracetext \aftergroup\endL \beginL}
+\def\R{\protect\pR}
+\def\pR{\protect\afterassignment\moreR \let\next= }
+\def\moreR{\bracetext \aftergroup\endR \beginR}
+\def\bracetext{\ifcat\next{\else\ifcat\next}\fi
+ \errmessage{Missing left brace has been substituted}\fi \bgroup}
+\everydisplay{\ifRtoL\aftergroup\beginR\fi }
+%\everybox{\ifRtoL\aftergroup\beginR\fi }
+
+% Take care of Hebrew indentation in every paragraph.
+%
+% Changes:
+% \noindent for Hebrew. Yaniv.
+% What about Mongol Bicig?
+%
+\def\bicigpar{\ifRtoL\kern-\parindent\beginR\indent\fi}
+\let\oldeverypar\everypar
+\def\everypar#1{\oldeverypar{\bicigpar#1}}
+\let\oldnoindent\noindent
+\def\noindent{\ifRtoL\indent\unskip\else\oldnoindent\fi}
+
+% Additions by Yaniv:
+% Useful vbox commands. All text in math formulas is best enclosed in these.
+% ex: $P=\{x|\lmbox{The is no } y \lmbox{ such that } y \lmbox{ divides }x\}$
+%     $P=\{x|x\rmbox{ Mehalek et } y\rmbox{ Kach She } y\rmbox{ Lo Kayam }\}$
+% \mbox{} is useless for both cases, since it typesets in LR Hebrew.
+
+\newcommand{\rmbox}[1]{\mbox{\R{#1}}}
+\newcommand{\lmbox}[1]{\mbox{\eL{#1}}}
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                List environments                         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% List environments in Hebrew, are ticked and indented from the right
+% instead of from the left. All the definitions that caused indentation 
+% are revised for Hebrew. LaTeX keeps track on the indentation with the
+% \leftmargin and \rightmargin values. The changes below are mostly to
+% exchange these values in Hebrew mode.
+%
+\def\descriptionlabel#1{\hspace\labelsep \textbf{#1}} 
+\def\description{\list{}{\labelwidth\z@ \itemindent-
+ \ifRtoL\rightmargin\else\leftmargin\fi
+ \let\makelabel\descriptionlabel}}
+\let\enddescription\endlist
+
+\def\@verbatim{%
+  \let\do\@makeother \dospecials%
+  \obeylines \verbatim@font \@noligs}
+
+\def\@listi{\ifRtoL\rightmargin\leftmargini\leftmargin=0pt%
+            \else\leftmargin\leftmargini
+            \fi
+ \labelwidth\leftmargini\advance\labelwidth-\labelsep
+ \topsep 4pt plus 2pt minus 1pt
+ \parsep 2pt plus 1pt minus 1pt
+ \itemsep \parsep
+             }
+\def\@listI{\ifRtoL\rightmargin\leftmargini\leftmargin=0pt%
+            \else\leftmargin\leftmargini
+            \fi
+ \labelwidth\leftmargini\advance\labelwidth-\labelsep
+ \topsep 4pt plus 2pt minus 1pt
+ \parsep 2pt plus 1pt minus 1pt
+ \itemsep \parsep
+             }
+%
+\def\@listii{\ifRtoL
+	\rightmargin\leftmarginii
+	\leftmargin=0pt
+\else
+	\leftmargin\leftmarginii
+\fi
+\labelwidth\leftmarginii\advance\labelwidth-\labelsep
+\topsep 4pt plus 2pt minus 1pt
+\parsep 2pt plus 1pt minus 1pt
+\itemsep \parsep
+}
+%
+\def\@listiii{%
+	\ifRtoL
+		\rightmargin\leftmarginiii
+		\leftmargin=0pt
+	\else
+		\leftmargin\leftmarginiii
+	\fi
+	\labelwidth\leftmarginiii\advance\labelwidth-\labelsep
+	\topsep 2pt plus 1pt minus 1pt
+	\parsep \z@ \partopsep 1pt plus 0pt minus 1pt
+	\itemsep \parsep
+}
+%
+\def\@listiv{\ifRtoL
+\rightmargin\leftmarginiv
+\leftmargin=0pt
+\else\leftmargin\leftmarginiv
+\fi
+\labelwidth\leftmarginiv\advance\labelwidth-\labelsep
+\topsep 2pt plus 1pt minus 1pt
+\parsep \z@ \partopsep 1pt plus 0pt minus 1pt
+\itemsep \parsep}
+\def\@listv{\ifRtoL
+\rightmargin\leftmarginv
+\leftmargin=0pt
+\else\leftmargin\leftmarginv
+\fi
+\labelwidth\leftmarginv\advance\labelwidth-\labelsep
+\topsep 2pt plus 1pt minus 1pt
+\parsep \z@ \partopsep 1pt plus 0pt minus 1pt
+\itemsep \parsep}
+\def\@listvi{\ifRtoL
+\rightmargin\leftmarginvi
+\leftmargin=0pt
+\else\leftmargin\leftmarginvi
+\fi
+\labelwidth\leftmarginvi\advance\labelwidth-\labelsep
+\topsep 2pt plus 1pt minus 1pt
+\parsep \z@ \partopsep 1pt plus 0pt minus 1pt
+\itemsep \parsep}
+
+\renewcommand{\footnoterule}{%
+\vspace*{-3pt}%
+	\ifRtoL
+	\rule{.2\columnwidth}{0.4pt}\
+	\else\rule{.4\columnwidth}{0.4pt}\
+	\fi
+\vspace*{2.6pt}
+}
+\@ifclassloaded{article}{% 			article
+	\let\original@maketitle\maketitle
+	\renewcommand{\maketitle}{
+		\let\original@newpage\newpage
+		\let\newpage\relax
+		\original@maketitle
+		\let\newpage\original@newpage
+	}}{ % else all other classed
+	}
+
+% Options
+% No options with this package.
+%
+% No More declarations
+% 
+% End of file `rlbicig.sty'.

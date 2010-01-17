@@ -1,0 +1,1724 @@
+%%
+%% This is file `galley2.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% galley2.dtx  (with options: `package,trace')
+%% 
+%%
+%% $Header: /usr3/users/latex3/design/consolidation/CURRENT/RCS/galley2.dtx,v 1.15 2000/01/27 21:45:56 latex3 Exp $
+%%
+%% (C) Copyright 1999-2000 Frank Mittelbach
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{galley2}
+          [2000/01/27 v0.2s galley structures]
+\NeedsTeXFormat{LaTeX2e}[1998/12/01]
+\RequirePackage{ldcsetup}
+\RequirePackage{xhj} % taken out of this file
+\IgnoreWhiteSpace
+\catcode`\:=11\relax
+\def\tracinggalleys{\afterassignment\@tracinggalleys\count@}
+\def\@tracinggalleys{
+  \ifcase \count@
+    \let\GAL@typeout\@gobble
+  \or
+    \def\GAL@typeout ##1{
+       \begingroup
+           \let\protect\@unexpandable@protect
+           \wlog {##1}
+       \endgroup
+    }
+  \or
+    \let\GAL@typeout\typeout
+  \else
+    \def\GAL@typeout ##1{
+       \ifnum\tracingmacros>\z@
+       \begingroup
+         \tracingassigns\z@
+         \tracingcommands\z@
+         \tracingrestores\z@
+         \tracingmacros\z@
+         \typeout{##1}
+       \endgroup
+       \else
+         \typeout{##1}
+       \fi
+    }
+  \fi
+}
+\let\GAL@typeout\@gobble
+\let\GAL@@clubpenalty\clubpenalty
+\newcount\clubpenalty
+\let\GAL@@interlinepenalty\interlinepenalty
+\newcount\interlinepenalty
+\let\GAL@@everypar\everypar
+\newtoks\everypar
+\let\GAL@@parindent\parindent \GAL@@parindent\z@
+\newdimen\parindent
+\let\GAL@@parskip\parskip    \GAL@@parskip\z@
+\newskip\parskip
+\let\GAL@@leftskip\leftskip
+\newskip\leftskip
+\let\GAL@@rightskip\rightskip
+\newskip\rightskip
+\let\GAL@@parfillskip\parfillskip
+\newskip\parfillskip         \parfillskip\@flushglue
+\newskip\GAL@@startskip
+\newskip\GAL@@linefillskip
+\let\GAL@@spaceskip\spaceskip
+\newskip\spaceskip
+\let\GAL@@xspaceskip\xspaceskip
+\newskip\xspaceskip
+\let\GAL@@lineskip\lineskip
+\newskip\lineskip
+\newcount\GAL@cnta
+\newskip\GAL@skipa
+\newskip\GAL@skipb
+\newbox\GAL@boxa
+\def\GAL@init@static {
+          \gdef\GAL@b@s  {\z@}
+          \gdef\GAL@p@s  {\z@}
+          \gdef\GAL@v@s  {-1sp}
+          \gdef\GAL@uv@s {\z@}
+          \gdef\GAL@up@s {}
+          \gdef\GAL@pw@s {}
+          \gdef\GAL@j@s  {\z@\leftskip\rightskip\parfillskip
+                          \spaceskip\xspaceskip\parfillskip\parindent}
+          \gdef\GAL@o@s  {}
+          \gdef\GAL@ps@s {}
+          \gdef\GAL@i@s  {\z@}
+          \gdef\GAL@nw@s {}
+          \gdef\GAL@q@s  {}
+   \setGALnormalpar:
+   \GAL@init@dynamic@fully
+   \UseInstance{hj}{default}
+%% alternative
+%%   \UseInstance{hyphenation}{default}
+%%   \UseInstance{linebreak}{default}
+}
+\def\GALsavegalleystate: {
+          \let\GAL@b@l \GAL@b@
+          \let\GAL@p@l \GAL@p@
+          \let\GAL@v@l \GAL@v@
+          \let\GAL@uv@l \GAL@uv@
+          \let\GAL@up@l \GAL@up@
+          \let\GAL@pw@l \GAL@pw@
+          \let\GAL@j@l \GAL@j@
+          \let\GAL@o@l \GAL@o@
+          \let\GAL@ps@l \GAL@ps@
+          \let\GAL@i@l \GAL@i@
+          \let\GAL@nw@l \GAL@nw@
+          \let\GAL@q@l \GAL@q@
+          \let\GAL@b@sl \GAL@b@s
+          \let\GAL@p@sl \GAL@p@s
+          \let\GAL@v@sl \GAL@v@s
+          \let\GAL@uv@sl \GAL@uv@s
+          \let\GAL@up@sl \GAL@up@s
+          \let\GAL@pw@sl \GAL@pw@s
+          \let\GAL@j@sl \GAL@j@s
+          \let\GAL@o@sl \GAL@o@s
+          \let\GAL@ps@sl \GAL@ps@s
+          \let\GAL@i@sl \GAL@i@s
+          \let\GAL@nw@sl \GAL@nw@s
+          \let\GAL@q@sl \GAL@q@s
+  \let\saved@GAL@par\par
+  \let\saved@GAL@reassign@list\GAL@reassign@list
+}
+\def\GALrestoregalleystate: {
+          \global\let\GAL@b@ \GAL@b@l
+          \global\let\GAL@p@ \GAL@p@l
+          \global\let\GAL@v@ \GAL@v@l
+          \global\let\GAL@uv@ \GAL@uv@l
+          \global\let\GAL@up@ \GAL@up@l
+          \global\let\GAL@pw@ \GAL@pw@l
+          \global\let\GAL@j@ \GAL@j@l
+          \global\let\GAL@o@ \GAL@o@l
+          \global\let\GAL@ps@ \GAL@ps@l
+          \global\let\GAL@i@ \GAL@i@l
+          \global\let\GAL@nw@ \GAL@nw@l
+          \global\let\GAL@q@ \GAL@q@l
+          \global\let\GAL@b@s \GAL@b@sl
+          \global\let\GAL@p@s \GAL@p@sl
+          \global\let\GAL@v@s \GAL@v@sl
+          \global\let\GAL@uv@s \GAL@uv@sl
+          \global\let\GAL@up@s \GAL@up@sl
+          \global\let\GAL@pw@s \GAL@pw@sl
+          \global\let\GAL@j@s \GAL@j@sl
+          \global\let\GAL@o@s \GAL@o@sl
+          \global\let\GAL@ps@s \GAL@ps@sl
+          \global\let\GAL@i@s \GAL@i@sl
+          \global\let\GAL@nw@s \GAL@nw@sl
+          \global\let\GAL@q@s \GAL@q@sl
+  \global\let\par\saved@GAL@par
+  \global\let\GAL@reassign@list\saved@GAL@reassign@list
+  \expandafter \setup@paragraph@justification \GAL@j@
+}
+\def\saved@GAL@par{\ERROR\GAL@normal@par}
+\def\GAL@init@dynamic@as@necessary {
+  \GAL@typeout{Reinit~ parameters \on@line}
+  \GAL@typeout{\@spaces \meaning  \GAL@reassign@list}
+  \GAL@reassign@list
+  \global\let\GAL@reassign@list\@empty
+}
+\def\GAL@init@dynamic@fully {
+  \GAL@typeout{Reinit~ parameters \on@line}
+          \global\let\GAL@b@ \GAL@b@s
+          \global\let\GAL@p@ \GAL@p@s
+          \global\let\GAL@v@ \GAL@v@s
+          \global\let\GAL@uv@ \GAL@uv@s
+          \global\let\GAL@up@ \GAL@up@s
+          \global\let\GAL@pw@ \GAL@pw@s
+          \global\let\GAL@j@ \GAL@j@s
+          \global\let\GAL@o@ \GAL@o@s
+          \global\let\GAL@ps@ \GAL@ps@s
+          \global\let\GAL@i@ \GAL@i@s
+          \global\let\GAL@nw@ \GAL@nw@s
+          \global\let\GAL@q@ \GAL@q@s
+         \global\let\GAL@reassign@list\@empty
+}
+\let\GAL@reassign@list\@empty
+\def\GAL@prepare@reassign:NN #1#2{
+  \ifx#1#2
+  \else
+    \appendtoDGPV@internal:Nn\GAL@reassign@list
+          {\global \let #1 #2 }
+  \fi
+}
+\def\GAL@prepare@reassign:n #1{
+  \expandafter\ifx \csname GAL@#1@s\endcsname \relax
+    \GAL@typeout{Not~ reassigning~ for~ #1!}
+  \else
+    \expandafter
+    \GAL@prepare@reassign:NN
+       \csname GAL@#1@ \expandafter \endcsname
+       \csname GAL@#1@s \endcsname
+ \fi
+}
+\def\GAL@start@level{
+         \GALsavegalleystate:
+         \bgroup
+           \advance\GAL@level@num\@ne
+           \GAL@typeout{Entering~ galley~ level:~
+                        \the\GAL@level@num~ \on@line}
+           \GAL@init@static
+           \@GAL@if@first@on@leveltrue     % temp solution!
+                                           % see below
+           \aftergroup\GAL@cleanup@level}
+\newcount\GAL@level@num
+\newif\if@GAL@if@first@on@level
+\def\GAL@cleanup@level{
+    \par
+    \GAL@finish@typesetting
+    \GAL@typeout{Returning~ to~ galley~ level:~  \the\GAL@level@num~ \on@line}
+    \GALrestoregalleystate:
+  \egroup
+}
+\def\GAL@finish@typesetting {}
+\everyvbox{\GAL@start@level}
+\let\@@insert\insert
+\long\def\insert #1#{\@insert{#1}}
+\long\def\@insert #1#2{\@@insert#1{\GAL@start@level#2\par}}
+\def\GAL@ignore@next@galley{
+  \everyvbox{\global\everyvbox{\GAL@start@level}}
+}
+\def\GAL@ignore@next@galley@vbox{
+  \everyvbox{\global\everyvbox{\GAL@start@level}}\vbox
+}
+\def \GAL@show@datastructure #1{
+    \GAL@typeout{#1^^J
+       \@spaces nominal~ width~ =~ \the\hsize ^^J
+       \@spaces left~ indentation~ =~ \the\@totalleftmargin ^^J
+       \@spaces break~ switch~ (b)~ =~ \GAL@b@ \space (\GAL@b@s) ^^J
+       \@spaces v-penalty~ (p)~ =~ \GAL@p@ \space (\GAL@p@s) ^^J
+       \@spaces v-space~ (v)~ =~ \GAL@v@ \space (\GAL@v@s) ^^J
+       \@spaces user~ v-penalty~ (up)~ =~ \GAL@up@ ^^J
+       \@spaces user~v-space~ (uv)~ =~ \GAL@uv@ ^^J
+       \@spaces prev-whatits~ (pw)~ =~ \meaning \GAL@pw@ ^^J
+       \@spaces next-whatits~ (nw)~ =~ \meaning \GAL@nw@ ^^J
+       \@spaces parshape~spec~ (ps)~ =~ \GAL@ps@ \space (\GAL@ps@s) ^^J
+       \@spaces queries~ (q)~ =~ \meaning \GAL@q@ ^^J
+       \@spaces indent~ flag~ (i)~ =~ \GAL@i@  \space (\GAL@i@s) ^^J
+       \@spaces para~ object~ (o)~ =~ \meaning \GAL@o@ ^^J
+       \@spaces para~ justification~ (j)~ =~ \meaning \GAL@j@ }
+}
+\def\GAL@use@on@para{
+  \GAL@show@datastructure{Para~ start~ for~ galley~
+                          level~ \the\GAL@level@num \on@line}
+  \if@GAL@if@first@on@level
+    \GAL@handle@first@para
+  \else
+    \begingroup
+      \global\setbox\GAL@boxa\lastbox
+      \endgraf
+      \GAL@set@vertical@objects
+      \GAL@@everypar{}
+      \noindent
+    \endgroup
+  \fi
+    \GAL@set@measure
+    \GAL@set@horizontal@objects
+    \GAL@init@dynamic@as@necessary
+}
+\def\GAL@handle@first@para {
+    \@GAL@if@first@on@levelfalse
+    \GAL@pw@
+    \@tempskipa \GAL@uv@ \relax
+    \ifdim \@tempskipa =\z@ \else
+      \ifhmode
+        \begingroup
+          \global\setbox\GAL@boxa\lastbox
+          \endgraf
+          \vskip \@tempskipa
+          \GAL@@everypar{}
+          \noindent
+        \endgroup
+      \else
+        \vskip \@tempskipa
+      \fi
+    \fi
+}
+\def\GAL@use@on@vobject{
+  \GAL@show@datastructure{V-object~ for~ galley~
+                          level~ \the\GAL@level@num \on@line}
+  \if@GAL@if@first@on@level
+    \GAL@handle@first@para
+  \else
+    \GAL@set@vertical@objects
+  \fi
+  \GAL@init@dynamic@as@necessary
+}
+\def \GAL@set@vertical@objects {
+   \GAL@pw@
+   \penalty
+    \ifx \GAL@up@ \@empty
+      \ifnum \GAL@b@ > \z@
+         \@M
+      \else
+         \GAL@p@ \relax
+      \fi
+    \else
+      \GAL@up@ \relax
+    \fi
+   \GAL@skipa \GAL@v@ \relax
+   \vskip \ifdim
+           \GAL@skipa = -1sp \parskip
+           \GAL@typeout{\parskip=\the\parskip\space applied}
+         \else
+           \GAL@skipa
+         \fi
+  \vskip \GAL@uv@ \relax
+}
+\def \GAL@set@measure {
+  \parshape
+    \ifx\GAL@ps@\@empty
+        \z@
+    \else
+      \GAL@ps@
+    \fi
+}
+\def \GAL@set@horizontal@objects {
+  \GAL@nw@
+  \GAL@q@
+     \expandafter \setup@paragraph@justification \GAL@j@
+  \ifnum \GAL@i@ = \z@
+    \ifvoid\GAL@boxa \else \hb@xt@ \GAL@@parindent{} \fi
+  \fi
+  \GAL@o@ \relax
+  \hskip \GAL@@startskip \relax
+  \setup@page@breaking@penalties \GAL@b@
+}
+\def \setup@page@breaking@penalties #1{
+  \GAL@@clubpenalty \clubpenalty
+  \GAL@@interlinepenalty \interlinepenalty
+  \ifcase #1
+  \or
+  \or
+    \GAL@@clubpenalty \@M
+  \or
+    \GAL@@interlinepenalty \@M
+  \else
+    \setup@page@breaking@penalties {-#1}
+  \fi
+}
+\def \setup@paragraph@justification #1 #2 #3 #4 #5 #6 #7 #8{
+  \global \GAL@@startskip   #1 \relax
+  \global \GAL@@leftskip    #2 \relax
+  \global \GAL@@rightskip   #3 \relax
+  \global \GAL@@parfillskip #4 \relax
+  \global \GAL@@spaceskip   #5 \relax
+  \global \GAL@@xspaceskip  #6 \relax
+  \global \GAL@@linefillskip#7 \relax
+  \global \GAL@@parindent   #8 \relax
+}
+\def \GAL@normal@par {
+  \begingroup
+  \ifvmode
+    \endgraf
+  \else                      %% For error-trapping needs
+                             %%   \ifinner \ifhmode etc cases
+        \endgraf
+        %%%% NOTE: this puts us into vmode with the para on the galley
+        %%%%       AND rignt here we have stuff that has migrated
+        %%%%       (eg vadjust stuff) from the last line!!!
+        \nobreak
+  \fi
+  \endgroup
+}
+\let\@@par\GAL@normal@par
+\def\setGALnormalpar:{
+  \global\let\par\GAL@normal@par
+}
+\def \setGALignoredpar:n #1 {
+  \ifvmode
+    \global \par@deathcycles \z@
+    \global\let\par\GAL@ignored@par
+    \gdef\GAL@ignored@par@error{#1}
+    \appendtoDGPVthing:nn q \setGALnormalpar:
+  \else
+    \ERROR \setGALnormalpar: \par
+  \fi
+}
+\def\GAL@ignored@par{
+  \global \advance\par@deathcycles \@ne
+  \ifnum \par@deathcycles > \thr@@
+      \PackageError{galley2}\GAL@ignored@par@error\@ehd
+      \setGALnormalpar:
+      \par
+  \fi
+}
+\def \GALignorepars:n #1 {
+  \global \par@deathcycles \z@
+  \global\let\par\GAL@ignore@next@pars
+  \gdef\GAL@ignored@par@error{#1}
+  \GAL@ignore@next@pars
+}
+\def\GAL@ignore@next@pars {
+  \global \advance\par@deathcycles \@ne
+  \ifnum \par@deathcycles > \thr@@
+      \PackageError{galley2}\GAL@ignored@par@error\@ehd
+      \setGALnormalpar:
+      \par
+  \fi
+  \@ifnextchar\par{}{\setGALnormalpar:}
+}
+\long\def\GAL@for#1#2\do#3{%
+  \expandafter\def\expandafter\@fortmp\expandafter{#2}%
+  \ifx\@fortmp\@empty \else
+    \expandafter\@forloop#2,\@nil,\@nil\@@#1{#3}\fi}
+\def \parshape@setup #1 #2 #3 #4 #5 #6{
+  \setlength\@tempdima{#2}
+  \setlength\@tempdimb{#3}
+  \global\let\GAL@ps@\@gobble % remove upcoming space below
+  \parshape@linecnt \z@
+  \@whilenum \parshape@linecnt < #4 \do
+     { \xdef\GAL@ps@{\GAL@ps@\space
+                     \the\@tempdima\space \the\@tempdimb
+                    }
+       \advance \parshape@linecnt \@ne
+     }
+  \GAL@for\parshape@next#6\do
+     {
+      \advance\parshape@linecnt\@ne
+      \setlength\parshape@lineindent{\@tempdima+#5+\parshape@next}
+      \setlength\parshape@linewidth
+                {\@tempdima+\@tempdimb-\parshape@lineindent}
+
+      \ifnum\parshape@linecnt=\@ne
+        \@tempdimc \parshape@lineindent
+        \advance\@tempdimc -\@tempdima
+        \edef\parshape@firstlineindent{\the\@tempdimc}
+      \fi
+      \xdef\GAL@ps@{\GAL@ps@\space
+                    #1\space
+                    \the\parshape@linewidth}
+     }
+  \advance\parshape@linecnt\@ne
+  \xdef\GAL@ps@{\the\parshape@linecnt\space
+                    \GAL@ps@\space
+                    \the\@tempdima\space \the\@tempdimb}
+  \GAL@typeout{\space\space set~ ps = \GAL@ps@}%
+  \GAL@prepare@reassign:NN \GAL@ps@ \GAL@ps@s
+}
+\newcount\parshape@linecnt
+\newlength\parshape@lineindent
+\newlength\parshape@linewidth
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\setDGPVdimension:nn #1#2{%  #1=v/h #2=value
+  \calc@assign@skip\GAL@skipb{#2}
+  \GAL@typeout{\space\space set~ #1 = #2 = \the\GAL@skipb}%
+  \expandafter \xdef
+     \csname GAL@#1@\endcsname
+     {\the\GAL@skipb}
+  \GAL@prepare@reassign:n{#1}
+}
+\def\addDGPVdimension:nn #1#2{%  #1=v/h/... #2=value
+  \GAL@skipb\csname GAL@#1@ \endcsname\relax
+  \ifdim\GAL@skipb=-1sp
+    \calc@assign@skip\GAL@skipb{#2}
+  \else
+    \calc@assign@skip{\advance\GAL@skipb}{#2}
+  \fi
+  \GAL@typeout{\space\space set~ #1 =+ #2 = \the\GAL@skipb}
+  \expandafter
+     \xdef
+     \csname GAL@#1@\endcsname
+     {\the\GAL@skipb}
+  \GAL@prepare@reassign:n{#1}
+}
+\def\maxDGPVdimension:nn #1#2{
+  \GAL@skipa\csname GAL@#1@\endcsname\relax
+  \calc@assign@skip\GAL@skipb{#2}
+  \ifdim\GAL@skipa<\GAL@skipb
+    \expandafter
+       \xdef
+       \csname GAL@#1@\endcsname
+       {\the\GAL@skipb}
+    \GAL@prepare@reassign:n{#1}
+  \fi
+  \GAL@typeout{\space\space set~ #1 =
+       max(\the\GAL@skipa,\the\GAL@skipb) ^^J\@spaces\@spaces
+            = \csname GAL@#1@\endcsname}
+}
+\def\setGALpenalty:n #1{%
+  \calc@assign@count\GAL@cnta{#1}
+  \xdef \GAL@p@ {\the\GAL@cnta}
+  \GAL@typeout{\space\space set~ p = #1 = \the\GAL@cnta}
+  \GAL@prepare@reassign:NN \GAL@p@ \GAL@p@s
+}
+\def\addGALpenalty:n #1{%
+  \GAL@cnta \GAL@p@ \relax
+  \calc@assign@count{\advance\GAL@cnta}{#1}
+  \xdef \GAL@p@ {\the\GAL@cnta}
+  \GAL@typeout{\space\space set~ p += #1 = \the\GAL@cnta}
+  \GAL@prepare@reassign:NN \GAL@p@ \GAL@p@s
+}
+\def\setGALbreak:n #1{%  values 0, 1, 2, or 3
+   \GAL@typeout{\space\space set~ b = #1 }
+   \gdef \GAL@b@ {#1}
+   \GAL@prepare@reassign:NN  \GAL@b@  \GAL@b@s
+}
+\def\setGALobject:n #1{
+    \gdef \GAL@o@ {#1}
+    \GAL@prepare@reassign:NN \GAL@o@ \GAL@o@s
+}
+\def\setDGPVthing:nn #1 #2{
+    \expandafter \gdef \csname GAL@#1@\endcsname {#2}
+    \GAL@prepare@reassign:n{#1}
+}
+\def\appendtoDGPVthing:nn #1#2{
+    \expandafter\appendtoDGPV@internal:Nn\csname GAL@#1@\endcsname {#2}
+    \GAL@prepare@reassign:n{#1}
+}
+\def\appendtoDGPVthing:no #1#2{
+    \expandafter\appendtoDGPV@internal:No\csname GAL@#1@\endcsname {#2}
+    \GAL@prepare@reassign:n{#1}
+}
+\def\appendtoDGPV@internal:Nn #1 #2{
+    \expandafter \gdef \expandafter #1 \expandafter
+        {#1 #2}
+}
+\def\appendtoDGPV@internal:No #1 #2{
+   \expandafter\appendtoDGPV@internal:Nn\expandafter #1\expandafter {#2}
+}
+\def \setGALleftparshape:nnn {
+ \parshape@setup {\the\parshape@lineindent} \@totalleftmargin
+                 \linewidth  }
+\def \setGALrightparshape:nnn {
+ \parshape@setup \@totalleftmargin \@totalleftmargin \linewidth
+}
+\def \GALhangfrom:n #1 {
+   \setbox\@tempboxa\hbox{{#1}}
+   \parshape@setup {\the\parshape@lineindent}
+                   {\@totalleftmargin+\wd\@tempboxa}
+                   {\linewidth-\wd\@tempboxa}
+                   \z@
+                   \z@
+                   {-\wd\@tempboxa}
+    \noindent\box\@tempboxa}
+\let \@hangfrom \GALhangfrom:n
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\setSGPVthing:nn #1 #2 {
+    \setDGPVthing:nn {#1} {#2}
+    \global\expandafter
+       \let\csname GAL@#1@s \expandafter\endcsname
+           \csname GAL@#1@  \endcsname
+}
+\def\setSGPVdimension:nn #1 #2 {
+    \setDGPVdimension:nn {#1} {#2}
+    \global\expandafter
+       \let\csname GAL@#1@s \expandafter\endcsname
+           \csname GAL@#1@  \endcsname
+}
+\def \setSGPVmeasure:nn #1 #2 {
+  \setlength\@totalleftmargin{#1}
+  \setlength\linewidth{#2}
+  \xdef\GAL@ps@s{\@ne\space
+                 \the\@totalleftmargin\space \the\linewidth}
+  \global\let\GAL@ps@\GAL@ps@s
+}
+\def \addSGPVmeasure:nn #1 #2 {
+  \addtolength\@totalleftmargin{#1}
+  \addtolength\linewidth{#2}
+  \xdef\GAL@ps@s{\@ne\space
+                 \the\@totalleftmargin\space \the\linewidth}
+  \global\let\GAL@ps@\GAL@ps@s
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareDocumentCommand \vspace {s m }
+ {
+  \addDGPVdimension:nn{uv}{#2}
+ }
+\def\addvspace#1{
+  \maxDGPVdimension:nn{v}{#1}
+}
+\def\addpenalty#1{
+  \addGALpenalty:n{#1}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage{template}
+\RequirePackage{xparse}
+\DeclareTemplateType{endlist}{0}
+
+\DeclareTemplate{endlist}{std}{0}{
+  penalty     =+C \GAL@p@ ,
+  vspace      =+L \GAL@v@ ,
+  parindent   =+L \GAL@i@ ,
+  par-penalty     =+C [0]   \GAL@p@X ,
+  par-vspace      =+L [\z@] \GAL@v@X ,
+  par-parindent   =+L [\z@] \GAL@i@X ,
+ }
+ {\DoParameterAssignments
+  \setGALendlistpar:}
+
+\DeclareInstance{endlist}{list}{std}{
+  penalty     = 999 ,
+  vspace      = 10pt ,
+  parindent   = 0pt ,
+  par-penalty     = -1000 ,
+  par-vspace      = 5pt ,
+  par-parindent   = 10pt ,
+ }
+\GAL@init@static  % this is to be after the templates by now
+
+\GAL@@everypar{\GAL@use@on@para\the\everypar}
+
+\AtBeginDocument {
+  \GAL@init@static  % this is to be after the templates by now
+}
+\def\@@line#1{\GAL@use@on@vobject\hb@xt@\hsize{#1}\nobreak}
+
+\long\def \@savemarbox #1#2{%
+  \global\setbox #1%
+    \color@vbox
+      \vtop{%
+        \hsize\marginparwidth
+        \@parboxrestore
+        \@marginparreset
+        #2%
+        \par                       % needed nowadays!
+        \@minipagefalse
+        \outer@nobreak
+        }%
+    \color@endbox
+}
+
+\long\def\@footnotetext#1{\insert\footins{%
+    \reset@font\footnotesize
+    \interlinepenalty\interfootnotelinepenalty
+    \splittopskip\footnotesep
+    \splitmaxdepth \dp\strutbox \floatingpenalty \@MM
+    \hsize\columnwidth \@parboxrestore
+    \protected@edef\@currentlabel{%
+       \csname p@footnote\endcsname\@thefnmark
+    }%
+    \color@begingroup
+      \@makefntext{%
+        \rule\z@\footnotesep\ignorespaces#1\@finalstrut\strutbox\par}%  %ditto!!!
+    \color@endgroup}}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\showGALcmd#1{\GAL@typeout{In~#1: \the\GAL@level@num~ \on@line}}
+
+\def\@afterheading{
+  \showGALcmd{@afterheading}
+  \if@afterindent \else
+    \setDGPVthing:nn i \@ne
+  \fi
+  \setGALbreak:n 2
+}
+
+\def\nofiles{%
+  \showGALcmd{}
+  \@fileswfalse
+  \typeout{No auxiliary output files.^^J}%
+  \long\def\protected@write##1##2##3%
+    {\write\m@ne{}%
+  }
+  \let\makeindex\relax
+  \let\makeglossary\relax}
+
+\long\def \protected@write#1#2#3{%
+  \showGALcmd{protected@write}
+      \begingroup
+       \let\thepage\relax
+       #2%
+       \let\protect\@unexpandable@protect
+       \edef\reserved@a{\write#1{#3}}%
+       \appendtoDGPVthing:no {nw} \reserved@a
+      \endgroup
+}
+
+\def\markboth#1#2{\gdef\@themark{{#1}{#2}}{%
+  \showGALcmd{}
+     \let\protect\@unexpandable@protect
+     \let\label\relax \let\index\relax \let\glossary\relax
+     \mark{\@themark}}%
+}
+
+\def\markright#1{{\let\protect\@unexpandable@protect
+  \showGALcmd{}
+     \let\label\relax \let\index\relax \let\glossary\relax
+     \expandafter\@markright\@themark
+     {#1}\mark{\@themark}}%
+}
+
+\def \newpage {%
+  \showGALcmd{newpage}
+  \if@noskipsec
+    \ifx \@nodocument\relax
+      \leavevmode
+      \global \@noskipsecfalse
+    \fi
+  \fi
+  \if@inlabel
+    \leavevmode
+    \global \@inlabelfalse
+  \fi
+  \ifnum \GAL@b@ > \z@
+     \setGALbreak:n 0
+  \fi
+  \par
+  \vfil
+  \penalty -\@M}
+\def\@arrayparboxrestore{%
+  \showGALcmd{@arrayparboxrestore}
+  \let\if@noskipsec\iffalse
+  \let\par\@@par
+  \let\-\@dischyph
+  \let\'\@acci\let\`\@accii\let\=\@acciii
+  \parindent\z@ \parskip\z@skip
+  \everypar{}%
+  \linewidth\hsize
+  \@totalleftmargin\z@
+  \leftskip\z@skip \rightskip\z@skip \@rightskip\z@skip
+  \parfillskip\@flushglue \lineskip\normallineskip
+  \baselineskip\normalbaselineskip
+  \sloppy}
+
+\def\@startsection#1#2#3#4#5#6{%
+  \showGALcmd{@startsection}
+  \if@noskipsec \leavevmode \fi
+  \par
+  \@tempskipa #4\relax
+  \@afterindenttrue
+  \ifdim \@tempskipa <\z@
+    \@tempskipa -\@tempskipa \@afterindentfalse
+  \fi
+  \ifnum \GAL@b@ = \z@
+     \addpenalty\@secpenalty\addvspace\@tempskipa
+  \fi
+  \@ifstar
+    {\@ssect{#3}{#4}{#5}{#6}}%
+    {\@dblarg{\@sect{#1}{#2}{#3}{#4}{#5}{#6}}}}
+
+\def\@xsect#1{%
+  \showGALcmd{@xsect}
+  \@tempskipa #1\relax
+  \ifdim \@tempskipa>\z@
+    \par \nobreak
+    \vskip \@tempskipa
+    \@afterheading
+  \else
+    \global\@noskipsectrue
+    \setDGPVthing:nn i \@ne
+    \setGALbreak:n 2
+    \setGALobject:n { \begingroup \@svsechd \endgroup
+                       \unskip }
+    \@tempskipa #1\relax
+    \setDGPVdimension:nn h {-\@tempskipa}
+    \everypar{%
+      \if@noskipsec
+        \global\@noskipsecfalse
+      \else
+        \everypar{}%
+      \fi}%
+  \fi
+  \ignorespaces}
+
+\gdef\@specialoutput{%
+  \showGALcmd{@specialoutput}
+   \ifnum \outputpenalty>-\@Mii
+     \@doclearpage
+   \else
+     \GAL@ignore@next@galley
+     \ifnum \outputpenalty<-\@Miii
+       \ifnum \outputpenalty<-\@MM \deadcycles \z@ \fi
+       \global \setbox\@holdpg \vbox {\unvbox\@cclv}%
+     \else
+       \global \setbox\@holdpg \vbox{%
+                      \unvbox\@holdpg
+                      \unvbox\@cclv
+                      \setbox\@tempboxa \lastbox
+                      \unskip
+                                     }%
+       \@pagedp \dp\@holdpg
+       \@pageht \ht\@holdpg
+       \unvbox \@holdpg
+       \@next\@currbox\@currlist{%
+         \ifnum \count\@currbox>\z@
+           \advance \@pageht \@pagedp
+           \ifvoid\footins \else
+             \advance \@pageht \ht\footins
+             \advance \@pageht \skip\footins
+             \advance \@pageht \dp\footins
+           \fi
+           \ifvbox \@kludgeins
+             \ifdim \wd\@kludgeins=\z@
+               \advance \@pageht \ht\@kludgeins
+             \fi
+           \fi
+           \@reinserts
+           \@addtocurcol
+         \else
+           \@reinserts
+           \@addmarginpar
+         \fi
+         }\@latexbug
+       \ifnum \outputpenalty<\z@
+           \addpenalty \interlinepenalty
+       \fi
+     \fi
+   \fi
+}
+
+\def \@addtocurcol {%
+  \showGALcmd{@addtocurcol}
+   \@insertfalse
+   \@setfloattypecounts
+   \ifnum \@fpstype=8
+   \else
+     \ifnum \@fpstype=24
+     \else
+       \@flsettextmin
+       \advance \@textmin \@textfloatsheight
+       \@reqcolroom \@pageht
+       \ifdim \@textmin>\@reqcolroom
+         \@reqcolroom \@textmin
+       \fi
+       \advance \@reqcolroom \ht\@currbox
+       \ifdim \@colroom>\@reqcolroom
+         \@flsetnum \@colnum
+         \ifnum \@colnum>\z@
+           \@bitor\@currtype\@deferlist
+           \if@test
+           \else
+             \@bitor\@currtype\@botlist
+             \if@test
+               \@addtobot
+             \else
+               \ifodd \count\@currbox
+                 \advance \@reqcolroom \intextsep
+                 \ifdim \@colroom>\@reqcolroom
+                   \global \advance \@colnum \m@ne
+                   \global \advance \@textfloatsheight \ht\@currbox
+                   \global \advance \@textfloatsheight 2\intextsep
+                   \@cons \@midlist \@currbox
+                     \addpenalty \interlinepenalty
+                   \vskip \intextsep
+                   \box\@currbox
+                   \penalty\interlinepenalty
+                   \vskip\intextsep
+                   \ifnum\outputpenalty <-\@Mii \vskip -\parskip\fi
+                   \outputpenalty \z@
+                   \@inserttrue
+                 \fi
+               \fi
+               \if@insert
+               \else
+                 \@addtotoporbot
+               \fi
+             \fi
+           \fi
+         \fi
+       \fi
+     \fi
+   \fi
+   \if@insert
+   \else
+     \@resethfps
+     \@cons\@deferlist\@currbox
+   \fi
+}
+
+
+\def\@item[#1]{%
+  \showGALcmd{@item}
+  \if@noparitem
+    \@donoparitem
+  \else
+    \if@inlabel
+      \indent \par
+    \fi
+    \ifhmode
+      \unskip\unskip \par
+    \fi
+    \if@newlist
+      \if@nobreak
+        \@nbitem
+      \else
+        \addpenalty\@beginparpenalty
+        \addvspace\@topsep
+        \addvspace{-\parskip}%
+      \fi
+    \else
+      \addpenalty\@itempenalty
+      \addvspace\itemsep
+    \fi
+    \global\@inlabeltrue
+  \fi
+  \everypar{%
+    \@minipagefalse
+    \global\@newlistfalse
+    \if@inlabel
+      \global\@inlabelfalse
+      {\setbox\z@\lastbox
+       \ifvoid\z@
+         \kern-\itemindent
+       \fi}%
+      \box\@labels
+      \penalty\z@
+    \fi
+    \if@nobreak
+      \@nobreakfalse
+      \clubpenalty \@M
+    \else
+      \clubpenalty \@clubpenalty
+      \everypar{}%
+    \fi}%
+  \if@noitemarg
+    \@noitemargfalse
+    \if@nmbrlist
+      \refstepcounter\@listctr
+    \fi
+  \fi
+  \sbox\@tempboxa{\makelabel{#1}}%
+  \global\setbox\@labels\hbox{%
+    \unhbox\@labels
+    \hskip \itemindent
+    \hskip -\labelwidth
+    \hskip -\labelsep
+    \ifdim \wd\@tempboxa >\labelwidth
+      \box\@tempboxa
+    \else
+      \hbox to\labelwidth {\unhbox\@tempboxa}%
+    \fi
+    \hskip \labelsep}%
+  \ignorespaces}
+
+\DeclareRobustCommand{\LaTeX}{L\kern-.36em%
+        {\sbox\z@ T%
+         \GAL@ignore@next@galley@vbox to\ht\z@{\hbox{\check@mathfonts
+                              \fontsize\sf@size\z@
+                              \math@fontsfalse\selectfont
+                              A}%
+                        \vss}%
+        }%
+        \kern-.15em%
+        \TeX}
+\DeclareTextCommandDefault{\textunderscore}{%
+  \leavevmode \kern.06em\GAL@ignore@next@galley@vbox{\hrule\@width.3em}}
+\DeclareTextCommandDefault{\textvisiblespace}{%
+   \mbox{\kern.06em\vrule \@height.3ex}%
+   \GAL@ignore@next@galley@vbox{\hrule \@width.3em}%
+   \hbox{\vrule \@height.3ex}}
+\gdef\showhyphens#1{%
+  \setbox0\vbox{%
+    \color@begingroup
+    \everypar{}%
+    \parfillskip\z@skip\hsize\maxdimen
+    \normalfont
+    \pretolerance\m@ne\tolerance\m@ne\hbadness\z@\showboxdepth\z@\ #1%
+    \color@endgroup}}
+\catcode`\:=12
+\long\def\@imakepicbox(#1,#2)[#3]#4{%
+  \GAL@ignore@next@galley@vbox to#2\unitlength
+   {\let\mb@b\vss \let\mb@l\hss\let\mb@r\hss
+    \let\mb@t\vss
+    \@tfor\reserved@a :=#3\do{%
+      \if s\reserved@a
+        \let\mb@l\relax\let\mb@r\relax
+      \else
+        \expandafter\let\csname mb@\reserved@a\endcsname\relax
+      \fi}%
+    \mb@t
+    \hb@xt@ #1\unitlength{\mb@l #4\mb@r}%
+    \mb@b
+    \kern\z@}}
+\catcode`\:=11
+\long\def\frame#1{%
+  \leavevmode
+  \hbox{%
+    \hskip-\@wholewidth
+    \GAL@ignore@next@galley@vbox{%
+      \vskip-\@wholewidth
+      \hrule \@height\@wholewidth
+      \hbox{%
+        \vrule\@width\@wholewidth
+        #1%
+        \vrule\@width\@wholewidth}%
+      \hrule\@height\@wholewidth
+      \vskip-\@wholewidth}%
+    \hskip-\@wholewidth}}
+\def\@frameb@x#1{%
+  \@tempdima\fboxrule
+  \advance\@tempdima\fboxsep
+  \advance\@tempdima\dp\@tempboxa
+  \hbox{%
+    \lower\@tempdima\hbox{%
+      \GAL@ignore@next@galley@vbox{%
+        \hrule\@height\fboxrule
+        \hbox{%
+          \vrule\@width\fboxrule
+          #1%
+          \GAL@ignore@next@galley@vbox{%
+            \vskip\fboxsep
+            \box\@tempboxa
+            \vskip\fboxsep}%
+          #1%
+          \vrule\@width\fboxrule}%
+        \hrule\@height\fboxrule}%
+                          }%
+        }%
+}
+\typeout{****~ Careful:~ there~ is~ another~ rewrite~ for~ iiiparbox~ in~ coffins!}
+
+\long\def\@iiiparbox#1#2[#3]#4#5{%
+  \leavevmode
+  \@pboxswfalse
+  \setlength\@tempdima{#4}%
+  \@begin@tempboxa\vbox{\hsize\@tempdima\@parboxrestore#5\@@par}%
+    \ifx\relax#2\else
+      \setlength\@tempdimb{#2}%
+      \def\@parboxto{to\@tempdimb}%
+    \fi
+    \GAL@ignore@next@galley
+    \if#1b\vbox
+    \else\if #1t\vtop
+    \else\ifmmode\vcenter
+    \else\@pboxswtrue $\vcenter
+    \fi\fi\fi
+    \@parboxto{\let\hss\vss\let\unhbox\unvbox
+       \csname bm@#3\endcsname}%
+    \if@pboxsw \m@th$\fi
+  \@end@tempboxa}
+\def\@iiiminipage#1#2[#3]#4{%
+  \leavevmode
+  \@pboxswfalse
+  \setlength\@tempdima{#4}%
+  \def\@mpargs{{#1}{#2}[#3]{#4}}%
+  \setbox\@tempboxa\vbox\bgroup
+    \color@begingroup
+      \hsize\@tempdima
+      \textwidth\hsize \columnwidth\hsize
+      \@parboxrestore
+      \def\@mpfn{mpfootnote}\def\thempfn{\thempfootnote}\c@mpfootnote\z@
+      \let\@footnotetext\@mpfootnotetext
+      \let\@listdepth\@mplistdepth \@mplistdepth\z@
+      \@minipagerestore
+      \@setminipage}
+\long\def\@mpfootnotetext#1{%
+  \global\setbox\@mpfootins\vbox{%
+    \unvbox\@mpfootins
+    \reset@font\footnotesize
+    \hsize\columnwidth
+    \@parboxrestore
+    \protected@edef\@currentlabel
+         {\csname p@mpfootnote\endcsname\@thefnmark}%
+    \color@begingroup
+      \@makefntext{%
+        \rule\z@\footnotesep\ignorespaces#1\@finalstrut\strutbox}%
+    \color@endgroup}}
+\def\@array[#1]#2{%
+  \GAL@ignore@next@galley
+  \if #1t\vtop \else \if#1b\vbox \else \vcenter \fi\fi
+  \bgroup
+  \setbox\@arstrutbox\hbox{%
+    \vrule \@height\arraystretch\ht\strutbox
+           \@depth\arraystretch \dp\strutbox
+           \@width\z@}%
+  \@mkpream{#2}%
+  \edef\@preamble{%
+    \ialign \noexpand\@halignto
+      \bgroup \@arstrut \@preamble \tabskip\z@skip \cr}%
+  \let\@startpbox\@@startpbox \let\@endpbox\@@endpbox
+  \let\tabularnewline\\%
+%%%%    \let\par\@empty
+    \let\@sharp##%
+    \set@typeset@protect
+    \lineskip\z@skip\baselineskip\z@skip
+    \ifhmode \@preamerr\z@ \@@par\fi
+    \@preamble}
+\gdef\@shortstack[#1]{%
+  \leavevmode
+  \GAL@ignore@next@galley@vbox\bgroup
+    \baselineskip-\p@\lineskip 3\p@
+    \let\mb@l\hss\let\mb@r\hss
+    \expandafter\let\csname mb@#1\endcsname\relax
+    \let\\\@stackcr
+    \@ishortstack}
+\gdef\@ishortstack#1{\ialign{\mb@l {##}\unskip\mb@r\cr #1\crcr}\egroup}
+\gdef\@stackcr{\@ifstar\@ixstackcr\@ixstackcr}
+\gdef\@ixstackcr{\@ifnextchar[\@istackcr{\cr\ignorespaces}}
+\gdef\@istackcr[#1]{\cr\noalign{\vskip #1}\ignorespaces}
+\newif\if@negarg
+\gdef\line(#1,#2)#3{\@xarg #1\relax \@yarg #2\relax
+  \@linelen #3\unitlength
+  \ifdim\@linelen<\z@\@badlinearg\else
+    \ifnum\@xarg =\z@ \@vline
+      \else \ifnum\@yarg =\z@ \@hline \else \@sline\fi
+    \fi
+  \fi}
+\gdef\@sline{%
+  \ifnum\@xarg<\z@ \@negargtrue \@xarg -\@xarg \@yyarg -\@yarg
+  \else \@negargfalse \@yyarg \@yarg \fi
+\ifnum \@yyarg >\z@ \@tempcnta\@yyarg \else \@tempcnta -\@yyarg \fi
+\ifnum\@tempcnta>6 \@badlinearg\@tempcnta\z@ \fi
+\ifnum\@xarg>6 \@badlinearg\@xarg \@ne \fi
+\setbox\@linechar\hbox{\@linefnt\@getlinechar(\@xarg,\@yyarg)}%
+\ifnum \@yarg >\z@ \let\@upordown\raise \@clnht\z@
+   \else\let\@upordown\lower \@clnht \ht\@linechar\fi
+\@clnwd \wd\@linechar
+\if@negarg
+  \hskip -\wd\@linechar \def\reserved@a{\hskip -2\wd\@linechar}%
+\else
+     \let\reserved@a\relax
+\fi
+\@whiledim \@clnwd <\@linelen \do
+  {\@upordown\@clnht\copy\@linechar
+   \reserved@a
+   \advance\@clnht \ht\@linechar
+   \advance\@clnwd \wd\@linechar}%
+\advance\@clnht -\ht\@linechar
+\advance\@clnwd -\wd\@linechar
+\@tempdima\@linelen\advance\@tempdima -\@clnwd
+\@tempdimb\@tempdima\advance\@tempdimb -\wd\@linechar
+\if@negarg \hskip -\@tempdimb \else \hskip \@tempdimb \fi
+\multiply\@tempdima \@m
+\@tempcnta \@tempdima
+\@tempdima \wd\@linechar \divide\@tempcnta \@tempdima
+\@tempdima \ht\@linechar \multiply\@tempdima \@tempcnta
+\divide\@tempdima \@m
+\advance\@clnht \@tempdima
+\ifdim \@linelen <\wd\@linechar
+   \hskip \wd\@linechar
+   \@picture@warn
+   \else\@upordown\@clnht\copy\@linechar\fi}
+\gdef\@hline{\ifnum \@xarg <\z@ \hskip -\@linelen \fi
+\vrule \@height \@halfwidth \@depth \@halfwidth \@width \@linelen
+\ifnum \@xarg <\z@ \hskip -\@linelen \fi}
+\gdef\@getlinechar(#1,#2){\@tempcnta#1\relax\multiply\@tempcnta 8%
+  \advance\@tempcnta -9\ifnum #2>\z@ \advance\@tempcnta #2\relax\else
+  \advance\@tempcnta -#2\relax\advance\@tempcnta 64 \fi
+  \char\@tempcnta}
+\gdef\vector(#1,#2)#3{\@xarg #1\relax \@yarg #2\relax
+  \@tempcnta \ifnum\@xarg<\z@ -\@xarg\else\@xarg\fi
+  \ifnum\@tempcnta<5\relax
+  \@linelen #3\unitlength
+  \ifdim\@linelen<\z@\@badlinearg\else
+    \ifnum\@xarg =\z@ \@vvector
+      \else \ifnum\@yarg =\z@ \@hvector \else \@svector\fi
+    \fi
+  \fi
+  \else\@badlinearg\fi}
+\gdef\@hvector{\@hline\hb@xt@\z@{\@linefnt
+ \ifnum \@xarg <\z@ \@getlarrow(1,0)\hss\else
+    \hss\@getrarrow(1,0)\fi}}
+\gdef\@vvector{\ifnum \@yarg <\z@ \@downvector \else \@upvector \fi}
+\gdef\@svector{\@sline
+  \@tempcnta\@yarg \ifnum\@tempcnta <\z@ \@tempcnta -\@tempcnta\fi
+  \ifnum\@tempcnta <5%
+    \hskip -\wd\@linechar
+    \@upordown\@clnht \hbox{\@linefnt  \if@negarg
+    \@getlarrow(\@xarg,\@yyarg)\else \@getrarrow(\@xarg,\@yyarg)\fi}%
+  \else\@badlinearg\fi}
+\gdef\@getlarrow(#1,#2){\ifnum #2=\z@ \@tempcnta'33 \else
+  \@tempcnta #1\relax\multiply\@tempcnta \sixt@@n \advance\@tempcnta
+  -9 \@tempcntb #2\relax\multiply\@tempcntb \tw@
+  \ifnum \@tempcntb >\z@ \advance\@tempcnta \@tempcntb
+  \else\advance\@tempcnta -\@tempcntb\advance\@tempcnta 64
+  \fi\fi\char\@tempcnta}
+\gdef\@getrarrow(#1,#2){\@tempcntb #2\relax
+\ifnum\@tempcntb <\z@ \@tempcntb -\@tempcntb\relax\fi
+\ifcase \@tempcntb\relax \@tempcnta'55 \or
+\ifnum #1<\thr@@ \@tempcnta #1\relax\multiply\@tempcnta
+24\advance\@tempcnta -6 \else \ifnum #1=\thr@@ \@tempcnta 49
+\else\@tempcnta 58 \fi\fi\or
+\ifnum #1<\thr@@ \@tempcnta=#1\relax\multiply\@tempcnta
+24\advance\@tempcnta -\thr@@ \else \@tempcnta 51 \fi\or
+\@tempcnta #1\relax\multiply\@tempcnta
+\sixt@@n \advance\@tempcnta -\tw@ \else
+\@tempcnta #1\relax\multiply\@tempcnta
+\sixt@@n \advance\@tempcnta 7 \fi\ifnum #2<\z@ \advance\@tempcnta 64 \fi
+\char\@tempcnta}
+\gdef\@vline{\ifnum \@yarg <\z@ \@downline \else \@upline\fi}
+\gdef\@upline{%
+  \hb@xt@\z@{\hskip -\@halfwidth \vrule \@width \@wholewidth
+   \@height \@linelen \@depth \z@\hss}}
+\gdef\@downline{%
+  \hb@xt@\z@{\hskip -\@halfwidth \vrule \@width \@wholewidth
+   \@height \z@ \@depth \@linelen \hss}}
+\gdef\@upvector{\@upline\setbox\@tempboxa\hbox{\@linefnt\char'66}\raise
+     \@linelen \hb@xt@\z@{\lower \ht\@tempboxa\box\@tempboxa\hss}}
+\gdef\@downvector{\@downline\lower \@linelen
+      \hb@xt@\z@{\@linefnt\char'77\hss}}
+\gdef\dashbox#1(#2,#3){\leavevmode\hb@xt@\z@{\baselineskip \z@skip
+\lineskip \z@skip
+\@dashdim #2\unitlength
+\@dashcnt \@dashdim \advance\@dashcnt 200
+\@dashdim #1\unitlength\divide\@dashcnt \@dashdim
+\ifodd\@dashcnt\@dashdim \z@
+\advance\@dashcnt \@ne \divide\@dashcnt \tw@
+\else \divide\@dashdim \tw@ \divide\@dashcnt \tw@
+\advance\@dashcnt \m@ne
+\setbox\@dashbox \hbox{\vrule \@height \@halfwidth \@depth \@halfwidth
+\@width \@dashdim}\put(0,0){\copy\@dashbox}%
+\put(0,#3){\copy\@dashbox}%
+\put(#2,0){\hskip-\@dashdim\copy\@dashbox}%
+\put(#2,#3){\hskip-\@dashdim\box\@dashbox}%
+\multiply\@dashdim \thr@@
+\fi
+\setbox\@dashbox \hbox{\vrule \@height \@halfwidth \@depth \@halfwidth
+\@width #1\unitlength\hskip #1\unitlength}\@tempcnta\z@
+\put(0,0){\hskip\@dashdim \@whilenum \@tempcnta <\@dashcnt
+\do{\copy\@dashbox\advance\@tempcnta \@ne }}\@tempcnta\z@
+\put(0,#3){\hskip\@dashdim \@whilenum \@tempcnta <\@dashcnt
+\do{\copy\@dashbox\advance\@tempcnta \@ne }}%
+\@dashdim #3\unitlength
+\@dashcnt \@dashdim \advance\@dashcnt 200
+\@dashdim #1\unitlength\divide\@dashcnt \@dashdim
+\ifodd\@dashcnt \@dashdim \z@
+\advance\@dashcnt \@ne \divide\@dashcnt \tw@
+\else
+\divide\@dashdim \tw@ \divide\@dashcnt \tw@
+\advance\@dashcnt \m@ne
+\setbox\@dashbox\hbox{\hskip -\@halfwidth
+\vrule \@width \@wholewidth
+\@height \@dashdim}\put(0,0){\copy\@dashbox}%
+\put(#2,0){\copy\@dashbox}%
+\put(0,#3){\lower\@dashdim\copy\@dashbox}%
+\put(#2,#3){\lower\@dashdim\copy\@dashbox}%
+\multiply\@dashdim \thr@@
+\fi
+\setbox\@dashbox\hbox{\vrule \@width \@wholewidth
+\@height #1\unitlength}\@tempcnta\z@
+\put(0,0){\hskip -\@halfwidth \GAL@ignore@next@galley@vbox{\@whilenum \@tempcnta <\@dashcnt
+\do{\vskip #1\unitlength\copy\@dashbox\advance\@tempcnta \@ne }%
+\vskip\@dashdim}}\@tempcnta\z@
+\put(#2,0){\hskip -\@halfwidth \GAL@ignore@next@galley@vbox{\@whilenum \@tempcnta<\@dashcnt
+\do{\vskip #1\unitlength\copy\@dashbox\advance\@tempcnta \@ne }%
+\vskip\@dashdim}}}\@makepicbox(#2,#3)}
+\gdef\@ovvert#1#2{\GAL@ignore@next@galley@vbox to\@ovyy{%
+    \if@ovb \@tempcntb \@tempcnta \advance \@tempcntb #1\relax
+      \kern -\@ovro \hbox{\char \@tempcntb}\nointerlineskip
+    \else \kern \@ovri \kern \@ovdy \fi
+    \leaders\vrule \@width \@wholewidth\vfil \nointerlineskip
+    \if@ovt \@tempcntb \@tempcnta \advance \@tempcntb #2\relax
+      \hbox{\char \@tempcntb}%
+    \else \kern \@ovdy \kern \@ovro \fi}}
+\catcode`\:=12
+\def\@xfloat #1[#2]{%
+  \@nodocument
+  \def \@captype {#1}%
+   \def \@fps {#2}%
+   \@onelevel@sanitize \@fps
+   \def \reserved@b {!}%
+   \ifx \reserved@b \@fps
+     \@fpsadddefault
+   \else
+     \ifx \@fps \@empty
+       \@fpsadddefault
+     \fi
+   \fi
+   \ifhmode
+     \@bsphack
+     \@floatpenalty -\@Mii
+   \else
+     \@floatpenalty-\@Miii
+   \fi
+  \ifinner
+     \@parmoderr\@floatpenalty\z@
+  \else
+    \@next\@currbox\@freelist
+      {%
+       \@tempcnta \sixt@@n
+       \expandafter \@tfor \expandafter \reserved@a
+         \expandafter :\expandafter =\@fps
+         \do
+          {%
+           \if \reserved@a h%
+             \ifodd \@tempcnta
+             \else
+               \advance \@tempcnta \@ne
+             \fi
+           \fi
+           \if \reserved@a t%
+             \@setfpsbit \tw@
+           \fi
+           \if \reserved@a b%
+             \@setfpsbit 4%
+           \fi
+           \if \reserved@a p%
+             \@setfpsbit 8%
+           \fi
+           \if \reserved@a !%
+             \ifnum \@tempcnta>15
+               \advance\@tempcnta -\sixt@@n\relax
+             \fi
+           \fi
+           }%
+       \@tempcntb \csname ftype@\@captype \endcsname
+       \multiply \@tempcntb \@xxxii
+       \advance \@tempcnta \@tempcntb
+       \global \count\@currbox \@tempcnta
+       }%
+    \@fltovf
+  \fi
+  \global \setbox\@currbox
+    \color@vbox
+      \normalcolor
+      \vbox \bgroup
+        \hsize\columnwidth
+        \@parboxrestore
+        \@floatboxreset
+}
+\catcode`\:=11
+\def\end@float{%
+  \@endfloatbox
+  \ifnum\@floatpenalty <\z@
+    \@largefloatcheck
+    \@cons\@currlist\@currbox
+    \ifnum\@floatpenalty <-\@Mii
+      \penalty -\@Miv
+      \@tempdima\prevdepth
+      \GAL@ignore@next@galley@vbox{}%
+      \prevdepth\@tempdima
+      \penalty\@floatpenalty
+    \else
+      \vadjust{\penalty -\@Miv \GAL@ignore@next@galley@vbox{}\penalty\@floatpenalty}\@Esphack
+    \fi
+  \fi
+}
+\def \@xympar{%
+  \ifnum\@floatpenalty <\z@\@cons\@currlist\@marbox\fi
+  \setbox\@tempboxa
+    \color@vbox
+      \vbox \bgroup
+  \end@float
+  \@ignorefalse
+  \@esphack
+}
+\def \AtBeginDvi #1{%
+  \global \setbox \@begindvibox
+    \vbox{\unvbox \@begindvibox #1}%
+}
+\def\clearpage{%
+  \ifvmode
+    \ifnum \@dbltopnum =\m@ne
+      \ifdim \pagetotal <\topskip
+        \hbox{}%
+      \fi
+    \fi
+  \fi
+  \newpage
+  \write\m@ne{}%
+  \GAL@ignore@next@galley@vbox{}%
+  \penalty -\@Mi
+}
+\def \@emptycol {\GAL@ignore@next@galley@vbox{}\penalty -\@M}
+\long\def \@topnewpage [#1]{%
+  \@nodocument
+  \@next\@currbox\@freelist{}{}%
+  \global \setbox\@currbox
+    \color@vbox
+      \normalcolor
+      \vbox {%
+        \hsize\textwidth
+        \@parboxrestore
+        \col@number \@ne
+        #1%
+        \vskip -\dbltextfloatsep
+             }%
+    \color@endbox
+  \ifdim \ht\@currbox>\textheight
+    \ht\@currbox \textheight
+  \fi
+  \global \count\@currbox \tw@
+  \@tempdima -\ht\@currbox
+  \advance \@tempdima -\dbltextfloatsep
+  \global \advance \@colht \@tempdima
+  \ifx \@dbltoplist \@empty
+  \else
+    \@latexerr{Float(s) lost}\@ehb
+    \let \@dbltoplist \@empty
+  \fi
+  \@cons \@dbltoplist \@currbox
+  \global \@dbltopnum \m@ne
+  \ifdim \@colht<2.5\baselineskip
+    \@latex@warning@no@line {Optional argument of \noexpand\twocolumn
+                too tall on page \thepage}%
+    \@emptycol
+    \if@firstcolumn
+    \else
+      \@emptycol
+    \fi
+  \else
+    \global \vsize \@colht
+    \global \@colroom \@colht
+    \@floatplacement
+  \fi
+}
+\gdef\@specialoutput{%
+   \ifnum \outputpenalty>-\@Mii
+     \@doclearpage
+   \else
+     \ifnum \outputpenalty<-\@Miii
+       \ifnum \outputpenalty<-\@MM \deadcycles \z@ \fi
+       \global \setbox\@holdpg \vbox {\unvbox\@cclv}%
+     \else
+       \global \setbox\@holdpg \vbox{%
+                      \unvbox\@holdpg
+                      \unvbox\@cclv
+                      \setbox\@tempboxa \lastbox
+                      \unskip
+                                     }%
+       \@pagedp \dp\@holdpg
+       \@pageht \ht\@holdpg
+       \unvbox \@holdpg
+       \@next\@currbox\@currlist{%
+         \ifnum \count\@currbox>\z@
+           \advance \@pageht \@pagedp
+           \ifvoid\footins \else
+             \advance \@pageht \ht\footins
+             \advance \@pageht \skip\footins
+             \advance \@pageht \dp\footins
+           \fi
+           \ifvbox \@kludgeins
+             \ifdim \wd\@kludgeins=\z@
+               \advance \@pageht \ht\@kludgeins
+             \fi
+           \fi
+           \@reinserts
+           \@addtocurcol
+         \else
+           \@reinserts
+           \@addmarginpar
+         \fi
+         }\@latexbug
+       \ifnum \outputpenalty<\z@
+         \if@nobreak
+           \nobreak
+         \else
+           \addpenalty \interlinepenalty
+         \fi
+       \fi
+     \fi
+   \fi
+}
+\def \@doclearpage {%
+     \ifvoid\footins
+       \setbox\@tempboxa\vsplit\@cclv to\z@ \unvbox\@tempboxa
+       \setbox\@tempboxa\box\@cclv
+       \xdef\@deferlist{\@toplist\@botlist\@deferlist}%
+       \global \let \@toplist \@empty
+       \global \let \@botlist \@empty
+       \global \@colroom \@colht
+       \ifx \@currlist\@empty
+       \else
+          \@latexerr{Float(s) lost}\@ehb
+          \global \let \@currlist \@empty
+       \fi
+       \@makefcolumn\@deferlist
+       \@whilesw\if@fcolmade \fi{\@opcol\@makefcolumn\@deferlist}%
+       \if@twocolumn
+         \if@firstcolumn
+           \xdef\@dbldeferlist{\@dbltoplist\@dbldeferlist}%
+           \global \let \@dbltoplist \@empty
+           \global \@colht \textheight
+           \begingroup
+              \@dblfloatplacement
+              \@makefcolumn\@dbldeferlist
+              \@whilesw\if@fcolmade \fi{\@outputpage
+                                        \@makefcolumn\@dbldeferlist}%
+           \endgroup
+         \else
+           \GAL@ignore@next@galley@vbox{}\clearpage
+         \fi
+       \fi
+     \else
+       \setbox\@cclv\vbox{\box\@cclv\vfil}%
+       \@makecol\@opcol
+       \clearpage
+     \fi
+}
+\gdef \@makecol {%
+   \ifvoid\footins
+     \setbox\@outputbox \box\@cclv
+   \else
+     \setbox\@outputbox \vbox {%
+       \boxmaxdepth \@maxdepth
+       \@tempdima\dp\@cclv
+       \unvbox \@cclv
+       \vskip-\@tempdima
+       \vskip \skip\footins
+       \color@begingroup
+         \normalcolor
+         \footnoterule
+         \unvbox \footins
+       \color@endgroup
+       }%
+   \fi
+   \xdef\@freelist{\@freelist\@midlist}%
+   \global \let \@midlist \@empty
+   \@combinefloats
+   \ifvbox\@kludgeins
+     \@makespecialcolbox
+   \else
+     \setbox\@outputbox \vbox to\@colht {%
+       \@texttop
+       \dimen@ \dp\@outputbox
+       \unvbox \@outputbox
+       \vskip -\dimen@
+       \@textbottom
+       }%
+   \fi
+   \global \maxdepth \@maxdepth
+}
+\gdef \@makespecialcolbox {%
+   \setbox\@outputbox \vbox {%
+     \@texttop
+     \dimen@ \dp\@outputbox
+     \unvbox\@outputbox
+     \vskip-\dimen@
+     }%
+   \@tempdima \@colht
+   \ifdim \wd\@kludgeins>\z@
+     \advance \@tempdima -\ht\@outputbox
+     \advance \@tempdima \pageshrink
+     \setbox\@outputbox \vbox to \@colht {%
+       \unvbox\@outputbox
+       \vskip \@tempdima
+       \@textbottom
+       }%
+   \else
+     \advance \@tempdima -\ht\@kludgeins
+     \setbox \@outputbox \vbox to \@colht {%
+       \GAL@ignore@next@galley@vbox to \@tempdima {%
+         \unvbox\@outputbox
+         \@textbottom}%
+       \vss}%
+   \fi
+   {\setbox \@tempboxa \box \@kludgeins}%
+}
+\def\@outputpage{%
+\begingroup           % the \endgroup is put in by \aftergroup
+  \@resetactivechars
+  \@parboxrestore
+  \let \protect \noexpand   % <- this moved after parboxrestore!!!!
+  \shipout \vbox{%
+    \set@typeset@protect
+    \aftergroup \endgroup
+    \aftergroup \set@typeset@protect
+                                % correct? or just restore by ending
+                                % the group?
+  \if@specialpage
+    \global\@specialpagefalse\@nameuse{ps@\@specialstyle}%
+  \fi
+  \if@twoside
+    \ifodd\count\z@ \let\@thehead\@oddhead \let\@thefoot\@oddfoot
+         \let\@themargin\oddsidemargin
+    \else \let\@thehead\@evenhead
+       \let\@thefoot\@evenfoot \let\@themargin\evensidemargin
+    \fi
+  \fi
+  \reset@font
+  \normalsize
+  \normalsfcodes
+  \let\label\@gobble
+  \let\index\@gobble
+  \let\glossary\@gobble
+  \baselineskip\z@skip \lineskip\z@skip \lineskiplimit\z@
+    \@begindvi
+    \vskip \topmargin
+    \moveright\@themargin \vbox {%
+      \setbox\@tempboxa \vbox to\headheight{%
+        \vfil
+        \color@hbox
+          \normalcolor
+          \hb@xt@\textwidth{\@thehead}%
+        \color@endbox
+        }%                        %% 22 Feb 87
+      \dp\@tempboxa \z@
+      \box\@tempboxa
+      \vskip \headsep
+      \box\@outputbox
+      \baselineskip \footskip
+      \color@hbox
+        \normalcolor
+        \hb@xt@\textwidth{\@thefoot}%
+      \color@endbox
+      }%
+    }%
+  \global \@colht \textheight
+  \stepcounter{page}%
+  \let\firstmark\botmark
+}
+\def \@cflt{%
+    \let \@elt \@comflelt
+    \setbox\@tempboxa \vbox{}%
+    \@toplist
+    \setbox\@outputbox \vbox{%
+                             \boxmaxdepth \maxdepth
+                             \unvbox\@tempboxa
+                             \vskip -\floatsep
+                             \topfigrule
+                             \vskip \textfloatsep
+                             \unvbox\@outputbox
+                             }%
+    \let\@elt\relax
+    \xdef\@freelist{\@freelist\@toplist}%
+    \global\let\@toplist\@empty
+}
+\def\@comflelt#1{\setbox\@tempboxa
+      \vbox{\unvbox\@tempboxa\box #1\vskip\floatsep}}
+\def \@combinedblfloats{%
+  \ifx \@dbltoplist \@empty
+  \else
+    \setbox\@tempboxa \vbox{}%
+    \let \@elt \@comdblflelt
+    \@dbltoplist
+    \let \@elt \relax
+    \xdef \@freelist {\@freelist\@dbltoplist}%
+    \global\let \@dbltoplist \@empty
+    \setbox\@outputbox \vbox to\textheight
+      {%\boxmaxdepth\maxdepth   %% probably not needed, CAR
+       \unvbox\@tempboxa\vskip-\dblfloatsep
+       \ifnum \@dbltopnum>\m@ne
+         \dblfigrule
+       \fi
+       \vskip \dbltextfloatsep
+       \box\@outputbox
+       }%
+  \fi
+}
+\def\@vtryfc #1{%
+  \global\setbox\@outputbox\vbox{}%
+  \let\@elt\@wtryfc
+  \@flsucceed
+  \global\setbox\@outputbox \vbox to\@colht{%
+    \vskip \@fptop
+    \vskip -\@fpsep
+    \unvbox \@outputbox
+    \vskip \@fpbot}%
+  \let\@elt\relax
+  \xdef #1{\@failedlist\@flfail}%
+  \xdef\@freelist{\@freelist\@flsucceed}}
+\def\@wtryfc #1{%
+  \global\setbox\@outputbox\vbox{%
+    \unvbox\@outputbox
+    \vskip\@fpsep
+    \box #1}}
+\def\@addmarginpar{\@next\@marbox\@currlist{\@cons\@freelist\@marbox
+    \@cons\@freelist\@currbox}\@latexbug\@tempcnta\@ne
+    \if@twocolumn
+        \if@firstcolumn \@tempcnta\m@ne \fi
+    \else
+      \if@mparswitch
+         \ifodd\c@page \else\@tempcnta\m@ne \fi
+      \fi
+      \if@reversemargin \@tempcnta -\@tempcnta \fi
+    \fi
+    \ifnum\@tempcnta <\z@  \global\setbox\@marbox\box\@currbox \fi
+    \@tempdima\@mparbottom
+    \advance\@tempdima -\@pageht
+    \advance\@tempdima\ht\@marbox
+    \ifdim\@tempdima >\z@
+      \@latex@warning@no@line {Marginpar on page \thepage\space moved}%
+    \else
+      \@tempdima\z@
+    \fi
+    \global\@mparbottom\@pageht
+    \global\advance\@mparbottom\@tempdima
+    \global\advance\@mparbottom\dp\@marbox
+    \global\advance\@mparbottom\marginparpush
+    \advance\@tempdima -\ht\@marbox
+    \global\setbox \@marbox
+                   \vbox {\vskip \@tempdima
+                          \box \@marbox}%
+    \global \ht\@marbox \z@
+    \global \dp\@marbox \z@
+    \kern -\@pagedp
+    \nointerlineskip
+    \hb@xt@\columnwidth
+      {\ifnum \@tempcnta >\z@
+          \hskip\columnwidth \hskip\marginparsep
+       \else
+          \hskip -\marginparsep \hskip -\marginparwidth
+       \fi
+       \box\@marbox \hss}%
+    \nointerlineskip
+    \hbox{\vrule \@height\z@ \@width\z@ \@depth\@pagedp}}
+\def\@outputdblcol{%
+  \if@firstcolumn
+    \global \@firstcolumnfalse
+    \global \setbox\@leftcolumn \box\@outputbox
+  \else
+    \global \@firstcolumntrue
+    \setbox\@outputbox \vbox {%
+                         \hb@xt@\textwidth {%
+                           \hb@xt@\columnwidth {%
+                             \box\@leftcolumn \hss}%
+                           \hfil
+                           \vrule \@width\columnseprule
+                           \hfil
+                           \hb@xt@\columnwidth {%
+                             \box\@outputbox \hss}%
+                                             }%
+                              }%
+    \@combinedblfloats
+    \@outputpage
+    \begingroup
+      \@dblfloatplacement
+      \@startdblcolumn
+      \@whilesw\if@fcolmade \fi
+        {\@outputpage
+         \@startdblcolumn}%
+    \endgroup
+  \fi
+}
+
+\catcode`\:=12\relax
+\endinput
+%%
+%% End of file `galley2.sty'.

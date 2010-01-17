@@ -1,0 +1,81 @@
+savedpicture = barypicture; % it was cleared at the end of e.mf
+%% but the dimensions set in e.mf remain.
+
+% The acute and grave accents are lifted above the normal position and
+% are also shortened slightly, with the reduction at the bottom of the
+% accent.  This is because epsilon has a much larger overshoot than
+% other rounded characters, and the accent tends to bleed into it.
+
+
+def eps_grave(expr center) =
+if serifs: x22-x21=1/4w; x21-.5stem=hround(center-2/3(x22-x21)-.5stem);
+else: lft x21l=hround (1/4w-.5stem); rt x22r=hround(center+.25u+.5vair); fi
+ begingroup;
+  numeric saved_h;
+  numeric saved_x_height;
+  saved_x_height = x_height;
+  saved_h=h;
+  save h;
+  save x_height;
+  h=saved_h + .75vair;
+  x_height = saved_x_height + vair;
+generate_grave; penlabels(21,22);
+ endgroup;
+enddef;
+     
+def eps_acute(expr center) =
+if serifs: x21-x22=1/4w; x21+.5stem=hround(center+2/3(x21-x22)+.5stem);
+else: rt x21r=hround (3/4w+.5stem); lft x22l=hround(center-.25u-.5vair); fi
+ begingroup;
+  numeric saved_h;
+  numeric saved_x_height;
+  saved_x_height = x_height;
+  saved_h=h;
+  save h;
+  save x_height;
+  h:=saved_h+.75vair;
+  x_height = saved_x_height + vair;
+generate_grave; penlabels(21,22);
+ endgroup;
+enddef;
+
+cmchar "Lowercase epsilon with adjusted grave";
+beginchar(e_bary,width#,acc_ht#,0); 
+this_letter; eps_grave(x_baryctr);
+endchar;
+     
+cmchar "Lowercase epsilon with adjusted acute";
+beginchar(e_oxy,width#,acc_ht#,0);
+this_letter; eps_acute(x_baryctr); endchar;
+     
+%cmchar "Lowercase epsilon with rough breathing and acute";
+%beginchar(e_asproxy,width#,acc_ht#,0);
+%this_letter; spirit_acute(x_baryctr)<; endchar;
+     
+%cmchar "Lowercase epsilon with smooth breathing and acute";
+%beginchar(e_lenoxy,width#,acc_ht#,0);
+%this_letter; spirit_acute(x_baryctr)>; endchar;
+     
+cmchar "Lowercase epsilon with rough breathing and grave";
+beginchar(e_asprbary,width#,acc_ht#,0);
+this_letter; spirit_grave(x_baryctr)<; endchar;
+
+cmchar "Lowercase epsilon with smooth breathing and grave";
+beginchar(e_lenbary,width#,acc_ht#,0);
+this_letter; spirit_grave(x_baryctr)>; endchar;
+
+cmchar "Lowercase epsilon with circumflex (Attic)";
+beginchar(e_peri,width#,acc_ht#,0);
+this_letter; circumflex(x_baryctr); endchar;
+
+cmchar "Lowercase epsilon with rough breathing and circumflex (Attic)";
+beginchar(e_asprperi,width#,Circ_ht#,0);
+this_letter; spirit_circumflex(x_baryctr)<; endchar;
+
+cmchar "Lowercase epsilon with smooth breathing and circumflex (Attic)";
+beginchar(e_lenperi,width#,Circ_ht#,0);
+this_letter; spirit_circumflex(x_baryctr)>; endchar;
+
+picture barypicture;
+picture pic.iota;
+picture savedpicture;

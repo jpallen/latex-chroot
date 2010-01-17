@@ -1,0 +1,429 @@
+%
+% ``Font Tricks'' borrowed from:
+%  "The ABC's of Special Effects" by Georgia K.M. Tobin
+%         TUGBoat 9 (1988) No 1 pp. 15--18
+%  "Outline Fonts with Metafont" by Doug Henderson
+%         TUGBoat 10 (1989) No 1 pp. 36--38.
+%
+
+
+\def\MFF@writetrick#1{\MFF@write{\space\space\space #1}}
+
+% main trick subroutine (background + main char + shadow + transform)
+%   z = empty (white), b = black,
+%   v = vertical, h = horizontal, r = slanted(/), l - slanted (\)
+%   d = dotted grig,   g = rectangular grid, s - slanted grid
+%   uppercase(*) = (*) + outline
+% transformations:
+%   "z" - XY symmetry, "x" - symmetry OX, "y" - symmetry OY
+%   "+" - rotate +90, "-" - rotate -90, "=" - rotate 180
+
+\def\MFF@maketrick{%
+    % initialization
+    \if z\MFF@trickshadow\relax \else \MFF@shadowinit \fi
+    \MFF@checktrick{\MFF@trickshadow}{vVhHrRlLdDgGsS}{\MFF@patterninit{SPen}}%
+    \MFF@checktrick{\MFF@trickchar}{vVhHrRlLdDgGsS}{\MFF@patterninit{MPen}}%
+    \MFF@checktrick{\MFF@trickbox}{ZvVhHrRlLdDgGsS}{\MFF@patterninit{HPen}}%
+    \@negargtrue
+    \MFF@checktrick{\MFF@trickchar}{ZBVHRLDGS}{}%
+    \MFF@checktrick{\MFF@trickshadow}{ZBVHRLDGS}{}%
+    \if@negarg\relax \else \MFF@outlineinit \fi
+    % subroutine which repaces endchar
+    \@negargtrue \if z\MFF@trickbox \@negargfalse \fi
+    \MFF@trick@start{TrickChar}%
+    \MFF@boxinit\MFF@trick@dochar{Normal}%
+    \if z\MFF@trickshadow \else \MFF@trick@doshadow{Normal}{Shadow}\fi
+    % make background
+    \@negargtrue
+    \MFF@checktrick{\MFF@trickbox}{zZ}{%
+        \MFF@writetrick{clearit; picture BackChar; BackChar:=currentpicture;}%
+    }%
+    \if@negarg
+        \if z\MFF@trickshadow
+           \MFF@trick@helpdraw{Normal}{Back}{HPen}{\MFF@trickbox}%
+        \else
+           \MFF@trick@helpdraw{ShadowBox}{Back}{HPen}{\MFF@trickbox}%
+        \fi
+    \fi
+    \MFF@checktrick{\MFF@trickbox}{ZBVHRLDGS}{%
+        \MFF@writetrick{clearit; pickup HPen;}
+        \MFF@writetrick{draw (rbXM,rbYM)--(rbXP,rbYM); draw (rbXP,rbYM)--(rbXP,rbYP);}
+        \MFF@writetrick{draw (rbXP,rbYP)--(rbXM,rbYP); draw (rbXM,rbYP)--(rbXM,rbYM);}
+        \MFF@writetrick{cullit; BackChar:=currentpicture + BackChar;}
+    }%
+    % make character
+    \MFF@trick@trickhelp{\MFF@trickchar}{MPen}{Normal}{Main}%
+    % make shadow
+    \MFF@trick@trickhelp{\MFF@trickshadow}{SPen}{Shadow}{SMain}%
+    % combine
+    \MFF@writetrick{clearit; currentpicture:=BackChar+MainChar+SMainChar;}%
+    \MFF@trick@end{TrickChar}%
+    % correct char box
+    % transformation
+    \@negargfalse
+    \@for\@temp:=\MFF@trick@transform\do
+         {\csname MFF@help@transf@\@temp\endcsname}%
+    % final box corrections
+    \if z\MFF@trickbox \if@negarg \MFF@trick@makebox \fi
+        \else \MFF@trick@shiftbox \@negargtrue \fi
+    \if@negarg \MFF@trick@assignbox \fi
+}
+
+\def\MFF@help@transf@rr{\@negargtrue
+    \MFF@trick@transf{FR}%
+        {rotatedaround ((0,0),-90) shifted (0,tmpW)}%
+        {tempI:=tmpW; tmpW:=tmpH; tmpH:=tempI+tmpP; tmpP:=tmpD; tmpD:=0;}%
+        {tmptmp:=tmpwd; tmpwd:=tmpht; tmpht:=tmptmp+tmpwp; tmpwp:=tmpdp; tmpdp:=0pt\MFF@p;}%
+}
+
+\def\MFF@help@transf@rl{\@negargtrue
+    \MFF@trick@transf{FL}%
+        {rotatedaround ((0,0),+90) shifted (tmpH,0)}%
+        {tempI:=tmpH; tmpH:=tmpW; tmpW:=tempI+tmpD; tmpD:=tmpP; tmpP:=0;}%
+        {tmptmp:=tmpht; tmpht:=tmpwd; tmpwd:=tmptmp+tmpdp; tmpdp:=tmpwp; tmpwp:=0pt\MFF@p;}%
+}
+
+\def\MFF@help@transf@ro{\@negargtrue
+    \MFF@trick@transf{FF}%
+        {rotatedaround ((0,0),180) shifted (tmpW,tmpH)}%
+        {tmpH:=tmpH+tmpD; tmpW:=tmpW+tmpP; tmpD:=0; tmpP:=0;}%
+        {tmpht:=tmpht+tmpdp; tmpwd:=tmpwd+tmpwp; tmpdp:=0pt\MFF@p; tmpwp:=0pt\MFF@p;}%
+}
+
+\def\MFF@help@transf@sx{\@negargtrue
+    \MFF@trick@transf{FY}%
+        {reflectedabout ((0,0),(0,100)) shifted (tmpW,0)}%
+        {tmpW:=tmpW+tmpP; tmpP:=0;}%
+        {tmpwd:=tmpwd+tmpwp; tmpwp:=0pt\MFF@p;}%
+}
+
+\def\MFF@help@transf@sy{\@negargtrue
+    \MFF@trick@transf{FX}%
+        {reflectedabout ((0,0),(100,0)) shifted (0,tmpH)}%
+        {tmpH:=tmpH+tmpD; tmpD:=0;}%
+        {tmpht:=tmpht+tmpdp; tmpdp:=0pt\MFF@p;}%
+}
+
+\def\MFF@help@transf@sz{\@negargtrue
+    \MFF@trick@transf{FZ}%
+        {reflectedabout ((0,0),(100,100))}%
+        {tempI:=tmpW; tmpW:=tmpH; tmpH:=tempI; tempI:=tmpP; tmpP:=tmpD; tmpD:=tempI;}%
+        {tmptmp:=tmpwd; tmpwd:=tmpht; tmpht:=tmptmp; tmptmp:=tmpwp; tmpwp:=tmpdp; tmpdp:=tmptmp;}%
+}
+
+\def\MFF@help@transf@st{\@negargtrue
+    \MFF@trick@transf{FT}%
+        {reflectedabout ((0,0),(100,-100)) shifted (tmpH,tmpW)}%
+        {tempI:=tmpW+tmpP; tmpW:=tmpH+tmpD; tmpH:=tempI; tmpP:=0; tmpD:=0;}%
+        {tmptmp:=tmpwd+tmpwp; tmpwd:=tmpht+tmpdp; tmpht:=tmptmp; tmpwp:=0pt\MFF@p; tmpdp:=0pt\MFF@p;}%
+}
+
+% #1 - shift
+\def\MFF@boxinit{%
+   \MFF@writetrick{if slant>0:}
+   \MFF@writetrick{\space\space\space rbXM:=hround(slant*chardp*hppp);}
+   \MFF@writetrick{\space\space\space rbXP:=hround(slant*charht*hppp);}
+   \MFF@writetrick{else:}
+   \MFF@writetrick{\space\space\space rbXM:=hround((-slant)*charht*hppp);}
+   \MFF@writetrick{\space\space\space rbXP:=hround((-slant)*chardp*hppp);}
+   \MFF@writetrick{fi;}
+   \if@negarg % background=yes
+       \MFF@writetrick{shiftX:=rbXM+curve; rbXM:=0;}
+       \MFF@writetrick{rbXP:=w+curve+rbXP+shiftX+hround(charic*hppp);}
+   \else % background=no
+       \MFF@writetrick{rbXM:=-curve-rbXM; rbXP:=w+curve+rbXP;}
+   \fi
+   \MFF@writetrick{rbYP:=body_height+curve; rbYM:=-body_depth-curve;}
+   \if z\MFF@trickshadow \relax \else
+      \if A\MFF@shadowstyle
+           \MFF@writetrick{rbYM:=rbYM-shadowstepV; rbXP:=rbXP+shadowstepH;}
+      \fi
+      \if B\MFF@shadowstyle
+           \MFF@writetrick{rbYP:=rbYP+shadowstepV; rbXP:=rbXP+shadowstepH;}
+      \fi
+      \if C\MFF@shadowstyle
+           \MFF@writetrick{rbYP:=rbYP+shadowstepV; rbXM:=rbXM-shadowstepH;}
+      \fi
+      \if D\MFF@shadowstyle
+           \MFF@writetrick{rbYM:=rbYM-shadowstepV; rbXM:=rbXM-shadowstepH;}
+      \fi
+   \fi
+}
+
+\def\MFF@outlineinit{\MFF@write{}%
+   \MFF@writetrick{HCntSize\MFF@p:=\MFF@contourstep*hair\MFF@p;}
+   \MFF@writetrick{HCntX:=hround(HCntSize\MFF@p*hppp); if (HCntX<1): HCntX:=1; fi}
+   \MFF@writetrick{HCntY:=vround(HCntSize\MFF@p*hppp); if (HCntY<1): HCntY:=1; fi}
+}
+
+% #1 - pen name (HPen for background, MPen for char, SPen for shadow)
+\def\MFF@patterninit#1{\MFF@write{}%
+   \MFF@writetrick{#1Size\MFF@p:=\csname MFF@#1pen\endcsname *hair\MFF@p;}
+   \MFF@writetrick{#1X:=hround(#1Size\MFF@p*hppp); if (#1X<1): #1X:=1; fi}
+   \MFF@writetrick{#1Y:=vround(#1Size\MFF@p*hppp); if (#1Y<1): #1Y:=1; fi}
+   \MFF@writetrick{path #1Path;}
+   \MFF@writetrick{#1Path:=(-0.5#1X,-0.5#1Y)--(0.5#1X,-0.5#1Y)}
+   \MFF@writetrick{\space\space\space --(0.5#1X,0.5#1Y)--(-0.5#1X,0.5#1Y)--cycle;}
+   \MFF@writetrick{capsule_def(#1) makepen(#1Path);}
+   \MFF@writetrick{#1Step\MFF@p:=\csname MFF@#1step\endcsname *hair\MFF@p;}
+   \MFF@writetrick{#1StepH:=hround(#1Step\MFF@p*hppp); if (#1StepH<1): #1StepH:=1; fi}
+   \MFF@writetrick{#1StepV:=vround(#1Step\MFF@p*hppp); if (#1StepV<1): #1StepV:=1; fi}
+}
+
+\def\MFF@shadowinit{\MFF@write{}%
+   \def\@tempa{+}\def\@tempb{-}%
+   \@tfor \@temp := \MFF@shadowstyle \do {%
+      \if A\@temp \def\@tempa{+}\def\@tempb{-}\fi
+      \if B\@temp \def\@tempa{+}\def\@tempb{+}\fi
+      \if C\@temp \def\@tempa{-}\def\@tempb{+}\fi
+      \if D\@temp \def\@tempa{-}\def\@tempb{-}\fi
+   }%
+   \MFF@writetrick{shadowstepH:=\@tempa hround(\MFF@shadowstep*hair\MFF@p*hppp);}%
+   \MFF@writetrick{shadowstepV:=\@tempb vround(\MFF@shadowstep*hair\MFF@p*hppp);}%
+}
+
+% \@negarg = shift, #1 = picturename (Normal)
+\def\MFF@trick@dochar#1{%
+   \MFF@writetrick{cullit; picture #1Char;}
+   \if@negarg % background=yes
+         \MFF@writetrick{#1Char:=currentpicture shifted (shiftX,0);}
+   \else % background=no
+         \MFF@writetrick{#1Char:=currentpicture;}
+   \fi
+}
+
+% #1 - input char name, #2 - output char name
+\def\MFF@trick@docontour#1#2{%
+   \MFF@writetrick{clearit;}
+   \MFF@writetrick{currentpicture:=#1Char;}
+   \MFF@writetrick{cull currentpicture keeping (1,infinity);}
+   \MFF@writetrick{picture TempPict; TempPict:=currentpicture;}
+   \MFF@writetrick{cull currentpicture keeping (1,1) withweight 3;}
+   \MFF@writetrick{addto currentpicture also TempPict
+                                      - TempPict shifted (-HCntX,0)}
+   \MFF@writetrick{\space\space\space - TempPict shifted (+HCntX,0)
+                                      - TempPict shifted (0,-HCntY)
+                                      - TempPict shifted (0,+HCntY);}
+   \MFF@writetrick{cull currentpicture keeping (1,4);}
+   \MFF@writetrick{picture #2Char; #2Char:=currentpicture;}
+}
+
+% #1 - input char, #2 - output char
+\def\MFF@trick@doshadow#1#2{%
+   \MFF@writetrick{clearit;}
+   \MFF@writetrick{currentpicture:=#1Char shifted (shadowstepH, shadowstepV);}
+   \MFF@writetrick{picture ShadowPict; ShadowPict:=currentpicture;}
+   \MFF@writetrick{clearit; currentpicture:=ShadowPict-#1Char;}
+   \MFF@writetrick{cullit; picture #2Char; #2Char:=currentpicture;}
+   \MFF@writetrick{clearit; currentpicture:=#1Char+#2Char;}
+   \MFF@writetrick{cullit; picture #2BoxChar; #2BoxChar:=currentpicture;}
+}
+
+% make charactyer or shadow:
+%  #1 = draw subroutine, #2 - pen name,
+%  #3 = input char, #4 - output char
+\def\MFF@trick@trickhelp#1#2#3#4{%
+    \if z#1
+        \MFF@writetrick{clearit; picture #4Char; #4Char:=currentpicture;}%
+    \else
+    \if Z#1
+        \MFF@trick@docontour{#3}{#4}%
+    \else
+    \if b#1
+        \MFF@writetrick{picture #4Char; #4Char:=#3Char;}%
+    \else
+    \if B#1
+        \MFF@writetrick{picture #4Char; #4Char:=#3Char;}%
+    \else
+        \MFF@trick@helpdraw{#3}{R#3}{#2}{B}%
+        \MFF@trick@helpdraw{R#3}{#4}{#2}{#1}%
+        \MFF@checktrick{#1}{ZBVHRLDGS}{%
+            \MFF@trick@docontour{#3}{OL#3}%
+            \MFF@writetrick{#4Char:=#4Char + OL#3Char;}%
+        }%
+    \fi\fi\fi\fi
+}
+
+% black background: #1 - pen name (dummy)
+\def\MFF@trick@do@b#1{\MFF@trick@do@B{#1}}
+\def\MFF@trick@do@B#1{%
+   \MFF@writetrick{fill (rbXM,rbYM)--(rbXP,rbYM)--(rbXP,rbYP)--(rbXM,rbYP)--cycle;}
+}
+
+% hor line background: #1 - pen name
+\def\MFF@trick@do@h#1{\MFF@trick@do@H{#1}}
+\def\MFF@trick@do@H#1{%
+   \MFF@writetrick{for f=rbYM+0.5#1Y step #1StepV until rbYP-0.5#1Y:}
+   \MFF@writetrick{\space\space\space draw (rbXM+0.5#1X,f)--(rbXP-0.5#1X,f);}
+   \MFF@writetrick{endfor;}
+}
+
+% vert line background: #1 - pen name
+\def\MFF@trick@do@v#1{\MFF@trick@do@V{#1}}
+\def\MFF@trick@do@V#1{%
+   \MFF@writetrick{for f=rbXM+0.5#1X step #1StepH until rbXP-0.5#1X:}
+   \MFF@writetrick{\space\space\space draw (f,rbYM+0.5#1Y)--(f,rbYP-0.5#1Y);}
+   \MFF@writetrick{endfor;}
+}
+
+% rect grid background: #1 - pen name
+\def\MFF@trick@do@g#1{\MFF@trick@do@G{#1}}
+\def\MFF@trick@do@G#1{\MFF@trick@do@H{#1}\MFF@trick@do@V{#1}}
+
+% dotted grid background: #1 - pen name
+\def\MFF@trick@do@d#1{\MFF@trick@do@D{#1}}
+\def\MFF@trick@do@D#1{%
+   \MFF@writetrick{for f=rbYM+0.5#1Y step #1StepV until rbYP-0.5#1Y:}
+   \MFF@writetrick{\space for g=rbXM+0.5#1X step #1StepH until rbXP-0.5#1X:}
+   \MFF@writetrick{\space\space\space draw (g,f);}
+   \MFF@writetrick{\space endfor;}
+   \MFF@writetrick{endfor;}
+}
+
+% slant (\) background: #1 - pen name
+\def\MFF@trick@do@r#1{\MFF@trick@do@R{#1}}
+\def\MFF@trick@do@R#1{%
+   \MFF@writetrick{levelX:=rbXP-rbXM-#1X; levelY:=rbYP-rbYM-#1Y; f:=0;}
+   \MFF@writetrick{forever:}
+   \MFF@writetrick{\space\space\space exitif f>(levelX+levelY);}
+   \MFF@writetrick{\space\space\space if (f<levelY) :}
+   \MFF@writetrick{\space\space\space\space\space\space
+                   pX:=rbXM + 0.5#1X; pY:=rbYM + 0.5#1Y + f;}
+   \MFF@writetrick{\space\space\space else:}
+   \MFF@writetrick{\space\space\space\space\space\space
+                   pX:=rbXM + 0.5#1X + f - levelY; pY:=rbYP - 0.5#1Y;}
+   \MFF@writetrick{\space\space\space fi;}
+   \MFF@writetrick{\space\space\space if (f<levelX) :}
+   \MFF@writetrick{\space\space\space\space\space\space
+                   qX:=rbXM + 0.5#1X + f; qY:=rbYM + 0.5#1Y;}
+   \MFF@writetrick{\space\space\space else:}
+   \MFF@writetrick{\space\space\space\space\space\space
+                   qX:=rbXP - 0.5#1X; qY:=rbYM + 0.5#1Y + f - levelX;}
+   \MFF@writetrick{\space\space\space fi;}
+   \MFF@writetrick{\space\space\space draw (pX,pY)--(qX,qY);}
+   \MFF@writetrick{\space\space\space f:=f+#1StepV;}
+   \MFF@writetrick{endfor;}
+}
+
+% slant (/) background: #1 - pen name
+\def\MFF@trick@do@l#1{\MFF@trick@do@L{#1}}
+\def\MFF@trick@do@L#1{%
+   \MFF@writetrick{levelX:=rbXP-rbXM-#1X; levelY:=rbYP-rbYM-#1Y; f:=0;}
+   \MFF@writetrick{forever:}
+   \MFF@writetrick{\space\space\space exitif f>(levelX+levelY);}
+   \MFF@writetrick{\space\space\space if (f<levelY) :}
+   \MFF@writetrick{\space\space\space\space\space\space
+                   pX:=rbXP - 0.5#1X; pY:=rbYM + 0.5#1Y + f;}
+   \MFF@writetrick{\space\space\space else:}
+   \MFF@writetrick{\space\space\space\space\space\space
+                   pX:=rbXP - 0.5#1X - f + levelY; pY:=rbYP - 0.5#1Y;}
+   \MFF@writetrick{\space\space\space fi;}
+   \MFF@writetrick{\space\space\space if (f<levelX) :}
+   \MFF@writetrick{\space\space\space\space\space\space
+                   qX:=rbXP - 0.5#1X - f; qY:=rbYM + 0.5#1Y;}
+   \MFF@writetrick{\space\space\space else:}
+   \MFF@writetrick{\space\space\space\space\space\space
+                   qX:=rbXM + 0.5#1X; qY:=rbYM + 0.5#1Y + f - levelX;}
+   \MFF@writetrick{\space\space\space fi;}
+   \MFF@writetrick{\space\space\space draw (pX,pY)--(qX,qY);}
+   \MFF@writetrick{\space\space\space f:=f+#1StepV;}
+   \MFF@writetrick{endfor;}
+}
+
+% slanted grid background: #1 - pen name
+\def\MFF@trick@do@s#1{\MFF@trick@do@S{#1}}
+\def\MFF@trick@do@S#1{\MFF@trick@do@R{#1}\MFF@trick@do@L{#1}}
+
+% #1 - input char, #2 - output char, #3 - pen name, #4 - drawing subroutine
+\def\MFF@trick@helpdraw#1#2#3#4{%
+   \MFF@writetrick{clearit;}
+   \if B#4 \else
+       \if b#4 \else
+           \if Z#4 \else
+               \if z#4 \else
+                   \MFF@writetrick{pickup #3;}
+   \fi\fi\fi\fi
+   \csname MFF@trick@do@#4\endcsname{#3}%
+   \MFF@writetrick{cullit; currentpicture:=currentpicture-#1Char; cullit;}
+   \MFF@writetrick{picture #2Char; #2Char:=currentpicture;}
+}
+
+% #1 - subroutine name
+\def\MFF@trick@start#1{%
+   \MFF@write{}\MFF@write{def #1\space = }
+}
+
+% #1 - subroutine name
+\def\MFF@trick@end#1{%
+   \MFF@write{enddef;}\MFF@write{}
+   \MFF@write{extra_endchar := extra_endchar & "; #1";}
+}
+
+% #1 - subroutine name, #2 - transformation
+% #3 - update tmpH, tmpD, tmpW, tmpP
+% #4 - update tmpht, tmpdp, tmpwd, tmpwp
+\def\MFF@trick@transf#1#2#3#4{%
+   \MFF@trick@start{#1endchar}%
+   \MFF@writetrick{picture TempPict; TempPict:=currentpicture;}
+   \MFF@writetrick{clearit; currentpicture:=TempPict #2;}
+   \MFF@writetrick{clearit; currentpicture:=TempPict #2;}
+   \MFF@writetrick{#3}
+   \MFF@trick@end{#1endchar}%
+   \MFF@write{}
+   \MFF@write{def #1beginchar = }
+   \MFF@writetrick{#4}
+   \MFF@write{enddef;}
+   \MFF@write{extra_beginchar := extra_beginchar & "; #1beginchar";}
+}
+
+\def\MFF@trick@dimen{%
+   \MFF@writetrick{tmpH:=vround(tmpht*hppp); tmpD:=vround(tmpdp*hppp);}
+   \MFF@writetrick{tmpW:=hround(tmpwd*hppp); tmpP:=hround(tmpwp*hppp);}
+}
+
+\def\MFF@trick@shiftbox{%
+   \MFF@write{}
+   \MFF@write{body_depth\MFF@p:=desc_depth\MFF@p+body_height\MFF@p-asc_height\MFF@p;}
+   \MFF@write{def ABCbeginchar = }
+   \MFF@writetrick{tmpht:=body_height\MFF@p+curve\MFF@p; tmpdp:=body_depth\MFF@p+curve\MFF@p;}
+   \MFF@writetrick{tmpwd:=charwd+charic+2*curve\MFF@p; tmpic:=0pt\MFF@p; tmpwp:=0pt\MFF@p;}
+   \MFF@writetrick{if slant>0:}
+   \MFF@writetrick{\space\space\space tmpwd:=tmpwd+slant*(tmpdp+tmpht);}
+   \MFF@writetrick{else:}
+   \MFF@writetrick{\space\space\space tmpwd:=tmpwd-slant*(tmpdp+tmpht);}
+   \MFF@writetrick{fi;}
+   \MFF@trick@dimen
+   \MFF@write{enddef;}
+   \MFF@write{extra_beginchar := "ABCbeginchar; " & extra_beginchar;}
+}
+
+\def\MFF@trick@makebox{%
+   \MFF@write{}
+   \MFF@write{body_depth\MFF@p:=desc_depth\MFF@p+body_height\MFF@p-asc_height\MFF@p;}
+   \MFF@write{def PQRbeginchar = }
+   \MFF@writetrick{tmpht:=body_height\MFF@p; tmpdp:=body_depth\MFF@p;}
+   \MFF@writetrick{tmpwd:=charwd; tmpic:=charic;}
+   \MFF@writetrick{if slant>0:}
+   \MFF@writetrick{\space\space\space tmpwp:=curve\MFF@p+slant*tmpdp;}
+   \MFF@writetrick{else:}
+   \MFF@writetrick{\space\space\space tmpwp:=curve\MFF@p-slant*tmpht;}
+   \MFF@writetrick{fi;}
+   \MFF@trick@dimen
+   \MFF@write{enddef;}
+   \MFF@write{extra_beginchar := "PQRbeginchar; " & extra_beginchar;}
+}
+
+\def\MFF@trick@assignbox{%
+   \MFF@write{}
+   \MFF@write{def XYZbeginchar = }
+   \MFF@writetrick{charht:=tmpht; chardp:=tmpdp;}
+   \MFF@write{enddef;}
+   \MFF@write{def XYZendchar = }
+   \MFF@writetrick{charwd:=tmpwd; charic:=tmpic;}
+   \MFF@write{enddef;}
+   \MFF@write{extra_beginchar := extra_beginchar & "; XYZbeginchar";}
+   \MFF@write{extra_endchar := extra_endchar & "; XYZendchar";}
+}
+
+%%%%%%% end MFF tricks %%%%%%%%%%%%%%%%%%%
+

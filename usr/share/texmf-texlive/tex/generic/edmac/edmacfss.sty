@@ -1,0 +1,53 @@
+% edmac.sty
+\chardef\atcatcode=\catcode`\@
+\makeatletter
+
+\process@table
+
+% outwit LaTeX
+
+\everypar={}
+\let\end=\@@end
+
+
+
+% extra macros from plain.tex
+
+\def\supereject{\par\penalty-\@MM}
+\outer\def\bye{\par\vfill\supereject\end}
+
+\countdef\pageno=0 \pageno=1 % first page is number 1
+\def\advancepageno{\ifnum\pageno<\z@ \global\advance\pageno\m@ne
+  \else\global\advance\pageno\@ne \fi} % increase |pageno|
+
+\newif\ifr@ggedbottom
+\def\raggedbottom{\topskip 10\p@ plus60\p@ \r@ggedbottomtrue}
+\def\normalbottom{\topskip 10\p@ \r@ggedbottomfalse} % undoes \raggedbottom
+\def\folio{\ifnum\pageno<\z@ \romannumeral-\pageno \else\number\pageno \fi}
+\def\dosupereject{\ifnum\insertpenalties>\z@ % something is being held over
+  \hbox to \hsize{}\kern-\topskip\nobreak\vfill\supereject\fi}
+
+\newinsert\topins
+
+\newtoks\headline
+\newtoks\footline
+\headline={\hfil}
+\footline={\hss\textrm\folio\hss}
+\def\line{\hbox to \hsize}
+
+\def\pagebody{\vbox to\vsize{\boxmaxdepth\maxdepth \pagecontents}}
+\def\makeheadline{\vbox to\z@{\vskip-22.5\p@
+  \line{\vbox to8.5\p@{}\the\headline}\vss}\nointerlineskip}
+\def\makefootline{\baselineskip24\p@\line{\the\footline}}
+
+
+
+
+\input /edmac/edmac.doc  % Could input edmac.tex instead.
+
+\catcode`\@=\atcatcode
+
+
+\endinput
+
+% end of edmac.sty

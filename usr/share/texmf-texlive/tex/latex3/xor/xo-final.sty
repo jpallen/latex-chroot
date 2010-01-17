@@ -1,0 +1,435 @@
+%%
+%% This is file `xo-final.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xo-final.dtx  (with options: `package,progress')
+%% 
+%% Not for distribution
+%% 
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%% 
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+\def\@tempa#1: #2.dtx,v #3 #4 #5 #6 #7${
+  \ProvidesPackage{#2}[#4 #3 #5 #6]}
+\@tempa$Id: xo-final.dtx,v 1.20 2000/08/11 07:14:09 latex3 Exp $
+\IgnoreWhiteSpace
+\def\final@column@with@floats {
+   \setbox\@outputbox \box\@cclv
+
+   \expandafter
+   \add@floats@top
+      \csname area@t1\the\curr@col@count\endcsname
+
+   \ifvoid\footins
+   \else
+     \setbox\@outputbox \vbox {
+       \boxmaxdepth \@maxdepth
+       \dimen@\dp\@outputbox
+       \unvbox \@outputbox
+       \vskip-\dimen@
+       \vskip \skip\footins
+       \color@begingroup
+         \normalcolor
+         \footnoterule
+         \unvbox \footins
+       \color@endgroup
+      }
+   \fi
+
+   \expandafter
+   \add@floats@bottom
+      \csname area@b1\the\curr@col@count\endcsname
+
+   \global\setbox\csname col@box@\the\curr@col@count\endcsname
+          % \vbox { % this should one day become \@colht
+          \vbox { % this should one day become \@colht
+                                % or else
+           \@texttop
+           \dimen@ \dp\@outputbox
+           \unvbox \@outputbox
+           \vskip -\dimen@
+           \@textbottom
+           }%
+   \global \maxdepth \@maxdepth
+}
+\def\final@column {
+   \setbox\@outputbox \box\@cclv
+
+   \ifvoid\footins
+   \else
+     \setbox\@outputbox \vbox {
+       \boxmaxdepth \@maxdepth
+       \dimen@\dp\@outputbox
+       \unvbox \@outputbox
+       \vskip-\dimen@
+       \vskip \skip\footins
+       \color@begingroup
+         \normalcolor
+         \footnoterule
+         \unvbox \footins
+       \color@endgroup
+      }
+   \fi
+
+   \global\setbox\csname col@box@\the\curr@col@count\endcsname
+          \vbox { % this should one day become \@colht
+                                % or else
+           \@texttop
+           \dimen@ \dp\@outputbox
+           \unvbox \@outputbox
+           \vskip -\dimen@
+           \@textbottom
+           }%
+   \global \maxdepth \@maxdepth
+}
+\let \produce@final@column \final@column
+\def\add@floats@top #1{
+  \ifx#1\@empty
+  \else
+    \setbox\@tempboxa \vbox{}
+    \let \@elt \@comflelt #1
+    \setbox\@outputbox \vbox{
+                             \boxmaxdepth \maxdepth
+                             \unvbox\@tempboxa
+                             \vskip -\pagesetup@float@float@sep
+                             \topfigrule
+                             \vskip \pagesetup@float@text@sep
+                             \unvbox\@outputbox
+                             }
+    \let\@elt\relax
+    \release@floats#1
+  \fi
+}
+\def\add@floats@bottom#1{
+  \ifx#1\@empty
+  \else
+    \setbox\@tempboxa \vbox{}
+    \let\@elt\@comflelt
+      #1
+    \setbox\@outputbox \vbox{
+                             \unvbox\@outputbox
+                             \vskip \pagesetup@float@text@sep
+                             \botfigrule
+                             \unvbox\@tempboxa
+                             \vskip -\pagesetup@float@float@sep
+                             }
+    \let\@elt\relax
+    \release@floats#1
+  \fi
+}
+\mathchardef\absolute@page@number\c@page
+
+\def\produce@final@page{
+  \begingroup           % the \endgroup is put in by \aftergroup
+    \@resetactivechars
+    \@parboxrestore
+    \let \protect \noexpand
+    \do@floats
+    \shipout \hbox {        % NOTE: an hbox now!
+      \set@typeset@protect
+      \aftergroup \endgroup
+      \aftergroup \set@typeset@protect
+       \make@page@box
+       \box \page@box
+    }
+  \count@\absolute@page@number
+  \advance\count@\@ne
+  \global\advance\c@page\@ne
+  \global\mathchardef\absolute@page@number\count@
+}
+
+\newbox \page@box
+\def\mbox@addtopage (#1,#2)#3{%
+  \global \setbox\page@box
+    \hbox {
+      \unhbox \page@box
+      \mbox@put  (#1,#2) {#3}
+    }
+}
+\def\box@addtopage (#1,#2)#3{%
+  \mbox@addtopage (#1,#2){\box #3}
+}
+\def \make@page@box {
+    \mbox@addtopage (\pagebodylefthpos, \headheight)
+       {page:~\thepage}
+  \forall@columns {
+    \expandafter \xdef
+      \csname stack@level@\the\curr@col@count \endcsname
+        {\pagebodytopvpos}
+  }
+  \stack@top@areas
+  \add@columns
+  \stack@bot@areas
+}
+\def \add@columns@botaligned {
+  \setlength \@tempdima {\pagebodylefthpos}
+  \forall@columns {
+    \box@addtopage ( \@tempdima, \pagebodybotvpos )
+          {\csname col@box@\the\curr@col@count \endcsname}
+        \setlength \@tempdima {\@tempdima + \columnwidth + \columnsep}
+  }
+}
+\def \add@columns@topstacked {
+  \gsetmlength \cuur@col@pos {\pagebodylefthpos}
+  \forall@columns {
+  \gsetmlength@c {stack@level@\the\curr@col@count}
+    { \csname stack@level@\the\curr@col@count \endcsname
+      + \expandafter
+        \ht \csname col@box@\the\curr@col@count \endcsname
+    }
+    \box@addtopage (  \cuur@col@pos,
+                     \csname stack@level@\the\curr@col@count \endcsname )
+          {\csname col@box@\the\curr@col@count \endcsname}
+        \gsetmlength  \cuur@col@pos { \cuur@col@pos + \columnwidth + \columnsep}
+    }
+}
+\let \add@columns \add@columns@topstacked
+\def\t@stack@area #1#2#3#4{
+  #4 \@tempboxa
+ \@tempcnta #2
+ \@tempcntb #3 \relax
+  \setlength \@tempdimb {\ht\@tempboxa + \dp\@tempboxa}
+  \loop
+    \@tempdima \csname stack@level@\the\@tempcntb \endcsname
+    \advance \@tempdima \@tempdimb
+    \expandafter
+    \xdef \csname stack@level@\the\@tempcntb \endcsname
+      { \the\@tempdima }
+  \advance \@tempcntb \@ne
+  \advance \@tempcnta \m@ne
+  \ifnum \@tempcnta  > \z@
+  \repeat
+  \setlength \@tempdima
+    {\pagebodylefthpos - \columndisplacement + \columndisplacement * #3}
+  \box@addtopage (\@tempdima,\csname stack@level@#3\endcsname)
+                 \@tempboxa
+}
+\def\b@stack@area #1#2#3#4{
+  #4 \@tempboxa
+  \setlength \@tempdima
+    {\pagebodylefthpos - \columndisplacement + \columndisplacement * #3}
+  \box@addtopage (\@tempdima,\csname stack@level@#3\endcsname)
+                 \@tempboxa
+ \@tempcnta #2
+ \@tempcntb #3 \relax
+  \setlength \@tempdimb {\ht\@tempboxa + \dp\@tempboxa}
+  \loop
+    \@tempdima \csname stack@level@\the\@tempcntb \endcsname
+    \advance \@tempdima -\@tempdimb
+    \expandafter
+    \xdef \csname stack@level@\the\@tempcntb \endcsname
+      { \the\@tempdima }
+  \advance \@tempcntb \@ne
+  \advance \@tempcnta \m@ne
+  \ifnum \@tempcnta > \@ne
+  \repeat
+}
+\def \stack@bot@areas {
+  \stack@areas@list b \pagebodybotvpos \pagebox@list@b
+}
+\def \stack@top@areas {
+  \stack@areas@list t \pagebodytopvpos \pagebox@list@t
+}
+\def \stack@areas@list #1#2#3 {
+  \ifx #3 \@empty
+  \else
+    \forall@columns {
+    \expandafter \xdef
+      \csname stack@level@\the\curr@col@count \endcsname
+        {#2}
+    }
+  \expandafter
+  \let \expandafter
+      \p@elt \csname #1@stack@area \endcsname
+        #3
+  \fi
+}
+\def\make@area@floats@box #1#2 {
+  \setbox #2 \vbox{}
+  \def \@elt { \typeset@float@in@box {#2} }
+    \csname area@#1\endcsname
+  \let \@elt \relax
+  \expandafter
+  \release@floats
+    \csname area@#1\endcsname
+}
+
+\def \box@decorate@bot #1 {
+    \setbox #1 \vbox{
+                             \vskip \pagesetup@float@text@sep
+                             \botfigrule
+                             \unvbox #1
+                             \vskip -\pagesetup@float@float@sep
+    }
+}
+\def \box@decorate@top #1 {
+    \setbox #1 \vbox{
+                             \unvbox #1
+                             \vskip -\pagesetup@float@float@sep
+                             \topfigrule
+                             \vskip \pagesetup@float@text@sep
+    }
+}
+
+\def\@comflelt #1 {
+  \global \let \this@float@box #1
+  \expandafter
+  \extract@this@float@actual@structure \the\toks #1
+  \setbox\@tempboxa \vbox {
+    \unvbox\@tempboxa
+    \typeset@this@float@and@caption
+    }
+  }
+\def\typeset@float@in@box #1 #2 {
+  \global \let \this@float@box #2
+  \expandafter
+  \extract@this@float@actual@structure \the\toks #2
+  \setbox #1 \vbox {
+    \unvbox #1
+    \typeset@this@float@and@caption
+    }
+  }
+
+\def\pagebox@area #1#2#3 {
+  \expandafter
+  \let \expandafter
+    \this@list \csname area@#1\endcsname
+  \ifx \this@list \@empty
+  \else
+    \let \p@elt \relax
+    \@addto@pagebox@list {#3}
+      { \p@elt #1 { #2 {#1}} }
+  \fi
+}
+\def \@addto@pagebox@list #1#2 {
+  \@temptokena \expandafter\expandafter\expandafter
+    { \csname pagebox@list@#1 \endcsname
+      #2
+    }
+ \expandafter
+  \xdef
+    \csname pagebox@list@#1 \endcsname
+      { \the\@temptokena }
+}
+\def\mbox@put (#1,#2)#3{%
+  \setbox\@tempboxa \hbox {
+      \lower #2                            %   thanks Don!
+        \hbox {\kern#1 #3\hss}
+      }
+  \wd \@tempboxa \z@
+  \ht \@tempboxa \z@
+  \dp \@tempboxa \z@
+  \box\@tempboxa
+  }
+\def\box@put (#1,#2)#3{%
+  \mbox@put (#1,#2) {\box #3}
+}
+\def\copy@put (#1,#2)#3{
+  \mbox@put (#1,#2) {\copy #3}
+}
+\def \forall@areas #1 {
+  \def \area@elt ##1##2##3 {
+  \def \curr@area {##1##2##3}
+  \def \curr@pos {##1}
+  \def \curr@col {##3}
+  \def \curr@span {##2}
+  #1
+  }
+  \used@areas@exec
+}
+
+\def \make@useful@list@aux #1#2#3 {
+  \ifx #1 \relax
+  \else
+    \expandafter
+    \xdef \csname \temp@list@name @exec \endcsname
+      {\csname \temp@list@name @exec \endcsname \temp@list@elt #1#2#3 }
+  \expandafter
+       \make@useful@list@aux
+  \fi
+}
+\def \make@useful@list #1 #2 {
+  \edef \temp@list@name
+    {\expandafter \@gobble \string #1}
+  \def \temp@list@elt {#2}
+  \let #2 \relax
+  \expandafter
+  \let \csname \temp@list@name @exec \endcsname \@empty
+  \expandafter
+  \make@useful@list@aux #1\relax\relax\relax
+}
+\def\release@floats#1{
+   \xdef \@freelist {\@freelist#1}
+   \global\let#1\@empty
+}
+\def \let@nc #1 #2 {
+  \expandafter
+  \let \expandafter
+      #1 \csname #2\endcsname
+}
+\def \let@cn #1 {
+  \expandafter
+  \let \csname #1\endcsname
+}
+\def \let@cc #1 {
+  \expandafter
+  \let@nc \csname #1\endcsname
+}
+\def \gsetmlength #1#2  {
+    \setlength \@tempdima {#2}
+  \xdef #1 {\the\@tempdima}
+}
+\def \gsetmlength@c #1#2  {
+    \setlength \@tempdima {#2}
+    \expandafter
+    \xdef \csname #1\endcsname
+      {\the\@tempdima}
+}
+\def \setmlength #1#2  {
+    \setlength \@tempdima {#2}
+  \edef #1 {\the\@tempdima}
+}
+\def \do@floats {
+  \make@useful@list \used@areas \area@elt
+  \let  \pagebox@list@t \@empty
+  \let  \pagebox@list@b \@empty
+  \forall@areas {
+    \expandafter
+    \pagebox@area
+      \expandafter
+      {\curr@area} \make@area@floats@box  {\curr@pos}
+  }
+}
+
+\AtBeginDocument {
+%% vert
+  \setlength \@tempdima {\headheight + \headsep}
+  \xdef \pagebodytopvpos {\the\@tempdima}
+
+  \setlength \@tempdima {\@tempdima + \textheight}
+  \xdef \pagebodybotvpos {\the\@tempdima}
+
+%% horiz
+  \setlength \@tempdima {\columnwidth + \columnsep}
+  \xdef \columndisplacement {\the\@tempdima}
+
+  \def \pagebodylefthpos {\z@}  % or whatever?)
+
+}
+
+\endinput
+%%
+%% End of file `xo-final.sty'.

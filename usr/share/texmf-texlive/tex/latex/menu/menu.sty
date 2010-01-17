@@ -1,0 +1,110 @@
+%%
+%% This is file `menu.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% menu.dtx  (with options: `package')
+%% ----------------------------------------------------------------------
+%% Name of contribution: Menu
+%% Name and email:       Knut Lickert <knut@lickert.net>
+%% Location on CTAN:     tex-archive/macros/latex/contrib/lickert
+%% More details:         http://www.lickert.net/tex/menu
+%% Summary description:  Package for writing menus
+%% 
+%% Announcement text:
+%% Menu.sty provide a command
+%%     \menu{Programm!!Menu1!Command}
+%% and expand it to something like Programm=>Menu1->Command
+%% ----------------------------------------------------------------------
+\def\fileversion{v0.98}
+\def\filedate{2003/12/20}
+%%
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%%
+%% ^^A Example for a new style
+%% \newlength{\menusep}
+%% \menusymbols[\setlength{\menusep}{0em}~\\]{
+%%    \\
+%%    \addtolength{\menusep}{1em}
+%%    \hspace*{\menusep}
+%%  }{
+%%    $\wr$\\
+%%    \addtolength{\menusep}{2em}
+%%    \hspace*{\menusep}
+%%  }[
+%%  \ensuremath{\Leftarrow}
+%%  ]
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{menu}[
+    \filedate\space\fileversion\space menu-Package]
+\typeout{Menu.sty: Support of typeout menus}
+\RequirePackage{xspace}
+\newcommand{\menu}[1]{\@menusymbolStart\@menu #1!<\@menusymbolEnd}
+\newcommand{\menutext}[1]{\texttt{#1}}
+\def\@menu#1!#2<{%
+\def\@menuParOne{#1}%
+\def\@menuParTwo{#2}%
+\def\gt{!}%
+\ifx\@empty\@menuParOne%
+{\ifx\@menuParTwo\gt%
+ \else\expandafter\@menuTo\@menuParTwo <\@menu#2<%
+ \fi}%
+\else%
+\menutext{#1}\expandafter\@menuto\@menuParTwo <\@menu#2!<%
+\fi%
+}
+\def\@menuto#1#2<{\ifx!#1\else\@menusymbolOne\xspace\fi}
+\def\@menuTo#1#2<{\ifx!#1\else\@menusymbolTwo\xspace\fi}
+\newcommand*\@menusymbolStart{}
+\newcommand*\@menusymbolEnd{}
+\newcommand*\@menusymbolOne{\xspace\ensuremath{\rightarrow}}
+\newcommand*\@menusymbolTwo{\xspace\ensuremath{\Rightarrow}}
+\newcommand*\menusymbols[3][]{
+\renewcommand*\@menusymbolStart{#1}
+\renewcommand*\@menusymbolOne{#2}
+\renewcommand*\@menusymbolTwo{#3}
+\@menusymbols
+}
+\newcommand*\@menusymbols[1][]{
+\renewcommand*\@menusymbolEnd{#1}
+}
+\newcommand*\menumathsymbols[3][]{
+\renewcommand*\@menusymbolStart{\ensuremath{#1}}
+\renewcommand*\@menusymbolOne{\xspace\ensuremath{#2}}
+\renewcommand*\@menusymbolTwo{\xspace\ensuremath{#3}}
+}
+\DeclareOption{big}{
+\newlength{\menusep}
+\menusymbols[
+   \setlength{\menusep}{0em}~\\
+ ]{
+   \\
+   \addtolength{\menusep}{1em}
+   \hspace*{\menusep}
+ }{
+   $\wr$\\
+   \addtolength{\menusep}{2em}
+   \hspace*{\menusep}
+ }[
+ \ensuremath{\Leftarrow}
+ ]
+}
+\ProcessOptions
+\endinput
+%%
+%% End of file `menu.sty'.

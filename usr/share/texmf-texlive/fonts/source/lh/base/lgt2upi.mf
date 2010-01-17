@@ -1,0 +1,765 @@
+%
+% lgt2upi.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=1
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Italic Cyrillic letters 128--255 for T2 encoding
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% List of letternames and their codes in T2
+%
+%                X2  T2A  T2B  T2C
+%
+% g_up          "a0  "a0   -    -    Ghe upturn
+% g_hcrs        "a1  "a1   -    -    Ghe horisontally crossed
+% g_dsc         "a2   -   "a2   -    Ghe with descender
+% g_tl          "a3   -   "a3   -    Ghe tail
+% shha          "a4  "a4  "a4  "a4   Shha (same as lower h)
+% zh_dsc        "a5  "a5  "a5   -    Zhe with descender
+% z_dsc         "a6  "a6   -    -    Ze with descender (cedilla)
+% abh_dze       "a7   -   "a7  "a7   Abkhasian dze
+% ukr_i         "a8  "a8   -    -    Ukrainian i - latin i with umlaut (goes first for LH font)
+% k_dsc         "a9  "a9  "a9  "a9   Ka with descender
+% k_beak        "aa  "aa   -    -    Ka with reversed beak
+% k_tl          "ab   -   "ab   -    Ka with tail
+% l_tl          "ac   -   "ac   -    El with tail
+% n_dsc         "ad  "ad  "ad  "ad   En with descender
+% ng            "ae  "ae  "ae   -    Ligature en-ghe
+% n_tl          "af   -   "af  "af   En with tail
+%
+% s_dsc         "b1  "b1   -    -    Es with descender (cedilla)
+% u_shrt        "b2  "b2  "b2   -    Short U (goes first for LH fonts)
+% y             "b3  "b3  "b3   -    Straingt u (as upper Y)
+% y_hcrs        "b4  "b4   -    -    Straingt u horisontally crossed
+% h_dsc         "b5  "b5  "b5  "b5   Kha with descender
+% h_tl          "b6   -   "b6   -    Kha with tail
+% ch_ldsc       "b7   -   "b7   -    Che with left descender
+% ch_rdsc       "b8  "b8  "b8  "b8   Che with right descender
+% ukr_e         "b9  "b9   -    -    Ukrainian e (goes first for wncoding and LH font)
+% schwa         "ba  "ba  "ba  "ba   Schwa
+%
+
+LHver_check(3,5); % like |version_check| in ec
+
+lhchar "Italic Cyrillic letter g_hcrs - ghe hcrossed"; % italic shape
+cyrchar(g_hcrs,6.25u#,x_height#,0);
+italcorr max(1/3x_height#*slant,x_height#*slant+.5(.2[hair#,stem#])-u#); %e
+adjust_fit(if monospace:u#,u# else: 0.5u#,0.5u# fi);
+% ital_g;
+pickup fine.nib; x0l=hround eps; x0'=x0; x5r=good.x(w-eps); x6=x5;
+x2=.5w+2u; x3=.5w-2u; x1=x4=x7=.5[x3l,x2r]; y7=.5[y2,y3];
+h-y0=y5; top y5l=vround .5bar_height; y6=bar_height; y0'=h-bar_height;
+h-y2=y3=1/4x_height; h-y1=y4; bot y4r=-oo;
+pos0(hair,320); pos1(vair,270); pos2(stem,180);
+pos3(stem,180); pos4(vair,270); pos5(hair,320); pos7(stem,135);
+path p.l,p.r; p.l=z0'..z0..z1{right}; p.r=z4{right}..z5..z6;
+filldraw stroke z0e{direction 1 of p.l}
+ ...z1e{right}...{down}z2e...z7e...z3e{down}...z4e{right}
+ ...{direction 1 of p.r}z5e; % main stroke
+%%%
+% hstroke
+bar_stroke(x0l+.05u,w-(x0l+.05u));
+penlabels(0,1,2,3,4,5,6,7,8,9); endchar;
+
+lhchar "Italic Cyrillic letter g_dsc - ghe descender";
+cyrchar(g_dsc,6.25u#,x_height#,desc_depth#);
+italcorr max(1/3x_height#*slant,x_height#*slant+.5(.2[hair#,stem#])-u#); %e
+adjust_fit(if monospace:u#,u# else: 0.5u#,0.5u# fi);
+% ital_g;
+pickup fine.nib; x0l=hround eps; x0'=x0; x5r=good.x(w-eps); x6=x5;
+x2=.5w+2u; x3=.5w-2u; x1=x4=x7=.5[x3l,x2r]; y7=.5[y2,y3];
+h-y0=y5; top y5l=vround .5bar_height; y6=bar_height; y0'=h-bar_height;
+h-y2=y3=1/4x_height; h-y1=y4; bot y4r=-oo;
+pos0(hair,320); pos1(vair,270); pos2(stem,180);
+pos3(stem,180); pos4(vair,270); pos5(hair,320); pos7(stem,135);
+path p,p_; p=z0'..z0..z1{right}; p_=z4{right}..z5..z6;
+filldraw stroke z0e{direction 1 of p}
+ ...z1e{right}...{down}z2e...z7e...z3e{down}...z4e{right}
+ ...{direction 1 of p_}z5e; % main stroke
+%%%
+% italic descender/ogonek
+if is_ogonek:
+   def the_pen=
+       if known ogonek_pen: ogonek_pen else: fine fi
+   enddef;
+   path p.r;
+   p.r=z3r{down}...z4r{right}...{direction 1 of p_}z5r;
+   ogonek_breadth:=xvair;
+   numeric tt; % the time...
+   tt=if hefty: 1.8 else: 1.6 fi;
+   join_angle=angle((direction tt of p.r) rotated 180);
+   ogonek_pos=point tt of p.r+.5(the_pen-fine)*
+       unitvector((direction tt of p.r) rotated 90);
+   easy_ogonek(the_pen,10,11,12); % ogonek
+else:
+   z10=z5; pos10(hair,140); i_serif(10,x);
+fi
+penlabels(0,1,2,3,4,5,6,7,8,9, 10,11,12); endchar;
+
+lhchar "Italic Cyrillic letter g_tl - ghe tail";
+cyrchar(g_tl,9u#,x_height#,desc_depth#);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi; %o
+italcorr x_height#*slant-beak_jut#-.25u#;
+adjust_fit(serif_fit#,-.25u#);
+pickup tiny.nib; pos1(stem,0); pos2(stem,0);
+lft x1l=lft x2l=hround (2.5u-.5stem); top y1=h; y2-.5stem=0;
+filldraw circ_stroke z2e--z1e; % stem
+pos3(vair,90); pos4(vair,90);
+top y3r=top y4r=h; x3=x1; rt x4r=hround(w-1.5u);
+filldraw stroke z3e--z4e;
+% hook(1);
+pos3'(vair,90); x3'=x1; y3'=bar_height;
+lft x5l=hround(w-1.5u-.5stem); y5=.45y3'; pos5(stem,0);
+pos7(vair,-90); pos8(hair,-180); pos9(flare,-180); pos6(stem,0); x6=x5;
+bot y6=-1/3d; bot y7r=-d-oo; y9-.5flare=-vround.9d;
+x7=w-11/3u; lft x8r=min(x5-4u,lft x8r+x7-x8l+5u-eps);
+filldraw stroke z3'e{right}...z5e{down}---z6e...{left}z7e; % tail
+bulb(7,8,9);  % bulb
+penlabels(0,1,2,3,4,5,6,7,8,9); endchar;
+
+lhchar "Italic Cyrillic letter shha (as lower h)";
+cyrchar(shha,9u#,asc_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(0,0); pickup tiny.nib;
+pos1(stem,0); pos2(stem,0); x1=x2;
+lft x1l=hround(1.5u-.5stem); top y1=h; y2-.5stem=-oo;
+filldraw circ_stroke z2e--z1e; % left stem
+sloped_serif.l(1,2,a,1/3,jut,serif_drop);  % serif
+pickup fine.nib; x4+.5stem=hround(w-2.5u+.5stem);
+x5=x4-.25u; ital_arch(2,3,4);  % arch
+x7=w; hook_out(5,6,7)(skewed); % closing hook
+filldraw stroke z4e{down}..{-u,-x_height}z5e;  % right stem
+penlabels(1,2,3,4,5,6,7); endchar;
+
+lhchar "Italic Cyrillic letter zh_dsc - zhe descender";
+cyrchar(zh_dsc,20u#,x_height#,desc_depth#);
+italcorr if math_fitting:1/3x_height#*slant else:x_height#*slant-u# fi; %c
+adjust_fit(-.5u#,0 if monospace:-.4u# fi); %zh_adj&iserif_adj
+% ital_zh;
+if odd(fudged.stem-w): change_width; fi % symmetric & all three equal - AS
+pickup fine.nib; pos1(flare,0); pos2(hair,0); pos3(vair,90);
+pos4(curve,180); pos5(vair,270); pos6(hair,320);
+if monospace: x3=x5=.5[lft x4r,rt x2r]-eps; rt x2r=good.x (w+eps);
+else: x3=x5=good.x(w-3.5u); rt x2r=hround max(rt x3,w-u)+eps; fi
+lft x4r=hround max(.5w+.5stem+.5,w-6.5u-.5curve+eps); x6r=good.x(w+eps); x0=x6;
+y2=.5[bar_height,h]; top y3r=h+oo; bulb(3,2,1);  % bulb
+bot y5r=-oo; y4=.5[y3,y5]; top y6l=vround .5bar_height; y0=bar_height;
+path p; p=z5{right}..z6..z0;
+filldraw stroke pulled_arc.e(3,4)
+ & pulled_arc.e(4,5)...{direction 1 of p}z6e;  % right arc
+pos12(flare,180); pos11(hair,180); pos10(vair,270);
+pos9(curve,360); pos8(vair,450); pos7(hair,500);
+if monospace: lft x11r=good.x (-eps); x10=x8=.5[lft x11r,rt x9r]+eps;
+else: x10=x8=3.5u; lft x11r=hround min(lft x10,u)-eps; fi
+rt x9r=hround min(.5w-.5stem-.5,6.5u+.5curve-eps);
+x7r=good.x (if not monospace:rt x11r-.67u fi-eps); x0'=x7;
+y11=h-.5[bar_height,h]; bot y10r=-oo; bulb(10,11,12);  % bulb
+top y8r=h+oo; y9=.5[y10,y8]; bot y7l=vround (h-.65bar_height); y0'=bar_height;
+path p_; p_=z8{left}..z7..z0;
+filldraw stroke pulled_arc.e(10,9)
+ & pulled_arc.e(9,8)...{direction 1 of p_}z7e;  % left arc
+y13=bar_height; x13=x4; y14=y13; x14=w-x4;  x15=x16=.5w;
+y15+.5stem=h+oo; bot y16=0;
+pos13(vair,90); pos14(vair,90);  pos15(fudged.stem,0); pos16(fudged.stem,0);
+filldraw stroke z13e--z14e; filldraw circ_stroke z15e--z16e; % stem & cross
+%%%
+% italic descender/ogonek
+if is_ogonek:
+   def the_pen=
+       if known ogonek_pen: ogonek_pen else: fine fi
+   enddef;
+   path p.r;
+   p.r=pulled_arc.r(4,5)...{direction 1 of p}z6r;
+   ogonek_breadth:=xvair;
+   numeric tt; % the time...
+   tt=if hefty: 2.8 else: 2.6 fi;
+   join_angle=angle((direction tt of p.r) rotated 180);
+   ogonek_pos=point tt of p.r+.5(the_pen-fine)*
+       unitvector((direction tt of p.r) rotated 90);
+   easy_ogonek(the_pen,17,18,19); % ogonek
+else:
+   z17=z6; pos17(hair,140); i_serif(17,x);
+fi
+penlabels(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16, 17,18,19); endchar;
+
+lhchar "Italic Cyrillic letter z_dsc - ze descender (cedilla)";
+cyrchar(z_dsc,8u#,x_height#,desc_depth#);
+italcorr if math_fitting:1/3x_height#*slant else:x_height#*slant-u# fi; %e
+adjust_fit(0,0);
+% ital_z;
+pickup fine.nib; pos0(flare,180); pos1(hair,180); pos2(vair,-90);
+pos7(curve,0); pos8(curve,0); pos4(vair,90); pos5(hair,160);
+pos3(vair,90); pos3'(vair,-90); pos9(vair,90); pos9'(vair,-90);
+x2=x4=.5(w-u); lft x1r=min(lft x2,hround(.25u))-eps;
+lft x5r=good.x x1r+.15u+eps; x6=x5;
+y1=.5bar_height; bot y2r=-oo; bulb(2,1,0);  % bulb
+rt x7r=w-hround(1.5u-.5curve); rt x8r=w-hround(2u-.5curve);
+top y4r=h+oo; y7=.5[y2,y3]; y5r=y8=.5[y3,y4]; y6=bar_height;
+x3=x2; lft x9=hround min(lft x2-1-eps,rt x0l+1+eps);
+y3=y9=bar_height; z9'=z9; z3'=z3;
+path p; p=z4{left}..(x5,h-.52bar_height)..z6;
+filldraw stroke z9e{right}...pulled_arc.e(3,7) & pulled_arc.e(7,2); % lower arc
+filldraw stroke z9'e{right}...pulled_arc.e(3',8) & pulled_arc.e(8,4)
+  ...{direction 1 of p}z5e;  % upper arc
+%%%
+% italic cedilla/ogonek
+if is_ogonek:
+   def the_pen=
+       if known ogonek_pen: ogonek_pen else: fine fi
+   enddef;
+   path p.r;
+   p.r=z1r{down}...pulled_arc.r(2,7);
+   ogonek_breadth:=xvair;
+   numeric tt; % the time...
+   tt=if hefty: 1.2 else: 1.2 fi;
+   join_angle=angle((direction tt of p.r) rotated 180);
+   ogonek_move=-oo;
+   ogonek_pos=point tt of p.r+.5(the_pen-fine)*
+       unitvector((direction tt of p.r) rotated 90);
+   easy_ogonek(the_pen,10,11,12); % ogonek
+else:
+   lowercase_cedilla(x2,-oo, 10,11,12,13,14);
+fi
+penlabels(0,1,2,3,4,5,6,7,8,9, 10,11,12,13,14); endchar;
+
+lhchar "Italic Cyrillic letter abh_dze -  Abkhasian dze";
+cyrchar(abh_dze,8u#,x_height#,desc_depth#);
+italcorr x_height#*slant-.5serif_fit#-.3u#;
+adjust_fit(0,.5serif_fit#);
+numeric arm_thickness[],z_stem,stem[]; stem1=.75stem;
+if hefty:
+ arm_thickness1=stem1; arm_thickness2=stem1;
+ z_stem=fudged.hair-2stem_corr;
+else:
+ arm_thickness1=stem1; arm_thickness2=stem1; z_stem=fudged.hair; fi
+if arm_thickness1<tiny.breadth: arm_thickness1:=tiny.breadth; fi
+pickup tiny.nib; rt x1r=rt x2r=hround(w-.8u);
+lft x3l=lft x4l=hround .3[.5u, w-.8u];
+top y1=h; y2=min(y1,h-2/3arm_thickness1);
+bot y4=.3[0,h]; y3=max(y4,2/3arm_thickness2);
+numeric alpha; alpha=diag_ratio(1,z_stem-tiny,y2-y3,x2r-x3l);
+penpos1(alpha*(z_stem-tiny),0); penpos2(alpha*(z_stem-tiny),0);
+penpos3(alpha*(z_stem-tiny),0); penpos4(alpha*(z_stem-tiny),0);
+pair delta; delta=penoffset z3-z2 of currentpen;
+fill top lft z1l--z2l+delta---z3l+delta..lft z3l---lft z4l..bot z4l
+ ---bot rt z4r--z3r-delta---z2r-delta..rt z2r---rt z1r..top z1r
+ ---cycle;  % diagonal
+pickup crisp.nib; pos5(max(currentbreadth+eps,arm_thickness1),90); pos6(hair,180);
+top y5r=h; x5=x1; lft x6r=hround .75u;
+bot y6=2/3x_height-.5fine;%max(good.y(top y5r-vair-beak/1.4)-eps,y3+1)
+arm(5,6,a,beak_darkness,-.4beak_jut);  % upper arm and beak
+pickup fine.nib; pos11(vair,-90);
+pos12(vair,180); x12r=x3l;
+x8=x13=hround .5[.5u, w-.8u];
+pos7(curve,0); rt x7r=hround(w-.75u);
+lft x11=lft x4;
+pos8(vair,-90); bot y8r=-d-oo; pos13(vair, 90); y13=.1[y3,y5];
+y7=.5[bot y13l,top y8l]; top y11l=top y4l;
+y3=y12;
+filldraw stroke z12e{z2l-z3l}...{right}z13e; %link
+filldraw stroke pulled_arc.e(13,7) & pulled_arc.e(7,8);  % bowl
+ numeric bulb_diam[]; bulb_diam2=flare;
+ pos10(bulb_diam2,-180); pos9(cap_hair,-180);
+ lft x10r=hround .75u; y10=-.3d;
+ bulb(8,9,10);  % lower bulb
+penlabels(1,2,3,4,5,6,7,8,9,10,12,13); endchar;
+
+% Ukrainian i moved up for LH font
+
+lhchar "Italic Cyrillic letter k_dsc - ka descender";
+cyrchar(k_dsc,9u#,x_height#,desc_depth#);
+italcorr x_height#*slant;
+adjust_fit(0,.1u#); %iserif_adj
+% ital_k;dsc
+pickup fine.nib; x2-.5stem=hround(2.5u-.5stem);
+%ihalfstem;
+if monospace:
+ pos2(stem,0); top y2=h;
+else:
+ x0=0; hook_in(0,1,2); fi % opening hook
+pos2'(stem,0); pos1'(stem,0); z2'=z2; x1'=x2'; y1'-.5stem=-oo;
+filldraw circ_stroke z1'e--z2'e;  % left stem
+pos3(vair,90); x3=x1'; y3=bar_height;
+pos4(vair,90); x4=w-2u; top y4r=x_height+oo;
+filldraw stroke z3e{right}..{right}z4e;  % upper diagonal
+pos5(hair,0); pos6(flare,0);
+rt x5r=hround(w-.5u); y5+.5flare=vround(bot y4l-.03x_height);
+bulb(4,5,6);  % bulb
+pos7(stem,0); pos8(vair,90); pos9(vair,180);
+x9+.5hair=hround(w+.5hair-eps); y9=.4bar_height; %!!!
+lft x7l=hround(w-2.75u-.5stem); y7=1/2y3; x8=w-1.2u; bot y8l=-oo;
+filldraw stroke z3e{right}...z7e{down}
+ ...z8e{right}...{up}z9e;  % lower diagonal
+%%%
+% italic descender/ogonek
+if is_ogonek:
+   def the_pen=
+       if known ogonek_pen: ogonek_pen else: fine fi
+   enddef;
+   path p.l;
+   p.l=z7l{down}...z8l{right}...{up}z9l;
+   ogonek_breadth:=xvair;
+   ogonek_pos=point .9 of p.l;
+   easy_ogonek(the_pen,10,11,12); % ogonek
+else:
+   i_serif(9,q);
+fi
+penlabels(1,2,3,4,5,6,7,8,9, 10,11,12); endchar;
+
+lhchar "Italic Cyrillic letter k_beak - ka beak";
+cyrchar(k_beak,9u#,x_height#,0);
+italcorr x_height#*slant;
+adjust_fit(max(2u#,u#+stem#) if monospace: -u# fi,0);
+% ital_k;beak
+pickup tiny.nib; pos1(stem,0); pos2(stem,0); x1=x2;
+lft x1l=hround(2.5u-.5stem); top y1=h; y2-.5stem=-oo;
+filldraw circ_stroke z2e--z1e;  % left stem
+pos3(vair,90); x3=x1; y3=bar_height;
+pos4(vair,90); x4=w-2u; top y4r=x_height+oo;
+filldraw stroke z3e{right}..{right}z4e;  % upper diagonal
+pos5(hair,0); pos6(flare,0);
+rt x5r=hround(w-.5u); y5+.5flare=vround(bot y4l-.03x_height);
+bulb(4,5,6);  % bulb
+pos7(stem,0); pos8(vair,90); pos9(hair,180);
+x9+.5hair=hround(w+.5hair-eps); y9=1/3x_height;
+lft x7l=hround(w-2.75u-.5stem); y7=1/2y3; x8=w-1.2u; bot y8l=-oo;
+filldraw stroke z3e{right}...z7e{down}...z8e{right}...{up}z9e;  % lower diagonal
+% italic beak
+pickup fine.nib;
+pos10(stem,180); pos11(stem,180); pos12(vair,90); pos13(vair,90);
+lft x10r=l+letter_fit if monospace:-.5stem else:+.25u fi;
+y10-.5stem=2/3x_height-.5fine;
+x13=x2; top y13r=top y12r=x_height; x11=x10; y11=bot y12l-.25flare;
+x12-.25flare=rt x10l; x12r:=lft x10r+(top y12r-y11);
+filldraw circ_stroke z10e{up}--z11e{up}...z12e{right}--z13e;  % ital_beak;
+penlabels(1,2,3,4,5,6,7,8,9,10,11,12,13); endchar;
+
+lhchar "Italic Cyrillic letter k_tl - ka tail";
+cyrchar(k_tl,9u#,x_height#,desc_depth#);
+italcorr x_height#*slant;
+adjust_fit(0,0); pickup fine.nib;
+x2-.5stem=hround(2.5u-.5stem);
+%ihalfstem;
+if monospace: pos2(stem,0); top y2=h;
+else: x0=0; hook_in(0,1,2); fi % opening hook
+z2'=z2; pos2'(stem,0); x11=x2'; y11-.5stem=-oo; pos11(stem,0);
+filldraw circ_stroke z11e--z2'e; % left stem
+pos3(vair,90); x3=x11; y3=bar_height;
+pos4(vair,90); x4=w-2u; top y4r=x_height+oo;
+filldraw stroke z3e{right}..{right}z4e;  % upper diagonal
+pos5(hair,0); pos6(flare,0);
+rt x5r=hround(w-.5u); y5+.5flare=vround(bot y4l-.03x_height);
+bulb(4,5,6);  % bulb
+pos7(stem,0); lft x7l=hround(w-1.5u-.5stem); y7=1/2y3;
+% hook;k
+pos9(vair,-90); pos10(hair,-180); pos12(flare,-180); pos8(stem,0); x8=x7;
+bot y8=-1/3d; bot y9r=-d-oo; y12-.5flare=-vround.9d;
+x9=w-11/3u; lft x10r=min(x7-4u,lft x10r+x9-x10l+5u-eps);
+filldraw stroke z3e{right}...{down}z7e--z8e{down}...{left}z9e;
+bulb(9,10,12);  % bulb
+penlabels(1,2,3,4,5,6,7,8,9,10,11,12); endchar;
+
+lhchar "Italic Cyrillic letter l_tl - el tail";
+cyrchar(l_tl,8u#,x_height#,desc_depth#); %-u
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(.5u#,0);
+% ital_l;tl
+pickup fine.nib;
+pos1(vair,-90); pos2(stem,180); pos3(hair,0); pos7(stem,0); %!!!
+pos4(vair,-90); pos5(hair,-180); pos6(flare,-180);
+top y1l=h+oo; x1=.5[x3,x2];
+x3=3u; y3=.35h;
+y6-.5flare=.1h; lft x6r=-.25u; z5r=z6r;
+bot y4r=-oo; x4=max(.4[lft x6r,rt x3r],lft x6r+.5flare-eps);
+y7=.8h; lft x7l=hround(w-1.5u-.5stem); z7=z2; %!!!
+bulb(4,5,6); % bulb
+filldraw stroke pulled_arc.e(4,3)
+ & super_arc.e(3,1) & super_arc.e(1,2); % left stem
+% hook;
+pos9(vair,-90); pos10(hair,-180); pos11(flare,-180); pos8(stem,0); x8=x7;
+bot y8=-1/3d; bot y9r=-d-oo; y11-.5flare=-vround.9d;
+x9=w-11/3u; lft x10r=min(x7-4u,lft x10r+x9-x10l+5u-eps);
+filldraw stroke z7e--z8e{down}...{left}z9e;
+bulb(9,10,11);  % bulb
+penlabels(1,2,3,4,5,6,7,8,9,11); endchar;
+
+lhchar "Italic Cyrillic letter n_dsc - en descender";
+cyrchar(n_dsc,10u#,x_height#,desc_depth#);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(0,.1u#); %iserif_adj
+% ital_n;dsc
+pickup fine.nib; x2=x3; pos3(stem,0); lft x3l=hround(2.5u-.5stem);
+%ihalfstem;
+if monospace:
+ pos2(stem,0); top y2=h;
+else:
+ x0=0; hook_in(0,1,2); fi % opening hook
+y3-.5stem=-oo;
+filldraw circ_stroke z3e--z2e;
+x10=x3l; y10=y11=bar_height; pos10(vair,90); pos11(vair,90);
+pos6(stem,0); rt x6r=hround(w-2.5u+.5stem); y6+.5stem=h;
+pos7(stem,0); pos8(vair,90); pos9(vair,180); x6=x7;
+x9=w; y9=y7=.4bar_height; x8=.5[x7,x9]; bot y8l=-oo;
+filldraw circ_stroke z7e{-.5u,-x_height}...z8e{right}...{up}z9e; % closing hook
+filldraw circ_stroke z6e--z7e;
+x11=x6l;
+filldraw stroke z10e--z11e;
+%%%
+% italic descender/ogonek
+if is_ogonek:
+   def the_pen=
+       if known ogonek_pen: ogonek_pen else: fine fi
+   enddef;
+   path p.l;
+   p.l=z7l{-.5u,-x_height}...z8l{right}...{up}z9l;
+   ogonek_breadth:=xvair;
+   ogonek_pos=point .9 of p.l;
+   easy_ogonek(the_pen,12,13,14); % ogonek
+else:
+   i_serif(9,x);
+fi
+penlabels(0,1,2,3,4,5,6,7,8,9,10,11, 12,13,14); endchar;
+
+lhchar "Italic Cyrillic letter n_tl - en tail";
+cyrchar(n_tl,9u#,x_height#,desc_depth#); %-u
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi; %o
+adjust_fit(0,0);
+pickup fine.nib; x2=x3; pos3(stem,0); lft x3l=hround(2.5u-.5stem);
+%ihalfstem;
+if monospace:
+ pos2(stem,0); top y2=h;
+else:
+ x0=0; hook_in(0,1,2); fi % opening hook
+y3-.5stem=-oo;
+filldraw circ_stroke z3e--z2e; % left stem
+%
+pos4(stem,0); rt x4r=hround(w-1.5u+.5stem); y4+.5stem=h; x5=x4;
+pos6(vair,-90); pos7(hair,-180); pos8(flare,-180); pos5(stem,0);
+bot y5=-1/3d; bot y6r=-d-oo; y8-.5flare=-vround.9d;
+x6=w-11/3u; lft x7r=min(x4-4u,lft x7r+x6-x7l+5u-eps);
+filldraw circ_stroke z4e--z5e{down}...{left}z6e; % right stem and hook
+bulb(6,7,8);  % bulb
+x9=x3r; y9=y10=bar_height; pos9(vair,90); pos10(vair,90);
+x10=x4l;
+filldraw stroke z9e--z10e; % bar
+penlabels(0,1,2,3,4,5,6,7,8,9,10); endchar;
+
+lhchar "Italic Cyrillic letter s_dsc - es descender (cedilla)";
+cyrchar(s_dsc,8u#,x_height#,desc_depth#);
+italcorr if math_fitting:1/3x_height#*slant else:x_height#*slant-u# fi;
+adjust_fit(if monospace:0 else:-.35u#fi,0);
+% ital_s;
+pickup fine.nib; pos0(flare,0); pos1(hair,0); pos2(vair,90);
+pos3(curve,180); pos4(vair,270); pos5(hair,320);
+x2=x4=.5(w+u); rt x1r=max(rt x2,hround(w-u))+eps;
+lft x3r=hround(1.5u-.5curve); x5r=good.x(w-eps); x6=x5;
+y1=.5[bar_height,h]; top y2r=h+oo; bulb(2,1,0);  % bulb
+bot y4r=-oo; y3=.5[y2,y4]; top y5l=vround .5bar_height; y6=bar_height;
+path p; p=z4{right}..z5..z6;
+filldraw stroke pulled_arc.e(2,3)
+ & pulled_arc.e(3,4)...{direction 1 of p}z5e;  % arc
+% italic cedilla/ogonek
+if is_ogonek:
+   def the_pen=
+       if known ogonek_pen: ogonek_pen else: fine fi
+   enddef;
+   path p.r;
+   p.r=pulled_arc.r(3,4)...{direction 1 of p}z5r;
+   ogonek_breadth:=xvair;
+   numeric tt; % the time...
+   tt=if hefty: 2.8 else: 2.6 fi;
+   join_angle=angle((direction tt of p.r) rotated 180);
+   ogonek_pos=point tt of p.r+.5(the_pen-fine)*
+       unitvector((direction tt of p.r) rotated 90)-(ogonek_breadth-the_pen,0);
+   easy_ogonek(the_pen,7,8,9); % ogonek
+else:
+   lowercase_cedilla(x4,-oo, 7,8,9,10,11);
+fi
+penlabels(0,1,2,3,4,5,6, 7,8,9,10,11); endchar;
+
+% Short U moved up for LH fonts
+
+lhchar "Italic Cyrillic letter y - straight u (as upper Y)";
+cyrchar(y,9.5u#,x_height#,desc_depth#);
+italcorr x_height#*slant+.25u#;
+adjust_fit(.25u#,max(u#,.5u#+.5flare#)); %izhy_adj
+% ital_y;
+numeric left_stem,right_stem,outer_jut,dy,alpha; left_stem=stem-stem_corr;
+right_stem=min(hair if hefty:-2stem_corr fi,left_stem); outer_jut=.75jut;
+x1l=l+letter_fit+outer_jut+.25u; x4r=w-x1l;
+x2l=x5l=hround(.5w-.5left_stem); x3r=x5r; y1=y4=h;
+y2=y3=y5=0; dy=y1-y2; alpha=((x2l-x1l)++dy)/dy;
+penpos1(alpha*left_stem,0); penpos2(alpha*left_stem,0);
+penpos3(alpha*right_stem,0);
+penpos4(alpha*right_stem,0); penpos4'(alpha*right_stem,0);
+penpos5(left_stem,0); penpos6(left_stem,0);
+x5=x6; y6=-d; z0=whatever[z1r,z2r]=whatever[z3l,z4l];
+penpos7(vair,90); penpos8(hair,0); penpos9(flare,0);
+x7=.5[x4',rt x8r]; y7r=h+oo;
+y4'=min(.9x_height,y7l-vair); z4'=whatever[z3,z4];
+rt x8r=hround(r-.5u-.5);
+y8=max(vround(y7r-.5hair)-.5flare-1,
+ min(bar_height+.5flare+2vair'+2,.9[bar_height,h]-.5flare));
+cyrbulb(7,8,9); % bulb
+y1'=3/4x_height; z1'=whatever[z1,z2]; penpos1'(alpha*left_stem,0);
+x10=l+letter_fit; x10:=hround(x10-.5hair)+.5hair; y10=2/3x_height;
+penpos11(vair,90); top y11r=x_height+oo; x11=min(x1l-.5,x10+u);
+if y0>y2+notch_cut:
+ y0:=y2+notch_cut;
+ fill z0+.5right{up}...{z4-z3}z4'l...{right}z7r--z7l{left}
+  ...{z5r-z4'r}z4'r--z5r--z6r--z6l--z5l--
+   z1'l{z1-z2}...{left}z11l--z11r{right}
+   ..tension atleast .75 and 1..{z2-z1}z1'r
+  ...{down}z0+.5left--cycle; % diagonals and stem
+else: fill z0--z4'l...{right}z7r--z7l{left}
+  ...z4'r--z5r--z6r--z6l--z5l--
+   z1'l{z1-z2}...{left}z11l--z11r{right}
+   ..tension atleast .75 and 1..{z2-z1}z1'r
+  --cycle; fi  % diagonals and stem
+pickup fine.nib;
+pos10(hair,180); pos11'(vair,90); z11'=z11;
+filldraw stroke z10e{up}...z11'e{right};  % hook
+pickup tiny.nib; prime_points_inside(6,5);
+dish_serif(6',5,e,1/3,jut,f,1/3,jut); % lower serif
+%%%
+penlabels(0,1,2,3,4,5,6,7,8,9,10,11); endchar;
+
+lhchar "Italic Cyrillic letter y_hcrs - straight u hcrossed";
+cyrchar(y_hcrs,9.5u#,x_height#,desc_depth#);
+italcorr x_height#*slant+.25u#;
+adjust_fit(.25u#,max(u#,.5u#+.5flare#)); %izhy_adj
+% ital_y;
+numeric left_stem,right_stem,outer_jut,dy,alpha; left_stem=stem-stem_corr;
+right_stem=min(hair if hefty:-2stem_corr fi,left_stem); outer_jut=.75jut;
+x1l=l+letter_fit+outer_jut+.25u; x4r=w-x1l;
+x2l=x5l=hround(.5w-.5left_stem); x3r=x5r; y1=y4=h;
+y2=y3=y5=0; dy=y1-y2; alpha=((x2l-x1l)++dy)/dy;
+penpos1(alpha*left_stem,0); penpos2(alpha*left_stem,0);
+penpos3(alpha*right_stem,0);
+penpos4(alpha*right_stem,0); penpos4'(alpha*right_stem,0);
+penpos5(left_stem,0); penpos6(left_stem,0);
+x5=x6; y6=-d; z0=whatever[z1r,z2r]=whatever[z3l,z4l];
+penpos7(vair,90); penpos8(hair,0); penpos9(flare,0);
+x7=.5[x4',rt x8r]; y7r=h+oo;
+y4'=min(.9x_height,y7l-vair); z4'=whatever[z3,z4];
+rt x8r=hround(r-.5u-.5);
+y8=max(vround(y7r-.5hair)-.5flare-1,
+ min(bar_height+.5flare+2vair'+2,.9[bar_height,h]-.5flare));
+cyrbulb(7,8,9); % bulb
+y1'=3/4x_height; z1'=whatever[z1,z2]; penpos1'(alpha*left_stem,0);
+x10=l+letter_fit; x10:=hround(x10-.5hair)+.5hair; y10=2/3x_height;
+penpos11(vair,90); top y11r=x_height+oo; x11=min(x1l-.5,x10+u);
+if y0>y2+notch_cut:
+ y0:=y2+notch_cut;
+ fill z0+.5right{up}...{z4-z3}z4'l...{right}z7r--z7l{left}
+  ...{z5r-z4'r}z4'r--z5r--z6r--z6l--z5l--
+   z1'l{z1-z2}...{left}z11l--z11r{right}
+   ..tension atleast .75 and 1..{z2-z1}z1'r
+  ...{down}z0+.5left--cycle; % diagonals and stem
+else: fill z0--z4'l...{right}z7r--z7l{left}
+  ...z4'r--z5r--z6r--z6l--z5l--
+   z1'l{z1-z2}...{left}z11l--z11r{right}
+   ..tension atleast .75 and 1..{z2-z1}z1'r
+  --cycle; fi  % diagonals and stem
+pickup fine.nib;
+pos10(hair,180); pos11'(vair,90); z11'=z11;
+filldraw stroke z10e{up}...z11'e{right};  % hook
+pickup tiny.nib; prime_points_inside(6,5);
+dish_serif(6',5,e,1/3,jut,f,1/3,jut); % lower serif
+%%%
+% cross
+pickup fine.nib;
+numeric middle_weight;
+middle_weight=max(fine.breadth,.6[thin_join,vair]);
+x13-x14=.5w; .5[x13,x14]=x5; y13=y14=y5-.5middle_weight; % =.375h;
+pos13(middle_weight,90); pos14(middle_weight,90);
+filldraw stroke z13e--z14e;
+penlabels(0,1,2,3,4,5,6,7,8,9,10,11,12,13); endchar;
+
+lhchar "Italic Cyrillic letter h_dsc -  kha descender";
+cyrchar(h_dsc,if monospace:6.5u# else:7.5u# fi+max(1.5u#,flare#), % !rusw
+ x_height#,desc_depth#);
+italcorr max(1/3x_height#*slant+.5hair#+.5u#,x_height#*slant+.25u#);
+adjust_fit(0,.1u#); %iserif_adj
+pickup fine.nib;
+% ital_h;
+pos0(hair,180); pos1(vair,90); pos2(stem,0);
+pos3(stem,-180); pos4(vair,-90); pos5(hair,0);
+y0=y2=2/3h; y3=y5=1/3h; top y1r=h+oo; bot y4r=-oo;
+rt x2r=hround(.5w+.5stem-eps); x2=x3;
+x0-.5hair=hround-.5hair; x5+.5hair=hround(w+.5hair-eps);
+x1=.5[x0,x2]; x4=.5[x3,x5];
+filldraw stroke z0e{up}...pulled_arc.e(1,2); % opening hook
+filldraw z2l--z3r--z3l--z2r--cycle;  % stem
+filldraw stroke pulled_arc.e(3,4)...{up}z5e;  % closing hook
+pos3'(hair,180); pos6(hair,180); pos7(vair,90);
+pos8(hair,0); pos9(flare,0);
+x3'l=x6l=x3l; y3'=y3; y6=3/4h; x7=.5[x8,x2]; top y7r=h+oo;
+rt x8r=hround(w-.25u); y8+.5flare=vround(bot y7l-.03x_height);
+filldraw stroke z3'e---z6e...{right}z7e; bulb(7,8,9);  % upper link and bulb
+pos2'(hair,0); pos16(hair,0); pos17(vair,-90);
+pos18(hair,-180); pos19(flare,-180);
+x2'l=x16l=x2l; y2'=y2; y16=1/4h; x17=.5[x18,x3]; bot y17r=-oo;
+lft x18r=hround.25u; y18-.5flare=vround(top y17l+.03x_height);
+filldraw stroke z2'e---z16e...{left}z17e; bulb(17,18,19); % lower link and bulb
+% italic descender/ogonek
+if is_ogonek:
+   def the_pen=
+       if known ogonek_pen: ogonek_pen else: fine fi
+   enddef;
+   path p.r;
+   p.r=pulled_arc.r(3,4)...{up}z5r;
+   ogonek_breadth:=xvair;
+   numeric tt; % the time...
+   tt=if hefty: 2.4 else: 2.3 fi;
+   join_angle=angle((direction tt of p.r) rotated 180);
+   ogonek_pos=point tt of p.r+.5(the_pen-fine)*
+       unitvector((direction tt of p.r) rotated 90);
+   easy_ogonek(the_pen,10,11,12); % ogonek
+else:
+   z20=z5; pos20(hair,180); i_serif(20,x);
+fi
+penlabels(0,1,2,3,4,5,6,7,8,9,16,17,18,19, 10,11,12); endchar;
+
+lhchar "Italic Cyrillic letter h_tl - kha tail";
+cyrchar(h_tl,if monospace:6.5u# else:7.5u# fi+max(1.5u#,flare#), % !rusw
+ x_height#,desc_depth#);
+italcorr max(1/3x_height#*slant+.5hair#+.5u#,x_height#*slant+.25u#); %x
+adjust_fit(if monospace: 0,.1u# else:0.25u#,0.15u#fi); %&iserif_adj
+% ital_h;
+pickup fine.nib; pos0(hair,180); pos1(vair,90); pos2(stem,0);
+pos3(stem,-180); pos4(vair,-90); pos5(hair,0);
+y0=y2=2/3h; y3=y5=1/3h; top y1r=h+oo; bot y4r=-oo;
+rt x2r=hround(.5w+.5stem-eps); x2=x3;
+x0-.5hair=hround-.5hair; x5+.5hair=hround(w+.5hair-eps);
+x1=.5[x0,x2]; x4=.5[x3,x5];
+filldraw stroke z0e{up}...pulled_arc.e(1,2); % opening hook
+filldraw z2l--z3r--z3l--z2r--cycle;  % stem
+filldraw stroke pulled_arc.e(3,4)...{up}z5e;  % closing hook
+pos3'(hair,180); pos6(hair,180); pos7(vair,90); pos8(hair,0); pos9(flare,0);
+x3'l=x6l=x3l; y3'=y3; y6=3/4h; x7=.5[x8,x2]; top y7r=h+oo;
+rt x8r=hround(w-.25u); y8+.5flare=vround(bot y7l-.03x_height);
+filldraw stroke z3'e---z6e...{right}z7e; bulb(7,8,9);  % upper link and bulb
+pos2'(hair,0); pos16(hair,0); pos17(vair,-90);
+pos18(hair,-180); pos19(flare,-180);
+x2'l=x16l=x2l; y2'=y2; y16=1/4h; x17=.5[x18,x3]; bot y17r=-oo;
+lft x18r=hround.25u; y18-.5flare=vround(top y17l+.03x_height);
+filldraw stroke z2'e---z16e...{left}z17e; bulb(17,18,19); % lower link and bulb
+% dzhe middle descender
+path p.r; numeric t; t=if hefty: 2.4 else: 2.3 fi;
+p.r=pulled_arc.r(3,4)...{up}z5r;
+_zero:=10; _one:=11; _two:=12; _three:=13;
+penpos[_zero](xvair,0); z[_zero]r=point t of p.r;
+penpos[_one](xvair,0); x[_one]=x[_zero]+2/3u; y[_one]=-1/3d;
+penpos[_two](2/3[bar,fudged.stem-2stem_corr],-90);
+x[_two]=.5[x[_one],x[_three]]; y[_two]=-.8d;
+penpos[_three](xvair,-180);
+x[_three]=x[_one]-5u; y[_three]=y[_two]+ypart the_tip_pos;
+pickup pencircle scaled 1;
+fill circ_stroke z[_three]e{down}
+     ...{right}z[_two]e...z[_one]e..{dir (360-the_pre_angle)}z[_zero]e; % middle descender
+penlabels(0,1,2,3,4,5,6,7,8,9,16,17,18,19, 10,11,12,13); endchar;
+
+lhchar "Italic Cyrillic letter ch_ldsc - che left descender";
+cyrchar(ch_ldsc,9.5u#,x_height#,desc_depth#);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(0,0);
+% ital_ch;
+pickup fine.nib; interim superness:=more_super;
+x2=x3; pos3(stem,-180); lft x3r=hround(2.5u-.5stem);
+% left shstem;
+if monospace:
+ pos0(vair,90); x0=good.x .5[0,x2]; top y0l=h; y2=2/3h; pos2(stem,0);
+ filldraw stroke z2e{u,x_height}...{left}z0e; % terminal
+else:
+ x0=0;  hook_in(0,1,2)(skewed); fi % opening hook
+pos2'(stem,-180); z2'=z2;
+pos4(vair,-90); pos5(hair,0); x4=.5[x3,x5];
+pos6(stem,0); rt x6r=hround(w-2.5u+.5stem);
+x5=x6=x7; x9=w; hook_out(7,8,9);  % closing hook
+bot y4r=.75bar_height; y5=.75h; y3=min(y2-eps,.7[y4,y5]); y6+.5stem=h;
+filldraw stroke z2'e...super_arc.e(3,4)...{up}z5e; % left stem and arc
+filldraw circ_stroke z6e--z7e;  % right stem
+%%%
+% dzhe middle descender
+path p.r; numeric t; t=if hefty: 1.3 else: 1.25 fi;
+p.r=z7l{-.5u,-x_height}...z8l{right}...{up}z9l;
+_zero:=10; _one:=11; _two:=12; _three:=13;
+penpos[_zero](xvair,0); z[_zero]r=point t of p.r;
+penpos[_one](xvair,0); x[_one]=x[_zero]+2/3u; y[_one]=-1/3d;
+penpos[_two](2/3[bar,fudged.stem-2stem_corr],-90);
+x[_two]=.5[x[_one],x[_three]]; y[_two]=-.8d;
+penpos[_three](xvair,-180);
+x[_three]=x[_one]-5u; y[_three]=y[_two]+ypart the_tip_pos;
+pickup pencircle scaled 1;
+fill circ_stroke z[_three]e{down}
+     ...{right}z[_two]e...z[_one]e..{dir (360-the_pre_angle)}z[_zero]e; % middle descender
+penlabels(0,1,2,3,4,5,6,7,8,9, 10,11,12,13); endchar;
+
+lhchar "Italic Cyrillic letter ch_rdsc - che right descender";
+cyrchar(ch_rdsc,9.5u#,x_height#,desc_depth#);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(0,.1u#); %iserif_adj
+% ital_ch;dsc
+pickup fine.nib; interim superness:=more_super;
+x2=x3; pos3(stem,-180); lft x3r=hround(2.5u-.5stem);
+% left shstem;
+if monospace: pos0(vair,90); x0=good.x .5[0,x2]; top y0l=h; y2=2/3h;
+ pos2(stem,0); filldraw stroke z2e{u,x_height}...{left}z0e; % terminal
+else: x0=0;  hook_in(0,1,2)(skewed); fi % opening hook
+pos2'(stem,-180); z2'=z2;
+pos4(vair,-90); pos5(hair,0); x4=.5[x3,x5];
+pos6(stem,0); rt x6r=hround(w-2.5u+.5stem); x5=x6=x7;
+pos7(stem,0); pos8(vair,90); pos9(vair,180);
+x9=w; y9=y7=.4bar_height; x8=.5[x7,x9]; bot y8l=-oo;
+filldraw circ_stroke z7e{-.5u,-x_height}...z8e{right}...{up}z9e; % closing hook
+bot y4r=.75bar_height; y5=.75h; y3=min(y2-eps,.7[y4,y5]); y6+.5stem=h;
+filldraw stroke z2'e...super_arc.e(3,4)...{up}z5e; % left stem and arc
+filldraw circ_stroke z6e--z7e;  % right stem
+%%%
+% italic descender/ogonek
+if is_ogonek:
+   def the_pen=
+       if known ogonek_pen: ogonek_pen else: fine fi
+   enddef;
+   path p.l;
+   p.l=z7l{-.5u,-x_height}...z8l{right}...{up}z9l;
+   ogonek_breadth:=xvair;
+   ogonek_pos=point .9 of p.l;
+   easy_ogonek(the_pen,10,11,12); % ogonek
+else:
+   i_serif(9,x);
+fi
+penlabels(0,1,2,3,4,5,6,7,8,9, 10,11,12); endchar;
+
+lhchar "Italic Cyrillic letter schwa";
+cyrchar(schwa,8u#,x_height#,0);
+italcorr max(1/3x_height#*slant,x_height#*slant+.5(.2[hair#,stem#])-u#);
+adjust_fit(0,if monospace:0 else:-.35u#fi);
+% ital_schwa;
+pickup fine.nib; %numeric heavy_hair; heavy_hair=hround .2[hair,stem];%defined in lxpseudo
+pos0(vair,90); pos1(heavy_hair,180); pos2(vair,-90);
+pos3(curve,0); pos4(vair,90); pos5(hair,140);
+x0=lft x3l; lft x1r=hround(1u-.5heavy_hair); x2+.5u=x4=.5(w-u);
+rt x3r=hround(w-1.5u+.5curve);
+lft x5r=good.x (lft x1r+eps); x6=x5;
+y0=y3=y6=bar_height; y1=.5[y0,y2]; bot y2r=-oo; top y4r=h+oo;
+bot y5l=vround 1/3[bar_height,x_height]; path p; p=z4{left}..z5..z6;%%y5l=2/3x_height;
+filldraw stroke z0e{left}...z1e{down}...pulled_arc.e(2,3)
+ & pulled_arc.e(3,4)...{direction 1 of p}z5e;  % arc
+penlabels(1,2,3,4,5); endchar;
+
+endinput;
+%end of file

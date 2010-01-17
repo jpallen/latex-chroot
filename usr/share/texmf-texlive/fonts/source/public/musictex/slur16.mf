@@ -1,0 +1,230 @@
+% Change of length into longueur for new modes.mf (Nicolas Brouard 4/11/91)
+input musicdef
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                           %
+%            BOGEN UND (DE)CRESCENDO                        %
+%                                                           %
+%      (Phrasierungsbogen und Bogen der Steigung 0)         %
+%                                                           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+def drawslurs (expr st) =
+    save i, factor, longueur, height;
+    numeric i,  absp, longueur, height, factor;
+    factor:= 1/6;
+    for i= 0 upto 15:
+          longueur :=  (i+2)*nhw#;
+          height := 0 ;
+
+          beginchar(i, longueur, height, 0);
+            clear;
+            z2r = (w,h);
+            z1l = origin;
+            absp := abs((-h,w));
+            if (factor*absp)>2nhh : factor:= 2nhh/absp fi;
+            z3r = 1/2z2l+factor*(-h,w);
+            penpos1(thinwidth,90);
+            penpos2(thinwidth,90);
+            penpos3(5/12beamht,90);
+ %          currentpen := pencircle xscaled thinwidth yscaled beamht ;
+            pickup  pencircle scaled (1/16mm + blacker);
+            penstroke z1e..z3e..z2e; %statt dir 30
+          endchar;
+    endfor;
+enddef;
+
+def drawslursneg (expr st) =
+    save i, factor, longueur, depth;
+    numeric i,  absp, longueur, depth, factor;
+    factor:= 1/6;
+    for i=0 upto 15:
+         longueur :=  (i+2)*nhw#;
+         depth := longueur*st ;
+
+        beginchar(16+i, longueur, 0, depth);
+           clear;
+           z2l = (w,-d);
+           z1r = origin;
+           absp := abs((d,w));
+           if (factor*absp)>2nhh : factor:= 2nhh/absp fi;
+           z3r = 1/2z2l+factor*(d,w);
+           penpos1(thinwidth,90);
+           penpos2(thinwidth,90);
+           penpos3(5/12beamht,90);
+%          currentpen := pencircle xscaled thinwidth yscaled beamht ;
+            pickup  pencircle scaled (1/16mm + blacker);
+           penstroke (z1e..z3e..z2e) rotatedaround(1/2z2r, 180);
+         endchar;
+    endfor;
+enddef;
+
+def drawleftslur =
+    save i, longueur, height;
+    numeric i,  longueur, height;
+    longueur :=  9*nhw#;
+    for i = 1 upto 9:
+          height := (i+2)*1/2nhh# ;
+          beginchar(i-1+32, longueur, height, 0);
+            clear;
+            z2r = (w+4thinwidth,h);
+            z1l = origin;
+            penpos1(thinwidth,90);
+            penpos2(5/12beamht,90);
+%           currentpen := pencircle xscaled thinwidth yscaled beamht ;
+            pickup  pencircle scaled (1/16mm + blacker);
+            penstroke z1e..z2e{(2w,0)}; %statt dir 30
+          endchar;
+    endfor;
+enddef;
+
+def drawrightslur =
+    save i,  longueur, height;
+    numeric i, longueur, height;
+    longueur :=  9*nhw#;
+    for i= 1 upto 9:
+          height := (i+2)*1/2nhh#;
+          beginchar(i-1+48, longueur, height, 0);
+            clear;
+            z1r = (0-4\thinwidth,h);
+            z2l = (w,0);
+            penpos2(thinwidth,90);
+            penpos1(5/12beamht,90);
+%           currentpen := pencircle xscaled thinwidth yscaled beamht ;
+            pickup  pencircle scaled (1/16mm + blacker);
+            penstroke z1e{right}..z2e; %statt dir 30
+          endchar;
+    endfor;
+enddef;
+
+def drawleftslurneg  =
+    save i,  longueur, depth;
+    numeric i,   longueur, depth;
+    longueur :=  9*nhw#;
+    for i= 1 upto 9:
+          depth := (i+2)*1/2nhh# ;
+          beginchar(i-1+64, longueur, 0, depth);
+            clear;
+            z2l = (w+4thinwidth,-d);
+            z1r = origin;
+            penpos1(thinwidth,90);
+            penpos2(5/12beamht,90);
+            pickup  pencircle scaled (1/16mm + blacker);
+ %          currentpen := pencircle xscaled thinwidth yscaled beamht ;
+            penstroke z1e..z2e{(2w,0)}; %statt dir 30
+          endchar;
+    endfor;
+enddef;
+
+def drawrightslurneg =
+    save i,  longueur, depth;
+    numeric i, longueur, depth;
+    longueur :=  9*nhw#;
+    for i= 1 upto 9:
+          depth := (i+2)*1/2nhh#;
+
+          beginchar(i-1+80, longueur, 0, depth);
+            clear;
+            z1l = (0-4\thinwidth,-d);
+            z2r = (w,0);
+            penpos2(thinwidth,90);
+            penpos1(5/12beamht,90);
+%           currentpen := pencircle xscaled thinwidth yscaled beamht ;
+            pickup  pencircle scaled (1/16mm + blacker);
+            penstroke z1e{right}..z2e; %statt dir 30
+          endchar;
+    endfor;
+enddef;
+
+%decrescendo und cresc.
+def drawcrescendo =
+    save i, height, longueur, depth;
+    numeric i, longueur, height, depth;
+    for i= 0 upto 15:
+          longueur :=  (i+1)*nhw#;
+          depth := 1/2nhh# ;
+          height := depth ;
+
+          beginchar(i+96, longueur, height, depth);
+            clear;
+            z1 = origin;
+            z2l = (w,h);
+            z3r = (w,-d);
+            penpos2(1/16mm,90);
+            penpos1(1/16mm,90);
+            penpos3(1/16mm,90);
+            pickup  pencircle scaled (blacker);
+            penstrike z1e--z2e;
+            penstrike z1e--z3e;
+          endchar;
+    endfor;
+enddef;
+
+def drawdecrescendo =
+    save i, height, longueur, depth;
+    numeric i, longueur, height, depth;
+    for i= 0 upto 15:
+          longueur :=  (i+1)*nhw#;
+          depth := 1/2nhh# ;
+          height := depth ;
+
+          beginchar(i+112, longueur, height, depth);
+            clear;
+            z1l = (0,h);
+            z2 = (w,0);
+            z3r = (0,-d);
+            penpos2(1/16mm,90);
+            penpos1(1/16mm,90);
+            penpos3(1/16mm,90);
+            pickup  pencircle scaled (blacker);
+            penstrike z3e---z2e;
+            penstrike z1e---z2e;
+%label(1,2,3);
+          endchar;
+    endfor;
+enddef;
+
+%%%%%%%%%%%%%%%%%%%
+% Bogen nach oben %
+%%%%%%%%%%%%%%%%%%%
+
+drawslurs(0);
+
+%%%%%%%%%%%%%%%%%%%%
+% Bogen nach unten %
+%%%%%%%%%%%%%%%%%%%%
+
+drawslursneg(0);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% linge Halbboegen  nach oben %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+drawleftslur;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% rechte Halbboegen  nach oben %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+drawrightslur;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% linke Halbboegen  nach unten %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+drawleftslurneg;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% rechte Halbboegen  nach unten %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+drawrightslurneg;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Crescendo und Decrescendo %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+drawcrescendo;
+drawdecrescendo;
+
+
+end;

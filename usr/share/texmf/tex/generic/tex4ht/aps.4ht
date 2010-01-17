@@ -1,0 +1,240 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% aps.4ht                               2008-02-28-20:51 %
+% Copyright (C) 2002--2008       Eitan M. Gurari         %
+%                                                        %
+% This work may be distributed and/or modified under the %
+% conditions of the LaTeX Project Public License, either %
+% version 1.3c of this license or (at your option) any   %
+% later version. The latest version of this license is   %
+% in                                                     %
+%   http://www.latex-project.org/lppl.txt                %
+% and version 1.3c or later is part of all distributions %
+% of LaTeX version 2005/12/01 or later.                  %
+%                                                        %
+% This work has the LPPL maintenance status "maintained".%
+%                                                        %
+% This Current Maintainer of this work                   %
+% is Eitan M. Gurari.                                    %
+%                                                        %
+% If you modify this program your changing its signature %
+% with a directive of the following form will be         %
+% appreciated.                                           %
+%            \message{signature}                         %
+%                                                        %
+%                             gurari@cse.ohio-state.edu  %
+%                 http://www.cse.ohio-state.edu/~gurari  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\immediate\write-1{version 2008-02-28-20:51}
+
+\ifx \@authoraddress\:UnDef
+  \let\@svsechd\empty
+
+  \Hinput{aps}
+  \expandafter\endinput
+\fi
+\def\no:make@eqnnum{\let\make@eqnnum=\empty}
+\append:def\equation{%
+   \def\:@currentlabel{\the\c@equation}%
+   \anc:lbl r{equation}%
+   \pend:def\endequation{%
+     \aftergroup\aftergroup
+     \aftergroup\aftergroup
+     \aftergroup\aftergroup
+     \aftergroup\no:make@eqnnum}}
+
+\def\:authoraddress{%
+   \let\aps:centering=\centering
+   \def\centering##1\par{\aps:centering\a:address##1\b:address\par}%
+   \def\nointerlineskip{\def\centering####1\par{%
+          \aps:centering\a:author####1\b:author\par}}}
+
+\NewConfigure{address}{2}
+
+\let\o:maketitle:\maketitle
+\def\maketitle{\bgroup
+      \gHAdvance\:mpNum by 1
+\HAssign\minipageNum=\:mpNum \relax
+%
+      \def\sec:typ{title}%
+      \Configure{HtmlPar}{}{}{}{}%
+      \pend:def\@title{\a:ttl}\append:def\@title{\b:ttl\vskip2.5pt}%
+      \pend:def\@date{\a:date}\append:def\@date{\b:date}%
+      \pend:def\@authoraddress{\bgroup\:authoraddress }%
+      \append:def\@authoraddress{\egroup }%
+      \def\and{\a:and}
+     \pend:def\@maketitle{\a:mktl}%
+     \append:def\@maketitle{\b:mktl}%
+     \o:maketitle:
+   \egroup}
+
+\NewConfigure{maketitle}[4]{\c:def\a:mktl{#1}\c:def\b:mktl{#2}%
+   \c:def\a:ttl{#3}\c:def\b:ttl{#4}}
+\NewConfigure{thanks author date and}[8]{%
+   \c:def\a:thanks{#1}\c:def\b:thanks{#2}\c:def\a:author{#3}\c:def\b:author{#4}%
+   \c:def\a:date{#5}\c:def\b:date{#6}\c:def\a:and{#7}\c:def\e:mktl{#8}}
+
+   \def\@part[#1]#2{%
+    \ifnum \c@secnumdepth >-2\relax
+      \SkipRefstepAnchor \refstepcounter{part}%
+      \addcontentsline{toc}{part}{\thepart\hspace{1em}#1}%
+    \else
+      \addcontentsline{toc}{part}{#1}%
+    \fi
+    \csname @endpart\endcsname}
+\let\:tempb\part
+\Def:Section\part{\thepart}{#1}
+\let\:part\part
+\let\part\:tempb
+\let\no@part\@part
+\def\@part[#1]#2{%
+   {\let\addcontentsline\:gobbleIII\no@part[#1]{}}%
+   \HtmlEnv   \Toc:Title{#1}\:part{#2}}
+\Def:Section\likepart{}{#1}
+\let\:likepart\likepart
+\let\likepart\:UnDef
+\let\no@spart\@spart
+\def\@spart#1{%
+   {\let\addcontentsline\:gobbleIII\no@spart{}}%
+   \HtmlEnv   \:likepart{#1}}
+
+   \let\no@section\section
+\Def:Section\section{\ifnum \c:secnumdepth>\c@secnumdepth   \else
+   \thesection \fi}{\uppercase{#1}}
+\let\no:section\section
+\def\section{\rdef:sec{section}}
+\Def:Section\likesection{}{\uppercase{#1}}
+\let\:likesection\likesection
+\let\likesection\:UnDef
+
+
+\let\asp:@sect\no@sect
+\def\no@sect#1#2#3#4#5{\asp:@sect{#1}{#2}{#3}{#4}{#5\let\@svsec=\empty}}
+
+
+
+\let\no@subsection\subsection
+\Def:Section\subsection{\ifnum \c:secnumdepth>\c@secnumdepth   \else
+   \thesubsection \fi}{#1}
+\let\no:subsection\subsection
+\def\subsection{\rdef:sec{subsection}}
+\Def:Section\likesubsection{}{#1}
+\let\:likesubsection\likesubsection
+\let\likesubsection\:UnDef
+
+\let\no@subsubsection\subsubsection
+\Def:Section\subsubsection{\ifnum \c:secnumdepth>\c@secnumdepth   \else
+   \thesubsubsection \fi}{#1}
+\let\no:subsubsection\subsubsection
+\def\subsubsection{\rdef:sec{subsubsection}}
+\Def:Section\likesubsubsection{}{#1}
+\let\:likesubsubsection\likesubsubsection
+\let\likesubsubsection\:UnDef
+
+\let\no@paragraph\paragraph
+\Def:Section\paragraph{\ifnum \c:secnumdepth>\c@secnumdepth   \else
+   \theparagraph \fi}{#1}
+\let\no:paragraph\paragraph
+\def\paragraph{\rdef:sec{paragraph}}
+\Def:Section\likeparagraph{}{#1}
+\let\:likeparagraph\likeparagraph
+\let\likeparagraph\:UnDef
+\let\no@subparagraph\subparagraph
+\Def:Section\subparagraph{\ifnum \c:secnumdepth>\c@secnumdepth   \else
+   \thesubparagraph \fi}{#1}
+\let\no:subparagraph\subparagraph
+\def\subparagraph{\rdef:sec{subparagraph}}
+\Def:Section\likesubparagraph{}{#1}
+\let\:likesubparagraph\likesubparagraph
+\let\likesubparagraph\:UnDef
+
+
+
+\def\tableofcontents{%
+   \ifx\contentsname\empty \else
+      \ifx\contentsname\:UnDef \else
+         %
+\section*{\contentsname}%
+         %
+%
+   \fi\fi
+   \:tableofcontents}
+
+\ConfigureToc{likeparagraph} {}{\empty}{}{\newline}
+\ConfigureToc{likepart} {}{\empty}{}{\newline}
+\ConfigureToc{likesection} {}{\empty}{}{\newline}
+\ConfigureToc{likesubparagraph} {}{\empty}{}{\newline}
+\ConfigureToc{likesubsection} {}{\empty}{}{\newline}
+\ConfigureToc{likesubsubsection} {}{\empty}{}{\newline}
+\ConfigureToc{paragraph} {\empty}{\ }{}{\newline}
+\ConfigureToc{part} {\empty}{\ }{}{\newline}
+\ConfigureToc{section} {\empty}{\ }{}{\newline}
+\ConfigureToc{subparagraph} {\empty}{\ }{}{\newline}
+\ConfigureToc{subsection} {\empty}{\ }{}{\newline}
+\ConfigureToc{subsubsection} {\empty}{\ }{}{\newline}
+
+
+\edef\:TOC{%
+   \noexpand\ifx [\noexpand\:temp
+      \noexpand\expandafter\noexpand\:TableOfContents
+   \noexpand\else
+      \noexpand\Auto:ent{\ifnum \c@tocdepth >-2 part,\fi
+\expandafter\ifx \csname @chapter\endcsname\relax
+   \ifnum \c@tocdepth >\z@  section,\fi
+\else
+   \ifnum \c@tocdepth >\m@ne chapter,appendix,\fi
+   \ifnum \z@>\c@tocdepth\else section,\fi
+   \ifnum 1>\c@tocdepth \else subsection,\fi
+\fi
+\ifnum 2>\c@tocdepth \else subsection,\fi
+\ifnum 3>\c@tocdepth \else subsubsection,\fi
+\ifnum 4>\c@tocdepth \else paragraph,\fi
+\ifnum 5>\c@tocdepth \else subparagraph,\fi
+UnDFexyz}%
+   \noexpand\fi}
+\def\:tableofcontents{\futurelet\:temp\:TOC}
+\def\Auto:ent#1{%
+   \edef\auto:toc{\noexpand\:TableOfContents[\ifx \auto:toc\:UnDef
+      #1\else \auto:toc \fi]}  \auto:toc
+   \global\let\auto:toc\:UnDef }
+
+\def\:tocs{\noexpand\:tableofcontents}
+\pend:defIII\addcontentsline{%
+   \def\:temp{##1}\def\:tempa{toc}\ifx \:temp\:tempa
+   \gHAdvance\TitleCount  1 \fi }
+\def\@dottedtocline#1#2#3#4#5{\hbox{\def\numberline##1{\e:listof
+                ##1\f:listof}\c:listof#4\d:listof}\ignorespaces}
+\def\@starttoc#1{%
+  \begingroup
+    \makeatletter   \Configure{cite}{}{}{}{}%
+    \def\:temp{#1}\def\:tempa{toc}%
+    \a:listof\par
+    \@input{\jobname.\ifx \:temp\:tempa 4ct\else #1\fi}%
+    \b:listof
+    \if@filesw
+      \expandafter\expandafter\csname
+          newwrite\endcsname\csname tf@#1\endcsname
+      \immediate\openout \csname tf@#1\endcsname \jobname.#1\relax
+    \fi
+    \global\@nobreakfalse
+  \endgroup}
+
+
+\NewConfigure{tableofcontents*}[1]{%
+   \def\:tempa{#1}\ifx\empty\:tempa
+      \ifx \au:StartSec\:UnDef \else \gdef\:StartSec{\au:StartSec}\fi
+   \else
+      \edef\auto:toc{#1}%
+         \ifx \au:StartSec\:UnDef
+            \let\au:StartSec\:StartSec
+            \def\:StartSec{\:tableofcontents
+               \global\let\auto:toc\:UnDef \:StartSec}%
+            \pend:def\:tableofcontents{\gdef\:StartSec{\au:StartSec}}%
+   \fi  \fi
+}
+
+\pend:def\references{\ifpreprintsty\else \ShowPar \par\noindent\fi}
+
+
+\Hinput{aps}
+\endinput
+

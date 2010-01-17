@@ -1,0 +1,107 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% casyltex.sty  (CASylTeX:  Macros for Cree/Inuktitut)
+% 22 February 1999
+% Version 1.00
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Ivan A Derzhanski
+% Department of Mathematical Linguistics
+% Institute for Mathematics and Computer Science
+% Bulgarian Academy of Sciences
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def \CASylTeX {C{\sc a}Syl\TeX }
+
+\font \syll@fount=casyll10
+
+\newcount \s@ll
+\newcount \w@ll
+\newcount \z@ll
+\newcount \r@
+\def \Rone {\r@=114} \Rone
+\def \Rtwo {\r@=123}
+\def \Zone {\z@ll=0} \Zone
+\def \Ztwo {\z@ll=32}
+
+\def \syll@write {%
+ \ifnum \s@ll=96%
+   \ifnum \w@ll=1w\fi
+ \else \ifnum 128>\s@ll \advance \s@ll by-\z@ll \fi
+   \symbol {\s@ll }%
+   \ifnum \w@ll=1W\fi
+ \fi
+ \s@ll=96\w@ll=0}
+
+\def \syll@long {%
+ \symbol {\s@ll}\llap'%
+   \ifnum \w@ll=1W\fi
+ \s@ll=96\w@ll=0}
+
+\expandafter \def \csname syll@'\endcsname {%
+ \ifnum \s@ll=96%
+   \ifnum \w@ll=1w\w@ll=0\fi
+ \else \syll@long
+ \fi }
+
+\def \syll@A {\advance \s@ll by32\syll@long }
+\def \syll@E {\advance \s@ll by64\syll@long }
+\def \syll@I {\advance \s@ll by96\syll@long }
+\def \syll@O {\advance \s@ll by128\syll@long }
+\def \syll@U {\advance \s@ll by128\syll@long }
+
+\def \syll@a {\advance \s@ll by32}
+\def \syll@e {\advance \s@ll by64}
+\def \syll@i {\advance \s@ll by96}
+\def \syll@o {\advance \s@ll by128}
+\def \syll@u {\advance \s@ll by128}
+
+\def \syll@c {\syll@write  \s@ll=99}
+\def \syll@g {\syll@write  \s@ll=99}
+\def \syll@j {\syll@write \s@ll=121}
+\def \syll@k {\syll@write \s@ll=107}
+\def \syll@l {\syll@write \s@ll=108}
+\def \syll@m {\syll@write \s@ll=109}
+\def \syll@n {\syll@write \s@ll=110}
+\def \syll@p {\syll@write \s@ll=112}
+\def \syll@q {%
+  \syll@write
+  \s@ll=\r@ \advance \s@ll by-\z@ll
+  \symbol {\s@ll}\s@ll=107}
+\def \syll@r {\syll@write \s@ll=\r@ }
+\def \syll@R {\syll@write \ifnum \r@=114\s@ll=123\else \s@ll=114\fi }
+\def \syll@s {\syll@write \s@ll=115}
+\def \syll@t {\syll@write \s@ll=116}
+\def \syll@v {\syll@write \s@ll=118}
+\def \syll@y {\syll@write \s@ll=121}
+\def \syll@L {\syll@write \s@ll=124}
+\def \syll@S {\syll@write \s@ll=125}
+\def \syll@T {\syll@write \s@ll=126}
+
+\def \syll@h {\syll@write h}
+\def \syll@N {\syll@write
+  \s@ll=110\advance \s@ll by-\z@ll \raise .24ex\hbox {\symbol {\s@ll}}%
+\kern-.15em%
+  \s@ll=99 \advance \s@ll by-\z@ll \lower .24ex\hbox {\symbol {\s@ll}}%
+  \s@ll=96}
+\def \syll@w {%
+  \ifnum 127<\s@ll \syll@write \fi
+  \w@ll=1}
+
+\long \def \@syll #1{%
+ \ifx #1\end \syll@write \let \next \end
+ \else \ifcat \noexpand #1\par
+   \syll@write #1\def \next {\futurelet \n@xt \@syll }%
+ \else \ifx \@sptoken \n@xt
+     \syll@write \relax \space \s@ll=96\w@ll=0\fi
+   \csname syll@#1\endcsname
+   \def \next {\futurelet \n@xt \@syll }%
+ \fi\fi \next }
+
+\def \syllab {% Cree/Inuktitut environment
+  \syll@fount
+  \s@ll=96%
+  \w@ll=0%
+  \@syll }
+
+\def \endsyllab {}
+
+\def \sylla #1{\begin{syllab}#1\end{syllab}}

@@ -1,0 +1,96 @@
+%%
+%% This is file `ot1patch.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% ot1patch.dtx  (with options: `package')
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                      %%
+%%                        Package ot1patch                              %%
+%%                                                                      %%
+%% Purpose: to provide best possible substitutes for polish national    %%
+%%          characters using OT1 Computer Modern Roman fonts            %%
+%%                                                                      %%
+%%                                                                      %%
+%% Copyright (c) by Marcin Woli\'nski                      <1997/06/18> %%
+%%                  wolinski@mimuw.edu.pl                               %%
+%%                                                                      %%
+%%                                                                      %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                      %%
+%% The package may be used freely, but you are not allowed to modify    %%
+%% this file.  If you wish to make any changes please make a copy       %%
+%% under a different name.                                              %%
+%%                                                                      %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \def\fileversion{v 0.3}
+  \def\docdate{1997/05/16}
+  \def\filedate{1997/10/08}
+\NeedsTeXFormat{LaTeX2e}[1994/12/01]
+\ProvidesPackage{ot1patch}[\filedate\space\fileversion\space
+                     A patch for some OT1 characters (MW)]
+\dimendef\pl@left=0 \dimendef\pl@down=1
+\dimendef\pl@right=2 \dimendef\pl@temp=3
+\def\@sob#1#2#3#4#5{%
+  \setbox0\hbox{#1}\setbox1\hbox{$_\mathchar'454$}\setbox2\hbox{p}%
+  \pl@right=#2\wd0 \advance\pl@right by-#3\wd1
+  \pl@down=#5\ht1 \advance\pl@down by-#4\ht0
+  \pl@left=\pl@right \advance\pl@left by\wd1
+  \pl@temp=-\pl@down \advance\pl@temp by\dp2 \dp1=\pl@temp
+  \leavevmode
+  \kern\pl@right\lower\pl@down\box1\kern-\pl@left #1}
+\def\@iIuUogonek#1{%
+        \ifx i#1\@sob i{.66}{.20}{0}{.90}\else
+        \ifx I#1\@sob I{.80}{.50}{0}{.90}\else
+        \ifx u#1\@sob u{.66}{.20}{0}{.90}\else
+        \ifx U#1\@sob U{.60}{.35}{0}{.90}\else
+        \@sob {#1}{.50}{.35}{0}{.90}\fi
+        \fi \fi \fi
+        }
+\DeclareTextCommandDefault\k[1]{%
+        \ifx a#1\@sob a{.66}{.20}{0}{.90}\else
+        \ifx A#1\@sob A{.80}{.50}{0}{.90}\else
+        \ifx e#1\@sob e{.50}{.35}{0}{.93}\else
+        \ifx E#1\@sob E{.60}{.35}{0}{.90}\else
+        \@iIuUogonek{#1}%
+        \fi \fi \fi \fi
+   }
+\def\if@ttfont#1#2{\setbox0=\hbox{\char'40}\ifdim\dp0>0pt#1\else#2\fi}
+\def\@spb#1#2#3#4#5{%
+  \setbox0\hbox{#1}\setbox2\hbox{\char'023}%
+  \pl@right=#2\wd0 \advance\pl@right by-#3\wd2
+  \pl@down=#5\ht2 \advance\pl@down by-#4\ht0
+  \pl@left=\pl@right \advance\pl@left by\wd2
+  \ht2=\pl@down \dp2=-\pl@down
+  \leavevmode
+  \kern\pl@right\lower\pl@down\box2\kern-\pl@left #1}
+\DeclareTextCommand\l{OT1}{%
+  \if@ttfont{\@spb l{.45}{.5}{.4}{.8}}%
+    {{\char32l}}}
+\DeclareTextCommand\L{OT1}{%
+  \if@ttfont{\@spb L{.23}{.5}{.4}{.8}}%
+    {\leavevmode\setbox0\hbox{L}\hbox to\wd0{\hss\char32L}}}
+\def\@skb#1#2#3#4#5{%
+  \setbox0\hbox{#1}\setbox1\hbox{\char'056}%
+  \pl@right=#2\wd0 \advance\pl@right by-#3\wd1
+  \pl@down=#5\ht1 \advance\pl@down by-#4\ht0
+  \pl@left=\pl@right \advance\pl@left by\wd1
+  \leavevmode
+  \kern\pl@right\lower\pl@down\box1\kern-\pl@left #1}
+\DeclareTextCompositeCommand\.{OT1}z{%
+  \if@ttfont{\@skb z{.5}{.5}{1.2}{0}}%
+    {{\accent'137z}}}
+\DeclareTextCompositeCommand\.{OT1}Z{%
+  \if@ttfont{\@skb Z{.5}{.5}{1.1}{0}}%
+    {{\accent'137Z}}}
+\DeclareTextCommandDefault\guillemotleft
+    {\leavevmode\raise.3ex
+        \hbox{$\scriptscriptstyle\langle\!\langle$}}
+\DeclareTextCommandDefault\guillemotright
+    {\leavevmode\raise.3ex
+        \hbox{$\scriptscriptstyle\rangle\!\rangle$}}
+\endinput
+%%
+%% End of file `ot1patch.sty'.

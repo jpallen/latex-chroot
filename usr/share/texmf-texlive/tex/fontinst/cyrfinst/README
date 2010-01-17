@@ -1,0 +1,51 @@
+This directory contains files which provide support of Cyrillic fonts
+and encodings for FONTINST.
+
+Several font encodings (with variants) are supported (all *.etx
+files).  Install all *.etx, *.mtx, *.tex files contained in this
+directory and subdirectories to your texmf tree. In this package, we
+support various glyph naming schemes (not only Adobe one). If you have
+Cyrillic fonts which use different glyph names which are not supported
+here, please send AFM files or information about glyph naming schemes,
+so that those fonts will also be supported for using with
+fontinst/cyrfinst.  Please send additional glyph naming schemes used
+in various Cyrillic fonts (type1, type3, truetype) to add into this
+file.
+
+To use fontinst with Cyrillic, put the following lines in the
+beginning of the fontinst job:
+
+\input fontinst.sty
+\input fnstcorr
+\input cyralias
+
+Then for all non-adobe fonts (with non-standard glyph names, or
+speaking more strictly, for all fonts that require non-empty glyph
+name prefix shown below) write:
+
+\aliasfonts{prefix1-}{prefix2}{font1,font2,%
+font3,...,fontN}
+
+where "prefix1-" is a glyph name prefix defined in cyralias.tex; and
+"prefix2" is a font name prefix (it may well be empty; it was only
+made for space economy), so that font names are constructed by
+concatenation of "prefix2" and "font*". This will generate mtx and pl
+files for all specified fonts with T2 glyph names.
+
+Warning: the command \fromafm regenerates mtx file, so do not use this
+command for fonts which require non-empty "prefix1-", --- use \frommtx
+instead (or ensure to set \charnameprefix accordingly), or \fromany
+in recent versions of fontinst.
+
+The idea behind glyph aliasing is that standard T2 cyrillic glyph
+names could be used everywhere (cyrillic.mtx, *.etx, your local mtx
+files, etc), and one file serves all possible non-standard glyph
+names! We also consider this glyph aliasing mechanism as an important
+way to correct glyph naming bugs in certain fonts.
+
+Note also, that one should process fontinst cyrillic files with LaTeX
+(not Plain TeX).
+
+You can get nicely formatted sources of *.etx and *.mtx files by
+processing them with LaTeX. E.g., "latex t2a.etx" will generate
+"t2a.dvi" which documents the T2A encoding vector.

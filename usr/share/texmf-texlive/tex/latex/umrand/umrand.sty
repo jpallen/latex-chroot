@@ -1,0 +1,168 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The TeX-macros of the border-project %
+% This file has version number 1.2a.   %
+% 16.07.1993                           %
+% (c) by Andreas Schrell, Wuppertal    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newskip\Randsep
+\Randsep=3pt
+
+\newif\ifnotempty
+\def\ifne#1{\def\ifnetest{#1}\ifx\empty\ifnetest\notemptyfalse\else
+    \notemptytrue\fi\ifnotempty}
+
+\def\hScanDef #1 #2 #3 (#4[#5]#6) {%
+    \setbox#1\hbox{\SEP#4\ifne{#4}\SEP\fi}%
+    \setbox#2\hbox{#5\SEP}%
+    \ifdim\wd#2>0pt\else
+        \errhelp{If you proceed now, you will enter an infinite loop...}%
+        \errmessage{A sequence [#5] given to \string\RandBox\space
+                    has a width <= 0pt (\the\wd#2). 
+					Type x or e!}%
+    \fi
+    \setbox#3\hbox{#6\ifne{#6}\SEP\fi}%
+    \MyNext}
+
+\def\vScanDef #1 #2 #3 (#4[#5]#6) {%
+    \setbox#1\hbox{\vbox{\halign{##\cr#4\cr}\ifne{#4}\SEP\fi}}%
+    \setbox#2\hbox{\vbox{\halign{##\cr#5\cr}\SEP}}%
+    \ifdim\ht#2>0pt\else
+        \ifdim\dp#2>0pt\else
+        \errhelp{If you proceed now, you will enter an infinite loop...}%
+        \errmessage{A sequence [#5] given to \string\RandBox\space
+                    has a height/depth <= 0pt (\the\ht#2.\the\dp#2). 
+					Type x or e!}%
+    \fi\fi
+    \setbox#3\hbox{\vbox{%
+        \halign{##\cr#6\cr}\ifne{#6}\SEP\fi}}%
+    \MyNext}
+    
+\def\RandBox #1 font #2 [#3] (#4) {\leavevmode\hbox\bgroup
+    \ifdim#3<0pt
+      \def\K{{#2\kern-#3\kern\Randsep\relax}}%
+    \else
+      \def\K{{#2\kern\Randsep\relax}}%
+    \fi
+    \setbox20\hbox{\vbox{\K\hbox{\K{#1}\K}\K}}%
+    \topskip=0pt
+    \offinterlineskip
+    #2%
+    \def\ISEP{#3}%
+    \def\SEP{\kern\ISEP}%
+    \setbox0\hbox{#4}%
+    \let\MyNext\RBA
+    \def\\{\SEP}%
+    \hScanDef 4 5 6 }
+\def\RBA (#1) {\setbox7\hbox{#1}%
+    \let\MyNext\RBB
+    \def\\{\cr\noalign{\SEP}}%
+    \vScanDef 8 9 10 }
+\def\RBB {%
+    \let\MyNext\RBC
+    \def\\{\cr\noalign{\vskip\ISEP}}%
+    \vScanDef 11 12 13 }
+\def\RBC (#1) {\setbox14\hbox{#1}%
+    \let\MyNext\RBD
+    \def\\{\SEP}%
+    \hScanDef 15 16 17 }
+\def\RBD (#1){\setbox18\hbox{#1}%
+    % 4 5 6
+    \dimen0=\wd20
+    \advance\dimen0 by -\wd6
+    \setbox21\hbox{\unhbox4}%
+    \def\done{0}%
+    \loop
+        \ifdim\wd21<\dimen0
+        \setbox21\hbox{\unhbox21\copy5}%
+        \def\done{1}%
+    \repeat
+    \setbox21\hbox{\unhbox21%\if\done0\kern-\ISEP\fi
+                    \copy6}%
+    % 15 16 17
+    \dimen0=\wd20
+    \advance\dimen0 by -\wd17
+    \setbox22\hbox{\unhbox15}%
+    \def\done{0}%
+    \loop
+        \ifdim\wd22<\dimen0
+        \setbox22\hbox{\unhbox22\copy16}%
+        \def\done{1}%
+    \repeat
+    \setbox22\hbox{\unhbox22%\if\done0\kern-\ISEP\fi
+                    \copy17}%
+    % 8 9 10
+    \dimen0=\ht20 \advance\dimen0 by \dp20
+    \advance\dimen0 by -\ht10
+    \advance\dimen0 by -\dp10
+    \setbox23\vbox{\copy8}%
+    \def\done{0}%
+    \loop
+        \dimen1\ht23 \advance\dimen1 by \dp23
+        \ifdim\dimen1<\dimen0
+        \setbox23\vbox{\unvbox23\copy9}%
+        \def\done{1}%
+    \repeat
+    \setbox23\vbox{\unvbox23%\if\done0\kern-\ISEP\fi
+                    \copy10}%
+    % 11 12 13
+    \dimen0=\ht20 \advance\dimen0 by \dp20
+    \advance\dimen0 by -\ht13
+    \advance\dimen0 by -\dp13
+    \setbox24\vbox{\copy11}%
+    \def\done{0}%
+    \loop
+        \dimen1\ht24 \advance\dimen1 by \dp24
+        \ifdim\dimen1<\dimen0
+        \setbox24\vbox{\unvbox24\copy12}%
+        \def\done{1}%
+    \repeat
+    \setbox24\vbox{\unvbox24%\if\done0\kern-\ISEP\fi
+                    \copy13}%
+    %
+    \dimen0=\ht23 \advance\dimen0 by \dp23
+    \advance\dimen0 by \ISEP
+    \dimen1=\wd21
+    \advance\dimen1 by \ISEP
+    \hbox{$\vcenter{\copy0\SEP\copy23\copy14}%
+          \vcenter{\copy21
+                \hbox to \wd21{\hss
+                    \vbox to \dimen0{\vss\copy20\vss}%
+                \hss}%
+                \copy22}%
+          \vcenter{\copy7\SEP\copy24\copy18}$}\egroup}
+        
+\def\EinfachRand #1 font #2 char #3 [#4] {%
+    \RandBox {#1} font {#2} [#4]
+             (#3) ([#3]) (#3)
+             ([#3]) ([#3])
+             (#3) ([#3]) (#3) }
+			 
+\def\countpluseins#1#2{\count#1=\count#2
+	\advance\count#1 by 1}
+\def\LinienBox #1 font #2 ecken #3 linien #4 {
+    {\count100='#3 \count200='#4 % oktal!!!
+	 \countpluseins{101}{100}
+	 \countpluseins{102}{101}
+	 \countpluseins{103}{102}
+	 \countpluseins{201}{200}
+	 \countpluseins{202}{201}
+	 \countpluseins{203}{202}
+	 \def\e##1{\char\the\count10##1}
+	 \def\l##1{\char\the\count20##1}
+     \RandBox {#1} font {#2} [0pt]
+         (\e1) ([\l1]) (\e0)
+         ([\l2]) ([\l0])
+         (\e2) ([\l3]) (\e3) }}
+
+\def\C{\char'}
+
+\def\MeanderBox #1 at #2 {%
+	{\font\MeanderFont=umranda at #2
+	\RandBox {#1} font {\MeanderFont} [0pt]
+	     (\C136) ([\C137]) (\C140)
+         ([\C145])         ([\C141])
+         (\C144) ([\C143]) (\C142) }}
+
+
+\endinput

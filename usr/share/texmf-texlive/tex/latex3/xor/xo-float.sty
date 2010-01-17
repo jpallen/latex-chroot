@@ -1,0 +1,339 @@
+%%
+%% This is file `xo-float.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xo-float.dtx  (with options: `package,progress')
+%% 
+%% Not for distribution
+%% 
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%% 
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+
+\def\@tempa#1: #2.dtx,v #3 #4 #5 #6 #7${
+  \ProvidesPackage{#2}[#4 #3 #5 #6]}
+\@tempa$Id: xo-float.dtx,v 1.32 2000/08/11 07:14:11 latex3 Exp $
+\IgnoreWhiteSpace
+\def\@xfloat #1[#2]{%
+  \@nodocument
+  \def \@fps {#2}
+  \def \float@type {#1}
+  \expandafter \let \expandafter
+      \float@sequence@class \csname sequence@class@#1 \endcsname
+  \expandafter \let \expandafter
+      \float@counter \csname counter@#1 \endcsname
+  \refstepcounter\float@counter
+   \ifhmode
+     \@bsphack
+   \fi
+  \ifinner
+     \@parmoderr\@floatpenalty\z@
+  \else
+    \@allocating@next\@currbox\@freelist
+      {
+      \global\advance\float@sequence@count\@ne
+      \expandafter\PutMark\expandafter\float@sequence@class\expandafter{
+            \the\float@sequence@count}
+      \global\toks\@currbox{}
+      }
+  \fi
+  \global\let\@saved@label\@empty
+  \global \setbox\@currbox
+      \hbox \bgroup\color@begingroup
+       \normalcolor
+       \normalfont
+       \normalsize
+       \csname body@\float@type \endcsname
+       \ignorespaces}
+\def \@endfloatbox{%
+  \unskip
+      \outer@nobreak
+  \color@endgroup
+   \egroup
+       \edef\@tempa{
+       \global\toks\@currbox{
+         {\the\toks\@currbox}{\SPANCNT}
+         {\@saved@label}
+         {\csname the\float@counter \endcsname}
+         {\@fps}
+         {\float@type}
+         {\the\float@sequence@count}
+       }}
+      \@tempa
+   \def\@tempa{h}
+   \ifx\@fps\@tempa
+     \setup@here@float
+   \else
+     \@cons\@activelist\@currbox
+   \fi
+}
+
+\def\SPANCNT{} %%% do properly one day: David
+
+\newcount\float@sequence@count
+\def\label#1{\@bsphack
+  \gdef\@saved@label{#1}
+  \protected@write\@auxout{}%
+         {\string\newlabel{#1}{{\@currentlabel}{\thepage}}}%
+  \@esphack}
+\def\DeclareFloatType#1#2{
+ \DeclareInstance{floattypesetup}{#1}{std}
+   { type-id = #1,  #2 }
+ \UseInstance{floattypesetup}{#1}
+}
+\DeclareTemplateType{floattypesetup}{0}
+
+\DeclareTemplate{floattypesetup}{std}{0}{
+   type-id            =n  \floattypesetup@id,
+   sequence-class-id  =n  \floattypesetup@class@id,
+   toc-extension      =n  \floattypesetup@toc@ext,
+   default-area-list  =n  \floattypesetup@area@list,
+   caption-text       =n  \floattypesetup@caption@text,
+   numbered-boolean   =b  @test,
+   numbered-id        =n  \floattypesetup@numbered@id,
+   numbered-within-id =n  \floattypesetup@numbered@within@id,
+   numbered-action    =f0 \floattypesetup@numbered@action,
+   body-decls         =f0 \floattypesetup@body@decls,
+
+ }
+ {
+  \let\floattypesetup@class@id\relax
+  \let\floattypesetup@numbered@id\relax
+  \let\floattypesetup@numbered@action\relax
+  \let\floattypesetup@body@decls\relax
+  \@testtrue % number by default
+  \def\floattypesetup@area@list{\known@areas}
+  \let\floattypesetup@caption@text\@empty
+  \let\floattypesetup@numbered@within@id\@empty
+  \def\floattypesetup@toc@ext{toc}  % everything in here by default
+  \DoParameterAssignments
+  \ifx\floattypesetup@class@id\relax
+    \let\floattypesetup@class@id\floattypesetup@id
+  \fi
+  \if@test
+    \ifx\floattypesetup@numbered@id\relax
+      \let\floattypesetup@numbered@id\floattypesetup@id
+    \fi
+    \expandafter\ifx\csname c@\floattypesetup@numbered@id \endcsname
+                    \relax
+      \ifx\floattypesetup@numbered@within@id\@empty
+        \newcounter\floattypesetup@numbered@id
+      \else
+        \newcounter\floattypesetup@numbered@id
+                   [\floattypesetup@numbered@within@id]
+      \fi
+      \ifx\floattypesetup@numbered@action\relax
+      \else
+        \global\expandafter\let
+            \csname the\floattypesetup@numbered@id \endcsname
+            \floattypesetup@numbered@action
+      \fi
+    \fi
+  \fi
+  \expandafter
+  \xdef\csname \floattypesetup@id \endcsname
+        {\noexpand\@float{\floattypesetup@id}}
+  \global\expandafter \let \csname end\floattypesetup@id \endcsname
+        \end@float
+  \global\expandafter\let
+     \csname sequence@class@\floattypesetup@id \endcsname
+     \floattypesetup@class@id
+  \global\expandafter\let
+     \csname toc@extension@\floattypesetup@id \endcsname
+     \floattypesetup@toc@ext
+  \global\expandafter\let
+     \csname fps@\floattypesetup@id \endcsname
+     \floattypesetup@area@list
+  \global\expandafter\let
+     \csname caption@\floattypesetup@id \endcsname
+     \floattypesetup@caption@text
+  \global\expandafter\let
+     \csname counter@\floattypesetup@id \endcsname
+     \floattypesetup@numbered@id
+  \global\expandafter\let
+     \csname body@\floattypesetup@id \endcsname
+     \floattypesetup@body@decls
+ }
+\def\DeclareFloatSequenceClass#1{
+  \@ifundefined{mark@#1}
+    {
+     \DeclareMarkType{#1}
+     \@cons\float@classes@list{{#1}}
+    }
+    \ErrorAlreadyDefined
+}
+\let\float@classes@list\@empty
+\expandafter\ifx\csname c@figure \endcsname \relax
+\else
+  \let\c@figure\relax % thus new counter will be defined
+  \let\c@table \relax
+\fi
+\let\perhaps@write@placements@to@fpl@file\relax
+\let\perhaps@write@to@fpl@file\@gobble
+\let\perhaps@write@to@fpl@file\@gobble
+\def\perhaps@write@placements@to@fpl@file@aux#1#2#3#4#5#6#7{
+  \@spaces\@spaces Float:~#7~(#6~#4)~[#3]^^J}
+\def\savefloatplacements{
+  \newwrite\fpl@file
+  \immediate\openout\fpl@file\jobname.fpl
+  \def\perhaps@write@to@fpl@file{
+     \immediate\write\fpl@file
+     }
+  \def\perhaps@write@placements@to@fpl@file{
+    \def\@elt{\expandafter
+              \perhaps@write@placements@to@fpl@file@aux\the\toks}
+    \perhaps@write@to@fpl@file{
+     ^^JPage:~\the\absolute@page@number\space (\the\c@page)^^J
+       \expandafter\@write@areas\used@areas\relax\relax\relax
+    }
+    \let\@elt\relax}}
+\def\@write@areas#1#2#3{
+    \ifx\relax#1
+    \else
+       \expandafter\ifx\csname area@#1#2#3\endcsname\@empty
+       \else
+         \@spaces Area:~#1#2#3^^J\csname area@#1#2#3\endcsname
+       \fi
+       \expandafter\@write@areas
+    \fi}
+\def\@write@areas#1#2#3{
+    \ifx\relax#1
+    \else
+       \@spaces Area:~#1#2#3^^J\csname area@#1#2#3\endcsname
+       \expandafter\@write@areas
+    \fi}
+\def\readfloatplacements{
+  \newread\fpc@file
+  \openin\fpc@file\jobname.fpc\relax
+  \ifeof\fpc@file
+    \PackageWarningNoLine{xo}
+        {No~\jobname.fpc:~using~automatic~float~placement}
+  \else
+    \let\get@fpc@page@data\get@fpc@page@data@fpc
+    \get@fpc@page@data
+    \let\try@float@pages\relax
+    \let\float@placement@loop\fpc@float@placement@loop
+  \fi
+}
+\def\fpc@float@placement@loop{
+  \get@fpc@page@data
+  \global\let\best@trial\relax
+  \mark@restore@state{
+    \unvcopy\@holdpg
+    \setup@best@column@or
+   }
+}
+\let\next@fpc@page\m@ne
+\let\get@fpc@page@data\relax
+\def\get@fpc@page@data@fpc{
+  \let\@nextfpc\relax
+  \ifnum\next@fpc@page>\absolute@page@number
+  \else
+    \ifeof\fpc@file
+      \global\let\next@fpc@page\maxdimen
+    \else
+      \begingroup
+      \endlinechar`\ %
+      \catcode`\ 10\relax
+      \global\read\fpc@file~to~\@gtempa
+      \endgroup
+      \let\@nextfpc\get@fpc@page@data
+      \ifx\@gtempa\@empty
+      \else
+        \expandafter\parse@fpc\@gtempa\relax
+      \fi
+    \fi
+  \fi
+  \@nextfpc
+}
+\def\parse@fpc#1#2~#3~#4\relax{
+  \ifx P#1
+  \global\mathchardef\next@fpc@page#3\relax
+  \let\@nextfpc\relax
+  \else\ifx A#1
+    \setup@this@area{#3}
+    \let\@nextfpc\get@fpc@page@data
+  \else\ifx F#1
+    \ifx\this@area\fpc@here
+    \else
+      \begingroup
+        \count@#3\relax
+        \global\let\this@float@box\relax
+        \let\@elt\extract@float@by@number
+        \@activelist
+      \endgroup
+      \ifx\this@float@box\relax
+        \edef\fpc@list{\fpc@list#3,\this@area\relax}
+        \show\fpc@list
+      \else
+        \ifnum \this@area@span@number <
+            \if!\this@span@number! 1\else  % big hack
+                                   \this@span@number \fi
+             \relax
+          \PackageError{xo}
+             {Float~ bigger~ than~ target~ area}
+             {Float~\this@sequence@number\space spans ~
+              \this@span@number\space columns,~
+              but~ target~ area~ \this@area\space
+              spans~ only~ \this@area@span@number\space
+              columns.\MessageBreak
+              Correct~ the~ data~ in~ file~ \jobname.fpc!
+             }
+        \fi
+        \xin@\this@area
+             \used@areas
+        \ifin@\else
+          \PackageError{xo}
+             {Target~ area~ not~ available~ on~ current~ page}
+             {Float~ \this@sequence@number\space was~ requested~ to~
+              be~ placed~ into~ area~ \this@area,\MessageBreak
+              but~ this~
+              area~ is~ not~ available~ on~ page~ \thepage.
+              \MessageBreak
+              Correct~ the~ data~ in~ file~ \jobname.fpc!
+             }
+          \ifx\used@areas\@empty % we have a problem
+            \RESOLVE
+          \else
+            \setup@this@area{\expandafter\@carcube\used@areas\@nil}
+          \fi
+        \fi
+        \append@caption@to@float
+        \construct@and@test@col@hts
+        \if@test
+           \ERRORFloatAreaToLarge
+        \fi
+        \let\@elt\relax
+        \xdef\@freelist{\@freelist\@elt\this@float@box}
+        \expandafter\@cons\csname area@\this@area\expandafter\endcsname
+          \this@float@box
+      \fi
+    \fi
+    \let\@nextfpc\get@fpc@page@data
+  \fi\fi\fi
+}
+\def\fpc@here{hhh}
+
+\def\fpc@list{\relax}
+\def\get@float@number#1#2#3#4#5#6#7{#7}
+\def\extract@float@by@number#1{
+  \ifnum\expandafter\get@float@number\the\toks#1=\count@
+    \def\@currbox{#1}
+    \expandafter\update@this@float@structure\the\toks#1
+  \fi}
+\endinput
+%%
+%% End of file `xo-float.sty'.

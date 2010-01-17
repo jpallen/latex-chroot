@@ -1,0 +1,167 @@
+% MACROS PSIZZL - macros for use with Psizzl
+%
+% begin rewrite of PLAIN macros
+% end rewrite of PLAIN macros
+\hyphenation{mac-ro}%
+\catcode`\@=11
+\chardef\l@tter=11
+\chardef\@oline=5
+\chardef\@ther=12
+\chardef\c@ntrol=00
+%  unlock macro names with @ key
+\def\unlock{\catcode`\@=\l@tter}% @ character can be used in macro names
+%  lock up the macros
+\def\lock{\catcode`\@=\@ther}% macros using this character are now locked
+%
+\def\c@tAactive{\catcode`\&=\active}%
+\def\c@tAalign{\catcode`\&=4}{\c@tAalign\gdef\h@tAalign{&}}%
+{\c@tAactive\gdef\l@tAalign{\let&\h@tAalign}}%
+\def\c@tAset{\c@tAactive\ifnum\c@tAactive\l@tAalign\fi}%
+%
+\def\c@tMother{\catcode`\^^M=\@ther}%
+\def\c@tMeoline{\catcode`\^^M=\@oline}%
+\def\c@tMactive{\catcode`\^^M=\active}%
+{\c@tMactive%
+   \gdef\l@tMother{\let ^^M=\h@tMother}%
+   \gdef\l@tMspace{\let ^^M=\space}%
+   \gdef\h@tMactive{^^M}%
+   }%
+{\c@tMother\gdef\h@tMother{^^M}}%
+\newlinechar`\^^M
+%
+\def\c@tVset{\ifnum\catcode`|=\active\l@tVother\fi}%
+\def\c@tVcontrol{\catcode`|=\c@ntrol}%
+\def\c@tVactive{\catcode`|=\active}%
+\def\c@tVother{\catcode`|=\@ther}%
+{\c@tVother\gdef\h@tVother{|}}%
+{\c@tVactive\gdef\l@tVother{\let|\h@tVother}\gdef\l@tVzero{\let|=0}}%
+%
+{\catcode`\%=\@ther\gdef\percent{%}}%
+\def\c@tBother{\catcode`\\=\@ther}%
+\def\c@tBactive{\catcode`\\=\active}%
+\def\c@tBcontrol{\catcode`\\=\c@ntrol}%
+\def\c@tLQactive{\catcode`\`=\active}%
+\def\c@tCactive{\catcode`\^=\active}%
+{\c@tCactive\gdef\l@tCzero{\let^=0}}%
+{% \outer plaintex macros not to be recognized during a \write
+   \let\settabs=0\let\+=0\let\beginsection=0\let\proclaim=0\let\bye=0%
+   \gdef\l@tplain{% all \outer and all that use \ifmmode
+      \let\settabs=0\let\+=0\let\beginsection=0\let\proclaim=0\let\bye=0%
+      \let~=0\let\footnote0%
+      \let\strut0\let\dots0\let\ph@nt0\let\smash0%
+      }%
+   }%
+\def\l@twrite{\l@tplain\let\underscore=0}%
+%
+\def\Psizzl{%
+   P%
+   \kern-.30em\lower.70ex\hbox{s}%
+   \kern-.08em\lower.0 ex\hbox{i}%
+   \kern-.05em\lower.0 ex\hbox{z}%
+   \kern-.17em\lower.5 ex\hbox{z}%
+   \kern-.09em\lower.2 ex\hbox{l}%
+   }%
+\def\fmtreset{}\def\fmtuser{my\fmtname\relax}%
+\def\fmtjob{%
+   \CMS{CP SMSG GJMSINK PSIZZLLL \fmtversion\space\jobname}%
+   \message{This is \fmtname, Version \fmtversion}%
+   \fmtreset
+   \input\fmtuser
+   }%
+\everyjob={\fmtjob}%
+%
+% cute and otherwise desirable-to-have macros
+%
+\newif\iftemp % scratch if macro
+\newcount\tempcount% scratch count register
+\def\diagnostics{%
+   %\tracingonline\@ne
+   \tracingcommands\tw@\tracingstats\tw@
+   \tracingpages\@ne
+   %\tracingoutput\@ne\tracinglostchars\@ne
+   \tracingmacros\@ne\tracingparagraphs\@ne
+   %\tracingrestores\@ne
+   %\showboxbreadth\maxdimen\showboxdepth\maxdimen
+   %\errorstopmode
+   }%
+\def\adddef#1#2{%
+   \toks\z@=\expandafter{#1}\toks\@ne={#2}%
+   \xdef#1{\the\toks\z@\the\toks\@ne}%
+   }%
+\def\logit#1{\immediate\write-1{\meaning#1}}%
+%
+\def\endp@ge{\par \vfill \eject}%
+\def\endle@f{\endp@ge\ifodd\pageno\else\hrule height\z@\endp@ge\fi}%
+\let\endpage\endp@ge\let\endleaf\endp@ge
+%
+\def\underscore#1{$\underline{\smash{\hbox{#1}}}$}%
+%
+\def\leaderfil{\leaders\hbox to 2em{\hss.\hss}\hfil}%
+%
+\def\centertitle#1{\par\noindent\hfil #1\hfil\par}% center text
+%
+\def\breaktitle{\hfil\par\noindent\hfil}% break text
+%
+\def\d@te{\the\day\tie\monthword\tie\the\year}%
+\def\monthdayyear{% alternate date format
+   \gdef\d@te{\monthword\tie\the\day,\tie\the\year}%
+   }%
+\def\date#1{\gdef\d@te{#1}}%
+\def\thedate{\d@te}%
+\chardef\vx@=60\newcount\hour\newcount\minute
+\def\fildec#1{\ifnum#1<10 0\fi\the#1}%
+\def\thetime{% \thetime -> 09:36 e.g.: `This job was run at \thetime.'
+   \hour\time\divide\hour\vx@
+   \minute-\hour\multiply\minute\vx@\advance\minute\time
+   \fildec\hour:\fildec\minute
+   }%
+\def\bumpcount#1{%
+   \ifnum#1<\z@\let\temp\m@ne\else\let\temp\@ne\fi
+   \global\advance#1\temp
+   }%
+\def\numorroman#1{%
+   \ifnum#1<\z@\romannumeral-#1\else\number#1\fi
+   }%
+\def\lapcomma{\llap{,}}%
+% characters and things
+%
+% macro to assist in breaking paragraphs, use in place of \par, or
+% blank line, terminating the paragraph in question.
+\def\padline#1{\line{\ #1\ }}%
+\def\thinhrule{\hrule height.4pt}%
+\def\thinvrule{\vrule width .4pt}%
+\def\loosepar{{\tolerance1000\par}}%
+\def\noraggedright{\rightskip\z@skip\spaceskip\z@skip\xspaceskip\z@skip}%
+\def\p@int{.}%
+\def\d@sh{--}%
+\def\hidenull#1{\setbox\z@=\vbox{#1}\ifdim\ht\z@=\z@\else#1\endline\fi}%
+\def\translate#1#2#3{%\translate{<Xdimen>}{<Ydimen>}{thing}
+   \vbox to\z@{\offinterlineskip
+      \kern-#2\hbox to\z@{\kern#1{#3}\hss}\vss
+      }%
+   }%
+% macros for the \CMS command: \write 15
+\chardef\fift@@n=15
+\global\chardef\CMSwrite=\fift@@n
+\wlog{\string\CMSwrite=\string\write\fift@@n}%
+\outer\def\newwrite{\alloc@7\write\chardef\fift@@n}%
+\def\CMS{\immediate\write\CMSwrite}%
+% macros to flag superseded commands
+\def\supercede#1#2{%
+   \def#1{%
+      \toks@\expandafter{\csname
+         Instead of \string#1, you should use \string#2. \go@on
+         \endcsname}%
+      \errhelp\toks@
+      \errmessage{Psizzl: \string#1 has been superseded by \string#2}#2%
+      }%
+   }%
+\def\go@on{%
+   Before you run this job again, please change your TeX source file.
+   Do `CONSPIRE CHECK TEX' to see the new command syntax.
+   This is just a warning: you may continue processing by giving a <CR>.
+   }%
+% following macros flag superseded commands
+\supercede\memotopic\memosubject
+\supercede\group\memohead
+\def\sample#1{{\let\end\relax\input #1 \endpage}\listfile{#1}}%

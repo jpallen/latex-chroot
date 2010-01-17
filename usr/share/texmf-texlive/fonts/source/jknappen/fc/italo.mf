@@ -1,0 +1,300 @@
+% This is  ITALO.MF
+% Version 1.0a 
+% Date 8-SEP-1991
+% 
+% (c) 1991 by J"org Knappen. See fc.rme for copying conditions
+% This file is part of the fc-package 
+% See fc.rme for more information
+%
+% J"org Knappen
+% Institut f"ur Kernphysik
+% Postfach 39 80
+% D-W 6500 Mainz
+% knappen@vkpmzd.kph.uni-mainz.de
+
+% Contents:
+%
+% The following characters are generated without condition:
+%
+% o
+%
+% And the following on demand, i. e. if their code is known:
+%
+% o_grave, o_acute, o_hat, o_hachek, o_tilde, o_dot, o_dotu, o_umlaut, 
+% o_bar, o_uline, oe-lig (\oe), crossed_o (\o), open_o, open_o_tilde
+%
+% Higher versions of this file might include more characters.
+
+cmchar "Italic letter o";
+beginchar("o",9u#,x_height#,0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi;
+adjust_fit(0,0); pickup fine.nib;
+pos1(vair,90); pos2(curve,180); pos3(vair,270); pos4(curve,360);
+x1=x3=.5w; lft x2r=hround(1.5u-.5curve); x4=w-x2;
+top y1r=h+oo; y2=y4=.5[y1,y3]; bot y3r=-oo;
+filldraw stroke pulled_arc.e(1,2) & pulled_arc.e(2,3)
+ & pulled_arc.e(3,4) & pulled_arc.e(4,1); % bowl
+picture savedpicture;
+savedpicture:=currentpicture;
+math_fit(-.3x_height#*slant+.5curve#-u#,ic#); penlabels(1,2,3,4); endchar;
+
+iff known o_umlaut:
+cmchar "The letter o with trema";
+beginchar(o_umlaut,9u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi;
+adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);             
+currentpicture:=savedpicture;
+pickup tiny.nib; pos1(flare,0); pos2(flare,90);
+x1=x2=good.x(.5w-1.75u); top y2r=h+1;
+if bot y2l<x_height+o+slab: y2l:=min(y2r-eps,x_height+o+slab+.5tiny); fi
+y1=.5[y2l,y2r]; dot(1,2);  % left dot
+pos3(flare,0); penpos4(y2r-y2l,90); y3=y4=y1; x3=x4=good.x(.5w+1.75u);
+dot(3,4);  % right dot
+penlabels(1,2,3,4); endchar;
+
+iff known o_tilde:
+cmchar "The letter o with tilde";
+beginchar(o_tilde,9u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi;
+adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);             
+currentpicture:=savedpicture;
+if serifs: numeric theta; theta=angle(1/6(6u-vair),1/4(h-x_height));
+ pickup crisp.nib; numeric mid_width; mid_width=.4[vair,stem];
+ pos1(vair,theta+90); pos2(vair,theta+90);
+ pos3(vair,theta+90); pos4(vair,theta+90);
+ z2-z1=z4-z3=(mid_width-crisp)*dir theta;
+ lft x1r=hround(1/5w);rt x4l=hround(4/5w); top y4r=h;
+ bot y1l=vround(bot y1l+min(2/3[x_height,h],y3l-.25vair)-top y1r);
+ pair delta; ypart delta=3(y3l-y1l); delta=whatever*dir theta;
+ filldraw z1l..controls(z1l+delta)and(z3l-delta)..z3l..z4l
+  --z4r..controls(z4r-delta)and(z2r+delta)..z2r..z1r--cycle;  % stroke
+else: pickup fine.nib; pos1(vair,180); pos2(vair,90);
+ pos3(.5[vair,slab],90); pos4(vair,90); pos5(vair,180);
+ lft x1r=hround(1/5w);rt x5l=hround(4/5w); x2-x1=x3-x2=x4-x3=x5-x4;
+ bot y1=bot y4l=vround(.75[x_height,h]-vair);
+ top y2r=top y5=h; y3=.5[y2,y4];
+ filldraw stroke z1e{up}...z2e{right}..z3e..{right}z4e...{up}z5e; fi % stroke
+penlabels(1,2,3,4,5); endchar;
+
+iff known o_grave:
+cmchar "The letter o with gravis";
+beginchar(o_grave,9u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi;
+adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);             
+currentpicture:=savedpicture;
+if serifs: pickup crisp.nib; x1=hround(.5w-2.5u+.5stem); 
+  x2=hround(.5w+5/6u);
+ y1+.5stem=h+eps; y2=max(2/3[h,x_height],x_height+o+hair);
+ numeric theta; theta=angle(z2-z1)+90;
+ pos1(stem,theta); pos2(hair,theta);
+ filldraw circ_stroke z1e--z2e;  % diagonal
+else: pickup fine.nib; pos1(stem,0); pos2(vair,0);
+ lft x1l=hround(.5w-3u); rt x2r=hround(.5w+.25u+.5vair);
+ top y1=h; bot y2=vround 2/3[h,x_height];
+ filldraw stroke z1e--z2e; fi  % diagonal
+penlabels(1,2); endchar;
+
+iff known o_acute:
+cmchar "The letter o with acute";
+beginchar(o_acute,9u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi;
+adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);             
+currentpicture:=savedpicture;
+if serifs: pickup crisp.nib; x1=hround(.5w+2.5u-.5stem); 
+  x2=hround(.5w-5/6u);
+ y1+.5stem=h+eps; y2=max(2/3[h,x_height],x_height+o+hair);
+ numeric theta; theta=angle(z2-z1)+90;
+ pos1(stem,theta); pos2(hair,theta);
+ filldraw circ_stroke z1e--z2e;  % diagonal
+else: pickup fine.nib; pos1(stem,0); pos2(vair,0);
+ rt x1r=hround(.5w+3u); lft x2l=hround(.5w-.25u-.5vair);
+ top y1=h; bot y2=vround 2/3[h,x_height];
+ filldraw stroke z1e--z2e; fi  % diagonal
+penlabels(1,2); endchar;
+
+iff known o_hat:
+cmchar "The letter o with circumflex";
+beginchar(o_hat,9u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi;
+adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);             
+currentpicture:=savedpicture;
+if serifs: 
+ pickup crisp.nib; pos2(.5[vair,curve],90); top y2r=h; x2=.5w;
+ x1=good.x(.5w-2.25u); x3=good.x(.5w+2.25u); y1=y3=.5[x_height,y2];
+ pos1(hair,angle(z2-z1)+90); pos3(hair,angle(z3-z2)+90);
+ filldraw stroke z1e--z2e--z3e;  % diagonals
+else:
+ pickup fine.nib; pos1(vair,0); pos3(vair,0);
+ pos2(stem,0); top y2=h; x2=.5w; bot y1=bot y3=vround 2/3[h,x_height]-eps;
+ rt x3r=hround(lft x2l+3.25u+.5vair);
+ lft x1l=hround(rt x2r-3.25u-.5vair); % same slope as in the acute accent
+ z0=whatever[z1r,z2r]=whatever[z2l,z3l];
+ y4l=y4r=y2; x4l=good.x .2[x2l,x2]; x4r=good.x(.2[x2r,x2]);
+ filldraw z4l--z1l--z1r--z0--z3l--z3r--z4r--cycle; fi  % diagonals
+penlabels(0,1,2,3,4); endchar;
+
+iff known o_hachek:
+cmchar "The letter o with hachek";
+beginchar(o_hachek,9u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi;
+adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);             
+currentpicture:=savedpicture;
+h':=vround min(asc_height,2x_height); % height of circumflex being inverted
+if serifs:  pickup crisp.nib; pos2'(.5[vair,curve],90); top y2'r=h;
+ pos2(.5[vair,curve],90); x2=.5w;
+ x1=good.x(.5w-2.25u); x3=good.x(.5w+2.25u);
+ top y1=top y3=h; y1-y2=.5(y2'-x_height);
+ pos1(hair,angle(z2-z1)+90); pos3(hair,angle(z3-z2)+90);
+ filldraw stroke z1e--z2e--z3e;  % diagonals
+else: 
+ pickup fine.nib; pos1(vair,0); pos3(vair,0); 
+ pos2(stem,0); bot y2=vround(1/12[x_height,h']+o); x2=.5w;
+ top y1=top y3=h+o; lft x1l=hround(rt x2r-3.25u-.5vair);
+ rt x3r=hround(lft x2l+3.25u+.5vair);
+ z0=whatever[z1r,z2r]=whatever[z2l,z3l];
+ y4l=y4r=y2; x4l=good.x(.2[x2l,x2]); x4r=good.x(.2[x2r,x2]);
+ filldraw z4l--z1l--z1r--z0--z3l--z3r--z4r--cycle; fi  % diagonals
+penlabels(0,1,2,3,4); endchar;
+
+iff known o_dot:
+cmchar "The letter o with dot";
+beginchar(o_dot,9u#,min(asc_height#,10/7x_height#+.5flare#),0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi;
+adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);             
+currentpicture:=savedpicture;
+pickup tiny.nib;
+pos88(flare,0); pos99(flare,90);
+x88=x99=good.x(.5w); top y99r=h+1;
+if bot y99l-x_height+oo<slab: y99l:=min(y99r-eps,x_height+oo+tiny+slab);fi
+y88=.5[y99l,y99r]; dot(88,99);  % dot
+penlabels(88,99);endchar;    
+
+iff known o_bar:
+cmchar "The letter o with macron";
+beginchar(o_bar,9u#, .75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi;
+adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);             
+currentpicture:=savedpicture;
+numeric macron_breadth; macron_breadth:=Vround .2[vair,stem];
+pickup if serifs: crisp.nib else: fine.nib fi;
+pos91(macron_breadth,90); pos92(macron_breadth,90);
+top y91r=top y92r=h+o; lft x91=w-rt x92=hround 1.25u;
+filldraw stroke z91e--z92e;  % bar
+penlabels(91,92); endchar;
+
+iff known o_dotu:
+cmchar "The letter o with dot below";
+beginchar(o_dotu,9u#,x_height#,0.875desc_depth#);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi;
+adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);
+currentpicture:=savedpicture;
+pickup tiny.nib;
+pos88(flare,0); pos99(flare,90);
+x88=x99=good.x(.5w); bot y99l=-d-1; 
+if top y99r+oo>-slab: y99r:=max(y99l+eps,-oo-tiny-slab); fi
+y88=.5[y99r,y99l];
+dot(88,99); 
+penlabels(88,99); endchar;
+
+iff known o_uline:
+cmchar "The letter o with bar below";
+beginchar(o_uline,9u#,x_height#,0.875desc_depth#);
+italcorr .7x_height#*slant+.5curve#-u# if math_fitting:-.5u# fi;
+adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);
+currentpicture:=savedpicture;
+numeric macron_breadth; macron_breadth:=Vround .2[vair,stem];
+pickup if serifs: crisp.nib else: fine.nib fi;
+pos91(macron_breadth,90); pos92(macron_breadth,90);
+bot y91l=bot y92l=-d-o; lft x91=w-rt x92=hround 1.25u;
+filldraw stroke z91e--z92e;  % bar
+penlabels(91,92); endchar;
+              
+savedpicture:=nullpicture;
+
+iff known open_o:
+cmchar "Italic letter open o"; % from cm (c)
+beginchar(open_o,8u#,x_height#,0);
+italcorr if math_fitting:1/3x_height#*slant else:x_height#*slant-u# fi;
+adjust_fit(0,0); pickup fine.nib;
+pos0(flare,0); pos1(hair,0); pos2(vair,90);
+pos3(curve,180); pos4(vair,270); pos5(hair,320);
+x2=x4=.5(w+u); rt x1r=max(rt x2,hround(w-u))+eps;
+lft x3r=hround(1.5u-.5curve); x5r=good.x(w-eps); x6=x5;
+y1=.5[bar_height,h]; top y2r=h+oo; bulb(2,1,0);  % bulb
+bot y4r=-oo; y3=.5[y2,y4]; top y5l=vround .5bar_height; y6=bar_height;
+path p; p=z4{right}..z5..z6;
+filldraw stroke pulled_arc.e(2,3)
+ & pulled_arc.e(3,4)...{direction 1 of p}z5e;  % arc
+x10=.5w; y10=.5h; % center point
+flip(10);         % and flip
+picture savedpicture;
+savedpicture:=currentpicture;
+math_fit(-.3x_height#*slant+.5curve#-u#,ic#);
+penlabels(0,1,2,3,4,5,6); endchar;
+
+iff known open_o_tilde:
+cmchar "The letter open o with tilde";
+beginchar(open_o_tilde,8u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr x_height#*slant-u#;
+adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);
+currentpicture:=savedpicture;
+if serifs: numeric theta; theta=angle(1/6(6u-vair),1/4(h-x_height));
+ pickup crisp.nib; numeric mid_width; mid_width=.4[vair,stem];
+ pos1(vair,theta+90); pos2(vair,theta+90);
+ pos3(vair,theta+90); pos4(vair,theta+90);
+ z2-z1=z4-z3=(mid_width-crisp)*dir theta;
+ lft x1r=w-x4l=hround 1.6u; top y4r=h;
+ bot y1l=vround(bot y1l+min(2/3[x_height,h],y3l-.25vair)-top y1r);
+ pair delta; ypart delta=3(y3l-y1l); delta=whatever*dir theta;
+ filldraw z1l..controls(z1l+delta)and(z3l-delta)..z3l..z4l
+  --z4r..controls(z4r-delta)and(z2r+delta)..z2r..z1r--cycle;  % stroke
+else: pickup fine.nib; pos1(vair,180); pos2(vair,90);
+ pos3(.5[vair,slab],90); pos4(vair,90); pos5(vair,180);
+ lft x1r=w-rt x5l=hround u; x2-x1=x3-x2=x4-x3=x5-x4;
+ bot y1=bot y4l=vround(.75[x_height,h]-vair);
+ top y2r=top y5=h; y3=.5[y2,y4];
+ filldraw stroke z1e{up}...z2e{right}..z3e..{right}z4e...{up}z5e; fi % stroke
+penlabels(1,2,3,4,5); endchar;
+
+savedpicture:=nullpicture;
+                   
+iff known oe_lig:
+cmchar "Italic ligature oe";
+beginchar(oe_lig,13u#,x_height#,0);
+italcorr max(1/3x_height#*slant,x_height#*slant+.5(.2[hair#,stem#])-u#);
+adjust_fit(if monospace:-u#,-u# else: 0,0 fi); pickup fine.nib;
+forsuffixes $=hair,stem: shaved$:=mfudged$; save $; $=shaved$; endfor
+numeric heavy_hair; heavy_hair=hround .2[hair,stem];
+pos0(vair,-90); pos1(heavy_hair,0); pos2(vair,90);
+pos3(stem,180); pos4(vair,270); pos5(hair,320);
+x0=rt x3l; rt x1r=hround(w-1.5u+.5heavy_hair); x2=x4=.5(w+6u);
+lft x3r=hround(.5w-.5stem); x5r=good.x(w-.5u); x6=x5;
+y0=y3=y6=bar_height; y1=.5[y0,y2]; top y2r=h+oo; bot y4r=-oo;
+top y5l=vround(.5bar_height+.5); path p; p=z4{right}..z5..z6;
+filldraw stroke z0e{right}...z1e{up}...pulled_arc.e(2,3)
+ & pulled_arc.e(3,4)...{direction 1 of p}z5e;  % arc of e
+pos11(vair,90); pos12(curve,180); pos13(vair,270); pos14(stem,360);
+x11=x13=.5[x12,x14]; lft x12r=hround(1.5u-.5curve); x14=x3;
+top y11=h+oo; y12=y14=.5[y11,y13]; bot y13=-oo;
+filldraw stroke pulled_arc.e(11,12) & pulled_arc.e(12,13)
+ & pulled_arc.e(13,14) & pulled_arc.e(14,11); % bowl
+penlabels(0,1,2,3,4,5,6); endchar;
+
+iff known crossed_o:
+cmchar "Italic Scandinavian letter o/slash";
+beginchar(crossed_o,9u#,x_height#+.5desc_depth#,.5desc_depth#);
+italcorr h#*slant-u#+.5vair#;
+adjust_fit(0,0); pickup fine.nib;
+pos1(vair,90); pos2(fudged.stem,180);
+pos3(vair,270); pos4(fudged.stem,360);
+x1=x3=.5w; lft x2r=hround(1.5u-.5fudged.stem); x4=w-x2;
+top y1=x_height+oo; y2=y4=.5[y1,y3]; bot y3=-oo;
+filldraw stroke pulled_arc.e(1,2) & pulled_arc.e(2,3)
+ & pulled_arc.e(3,4) & pulled_arc.e(4,1); % bowl
+x5=x4; x6=x2; y5=h; y6=-d;
+numeric theta; theta=angle(z5-z6)-90;
+pickup crisp.nib; pos5(vair,theta); pos6(vair,theta);
+filldraw stroke z5e--z6e;  % diagonal
+penlabels(1,2,3,4,5,6); endchar;
+
+endinput;

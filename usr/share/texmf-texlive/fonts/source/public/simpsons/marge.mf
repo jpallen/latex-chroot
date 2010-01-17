@@ -1,0 +1,136 @@
+% marge.mf by Raymond Chen (rjc@math.princeton.edu) 
+ 
+% Marge Simpson. 
+ 
+pictureof(Marge, 22u#, 40u#, 0); 
+    pickup thinpen; 
+ 
+    localpath eye_left, eye_right; 
+    eye_right = superellipse( (15.5u, 11.5u), (13.5u, 13.5u), (11.2u, 11.3u), 
+                (13.5u, 9.5u), .7); 
+    draw eye_right; 
+    localpath nose; 
+    nose = preclip((15u, 10.5u).. 
+                   (16.3u,10.1u) .. 
+                   (18  u,10  u){right} .. 
+                   (18.8u, 9.5u){down} ... 
+          {-dir 30}(17  u, 8  u), eye_right); 
+    draw nose; 
+ 
+    localpath dimple; 
+        z1d = (12.5u, 7.4u); 
+        z2d = (11.8u, 6.8u); 
+    dimple = z1d{(z2d-z1d) rotated  dimple_depth}.. 
+                {(z2d-z1d) rotated -dimple_depth}z2d; 
+    draw dimple; 
+    labels(1d, 2d); 
+ 
+    localpath mouth; 
+    mouth = prepostclip( 
+           (17u, 8.8u).. tension infinity and 3.. 
+           (19.6u, 7.5u) .. 
+           (17u, 6.5u){left} .. 
+           (14u, 7u) .. 
+           (12u, 7.1u), nose, dimple); 
+    draw mouth; 
+ 
+    eye_left = prepostclip( 
+                (17u, 9.7u){right}.. 
+                (19u, 12u){up}.. 
+                (17u, 13.6u){left}.. 
+                {down}(14.7u, 11u), nose, eye_right); 
+    draw eye_left; 
+ 
+    localpath ear; 
+    ear = (9.5u, 9.6u) .. (8.1u, 8.3u) ..(10u, 6.9u); 
+    draw ear; 
+ 
+    drawtau( (8.7u, 8.5u), (9.7u, 8.9u), (9.3u, 7.7u), (9.3u, 9.0u) ); 
+ 
+    % chin 
+    draw preclip( 
+        (16.3u, 6.5u){down} .. 
+        (16u, 6u){-dir30} .. 
+        (15u, 4u){down} .. 
+        (16.5u, 0u), 
+        mouth); 
+ 
+    % back of neck 
+    localpath neck; 
+    neck = preclip( 
+        (9u, 7u){down} .. %tension .9 and 3 .. 
+        {-(1,1.5)}(7.2u, 0u), ear); 
+    draw neck; 
+ 
+    if pearl > 0: 
+    pickup lacepen; 
+    overdraw fullcircle scaled .9pearl shifted (8.7u, 3u); % far left 
+    overdraw fullcircle scaled .95pearl shifted (15u, 2u); % far right 
+    overdraw fullcircle scaled .95pearl shifted (10.1u, 2.2u); % left of center 
+    overdraw fullcircle scaled pearl shifted (13.3u, 1.9u);  % right of center 
+    overdraw fullcircle scaled pearl shifted (11.6u, 1.8u); % center 
+    pickup thinpen; 
+    fi 
+ 
+    % Marge's beehive 'do 
+    draw preclip( puffhair( 
+        (18.3u, 12.6u), %  1 
+        (18.6u, 16.5u), %  2 
+        (18.6u, 19  u), %  3 
+        (17.8u, 22.8u), %  4 
+        (17  u, 26  u), %  5 
+        (16  u, 29  u), %  6 
+        (14.8u, 32.7u), %  7 
+        (13  u, 35  u)),%  8 
+    eye_left); 
+ 
+    curlers := curlers + 10;  % more curliness on top 
+ 
+    draw puffhair( 
+        (13  u, 35  u), %  1 
+        (10  u, 37  u), %  2 
+        ( 6  u, 37  u), %  3 
+        ( 4  u, 35  u), %  4 
+        ( 2.6u, 32  u), %  5 
+        ( 3.3u, 28  u));%  6 
+ 
+    curlers := curlers - 10; % back to normal curliness 
+    draw postclip( puffhair( 
+        ( 3.3u, 28  u), %  1 
+        ( 5.2u, 25.2u), %  2 
+        ( 6.3u, 22.6u), %  3 
+        ( 6.5u, 18.5u), %  4 
+        ( 6.1u, 14.4u), %  5 
+        ( 6.4u, 11.1u), %  6 
+        ( 7.3u,  8.7u), %  7 
+        ( 9.3u,  6  u)),%  8 
+    neck); 
+ 
+    % And the hairline above her eyes 
+   draw postclip( puffhair( 
+       ( 9.5u,  9.6u), %  1 
+       ( 9.5u, 12.2u), %  2 
+       (10  u, 14.3u), %  3 
+       (11.7u, 15  u), %  4 
+       (13.8u, 15  u), %  5 
+       (16.5u, 15.2u), %  6 
+       (17.9u, 14.1u), %  7 
+       (18.3u, 12.6u)),%  8 
+    eye_left); 
+ 
+    % And finally, the eyelashes 
+    pickup lashpen; 
+    localpath lash; 
+ 
+    rlash((12.0u, 12.5u), (11.8u, 14.0u), 3); 
+    rlash((13.0u, 13.2u), (13.0u, 14.4u), 2); 
+    rlash((14.1u, 13.2u), (14.2u, 14.4u),-2); 
+    rlash((14.9u, 12.8u), (15.5u, 14.2u),-3); 
+ 
+    llash((16.5u, 13.4u), (16.6u, 14.3u),-1); 
+    llash((17.3u, 13.4u), (17.6u, 14.4u),-2); 
+    llash((18.0u, 13.0u), (18.5u, 14.4u),-3); 
+    llash((18.7u, 13.0u), (19.6u, 13.9u),-3); 
+ 
+    eyepos(Marge, 12.5u#, 11.4u#, 16.5u#, 11.7u#); 
+endpicture; 

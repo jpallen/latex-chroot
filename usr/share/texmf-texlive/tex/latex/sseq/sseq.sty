@@ -1,0 +1,798 @@
+%%
+%% This is file `sseq.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% sseq.dtx  (with options: `package')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from sseq.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file sseq.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+
+\NeedsTeXFormat{LaTeX2e}
+
+\ProvidesPackage{sseq}
+
+\RequirePackage{ifthen,calc,pifont}
+
+\newboolean{usesps}
+\setboolean{usesps}{true}
+\newboolean{usescolor}
+\setboolean{usescolor}{true}
+\newboolean{debug}
+\setboolean{debug}{false}
+
+\DeclareOption{ps}{\setboolean{usesps}{true}}
+\DeclareOption{nops}{\setboolean{usesps}{false}}
+\DeclareOption{color}{\setboolean{usescolor}{true}}
+\DeclareOption{nocolor}{\setboolean{usescolor}{false}}
+\DeclareOption{debug}{\setboolean{debug}{true}}
+\DeclareOption*{\PassOptionsToPackage{\CurrentOption}{xy}}
+
+\ProcessOptions
+
+\ifx\xyloaded\undefined \RequirePackage[curve,frame]{xy} \fi
+
+\ifthenelse{\boolean{usesps}}{\xyrequire{ps}}{}
+\ifthenelse{\boolean{usescolor}}{\xyrequire{color}}{}
+
+\newsavebox{\sseqcircledone}
+\newsavebox{\sseqcircledtwo}
+\newsavebox{\sseqcircledthree}
+\newsavebox{\sseqcircledfour}
+\newsavebox{\sseqcircledfive}
+\newsavebox{\sseqcircledsix}
+\newsavebox{\sseqcircledseven}
+\newsavebox{\sseqcircledeight}
+\newsavebox{\sseqcirclednine}
+\sbox{\sseqcircledone}{\ding{192}}
+\sbox{\sseqcircledtwo}{\ding{193}}
+\sbox{\sseqcircledthree}{\ding{194}}
+\sbox{\sseqcircledfour}{\ding{195}}
+\sbox{\sseqcircledfive}{\ding{196}}
+\sbox{\sseqcircledsix}{\ding{197}}
+\sbox{\sseqcircledseven}{\ding{198}}
+\sbox{\sseqcircledeight}{\ding{199}}
+\sbox{\sseqcirclednine}{\ding{200}}
+\newboolean{sseqhasfinishedpos}
+\setboolean{sseqhasfinishedpos}{true}
+\newboolean{sseqhasopenconn}
+\setboolean{sseqhasopenconn}{false}
+\newboolean{sseqclip}
+\setboolean{sseqclip}{true}
+\newboolean{sseqprevclip}\setboolean{sseqprevclip}{false}
+\newboolean{sseqcurrclip}\setboolean{sseqcurrclip}{false}
+
+\def\sseqconncommand{}
+
+\ifthenelse{\boolean{usescolor}}
+{
+ \newxyColor{sseqgr}{0.65}{gray}{}
+ \newxycolor{ssred}{Red}
+ \newxycolor{ssblack}{Black}
+}{}
+\newcommand{\ssconncolor}{ssblack}
+\newcommand{\sslabelcolor}{ssblack}
+\newcommand{\ssplacecolor}{ssblack}
+\def\ssoldconncolor{ssblack}
+
+%% ^^A Initialization
+\newcount\sseqxstart \sseqxstart=0
+\newcount\sseqystart \sseqystart=0
+\newcount\sseqxstep \sseqxstep=2
+\newcount\sseqystep \sseqystep=2
+\newdimen\sseqentrysize \sseqentrysize=0.4cm
+\newif\ifssclipped
+
+\newtoks\sseqcmdlist
+\sseqcmdlist={}
+
+\def\currprefix{}
+
+\def\sseqcurrentname{}
+
+\long\def\ntimes#1#2{
+\ifnum#1>0
+ #2
+ \count0=#1
+ \advance\count0 by -1
+ \edef\tmpcnt{\the\count0}
+ \ntimes{\tmpcnt}{#2}
+\fi
+}
+
+\newif\ifforcondition
+
+\long\def\for#1=#2\to#3\do#4\od{
+#1=#2
+\loop
+\ifnum#1>#3\forconditionfalse\else\forconditiontrue\fi
+\ifforcondition
+ #4
+ \advance #1 by 1
+ \repeat
+}
+
+\def\putxyq#1{\toks0={#1}%
+ \edef\act{\noexpand\sseqcmdlist={\the\sseqcmdlist \the\toks0}}
+ \act
+}
+\def\putxy#1{%
+ \edef\act{\noexpand\sseqcmdlist={\the\sseqcmdlist #1}}
+ \act
+}
+
+\def\sseqwritecolor#1{
+\ifthenelse{\boolean{usescolor}}{
+  \putxy {[#1]}
+}{}
+}
+
+\def\sseqconcludeconnection{
+\sseqconncommand
+\setboolean{sseqhasopenconn}{false}
+}
+
+\def\dropvarname#1#2{\csname sseqdrop#1,#2\endcsname}
+
+\def\ifuniquedrop#1#2{
+\edef\tmpval{\dropvarname{#1}{#2}}
+\expandafter\ifx\tmpval1
+}
+
+\def\ifnodrop#1#2{
+\edef\tmpval{\dropvarname{#1}{#2}}
+\expandafter\ifx\tmpval\relax
+}
+
+\def\ssdroperrormsg#1#2{
+ \ifnodrop{#1}{#2}
+  \PackageError{sseq}{cannot open position (#1,#2): nothing dropped yet}{You cannot draw any connection until you have drawn the source.}
+ \else
+  \PackageError{sseq}{cannot open position (#1,#2): multiple drops}{You cannot specify this position by coordinates. Instead, name it.}
+ \fi
+}
+
+\def\ssopenposition#1#2{
+\ifuniquedrop{#1}{#2}
+ \def\sseqcurrentname{ss(#1,#2)1}
+ \putxy{"\sseqcurrentname"}
+\else \ssdroperrormsg{#1}{#2}
+\fi
+\setboolean{sseqhasfinishedpos}{false}
+}
+
+\newcommand{\ssassertsource}{
+\ifthenelse{\boolean{sseqhasfinishedpos}}{
+\ssopenposition{\the\sseqposx}{\the\sseqposy}
+}
+{}
+}
+
+\newcommand{\ssputsemicolon}{
+\putxy{;}
+\ifthenelse{\boolean{sseqcurrclip}}{
+ \setboolean{sseqprevclip}{true}}{
+ \setboolean{sseqprevclip}{false}}
+}
+
+\newcommand{\ssfinishpos}{
+\ifthenelse{\boolean{sseqhasfinishedpos}}{}{
+\setboolean{sseqhasfinishedpos}{true}
+\ssputsemicolon
+}
+\ifthenelse{\boolean{sseqhasopenconn}}
+{
+  \ssopenposition{\the\sseqposx}{\the\sseqposy}
+  \sseqconcludeconnection
+  \ifthenelse{\boolean{sseqhasfinishedpos}}{}{
+  \setboolean{sseqhasfinishedpos}{true}
+  \ssputsemicolon}
+}{}
+}
+
+\newcommand{\ssnewpos}{
+\ssfinishpos
+\setboolean{sseqhasfinishedpos}{false}
+}
+
+\def\ssifposinclippingregion#1#2{
+  \ssclippedtrue
+  \ifthenelse{\boolean{sseqclip}}{
+   \ifnum#1<\sseqxstart \ssclippedfalse \fi
+   \ifnum#1<\sseqxend \else \ssclippedfalse \fi
+   \ifnum#2<\sseqystart \ssclippedfalse \fi
+   \ifnum#2<\sseqyend \else \ssclippedfalse \fi
+  }{}
+  \ifssclipped
+}
+
+\def\sseqrearrange#1#2#3#4#5{
+\dimen0 = \csname sseqcoordx<#1,#2>#3\endcsname
+\dimen1 = \csname sseqcoordy<#1,#2>#3\endcsname
+\advance\dimen0 by #4
+\advance\dimen1 by #5
+\expandafter\edef\csname sseqcoordx<#1,#2>#3\endcsname{\the\dimen0}
+\expandafter\edef\csname sseqcoordy<#1,#2>#3\endcsname{\the\dimen1}
+}
+
+\def\sseqstacking#1#2#3{ % ^^A (xpos, ypos, number of previous drops)
+ \dimen5=\sseqentrysize
+ \divide\dimen5 by 4
+ \dimen6=\dimen5
+ \multiply\dimen6 by -1
+ \count11=0
+ \for\count10=1 \to #3 \do
+  \if1\csname sseqwillmove<#1,#2>\the\count10 \endcsname
+   \advance\count11 by 1
+   \expandafter\count\the\count11=\count10
+  \fi
+ \od
+ % ^^A Now count11 contains the number of previously dropped objects that have to be rearranged.
+ \ifcase\count11
+  % ^^A 0
+  \PackageError{sseq}{This can't happen!}{Internal error. Contact the author.}
+ \or % ^^A 1
+  \sseqrearrange{#1}{#2}{\the\count1}{\the\dimen6}{\the\dimen5}
+  \advance\sseqx by \dimen5
+  \advance\sseqy by \dimen6
+ \or % ^^A 2
+  \sseqrearrange{#1}{#2}{\the\count2}{0pt}{\the\dimen5}
+  \sseqrearrange{#1}{#2}{\the\count2}{0pt}{\the\dimen5}
+  \advance\sseqy by \dimen6
+ \or % ^^A 3
+  \sseqrearrange{#1}{#2}{\the\count3}{\the\dimen6}{0pt}
+  \advance\sseqx by \dimen5
+ \else
+  \PackageError{sseq}{Too many drops at (#1,#2)}{The sseq.sty algorithm can only place up to four independent drops in one position.}
+ \fi
+}
+
+\newcommand{\ssplacespecial}[4]{
+\ifthenelse{\boolean{sseqhasfinishedpos}}{}{
+ \ssputsemicolon
+}
+\setboolean{sseqhasfinishedpos}{false}
+\sseqx=\sseqentrysize
+\multiply\sseqx \sseqxdir
+\multiply\sseqx by #1
+\advance\sseqx by \sseqhalfentry
+\advance\sseqx by \sseqoffsetx
+\advance\sseqx by \sseqoffx
+\sseqy=\sseqentrysize
+\multiply\sseqy \sseqydir
+\multiply\sseqy by #2
+\advance\sseqy by \sseqhalfentry
+\advance\sseqy by \sseqoffsety
+\advance\sseqy by \sseqoffy
+\expandafter\def\expandafter\tmpname\expandafter{\csname sseqdrop#1,#2\endcsname}
+\ifnodrop{#1}{#2}
+\expandafter\def\tmpname{1}
+\else
+ \edef\setcnt{\noexpand\count0=\tmpname}
+ \setcnt
+ \sseqstacking{#1}{#2}{\tmpname}
+ \advance\count0 by 1
+ \expandafter\edef\tmpname{\the\count0}
+\fi
+\putxy{<\csname sseqcoordx<#1,#2>\tmpname\endcsname,\csname sseqcoordy<#1,#2>\tmpname \endcsname>}
+\expandafter\edef\csname sseqcoordx<#1,#2>\tmpname\endcsname{\the\sseqx}
+\expandafter\edef\csname sseqcoordy<#1,#2>\tmpname\endcsname{\the\sseqy}
+\expandafter\def\csname sseqwillmove<#1,#2>\tmpname\endcsname{1}
+\setboolean{sseqcurrclip}{true}
+\ssifposinclippingregion{#1}{#2}
+ \setboolean{sseqcurrclip}{false}
+ \putxy{*#3}
+ \sseqwritecolor{\ssplacecolor}
+ \putxy{#4}
+\fi
+\edef\sseqcurrentname{ss(#1,#2)\tmpname}
+\putxy{="\sseqcurrentname"}
+\ifthenelse{\boolean{sseqhasopenconn}}{\sseqconcludeconnection}{}
+}
+
+\newcommand{\ssplace}[3]{
+\ssplacespecial{#1}{#2}{}{{#3}}
+}
+
+\newcommand{\ssplaceboxed}[3]{
+ \ifthenelse{\boolean{usescolor}}{
+   \ssplacespecial{#1}{#2}{+<2pt>[F:\ssplacecolor]}{{#3}}
+ }{
+   \ssplacespecial{#1}{#2}{+<2pt>}{{#3}}
+ }
+}
+
+\newcommand{\ssplacecircled}[3]{
+\ifthenelse{\equal{#3}{1}}{
+ \ssplacespecial{#1}{#2}{}{[o]{\copy\sseqcircledone}}}{
+ \ifthenelse{\equal{#3}{2}}{
+  \ssplacespecial{#1}{#2}{}{[o]{\copy\sseqcircledtwo}}}{
+  \ifthenelse{\equal{#3}{3}}{
+   \ssplacespecial{#1}{#2}{}{[o]{\copy\sseqcircledthree}}}{
+   \ifthenelse{\equal{#3}{4}}{
+    \ssplacespecial{#1}{#2}{}{[o]{\copy\sseqcircledfour}}}{
+    \ifthenelse{\equal{#3}{5}}{
+     \ssplacespecial{#1}{#2}{}{[o]{\copy\sseqcircledfive}}}{
+     \ifthenelse{\equal{#3}{6}}{
+      \ssplacespecial{#1}{#2}{}{[o]{\copy\sseqcircledsix}}}{
+      \ifthenelse{\equal{#3}{7}}{
+       \ssplacespecial{#1}{#2}{}{[o]{\copy\sseqcircledseven}}}{
+       \ifthenelse{\equal{#3}{8}}{
+        \ssplacespecial{#1}{#2}{}{[o]{\copy\sseqcircledeight}}}{
+        \ifthenelse{\equal{#3}{9}}{
+         \ssplacespecial{#1}{#2}{}{[o]{\copy\sseqcirclednine}}}{
+         \ifthenelse{\boolean{usescolor}}{
+          \ssplacespecial{#1}{#2}{+<3pt>}{[o][F:\ssplacecolor]{#3}}
+         }{
+          \ssplacespecial{#1}{#2}{+<3pt>}{[o]{#3}}
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}
+}
+
+\newcommand{\ssbull}[2]{
+\ifthenelse{\boolean{usescolor}}{
+ \ssplacespecial{#1}{#2}{+<1.1mm>[o][F:\ssplacecolor]}{{}*[\ssplacecolor]\noexpand\frm{*}}
+ }{
+ \ssplacespecial{#1}{#2}{+<1.1mm>[o]}{{}*\noexpand\frm{*}}
+ }
+}
+
+\newcommand{\sscirc}[2]{
+\ssplacespecial{#1}{#2}{}{[o]-={\circ}}
+}
+
+\newcommand{\ssglobalname}[1]{\currprefix#1}
+
+\def\sssetglobalname#1{
+ \ssassertsource
+ \expandafter\edef\csname sseqpos<#1>\endcsname{\sseqcurrentname}
+ \expandafter\edef\csname sseqx<#1>\endcsname{\the\sseqposx}
+ \expandafter\edef\csname sseqy<#1>\endcsname{\the\sseqposy}
+}
+\newcommand{\ssmoveto}[2]{
+\ssfinishpos
+\sseqposx=#1
+\sseqposy=#2
+\ssifposinclippingregion{#1}{#2}
+ \setboolean{sseqcurrclip}{false}
+\fi
+}
+\newcommand{\ssmove}[2]{
+\count0=\sseqposx
+\advance\count0 by #1
+\count1=\sseqposy
+\advance\count1 by #2
+\ssmoveto{\count0}{\count1}
+}
+\newcommand{\ssdrop}[1]{
+\ssplace {\the\sseqposx} {\the\sseqposy} {#1}
+}
+\newcommand{\ssdropbull}{\ssbull {\the\sseqposx} {\the\sseqposy}}
+\newcommand{\ssdropboxed}[1]{
+\ssplaceboxed {\the\sseqposx} {\the\sseqposy} {#1}
+}
+\newcommand{\ssdropcircled}[1]{
+\ssplacecircled {\the\sseqposx} {\the\sseqposy} {#1}
+}
+\def\ssname#1{
+ \sssetglobalname{\ssglobalname{#1}}
+}
+\newcommand{\ssgoto}[1]{
+\ssabsgoto{\ssglobalname{#1}}
+}
+\newcommand{\ssprefix}[1]{
+  \edef\currprefix{\currprefix#1}
+}
+\newcommand{\ssresetprefix}{\def\currprefix{}}
+\newcommand{\ssabsgoto}[1]{
+\ssnewpos
+\edef\ssoldconncolor{\ssconncolor}
+\putxy{"\csname sseqpos<#1>\endcsname"}
+\sseqposx=\csname sseqx<#1>\endcsname
+\sseqposy=\csname sseqy<#1>\endcsname
+\ssifposinclippingregion{\the\sseqposx}{\the\sseqposy}
+ \setboolean{sseqcurrclip}{false}
+\fi
+}
+\newcommand{\ssdroplabel}[2][U]{
+\ssassertsource
+\ssifposinclippingregion{\the\sseqposx}{\the\sseqposy}
+ \putxy{="prev"}
+ \ifthenelse{\boolean{usescolor}}{
+  \ifthenelse{\equal{#1}{U}}{
+   \putxy{+U*[\sslabelcolor]!D{#2}}}{}
+  \ifthenelse{\equal{#1}{LU}}{
+  \putxy{+LU*[\sslabelcolor]!RD{#2}}}{}
+  \ifthenelse{\equal{#1}{RU}}{
+  \putxy{+RU*[\sslabelcolor]!LD{#2}}}{}
+  \ifthenelse{\equal{#1}{R}}{
+  \putxy{+R*[\sslabelcolor]!L{#2}}}{}
+  \ifthenelse{\equal{#1}{L}}{
+  \putxy{+L*[\sslabelcolor]!R{#2}}}{}
+  \ifthenelse{\equal{#1}{D}}{
+  \putxy{+D*[\sslabelcolor]!U{#2}}}{}
+  \ifthenelse{\equal{#1}{LD}}{
+  \putxy{+LD*[\sslabelcolor]!RU{#2}}}{}
+  \ifthenelse{\equal{#1}{RD}}{
+  \putxy{+RD*[\sslabelcolor]!LU{#2}}}{}
+ }{
+  \ifthenelse{\equal{#1}{U}}{
+   \putxy{+U*!D{#2}}}{}
+  \ifthenelse{\equal{#1}{LU}}{
+  \putxy{+LU*!RD{#2}}}{}
+  \ifthenelse{\equal{#1}{RU}}{
+  \putxy{+RU*!LD{#2}}}{}
+  \ifthenelse{\equal{#1}{R}}{
+  \putxy{+R*!L{#2}}}{}
+  \ifthenelse{\equal{#1}{L}}{
+  \putxy{+L*!R{#2}}}{}
+  \ifthenelse{\equal{#1}{D}}{
+  \putxy{+D*!U{#2}}}{}
+  \ifthenelse{\equal{#1}{LD}}{
+  \putxy{+LD*!RU{#2}}}{}
+  \ifthenelse{\equal{#1}{RD}}{
+  \putxy{+RD*!LU{#2}}}{}
+ }
+ \putxy{;"prev"}
+\fi
+}
+\newcommand{\ssdropextension}{
+\ssassertsource
+\expandafter\def\expandafter\tmpname\expandafter{\csname sseqdrop\the\sseqposx,\the\sseqposy\endcsname}
+\edef\setcnt{\noexpand\count0=\tmpname}
+\setcnt
+\advance\count0 by 1
+\expandafter\edef\tmpname{\the\count0}
+\setboolean{sseqcurrclip}{true}
+\ssifposinclippingregion{\the\sseqposx}{\the\sseqposy}
+ \setboolean{sseqcurrclip}{false}
+ \putxy{*+<1mm,1mm>\noexpand\frm{}*}
+ \sseqwritecolor{\ssplacecolor}
+ \putxyq{\cir{}}
+\fi
+\edef\sseqcurrentname{ss(\the\sseqposx,\the\sseqposy)\tmpname}
+\putxy{="\sseqcurrentname"}
+\ifthenelse{\boolean{sseqhasopenconn}}{\sseqconcludeconnection}{}
+}
+
+\newcommand{\ssprepareline}[2]{
+\ifthenelse{\boolean{sseqhasfinishedpos}}{
+ \ssopenposition{\the\sseqposx}{\the\sseqposy}
+}{}
+\advance\sseqposx by #1
+\advance\sseqposy by #2
+\setboolean{sseqhasopenconn}{true}
+\edef\ssoldconncolor{\ssconncolor}
+}
+
+\newcommand{\sspreparevoidline}[2]{
+\ifthenelse{\boolean{sseqhasfinishedpos}}{
+ \ssopenposition{\the\sseqposx}{\the\sseqposy}
+}{}
+\ifthenelse{\boolean{sseqhasfinishedpos}}{}{
+ \ssputsemicolon
+}
+\setboolean{sseqhasfinishedpos}{false}
+\sseqx=\sseqentrysize
+\multiply\sseqx \sseqxdir
+\multiply\sseqx by #1
+\sseqy=\sseqentrysize
+\multiply\sseqy \sseqydir
+\multiply\sseqy by #2
+\putxy{p+<\the\sseqx,\the\sseqy>}
+\edef\ssoldconncolor{\ssconncolor}
+}
+
+\def\sseqifconninclippingregion{%
+\ifthenelse{\boolean{sseqcurrclip}\and\boolean{sseqprevclip}}{
+  \ssclippedfalse}{
+  \ssclippedtrue
+ }
+ \ifssclipped
+}
+\newcommand{\ssstroke}{
+\ssassertsource
+\sseqifconninclippingregion
+ \putxy{**} \sseqwritecolor{\ssoldconncolor}
+ \putxyq{\dir{-}}
+\fi
+}
+\newcommand{\sscurve}[1]{
+\ssassertsource
+\sseqifconninclippingregion
+ \putxy{**} \sseqwritecolor{\ssoldconncolor}
+ \putxyq{\crv{:(.5,#1)}}
+\fi
+}
+\newcommand{\ssdashedstroke}{
+\ssassertsource
+\sseqifconninclippingregion
+ \putxy{**} \sseqwritecolor{\ssoldconncolor}
+ \putxyq{\dir{--}}
+\fi
+}
+\newcommand{\ssdashedcurve}[1]{
+\ssassertsource
+\sseqifconninclippingregion
+ \putxy{**} \sseqwritecolor{\ssoldconncolor}
+ \putxyq{\crv{~**\dir{--}:(.5,#1)}}
+\fi
+}
+\newcommand{\ssarrowhead}{
+\sseqifconninclippingregion
+ \putxy {?>*} \sseqwritecolor{\ssoldconncolor}
+ \putxyq{\dir{>}}
+\fi
+}
+\newcommand{\ssline}[2]{
+\ssprepareline{#1}{#2}
+\def\sseqconncommand{\ssstroke}
+}
+\newcommand{\sscurvedline}[3]{
+\ssprepareline{#1}{#2} \def\sseqconncommand{\sscurve{#3}}
+}
+\newcommand{\ssdashedline}[2]{
+\ssprepareline{#1}{#2} \def\sseqconncommand{\ssdashedstroke}
+}
+\newcommand{\sscurveddashedline}[3]{
+\ssprepareline{#1}{#2} \def\sseqconncommand{\ssdashedcurve{#3}}
+}
+\newcommand{\ssarrow}[2]{
+\ssprepareline{#1}{#2}
+\def\sseqconncommand{\ssstroke\ssarrowhead}
+}
+\newcommand{\sscurvedarrow}[3]{
+\ssprepareline{#1}{#2} \def\sseqconncommand{\sscurve{#3}\ssarrowhead}
+}
+\newcommand{\ssdashedarrow}[2]{
+\ssprepareline{#1}{#2} \def\sseqconncommand{\ssdashedstroke\ssarrowhead}
+}
+\newcommand{\sscurveddashedarrow}[3]{
+\ssprepareline{#1}{#2} \def\sseqconncommand{\ssdashedcurve{#3}\ssarrowhead}
+}
+
+\newcommand{\ssvoidline}[2]{
+\sspreparevoidline{#1}{#2}
+\ssstroke
+\putxy{,p}
+}
+\newcommand{\ssvoidarrow}[2]{
+\sspreparevoidline{#1}{#2}
+\ssstroke\ssarrowhead
+\putxy{,p}
+}
+\newcommand{\ssbullstring}[3]{
+\ifnum#3>0
+ \ifnum#3=1
+  \ssdropbull
+ \else
+  \ssdropbull
+  \ssline{#1}{#2}
+  \count0=#3
+  \advance\count0 by -1
+  \edef\sseqbullcnt{\the\count0}
+  \ssbullstring{#1}{#2}{\sseqbullcnt}
+\fi\fi
+}
+\newcommand{\ssinfbullstring}[3]{
+\ssbullstring{#1}{#2}{#3}
+\ssvoidarrow{#1}{#2}
+}
+\def\sseqdrawgrid#1#2{
+\sseqi=0
+\sseqj=0
+\loop
+ \sseqy=\sseqentrysize
+ \multiply \sseqy by \sseqj
+ \advance \sseqy by \sseqlabelbarwidth
+ %
+ \putxy{<\the\sseqlabelbarwidth,\the\sseqy>;<\the\sseqx,\the\sseqy>**}
+ \sseqwritecolor{sseqgr}
+ \putxyq{\dir {.},}
+ \advance\sseqj 1
+\ifnum\sseqj>#2 \else \repeat
+\sseqy = \sseqentrysize
+\multiply \sseqy by #2
+\advance \sseqy by \sseqlabelbarwidth
+\loop
+ \sseqx=\sseqentrysize
+ \multiply \sseqx by \sseqi
+ \advance \sseqx by \sseqlabelbarwidth
+ %
+ \putxy{<\the\sseqx,\the\sseqlabelbarwidth>;<\the\sseqx,\the\sseqy>**}
+ \sseqwritecolor{sseqgr}
+ \putxyq{\dir {.},}
+ \advance \sseqi 1
+\ifnum\sseqi>#1 \else \repeat
+}
+\def\sseqdrawlabels#1#2{
+\sseqi=\sseqxstart
+\sseqposx=\sseqxstart
+\multiply \sseqposx by -1
+\advance \sseqposx \sseqi
+\count0=\sseqxdir
+\multiply\count0 by \sseqxdir
+\multiply\count0 by \sseqxstep
+\count1=\sseqydir
+\multiply\count1 by \sseqydir
+\multiply\count1 by \sseqystep
+\loop
+ \sseqxx=\sseqentrysize
+ \multiply\sseqxx by \sseqposx
+ \advance\sseqxx by \sseqhalfentry
+ \advance\sseqxx by \sseqlabelbarwidth
+ \putxy { <\the\sseqxx,0pt>*}
+ \putxyq{\txt\sseqlabelfont}
+ \putxy {{\the\sseqi},}
+ \advance\sseqi by \sseqxstep
+ \advance\sseqposx by \count0
+\ifnum\sseqposx<#1 \repeat
+\sseqj=\sseqystart
+\sseqposy=\sseqj
+\multiply\sseqposy by -1
+\advance\sseqposy by \sseqj
+\loop
+ \sseqyy=\sseqentrysize
+ \multiply\sseqyy by \sseqposy
+ \advance\sseqyy by \sseqhalfentry
+ \advance\sseqyy by \sseqlabelbarwidth
+ \putxy { <0pt,\the\sseqyy>*}
+ \putxyq {\txt\sseqlabelfont}
+ \putxy{{\the\sseqj},}
+ \advance\sseqj by \sseqystep
+ \advance\sseqposy by \count1
+\ifnum\sseqposy<#2\repeat
+}
+
+\newenvironment{sseq}[2]{
+\begingroup
+\countdef\sseqxend=150 \sseqxend=\sseqxstart \advance\sseqxend by #1
+\countdef\sseqyend=151 \sseqyend=\sseqystart \advance\sseqyend by #2
+\dimendef\sseqoffx=200 \sseqoffx=0pt
+\dimendef\sseqoffy=201 \sseqoffy=0pt
+\dimendef\sseqoffsetx=202
+\dimendef\sseqoffsety=203
+\countdef\sseqi=152 \sseqi=0
+\countdef\sseqj=153 \sseqj=0
+\countdef\sseqxdir=154
+\countdef\sseqposx=155
+\countdef\sseqposy=156
+\countdef\sseqydir=157
+\dimendef\sseqlabelbarwidth=204
+\dimendef\sseqhalfentry=205
+\dimendef\sseqx=206
+\dimendef\sseqy=207
+\dimendef\sseqxx=208
+\dimendef\sseqyy=209
+\dimendef\sseqlabelwidth=210
+\dimendef\sseqrightlabelwidth=211
+\dimendef\sseqlabelsize=212
+
+\ifnum\sseqxstep<0 \sseqxdir=-1 \else \sseqxdir=1 \fi
+\ifnum\sseqystep<0 \sseqydir=-1 \else \sseqydir=1 \fi
+\def\sseqlabelfontsize{12}
+\edef\sseqsavecnto{\the\count0}
+\edef\sseqsavecnti{\the\count1}
+\edef\sseqsavecntii{\the\count2}
+\edef\sseqsavecntiii{\the\count3}
+\edef\sseqsavecntiv{\the\count4}
+\edef\sseqsavecntv{\the\count5}
+\edef\sseqsavecntvi{\the\count6}
+\edef\sseqsavecntvii{\the\count7}
+\edef\sseqsavecntviii{\the\count8}
+\edef\sseqsavecntix{\the\count9}
+\sseqlabelwidth=14pt
+\sseqrightlabelwidth=10pt
+\ifnum\sseqxstart<0
+ \advance\sseqlabelwidth by 8pt
+ \ifnum\sseqxstart<-9
+  \advance\sseqlabelwidth by 6pt
+  \ifnum\sseqxstart<-99
+   \advance\sseqlabelwidth by 6pt
+  \fi
+ \fi
+\fi
+\ifnum\sseqxend>10
+ \advance\sseqrightlabelwidth by 6pt
+ \ifnum\sseqxend>100
+  \advance\sseqrightlabelwidth by 6pt
+ \fi
+\fi
+\ifnum\sseqrightlabelwidth>\sseqlabelwidth
+ \sseqlabelwidth=\sseqrightlabelwidth
+\fi
+\sseqlabelsize=10pt
+\count0=\sseqentrysize
+\multiply \count0 by 160
+\divide \count0 by \sseqlabelwidth
+\multiply \sseqlabelsize by \count0
+\divide \sseqlabelsize by 100
+\ifdim\sseqlabelsize<11pt
+ \def\sseqlabelfontsize{10}
+ \ifdim\sseqlabelsize<9.5pt
+  \def\sseqlabelfontsize{9}
+  \ifdim\sseqlabelsize<8.5pt
+   \def\sseqlabelfontsize{8}
+  \fi
+ \fi
+\fi
+\edef\sz{\the\sseqlabelsize}
+\putxyq {\font \sseqlabelfont = cmtt}
+\putxy{\sseqlabelfontsize\space at \the\sseqlabelsize\space}
+\sseqlabelbarwidth=\sseqlabelsize
+\divide\sseqlabelbarwidth by 2
+\dimen0=\sseqentrysize
+\multiply\dimen0 by -1
+\multiply\dimen0 by \sseqxdir
+\multiply\dimen0 by \sseqxstart
+\sseqoffsetx=\sseqlabelbarwidth
+\advance\sseqoffsetx by \dimen0
+\dimen0=\sseqentrysize
+\multiply\dimen0 by -1
+\multiply\dimen0 by \sseqydir
+\multiply\dimen0 by \sseqystart
+\sseqoffsety=\sseqlabelbarwidth
+\advance\sseqoffsety by \dimen0
+\sseqhalfentry=\sseqentrysize
+\divide\sseqhalfentry by 2
+\sseqx=\sseqentrysize
+\multiply \sseqx by #1
+\advance \sseqx by \sseqlabelbarwidth
+\sseqy=\sseqentrysize
+\multiply \sseqy by \sseqj
+\advance \sseqy by \sseqlabelbarwidth
+\sseqxx=\sseqx
+\sseqyy=\sseqy
+\advance\sseqxx by \sseqhalfentry
+\advance\sseqyy by \sseqhalfentry
+\putxyq {\xy}
+\sseqdrawgrid{#1}{#2}
+\sseqdrawlabels{#1}{#2}
+\sseqposx=0
+\sseqposy=0
+}
+{
+\relax
+\ssfinishpos
+\putxyq{\endxy}
+\bigskip
+\edef\lst{\the\sseqcmdlist}
+\ifthenelse{\boolean{debug}}{\show\lst}{}
+\count0=\sseqsavecnto
+\count1=\sseqsavecnti
+\count2=\sseqsavecntii
+\count3=\sseqsavecntiii
+\count4=\sseqsavecntiv
+\count5=\sseqsavecntv
+\count6=\sseqsavecntvi
+\count7=\sseqsavecntvii
+\count8=\sseqsavecntviii
+\count9=\sseqsavecntix
+\the\sseqcmdlist
+\endgroup
+\bigskip
+}
+\endinput
+%%
+%% End of file `sseq.sty'.

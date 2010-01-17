@@ -1,0 +1,171 @@
+%
+% Washington Romanized Indic Italic font driver file
+%
+% File       : italcskt.mf
+% Author     : Thomas Ridgeway <ridgeway@u.washington.edu>
+% Date       : May 19 1992
+%
+% Updated by : Anshuman Pandey <apandey@u.washington.edu>
+% On         : 18 Feb 1998
+%
+% Copyright 1992 Humanities and Arts Computing Center, University of 
+% Washington. Licensed to the public according to the terms of the 
+% Free Software Foundation General Public License.
+%
+% WNRI is based on Computer Modern Roman and encoded according to
+% the Classical Sanskrit/Classical Sanskrit eXtended character set. 
+% See wnindic.map for more details.
+%
+
+mode_setup; font_setup;
+input product;
+if production:
+input itall;  % lower case (minuscules)
+input italsp;  % lowercase specials (dotless \i, ligature \ae, etc.)
+fi
+font_coding_scheme:="TeX Romanized Indic";
+ spanish_shriek=oct"074"; spanish_query=oct"076";
+
+def cp = plain enddef;
+
+font_slant slant; font_x_height x_height#;
+if monospace: font_normal_space 9u#; % no stretching or shrinking
+ font_quad 18u#;
+ font_extra_space 9u#;
+ letter_fit#:=letter_fit:=0;
+else: font_normal_space 6u#+2letter_fit#;
+ font_normal_stretch 3u#; font_normal_shrink 2u#;
+ font_quad 18u#+4letter_fit#;
+ font_extra_space 2u#; fi
+
+if production:
+ input romanu;  % upper case (majuscules)
+ input greeku;  % upper case greek letters
+ input itald;   % numerals
+ input italp;   % ampersand, question marks, currency sign
+ input romspu;  % uppercase specials (\AE, \OE, \O)
+ input punct;   % punctuation symbols common to roman and italic text
+ input accent;  % accents common to roman and italic text
+ if ligs>1: input italig; fi   % letter ligatures
+ if ligs>0: input comlig; fi   % ligatures common with roman text
+ if ligs<=1: input romsub; fi  % substitutes for ligatures
+
+	ligtable "!": "`" =: spanish_shriek;
+	ligtable "?": "`" =: spanish_query;
+fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin massive departure from textit.mf, our parent file
+
+
+mono_charic#:=0;
+input haccbase;     % altered base
+input acctmax;
+% dot_sharp_values used by various other macros
+def dot_sharp_values =
+numeric dot_diam#; dot_diam#=max(dot_size#,cap_curve#);
+numeric dot_top#; dot_top#=min(asc_height#,10/7x_height#+.5dot_diam#);
+enddef;
+
+%tracingstats:=1;
+input wnindic.map;
+
+input igamma;
+input iaesc;   % pickup the ae AE
+input sktmisc;    % eszett and rootsign
+
+% now --- numerous characters with built-in diacritics
+% overdot characters
+input odotacct; input romanua; input italla;
+
+% underdot characters
+input udotacct; input romanua; input italla;
+
+% hatted characters
+input hattacct; input italla; input romanua;
+
+% scandinavian ring accent characters
+input orngacct; input romanua; input italla;
+
+% umlauted characters
+input umlaacct; input italla; input romanua;
+
+% acute accents
+input acutacct; input italla; input romanua; input ligature;
+
+% macron characters
+input macracct; input romanua; input italla;
+
+% hachek characters
+input hachacct; input italla; input fhachact; input romanua;
+
+% macron and acute
+input baraacct; input italla; input romanua;
+
+% grave accented
+input gravacct; input italla; input romanua;
+
+% macron and grave
+input bargacct; input italla; input romanua;
+
+% cedillas
+input cdilacct; input italla; input romanua;
+
+% tilde characters
+input tildacct; input italla; input romanua;
+
+% breve accent characters
+input brevacct; input italla;
+
+% macron breve characters
+input brbracct; input italla;
+
+% underbar characters
+input ubaracct; input italla; input romanua;
+
+% underdot acute characters
+input udacacct; input italla;
+
+% underdot grave characters
+input udgracct; input italla;
+
+% underdot macron characters
+input udmcacct; input italla; input romanua;
+
+% underdot macron  acute
+input mudaacct; input italla;
+
+% under double dot (under-umlaut)
+input uumlacct; input italla;  input romanua;
+
+% under breve
+input ubrvacct; input italla;  input romanua;
+
+% candrabindu
+input bnduacct; input italla; % input romanua;
+% resume textit.mf original text  ( no kerning for extended chars yet)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if not monospace:
+ k#:=-.5u#; kk#:=-1.5u#; kkk#:=-2u#; % three degrees of kerning
+ ligtable "d": "w": "l": "l" kern +u#;
+ ligtable "F": "V": "o" kern kk#, "e" kern kk#,
+   "u" kern kk#, "r" kern kk#, "a" kern kk#, "A" kern kkk#,
+  "K": "X": "O" kern k#, "C" kern k#, "G" kern k#, "Q" kern k#;
+ ligtable "T": "y" kern kk#,
+  "Y": "e" kern kk#, "o" kern kk#, "r" kern kk#, "a" kern kk#, "u" kern kk#,
+  "P": "W": "A" kern kk#;
+ ligtable "O": "D": "X" kern k#, "W" kern k#, "A" kern k#,
+   "V" kern k#, "Y" kern k#;
+ ligtable "A": "R": "n" kern k#, "l" kern k#, "r" kern k#, "u" kern k#,
+   "m" kern k#, "t" kern k#, "i" kern k#, "C" kern k#, "O" kern k#, "G" kern k#,
+   "h" kern k#, "b" kern k#, "U" kern k#, "k" kern k#, "v" kern k#, "w" kern k#,
+   "Q" kern k#, "L": "T" kern kk#, "Y" kern kk#, "V" kern kkk#, "W" kern kkk#,
+  "b": "c": "e": "o": "p": "r": "e" kern -u#, "a" kern -u#, "o" kern -u#,
+   "d" kern -u#, "c" kern -u#, "g" kern -u#, "q" kern -u#;
+ ligtable "n": "'" kern kkk#; fi
+% there are ligature/kern programs for |"f"| in the {\tt italig} file
+% and for |"-"|, |"`"|, and |"'"| in the {\tt comlig} file
+bye.
+
+% end of file italcskt.mf
+

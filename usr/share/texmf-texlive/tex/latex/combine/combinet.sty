@@ -1,0 +1,132 @@
+%%
+%% This is file `combinet.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% combine.dtx  (with options: `pck')
+%% 
+%%  Copyright 2000 Peter R. Wilson
+%% 
+%%  This program is provided under the terms of the
+%%  LaTeX Project Public License distributed from CTAN
+%%  archives in directory macros/latex/base/lppl.txt.
+%% 
+%% Author: Peter Wilson (CUA)
+%%         now at: peter.r.wilson@boeing.com
+%% 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{combinet}[2001/09/05 v0.2 document titles in ToC]
+\@ifclassloaded{combine}{}{%
+  \PackageError{combinet}{The `combine' class is expected}{\@ehc}%
+}
+
+\newif\ifc@lnomtitle
+  \c@lnomtitlefalse
+\newif\ifc@lnomauthor
+  \c@lnomauthorfalse
+\newif\ifc@lnothanks
+  \c@lnothanksfalse
+\newif\ifc@lpubopt
+  \c@lpuboptfalse
+\newif\ifc@lpubtop
+  \c@lpubtopfalse
+\newif\ifc@lpubs
+  \c@lpubsfalse
+
+\DeclareOption{nomtitle}{\c@lnomtitletrue}
+\DeclareOption{nomauthor}{\c@lnomauthortrue}
+\DeclareOption{nothanks}{\c@lnothankstrue}
+\DeclareOption{pub}{\c@lpubopttrue\c@lpubtopfalse\c@lpubstrue}
+\DeclareOption{pubtop}{\c@lpubtoptrue\c@lpuboptfalse\c@lpubstrue}
+\ProcessOptions\relax
+
+\ifc@lpubs
+  \renewcommand{\published}[2][\@empty]{%
+    \c@lpubtrue
+    \ifx #1\@empty
+      \gdef\c@lpubtoc{#2}
+    \else
+      \gdef\c@lpubtoc{#1}
+    \fi
+    \gdef\c@lpubbody{#2}
+  }
+\fi
+
+\appendiargdef{\title}{%
+  \begingroup
+    \renewcommand{\thanks}[1]{}
+    \protected@xdef\c@l@title{#1}
+  \endgroup
+}
+\appendiargdef{\author}{%
+  \begingroup
+    \renewcommand{\thanks}[1]{}
+    \renewcommand{\and}{\unskip, }
+    \protected@xdef\c@l@author{#1}
+  \endgroup
+}
+
+\def\c@lbmaketitle{\par
+  \begingroup
+    \let\newpage\relax
+    \let\@maketitle\c@lb@maketitle
+    \ifc@lpub
+      \ifc@lpubtop
+        \ifc@lnopubindoc\else
+          {\parindent\z@ \pubfont \c@lpubbody\par\nobreak}
+        \fi
+      \fi
+    \fi
+    \c@lmtitle        %% typeset the title block
+  \endgroup
+  \setcounter{footnote}{0}
+  \begingroup
+    \let\thanks\@empty
+    \ifc@ltoctitle\else
+      \ifc@lnomtitle\else
+        \ifx\@title\@empty\else
+          \ifc@lnothanks
+            \c@laaddtocontents{toc}%
+              {\protect\contentsline{coltoctitle}%
+              {\protect\numberline{}\c@l@title}{\thecolpage}}
+          \else
+            \c@laaddtocontents{toc}%
+              {\protect\contentsline{coltoctitle}%
+              {\protect\numberline{}\@title}{\thecolpage}}
+          \fi
+        \fi
+      \fi
+    \fi
+    \ifc@ltocauthor\else
+      \ifc@lnomauthor\else
+        \ifx\@author\@empty\else
+          \ifc@lnothanks
+            \c@laaddcontentsline{toc}%
+              {coltocauthor}{\protect\numberline{}\c@l@author}
+          \else
+            \c@laaddcontentsline{toc}%
+              {coltocauthor}{\protect\numberline{}\@author}
+          \fi
+        \fi
+      \fi
+    \fi
+  \endgroup
+  \ifc@lpub
+    \ifc@lpubopt
+      \ifc@lnopubindoc\else
+        {\parindent\z@ \pubfont \c@lpubbody\par\nobreak}
+      \fi
+    \fi
+    \ifc@lpubs
+      \ifc@lnopubintoc\else
+        \c@laaddcontentsline{toc}{published}{\protect\numberline{}\c@lpubtoc}
+      \fi
+    \fi
+  \fi
+  \c@lmtitlempty
+}
+
+\endinput
+%%
+%% End of file `combinet.sty'.

@@ -1,0 +1,62 @@
+%%
+%% This is file `todo.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% todo.dtx  (with options: `package')
+%% 
+%% Copyright 2002 Federico Garcia
+%% 
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesPackage{todo}[2002/07/25 v1.1 To-do list (Federico Garcia)]
+\newcommand\@todomark{}
+\newcommand\@todohide{}
+\DeclareOption{hide}{\renewcommand\@todohide[1]{%
+    \PackageWarning{todo}{`hide' option used, %
+        ignoring \noexpand\todo's}}}
+\DeclareOption{show}{\renewcommand\@todohide[1]{#1}}
+\DeclareOption{superscript}{\renewcommand\@todomark{%
+    \@todosupermark}}
+\DeclareOption{marginpar}{\renewcommand\@todomark{%
+    \@todomarginpar}}
+\DeclareOption{nothing}{\let\@todomark\@gobble}
+\DeclareOption*{\typeout{Unknown option (`\CurrentOption')}}
+\ExecuteOptions{superscript,show}
+\ProcessOptions
+\newtoks\@todotoks\@todotoks{}
+\newcounter{todo}\setcounter{todo}{0}
+\newcommand{\todomark}{To~do}
+\newcommand{\todoname}{To do\dots}
+\newcommand{\todo}[2][\todomark]{\@bsphack\@todohide{%
+    \refstepcounter{todo}\label{todopage:\thetodo}%
+        \@todomark{#1}%
+        \@todotoks\expandafter{\the\@todotoks\relax%
+            \todoitem{#1}{#2}}%
+    }\@esphack}
+\newcommand{\@todosupermark}[1]{%
+  \leavevmode
+  \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
+  \textsuperscript{\textbf{#1} (\ref{todolbl:\thetodo})}
+  \ifhmode\spacefactor\@x@sf\fi
+  \relax}
+\newcommand{\@todomarginpar}[1]{\marginpar{#1 (\ref{todolbl:\thetodo})}}
+\newcommand{\todoitem}[2]{%
+    \item \label{todolbl:\thetodo} %
+    \ifx#1\todomark%
+        \else\textbf{#1 }%
+    \fi%
+    (p.~\pageref{todopage:\thetodo})\ #2}
+\newcommand{\todos}{\@todohide{%
+        \clearpage\section*{\todoname}\large%
+        \begin{list}{\fbox{\vphantom{Ap}\hphantom{A}}%
+                \quad\arabic{todo}.}{}%
+            \usecounter{todo}
+            \the\@todotoks
+        \end{list}}
+        \renewcommand{\todo}[1]{%
+    \PackageWarning{todo}{\noexpand\todos already issued, %
+        ignoring \noexpand\todo}}}
+\endinput
+%%
+%% End of file `todo.sty'.

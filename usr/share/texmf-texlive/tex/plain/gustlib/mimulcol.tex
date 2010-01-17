@@ -1,0 +1,286 @@
+% copied from TUGboat, Vol.10 (1989) No.3 p.409--415 (B.J.)
+% MULTICOLUMN LaTeX environement.
+% Author: F. Mittelbach
+% Quick adaptation to PLAIN: B. Jackowski (Ver. 0.9); alterations are
+%                                                     marked by `(B.J.)'
+%
+% Since I do not understand floats I assume that they are
+% not used while multicolumning. Maybe some other day...
+%
+% ========================================================================
+% --------------------- PSEUDO-LaTeX ENVIRONEMENT ------------------------
+% ========================================================================
+\catcode`\@=11
+\newtoks\@uteroutput % (P.P.)
+\@uteroutput\output  %
+% --------------------------
+\def\adjust@PLAIN{%
+  \newlinechar=`\^^J
+  \columnwidth\hsize \textwidth\hsize
+  \@colht\vsize      \@colroom\vsize % NO FLOATs PLEASE!
+  \def\makefootline{\baselineskip24\p@\hbox to \textwidth{\the\footline}}
+  \def\pagebody{\vbox to\@colht{\boxmaxdepth\maxdepth \pagecontents}}
+  \def\vfootnote##1{\insert\footins\bgroup
+     \hsize=\textwidth
+     \interlinepenalty\interfootnotelinepenalty
+     \splittopskip\ht\strutbox % top baseline for broken footnotes
+     \splitmaxdepth\dp\strutbox \floatingpenalty\@MM
+     \leftskip\z@skip \rightskip\z@skip \spaceskip\z@skip \xspaceskip\z@skip
+     \textindent{##1}\footstrut\futurelet\next\fo@t}
+}
+% --------------------------
+\mathchardef\@Mi=10001
+\newcount\@tempcnta % temporary count register
+% ------ These four macros differ from their LaTeX twins ------
+\def\thepage{\number\pageno}
+\def\addvspace#1{\vskip#1\relax}
+\def\typeout#1{\immediate\write\z@{#1}}
+\def\@warning#1{\typeout{WARNING: #1.}}
+% --------------------------
+\def\newpage{\par\vfil\penalty -\@M}
+\long\def\@ifundefined#1#2#3{\expandafter\ifx\csname 
+                     #1\endcsname\relax#2\else#3\fi}
+\def\@ifnextchar#1#2#3{\let\@tempe #1\def\@tempa{#2}\def\@tempb{#3}\futurelet
+    \@tempc\@ifnch}
+\def\@ifnch{\ifx \@tempc \@sptoken \let\@tempd\@xifnch
+      \else \ifx \@tempc \@tempe\let\@tempd\@tempa\else\let\@tempd\@tempb\fi
+      \fi \@tempd}
+\def\:{\let\@sptoken= } \:  % this makes \@sptoken a space token 
+\def\:{\@xifnch} \expandafter\def\: {\futurelet\@tempc\@ifnch}
+% --------------------------
+\def\@spaces{\space\space\space\space}
+\def\@width{width}
+\newdimen\@colroom
+\newdimen\@colht
+\newdimen\columnwidth
+\newdimen\textwidth
+% --------------------------
+\newdimen\columnsep          \columnsep=24pt
+\newdimen\columnseprule      \columnseprule = 0pt
+% ========================================================================
+% -------------------- MITTELBACH's MACROS -------------------------------
+% ========================================================================
+\newcount\unbalance           \unbalance          = 0
+\newcount\collectmore         \collectmore        = 0
+\newcount\tracingmulticols    \tracingmulticols   = 0
+\newcount\col@number
+\newcount\doublecol@number
+\newcount\multicoltolerance   \multicoltolerance    = 9999
+\newdimen\page@free
+\newdimen\premulticols        \premulticols         = 50pt
+\newdimen\postmulticols       \postmulticols        = 20pt
+\newskip\multicolsep          \multicolsep          = 12pt plus 4pt minus 3pt
+\newskip\multicolbaselineskip \multicolbaselineskip = 0pt
+\newbox\partial@page
+\newif\ifshr@nking
+%
+\@ifundefined{mult@cols}{}{\endinput}
+\ifnum\tracingmulticols>\z@ % <--------------------------------- added (B.J.)
+  \typeout{%
+     MULTI COLUMN format designed by Frank Mittelbach --- see TUGboat}
+  \typeout{%
+     Vol.10 (1989) No.3 pp.407--415> for doc.; PLAIN ver. 0.9 by B. Jackowski}
+\fi
+%
+\def\beginmulticols{\begingroup\multicols}% <--- substitute of LaTeX's phrase
+                                          % \begin{...} ... \end{...}  (B.J.)
+%
+\def\multicols#1{\col@number#1\relax
+  %
+  \adjust@PLAIN
+  %
+  \ifnum\col@number<\@ne
+  \@warning{Using `number\col@number'
+    columns doesn't seem a good idea.^^J
+    \@spaces\@spaces I therefore use two columns instead}%
+  \col@number\tw@ \fi
+ \@ifnextchar[\mult@cols{\mult@cols[]}}
+%
+\def\mult@cols[#1]{\@ifnextchar[%
+  {\mult@@cols{#1}}%
+  {\mult@@cols{#1}[\premulticols]}}
+%
+\def\mult@@cols#1[#2]{%
+  \ifnum\tracingmulticols>\z@
+  \typeout{^^J^^JStarting multicolumn
+           output with \the\col@number
+           \space columns:^^J}\fi
+  \enough@room#2%
+  {#1}\par % <-------------- instead of #1\par---it seems more natural (B.J.)
+           % the more so, as outer {} braces inside [] brackets are gobbled:
+           % \multicols{...}[cosik] is equivalent to \multicols{...}[{cosik}]
+  \addvspace\multicolsep
+  \begingroup
+  \prepare@multicols\ignorespaces}
+%
+\def\enough@room#1{\par \penalty\z@
+  \page@free \pagegoal
+  \advance \page@free -\pagetotal
+  \ifnum \tracingmulticols>\z@
+  \typeout{Current page:}%
+  \message{\@spaces goal height=%
+    \the\pagegoal: used \the\pagetotal
+    \space -> free\the\page@free}%
+  \typeout{\@spaces needed \the#1
+           (for \string#1)}\fi
+  \ifdim \page@free <#1\newpage \fi}
+%
+\def\prepare@multicols{%
+  \output{\global\setbox\partial@page
+                 \vbox{\unvbox\@cclv}}\eject
+  \vbadness9999 \hbadness5000
+  \tolerance\multicoltolerance
+  \doublecol@number\col@number
+  \multiply\doublecol@number\tw@
+  \advance\baselineskip\multicolbaselineskip
+  \advance\@colroom-\ht\partial@page
+  \vsize\col@number\@colroom
+  \advance\vsize\collectmore\baselineskip
+  \hsize\columnwidth \advance\hsize\columnsep
+  \advance\hsize-\col@number\columnsep
+  \divide\hsize\col@number
+%  \linewidth\hsize % <----------------- it seems unnecessary in PLAIN (B.J.)
+  \output{\multi@columnout}%
+  \multiply\count\footins\col@number
+  \multiply\skip \footins\col@number
+  \reinsert@footnotes}
+%
+\def\endmulticols{\par\penalty\z@
+  \output{\balance@columns}\eject
+  \endgroup \reinsert@footnotes
+  \global\unbalance\z@
+  \enough@room\postmulticols
+  \addvspace\multicolsep
+  \nointerlineskip % <------------------------------------------ added (B.J.)
+  \ifnum \tracingmulticols>\z@
+    \typeout{^^JEnding multicolumn
+             output.^^J^^J}\fi
+  \endgroup}
+%
+\def\process@cols#1#2{\count@#1\relax
+  \loop #2%
+    \advance\count@\tw@
+    \ifnum\count@<\doublecol@number
+  \repeat}
+%
+\def\page@sofar{\unvbox\partial@page
+  \process@cols\z@{\wd\count@\hsize}%
+  \hbox to \textwidth{%
+    \process@cols\tw@{\box\count@
+      \hss\vrule\@width\columnseprule\hss}%
+      \box\z@}}
+%
+\def\reinsert@footnotes{\ifvoid\footins\else
+  \insert\footins{\unvbox\footins}\fi}
+%
+\def\multi@columnout{%
+  \ifnum\outputpenalty <-\@Mi
+    \speci@ls
+  \else
+    \splittopskip\topskip
+    \splitmaxdepth\maxdepth
+    \dimen@\@colroom
+    \divide\skip\footins\col@number
+    \ifvoid\footins \else
+      \advance\dimen@-\skip\footins
+      \advance\dimen@-\ht\footins   \fi
+    \process@cols\tw@{\setbox\count@
+             \vsplit\@cclv to\dimen@}%
+   \setbox\z@\vsplit\@cclv to\dimen@
+   \ifvoid\@cclv \else
+     \unvbox\@cclv
+     \penalty\outputpenalty
+     \ifnum \tracingmulticols>\tw@
+                  \hrule\allowbreak \fi
+     \ifvoid\footins\else % <----------------------------------- added (B.J.)
+       \@warning{I moved some lines to the next page.^^J
+                 \@spaces\@spaces Footnotes on page \thepage\space
+                 might be wrong}\fi\fi
+     \setbox\@cclv\vbox{\page@sofar}%
+%     \plainoutput % <---------------- instead of \@makecol\@outputpage (B.J.)
+     \the\@uteroutput % <------------- instead of \plainoutput (P.P.)
+     \global\@colroom\@colht
+     \process@deferreds
+     \ifnum\tracingmulticols>\@ne
+       \typeout{Colroom: \the\@colht\space after float
+                space removed = \the\@colroom}\fi
+     \global\vsize\col@number\@colroom
+     \global\advance\vsize \collectmore\baselineskip
+     \multiply\skip\footins\col@number
+   \fi}
+%
+\def\speci@ls{%
+  \typeout{Floats and marginpars not allowed inside
+           `multicols' environement!}%
+  \unvbox\@cclv\reinsert@footnotes
+%  \gdef\@currlist{}% <----------------------------- not used in PLAIN (B.J.)
+  }
+%
+\def\process@deferreds{}% <---------- instead of the `percented' macro (B.J.)
+                        % (temporarily: until I'll learn what all that
+                        %  mumbling means)
+%\def\process@deferreds{%
+% \@floatplacement
+% \begingroup
+%   \let\@tempb\@deferlist
+%  \gdef\@deferlist{}%
+%  \let\@elt\@scoelt
+%  \@tempb \endgroup}
+%
+% Originally: <------------------------------------------------------- (B.J.)
+%\def\raggedcolumns{\@bsphack\shr@nkingtrue\@esphack}
+%\def\flushcolumns{\@bsphack\shr@nkingfalse\@esphack}
+%
+\def\raggedcolumns{\shr@nkingtrue}
+\def\flushcolumns{\shr@nkingfalse}
+%
+\def\balance@columns{%
+  \splittopskip\topskip
+  \splitmaxdepth\maxdepth
+  \setbox\z@\vbox{\unvbox\@cclv}\dimen@\ht\z@
+  \advance\dimen@ \col@number\topskip
+  \advance\dimen@ -\col@number\baselineskip
+  \divide\dimen@ \col@number
+  \advance\dimen@ \unbalance\baselineskip
+  \ifnum\tracingmulticols>\@ne
+    \typeout{Balance columns: \ifnum\unbalance=\z@\else
+             (off balance=\number\unbalance)\fi}%
+  \fi
+  {\vbadness\@M
+    \loop
+      {\process@cols\@ne{\global\setbox\count@\box\voidb@x}}%
+      \global\setbox\@ne\copy\z@
+      {\process@cols\thr@@{\global\setbox\count@
+                           \vsplit\@ne to\dimen@}}%
+  %
+  % ... After \process@cols has done its job we have the following situation:
+  %                 box0 <-- all material
+  %                 box3 <-- first column
+  %                 box5 <-- second column
+  %                 ...
+  %                 box1 <-- last column ...
+  %
+      \ifnum\tracingmulticols>\@ne
+        \message{\@spaces First column = \the\ht\thr@@}\fi
+      \ifshr@nking \global\setbox\thr@@\vbox{\unvbox\thr@@}%
+        \ifnum\tracingmulticols>\@ne
+          \message{ after shrinking \the\ht\thr@@}\fi\fi
+      \ifnum\tracingmulticols>\@ne
+        \message{<> last column = \the\ht\@ne}%
+        \typeout{}\fi
+      \ifdim\ht\@ne > \ht\thr@@
+      \global\advance\dimen@\p@
+    \repeat}%
+  \dimen@\ht\thr@@
+  \process@cols\z@{\@tempcnta\count@
+    \advance\@tempcnta\@ne
+    \setbox\count@\vtop to\dimen@
+      {\unvbox\@tempcnta
+       \ifshr@nking\vfill\fi}}%
+   \global\vsize\@colroom
+   \global\advance\vsize\ht\partial@page
+   \page@sofar}
+% ========================================================================
+\catcode`\@=12 % default PLAIN value
+% ========================================================================
+\endinput

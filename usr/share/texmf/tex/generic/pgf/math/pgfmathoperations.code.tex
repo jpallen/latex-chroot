@@ -1,0 +1,781 @@
+% Copyright 2007 by Mark Wibrow
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the file doc/generic/pgf/licenses/LICENSE for more details.
+
+% This file defines the mathematical functions and operators.
+%
+% Version 0.0 08/03/2007
+
+% This file defines the mathematical functions and operators.
+%
+% Adding/redefining extra operators/functions:
+%
+% Each operator/function XXX has two forms:
+%
+%
+% \pgfmathXXX#1...   a public version which evaluates any
+%                    arguments passed to it and passes the
+%                    results on to...
+%
+% \pgfmathXXX@#1...  a non-public version which performs 
+%                    required calculation on arguments which
+%                    must have already been evaluated (i.e.
+%                    *without* dimensions).
+% 
+% If a function XXX is to be included in the parser, it is 
+% recommended, for consistency, that where possible, the 
+% pgfmathparser file should define the macro \pgfmath@parseXXX.
+% The parser should (ideally) then call \pgfmathXXX@.
+%
+% It is recommend that the pgfmath versions of the pgf dimension
+% and count registers be used, i.e., \pgfmath@x for \pgfmath@x, 
+% \c@pgfmath@counta for c@pgfmath@counta, and so on. These are currently
+% \let to their pgf equivalents, but it may be necessary to change 
+% this.
+%
+% It is also recommened that all calculations (where necessary)
+% take place within a TeX group. \pgfmath@returnone#1 makes and
+% expanded version of #1 global and stores this in \pgfmathresult 
+% after the group is ended.
+%
+
+\input pgfmathtrig.code.tex% Load the trig. stuff.
+\input pgfmathrnd.code.tex%  Load the random stuff.
+
+
+% \pgfmathadd
+%
+% Add #1 and #2.
+%
+\def\pgfmathadd#1#2{%
+	\pgfmathparse{#1}\edef\pgfmath@adda{\pgfmathresult}%
+	\pgfmathparse{#2}\edef\pgfmath@addb{\pgfmathresult}%
+	\pgfmathadd@{\pgfmath@adda}{\pgfmath@addb}}
+\def\pgfmathadd@#1#2{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\expandafter\pgfmath@y#2pt\relax%
+		\advance\pgfmath@x by\pgfmath@y%
+		\pgfmath@returnone\pgfmath@x%
+	\endgroup%
+}
+
+% \pgfmathsubtract
+%
+% Subtract #2 from #1.
+%
+\def\pgfmathsubtract#1#2{%
+	\pgfmathparse{#1}\edef\pgfmath@subtracta{\pgfmathresult}%
+	\pgfmathparse{#2}\edef\pgfmath@subtractb{\pgfmathresult}%
+	\pgfmathsubtract@{\pgfmath@subtracta}{\pgfmath@subtractb}}
+
+\def\pgfmathsubtract@#1#2{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\expandafter\pgfmath@y#2pt\relax%
+		\advance\pgfmath@x by-\pgfmath@y%
+		\pgfmath@returnone\pgfmath@x%
+	\endgroup%
+}
+
+% \pgfmathmultiply
+%
+% Multiply #1 by #2.
+%
+\def\pgfmathmultiply#1#2{%
+	\pgfmathparse{#1}\edef\pgfmath@multiplya{\pgfmathresult}%
+	\pgfmathparse{#2}\edef\pgfmath@multiplyb{\pgfmathresult}%
+	\pgfmathmultiply@{\pgfmath@multiplya}{\pgfmath@multiplyb}}
+\def\pgfmathmultiply@#1#2{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\expandafter\pgfmath@x#2\pgfmath@x%
+		\pgfmath@returnone\pgfmath@x%
+	\endgroup%
+}
+
+% \pgfmathdivide
+%
+% Divide #1 by #2.
+%
+\def\pgfmathdivide#1#2{%
+	\pgfmathparse{#1}\edef\pgfmath@dividea{\pgfmathresult}%
+	\pgfmathparse{#2}\edef\pgfmath@divideb{\pgfmathresult}%
+	\pgfmathdivide@{\pgfmath@dividea}{\pgfmath@divideb}}
+\def\pgfmathdivide@#1#2{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		% If #2 is an integer use TeX arithmatic.
+		\expandafter\pgfmath@xa#2pt\relax%
+		\afterassignment\pgfmath@xa%
+		\expandafter\c@pgfmath@counta\the\pgfmath@xa\relax%
+		\ifdim\pgfmath@xa=0pt\relax%
+			\ifnum\c@pgfmath@counta=0\relax%
+			\pgfmath@error{Division by zero.}{}%
+		\fi%
+			\divide\pgfmath@x\c@pgfmath@counta%
+		\else%
+			\pgfmathreciprocal@{#2}%
+			\pgfmath@x=\pgfmathresult\pgfmath@x%
+		\fi%
+		\pgfmath@returnone\pgfmath@x%
+	\endgroup%
+}
+
+% \pgfmathgreaterthan
+%
+% 1.0 if #1 > #2. Otherwise 0.0
+%
+\def\pgfmathgreaterthan#1#2{%
+	\pgfmathparse{#1}\edef\pgfmath@greaterthana{\pgfmathresult}%
+	\pgfmathparse{#2}\edef\pgfmath@greaterthanb{\pgfmathresult}%
+	\pgfmathgreaterthan@{\pgfmath@greaterthana}{\pgfmath@greaterthanb}}
+\def\pgfmathgreaterthan@#1#2{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\expandafter\pgfmath@y#2pt\relax%
+		\advance\pgfmath@x-\pgfmath@y%
+		\ifdim\pgfmath@x>0pt\relax%
+			\pgfmath@x1pt\relax%
+		\else%
+			\pgfmath@x0pt\relax%
+		\fi%
+		\pgfmath@returnone\pgfmath@x%
+	\endgroup%
+}
+
+% \pgfmathlessthan
+%
+% 1.0 if #1< #2. Otherwise 0.0
+%
+\def\pgfmathlessthan#1#2{%
+	\pgfmathparse{#1}\edef\pgfmath@lessthana{\pgfmathresult}%
+	\pgfmathparse{#2}\edef\pgfmath@lessthanb{\pgfmathresult}%
+	\pgfmathlessthan@{\pgfmath@lessthana}{\pgfmath@lessthanb}}
+\def\pgfmathlessthan@#1#2{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\expandafter\pgfmath@y#2pt\relax%
+		\advance\pgfmath@x-\pgfmath@y\relax%
+		\ifdim\pgfmath@x<0pt\relax%
+			\pgfmath@x1pt\relax%
+		\else%
+			\pgfmath@x0pt\relax%
+		\fi%
+		\pgfmath@returnone\pgfmath@x%
+	\endgroup%
+}
+
+% \pgfmathequalto
+%
+% 1.0 if #1 = #2. Otherwise 0.0
+%
+\def\pgfmathequalto#1#2{%
+	\pgfmathparse{#1}\edef\pgfmath@equaltoa{\pgfmathresult}%
+	\pgfmathparse{#2}\edef\pgfmath@equaltob{\pgfmathresult}%
+	\pgfmathadd@{\pgfmath@equaltoa}{\pgfmath@equaltob}}
+\def\pgfmathequalto@#1#2{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\expandafter\pgfmath@y#2pt\relax%
+		\advance\pgfmath@x-\pgfmath@y%
+		\ifdim\pgfmath@x=0pt\relax%
+			\pgfmath@x1pt\relax%
+		\else%
+			\pgfmath@x0pt\relax%
+		\fi%
+		\pgfmath@returnone\pgfmath@x%
+	\endgroup%
+}
+
+% \pgfmathreciprocal
+%
+% 1 / #1
+%
+\def\pgfmathreciprocal#1{%
+	\pgfmathparse{#1}%
+	\pgfmathreciprocal@{\pgfmathresult}}
+\def\pgfmathreciprocal@#1{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\ifdim\pgfmath@x=0pt\relax%
+			\pgfmath@error{Division by zero.}{}%
+		\fi%
+		\edef\pgfmath@reciprocaltemp{\pgfmath@tonumber{\pgfmath@x}}%
+		\expandafter\pgfmathreciprocal@@\pgfmath@reciprocaltemp00000\pgfmath@}
+\def\pgfmathreciprocal@@#1.#2#3#4#5#6#7\pgfmath@{%
+		\c@pgfmath@counta#2#3#4#5#6\relax%
+		% If the number is an integer, use TeX arithmatic.
+		\ifnum\c@pgfmath@counta=0\relax%
+			\pgfmath@x1pt\relax%
+			\divide\pgfmath@x#1\relax%
+		\else%
+			\c@pgfmath@counta#1#2#3#4#5#6\relax%
+			\c@pgfmath@countb1000000000\relax%
+			\divide\c@pgfmath@countb\c@pgfmath@counta%
+			\c@pgfmath@counta\c@pgfmath@countb%
+			\divide\c@pgfmath@counta10000\relax%
+			\pgfmath@x\c@pgfmath@counta pt\relax%
+			\multiply\c@pgfmath@counta-10000\relax%
+			\advance\c@pgfmath@countb\c@pgfmath@counta%
+			\pgfmath@y\c@pgfmath@countb pt\relax%
+			\pgfmath@y.1\pgfmath@y% Yes! This way is more accurate. Go figure...
+			\pgfmath@y.1\pgfmath@y%	
+			\pgfmath@y.1\pgfmath@y%	
+			\pgfmath@y.1\pgfmath@y%			
+			\advance\pgfmath@x\pgfmath@y%
+		\fi%
+		\pgfmath@returnone\pgfmath@x%
+	\endgroup
+}
+
+	
+% \pgfmathabs
+%
+% Calculate |#1|
+%
+\def\pgfmathabs#1{%
+	\pgfmathparse{#1}%
+	\pgfmathabsolute@{\pgfmathresult}}
+\def\pgfmathabs@#1{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\ifdim\pgfmath@x<0pt\relax%
+			\pgfmath@x=-\pgfmath@x%
+		\fi%
+	\pgfmath@returnone\pgfmath@x%
+	\endgroup%
+}
+
+% \pgfmathmod
+%
+% Calculate #1 mod #2.
+%
+\def\pgfmathmod#1#2{%
+	\pgfmathparse{#1}\edef\pgfmath@moda{\pgfmathresult}%
+	\pgfmathparse{#2}\edef\pgfmath@modb{\pgfmathresult}%
+	\pgfmathmod@{\pgfmath@mod@a}{\pgfmath@modb}%
+}
+\def\pgfmathmod@#1#2{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\pgfmath@xa\pgfmath@x%
+		\expandafter\pgfmath@xb#2pt\relax%
+		\c@pgfmath@counta=\pgfmath@xa%
+		\c@pgfmath@countb=\pgfmath@xb%
+		\divide\c@pgfmath@counta\c@pgfmath@countb%
+		\multiply\pgfmath@xb\c@pgfmath@counta%
+		\advance\pgfmath@x-\pgfmath@xb%
+		\pgfmath@returnone\pgfmath@x%
+	\endgroup%
+}
+
+% \pgfmathsqrt
+%
+% Square-root of #1.
+%
+%
+\def\pgfmathsqrt#1{%
+	\pgfmathparse{#1}%
+	\pgfmathsqrt{\pgfmathresult}}
+\def\pgfmathsqrt@#1{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\ifdim\pgfmath@x>9999pt\relax%
+			\def\pgfmath@zeros{0}%
+			\def\pgfmath@targetiterations{3}%
+		\else%
+			\ifdim\pgfmath@x>999pt\relax%
+				\def\pgfmath@zeros{}%
+				\def\pgfmath@targetiterations{2}%
+			\else%
+				\ifdim\pgfmath@x>99pt\relax%
+					\def\pgfmath@zeros{0}%
+					\def\pgfmath@targetiterations{2}%
+				\else%
+					\ifdim\pgfmath@x>9pt\relax%
+						\def\pgfmath@zeros{}%
+						\def\pgfmath@targetiterations{1}%
+					\else%
+						\ifdim\pgfmath@x<0pt\relax%
+							\pgfmath@error{Cannot calculate the square-root of the negative number `#1'}{}%
+						\else%
+							\def\pgfmath@zeros{0}%
+							\def\pgfmath@targetiterations{1}%
+		\fi\fi\fi\fi\fi%
+		\edef\pgfmath@temp{\pgfmath@zeros\pgfmath@tonumber{\pgfmath@x}}%
+		\expandafter\pgfmath@sqrt@\pgfmath@temp\pgfmath@%
+}
+\def\pgfmath@sqrt@#1.#2\pgfmath@{\pgfmath@@sqrt@#1#2\pgfmath@empty\pgfmath@empty\pgfmath@}
+
+\def\pgfmath@@sqrt@#1#2{%
+		\c@pgfmath@countb#1#2\relax%
+		\ifnum\c@pgfmath@countb>35\relax%
+			\ifnum\c@pgfmath@countb>63\relax%
+				\ifnum\c@pgfmath@countb>80\relax%
+					\c@pgfmath@counta9\relax%
+				\else%
+					\c@pgfmath@counta8\relax%
+				\fi%
+			\else%
+				\ifnum\c@pgfmath@countb>48\relax%
+					\c@pgfmath@counta7\relax%
+				\else%
+					\c@pgfmath@counta6\relax%
+				\fi%
+			\fi%
+		\else%
+			\ifnum\c@pgfmath@countb>15\relax%
+				\ifnum\c@pgfmath@countb>24\relax%
+					\c@pgfmath@counta5\relax%
+				\else%
+					\c@pgfmath@counta4\relax%
+				\fi%
+			\else%
+				\ifnum\c@pgfmath@countb>3\relax%
+					\ifnum\c@pgfmath@countb>8\relax%
+						\c@pgfmath@counta3\relax%
+					\else%
+						\c@pgfmath@counta2\relax%
+					\fi%
+				\else%
+					\ifnum\c@pgfmath@countb>0\relax%
+						\c@pgfmath@counta1\relax%
+					\else%
+						\c@pgfmath@counta0\relax%
+					\fi%
+				\fi%
+			\fi%
+		\fi%
+		\edef\pgfmath@root{\the\c@pgfmath@counta}%
+		\edef\pgfmath@rootspecial{\the\c@pgfmath@counta}%
+		\multiply\c@pgfmath@counta-\c@pgfmath@counta\relax%
+		\advance\c@pgfmath@counta#1#2\relax%
+		\edef\pgfmath@remainder{\the\c@pgfmath@counta}%
+		\pgfmath@@@sqrt@%
+}
+
+\def\pgfmath@@@sqrt@#1#2{%
+		\ifx\pgfmath@empty#1%
+			\edef\pgfmath@remainder{\pgfmath@remainder00}%
+			\def\pgfmath@tokens{\pgfmath@empty\pgfmath@empty}%
+		\else%
+			\ifx\pgfmath@empty#2%
+				\edef\pgfmath@remainder{\pgfmath@remainder#10}%
+				\def\pgfmath@tokens{\pgfmath@empty\pgfmath@empty}%
+			\else%
+				\edef\pgfmath@remainder{\pgfmath@remainder#1#2}%
+				\def\pgfmath@tokens{}%
+		\fi\fi%
+		\c@pgfmath@counta\pgfmath@rootspecial\relax%
+		\multiply\c@pgfmath@counta20\relax%
+		\c@pgfmath@countb\c@pgfmath@counta%
+		\multiply\c@pgfmath@countb6\relax%
+		\advance\c@pgfmath@countb36\relax%
+		\c@pgfmath@countc\c@pgfmath@counta\relax%
+		\multiply\c@pgfmath@countc2\relax%
+		\ifnum\c@pgfmath@countb>\pgfmath@remainder\relax% 
+			\advance\c@pgfmath@countb-\c@pgfmath@countc%
+			\advance\c@pgfmath@countb-20\relax%
+			\ifnum\c@pgfmath@countb>\pgfmath@remainder\relax%
+				\advance\c@pgfmath@countb-\c@pgfmath@countc%
+				\advance\c@pgfmath@countb-12\relax%
+				\ifnum\c@pgfmath@countb>\pgfmath@remainder\relax%
+					\advance\c@pgfmath@countb-\c@pgfmath@counta%
+					\advance\c@pgfmath@countb-3\relax%
+					\ifnum\c@pgfmath@countb>\pgfmath@remainder\relax%
+						\def\pgfmath@digit{0}%
+					\else%
+						\def\pgfmath@digit{1}%
+					\fi%
+				\else%
+					\advance\c@pgfmath@countb\c@pgfmath@counta%
+					\advance\c@pgfmath@countb5\relax%
+					\ifnum\c@pgfmath@countb>\pgfmath@remainder\relax%
+						\def\pgfmath@digit{2}%
+					\else%
+						\def\pgfmath@digit{3}%
+					\fi%
+				\fi%
+			\else%
+				\advance\c@pgfmath@countb\c@pgfmath@counta%
+				\advance\c@pgfmath@countb9\relax%
+				\ifnum\c@pgfmath@countb>\pgfmath@remainder\relax%
+					\def\pgfmath@digit{4}%
+				\else%
+					\def\pgfmath@digit{5}%
+				\fi%
+			\fi%
+		\else%
+			\advance\c@pgfmath@countb\c@pgfmath@countc%
+			\advance\c@pgfmath@countb28\relax%
+			\ifnum\c@pgfmath@countb>\pgfmath@remainder\relax%
+				\advance\c@pgfmath@countb-\c@pgfmath@counta%
+				\advance\c@pgfmath@countb-15\relax%
+				\ifnum\c@pgfmath@countb>\pgfmath@remainder\relax%
+					\def\pgfmath@digit{6}%
+				\else%
+					\def\pgfmath@digit{7}%
+				\fi%
+			\else%
+				\advance\c@pgfmath@countb\c@pgfmath@counta%
+				\advance\c@pgfmath@countb17\relax%
+				\ifnum\c@pgfmath@countb>\pgfmath@remainder\relax%
+					\def\pgfmath@digit{8}%
+				\else%
+					\def\pgfmath@digit{9}%
+				\fi%
+			\fi%
+		\fi%
+		\edef\pgfmath@rootspecial{\pgfmath@rootspecial\pgfmath@digit}%
+		\advance\c@pgfmath@counta\pgfmath@digit\relax%
+		\multiply\c@pgfmath@counta-\pgfmath@digit\relax%
+		\advance\c@pgfmath@counta\pgfmath@remainder\relax%
+		\edef\pgfmath@remainder{\the\c@pgfmath@counta}%
+		\c@pgfmath@counta\pgfmath@targetiterations\relax%
+		\advance\c@pgfmath@counta-1\relax%
+		\edef\pgfmath@targetiterations{\the\c@pgfmath@counta}%
+		\ifnum\c@pgfmath@counta=0\relax%
+			\edef\pgfmath@root{\pgfmath@root.\pgfmath@digit}%
+		\else%
+			\edef\pgfmath@root{\pgfmath@root\pgfmath@digit}%
+		\fi%
+		\ifnum\c@pgfmath@counta=-4\relax%
+			\let\pgfmath@next\pgfmath@sqrt@end%
+		\else%
+			\let\pgfmath@next\pgfmath@@@sqrt@%
+		\fi%
+		\expandafter\pgfmath@next\pgfmath@tokens%
+}
+
+\def\pgfmath@sqrt@end#1\pgfmath@{%
+		\edef\pgfmathresult{\pgfmath@root}%
+		\pgfmath@smuggleone\pgfmathresult%
+	\endgroup}
+
+% \pgfmathpow
+%
+% Calculates #1 ^ #2
+%
+% #2 is expected to be an integer.
+%
+\def\pgfmathpow#1#2{%
+	\pgfmathparse{#1}\edef\pgfmath@powera{\pgfmathresult}%
+	\pgfmathparse{#2}\edef\pgfmath@powerb{\pgfmathresult}%
+	\pgfmathpow@{\pgfmath@powera}{\pgfmath@powerb}}
+\def\pgfmathpow@#1#2{%
+	\begingroup%
+		\expandafter\pgfmath@xa#1pt\relax%
+		\afterassignment\pgfmath@gobbletilpgfmath@%
+		\expandafter\c@pgfmath@counta#2\relax\pgfmath@
+		% If #2 is negative, take the reciprocal of #1
+		% and the absolute value of #2, and carry on.
+		%
+		\ifnum\c@pgfmath@counta<0\relax%
+			\c@pgfmath@counta-\c@pgfmath@counta%
+			\pgfmathreciprocal@{#1}%
+			\pgfmath@xa\pgfmathresult pt\relax%
+		\fi%
+		\pgfmath@x=1pt\relax%
+		\pgfmathloop%
+			\ifnum\c@pgfmath@counta>0\relax%
+				\ifodd\c@pgfmath@counta%
+					\pgfmath@x\pgfmath@tonumber{\pgfmath@x}\pgfmath@xa%
+				\fi
+				\ifnum\c@pgfmath@counta>1\relax%
+					\pgfmath@xa=\pgfmath@tonumber{\pgfmath@xa}\pgfmath@xa%
+				\fi%
+				\divide\c@pgfmath@counta by 2\relax%
+		\repeatpgfmathloop%
+		\pgfmath@returnone\pgfmath@x%
+	\endgroup%
+}	
+
+
+% \pgfmathround
+% 
+% Half-up rounding.
+%
+\def\pgfmathround#1{%
+	\pgfmathparse{#1}%
+	\pgfmathround@{\pgfmathresult}}
+\def\pgfmathround@#1{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\afterassignment\pgfmath@xa%
+		\expandafter\c@pgfmath@counta\the\pgfmath@x\relax%
+		\pgfmath@xb\pgfmath@x%
+		\ifdim\pgfmath@xb<0pt\relax%
+			\ifdim\pgfmath@xa<0.5pt\relax%
+			\else%
+				\advance\c@pgfmath@counta-1\relax%
+			\fi%
+		\else%
+			\ifdim\pgfmath@xa<0.5pt\relax%
+			\else%
+				\advance\c@pgfmath@counta1\relax%
+			\fi%
+		\fi%
+		\pgfmath@returnone\c@pgfmath@counta%
+	\endgroup%
+}%
+
+% \pgfmathfloor
+% 
+% Floor function.
+%
+\def\pgfmathfloor#1{%
+	\pgfmathparse{#1}%
+	\expandafter\pgfmathfloor@\expandafter{\pgfmathresult}}
+\def\pgfmathfloor@#1{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\afterassignment\pgfmath@gobbletilpgfmath@%
+		\expandafter\c@pgfmath@counta\the\pgfmath@x\relax\pgfmath@%
+		\pgfmath@x\c@pgfmath@counta pt\relax%
+		\pgfmath@returnone\pgfmath@x%
+	\endgroup
+}%
+
+% \pgfmathceil
+% 
+% Ceiling function.
+%
+\def\pgfmathceil#1{%
+	\pgfmathparse{#1}%
+	\expandafter\pgfmathceil@\expandafter{\pgfmathresult}}
+\def\pgfmathceil@#1{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\afterassignment\pgfmath@gobbletilpgfmath@%
+		\expandafter\c@pgfmath@counta\the\pgfmath@x\relax\pgfmath@%
+		\pgfmath@y\pgfmath@x%
+		\advance\pgfmath@y-\c@pgfmath@counta pt\relax%
+		\pgfmath@x\c@pgfmath@counta pt\relax%
+		\ifdim\pgfmath@y>0pt\relax%
+			\advance\pgfmath@x1pt\relax%
+		\fi%
+	\pgfmath@returnone\pgfmath@x%
+	\endgroup%
+}%
+
+% \pgfmathexp
+%
+% A Maclaurens expansion for e^#1.
+% 0 <= #1 < ln(16384).
+%
+\def\pgfmathexp#1{%
+	\pgfmathparse{#1}%
+	\expandafter\pgfmathexp@\expandafter{\pgfmathresult}}
+\def\pgfmathexp@#1{%
+	\begingroup%
+		\pgfmath@x1pt\relax%
+		\pgfmath@xa1pt\relax%
+		\pgfmath@xb\pgfmath@x%
+		\pgfmathloop%
+			\pgfmath@xc\pgfmathcounter pt\relax%
+			\c@pgfmath@counta\pgfmath@xc%
+			\divide\c@pgfmath@counta65536\relax%
+			\pgfmath@xc1pt\relax%
+			\divide\pgfmath@xc\c@pgfmath@counta%
+			\pgfmath@xa\pgfmath@tonumber{\pgfmath@xc}\pgfmath@xa%
+			\expandafter\pgfmath@xa#1\pgfmath@xa%
+			\advance\pgfmath@x\pgfmath@xa%
+			\ifdim\pgfmath@x=\pgfmath@xb%
+			\else%
+				\pgfmath@xb\pgfmath@x%
+		\repeatpgfmathloop%
+	\pgfmath@returnone\pgfmath@x%
+	\endgroup%
+}
+
+
+
+% \pgfmathvectorlength
+%
+% Calcluate the Eulidean length of a 2D vector.
+%
+% This based on polynomial approximation co-efficents
+% contributed by Rouben Rostamian.
+%
+% #1 - the x component of the vector.
+% #2 - the y component of the vector.
+%
+% P(x) = c0 + x^2 * (c1 + x^2 * (c2 + x^2 * ( c3 + c4 * x^2)))
+\def\pgfmath@cE{-0.01019}
+\def\pgfmath@cD{0.04453}
+\def\pgfmath@cC{-0.11951}
+\def\pgfmath@cB{0.49936}
+\def\pgfmath@cA{1.00001}
+
+\def\pgfmathveclen#1#2{%
+	\pgfmathparse{#1}\edef\pgfmath@vecx{\pgfmathresult}%
+	\pgfmathparse{#2}\edef\pgfmath@vecy{\pgfmathresult}%
+	\pgfmathveclen@{\pgfmath@vecx}{\pgfmath@vecy}%
+}
+\def\pgfmathveclen@#1#2{%
+	\begingroup%
+		\expandafter\pgfmath@x#1pt\relax%
+		\expandafter\pgfmath@y#2pt\relax%
+		\pgfmath@xa\pgfmath@x%
+		\ifdim\pgfmath@xa=0pt\relax%
+			\pgfmath@xa\pgfmath@y%
+		\fi%
+		\ifdim\pgfmath@xa=0pt\relax%
+		\else%
+			\ifdim\pgfmath@x<0pt\relax\pgfmath@x-\pgfmath@x\fi%
+			\ifdim\pgfmath@y<0pt\relax\pgfmath@y-\pgfmath@y\fi%
+			\ifdim\pgfmath@x>\pgfmath@y%
+				\pgfmath@xa\pgfmath@x%
+				\pgfmath@x\pgfmath@y%
+				\pgfmath@y\pgfmath@xa%
+			\fi%
+			% We use a scaling factor to reduce errors.
+			\ifdim\pgfmath@y>10000pt\relax%
+				\c@pgfmath@counta1500\relax%
+			\else%
+				\ifdim\pgfmath@y>1000pt\relax%
+					\c@pgfmath@counta150\relax%
+				\else%
+					\ifdim\pgfmath@y>100pt\relax%
+						\c@pgfmath@counta50\relax%
+					\else%
+						\c@pgfmath@counta1\relax%
+					\fi%
+				\fi%
+			\fi%
+			\divide\pgfmath@x by\c@pgfmath@counta\relax%
+			\divide\pgfmath@y by\c@pgfmath@counta\relax%
+			\pgfmathreciprocal@{\pgfmath@tonumber{\pgfmath@y}}%
+			\pgfmath@x=\pgfmathresult\pgfmath@x%
+			\pgfmath@xa=\pgfmath@tonumber{\pgfmath@x}\pgfmath@x%
+			\edef\pgfmath@xsq{\pgfmath@tonumber{\pgfmath@xa}}%
+			\pgfmath@x=\pgfmath@cE\pgfmath@xa%
+			\advance\pgfmath@x by\pgfmath@cD pt\relax%
+			\pgfmath@x=\pgfmath@xsq\pgfmath@x%
+			\advance\pgfmath@x by\pgfmath@cC pt\relax%
+			\pgfmath@x=\pgfmath@xsq\pgfmath@x%
+			\advance\pgfmath@x by\pgfmath@cB pt\relax%
+			\pgfmath@x=\pgfmath@xsq\pgfmath@x%
+			\advance\pgfmath@x by\pgfmath@cA pt\relax%
+			\ifdim\pgfmath@y<0pt\relax%
+				\pgfmath@y=-\pgfmath@y%
+			\fi%
+			\pgfmath@x=\pgfmath@tonumber{\pgfmath@y}\pgfmath@x%
+			% Invert the scaling factor.
+			\multiply\pgfmath@x by\c@pgfmath@counta\relax%
+		\fi%
+		\pgfmath@returnone\pgfmath@x%
+	\endgroup%
+}
+
+% \pgfmathmax
+%
+% Return the maximum of #1 or #2
+%
+\def\pgfmathmax#1#2{%
+	\pgfmathparse@{#1}\edef\pgfmath@firstoperand{\pgfmathresult}%
+	\pgfmathparse@{#2}\edef\pgfmath@secondoperand{\pgfmathresult}%
+	\pgfmathmax@{\pgfmath@firstoperand}{\pgfmath@secondoperand}}
+\def\pgfmathmax@#1#2{%
+	\begingroup
+		\expandafter\pgfmath@x#1pt\relax%
+		\expandafter\pgfmath@y#2pt\relax%
+		\ifdim\pgfmath@x>\pgfmath@y%
+			\pgfmath@returnone\pgfmath@x%
+		\else%
+			\pgfmath@returnone\pgfmath@y%
+		\fi%
+	\endgroup}
+
+% \pgfmathmax
+%
+% Return the minimim of #1 or #2
+%
+\def\pgfmathmin#1#2{%
+	\pgfmathparse@{#1}\edef\pgfmath@firstoperand{\pgfmathresult}%
+	\pgfmathparse@{#2}\edef\pgfmath@secondoperand{\pgfmathresult}%
+	\pgfmathmin@{\pgfmath@firstoperand}{\pgfmath@secondoperand}}
+\def\pgfmathmin@#1#2{%
+	\begingroup
+		\expandafter\pgfmath@x#1pt\relax%
+		\expandafter\pgfmath@y#2pt\relax%
+		\ifdim\pgfmath@x<\pgfmath@y%
+			\pgfmath@returnone\pgfmath@x%
+		\else%
+			\pgfmath@returnone\pgfmath@y%
+		\fi%
+	\endgroup%
+}
+
+% \pgfmathscientific
+%
+% Return the value of #1e#2
+%
+% e.g. \pgfmathscientific{1.23456789123}{4}
+%
+% defines \pgfmathresult as 12345.67891
+%
+% NB This arguments *are not parsed*, as the long mantissa would be lost.
+%
+\def\pgfmathscientific#1#2{%
+	\begingroup%
+		\edef\pgfmath@sci@exponent{#2}%
+		\pgfmath@x#1pt\relax%
+		\ifdim\pgfmath@x<0pt\relax%
+			\pgfmath@x-\pgfmath@x%
+			\edef\pgfmath@sci@sign{-}%
+			\edef\pgfmath@temp{\pgfmath@gobbleone#1}%
+		\else%
+			\edef\pgfmath@sci@sign{+}%
+			\edef\pgfmath@temp{#1}%
+		\fi%
+		\expandafter\pgfmath@scientific@@\pgfmath@temp00000000000\pgfmath@}
+
+\def\pgfmath@scientific@@#1.#2#3#4#5#6{%
+		\edef\pgfmath@sci@int{#1}%
+		\edef\pgfmath@sci@mantissaA{#2#3#4#5#6}%
+		\pgfmath@scientific@@@}
+	
+\def\pgfmath@scientific@@@#1#2#3#4#5#6\pgfmath@{%
+		\edef\pgfmath@sci@mantissaB{#1#2#3#4#5}%
+		\c@pgfmath@counta\pgfmath@sci@exponent\relax%
+		\c@pgfmath@countb\c@pgfmath@counta%
+		\ifnum\c@pgfmath@counta<0\relax%
+			\c@pgfmath@counta-\c@pgfmath@counta%
+		\fi%
+		\pgfmathpow@{10}{\the\c@pgfmath@counta}%
+		\afterassignment\pgfmath@gobbletilpgfmath@
+		\c@pgfmath@countc\pgfmathresult\relax\pgfmath@
+		\edef\pgfmath@sci@factor{\the\c@pgfmath@countc}%
+		\ifnum\c@pgfmath@countb<0\relax%
+			% xE-y: easy...
+			\pgfmath@x\pgfmath@sci@int.\pgfmath@sci@mantissaA pt\relax%
+			\divide\pgfmath@x\pgfmath@sci@factor\relax%
+		\else%
+			% xE+y: 
+			% Must do this way so as not lose digits in a long mantissa. Sigh...
+			\c@pgfmath@counta\pgfmath@sci@int%
+			\c@pgfmath@countb\pgfmath@sci@mantissaA%
+			\multiply\c@pgfmath@counta\pgfmath@sci@factor\relax%
+			\multiply\c@pgfmath@countb\pgfmath@sci@factor\relax%
+			\c@pgfmath@countc\c@pgfmath@countb%
+			\divide\c@pgfmath@countb100000\relax%
+			\advance\c@pgfmath@counta\c@pgfmath@countb%
+			\multiply\c@pgfmath@countb100000\relax%
+			\advance\c@pgfmath@countc-\c@pgfmath@countb%
+			\c@pgfmath@countb\pgfmath@sci@mantissaB\relax%
+			\multiply\c@pgfmath@countb\pgfmath@sci@factor\relax%
+			\divide\c@pgfmath@countb100000\relax%
+			\advance\c@pgfmath@countc\c@pgfmath@countb%
+			\advance\c@pgfmath@countc100000\relax%
+			\edef\pgfmath@sci@result{\pgfmath@sci@sign\the\c@pgfmath@counta.\expandafter\pgfmath@gobbleone\the\c@pgfmath@countc pt}%
+			\pgfmath@x\pgfmath@sci@result\relax%
+		\fi%
+		\pgfmath@returnone\pgfmath@x%
+	\endgroup}

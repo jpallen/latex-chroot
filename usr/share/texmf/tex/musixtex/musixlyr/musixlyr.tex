@@ -1,0 +1,1162 @@
+%%
+%% musixlyr.tex:  Convenient lyrics handling for MusiXTeX T.52 or later
+%%
+%% Copyright (C) 1996-2003  Rainer Dunker
+%%
+%% This program is free software; you can redistribute it and/or modify
+%% it under the terms of the GNU General Public License as published by
+%% the Free Software Foundation; either version 2 of the License, or
+%% any later version.
+%%
+%% This program is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%% GNU General Public License for more details.
+%%
+%% You should have received a copy of the GNU General Public License
+%% along with this program; if not, write to the Free Software
+%% Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+%%
+%% Author:
+%%  Rainer Dunker
+%%  Wachtelweg 31
+%%  85591 Vaterstetten
+%%  Germany
+%%
+%%  E-mail:  rainer.dunker@web.de
+%%
+\ifx\undefined\lyr\else\endinput\fi
+\immediate\write10{MusiXLYRics 2.1c\space<June 10, 2003>}
+\def\musixlyrversion{2.12}
+
+\makeatletter
+
+%%%%%%%%%%
+%
+%  register allocation
+%
+%%%%%%%%%%
+\newtoks\alle@texte
+
+% internal parameters for setting text
+\let\evtl@klein\empty
+\let\evtl@komma\empty
+\let\evtl@punktweg\empty
+\let\evtl@offset\empty
+\let\evtl@next@lyr\empty
+\newif\if@strich
+\newif\iflyr@processing
+\newif\if@pmx@nextvoice
+\newif\if@lyrmode
+\newif\if@hyphen
+\newif\ifaux@active
+\newif\if@single@token
+\newdimen\lyr@shift
+\newbox\lyr@box
+\newbox\lyr@hyphen@box
+\newbox\lyr@linkbox
+\newbox\lyr@linkdepthbox
+\def\ma@sw{lyr@m}         % "main/aux switch"
+
+% helpers for shuffling data around
+\newtoks\@rohtext
+\newtoks\@textvar
+
+\let\text@name\empty
+
+% public parameters
+\newif\ifleftlyr
+\newif\ifforcelyrhyphens
+\newif\ifshowlyrshift
+\newdimen\minlyrrulelength     \minlyrrulelength=2mm
+\newdimen\minmulthyphens       \minmulthyphens=1.5cm
+\newdimen\minlyrspace          \minlyrspace=3pt
+\def\lyrhyphenchar{-}
+\newbox\lyrstrutbox
+\def\lyrlinestartpos{-10cm }
+\def\oldlyrlinestart{\def\lyrlinestartpos{0pt }} % to restore 2.1 behaviour
+
+\def\lyrlog#1{\immediate\write16{#1}} % just for debugging convenience
+
+% for testing token lists for emptyness with \ifx
+\def\emp@tst{\empty@test@errmsg}
+\def\empty@test@errmsg{%
+  \errmessage{This shouldn't happen; you have found a musixlyr bug}}
+
+%%%%%%%%%%
+%
+%  lyrics definition
+%
+%%%%%%%%%%
+% set up text completely
+\def\setlyrics#1#2{%   iterative variant
+  % Parameter:
+  % #1 - lyrics line name
+  % #2 - text
+  \@rohtext={#2 -}%
+  \@textvar={}%
+  %\lyrlog{setlyrics{#1}, raw text: \the\@rohtext}%
+  \loop
+   \expandafter\ifx\expandafter\emp@tst\the\@rohtext\emp@tst % no more text
+     \let\@weiter n\else \let\@weiter j%
+   \fi
+   \ifx\@weiter j%
+    \expandafter\split@lyr@by@hyphens\the\@rohtext\@end
+  \repeat
+  \expandafter\xdef\csname dertext@#1\endcsname{\the\@textvar}%
+  \expandafter\xdef\csname nochtext@#1\endcsname{\the\@textvar}%
+  %\lyrlog{setlyrics{#1}: \the\@textvar}%
+  \initialize@verse{#1}}
+
+\def\appendlyrics#1#2{%   iterative variant
+  % Parameter:
+  % #1 - lyrics line name
+  % #2 - text
+  % test whether lyrics line name already defined
+  \expandafter\ifx\csname stp@#1\endcsname\relax
+    % if not: set it up newly
+    \setlyrics{#1}{#2}%
+  \else
+    % if yes: preprocess new material, then append it to existing stuff
+    \@rohtext={#2 -}%
+    \@textvar={}%
+    %\lyrlog{appendlyrics{#1}, raw text: \the\@rohtext}%
+    \loop
+     \expandafter\ifx\expandafter\emp@tst\the\@rohtext\emp@tst % no more text
+       \let\@weiter n\else \let\@weiter j%
+     \fi
+     \ifx\@weiter j%
+      \expandafter\split@lyr@by@hyphens\the\@rohtext\@end
+    \repeat
+    %
+    % properly append new material to \dertext@#1
+    \toks@=\expandafter\expandafter\expandafter{\csname dertext@#1\endcsname}%
+    \expandafter\test@final@hyphen@i\the\toks@\@end
+    \expandafter\xdef\csname dertext@#1\endcsname{\the\toks@\the\@textvar}%
+    %
+    % properly append new material to \nochtext@#1
+    \toks@=\expandafter\expandafter\expandafter{\csname nochtext@#1\endcsname}%
+    \expandafter\ifx\expandafter\emp@tst\the\toks@\emp@tst
+      % pending text empty - don't call \test@final@hyphen
+    \else
+      \expandafter\test@final@hyphen@i\the\toks@\@end
+    \fi
+    \expandafter\xdef\csname nochtext@#1\endcsname{\the\toks@\the\@textvar}%
+    %\lyrlog{appendlyrics{#1}: \the\@textvar}%
+  \fi}
+
+% separate hyphens from syllables
+\def\split@lyr@by@hyphens#1-#2\@end{%
+  % #1: text before first hyphen
+  % #2: text after first hyphen; may be empty
+  \ifx\emp@tst#2\emp@tst  % -> no hyphen present
+   \@textvar=\expandafter{\the\@textvar#1}%
+  \else              % -> hyphen present
+   \@textvar=\expandafter{\the\@textvar#1 @}%
+  \fi
+  \@rohtext={#2}%
+  %\lyrlog{splitlyrics 1: \the\@textvar}%
+  %\lyrlog{splitlyrics 2: \the\@rohtext}%
+  }
+
+% helper macros for \appendlyrics, handling the case that pre-existing
+% lyrics material ends with an open hyphen
+\def\test@final@hyphen@i#1 \@end{%
+  % truncate trailing space, then proceed with detecting a trailing @
+  \test@final@hyphen@ii#1@@\@end}
+\def\test@final@hyphen@ii#1@@#2\@end{%
+  \ifx\emp@tst#2\emp@tst
+    % no trailing, open hyphen
+    %\lyrlog{No trailing hyphen: #1}%
+  \else
+    % reset \toks@ so that trailing @ is not longer followed by a space
+    \toks@={#1@}%
+    %\lyrlog{Trailing hyphen: #1}%
+  \fi}
+
+% copy whole text under different name
+\def\copylyrics#1#2{%
+  % #1 - existing text name
+  % #2 - new text name
+  % text still undefined?
+  \expandafter\ifx\csname dertext@#1\endcsname\relax
+    \errmessage{Trying to copy undefined verse "#1" to "#2"}%
+    \setlyrics{#2}{UNDEFINED}%
+  \else
+    \expandafter\let\expandafter\text@copy\csname dertext@#1\endcsname
+    \global\expandafter\let\csname dertext@#2\endcsname\text@copy
+    \global\expandafter\let\csname nochtext@#2\endcsname\text@copy
+    \initialize@verse{#2}%
+  \fi}
+
+% at 1st definition of a text name
+\def\initialize@verse#1{%
+  % test whether lyrics line name already defined
+  \expandafter\ifx\csname stp@#1\endcsname\relax
+    \expandafter\xdef\csname stp@#1\endcsname{\lyrlinestartpos}% tracks horizontal progress
+    \global\expandafter\let\csname cont@#1\endcsname\relax% context stuff
+    \expandafter\gdef\csname zwr@#1\endcsname{0}% flag for hyphen/rule status
+    % for layout definitions
+    \global\expandafter\let\csname llay@#1\endcsname\relax
+    % switch on auto-text
+    {\def\text@name{#1}\lyricson}%
+    % insert in list of all defined text names
+    \global\alle@texte=\expandafter{\the\alle@texte#1,}%
+  \fi}
+
+% just for more elegance ...
+\def\if@multistaff{\ifnum\st@ffs>1 }
+
+\def\set@texte#1#2{%
+  % assign assigned lyrics lines to \@texte
+  % or \empty in case they are empty
+  % #1: instrument number
+  % #2: staff number of instrument
+  \expandafter\let\expandafter\@texte\csname\ma@sw#1-#2\endcsname
+  \ifx\@texte\relax\let\@texte\empty\fi}
+
+\def\set@texte@current#1{%
+  % apply \set@texte to current context
+  % using PMX, automatically switch to aux lyrics where required
+  \switch@pmx@aux{%
+    % get the verses
+    \ifnum\st@ffs>1 % multi-staff instrument
+      \set@texte{\the\noinstrum@nt}{\the\noport@@}%
+    \else
+      \set@texte{\the\noinstrum@nt}{1}%
+    \fi
+    % perform given action
+    #1}}
+
+\def\loop@texte#1\@repeat{%
+  % assumption: \@texte is already set properly, may be empty
+  % #1: action to be executed
+  \ifx\@texte\empty\else
+    \expandafter\loop@texte@step\@texte\@end{#1}%
+  \fi}
+
+\def\loop@texte@step#1,#2\@end#3{%
+  % assumption: text list is not empty, #1 contains list head
+  % #1: text list head
+  % #2: text list tail
+  % #3: action to be executed
+  %
+  % perform action on first text
+  \def\text@name{#1}%
+  #3\relax
+  %
+  % prepare iteration
+  \ifx\emp@tst#2\emp@tst % list tail empty
+    \let\@iterate \empty % stop looping
+    \let\text@name\empty % reset working environment
+  \else
+    \def\@iterate{\loop@texte@step#2\@end{#3}}%
+  \fi
+  \@iterate}
+
+% assign text name to staff
+\def\assignlyrics#1{% for single-staff instruments
+  % #1: instrument number
+  \assignlyricsmulti{#1}1}
+
+\def\assignlyricshere#1{% assign lyrics to current instrument/staff context
+  % #1: comma-separated list of text names
+  \switch@pmx@aux{%
+    \ifnum\st@ffs>1 % multi-staff instrument
+      \assignlyricsmulti{\the\noinstrum@nt}{\the\noport@@}{#1}%
+    \else
+      \assignlyrics{\the\noinstrum@nt}{#1}%
+    \fi}}
+
+\def\assignlyricsmulti#1#2#3{%
+  % #1: instrument number
+  % #2: staff number of instrument
+  % #3: comma-separated list of text names
+  % gather farthest right current position
+  % of currently assigned lyrics lines
+  \y@v=\lyrlinestartpos
+  \set@texte{#1}{#2}%
+  \loop@texte
+    % starting position greater than retrieved so far?
+    \ifdim\csname stp@\text@name\endcsname > \y@v
+      \y@v=\csname stp@\text@name\endcsname % advance maximum
+    \fi
+  \@repeat
+  %
+  % new text names list non-empty -> append comma
+  \ifx\emp@tst#3\emp@tst
+    \expandafter\global\expandafter\let\csname\ma@sw#1-#2\endcsname\relax
+  \else
+    \expandafter\gdef\csname\ma@sw#1-#2\endcsname{#3,}%
+  \fi
+  % set parameters according to newly assigned lyrics lines
+  \set@texte{#1}{#2}%
+  \loop@texte
+    % check for existence
+    \expandafter\ifx\csname stp@\text@name\endcsname\relax
+      \errmessage{Trying to assign undefined verse "\text@name"}%
+      \expandafter\setlyrics\expandafter{\text@name}{EMPTY}%
+    \fi
+    \reset@params
+  \@repeat}
+
+
+\def\reset@params{%
+  \expandafter\xdef\csname stp@\text@name\endcsname{\the\y@v}%
+  \expandafter\gdef\csname zwr@\text@name\endcsname{0}}
+
+
+%
+% reset horizontal positioning parameters of all lyrics lines
+%
+\def\resetlyrics{%
+  \edef\@texte{\the\alle@texte}%
+  \y@v=\lyrlinestartpos
+  \loop@texte  \reset@params  \@repeat}
+
+
+%%%%%%%%%%
+%
+%  process lyrics verse-wise
+%
+%%%%%%%%%%
+% same action for all assigned verses
+\def\forall@verses#1{%
+  % #1: action to be executed
+  \ifx\text@name\empty
+    % perform action for all assigned verses
+    \set@texte@current{%
+      \ifx\@texte\empty\else
+	\vplace@lyrics{\loop@texte  \hbox{\lyr@strut #1}\@repeat}%
+      \fi}%
+  \else
+    % text name already selected -> perform action for this one only
+    #1%
+  \fi}
+
+
+% specify separate actions per verse
+\def\verses#1{%
+  % #1: comma-separated list of actions (from top to bottom)
+  \set@texte@current{%
+    \def\@param{#1}%    running variable for per-text actions
+    \vplace@lyrics{%
+      \loop@texte  \expandafter\one@verse\@param,\@end  \@repeat}}}
+
+\def\one@verse#1,#2\@end{%
+  % #1: action list head = action  for current   verse
+  % #2: action list tail = actions for remaining verses
+  \def\@param{#2}%
+  % perfrom action
+  \hbox{\lyr@strut #1}}
+
+
+%%%%%%%%%%
+%
+% line spacing for multiple verses
+%
+%%%%%%%%%%
+\def\lyr@strut{\copy\lyrstrutbox}
+\def\setlyrstrut{% set up strut according to currently active font
+  \setbox0=\hbox{()}%
+  \setbox\lyrstrutbox=\hbox{\vrule height 1.1\ht0 depth 1.1\dp0 width\z@}}
+\setlyrstrut     % initialize
+
+
+%%%%%%%%%%
+%
+% retrieve text by syllable
+%
+%%%%%%%%%%
+\def\next@lyr{%
+  \expandafter\let\expandafter\@nochtext\csname nochtext@\text@name\endcsname
+  %\show\@nochtext
+  \ifx\@nochtext\empty
+    % no more text
+    \@hyphenfalse\@lyric{???}%
+  \else
+    \@textvar=\expandafter{\@nochtext}%
+    \expandafter\next@syllable\the\@textvar\relax\relax
+  \fi}
+
+\def\next@syllable#1 #2#3\relax{%
+  % #1 - first syllable
+  % #2 - either hyphenation symbol @
+  %          or \relax (if text ends after #2)
+  %          or 1st char/group of rest text
+  % #3 - rest text, may be empty
+  \parse@melisma{#2}{#3}#1_\@end}
+
+\def\test@single@token#1#2\@end{%
+  % #2 is empty if argument consists of a single token
+  \ifx\emp@tst#2\emp@tst
+    \@single@tokentrue
+  \else
+    \@single@tokenfalse
+  \fi}
+
+\def\parse@melisma#1#2#3_#4\@end{% parse trailing underscores
+  % #1: either hyphenation indicator @
+  %         or \relax (if text ends after #1),
+  %         or 1st char/group of rest text
+  % #2: rest text, may be empty
+  % #3: current syllable; may be empty if melisma pending
+  % #4: trailing underscores, if any, or
+  %     melisma notes number followed by single underscore, or
+  %     empty if no melisma
+  %
+  % evaluate hyphenation sign
+  \ifx @#1%
+    \@hyphentrue
+    \@textvar={#2}% may be empty
+  \else
+    \@hyphenfalse
+    % decide rest text (#1 was no hyphen sign)
+    \ifx\relax#1%      current syllable is final syllable
+      \@textvar={}%
+    \else
+      \test@single@token#1\@end  % #1 may have been grouped
+      \if@single@token
+	\@textvar={#1#2}%
+      \else
+	\@textvar={{#1}#2}%
+      \fi
+    \fi
+  \fi
+  %
+  % melisma pending?
+  \ifx\emp@tst#4\emp@tst   % no melisma
+    \let\melisma@spec\empty
+    \@lyric{\evtl@klein{\evtl@punktweg{#3}}\evtl@komma}%
+  \else                   % melisma
+    \ifx\emp@tst#3\emp@tst % syllable empty, d.i. in mid-melisma
+      \parse@melisma@tail#4\@end
+      \ifx\melisma@spec\empty % final melisma note
+        \lyrruleend
+      \fi
+    \else             % syllable non-empty, d.i. at melisma start
+      \leftlyrtrue\@strichtrue
+      \parse@melisma@start#4\@end
+      \@lyric{\evtl@klein{\evtl@punktweg{#3}}\evtl@komma}%
+    \fi               % at melisma start
+  \fi                 % in melisma
+  %
+  % set remaining text
+  \expandafter\xdef
+    \csname nochtext@\text@name\endcsname{\melisma@spec\the\@textvar}}
+
+\def\parse@melisma@start#1_\@end{%
+  % Cut trailing underscore and attach it at argument head.
+  % For underscore sequences, the effect is void.
+  % For numbers, it converts "num_" to "_num".
+  % Moreover, append a single space.
+  \def\melisma@spec{_#1 }}
+
+\def\parse@melisma@tail#1_\@end{%
+  % #1: either trailing underscores minus one
+  %         or melisma notes number
+  %         or empty
+  \ifx\emp@tst#1\emp@tst         % no more underscores
+    \let\melisma@spec\empty
+  \else
+    \parse@melisma@tail@ii#1\@end
+  \fi}
+
+\def\parse@melisma@tail@ii#1#2\@end{% helper for deciding melisma spec type
+  % #1#2: either trailing underscores minus one
+  %           or melisma notes number
+  \if#1_%        % underscore sequence given
+    \def\melisma@spec{#1#2 }%
+  \else          % number given                   
+    \ifnum#1#2>1 % more melisma notes pending
+      \count@=#1#2
+      \advance\count@\m@ne
+      \edef\melisma@spec{_\the\count@\space}%
+    \else        % no more melisma notes
+      \let\melisma@spec\empty
+    \fi
+  \fi}
+
+\def\@lyric#1{%
+  % #1: Text
+  \evtl@offset
+    % Alles Folgende ist Argument fuer obiges \evtl@offset:
+    {\csname llay@\text@name\endcsname% Layoutkontext abrufen
+     \lyr@processingtrue
+     \setbox\lyr@box=\hbox{#1}%
+     \setbox\lyr@hyphen@box=\hbox{\lyrhyphenchar}%
+     % Zwischenraum zu voriger Silbe ermitteln:
+     \get@lyrspace
+     \ifleftlyr\else
+       % Silbe zentriert -> Zwischenraum entspr. kleiner:
+       \advance\y@v -0.5\wd\lyr@box
+       \advance\y@v  0.5\qn@width   %  halbe Notenkopfbreite dazu
+     \fi
+     % Bindestrich von voriger Silbe anhaengig?
+     \expandafter\ifnum\csname zwr@\text@name\endcsname=2
+       % Minimalzwischenraum entsprechend aendern:
+       \ifforcelyrhyphens
+         % Min. Zw.-R. mindestens so breit wie Bindestrich:
+         \ifdim\minlyrspace < \wd\lyr@hyphen@box
+           \minlyrspace=\wd\lyr@hyphen@box
+         \fi
+       \else
+         \minlyrspace=0pt %          % kein Zwischenraum noetig
+       \fi
+     \fi
+     \ifdim\y@v < \minlyrspace       % Zwischenraum zu klein?
+       \lyr@shift=\minlyrspace       % Silbe um Differenz nach rechts verschieben
+       \advance\lyr@shift -\y@v
+       \y@v=\minlyrspace             % Zwischenraumbreite = geg. Minimum
+     \else
+       \expandafter\ifnum\csname zwr@\text@name\endcsname=2 % Bindestrich anhaengig?
+         \ifforcelyrhyphens\else                            % Bindestrich nicht erzwungen?
+           \ifdim\y@v < \wd\lyr@hyphen@box                  % Zwischenraum zu schmal?
+             \advance\lyr@shift -\y@v                       % => Zw.raum ganz wegnehmen
+	     % Dank an Sebastian Clauss fuer diese Verbesserung
+           \fi
+         \fi
+       \fi
+     \fi
+     \rlap{%
+       \hskip\lyr@shift
+       {\ifleftlyr
+          \aftergroup\rlap    % linksbuendig
+        \else
+          \aftergroup\qlrlap  % zentriert
+        \fi}%
+       % Alles Folgende ist Argument fuer obiges \qlrlap bzw. \rlap:
+       {% Ist von voriger Silbe noch ein Bindestrich anhaengig?
+        \expandafter\ifnum\csname zwr@\text@name\endcsname=2
+	  % limit hyphens at line beginning to zero position
+	  \ifdim\csname stp@\text@name\endcsname < \z@
+	    \advance\y@v \csname stp@\text@name\endcsname \fi
+          % Bindestrich nur setzen, wenn Platz genug vorhanden:
+          \ifdim\y@v < \wd\lyr@hyphen@box\else
+            \print@hyphen
+          \fi
+        \fi
+        \ifshowlyrshift
+          % Mit Rechteck Wortverschiebung zeigen:
+          \llap{\vrule width \lyr@shift height \ht\strutbox}%
+        \fi
+        \unhcopy\lyr@box     % Wort setzen
+        % Startposition des nachfolgenden Zwischenraums festhalten:
+        \getcurpos
+        \advance\y@v by \lyr@shift
+        \ifleftlyr
+          \advance\y@v \wd\lyr@box
+        \else
+          \advance\y@v 0.5\wd\lyr@box
+          \advance\y@v 0.5\qn@width                   % halbe Notenkopfbreite dazu
+        \fi
+        \expandafter\xdef\csname stp@\text@name\endcsname{\the\y@v}% Startposition setzen
+        \if@hyphen      % Bindestrich gefordert?
+	  \expandafter\gdef\csname zwr@\text@name\endcsname{2}%
+        \else
+	  \if@strich    % Verlaengerungs-Strich gefordert?
+	    \expandafter\gdef\csname zwr@\text@name\endcsname{1}%
+          \else         % nichts gefordert
+	    \expandafter\gdef\csname zwr@\text@name\endcsname{0}%
+          \fi
+        \fi}}}}
+
+\def\print@hyphen{%
+  \llap{\hbox to \y@v{%
+    % Zwischenraum mit "Strich-Kette" ausfuellen:
+    \loop
+      \hfil\lyrhyphenchar\hss% rechter Raum darf am Systemende negativ werden
+      \advance\y@v by -\minmulthyphens
+      \ifdim\y@v > 0pt%
+    \repeat}}}
+
+\def\get@lyrspace{%
+  \getcurpos
+  \advance\y@v by -\csname stp@\text@name\endcsname
+  \relax}
+
+% set lyrpos to zero if less than that
+\def\limit@lyrpos{%
+  \ifdim\csname stp@\text@name\endcsname < \z@
+    \expandafter\xdef\csname stp@\text@name\endcsname{\the\z@}\fi}
+
+% Verlaengerungs-Striche abschliessen:
+\def\lyrruleend{\forall@verses\lyrrule@end}
+
+\def\lyrrule@end{%
+  \expandafter\ifcase\csname zwr@\text@name\endcsname
+    % 0 -> kommt nicht vor
+  \or
+    % 1 -> Strich anhaengig:
+    \roff{% Zum rechten Notenkopf-Rand
+      \limit@lyrpos\get@lyrspace \print@lyr@rule
+      % Zwischenraum-Startposition festhalten, wenn Wort nicht nach
+      % rechts darueber hinausragt:
+      \getcurpos
+      \ifdim\csname stp@\text@name\endcsname < \y@v
+	\expandafter\xdef\csname stp@\text@name\endcsname{\the\y@v}%
+      \fi}%
+    % Einstellung zuruecksetzen:
+    \expandafter\gdef\csname zwr@\text@name\endcsname{0}%
+  \or
+    % 2 -> Bindestrich anhaengig -> nichts tun
+  \or
+    % 3 -> fortgesetzter Bindestrich anhaengig
+    %   -> Einstellung fuer Bindestrich-Einfuegen an nächster Note setzen
+    \expandafter\gdef\csname zwr@\text@name\endcsname{2}%
+  \fi}
+
+\def\print@lyr@rule{%
+  % Kleiner Zwischenraum zur vorherigen Silbe:
+  \advance\y@v -2pt
+  \ifdim \y@v > \minlyrrulelength
+    \llap{\vrule\@width\y@v\@height\lthick\@depth0pt}%
+  \fi}
+
+
+%%%%%%%%%%
+%
+%  Textstellen per Label anspringen
+%
+%%%%%%%%%%
+\def\llabel#1{}%   Damit Kennzeichnung bei der Ausgabe ohne Effekt bleibt
+
+\def\golyr#1{\forall@verses{\@golyr{#1}}}
+
+\def\@golyr#1{{%
+  \expandafter\let\expandafter\@nochtext\csname dertext@\text@name\endcsname
+  \def\query@label{#1}%
+  \loop
+    \expandafter\find@llabel\@nochtext\ende
+    \ifx\query@label\cur@label\let\@weiter n\else \let\@weiter j\fi
+  \if\@weiter j\repeat
+  \expandafter\global\expandafter\let
+    \csname nochtext@\text@name\endcsname\@nochtext}}
+
+\def\find@llabel#1\llabel#2#3\ende{%
+  % #1 - Text vor erstem \llabel
+  % #2 - naechstfolgender \llabel-Name
+  % #3 - Resttext
+  \def\cur@label{#2}%
+  \def\@nochtext{#3}}
+
+
+%%%%%%%%%%
+%
+%  Offene Silbentrennungen und -verlaengerungen am Systemende abschliessen
+%
+%%%%%%%%%%
+\let\@orig@z@suspend\z@suspend
+\def\z@suspend{%
+  \znotes\sysend@lyrics\empty\en
+  \znotes\sysend@lyrics\auxlyr\en
+  \@orig@z@suspend}
+
+\def\sysend@verse{%
+  % Flag auswerten:
+  \ifnum\csname zwr@\text@name\endcsname = 1 % Verlaengerungs-Strich anhaengig
+    % Platz zum rechten Systemrand, damit Strich nicht in Taktstrich ragt
+    \loffset{0.3}{\limit@lyrpos\get@lyrspace\print@lyr@rule}%
+  \else\ifnum\csname zwr@\text@name\endcsname > 1 % Bindestrich anhaengig:
+    \csname llay@\text@name\endcsname% Layoutkontext abrufen
+    \limit@lyrpos\get@lyrspace\print@hyphen
+    % als forgesetzten Bindestrich fortfuehren
+    \expandafter\gdef\csname zwr@\text@name\endcsname{3}%
+  \fi\fi
+  % Startposition fuer naechstes System zuruecksetzen:
+  \expandafter\xdef\csname stp@\text@name\endcsname{\lyrlinestartpos}}
+
+\def\sysend@lyrics#1{%
+  % #1: \auxlyr or \empty
+  #1{\let\switch@pmx@aux\empty \forall@verses\sysend@verse}%
+  \if@multistaff
+    % loop over staves of instrument
+    \ifnum \noport@@ < \st@ffs
+      \def\@next{\nextstaff\sysend@lyrics#1}%
+    \else % staves of instrument finished; continue with next instrument
+      \sysend@lyrics@instrum@loop#1%
+    \fi
+  \else  % single-staff instrument
+    \sysend@lyrics@instrum@loop#1%
+  \fi
+  % iterate
+  \@next}
+
+\def\sysend@lyrics@instrum@loop#1{%
+  % prepare instruments loop
+  \ifnum \noinstrum@nt < \nbinstruments
+    \def\@next{\nextinstrument\sysend@lyrics#1}%
+  \else % \noinstrum@nt >= \nbinstruments
+    \let\@next\empty
+  \fi}
+
+
+%%%%%%%%%%
+%
+%  Zeilenspezifisches Layout festlegen
+%
+%%%%%%%%%%
+\def\lyrlayout#1{%
+  \forall@verses{%
+    \expandafter\gdef\csname llay@\text@name\endcsname{#1}%
+    % Wenn gerade Text verarbeitet wird, Kontext sofort abrufen:
+    \iflyr@processing #1\fi}}
+
+%
+% Kontextbehandlung fuer Textnamen:
+%
+% Aktion zu Kontext hinzufuegen:
+\def\add@context#1{%
+  \toks@=\expandafter\expandafter\expandafter
+	      {\csname cont@\text@name\endcsname #1}%
+  \expandafter\xdef\csname cont@\text@name\endcsname{\the\toks@}}
+
+% Kontext abrufen:
+\def\@context{%
+  \expandafter\let\expandafter\der@kontext\csname cont@\text@name\endcsname
+  \clear@context
+  \der@kontext}
+
+% Kontext loeschen:
+\def\clear@context{%
+  \global\expandafter\let\csname cont@\text@name\endcsname\empty}
+
+
+%%%%%%%%%%
+%
+%  Zusaetzliche Textzeilen oberhalb der Notenzeile (auxiliary lyrics)
+%
+%%%%%%%%%%
+\let\enableauxlyrics\empty % just for backward compatibility
+
+% Befehle auf auxlyrics beziehen:
+\def\auxlyr#1{{%
+  \def\ma@sw{lyr@a}%
+  \aux@activetrue
+  #1}}
+
+
+%%%%%%%%%%
+%
+%  vertical lyrics positioning
+%
+%%%%%%%%%%
+\def\lyrraise#1{%
+  % #1: instrument number
+  \lyrraisemulti{#1}1}
+  
+\def\lyrraisehere#1{%
+  % #1: position/offset
+  \switch@pmx@aux{%
+    \ifnum\st@ffs>1 % multi-staff instrument
+      \lyrraisemulti{\the\noinstrum@nt}{\the\noport@@}{#1}%
+    \else
+      \lyrraise{\the\noinstrum@nt}{#1}%
+    \fi}}
+
+\def\lyrraisemulti#1#2#3{%
+  % #1: instrument number
+  % #2: staff of instrument
+  % #3: position/offset
+  \toks@=\expandafter{\csname l@raise#1-#2\endcsname}%
+  \expandafter\ifx\the\toks@\relax
+    % raise parameter still unset
+    \expandafter\lyrraise@init\the\toks@
+  \fi
+  % now set raise parameter
+  \expandafter\expandafter\expandafter
+      \lyr@raise@multii\the\toks@\@end{#1}{#2}{#3}%
+  %\lyrlog{raise #1-#2: \expandafter\empty\the\toks@}%
+}
+
+\def\lyr@raise@multii#1@#2\@end#3#4#5{%
+  % #1: current main position/offset
+  % #2: current aux  position/offset
+  % #3: instrument number
+  % #4: staff of instrument
+  % #5: new position/offset
+  \expandafter\xdef\csname l@raise#3-#4\endcsname{%
+      \ifaux@active #1@#5\else #5@#2\fi}}
+
+% be backward compatible
+\let\setsongraise@orig\setsongraise
+\def\setsongraise#1#2{\setsongraise@orig{#1}{#2}\lyrraise{#1}{b#2}}
+\def\auxsetsongraise#1#2{\auxlyr{\lyrraise{#1}{b#2}}}
+
+
+\def\lyrraise@init#1{%
+  % #1: control sequence to be set to default value
+  \gdef#1{b0pt@a0pt}}
+
+
+% vertically place lyrics columns
+% replaces MusiXTeX's \C@tx
+\def\vplace@lyrics#1{%
+  % find out applicable positioning settings
+  \edef\placelyr@staff{\ifnum\st@ffs>1 \the\noport@@ \else 1\fi}%
+  \toks@=\expandafter
+	       {\csname l@raise\the\noinstrum@nt-\placelyr@staff\endcsname}%
+  % eventually initialize lyrraise setting first
+  \expandafter\ifx\the\toks@\relax % lyrraise still unset
+    \expandafter\lyrraise@init\the\toks@
+  \fi
+  \expandafter\expandafter\expandafter\vplace@lyricsii\the\toks@\@end{#1}}
+
+\def\vplace@lyricsii#1#2@#3#4\@end#5{%
+  % #1: main lyrics positioning switch (a/b)
+  % #2: main lyrics raise value
+  % #3: aux  lyrics positioning switch (a/b)
+  % #4: aux  lyrics raise value
+  % #5: lyrics material to be issued
+  %
+  % decice main/aux context
+  %
+  \ifaux@active \let\lyr@ab#3\toks@={#4}%
+  \else         \let\lyr@ab#1\toks@={#2}%
+  \fi
+  %
+  % decide placement situation: above/below/in-mid of system or instrument
+  %
+  \if\lyr@ab a% above staff
+    \ifnum\placelyr@staff<\st@ffs     % non-highest staff of multiple staves
+      \vplaceLyricsAboveMultistaff{#5}%
+    \else % single or highest staff of instrument
+      \ifnum\noinstrum@nt<\nbinstruments   % lyrics go above instrument
+	\vplaceLyricsAboveInstrument{#5}%
+      \else                          % lyrics go into top margin
+	\vplaceLyricsTopMargin{#5}%
+      \fi
+    \fi
+  \else % below staff
+    \ifnum\placelyr@staff>1 %          non-lowest staff of multiple staves
+      \vplaceLyricsBelowMultistaff{#5}%
+    \else % single or lowest staff of instrument
+      \ifnum\noinstrum@nt>1 %        lyrics go below instrument
+	\vplaceLyricsBelowInstrument{#5}%
+      \else                          % lyrics go into bottom margin
+	\vplaceLyricsBottomMargin{#5}%
+      \fi
+    \fi
+  \fi}
+
+%
+% user-supersedable placement calculations
+%
+\def\vplaceLyricsBelowMultistaff#1{%
+  % #1: lyrics material
+  % reduced \C@Tx algorithm
+  \y@iv=\the\toks@\relax
+  \C@Inter   % compute \stem@skip (?)
+  \advance\y@iv -0.5\stem@skip
+  \raise\y@iv\vbox\@to\z@{\vss\offinterlineskip#1\vss}}
+
+\def\vplaceLyricsAboveMultistaff#1{%
+  % #1: lyrics material
+  % reduced \C@Tx algorithm
+  \y@iv=\the\toks@\relax
+  \C@Inter   % compute \stem@skip (?)
+  \advance\y@iv -0.5\stem@skip
+  % add height difference to base line of upper staff
+  \advance\y@iv \interportee
+  \raise\y@iv\vbox\@to\z@{\vss\offinterlineskip#1\vss}}
+
+\def\vplaceLyricsBottomMargin#1{%
+  % #1: lyrics material
+  % based on \C@tx
+  \y@iv=\the\toks@\relax
+  \advance\y@iv -\staffbotmarg
+  \raise\y@iv\vbox\@to\z@{\vss\offinterlineskip#1\vss}}
+
+\def\vplaceLyricsTopMargin#1{%
+  % #1: lyrics material
+  % based on \C@tx, "mirrored" bottom margin situation
+  \begingroup % seems to be necessary to make \Comp@High local;
+	      % problem occurred with helper lines for low/high notes
+   \y@iv=\the\toks@\relax
+   \advance\y@iv \stafftopmarg
+   \Comp@High \advance\y@iv\y@v % \y@v = total height of instrument
+   \advance\y@iv \altitude      % for multi-staff:
+   \advance\y@iv-\altportee     % reduce by base height of current staff
+   \raise\y@iv\vbox\@to\z@{\vss\offinterlineskip#1\vss}%
+  \endgroup}
+
+\def\vplaceLyricsBelowInstrument#1{%
+  % #1: lyrics material
+  % assumption: \noinstrum@nt > 1
+  % based on \C@tx
+  \y@iv=\the\toks@\relax
+  \multiply\y@iv 2 % balance division by 2 below
+  \advance\noinstrum@nt\m@ne
+  \advance\y@iv -\csname interinstrument\romannumeral\noinstrum@nt\endcsname
+  \C@Inter   % compute \stem@skip (?)
+  \advance\y@iv -\stem@skip
+  \divide\y@iv\tw@
+  \advance\noinstrum@nt\@ne
+  \raise\y@iv\vbox\@to\z@{\vss\offinterlineskip#1\vss}}
+
+\def\vplaceLyricsAboveInstrument#1{%
+  % #1: lyrics material
+  % assumption: \noinstrum@nt < \nbinstruments
+  % analogous to \C@tx, but refers to upper instrument instead
+  \y@iv=\the\toks@\relax
+  \multiply\y@iv 2 % balance division by 2 below
+  \advance\y@iv -\csname interinstrument\romannumeral\noinstrum@nt\endcsname
+  \C@Inter   % compute \stem@skip (?)
+  \advance\y@iv -\stem@skip
+  \divide\y@iv\tw@
+  % add height difference to base line of upper instrument
+  \begingroup
+    \advance\y@iv-\altportee \advance\noinstrum@nt\@ne \s@l@ctinstr
+    \advance\y@iv \altitude
+    \raise\y@iv\vbox\@to\z@{\vss\offinterlineskip#1\vss}%
+  \endgroup}
+
+
+%\def\C@tx{%
+%  \ifnum\noinstrum@nt=\@ne
+%    \y@iv\staffbotmarg
+%  \else
+%    \advance\noinstrum@nt\m@ne
+%    \y@iv\csname interinstrument\romannumeral\noinstrum@nt\endcsname
+%    \C@Inter   % compute \stem@skip
+%    \advance\y@iv\stem@skip
+%    \divide\y@iv\tw@
+%    \advance\noinstrum@nt\@ne
+%  \fi
+%  \advance\y@iv-\csname T@R\romannumeral\noinstrum@nt\endcsname
+%  \lower\y@iv\uplap}
+%\def\uplap#1{\vbox\@to\z@{\vss#1}}
+
+
+%%%%%%%%%%
+%
+%  Textsatz-Automatik
+%
+%%%%%%%%%%
+% Text automatisch unter alle "spacing"-Noten eines Systems:
+\let\orig@writ@note\writ@note
+\def\writ@note{%
+  \ifnum\n@i<\@c        % Bedingung fuer's Notenschreiben in \writ@note (warum?)
+%    \ifx\st@m\beamst@m
+%      \uptext{\csname s@bl\balken@nr\endcsname}%
+%    \else
+    \decide@lyrmode
+    \main@aux@or@not{\forall@verses{\@context\evtl@next@lyr}}%
+%    \fi
+  \fi
+  \orig@writ@note}
+
+\def\lyrmode@no  {\def\main@aux@or@not##1{}}
+\def\lyrmode@main{\def\main@aux@or@not##1{##1}}
+\def\lyrmode@aux {\let\main@aux@or@not\auxlyr}
+\let\pmx@auxmode\lyrmode@aux
+
+% Feststellen, ob Haupt- oder Nebentext oder gar nichts gesetzt werden soll:
+\ifx\nextvoice\undefined    % ohne PMX
+  \def\decide@lyrmode{%
+    \call@lyrmode
+    \if@lyrmode  \decide@stem@direction        % Notenhals-Automatik
+    \else                                      % manuell, nur "spacing"-Noten
+      \ifadvance \lyrmode@main
+      \else      \lyrmode@no
+      \fi
+    \fi}
+  \def\decide@stem@direction{%
+    \ifx\st@m\upst@m   \lyrmode@aux \else
+    \ifx\st@m\up@flag  \lyrmode@aux \else
+    \ifx\st@m\downst@m \lyrmode@main\else
+    \ifx\st@m\down@flag\lyrmode@main\else
+    \ifx\st@m\setst@m  \lyrmode@no  \else    % kein Hals
+    \ifx\st@m\resetst@m\lyrmode@no  \else
+    \ifx\st@m\beamst@m
+      \expandafter\ifx\csname s@bl\balken@nr\endcsname o\lyrmode@aux
+      \else\lyrmode@main
+      \fi
+    \else\errmessage{invalid \string\st@m\space setting}%
+    \fi\fi\fi\fi\fi\fi\fi}
+\else                       % mit PMX
+  \def\decide@lyrmode{%
+    \ifadvance              % nur "spacing"-Noten
+      \call@lyrmode
+      \if@pmx@nextvoice     % Oberstimme
+	\if@lyrmode\lyrmode@main \else\pmx@auxmode  \fi
+      \else                 % Unterstimme
+	\if@lyrmode\pmx@auxmode  \else\lyrmode@main \fi
+      \fi
+    \else
+      \lyrmode@no           % non-spacing Note
+    \fi}
+  \let\orig@nextvoice\nextvoice         % \nextvoice erweitern
+  \def\nextvoice{\orig@nextvoice\@pmx@nextvoicetrue}
+\fi
+
+\def\call@lyrmode{% activate lyrmode setting of current staff/instrument
+  \ifnum\st@ffs>1 % multi-staff instrument
+    \csname zlm@\the\noinstrum@nt-\the\noport@@\endcsname
+  \else % single-staff instrument
+    \csname zlm@\the\noinstrum@nt-1\endcsname
+  \fi}
+
+\def\switch@pmx@aux#1{%
+  % using PMX, automatically activate auxlyr context for #1 after \nextvoice
+  \ifx\nextvoice\undefined    % not using PMX
+    #1%
+  \else                       % using PMX
+    \call@lyrmode
+    \if@pmx@nextvoice     % upper PMX voice
+      \if@lyrmode\lyrmode@main \else\pmx@auxmode  \fi
+    \else                 % lower PMX voice
+      \if@lyrmode\pmx@auxmode  \else\lyrmode@main \fi
+    \fi
+    \main@aux@or@not{#1}%
+  \fi}
+
+
+
+% lyrmode umschalten:
+\def\switch@lyrmode#1#2#3{%
+  % #1: instrument number
+  % #2: staff-of-instrument number
+  % #3: lyrmode setting
+  \ifnum#1=0 %               % alle Zeilen einbeziehen
+    \switch@lyrmode@all@instrum#3%
+  \else                      % nur 1 Zeile
+    \global\expandafter\let\csname zlm@#1-#2\endcsname=#3%
+  \fi}
+
+% loop over all possible instruments
+\def\switch@lyrmode@all@instrum#1{%
+  \m@loop \switch@lyrmode@all@staves#1\repeat}
+
+% loop over 4 possible staves of instrument
+\def\switch@lyrmode@all@staves#1{%
+  \begingroup
+    \count@=0
+    \loop
+      \advance\count@ 1
+      \switch@lyrmode{\the\noinstrum@nt}{\the\count@}#1%
+    \ifnum\count@<4 \repeat
+  \endgroup}
+% ... nicht wahnsinnig effizient, zugegeben ...
+
+
+\def\lyrmodenormal#1{\lyrmodenormalmulti{#1}1}
+\def\lyrmodealter #1{\lyrmodealtermulti {#1}1}
+
+\def\lyrmodenormalmulti#1#2{\switch@lyrmode{#1}{#2}\@lyrmodefalse}
+\def\lyrmodealtermulti #1#2{\switch@lyrmode{#1}{#2}\@lyrmodetrue }
+
+\def\lyrmodenormalhere{\lyrmode@here\@lyrmodefalse}
+\def\lyrmodealterhere {\lyrmode@here\@lyrmodetrue }
+
+\def\lyrmode@here#1{% apply lyrmode to current instrument/staff context
+  % #1: lyrmode switch
+  \if@multistaff
+    \switch@lyrmode{\the\noinstrum@nt}{\the\noport@@}#1%
+  \else
+    \switch@lyrmode{\the\noinstrum@nt}1#1%
+  \fi}
+
+\lyrmodenormal0              % auf "normal" initialisieren
+
+% fuer Halsrichtungs-Automatik: Balkenlage in \s@bl<nr> vermerken
+\def\balk@nlage#1{\global\expandafter\let
+		     \csname s@bl\balken@nr\endcsname #1\relax}
+\let\orig@i@bu\i@bu \def\i@bu{\balk@nlage o\orig@i@bu}% <o>ben
+\let\orig@i@bl\i@bl \def\i@bl{\balk@nlage u\orig@i@bl}% <u>nten
+
+\let\orig@s@l@ctbeam\s@l@ctbeam
+\def\s@l@ctbeam#1\relax{\orig@s@l@ctbeam#1\relax \xdef\balken@nr{\number\n@i}}
+
+
+% Auto-Text ein- und ausschalten (innerhalb \notes...\enotes):
+\def\lyricson{\forall@verses{\add@context\verse@on@context}}
+\def\verse@on@context{%
+  \let\evtl@next@lyr\next@lyr
+  \add@context\verse@on@context}
+
+\def\lyricsoff{\forall@verses\clear@context}
+
+\def\lyric {\let\evtl@hyph\@hyphenfalse\futurelet\ast@risk\lyric@i}
+\def\lyrich{\let\evtl@hyph\@hyphentrue \futurelet\ast@risk\lyric@i}
+
+\def\lyric@i{%
+  \ifx\ast@risk*%
+     \let\evtl@nolyr\relax \let\@next\lyric@ii
+  \else
+     \let\evtl@nolyr\nolyr \def\@next{\nolyr\lyric@ii*}%
+  \fi
+  \@next}
+
+% Silben abseits vom Haupttext ausgeben:
+\def\lyric@ii*#1{\forall@verses{\@context\evtl@hyph\@lyric{#1}}\evtl@nolyr}
+
+% Manipulationen einzelner Haupttext-Silben:
+\def\forall@context#1{\forall@verses{\add@context{#1}}}
+
+% 1 Silbe ausgeben:
+\def\lyr{\forall@verses{\@context\next@lyr}}
+
+% Linksbuendig:
+\def\llyr{\forall@context{\leftlyrtrue}}
+
+% Verlaengerungs-Strich:
+\def\lyrrule{\forall@context{\@strichtrue}}
+
+% Horizontale Verschiebung (analog \roffset):
+\def\lyroffset#1{\forall@context{\def\evtl@offset{\roffset{#1}}}}
+
+% Kein automatischer Text:
+\def\nolyr{\forall@context{\let\evtl@next@lyr\empty}}
+
+% Kleinbuchstaben:
+\def\lclyr{\forall@context{\let\evtl@klein\@klein}}
+\def\@klein#1{\lowercase\expandafter{#1}}
+
+% Satzzeichen anhaengen:
+\def\lyrpt#1{\forall@context{\def\evtl@komma{#1}}}
+
+% Punkt vom Ende abschneiden:
+\def\lyrnop{\forall@context{\let\evtl@punktweg\@punktweg}}
+\def\@punktweg#1{{\punktweg@rek#1\ende}}
+\def\punktweg@rek#1#2\ende{%
+  \def\par@ii{#2}%
+  \ifx\par@ii\empty\else
+    \aftergroup#1%
+    \expandafter\punktweg@rek\par@ii\ende
+  \fi}
+
+% Melisma beginnen und abschliessen:
+\def\beginmel{\forall@verses{\llyr\lyrrule\add@context\lyricsoff}}
+\def\endmel{\forall@verses{\lyrruleend\add@context\lyricson}}
+
+%
+% Bindebogen unter zwei Silben derselben Note:
+%
+\def\lyrlink   {\lyr@link0}
+\def\lowlyrlink{\lyr@link1}
+
+\def\lyr@link#1{%
+  % Bogen erstellen:
+  \setbox\lyr@linkbox=\hbox{$\smile$}%
+  % In Box der Breite eines Wortzwischenraums einsetzen:
+  \setbox\lyr@linkbox=\hbox to\the\fontdimen2\the\font{%
+    \hss
+    % Unter die Grundlinie druecken:
+    \lower\ht\lyr@linkbox\hbox{%
+      % Zusaetzlicher vertikaler Abstand zur Wortunterseite:
+      \lower1pt\hbox{%
+	\if#10\relax
+	  \hbox{$\smile$}%
+	\else
+	  % Buchstabe mit Unterlaenge -> auch darunter druecken:
+	  \setbox\lyr@linkdepthbox=\hbox{y}%
+	  \lower\dp\lyr@linkdepthbox\hbox{$\smile$}%
+	\fi}}%
+    \hss}%
+  % Keine zusaetzliche Tiefe fuer Bogen anrechnen:
+  \dp\lyr@linkbox=0pt
+  % Bogen setzen:
+  \box\lyr@linkbox}
+
+\makeatother

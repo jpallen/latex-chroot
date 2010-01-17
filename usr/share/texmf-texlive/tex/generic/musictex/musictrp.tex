@@ -1,0 +1,175 @@
+
+\edef\catcodeat{\the\catcode`\@}\catcode`\@=11
+\edef\catcode@gt{\the\catcode`\>}\catcode`\>=12
+\edef\catcode@lt{\the\catcode`\<}\catcode`\<=12
+%
+\def\Na#1{\ifdim\small@test\bigNa{#1}\else\smallNa{#1}\fi}%
+\def\Fl#1{\ifdim\small@test\bigFl{#1}\else\smallFl{#1}\fi}%
+\def\Sh#1{\ifdim\small@test\bigSh{#1}\else\smallSh{#1}\fi}%
+\def\dFl#1{\ifdim\small@test\bigdFl{#1}\else\smalldFl{#1}\fi}%
+\def\dSh#1{\ifdim\small@test\bigdSh{#1}\else\smalldSh{#1}\fi}%
+%
+\def\cNa{\cautionacctrue\smallNa}
+\def\cFl{\cautionacctrue\smallFl}
+\def\cSh{\cautionacctrue\smallSh}
+\def\cdFl{\cautionacctrue\smalldFl}
+\def\cdSh{\cautionacctrue\smalldSh}
+%
+\def\lNa#1{\k@meiqdskip\bigNa{#1}\k@eiqdskip}%
+\def\lFl#1{\k@meiqdskip\bigFl{#1}\k@eiqdskip}%
+\def\lSh#1{\k@meiqdskip\bigSh{#1}\k@eiqdskip}%
+\def\ldFl#1{\k@meiqdskip\bigdFl{#1}\k@eiqdskip}%
+\def\ldSh#1{\k@meiqdskip\bigdSh{#1}\k@eiqdskip}%
+%
+%\check
+%
+\def\sign@diff{\global\n@iii=\n@i
+     \global\advance\n@iii by -\ut@ref\relax
+     \global\advance\n@iii by -\ut@ref\relax
+     \loop\ifnum\n@iii>6\relax \global\advance\n@iii by -7\relax\repeat
+     \loop\ifnum\n@iii<0\relax \global\advance\n@iii by 7\relax\repeat
+     \n@ii=999\relax
+     \ifcase\n@iii\relax\n@ii=6\relax % mi
+     \or\n@ii=1\relax % fa
+     \or\n@ii=3\relax % sol
+     \or\n@ii=5\relax % la
+     \or\n@ii=7\relax % si
+     \or\n@ii=2\relax % do
+     \or\n@ii=4\relax % re
+     \fi                % \n@ii positive signature limit
+                        % \n@ii-8 negative signature limit
+     \advance\n@ii by -\sign
+     \advance\n@ii by 6
+     \divide\n@ii by 7\relax
+}
+%     
+\def\bigdFl#1{\getn@i{#1}\sign@diff
+     \ifcase\n@ii\relax\global\n@raise=\sh@raise\pl@llap{\f@lat}\relax
+     \or               \global\n@raise=\fl@raise\pl@llap{\df@lat}\relax
+     \else \message{Impossible to double flatten the note !
+                        \noexpand\Fl #1 }\showthe\n@ii
+     \fi            
+}%
+%\check
+%     
+\def\bigFl#1{\getn@i{#1}\sign@diff
+     \ifcase\n@ii\relax\global\n@raise=\na@raise\pl@llap{\n@at}\relax
+     \or               \global\n@raise=\fl@raise\pl@llap{\f@lat}\relax
+     \or               \global\n@raise=\fl@raise\pl@llap{\df@lat}\relax
+     \else \message{Impossible to flatten the note !
+                          \noexpand\Fl #1 }\showthe\n@ii
+     \fi            
+}%
+%\check
+\def\bigNa#1{\getn@i{#1}\sign@diff
+     \ifcase\n@ii\relax\global\n@raise=\sh@raise\pl@llap{\s@harp}\relax
+     \or              \global\n@raise=\na@raise\pl@llap{\n@at}\relax
+     \or              \global\n@raise=\fl@raise\pl@llap{\f@lat}\relax
+     \else \message{Impossible to reset natural the note !
+                          \noexpand\Na #1 }\showthe\n@ii
+     \fi            
+}%
+\def\bigSh#1{\getn@i{#1}\sign@diff
+     \ifcase\n@ii\relax\global\n@raise=\z@\pl@llap{\ds@harp}\relax
+     \or               \global\n@raise=\sh@raise\pl@llap{\s@harp}\relax
+     \or               \global\n@raise=\na@raise\pl@llap{\n@at}\relax
+     \else \message{Impossible to sharpen the note !
+                          \noexpand\Sh #1 }\showthe\n@ii
+     \fi            
+}%
+\def\bigdSh#1{\getn@i{#1}\sign@diff
+     \ifcase\n@ii\relax\message{Impossible to double sharpen the note !
+                          \noexpand\dSh #1 }\showthe\n@ii
+     \or               \global\n@raise=\z@\pl@llap{\ds@harp}\relax
+     \or               \global\n@raise=\sh@raise\pl@llap{\s@harp}\relax
+     \else \message{Impossible to double sharpen the note !
+                          \noexpand\dSh #1 }\showthe\n@ii
+     \fi
+}%
+%     
+\def\smalldFl#1{\getn@i{#1}\sign@diff
+     \ifcase\n@ii\relax\global\n@raise=\fl@raise\pl@llap{\smallf@lat}\relax
+     \or               \global\n@raise=\fl@raise\pl@llap{\smalldf@lat}\relax
+     \else \message{Impossible to double flatten the note !
+                        \noexpand\Fl #1 }\showthe\n@ii
+     \fi            
+}%
+%\check
+%     
+\def\smallFl#1{\getn@i{#1}\sign@diff
+     \ifcase\n@ii\relax\global\n@raise=\na@raise\pl@llap{\smalln@at}\relax
+     \or               \global\n@raise=\fl@raise\pl@llap{\smallf@lat}\relax
+     \or               \global\n@raise=\fl@raise\pl@llap{\smalldf@lat}\relax
+     \else \message{Impossible to flatten the note !
+                          \noexpand\Fl #1 }\showthe\n@ii
+     \fi            
+}%
+%\check
+\def\smallNa#1{\getn@i{#1}\sign@diff
+     \ifcase\n@ii\relax\global\n@raise=\sh@raise\pl@llap{\smalls@harp}\relax
+     \or              \global\n@raise=\na@raise\pl@llap{\smalln@at}\relax
+     \or              \global\n@raise=\fl@raise\pl@llap{\smallf@lat}\relax
+     \else \message{Impossible to reset natural the note !
+                          \noexpand\Na #1 }\showthe\n@ii
+     \fi            
+}%
+\def\smallSh#1{\getn@i{#1}\sign@diff
+     \ifcase\n@ii\relax\global\n@raise=\z@\pl@llap{\smallds@harp}\relax
+     \or               \global\n@raise=\sh@raise\pl@llap{\smalls@harp}\relax
+     \or               \global\n@raise=\na@raise\pl@llap{\smalln@at}\relax
+     \else \message{Impossible to sharpen the note !
+                          \noexpand\Sh #1 }\showthe\n@ii
+     \fi            
+}%
+\def\smalldSh#1{\getn@i{#1}\sign@diff
+     \ifcase\n@ii\relax\message{Impossible to double sharpen the note !
+                          \noexpand\dSh #1 }\showthe\n@ii
+     \or               \global\n@raise=\z@\pl@llap{\smallds@harp}\relax
+     \or               \global\n@raise=\sh@raise\pl@llap{\smalls@harp}\relax
+     \else \message{Impossible to double sharpen the note !
+                          \noexpand\dSh #1 }\showthe\n@ii
+     \fi
+}%
+\def\pl@hboxq#1{\pl@note\raise\y@i\hbox to \qd@skip{\hss #1 \hss}}%
+\def\upperFl#1{\getn@i{#1}\sign@diff\global\n@raise=3\internote
+     \ifcase\n@ii\relax
+        \pl@hboxq{\smalln@at}\relax
+     \or
+        \pl@hboxq{\smallf@lat}\relax
+     \or
+        \pl@hboxq{\smalldf@lat}\relax
+     \else \message{Impossible to sharpen the note !
+                          \noexpand\Sh #1 }\showthe\n@ii
+     \fi            
+}%
+\def\upperNa#1{\getn@i{#1}\sign@diff\global\n@raise=3\internote
+     \ifcase\n@ii\relax
+        \pl@hboxq{\smalls@harp}\relax
+     \or
+        \pl@hboxq{\smalln@at}\relax
+     \or
+        \pl@hboxq{\smallf@lat}\relax
+     \else \message{Impossible to sharpen the note !
+                          \noexpand\Sh #1 }\showthe\n@ii
+     \fi            
+}%
+\def\upperSh#1{\getn@i{#1}\sign@diff\global\n@raise=3\internote
+     \ifcase\n@ii\relax
+        \pl@hboxq{\smallds@harp}\relax
+     \or
+        \pl@hboxq{\smalls@harp}\relax
+     \or
+        \pl@hboxq{\smalln@at}\relax
+     \else \message{Impossible to sharpen the note !
+                          \noexpand\Sh #1 }\showthe\n@ii
+     \fi            
+}%
+\def\relativeaccidentals{\def\Xna{\Na}\def\Xsh{\Sh}\def\Xfl{\Fl}%
+\def\Xdsh{\dSh}\def\Xdfl{\dFl}}%
+
+
+
+\catcode`\>=\catcode@gt
+\catcode`\<=\catcode@lt
+\catcode`\@=\catcodeat
+

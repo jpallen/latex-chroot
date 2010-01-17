@@ -1,0 +1,45 @@
+def dims=8u#,x_height#,desc_depth# enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+     
+def gen_letter =
+  pickup fine.nib;
+  pos4(hair,-180); y4=.5h; lft x4r=hround .75u;                 %left bulge
+  pos6(hair,-180); rt x6l=hround(w-.75u); y6=-.5stem;           %bottom right
+  top y3r=h+oo; x3+.5stem=rt x6l; pos3(stem,90);                %top right
+  pos5(stem,-90); bot y5r=0; x5=.5w;                            %inflection pt
+  pos7(vstem,-270); y6=.5[y7r,y5r]; x7-.5vstem=hround x5;
+  filldraw double_circ_stroke                                   %bowl and tail
+    z7e{right}...z6e{up}...z5e{left}...z4e{up}...z3e{right};
+enddef;
+     
+cmchar "Final lowercase sigma";
+beginchar("s",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8); endchar;
+     
+if unknown gen_acc : readfrom("gen_acc") fi
+readfrom("gen_sigma")           %to establish ital and fit_params
+     
+cmchar "Initial and medial lowercase sigma";
+beginchar("c",dim_sigma);
+mid_sigma; penlabels(1,2,3,4,5,6,7,8,9); endchar;
+     
+if boolean barebones: picture savedpicture; endinput; fi
+     
+cmchar "Lowercase sigma followed by sigma";
+begindoublechar(oct"023",dim_sigma);
+mid_sigma; middoublechar(dim_sigma); mid_sigma; endchar;
+     
+cmchar "Lowercase sigma followed by grave";
+begindoublechar(oct"375",dim_sigma);
+mid_sigma; middoublechar(9u#,acc_ht#,0); grave(.5w); endchar;
+     
+cmchar "Lowercase sigma followed by acute";
+begindoublechar(oct"376",dim_sigma);
+mid_sigma; middoublechar(9u#,acc_ht#,0); acute(.5w); endchar;
+     
+cmchar "Lowercase sigma followed by circumflex";
+begindoublechar(oct"377",dim_sigma);
+mid_sigma; middoublechar(9u#,circ_ht#,0); circumflex(.5w); endchar;
+     
+picture savedpicture;

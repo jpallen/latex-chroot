@@ -1,0 +1,775 @@
+%%
+%% This is file `ethiop.ldf',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% ethiop.dtx  (with options: `code')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from ethiop.ldf.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file ethiop.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+
+\ProvidesFile{ethiop.ldf}
+        [1998/03/30 v0.7 Ethiopian support for the babel system]
+\LdfInit{ethiop}{captionsethiop}
+\ifx\undefined\l@ethiop
+  \adddialect\l@ethiop0\fi
+\def\ethiophyphenmins{{99}{99}}
+\newcommand{\eth@doaltchar}[1]{%
+  {\fontfamily{\eth@altfamily}\selectfont\char#1 }%
+}
+\newcount\ethcnt@temp
+\newcount\ethcnt@modtemp
+\newcount\ethcnt@leap
+\newcount\ethcnt@yminone
+\newcount\ethcnt@days
+\newcount\ethcnt@jdn
+\newcount\ethcnt@cycle
+\newcount\ethcnt@ethdays
+\newcount\ethcnt@ethyear
+\newcount\ethcnt@ethmonth
+\newcount\ethcnt@ethday
+\newcommand{\eth@modulo}[2]{%
+  \ethcnt@modtemp=#1%
+  \divide\ethcnt@modtemp by #2%
+  \multiply\ethcnt@modtemp by #2%
+  \advance#1 by -\ethcnt@modtemp
+}
+\def\dateethiop{%
+  \def\today{{%
+    \ethcnt@yminone=\year
+    \advance\ethcnt@yminone by -1
+    \ethcnt@leap=\year
+    \divide\ethcnt@leap by 4
+    \ethcnt@temp=\ethcnt@yminone
+    \divide\ethcnt@temp by 4
+    \advance\ethcnt@leap by -\ethcnt@temp
+    \ethcnt@temp=\year
+    \divide\ethcnt@temp by 100
+    \advance\ethcnt@leap by -\ethcnt@temp
+    \ethcnt@temp=\ethcnt@yminone
+    \divide\ethcnt@temp by 100
+    \advance\ethcnt@leap by \ethcnt@temp
+    \ethcnt@temp=\year
+    \divide\ethcnt@temp by 400
+    \advance\ethcnt@leap by \ethcnt@temp
+    \ethcnt@temp=\ethcnt@yminone
+    \divide\ethcnt@temp by 400
+    \advance\ethcnt@leap by -\ethcnt@temp
+    \ifnum\month<3
+      \ethcnt@days=\month
+      \advance\ethcnt@days by -1
+      \multiply\ethcnt@days by 31
+      \advance\ethcnt@days by \day
+      \advance\ethcnt@days by -1
+    \else
+      \ethcnt@days=\month
+      \advance\ethcnt@days by -1
+      \multiply\ethcnt@days by 30
+      \advance\ethcnt@days by \day
+      \advance\ethcnt@days by \ethcnt@leap
+      \advance\ethcnt@days by -3
+      \ethcnt@temp=\month
+      \multiply\ethcnt@temp by 3
+      \advance\ethcnt@temp by -2
+      \divide\ethcnt@temp by 5
+      \advance\ethcnt@days by \ethcnt@temp
+    \fi
+    \ethcnt@jdn=\ethcnt@days
+    \advance\ethcnt@jdn by 1721426
+    \ethcnt@temp=\ethcnt@yminone
+    \multiply\ethcnt@temp by 365
+    \advance\ethcnt@jdn by \ethcnt@temp
+    \ethcnt@temp=\ethcnt@yminone
+    \divide\ethcnt@temp by 4
+    \advance\ethcnt@jdn by \ethcnt@temp
+    \ethcnt@temp=\ethcnt@yminone
+    \divide\ethcnt@temp by 100
+    \advance\ethcnt@jdn by -\ethcnt@temp
+    \ethcnt@temp=\ethcnt@yminone
+    \divide\ethcnt@temp by 400
+    \advance\ethcnt@jdn by \ethcnt@temp
+    \ethcnt@cycle=\ethcnt@jdn
+    \advance\ethcnt@cycle by -1723856
+    \eth@modulo{\ethcnt@cycle}{1461}%
+    \ethcnt@ethdays=\ethcnt@cycle
+    \eth@modulo{\ethcnt@ethdays}{365}%
+    \ethcnt@temp=\ethcnt@cycle
+    \divide\ethcnt@temp by 1460
+    \multiply\ethcnt@temp by 365
+    \advance\ethcnt@ethdays by \ethcnt@temp
+    \ethcnt@ethyear=\ethcnt@jdn
+    \advance\ethcnt@ethyear by -1723856
+    \divide\ethcnt@ethyear by 1461
+    \multiply\ethcnt@ethyear by 4
+    \ethcnt@temp=\ethcnt@cycle
+    \divide\ethcnt@temp by 365
+    \advance\ethcnt@ethyear by \ethcnt@temp
+    \divide\ethcnt@cycle by 1460
+    \advance\ethcnt@ethyear by -\ethcnt@cycle
+    \ethcnt@ethmonth=\ethcnt@ethdays
+    \divide\ethcnt@ethmonth by 30
+    \advance\ethcnt@ethmonth by 1
+    \ethcnt@ethday=\ethcnt@ethdays
+    \eth@modulo{\ethcnt@ethday}{30}%
+    \advance\ethcnt@ethday by 1
+    \eth@monthname{\ethcnt@ethmonth}\relax\space
+      \number\ethcnt@ethday\relax\space
+      \number\ethcnt@ethyear
+  }}%
+}
+\addto\extrasethiop{%
+  \let\eth@old@encdef\encodingdefault
+  \let\eth@old@famdef\familydefault
+  \def\encodingdefault{U}%
+  \def\familydefault{\eth@defaultfamily}%
+  \fontencoding{\encodingdefault}%
+  \fontfamily{\familydefault}%
+  \selectfont
+}
+\addto\noextrasethiop{%
+  \let\encodingdefault\eth@old@encdef
+  \let\familydefault\eth@old@famdef
+  \let\eth@old@encdef\relax
+  \let\eth@old@famdef\relax
+  \fontencoding{\encodingdefault}%
+  \fontfamily{\familydefault}%
+  \selectfont
+}
+\addto\extrasethiop{%
+  \babel@save\textdollar
+  \def\textdollar{\char`\$}%
+  \def\textbraceleft{{\fontencoding{OMS}%
+    \fontfamily{cmr}%
+    \selectfont\char102 }}%
+  \def\textbraceright{{\fontencoding{OMS}%
+    \fontfamily{cmr}%
+    \selectfont\char103 }}%
+}
+\addto\extrasethiop{%
+  \babel@save\-%
+  \def\-{\ethbreak}%
+}
+\addto\extrasethiop{%
+  \babel@save\MakeUppercase
+  \let\MakeUppercase=\@firstofone
+  \babel@save\MakeLowercase
+  \let\MakeLowercase=\@firstofone
+}
+\addto\extrasethiop{%
+  \babel@save\ethmath
+  \def\ethmath#1{\mathchoice{\hbox{#1}}{\hbox{#1}}%
+    {\hbox{\footnotesize #1}}{\hbox{\tiny #1}}}%
+}
+\newcommand{\ethnum@err}[1]{%
+  \PackageError{ethiop}{%
+    Ethiopian number out of range%
+  }{%
+    Some Ethiopian number I had to print
+    was not in the range 1..999999.\MessageBreak
+    Type <return> and I will use an
+    Arabic number instead.
+  }%
+}
+\newif\ifethvariantC
+\ethvariantCfalse
+\def\ethglue{\hskip 0,16667em plus 0,16667em }%
+\def\ethbreak{\penalty 5 }%
+\ifx\ocp\undefined
+\newcommand{\eth@altchar}[1]{%
+  \def\eth@res{\eth@doaltchar{#1}}%
+}
+\newcommand{\eth@altchargobble}[1]{%
+  \def\eth@res{\eth@doaltchar{#1}\@gobble}%
+}
+\newcommand{\eth@ifnextA}[3]{%
+  \def\eth@res{\eth@ifnextA@eval{#1}{#2}}%
+  \futurelet\@let@token\eth@res
+}
+\newcommand{\eth@ifnextA@eval}[2]{%
+       \ifx\@let@token a\eth@altchargobble{#1}%
+  \else\ifx\@let@token A\eth@altchargobble{#1}%
+  \else\eth@altchar{#2}\fi\fi
+  \eth@res
+}
+\newcommand{\eth@testA}[2]{%
+  \def\eth@res{\eth@ifnextA{#1}{#2}}%
+}
+\newcommand{\eth@three@short}[7]{%
+       \ifx\@let@token a\eth@altchargobble{#1}%
+  \else\ifx\@let@token A\eth@altchargobble{#2}%
+  \else\ifx\@let@token e\eth@altchargobble{#3}%
+  \else\ifx\@let@token E\eth@altchargobble{#4}%
+  \else\ifx\@let@token i\eth@altchargobble{#5}%
+  \else\ifx\@let@token I\eth@altchargobble{#5}%
+  \else\ifx\@let@token o\eth@altchargobble{#6}%
+  \else\ifx\@let@token O\eth@altchargobble{#6}%
+  \else\ifx\@let@token u\eth@altchargobble{#7}%
+  \else\ifx\@let@token U\eth@altchargobble{#7}%
+  \else\eth@altchar{#3}\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi
+  \eth@res
+}
+\newcommand{\eth@three@norm}[8]{%
+       \ifx\@let@token a\eth@altchargobble{#1}%
+  \else\ifx\@let@token A\eth@altchargobble{#2}%
+  \else\ifx\@let@token e\eth@altchargobble{#3}%
+  \else\ifx\@let@token E\eth@altchargobble{#4}%
+  \else\ifx\@let@token i\eth@altchargobble{#5}%
+  \else\ifx\@let@token I\eth@altchargobble{#5}%
+  \else\ifx\@let@token o\eth@altchargobble{#6}%
+  \else\ifx\@let@token O\eth@altchargobble{#6}%
+  \else\ifx\@let@token u\eth@testA{#8}{#7}%
+  \else\ifx\@let@token U\eth@testA{#8}{#7}%
+  \else\eth@altchar{#3}\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi
+  \eth@res
+}
+\newcommand{\eth@three@full}[8]{%
+       \ifx\@let@token a\eth@altchargobble{#1}%
+  \else\ifx\@let@token A\eth@altchargobble{#2}%
+  \else\ifx\@let@token e\eth@altchargobble{#3}%
+  \else\ifx\@let@token E\eth@altchargobble{#4}%
+  \else\ifx\@let@token i\eth@altchargobble{#5}%
+  \else\ifx\@let@token I\eth@altchargobble{#5}%
+  \else\ifx\@let@token o\eth@altchargobble{#6}%
+  \else\ifx\@let@token O\eth@altchargobble{#6}%
+  \else\ifx\@let@token u\def\eth@res{\eth@three@help{#8}{#7}}%
+  \else\ifx\@let@token U\def\eth@res{\eth@three@help{#8}{#7}}%
+  \else\eth@altchar{#3}\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi
+  \eth@res
+}
+\newcommand{\eth@three@help}[3]{%
+  \def\eth@res{\eth@three@part#1{#2}}%
+  \futurelet\@let@token\eth@res
+}
+\newcommand{\eth@three@part}[6]{%
+       \ifx\@let@token a\eth@altchargobble{#1}%
+  \else\ifx\@let@token A\eth@altchargobble{#2}%
+  \else\ifx\@let@token e\eth@altchargobble{#3}%
+  \else\ifx\@let@token E\eth@altchargobble{#4}%
+  \else\ifx\@let@token i\eth@altchargobble{#5}%
+  \else\ifx\@let@token I\eth@altchargobble{#5}%
+  \else\eth@altchar{#6}\fi\fi\fi\fi\fi\fi
+  \eth@res
+}
+\DeclareRobustCommand{\eth@hatc}{%
+  \eth@three@norm{104}{107}{109}%
+    {108}{106}{110}{105}%
+    {111}%
+}
+\DeclareRobustCommand{\eth@dotc}{%
+  \eth@three@short{216}{219}{221}%
+    {220}{218}{222}{217}%
+}
+\DeclareRobustCommand{\eth@hatC}{%
+  \ifethvariantC
+    \bbl@afterelse
+    \eth@three@norm{192}{195}{197}%
+      {196}{194}{198}{193}%
+      {199}%
+  \else
+    \bbl@afterfi
+    \eth@three@norm{184}{187}{189}%
+      {188}{186}{190}{185}%
+      {191}%
+  \fi
+}
+\DeclareRobustCommand{\eth@dotd}{%
+  \eth@three@norm{152}{155}{157}%
+    {156}{154}{158}{153}%
+    {159}%
+}
+\DeclareRobustCommand{\eth@hatg}{%
+  \eth@three@norm{160}{163}{165}%
+    {164}{162}{166}{161}%
+    {167}%
+}
+\DeclareRobustCommand{\eth@accg}{%
+  \eth@three@short{248}{251}{253}%
+    {252}{250}{254}{249}%
+}
+\DeclareRobustCommand{\eth@dotg}{%
+  \eth@three@full{168}{171}{173}%
+    {172}{170}{174}{169}%
+    {{24}{27}{29}%
+     {28}{26}}%
+}
+\DeclareRobustCommand{\eth@acch}{%
+  \eth@three@short{240}{243}{245}%
+    {244}{242}{246}{241}%
+}
+\DeclareRobustCommand{\eth@barh}{%
+  \eth@three@full{112}{115}{117}%
+    {116}{114}{118}{113}%
+    {{8}{11}{13}%
+     {12}{10}}%
+}
+\DeclareRobustCommand{\eth@doth}{%
+  \eth@three@norm{72}{75}{77}%
+    {76}{74}{78}{73}%
+    {79}%
+}
+\DeclareRobustCommand{\eth@acck}{%
+  \eth@three@short{232}{235}{237}%
+    {236}{234}{238}{233}%
+}
+\DeclareRobustCommand{\eth@bark}{%
+  \eth@three@full{136}{139}{141}%
+    {140}{138}{142}{137}%
+    {{16}{19}{21}%
+     {20}{18}}%
+}
+\DeclareRobustCommand{\eth@tiln}{%
+  \eth@three@norm{120}{123}{125}%
+    {124}{122}{126}{121}%
+    {127}%
+}
+\DeclareRobustCommand{\eth@dotp}{%
+  \eth@three@norm{200}{203}{205}%
+    {204}{202}{206}{201}%
+    {207}%
+}
+\DeclareRobustCommand{\eth@accq}{%
+  \eth@three@short{224}{227}{229}%
+    {228}{226}{230}{225}%
+}
+\DeclareRobustCommand{\eth@dotq}{%
+  \eth@three@full{96}{99}{101}%
+    {100}{98}{102}{97}%
+    {{0}{3}{5}%
+     {4}{2}}%
+}
+\DeclareRobustCommand{\eth@hats}{%
+  \eth@three@norm{88}{91}{93}%
+    {92}{90}{94}{89}%
+    {95}%
+}
+\DeclareRobustCommand{\eth@accs}{%
+  \eth@three@norm{80}{83}{85}%
+    {84}{82}{86}{81}%
+    {87}%
+}
+\DeclareRobustCommand{\eth@dots}{%
+  \eth@three@norm{208}{211}{213}%
+    {212}{210}{214}{209}%
+    {215}%
+}
+\DeclareRobustCommand{\eth@dott}{%
+  \eth@three@norm{176}{179}{181}%
+    {180}{178}{182}{177}%
+    {183}%
+}
+\DeclareRobustCommand{\eth@hatz}{%
+  \eth@three@norm{144}{147}{149}%
+    {148}{146}{150}{145}%
+    {151}%
+}
+\initiate@active@char{~}
+\initiate@active@char{^}
+\initiate@active@char{'}
+\initiate@active@char{_}
+\initiate@active@char{.}
+\initiate@active@char{:}
+\addto\extrasethiop{\languageshorthands{ethiop}}
+\addto\extrasethiop{%
+  \bbl@activate{~}%
+  \bbl@activate{^}%
+  \bbl@activate{'}%
+  \bbl@activate{_}%
+  \bbl@activate{.}%
+  \bbl@activate{:}}
+\addto\noextrasethiop{%
+  \bbl@deactivate{~}%
+  \bbl@deactivate{^}%
+  \bbl@deactivate{_}%
+  \bbl@deactivate{.}%
+  \bbl@deactivate{:}}
+\declare@shorthand{system}{^}{\csname normal@char\string^\endcsname}
+\declare@shorthand{system}{_}{\csname normal@char\string_\endcsname}
+\declare@shorthand{system}{.}{\csname normal@char\string.\endcsname}
+\declare@shorthand{system}{'}{\textormath
+  {\csname normal@char\string'\endcsname}%
+  {\sp\bgroup\prim@s}%
+}
+\def\eth@punctglue#1#2{%
+  \ifmmode
+    #2%
+  \else
+    \ifhmode
+      \ifdim\lastskip=\fontdimen2\font\relax
+        \unskip
+      \fi
+    \fi
+    \nobreak
+    \ethglue
+    #1%
+    \allowbreak
+    \ethglue
+    \expandafter
+    \ignorespaces
+  \fi
+}%
+\declare@shorthand{system}{:}{%
+  \eth@punctglue{\char58 }%
+    {\char58 }%
+}
+\declare@shorthand{ethiop}{''}{\textormath
+  {\symbol{34}}{\sp\bgroup\prime\prim@s}}
+\declare@shorthand{ethiop}{^c}{\textormath
+  {\futurelet\@let@token\eth@hatc}{\sp c}}
+\declare@shorthand{ethiop}{^C}{\textormath
+  {\futurelet\@let@token\eth@hatC}{\sp C}}
+\declare@shorthand{ethiop}{.c}{\textormath
+  {\futurelet\@let@token\eth@dotc}%
+  {\csname normal@char\string.\endcsname c}}
+\declare@shorthand{ethiop}{.d}{\textormath
+  {\futurelet\@let@token\eth@dotd}%
+  {\csname normal@char\string.\endcsname d}}
+\declare@shorthand{ethiop}{^g}{\textormath
+  {\futurelet\@let@token\eth@hatg}{\sp g}}
+\declare@shorthand{ethiop}{'g}{\textormath
+  {\futurelet\@let@token\eth@accg}%
+  {\csname normal@char\string'\endcsname g}}
+\declare@shorthand{ethiop}{.g}{\textormath
+  {\futurelet\@let@token\eth@dotg}%
+  {\csname normal@char\string.\endcsname g}}
+\declare@shorthand{ethiop}{_h}{\textormath
+  {\futurelet\@let@token\eth@barh}{\sb h}}
+\declare@shorthand{ethiop}{'h}{\textormath
+  {\futurelet\@let@token\eth@acch}%
+  {\csname normal@char\string'\endcsname h}}
+\declare@shorthand{ethiop}{.h}{\textormath
+  {\futurelet\@let@token\eth@doth}%
+  {\csname normal@char\string.\endcsname g}}
+\declare@shorthand{ethiop}{_k}{\textormath
+  {\futurelet\@let@token\eth@bark}{\sb k}}
+\declare@shorthand{ethiop}{'k}{\textormath
+  {\futurelet\@let@token\eth@acck}%
+  {\csname normal@char\string'\endcsname k}}
+\declare@shorthand{ethiop}{~n}{\textormath
+  {\futurelet\@let@token\eth@tiln}%
+  {\csname normal@char\string~\endcsname n}}
+\declare@shorthand{ethiop}{.p}{\textormath
+  {\futurelet\@let@token\eth@dotp}%
+  {\csname normal@char\string.\endcsname p}}
+\declare@shorthand{ethiop}{'q}{\textormath
+  {\futurelet\@let@token\eth@accq}%
+  {\csname normal@char\string'\endcsname q}}
+\declare@shorthand{ethiop}{.q}{\textormath
+  {\futurelet\@let@token\eth@dotq}%
+  {\csname normal@char\string.\endcsname q}}
+\declare@shorthand{ethiop}{^s}{\textormath
+  {\futurelet\@let@token\eth@hats}{\sp s}}
+\declare@shorthand{ethiop}{'s}{\textormath
+  {\futurelet\@let@token\eth@accs}%
+  {\csname normal@char\string'\endcsname s}}
+\declare@shorthand{ethiop}{.s}{\textormath
+  {\futurelet\@let@token\eth@dots}%
+  {\csname normal@char\string.\endcsname s}}
+\declare@shorthand{ethiop}{.t}{\textormath
+  {\futurelet\@let@token\eth@dott}%
+  {\csname normal@char\string.\endcsname t}}
+\declare@shorthand{ethiop}{^z}{\textormath
+  {\futurelet\@let@token\eth@hatz}{\sp z}}
+\declare@shorthand{ethiop}{~m}{%
+  \textormath{%
+    \eth@doaltchar{40}%
+    \@ifnextchar A{\@gobble}{}%
+  }{\csname normal@char\string~\endcsname m}%
+}
+\declare@shorthand{ethiop}{~r}{%
+  \textormath{%
+    \eth@doaltchar{41}%
+    \@ifnextchar i{\@gobble}{}%
+  }{\csname normal@char\string~\endcsname r}%
+}
+\declare@shorthand{ethiop}{~f}{%
+  \textormath{%
+    \eth@doaltchar{42}%
+    \@ifnextchar i{\@gobble}{}%
+  }{\csname normal@char\string~\endcsname f}%
+}
+\declare@shorthand{ethiop}{'A}{\textormath
+  {\eth@doaltchar{131}}{\csname normal@char\string'\endcsname A}}
+\declare@shorthand{ethiop}{'a}{\textormath
+  {\eth@doaltchar{128}}{\csname normal@char\string'\endcsname a}}
+\declare@shorthand{ethiop}{'E}{\textormath
+  {\eth@doaltchar{132}}{\csname normal@char\string'\endcsname E}}
+\declare@shorthand{ethiop}{'e}{\textormath
+  {\eth@doaltchar{133}}{\csname normal@char\string'\endcsname e}}
+\declare@shorthand{ethiop}{'I}{\textormath
+  {\eth@doaltchar{130}}{\csname normal@char\string'\endcsname I}}
+\declare@shorthand{ethiop}{'i}{\textormath
+  {\eth@doaltchar{130}}{\csname normal@char\string'\endcsname i}}
+\declare@shorthand{ethiop}{'O}{\textormath
+  {\eth@doaltchar{134}}{\csname normal@char\string'\endcsname O}}
+\declare@shorthand{ethiop}{'o}{\textormath
+  {\eth@doaltchar{134}}{\csname normal@char\string'\endcsname o}}
+\declare@shorthand{ethiop}{'U}{\textormath
+  {\eth@ifnextA{135}{129}{U}}{\csname normal@char\string'\endcsname U}}
+\declare@shorthand{ethiop}{'u}{\textormath
+  {\eth@ifnextA{135}{129}{U}}{\csname normal@char\string'\endcsname u}}
+\declare@shorthand{ethiop}{:=}{%
+  \eth@punctglue{\char42 }%
+    {\char58 =}%
+}%
+\declare@shorthand{ethiop}{:-}{%
+  \eth@punctglue{\char123 }%
+    {\char58 -}%
+}%
+\declare@shorthand{ethiop}{::}{%
+  \eth@punctglue{\char126 }%
+    {\char58 \char58 }%
+}%
+\declare@shorthand{ethiop}{:|}{%
+  \@ifnextchar:{%
+    \eth@punctglue{\char125 }%
+      {\char58 |\char58 }%
+      \@gobble
+  }{%
+    \char58 |%
+  }%
+}%
+\def\eth@defaultfamily{etha}%
+\def\eth@altfamily{ethb}%
+\def\ethiop#1{\expandafter\@ethiop\csname c@#1\endcsname}
+\def\@ethiop#1{{%
+  \fontencoding{U}%
+  \fontfamily{\eth@altfamily}\selectfont
+  \ifnum#1<1\relax\ethnum@err{#1}%
+  \else\ifnum#1<10\relax\expandafter\ethnum@one\number #1%
+  \else\ifnum#1<100\relax\expandafter\ethnum@two\number #1%
+  \else\ifnum#1<1000\relax\expandafter\ethnum@three\number #1%
+  \else\ifnum#1<10000\relax\expandafter\ethnum@four\number #1%
+  \else\ifnum#1<100000\relax\expandafter\ethnum@five\number #1%
+  \else\ifnum#1<1000000\relax\expandafter\ethnum@six\number #1%
+  \else
+    \fontfamily{\eth@defaultfamily}\selectfont
+    \ethnum@err
+    \number#1%
+  \fi\fi\fi\fi\fi\fi\fi
+}}
+\let\ethnum\@ethiop
+\newcommand{\ethnum@tens}[1]{%
+  \ifcase#1\or\char58 \or\char59 \or\char60
+           \or\char61 \or\char62 \or\char63
+           \or\char64 \or\char65 \or\char66 \fi
+  \relax
+}
+\newcommand{\ethnum@one}[1]{%
+  \ifnum#1>0\relax#1\fi
+}
+\newcommand{\ethnum@two}[1]{%
+  \ethnum@tens#1%
+  \ethnum@one
+}
+\newcommand{\ethnum@three}[1]{%
+  \ifnum#1>1\relax#1\fi
+  \ifnum#1>0\relax\char67\fi
+  \ethnum@two
+}
+\newcommand{\ethnum@four}[1]{%
+  \ethnum@tens#1%
+  \ifnum#1>0\relax\char67\fi
+  \ethnum@three
+}
+\newcommand{\ethnum@five}[1]{%
+  \ifnum#1>1\relax#1\fi
+  \ifnum#1>0\relax\char68\fi
+  \ethnum@four
+}
+\newcommand{\ethnum@six}[1]{%
+  \ethnum@tens#1%
+  \ifnum#1>0\relax\char68\fi
+  \ethnum@five
+}
+\addto\captionsethiop{%
+  \def\prefacename{maqedeme}%
+  \def\refname{ya\eth@doaltchar{85}na
+    \eth@doaltchar{209}hUfe
+    mene\eth@doaltchar{189}}%
+  \def\abstractname{%
+    \eth@doaltchar{128}\eth@doaltchar{117}%
+    \eth@doaltchar{213}rota
+    \eth@doaltchar{213}huf}%
+  \def\bibname{wAbI
+    ma\eth@doaltchar{213}hAfete}%
+  \def\chaptername{kefele}%
+  \def\appendixname{madbal}%
+  \def\contentsname{yezate}%
+  \def\listfigurename{%
+    ya\eth@doaltchar{85}`elo\eth@doaltchar{109}
+    mAwe\eth@doaltchar{187}}%
+  \def\listtablename{%
+    yasane\eth@doaltchar{176}ra\eth@doaltchar{149}
+    mAwe\eth@doaltchar{187}}%
+  \def\indexname{mehe\eth@doaltchar{211}re
+    qAle}%
+  \def\figurename{\eth@doaltchar{85}`ele}%
+  \def\tablename{%
+    sane\eth@doaltchar{176}ra\eth@doaltchar{149}}%
+  \def\partname{ne`Use kefele}%
+  \def\enclname{%
+    \eth@doaltchar{128}bArIwO\eth@doaltchar{109}}%
+  \def\ccname{gelebA\eth@doaltchar{189}}%
+  \def\headtoname{la}%
+  \def\pagename{ga\eth@doaltchar{213}}%
+  \def\seename{yemalekatU}%
+  \def\alsoname{yeheneme yemalekatU}%
+  \def\proofname{mAragAga\eth@doaltchar{187}}%
+}
+\newcommand{\eth@monthname}[1]{\ifcase#1\or
+  masekarame\or
+  \eth@doaltchar{181}qemete\or
+  hedAre\or
+  tAhesAse\or
+  \eth@doaltchar{181}re\or
+  yakAtite\or
+  magAbite\or
+  mIyAzeyA\or
+  genebote\or
+  sanE\or
+  \eth@doaltchar{72}melE\or
+  na\eth@doaltchar{72}sE\or
+  \eth@doaltchar{200}gUmEne\fi
+}
+\else
+\ocp\eth@spc=ethospc
+\ocplist\eth@cpl=
+  \addbeforeocplist 10 \eth@spc
+  \nullocplist
+\addto\extrasethiop{%
+  \pushocplist\eth@cpl}
+\addto\noextrasethiop{%
+  \popocplist}
+\def\ethiop#1{\expandafter\@ethiop\csname c@#1\endcsname}
+\def\@ethiop#1{{%
+  \fontencoding{U}%
+  \fontfamily{\eth@altfamily}\selectfont
+  \ifnum#1<1\relax\ethnum@err{#1}%
+  \else\ifnum#1<10\relax\expandafter\ethnum@one\number #1%
+  \else\ifnum#1<100\relax\expandafter\ethnum@two\number #1%
+  \else\ifnum#1<1000\relax\expandafter\ethnum@three\number #1%
+  \else\ifnum#1<10000\relax\expandafter\ethnum@four\number #1%
+  \else\ifnum#1<100000\relax\expandafter\ethnum@five\number #1%
+  \else\ifnum#1<1000000\relax\expandafter\ethnum@six\number #1%
+  \else
+    \fontfamily{\eth@defaultfamily}\selectfont
+    \ethnum@err
+    \number#1%
+  \fi\fi\fi\fi\fi\fi\fi
+}}
+\let\ethnum\@ethiop
+\newcommand{\ethnum@tens}[1]{%
+  \ifcase#1\or^^^^1372\or^^^^1373\or^^^^1374%
+           \or^^^^1375\or^^^^1376\or^^^^1377%
+           \or^^^^1378\or^^^^1379\or^^^^137a\fi
+}%
+\newcommand{\ethnum@one}[1]{%
+  \ifcase#1\or^^^^1369\or^^^^136a\or^^^^136b%
+           \or^^^^136c\or^^^^136d\or^^^^136e%
+           \or^^^^136f\or^^^^1370\or^^^^1371\fi
+}%
+\newcommand{\ethnum@two}[1]{%
+  \ethnum@tens#1%
+  \ethnum@one
+}
+\newcommand{\ethnum@three}[1]{%
+  \ifnum#1>1\relax\ethnum@one#1\fi
+  \ifnum#1>0\relax^^^^137b\fi
+  \ethnum@two
+}
+\newcommand{\ethnum@four}[1]{%
+  \ethnum@tens#1%
+  \ifnum#1>0\relax^^^^137b\fi
+  \ethnum@three
+}
+\newcommand{\ethnum@five}[1]{%
+  \ifnum#1>1\relax\ethnum@one#1\fi
+  \ifnum#1>0\relax^^^^137c\fi
+  \ethnum@four
+}
+\newcommand{\ethnum@six}[1]{%
+  \ethnum@tens#1%
+  \ifnum#1>0\relax^^^^137c\fi
+  \ethnum@five
+}
+\def\eth@defaultfamily{etho}
+\def\eth@altfamily{etho}
+\addto\captionsethiop{%
+  \def\prefacename{^^^^1218^^^^1245^^^^12f5^^^^121d}%
+  \def\refname{^^^^12e8^^^^1225^^^^1290
+    ^^^^1339^^^^1201^^^^134d ^^^^121d^^^^1295^^^^132d}%
+  \def\abstractname{^^^^12a0^^^^1285^^^^133d^^^^122e^^^^1270
+    ^^^^133d^^^^1201^^^^134d}%
+  \def\bibname{^^^^12cb^^^^1262
+     ^^^^1218^^^^133d^^^^1203^^^^134d^^^^1275}%
+  \def\chaptername{^^^^12ad^^^^134d^^^^120d}%
+  \def\appendixname{^^^^1218^^^^12f5^^^^1260^^^^120d}%
+  \def\contentsname{^^^^12ed^^^^12d8^^^^1275}%
+  \def\listfigurename{^^^^12e8^^^^1225^^^^12d5^^^^120e^^^^127d
+    ^^^^121b^^^^12cd^^^^132b}%
+  \def\listtablename{^^^^12e8^^^^1230^^^^1295^^^^1320^^^^1228^^^^12e5
+    ^^^^121b^^^^12cd^^^^132b}%
+  \def\indexname{^^^^121d^^^^1205^^^^133b^^^^122d ^^^^1243^^^^120d}%
+  \def\figurename{^^^^1225^^^^12d5^^^^120d}%
+  \def\tablename{^^^^1230^^^^1295^^^^1320^^^^1228^^^^12e5}%
+  \def\partname{^^^^1295^^^^12d1^^^^1235 ^^^^12ad^^^^134d^^^^120d}%
+  \def\enclname{^^^^12a0^^^^1263^^^^122a^^^^12ce^^^^127d}%
+  \def\ccname{^^^^130d^^^^120d^^^^1263^^^^132d}%
+  \def\headtoname{^^^^1208}%
+  \def\pagename{^^^^1308^^^^133d}%
+  \def\seename{^^^^12ed^^^^1218^^^^120d^^^^12a8^^^^1271}%
+  \def\alsoname{^^^^12ed^^^^1205^^^^1295^^^^121d
+    ^^^^12ed^^^^1218^^^^120d^^^^12a8^^^^1271}%
+  \def\proofname{^^^^121b^^^^1228^^^^130b^^^^1308^^^^132b}%
+}%
+\newcommand{\eth@monthname}[1]{\ifcase#1\or
+  ^^^^1218^^^^1235^^^^12a8^^^^1228^^^^121d\or
+  ^^^^1325^^^^1245^^^^121d^^^^1275\or
+  ^^^^1205^^^^12f3^^^^122d\or
+  ^^^^1273^^^^1205^^^^1233^^^^1235\or
+  ^^^^1325^^^^122d\or
+  ^^^^12e8^^^^12ab^^^^1272^^^^1275\or
+  ^^^^1218^^^^130b^^^^1262^^^^1275\or
+  ^^^^121a^^^^12eb^^^^12dd^^^^12eb\or
+  ^^^^130d^^^^1295^^^^1266^^^^1275\or
+  ^^^^1230^^^^1294\or
+  ^^^^1210^^^^121d^^^^120c\or
+  ^^^^1290^^^^1210^^^^1234\or
+  ^^^^1330^^^^1309^^^^121c^^^^1295\fi
+}
+\fi
+\loadlocalcfg{ethiop}
+\main@language{ethiop}
+\catcode`\@=\atcatcode \let\atcatcode\relax
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%%
+\endinput
+%%
+%% End of file `ethiop.ldf'.

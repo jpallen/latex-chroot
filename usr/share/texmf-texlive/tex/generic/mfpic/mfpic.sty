@@ -1,0 +1,67 @@
+%%
+%% This is file `mfpic.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% mfpic.dtx  (with options: `sty')
+%% 
+%% -------------------------------------------------------------------
+%% 
+%% Copyright 2002--2006, Daniel H. Luecking
+%% 
+%% Mfpic may be distributed and/or modified under the conditions of the
+%% LaTeX Project Public License, either version 1.3b of this license or (at
+%% your option) any later version. The latest version of this license is in
+%%    <http://www.latex-project.org/lppl.txt>
+%% and version 1.3b or later is part of all distributions of LaTeX version
+%% 2005/12/01 or later.
+%% 
+%% Mfpic has maintenance status "author-maintained". The Current Maintainer
+%% is Daniel H. Luecking. There are several Base Interpreters associated
+%% with mfpic: plain TeX, LaTeX, plain Metafont and plain MetaPost.
+%% 
+\ProvidesPackage{mfpic}
+  [2006/05/26 v0.9. Macros for drawing with Metafont/MetaPost.]%
+\DeclareOption{draft}{\mfpicdraft}%
+\DeclareOption{final}{%
+  \mfpicfinal\PassOptionsToPackage{final}{graphics}}%
+\DeclareOption{nowrite}{\mfpicnowrite}%
+\DeclareOption{metapost}{\mfp@mposttrue}%
+\DeclareOption{metafont}{\usemetafont}%
+\DeclareOption{centeredcaptions}{\usecenteredcaptions}%
+\DeclareOption{justifiedcaptions}{\noraggedcaptions}%
+\DeclareOption{raggedcaptions}{\useraggedcaptions}%
+\DeclareOption{clip}{\clipmfpic}%
+\DeclareOption{truebbox}{\usetruebbox}%
+\DeclareOption{mplabels}{\usemplabels}%
+\DeclareOption{overlaylabels}{\overlaylabels}%
+\DeclareOption{clearsymbols}{\clearsymbols}%
+\DeclareOption{debug}{\mfpicdebugtrue}%
+\DeclareOption{mfpreadlog}{\mfp@readlogtrue}%
+\DeclareOption*{%
+  \@ifpackageloaded{graphics}%
+   {\Mfpic@warn{Unrecognized option \CurrentOption.}}%
+   {\Mfpic@msg{Passing option \CurrentOption\space to %
+    graphics package.}%
+    \PassOptionsToPackage{\CurrentOption}{graphics}}}%
+\newcommand*\mfpdraftfont{\normalfont\ttfamily}%
+\def\@usemetapost{%
+  \mfp@ifdefined\includegraphics{}{\RequirePackage{graphics}}%
+  \let\mfp@save@parse@bb\Gread@parse@bb
+  \newdef\mfp@parse@bb##1 ##2 ##3 ##4 ##5\\{%
+    \mfp@save@parse@bb##1 ##2 ##3 ##4 ##5\\%
+    \xdef\mfpicllx{\Gin@llx}\xdef\mfpiclly{\Gin@lly}}%
+  \ifmfp@pdf \gdef\mfp@Gtype{mps}%
+  \else      \gdef\mfp@Gtype{eps}%
+  \fi
+  \gdef\preparemfpicgraphic##1{%
+    \@namedef{Gin@rule@.\number\mfp@count}####1{{\mfp@Gtype}%
+      {.\number\mfp@count}{####1}}%
+    \let\Gread@parse@bb\mfp@parse@bb}%
+  \global\let\setmfpicgraphic\includegraphics
+  \gdef\getmfpicoffset##1{}}%
+\input mfpic.tex\relax
+\endinput
+%%
+%% End of file `mfpic.sty'.

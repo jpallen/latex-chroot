@@ -1,0 +1,1251 @@
+%%
+%% This is file `xo-or.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xo-or.dtx  (with options: `package,progress')
+%% 
+%% Not for distribution
+%% 
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%% 
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+
+\def\@tempa#1: #2.dtx,v #3 #4 #5 #6 #7${
+  \ProvidesPackage{#2}[#4 #3 #5 #6]}
+\@tempa$Id: xo-or.dtx,v 1.53 2000/08/11 07:14:25 latex3 Exp $
+\IgnoreWhiteSpace
+\long\def\@gobblethree#1#2#3{}
+\def\xin@#1#2{%
+ \expandafter\def\expandafter\in@@\expandafter##\expandafter1#1##2##3\in@@{%
+  \ifx\in@##2\in@false\else\in@true\fi}%
+ \expandafter\expandafter\expandafter\in@@\expandafter#2#1\in@\in@@}
+\def\gincrement@num#1 {
+ \begingroup
+  \count@#1
+  \advance\count@\@ne
+  \xdef#1{\the\count@}
+ \endgroup
+}
+\def\gdecrement@num#1 {
+ \begingroup
+  \count@#1
+  \advance\count@\m@ne
+  \xdef#1{\the\count@}
+ \endgroup
+}
+\begingroup
+\catcode`\M=12
+\catcode`\I=12
+\catcode`\N=12
+\catcode`\U=12
+\catcode`\S=12
+\catcode`\Z=12
+\lccode`\Z=`\p
+\catcode`\T=12
+\catcode`\L=12
+\catcode`\F=12
+\lccode`\V=`\V
+\lccode`\O=`\O
+\lowercase{
+\gdef\split@skip #1#2#3#4{
+  \@tempskipa#2\relax
+  \expandafter\check@for@fil \the\@tempskipa FIL\relax\check@for@fil
+     {\the\@tempskipa}{#3}{#4}{#1}
+ }
+\gdef\check@for@fil #1FIL#2\check@for@fil#3#4#5#6{
+  \ifx\relax#2
+    \expandafter
+      \get@minus@part #3MINUS 0ZT \get@minus@part{#4}{#5}
+  \else
+    #4\z@
+    #5\z@
+    \PackageError{template}{Value~ for~ key~ #6~ contains~ `fil(ll)'}
+       {Only~ finite~ minus~ or~ plus~ parts~ are~ allowed~ for~ this~ key.}
+  \fi
+ }
+\gdef\get@plus@part  #1ZLUS#2ZT#3\get@plus@part#4{
+  #4=#2pt\relax
+ }
+\gdef\get@minus@part  #1MINUS#2ZT#3\get@minus@part#4#5{
+  \get@plus@part #1ZLUS 0ZT\get@plus@part{#4}
+  #5=#2pt\relax
+ }
+}
+\endgroup
+\mathchardef\output@collect@penalty=20202
+\mathchardef\output@balance@penalty=10010
+\mathchardef\output@columnbreak@penalty=10005
+\mathchardef\output@flush@float@penalty=10006
+\mathchardef\output@here@float@penalty=10007
+\mathchardef\output@grid@align@penalty=10008
+\def\add@badly@guarded@penalty#1 {
+  \ifvmode
+    \nointerlineskip
+    \vbox to\z@{\vss\the#1}\penalty-#1\relax
+  \else
+    \@bsphack
+    \vadjust{\vbox to\z@{\vss\the#1}\penalty-#1\relax}
+    \@esphack
+  \fi
+}
+\def\add@guarded@penalty#1
+  {\guard@box{BUG:~\string#1}\penalty-#1\relax}
+\def\guard@box#1{
+  \dimen@\prevdepth
+  \nointerlineskip
+  \vbox to0pt{\vss \rlap{#1}\kern\z@}
+  \prevdepth\dimen@
+}
+\def\guard@box#1{
+  \dimen@\prevdepth
+  \nointerlineskip
+  \begingroup
+    \setbox\z@\vbox to\z@{\vss \rlap{#1}}
+    \dp\z@\dimen@
+    \box\z@
+  \endgroup
+}
+\def\remove@guard@box@from@cclv{
+    \global\setbox\@cclv \vbox{\boxmaxdepth\@maxdepth \unvbox\@cclv
+                               \global\setbox\removed@guard@box\lastbox}
+}
+\def\readd@guarded@penalty#1 {
+  \box\removed@guard@box
+  \penalty-#1\relax}
+\newbox\removed@guard@box
+\let\col@count \col@number   % reuse a register from LaTeX
+                             % which is named differently there
+\newcount\curr@col@count
+
+\expandafter\newbox\csname col@box@1\endcsname
+\expandafter\newbox\csname col@box@2\endcsname
+\expandafter\newbox\csname col@box@3\endcsname
+\expandafter\newbox\csname col@box@4\endcsname
+\expandafter\newbox\csname col@box@5\endcsname
+\expandafter\newbox\csname col@box@6\endcsname
+\expandafter\newdimen\csname col@ht@ 1\endcsname
+\expandafter\newdimen\csname col@ht@ 2\endcsname
+\expandafter\newdimen\csname col@ht@ 3\endcsname
+\expandafter\newdimen\csname col@ht@ 4\endcsname
+\expandafter\newdimen\csname col@ht@ 5\endcsname
+\expandafter\newdimen\csname col@ht@ 6\endcsname
+\def\forall@columns#1{
+  \edef\saved@curr@col@count{\the\curr@col@count}
+  \global\curr@col@count\z@
+  \@whilenum \curr@col@count<\col@count \do
+     {\global\advance\curr@col@count\@ne
+      #1
+     }
+  \global\curr@col@count\saved@curr@col@count\relax
+}
+\def\initialise@column@data{
+  \global\let\best@trial\@empty
+
+  \forall@columns
+     {
+
+      \global\csname col@ht@ \the\curr@col@count\endcsname\textheight
+
+      \expandafter
+      \g@addto@macro\expandafter\best@trial\expandafter
+        {
+         \expandafter
+         \global
+           \csname col@ht@ \the\curr@col@count\endcsname
+           \textheight
+        }
+      \global\@namedef{col@t@floats@ \the\curr@col@count
+                       @number}{0}
+      \global\@namedef{col@b@floats@ \the\curr@col@count
+                       @number}{0}
+      \global\@namedef{col@t@delta@ \the\curr@col@count}{0pt}
+      \global\@namedef{col@b@delta@ \the\curr@col@count}{0pt}
+  }
+
+}
+\def\columnbreak{
+ \ifnum\col@count<\tw@
+  \PackageError{xoutput}
+   {\noexpand\columnbreak~ in~ one-column~ mode}
+   {???}
+ \else
+  \ifvmode
+    \penalty -\output@columnbreak@penalty
+  \else
+    \@bsphack
+    \vadjust{\penalty -\output@columnbreak@penalty}
+    \@esphack
+  \fi
+ \fi}
+\def\known@areas{}
+\def\used@areas{  t11 b11 }
+\let\@activelist\@empty
+\let\@mvllist\@empty
+\let\area@ddd\@empty
+\def\pagesetup@ddd@class@close{\pagesetup@area@list}
+\let\pagesetup@ddd@all@close\@empty
+\let\this@open@areas\@empty
+\let\saved@this@open@areas\@empty
+\let\this@closed@areas\@empty
+\let\this@page@closed\@empty
+\expandafter\let\csname t11@float@count\endcsname \@topnum
+\expandafter\let\csname b11@float@count\endcsname \@botnum
+\expandafter\let\csname t12@float@count\endcsname \@dbltopnum
+\expandafter\let\csname b12@float@count\endcsname \@dblbotnum
+\newcount\ddd@float@count
+\newskip\pagesetup@float@area@sep
+\let\pagesetup@float@text@sep\textfloatsep % reuse register
+\let\textfloatsep\@undefined
+\let\pagesetup@float@float@sep\floatsep % reuse register
+\let\floatsep\@undefined
+\newdimen\pagesetup@float@text@shrink
+\let\pagesetup@float@inline@sep\intextsep % reuse register
+\let\intextsep\@undefined
+\newdimen\pagesetup@float@inline@shrink
+\def\initialise@areas{
+  \expandafter\initialise@areas@loop
+      \used@areas
+      \relax\relax\relax
+}
+\def\initialise@areas@loop#1#2#3{
+  \ifx#1\relax
+  \else
+    \global\csname #1#2#3@float@count\endcsname\z@
+    \global\expandafter\let\csname area@#1#2#3\endcsname\@empty
+    \expandafter\initialise@areas@loop
+  \fi}
+\def\first@of@type#1#2{
+ \begingroup
+   \def\@tempb{#1}
+   \gdef\returned@sequence@number{-1}
+   \def\@elt{\expandafter\first@of@type@aux\the\toks}
+   \csname area@#2\endcsname
+ \endgroup
+}
+\def\first@of@type@aux#1#2#3#4#5#6#7{
+  \def\@tempa{#6}
+  \ifx\@tempa\@tempb
+   \gdef\returned@sequence@number{#7}
+  \let\@elt\@gobble
+  \fi}
+\def\last@of@type#1#2{
+ \begingroup
+   \def\@tempb{#1}
+   \gdef\returned@sequence@number{-1}
+   \def\@elt{\expandafter\last@of@type@aux\the\toks}
+   \csname area@#2\endcsname
+ \endgroup
+}
+\def\last@of@type@aux#1#2#3#4#5#6#7{
+  \def\@tempa{#6}
+  \ifx\@tempa\@tempb
+   \gdef\returned@sequence@number{#7}
+  \fi}
+\def\setup@this@area #1 {
+  \xdef\this@area{#1}
+  \expandafter\gassign@area@type@col@and@span@aux\this@area
+}
+\def\gassign@area@type@col@and@span@aux #1#2#3{
+  \gdef \this@area@type        {#1}  % type
+  \gdef \this@area@col@number  {#2}  % col
+  \gdef \this@area@span@number {#3}  % span
+}
+\def\update@this@area@columns #1 {
+  \begingroup
+    \count@\this@area@col@number\relax
+    \advance\count@\this@area@span@number\relax
+    \loop
+    \ifnum \this@area@col@number < \count@
+      \advance\count@\m@ne
+      #1
+    \repeat
+  \endgroup
+}
+\def\setup@collection@or{
+  \global\holdinginserts\@ne
+  \global\vsize\textheight
+  \global\advance\vsize 5\baselineskip
+  \global\multiply\vsize \col@count
+  \@flushseenfalse
+  \@flushfailfalse
+  \xdef\saved@topskip{\the\topskip}
+  \global\output{\collection@or}
+}
+\newif\if@collecting@new@material
+\def\@collecting@new@materialfalse
+   {\global\let\if@collecting@new@material\iffalse}
+\def\@collecting@new@materialtrue
+   {\global\let\if@collecting@new@material\iftrue}
+\def\collection@or{
+   \@testfalse
+   \ifnum\outputpenalty < -\@M
+     \ifnum\outputpenalty > -\output@balance@penalty
+       \@testtrue
+     \fi
+   \fi
+   \if@test
+      \remove@guard@box@from@cclv
+      \dimen@\dp\@cclv
+      \global\advance\vsize-\ht\@cclv
+      \global\setbox\partial@galley@box
+               \vbox{\ifvoid\partial@galley@box
+                     \else
+                       \unvbox\partial@galley@box
+                     \fi
+                     \unvbox\@cclv
+                     \setbox\z@\vbox to-\dimen@{}
+                     \dp\z@\dimen@
+                     \box\z@
+                     \penalty\outputpenalty
+                    }
+      \global\topskip-\maxdimen  %  okay here?
+      \if@collecting@new@material
+        \ifnum \outputpenalty = -\output@columnbreak@penalty
+        \else
+          \setbox\z@\vbox to-\dimen@{}
+          \dp\z@\dimen@
+          \box\z@
+          \penalty\z@
+        \fi
+      \fi
+      \ifnum\outputpenalty=-\output@flush@float@penalty
+        \@flushseentrue
+      \fi
+   \else
+     \ifnum\outputpenalty = -\output@collect@penalty
+       \remove@guard@box@from@cclv
+       \unvbox\@cclv
+       \ifnum\saved@outputpenalty > -\@M
+         \penalty
+            \ifnum\saved@outputpenalty=\@M
+               \z@
+            \else
+               \saved@outputpenalty\relax
+            \fi
+       \else
+       \fi
+       \@collecting@new@materialtrue
+     \else
+       \ifnum\outputpenalty = -\output@balance@penalty
+         \@balancetrue
+         \xdef\saved@outputpenalty{0}
+       \else
+         \xdef\saved@outputpenalty{\the\outputpenalty}
+       \fi
+       \ifvoid\partial@galley@box
+         \global \setbox\@holdpg\box\@cclv
+       \else
+         \global\setbox\@holdpg\vbox{
+            \unvbox\partial@galley@box
+            \unvbox\@cclv}
+       \fi
+
+
+       \if@balance
+         \global\setbox\@holdpg\vbox{
+            \unvbox\@holdpg
+            \penalty\outputpenalty % short for "-\output@balance@penalty"
+            }
+       \fi
+
+       \mark@save@state
+       \mark@update@structure
+       \global\holdinginserts\z@
+
+       \global\topskip\saved@topskip
+
+       \setup@float@placement
+
+       \@collecting@new@materialfalse
+     \fi
+   \fi
+  }
+\newbox\partial@galley@box
+\def\initialise@float@class#1{
+  \count@0\LastMark{#1}
+  \global\expandafter\let\csname open@#1@areas\endcsname\used@areas
+  \global\expandafter\let\csname closed@#1@areas\endcsname\@empty
+  \forall@columns {
+    \ifnum \csname fl@ \the\curr@col@count @#1\endcsname>\z@
+      \global\expandafter\let\csname fl@0@#1\expandafter\endcsname
+             \csname fl@ \the\curr@col@count @#1\endcsname
+      \expandafter\xdef
+             \csname fl@ \the\curr@col@count @#1\endcsname{0}
+     \fi
+     \expandafter\xdef
+            \csname tfl@ \the\curr@col@count @#1\endcsname{0}
+  }
+  }
+\newif\if@fail
+\def\@failfalse{\global\let\if@fail\iffalse}
+\def\@failtrue{\global\let\if@fail\iftrue}
+\def\setup@float@placement {
+   \def\@elt{\global\advance\trial@count\@ne\@gobble}
+      \@activelist
+   \let\@elt\relax
+   \progress@separator
+   \progress@nl{STATS:~ floats~ waiting~ =~ \the\trial@count
+         \space on~ page~ \the\absolute@page@number}
+   \progress@separator
+   \global\trial@count\z@
+    \global\let\saved@herelist\@herelist
+    \tighten@float@placement@conditions
+    \run@with@floatsfalse
+    \float@placement@loop
+}
+\def\float@placement@loop{
+  \deadcycles\z@
+  \global\let\@activelist@empty@action\setup@best@column@or
+  \global\let\pretests@success@action\setup@grab@column@or
+  \mark@restore@state{
+    \unvcopy\@holdpg
+    \ifnum\saved@outputpenalty > -1073741824\relax
+       \add@badly@guarded@penalty\output@collect@penalty
+    \fi
+    \global\let\@herelist\saved@herelist
+    \ifrun@with@floats
+      \trial@inner@loop
+    \else
+      \setup@grab@column@or
+    \fi
+    }
+  }
+\def\trial@inner@loop{
+  \if@fail
+    \@failfalse
+    \@flushfailfalse
+    \global\advance\trial@count\@ne
+    \do@next\try@this@area
+  \else
+    \do@next\try@next@float
+  \fi
+  \do@continue
+  }
+\newcount\trial@count
+\let\try@this@area\ERROR
+\def\try@next@area{
+  \xdef\this@open@areas{\expandafter\@gobblethree\this@open@areas}
+  \global\advance\trial@count\@ne
+  \try@this@area
+}
+\def\try@next@float{
+  \@next\@currbox\@activelist{
+   \progress{Float:~ \@currbox}
+   \expandafter\update@this@float@structure\the\toks\@currbox
+   \global\let\saved@this@open@areas\this@open@areas
+   \global\advance\trial@count\@ne
+   \try@this@area
+  }
+  {
+   \progress@nl{STATS:~ trials~ =~ \the\trial@count}
+   \global\trial@count\z@
+   \@activelist@empty@action
+  }
+}
+\def\update@this@float@structure#1#2#3#4#5#6#7{
+  \gdef\this@caption{#1}
+  \gdef\this@span@number{#2}
+  \gdef\this@usercnt{#4}
+  \gdef\this@fps{#5}
+  \gdef\this@type{#6}
+  \global\expandafter\let\expandafter
+       \this@class\csname sequence@class@#6\endcsname
+  \gdef\this@sequence@number{#7}
+  \global\let\this@open@areas\used@areas
+  \global\expandafter\let\expandafter\this@closed@areas
+           \csname  closed@\this@class @areas\endcsname  % FMi tmp
+  \global\let\this@float@box\@currbox
+\progress{~{#7}}
+\progress{~{#6}~(\this@class)}
+\progress{~{#4}}
+\toks@{#1}\progress@nl{~{\the\toks@}}
+}
+\def \extract@this@float@actual@structure #1#2#3#4#5#6#7 {
+  \gdef\this@caption{#1}
+  \gdef\this@span@number{#2}
+  \gdef\this@loglabel{#3}
+  \gdef\this@usercnt{#4}
+  \gdef\this@fps{#5}
+  \gdef\this@type{#6}
+  \global\expandafter\let\expandafter
+       \this@class\csname sequence@class@#6\endcsname
+  \gdef\this@sequence@number{#7}
+  }
+\def\update@here@float@structure#1#2#3#4#5#6#7{
+  \gdef\here@span@number{#2}
+  \gdef\here@type{#6}
+  \global\expandafter\let\expandafter
+       \here@class\csname sequence@class@#6\endcsname
+  \gdef\here@sequence@number{#7}
+  \gdef\here@usercnt{#4}
+  \gdef\here@caption{#1}
+  \global\let\here@float@box\@currbox
+}
+\let\page@float@count\@colnum
+\newbox\this@captioned@float
+\def\setup@grab@column@or{
+   \ifnum\saved@outputpenalty = -1073741824\relax
+     \add@badly@guarded@penalty\output@collect@penalty
+   \fi
+  \@failfalse
+  \global\curr@col@count\z@
+  \gdef\trial@flush@seen@num{0}
+  \gdef\trial@here@seen@num{0}
+  \ifrun@with@floats
+    \calculate@target@fl@column
+    \global\expandafter\let\expandafter\saved@fl@
+        \csname fl@\the\count@ @\this@class\endcsname
+    \global\expandafter\let
+        \csname fl@\the\count@ @\this@class\endcsname
+        \this@sequence@number
+    \if t\this@area@type
+      \global\expandafter\let\expandafter\saved@tfl@
+          \csname tfl@\the\count@ @\this@class\endcsname
+      \global\expandafter\let
+          \csname tfl@\the\count@ @\this@class\endcsname
+          \this@sequence@number
+    \fi
+  \fi
+  \if@flushseen
+    \count@\z@
+    \@whilenum \flush@seq@num>\count@ \do
+       { \advance\count@\@ne
+         \global\expandafter\let
+            \csname saved@flush@min@col@\the\count@ \expandafter\endcsname
+            \csname flush@min@col@\the\count@\endcsname
+       }
+  \fi
+  \initialise@footins@action
+  \global\output{\grab@column@or}
+  \grab@column@loop
+}
+\let\calculate@target@fl@column \ERROR
+\def\calculate@target@fl@column@flexible {
+    \count@\this@area@col@number\relax
+    \advance\count@\this@area@span@number\relax
+    \advance\count@\m@ne
+}
+\def\calculate@target@fl@column@strict {
+    \count@\this@area@col@number\relax
+}
+\newif\ifrun@with@floats
+\def\run@with@floatsfalse{\global\let\ifrun@with@floats\iffalse}
+\def\run@with@floatstrue{\global\let\ifrun@with@floats\iftrue}
+\def\grab@column@loop{
+  \global\advance\curr@col@count\@ne
+  \global\vsize\csname col@ht@ \the\curr@col@count\endcsname
+}
+\def\some@column@or #1#2#3#4{
+   \handle@case@of@premature@ending
+   \handle@case@of@forced@pagebreak
+   \ifnum\outputpenalty=-\output@flush@float@penalty
+     \gincrement@num\trial@flush@seen@num
+     \remove@guard@box@from@cclv
+     \ifnum\csname flush@min@col@\trial@flush@seen@num\endcsname
+           > \curr@col@count
+       \gdecrement@num\trial@flush@seen@num
+       \readd@guarded@penalty\output@flush@float@penalty
+       #2
+     \else
+       #3
+     \fi
+   \else
+     \ifnum\outputpenalty=-\output@here@float@penalty
+       \gincrement@num\trial@here@seen@num
+       \remove@guard@box@from@cclv
+       \ifnum\csname here@min@col@\trial@here@seen@num\endcsname
+             > \curr@col@count
+         \split@off@last@line
+         \gdecrement@num\trial@here@seen@num
+         \readd@guarded@penalty\output@here@float@penalty
+         #2
+       \else
+         \@tempdima \pagegoal
+         \advance\@tempdima -\pagetotal
+         \ifdim \@tempdima <
+                    \csname
+                        here@required@space@\trial@here@seen@num
+                    \endcsname  \relax
+           \split@off@last@line
+           \gdecrement@num\trial@here@seen@num
+           \readd@guarded@penalty\output@here@float@penalty
+           #2
+         \else
+           \@reinserts
+           \unvbox\@cclv
+           \@next\@currbox\@herelist{
+             \expandafter\update@here@float@structure\the\toks\@currbox
+             \def\@tempa{mpar}
+             \ifx\@tempa\here@type
+               \typeset@a@marginpar
+             \else
+               \def\@tempa{rspace}
+               \ifx\@tempa\here@type
+                 % do nothing
+               \else
+                 #4
+               \fi
+             \fi
+            }
+            \ERROR
+         \fi
+       \fi
+     \else
+       \ifnum\outputpenalty=-\output@grid@align@penalty
+         \align@collected@galley@and@restart
+       \else
+         #2
+       \fi
+     \fi
+   \fi
+}
+\def\grab@column@or{\some@column@or{grab}
+      \grab@column@or@finish
+      \grab@column@or@flushcheck
+      \check@and@typeset@a@here@float
+}
+\def\grab@column@or@flushcheck{
+  \ifrun@with@floats
+    \expandafter\xin@\expandafter\this@class
+         \csname flush@classes@list@\trial@flush@seen@num\endcsname
+    \ifin@
+      \count@\csname flush@last@float@\trial@flush@seen@num\endcsname\relax
+      \ifnum\this@sequence@number>\count@
+      \else
+        \csname flush@fuzziness@\trial@flush@seen@num \endcsname
+      \fi
+    \fi
+  \fi
+  \if@fail
+    \@flushfailtrue
+    \global\setbox\@cclv\box\voidb@x
+    \global\setbox\footins\box\voidb@x
+    \global\curr@col@count\col@count
+    \grab@column@or@finish
+  \else
+    \ifnum\csname flush@min@col@\trial@flush@seen@num\endcsname<\curr@col@count
+      \expandafter\xdef
+        \csname flush@min@col@\trial@flush@seen@num\endcsname
+        {\the\curr@col@count}
+    \fi
+    \@reinserts
+    \unvbox\@cclv
+                    % will change again
+  \fi
+}
+\def\flushcheck@page {
+}
+\def\flushcheck@spread {
+}
+\def\flushcheck@strict {
+  \ifnum\this@area@col@number<\curr@col@count
+  \else
+    \ifnum\this@area@col@number=\curr@col@count
+      \if b \this@area@type
+        \@failtrue
+        \progress@failed{area~ below~ flush~ point~
+               (\this@area@col@number=\the\curr@col@count,~\this@area)}
+      \fi
+    \else
+      \@failtrue
+      \progress@failed{area~ after~ flush~ point~
+             (\this@area@col@number>\the\curr@col@count,~\this@area)}
+    \fi
+ \fi
+}
+\def\flushcheck@column {
+  \ifnum\this@area@col@number>\curr@col@count
+    \@failtrue
+    \progress@failed{area~ after~ flush~ point~ column~
+      (\this@area@col@number>\the\curr@col@count,~\this@area)}
+  \fi
+}
+\def\grab@column@or@finish{
+   \mark@update@structure
+   \deal@with@footins@action
+   \if@fail\else
+     \ifrun@with@floats
+       \check@some@constraints
+     \fi
+   \fi
+   \if@fail\else
+     \ifrun@with@floats
+       \let\@elt\check@callout@constraints
+       \float@classes@list
+     \fi
+   \fi
+   \global\setbox\@cclv\box\voidb@x
+   \global\setbox\footins\box\voidb@x
+   \ifnum\curr@col@count=\col@count
+     \evaluate@results@of@trial
+     \setup@cleanup@or
+   \else
+     \grab@column@loop
+   \fi
+}
+\def\handle@case@of@premature@ending{
+  \ifnum\outputpenalty=-\output@collect@penalty
+    \remove@guard@box@from@cclv
+    \readd@guarded@penalty\output@collect@penalty
+  \fi
+}
+\let\check@some@constraints\relax
+\def\evaluate@results@of@trial{
+  \ifrun@with@floats
+    \ifx\try@this@area\std@try@this@area
+      \count@\trial@here@seen@num\relax
+      \advance\count@\page@float@count
+      \ifnum \pagesetup@max@float@num < \count@
+        \progress@failed{area~ +~ here~ floats~ exceed~ max~ floats}
+        \@failtrue
+      \fi
+    \fi
+  \fi
+  \if@fail
+    \if@flushseen
+       \count@\z@
+       \@whilenum \flush@seq@num>\count@ \do
+          { \advance\count@\@ne
+            \global\expandafter\let
+               \csname flush@min@col@\the\count@ \expandafter\endcsname
+               \csname saved@flush@min@col@\the\count@\endcsname
+          }
+    \fi
+
+    \if@flushfail
+      \ifx\try@this@area\relaxed@try@this@area
+
+        \expandafter\gincrement@num
+              \csname flush@min@col@\trial@flush@seen@num\endcsname
+    \progress@failed{flush~ point~ \trial@flush@seen@num\space
+                     moved~ to~ column~
+                     \csname flush@min@col@\trial@flush@seen@num\endcsname}
+      \else
+
+        \ifx\saved@this@open@areas\@empty
+          \ERROR
+        \else
+          \global\let\this@open@areas\saved@this@open@areas
+        \fi
+        \relax@float@placement@conditions
+      \fi
+    \else
+      \xdef\this@open@areas{\expandafter\@gobblethree\this@open@areas}
+    \fi
+
+      \calculate@target@fl@column
+      \global\expandafter\let
+              \csname fl@\the\count@ @\this@class\endcsname
+              \saved@fl@
+      \if t\this@area@type
+        \global\expandafter\let
+                \csname tfl@\the\count@ @\this@class\endcsname
+                \saved@tfl@
+      \fi
+    \update@this@area@columns
+      {
+      \global\csname col@ht@ \the\count@\endcsname
+             \csname saved@col@ht@ \the\count@\endcsname\relax
+      \global\expandafter\let
+         \csname col@ \this@area@type @delta@ \the\count@
+                 \expandafter \endcsname
+         \csname saved@col@ \this@area@type @delta@ \the\count@ \endcsname
+      }
+  \else
+    \let\progress@inform@later\@empty
+    \if@flushseen
+      \count@\flush@seq@num\relax
+      \loop
+      \ifnum \trial@flush@seen@num < \count@
+        \global\@namedef{flush@min@col@\the\count@}{\maxdimen}
+        \advance\count@\m@ne
+      \repeat
+     \let\progress@inform@later\@empty
+     \ifrun@with@floats
+       \ifnum \count@ > \z@
+         \ifnum \csname flush@last@float@\trial@flush@seen@num\endcsname =
+                \this@sequence@number \relax
+           \def\progress@inform@later{
+              \progress@nl{->~ past~ flush~ point:~ -->~
+                           tighten~ conditions~ again}
+              \progress@nl{}
+           }
+           \partly@tighten@float@placement@conditions
+         \fi
+       \fi
+     \fi
+      \count@\z@
+      \global\let\flush@classes@list@max\@empty
+      \loop
+      \ifnum \trial@flush@seen@num > \count@
+        \advance\count@\@ne
+        \xdef\flush@classes@list@max{
+           \flush@classes@list@max;
+           \csname flush@classes@list@\the\count@\endcsname
+        }
+      \repeat
+    \fi
+    \ifrun@with@floats
+      \update@best@trial
+      \progress@inform@later
+    \else
+      \run@with@floatstrue
+    \fi
+  \fi
+ }
+\let\best@trial\@empty
+\def\update@best@trial{
+  \progress@nl{->~ accepted}
+  \global\let\best@trial\@empty
+  \forall@columns{
+     \expandafter
+     \g@addto@macro\expandafter\best@trial\expandafter
+        {
+         \expandafter
+         \global
+           \csname col@ht@ \the\curr@col@count\expandafter\endcsname
+           \the\csname col@ht@ \the\curr@col@count\endcsname
+        }
+    }
+    \expandafter\@cons\csname area@\this@area\expandafter\endcsname
+        \this@float@box
+    \xdef\this@page@closed{\this@page@closed,
+               \csname pagesetup@\this@area @all@close\endcsname}
+    \xdef\this@closed@areas{\this@closed@areas,
+               \csname pagesetup@\this@area @class@close\endcsname}
+        \global\expandafter\let\csname open@\this@class
+                                       @areas\endcsname % FMi tmp
+                                \this@open@areas
+        \global\expandafter\let\csname closed@\this@class
+                                       @areas\endcsname % FMi tmp
+                                \this@closed@areas
+  \global\advance\page@float@count\@ne
+  \global\advance\csname \this@area @float@count\endcsname\@ne
+  \update@this@area@columns
+     {
+      \expandafter
+      \gincrement@num
+        \csname col@ \this@area@type
+            @floats@ \the\count@ @number\endcsname
+     }
+}
+
+\def\setup@best@column@or{
+   \global\curr@col@count\z@
+   \gdef\trial@flush@seen@num{0}
+   \gdef\trial@here@seen@num{0}
+   \perhaps@write@placements@to@fpl@file
+   \best@trial
+   \initialise@footins@action
+   \global\output{\best@column@or}
+   \best@column@loop
+}
+\def\best@column@loop{
+  \global\advance\curr@col@count\@ne
+  \global\vsize\csname col@ht@ \the\curr@col@count\endcsname
+}
+\def\best@column@or{\some@column@or{best}
+      \best@column@or@finish
+      {
+       \@reinserts
+       \unvbox\@cclv
+      }
+      {
+       \perhaps@write@to@fpl@file{
+           \@spaces Area:~hhh^^J
+           \expandafter\perhaps@write@placements@to@fpl@file@aux\the\toks\@currbox}
+       \typeset@a@here@float
+      }
+}
+\def\best@column@or@finish{
+  \mark@update@structure
+  \deal@with@footins@action
+  \produce@final@column
+  \ifnum\curr@col@count=\col@count
+    \produce@final@page
+    \initialise@next@page
+    \try@float@pages
+    \place@deferred@floats
+    \setup@collection@or
+  \else
+    \best@column@loop
+  \fi
+}
+\def\initialise@next@page{
+  \initialise@column@data
+  \initialise@areas
+  \global\page@float@count\z@
+  \initialise@flush@data
+  \initialise@here@data
+  \initialise@footins@action
+  \global\let\this@page@closed\@empty
+  \let\@elt\initialise@float@class
+    \float@classes@list
+  \let\@elt\relax
+ \global\let\this@float@box\@undefined
+  }
+\def \handle@case@of@forced@pagebreak{
+  \ifnum\curr@col@count<\col@count
+    \ifnum\outputpenalty=-\@M
+      \@emptycol
+    \fi
+  \fi
+
+  \ifnum\outputpenalty=-\output@balance@penalty
+    \remove@guard@box@from@cclv
+    \ifnum\curr@col@count<\col@count
+       \@emptycol
+    \fi
+  \fi
+}
+\def\setup@cleanup@or{
+  \global\vsize\maxdimen
+  \global\output{\cleanup@or}
+ }
+\def\cleanup@or{
+ \global\setbox\@cclv\box\voidb@x
+ \global\setbox\footins\box\voidb@x
+ \ifnum\outputpenalty=-\output@collect@penalty
+   \float@placement@loop
+ \fi
+}
+\def\try@float@pages {
+  \ifx\area@ddd\@empty
+  \else
+    \global\let\@activelist@empty@action\relax
+    \global\let\pretests@success@action\floatpage@pretests@success@action
+    \global\let\try@this@area\relaxed@try@this@area
+    \let\@elt\split@defer@list
+         \area@ddd
+    \let\@elt\relax
+    \global\let\area@ddd\@empty
+    \@floatpagetrue
+    \loop
+    \if@floatpage
+      \begingroup % no nesting of \loop without grouping ...
+   \def\@elt{\global\advance\trial@count\@ne\@gobble}
+      \@activelist
+   \let\@elt\relax
+   \progress@nl{}
+   \progress@separator
+   \progress@nl{STATS:~ floats~ waiting~ =~ \the\trial@count
+         \space on~ page~ \the\absolute@page@number\space (float~ page)}
+   \progress@separator
+   \global\trial@count\z@
+        \try@float@page
+      \endgroup
+    \repeat
+    \global\let\try@this@area\std@try@this@area
+  \fi
+}
+\def\try@float@page {
+  \save@current@float@state
+  \trial@inner@loop
+  \dimen@\z@
+  \forall@columns{
+    \advance\dimen@ \csname
+            col@ht@ \the\curr@col@count \endcsname
+                  }
+  \ifdim \dimen@ > 300pt \relax
+    \@floatpagefalse
+    \progress@failed{no~ float~ page~ made}
+    \progress@nl{}
+    \saved@float@state
+    \gdef\trial@flush@seen@num{0}
+    \gdef\trial@here@seen@num{0}
+    \initialise@next@page
+  \else
+    \progress@nl{succeeded}
+    \progress@nl{}
+    \forall@columns{
+      \global\setbox\csname col@box@\the\curr@col@count\endcsname
+        \vbox to \csname col@ht@ \the\curr@col@count\endcsname{}
+      \produce@final@column
+    }
+    \perhaps@write@placements@to@fpl@file
+    \produce@final@page
+    \initialise@next@page
+    \xdef\@activelist{\area@ddd\@activelist}
+    \global\let\area@ddd\@empty
+  \fi
+}
+\newif\if@floatpage
+\def\@floatpagefalse{\global\let\if@floatpage\iffalse}
+\def\@floatpagetrue{\global\let\if@floatpage\iftrue}
+\def\save@current@float@state {
+  \xdef\saved@float@state{\gdef\noexpand\@activelist{\@activelist}}
+  \forall@columns {
+    \expandafter
+    \g@addto@macro
+        \expandafter \saved@float@state
+        \expandafter { \expandafter \global
+            \csname col@ht@ \the\curr@col@count\expandafter\endcsname
+            \the \csname col@ht@ \the\curr@col@count\endcsname
+        }
+  }
+  \expandafter\save@area@info\used@areas ddd\relax\relax\relax
+}
+\def\save@area@info#1#2#3{
+  \ifx#1\relax
+  \else
+    \edef\@tempa {
+       \global\csname #1#2#3@float@count\endcsname
+          \the\csname #1#2#3@float@count\endcsname
+       \gdef \expandafter\noexpand \csname area@#1#2#3\endcsname
+          {\csname area@#1#2#3\endcsname}
+    }
+    \expandafter
+    \g@addto@macro
+        \expandafter \saved@float@state
+        \expandafter { \@tempa }
+
+    \expandafter\save@area@info
+  \fi}
+\let\saved@float@state\@empty
+\def\split@defer@list #1 {
+  \def\@currbox{#1}
+  \expandafter\extract@this@float@actual@structure\the\toks #1
+  \ifnum 0\LastMark{\this@class} < \this@sequence@number
+    \@cons \@mvllist #1
+  \else
+    \@cons \@activelist #1
+  \fi
+}
+\def\place@deferred@floats {
+  \xdef\@activelist{\@activelist\@mvllist}
+  \global\let\@mvllist\@empty
+}
+\iffalse % we don't do it right now
+\def\place@deferred@floats {
+  \global\let\@activelist@empty@action\relax
+  \global\let\pretests@success@action\floatpage@pretests@success@action
+\showfloatlists
+  \trial@inner@loop
+  \xdef\@activelist{\area@ddd\@mvllist}
+  \global\let\area@ddd\@empty
+  \global\let\@mvllist\@empty
+}
+\fi
+\def\floatpage@pretests@success@action{
+  \update@best@trial
+  \trial@inner@loop
+  }
+\newif\if@balance
+\def\@balancefalse{\global\let\if@balance\iffalse}
+\def\@balancetrue{\global\let\if@balance\iftrue}
+\def\balancecolumns {
+  \add@badly@guarded@penalty\output@balance@penalty
+}
+\newif\if@flushseen
+\def\@flushseenfalse{\global\let\if@flushseen\iffalse}
+\def\@flushseentrue{\global\let\if@flushseen\iftrue}
+\newif\if@flushfail
+\def\@flushfailfalse{\global\let\if@flushfail\iffalse}
+\def\@flushfailtrue{\global\let\if@flushfail\iftrue}
+\DeclareDocumentCommand\flushfloats { o O{strict} }
+  { \flush@floats {#1} {#2} }
+\def\flush@floats #1 #2 {
+  \add@badly@guarded@penalty\output@flush@float@penalty
+  \gincrement@num\flush@seq@num
+  \global\@namedef{flush@min@col@\flush@seq@num}{1}
+  \expandafter\xdef
+      \csname flush@last@float@\flush@seq@num \endcsname
+              {\the\float@sequence@count}
+  \IfNoValueTF{#1}{
+    \def\@elt##1{##1;}
+    \expandafter\xdef
+      \csname flush@classes@list@\flush@seq@num \endcsname
+      {\float@classes@list}
+    \let\@elt\relax
+   }
+   {\expandafter\ifx\csname sequence@class@#1\endcsname
+                    \relax
+      \ErrorArgumentNotAFloatType
+    \else
+      \global\expandafter\let
+         \csname flush@classes@list@\flush@seq@num
+                 \expandafter\endcsname
+         \csname sequence@class@#1\endcsname
+    \fi
+   }
+  \@ifundefined {flushcheck@#2}
+    \userinputERROR
+    {\global\expandafter\let
+        \csname flush@fuzziness@\flush@seq@num \expandafter \endcsname
+        \csname flushcheck@#2\endcsname
+    }
+}
+\def\clearpage{ \flushfloats \newpage }
+\def\doubleclearpage{ \clearpage }
+\def\flush@seq@num{0}
+\def\trial@flush@seen@num{0}
+
+\expandafter\let\csname flush@last@float@1 \endcsname\ERROR
+\expandafter\let\csname flush@classes@list@1  \endcsname\ERROR
+\expandafter\let\csname flush@min@col@1    \endcsname\ERROR
+\expandafter\let\csname flush@fuzziness@1  \endcsname\ERROR
+\expandafter\let\csname flush@last@float@2 \endcsname\ERROR
+\expandafter\let\csname flush@classes@list@2  \endcsname\ERROR
+\expandafter\let\csname flush@min@col@2    \endcsname\ERROR
+\expandafter\let\csname flush@fuzziness@2  \endcsname\ERROR
+\expandafter\let\csname flush@last@float@3 \endcsname\ERROR
+\expandafter\let\csname flush@classes@list@3  \endcsname\ERROR
+\expandafter\let\csname flush@min@col@3    \endcsname\ERROR
+\expandafter\let\csname flush@fuzziness@3  \endcsname\ERROR
+\let\flush@classes@list@max\@empty
+\def \initialise@flush@data{
+  \count@\flush@seq@num\relax
+  \advance\count@ -\trial@flush@seen@num
+  \xdef\flush@seq@num{\the\count@}
+  \@tempcnta\trial@flush@seen@num
+  \@tempcntb\z@
+  \loop
+  \ifnum \@tempcntb < \count@
+
+    \advance\@tempcnta\@ne
+    \advance\@tempcntb\@ne
+    \global\expandafter\let
+      \csname flush@fuzziness@\the\@tempcntb \expandafter\endcsname
+      \csname flush@fuzziness@\the\@tempcnta \endcsname
+
+    \global\expandafter\let
+      \csname flush@last@float@\the\@tempcntb \expandafter\endcsname
+      \csname flush@last@float@\the\@tempcnta \endcsname
+
+    \global\expandafter\let
+      \csname flush@classes@list@\the\@tempcntb \expandafter\endcsname
+      \csname flush@classes@list@\the\@tempcnta \endcsname
+
+    \global\@namedef{flush@min@col@\the\@tempcntb}{1}
+  \repeat
+  \global\let\flush@classes@list@max\@empty
+  \gdef\trial@flush@seen@num{0}
+}
+\def\here@seq@num{0}
+\def\trial@here@seen@num{0}
+\let\@herelist\@empty
+\let\saved@herelist\@empty
+\def\here@point #1#2{
+  \@cons\@herelist#1
+  \gincrement@num\here@seq@num
+  \global\@namedef{here@min@col@\here@seq@num}{1}
+  \setlength\dimen@{#2}
+  \expandafter\xdef
+      \csname here@required@space@\here@seq@num \endcsname
+              {\the\dimen@}
+  \add@badly@guarded@penalty\output@here@float@penalty
+}
+\def \initialise@here@data{
+  \count@\here@seq@num\relax
+  \advance\count@ -\trial@here@seen@num
+  \xdef\here@seq@num{\the\count@}
+  \@tempcnta\trial@here@seen@num
+  \@tempcntb\z@
+  \loop
+  \ifnum \@tempcntb < \count@
+
+    \advance\@tempcnta\@ne
+    \advance\@tempcntb\@ne
+    \global\expandafter\let
+      \csname here@required@space@\the\@tempcntb \expandafter\endcsname
+      \csname here@required@space@\the\@tempcnta \endcsname
+
+    \global\@namedef{here@min@col@\the\@tempcntb}{1}
+  \repeat
+}
+\def \split@off@last@line{
+ \dimen@\ht\@cclv
+ \advance\dimen@-\pageshrink
+ \advance\dimen@-1sp
+ \splitmaxdepth\@maxdepth
+ \setbox\z@\vsplit\@cclv to\dimen@
+ \dimen@\csname
+           here@required@space@\trial@here@seen@num
+        \endcsname
+ \advance\dimen@\ht\@cclv
+ \advance\dimen@\dp\@cclv
+ \ifdim \dimen@ > \textheight
+   \ERROR-HERE-TOO-LARGE
+   \dimen@\textheight
+   \advance\dimen@-\ht\@cclv
+   \advance\dimen@-\dp\@cclv
+   \expandafter\xdef\csname
+           here@required@space@\trial@here@seen@num
+        \endcsname{\the\dimen@}
+ \fi
+ \unvbox\@cclv
+ \global\setbox\@cclv\box\z@
+}
+\def \align@collected@galley@and@restart {
+  \remove@guard@box@from@cclv
+  \snap@to@grid{\ht\@cclv}\pagesetup@grid@point@sep
+  \ifdim \returned@size > \pagegoal
+          %  \csname col@ht@ \the\curr@col@count\endcsname % not!
+    \ifdim \returned@lower@delta@size < \pageshrink
+      \global\let \returned@size \returned@lower@size
+      \xdef \returned@delta@size {-\returned@lower@delta@size }
+    \else
+      \OuchERROR
+    \fi
+  \else
+    \ifdim \returned@lower@delta@size < \returned@delta@size \relax
+      \ifdim \returned@lower@delta@size < \pageshrink
+        \global\let \returned@size \returned@lower@size
+        \xdef \returned@delta@size {-\returned@lower@delta@size }
+      \fi
+    \fi
+  \fi
+  \vbox to\returned@size{\unvbox\@cclv}
+  \@reinserts
+}
+\def\OuchERROR{
+  \progress@failed{next~ possible~ grid~ point~ in~ column~
+                     \the\curr@col@count\space outside~ page}
+}
+\def\std@AlignToGrid{
+  \add@badly@guarded@penalty\output@grid@align@penalty
+}
+\def\IgnoreAlignToGrid{
+  \global\let\AlignToGrid\relax
+}
+\def\ObeyAlignToGrid{
+   \global\let\AlignToGrid\std@AlignToGrid
+}
+\let\AlignToGrid\ERROR
+\def\TextAlignToGrid{ \leavevmode \AlignToGrid }
+\AtBeginDocument{
+  \begingroup
+    \col@count6\relax
+    \initialise@column@data
+    \forall@columns {
+      \def\@elt#1{
+        \global\@namedef{fl@\the\curr@col@count @#1}{0}
+        \global\@namedef{tfl@\the\curr@col@count @#1}{0}
+       }
+       \float@classes@list
+    }
+    \def\@elt#1{
+      \global\expandafter\let\csname fps@#1\endcsname\known@areas
+      \global\@namedef{fl@0@#1}{0}
+     }
+      \float@classes@list
+  \endgroup
+  \@collecting@new@materialtrue
+  \setup@collection@or
+}
+\endinput
+%%
+%% End of file `xo-or.sty'.

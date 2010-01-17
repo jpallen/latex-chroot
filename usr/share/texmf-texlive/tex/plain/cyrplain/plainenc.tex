@@ -1,0 +1,252 @@
+% This is the file plainenc.tex of the T2 package.
+%
+% This file defines some commands for Plain TeX, so that it is able to
+% read (and interpret accordingly) some LaTeX files (unchanged), such as
+% inputenc.sty, font encoding definition files (lcyenc.def, t2aenc.def,
+% t1enc.def, etc.), and various input encoding definition files
+% (koi8-r.def, latin1.def, etc.).
+%
+% These definitions are the `minimal' possible.  Probably, some
+% extensions will be needed.
+
+%\ProvidesFile{plainenc.tex}[1999/12/15 v0.1 inputenc support for Plain TeX]
+\ifx\inputencoding\undefined\else\expandafter\endinput\fi
+\chardef\atcatcode=\catcode`\@ \catcode`\@=11
+
+% load definitions from BABEL's plain.def (\adddialect should now be defined)
+\ifx\adddialect\undefined\let\adddialect\relax\let\protect\relax\fi
+\input plain.def
+
+\def\NeedsTeXFormat#1[#2]{}
+\def\ProvidesFile#1{%
+  \begingroup
+    \catcode`\ 10 %
+    \@ifnextchar[{\@providesfile{#1}}{\@providesfile{#1}[]}}
+\def\@providesfile#1[#2]{%
+    \wlog{File: #1 #2}%
+    \expandafter\xdef\csname ver@#1\endcsname{#2}%
+  \endgroup}
+\let\ProvidesPackage\ProvidesFile % better than #1[#2] -> {}
+%\def\DeclareOption#1#2{\def\@OptionBody{#2}}
+%\def\ProcessOptions{\@OptionBody}
+\def\DeclareOption#1#2{}
+\def\ProcessOptions{}
+\newlinechar`\^^J
+\def\MessageBreak{^^J}
+
+\let\@empty\empty
+\long\def\@gobbletwo#1#2{}
+\let\@inmathwarn\@gobble
+
+\def\PackageWarning#1#2{\immediate\write16{^^JPackage #1 Warning: #2\on@line.^^J}}
+\def\PackageWarningNoLine#1#2{\PackageWarning{#1}{#2\@gobble}}
+\def\on@line{ on input line \the\inputlineno}
+\def\PackageError#1#2#3{\begingroup\let\protect\string
+  \errmessage{Package #1 Error: #2.^^J}\endgroup}
+\def\@latex@error#1{\PackageError{plainenc}{#1}{}}
+\def\@latex@info#1{\wlog{Info: #1}}
+
+\def\DeclareFontEncoding#1#2#3{%
+  \expandafter\let\csname#1-cmd\endcsname\@current@cmd
+% \expandafter\let\csname#1-tmcmd\endcsname\@current@tmcmd
+  \def\LastDeclaredEncoding{#1}}
+% special math setup is unneeded if only one font encoding is used
+\def\@current@cmd#1{%
+   \ifx\protect\@typeset@protect
+   \else
+      \noexpand#1\expandafter\@gobble
+   \fi}
+\def\DeclareFontSubstitution#1#2#3#4{}
+\def\DeclareErrorFont#1#2#3#4#5{}
+\def\DeclareSymbolFont#1#2#3#4#5{}
+\def\SetSymbolFont#1#2#3#4#5#6{}
+\def\DeclareSymbolFontAlphabet#1#2{}
+\def\DeclareMathAlphabet#1#2#3#4#5{}
+\def\SetMathAlphabet#1#2#3#4#5#6{}
+\def\DeclareMathSymbol#1#2#3#4{% simplified definition
+ \count@=#4 \advance\count@ "7000 \mathchardef#1\count@}
+
+\def\@unexpandable@protect{\noexpand\protect\noexpand}
+%\let\protect\@typeset@protect
+
+\def\protected@edef{%
+   \let\@@protect\protect
+   \let\protect\@unexpandable@protect
+   \afterassignment\restore@protect
+   \@edef}
+\def\protected@xdef{%
+   \let\@@protect\protect
+   \let\protect\@unexpandable@protect
+   \afterassignment\restore@protect
+   \@xdef}
+\def\restore@protect{\let\protect\@@protect}
+
+\let\@edef\edef
+\let\@xdef\xdef
+
+% redefine \input to be compatible with LaTeX (for inputenc.sty)
+\ifx\@@input\@undefined\let\@@input\input\fi
+\def\input{\@ifnextchar\bgroup\@iinput\@@input}
+\def\@iinput#1{\@@input#1 } % This is a simplified definition
+
+% this is used in cyrillic encoding definition files
+\def\@ifundefined#1{%
+  \expandafter\ifx\csname#1\endcsname\relax
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+  \fi}
+\long\def\@secondoftwo#1#2{#2}
+
+% support for uppercase/lowercase
+\let\@uppercase\uppercase
+\let\@lowercase\lowercase
+\newtoks\@uclctoks
+\DeclareRobustCommand\uppercas@{\afterassignment\upperc@se\@uclctoks}
+\DeclareRobustCommand\lowercas@{\afterassignment\lowerc@se\@uclctoks}
+\def\upperc@se{{%
+  \def\i{I}\def\j{J}%
+  \def\reserved@a##1##2{\let##1##2\reserved@a}%
+  \expandafter\reserved@a\@uclclist\reserved@b{\reserved@b\@gobble}%
+  \protected@edef\reserved@a{\@uppercase\expandafter{\the\@uclctoks}}%
+  \reserved@a}}
+\def\lowerc@se{{%
+  \def\reserved@a##1##2{\let##2##1\reserved@a}%
+  \expandafter\reserved@a\@uclclist\reserved@b{\reserved@b\@gobble}%
+  \protected@edef\reserved@a{\@lowercase\expandafter{\the\@uclctoks}}%
+  \reserved@a}}
+\def\@uclclist{\oe\OE\o\O\ae\AE\dh\DH\dj\DJ\l\L\ng\NG\ss\SS\th\TH
+\cyra\CYRA\cyrabhch\CYRABHCH\cyrabhchdsc\CYRABHCHDSC\cyrabhdze
+\CYRABHDZE\cyrabhha\CYRABHHA\cyrae\CYRAE\cyrb\CYRB\cyrbyus
+\CYRBYUS\cyrc\CYRC\cyrch\CYRCH\cyrchldsc\CYRCHLDSC\cyrchrdsc
+\CYRCHRDSC\cyrchvcrs\CYRCHVCRS\cyrd\CYRD\cyrdelta\CYRDELTA
+\cyrdje\CYRDJE\cyrdze\CYRDZE\cyrdzhe\CYRDZHE\cyre\CYRE\cyreps
+\CYREPS\cyrerev\CYREREV\cyrery\CYRERY\cyrf\CYRF\cyrfita
+\CYRFITA\cyrg\CYRG\cyrgdsc\CYRGDSC\cyrgdschcrs\CYRGDSCHCRS
+\cyrghcrs\CYRGHCRS\cyrghk\CYRGHK\cyrgup\CYRGUP\cyrh\CYRH
+\cyrhdsc\CYRHDSC\cyrhhcrs\CYRHHCRS\cyrhhk\CYRHHK\cyrhrdsn
+\CYRHRDSN\cyri\CYRI\cyrie\CYRIE\cyrii\CYRII\cyrishrt\CYRISHRT
+\cyrishrtdsc\CYRISHRTDSC\cyrizh\CYRIZH\cyrje\CYRJE\cyrk\CYRK
+\cyrkbeak\CYRKBEAK\cyrkdsc\CYRKDSC\cyrkhcrs\CYRKHCRS\cyrkhk
+\CYRKHK\cyrkvcrs\CYRKVCRS\cyrl\CYRL\cyrldsc\CYRLDSC\cyrlhk
+\CYRLHK\cyrlje\CYRLJE\cyrm\CYRM\cyrmdsc\CYRMDSC\cyrmhk\CYRMHK
+\cyrn\CYRN\cyrndsc\CYRNDSC\cyrng\CYRNG\cyrnhk\CYRNHK\cyrnje
+\CYRNJE\cyrnlhk\CYRNLHK\cyro\CYRO\cyrotld\CYROTLD\cyrp\CYRP
+\cyrphk\CYRPHK\cyrq\CYRQ\cyrr\CYRR\cyrrdsc\CYRRDSC\cyrrhk
+\CYRRHK\cyrrtick\CYRRTICK\cyrs\CYRS\cyrsacrs\CYRSACRS
+\cyrschwa\CYRSCHWA\cyrsdsc\CYRSDSC\cyrsemisftsn\CYRSEMISFTSN
+\cyrsftsn\CYRSFTSN\cyrsh\CYRSH\cyrshch\CYRSHCH\cyrshha\CYRSHHA
+\cyrt\CYRT\cyrtdsc\CYRTDSC\cyrtetse\CYRTETSE\cyrtshe\CYRTSHE
+\cyru\CYRU\cyrushrt\CYRUSHRT\cyrv\CYRV\cyrw\CYRW\cyry\CYRY
+\cyrya\CYRYA\cyryat\CYRYAT\cyryhcrs\CYRYHCRS\cyryi\CYRYI\cyryo
+\CYRYO\cyryu\CYRYU\cyrz\CYRZ\cyrzdsc\CYRZDSC\cyrzh\CYRZH
+\cyrzhdsc\CYRZHDSC}
+\def\PROTECT{%
+  \let\uppercase\uppercas@\let\lowercase\lowercas@
+  \let\edef\protected@edef\let\xdef\protected@xdef}
+\def\UNPROTECT{%
+  \let\uppercase\@uppercase\let\lowercase\@lowercase
+  \let\edef\@edef\let\xdef\@xdef}
+\PROTECT
+
+\let\org@write\write
+\let\org@immediate\immediate
+\DeclareRobustCommand\write{\afterassignment\write@a\count@}
+\def\immediate#1{\ifx#1\write\def\immediate@{\org@immediate}\fi\org@immediate#1}
+\let\immediate@\@empty
+\long\def\write@a#1{%
+  \begingroup
+    \let\thepage\relax
+    \let\protect\@unexpandable@protect
+%   \@edef\reserved@a{\expandafter\noexpand\immediate@\org@write\the\count@{#1}}%
+%   \reserved@a
+    \immediate@\org@write\the\count@{#1}%
+  \endgroup
+  \let\immediate@\@empty}
+
+% make handling of protected commands within whatsits correct:
+\let\org@shipout\shipout
+\def\shipout#1#2{\begingroup\setbox0=#1{#2}\let\protect\noexpand\org@shipout\box0\endgroup}
+
+% avoid problems in references with russian letters (e.g. in Texinfo)
+% (experimental code):
+%\def\DeclareTextSymbol#1#2#3{%
+%   \@dec@text@cmd\chardef@hack#1{#2}#3\relax
+%}
+%\def\chardef@hack#1#2{%
+%  \bgroup
+%    \lccode`\0=#2
+%    \lowercase{
+%  \egroup
+%    \let#1=0
+%    }
+%  \show#1
+%}
+
+% for inputenc files
+\def\makeatletter{\catcode`\@11\relax}
+\def\makeatother{\catcode`\@12\relax}
+
+\ifx\Orb\undefined
+  \message{^^J* Please get newer version of plain.tex from^^J%
+  * CTAN:systems/knuth/lib/plain.tex^^J* Aborting.^^J^^J}\end
+\fi
+\def\textcircled#1{{\ooalign{\hfil\raise.07ex\hbox{#1}\hfil\crcr\Orb}}}
+%\let\textlatin\rm
+
+\def\fontencoding#1{\makeatletter
+  \UNPROTECT % \lowercase for \DeclareTextComposite
+  \@lowercase{\input{#1enc.def}}%
+  \PROTECT
+  \@edef\cf@encoding{\@uppercase{\def\noexpand\cf@encoding{#1}}}%
+  \cf@encoding
+  \makeatother}
+\input inputenc.sty
+\let\org@inputencoding\inputencoding
+\def\inputencoding#1{\UNPROTECT % \uppercase, \edef
+  \org@inputencoding{#1}%
+  \PROTECT}
+
+% definitions of some LaTeX macros used in enc.def and .def files
+\def\sh@ft#1{\dimen@.00#1ex\multiply\dimen@\fontdimen1\font\kern-.0156\dimen@}
+\chardef\@xxxii=32
+\def\hb@xt@{\hbox to}
+\def\@tabacckludge#1{\expandafter\@changed@cmd
+  \csname\string#1\endcsname\relax}
+\DeclareRobustCommand{\ensuremath}{%
+  \ifmmode
+    \expandafter\@firstofone
+  \else
+    \expandafter\@ensuredmath
+  \fi}
+\long\def\@ensuredmath#1{$\relax#1$}
+\def\TextSymbolUnavailable#1{\@latex@error{%
+  Command \protect#1 unavailable in encoding \cf@encoding}}
+\def\textbullet{{\tensy\char15}}
+\def\textperiodcentered{{\tensy\char1}}
+%\font\tensmc=cmcsc10
+%\DeclareTextCommandDefault{\textregistered}{\textcircled{\tensmc r}}
+\DeclareTextCommandDefault{\texttrademark}{\textsuperscript{TM}}
+\DeclareTextCommandDefault{\SS}{SS}
+\DeclareTextCommandDefault{\textordfeminine}{\textsuperscript{a}}
+\DeclareTextCommandDefault{\textordmasculine}{\textsuperscript{o}}
+\DeclareRobustCommand*\textsuperscript[1]{%
+  {\m@th\ensuremath{^{\hbox{\sevenrm#1}}}}}
+\DeclareRobustCommand{\nobreakspace}{\leavevmode\nobreak\ }
+%\DeclareRobustCommand{\pounds}{%
+%   \ifmmode\mathsterling\else\textsterling\fi}
+%\def\mathsterling{\mathit{\mathchar"7024}}
+%\def\mathit#1{{\it#1}}
+\def\frac#1#2{{\begingroup#1\endgroup\over#2}}
+\def\@height{height} \def\@depth{depth} \def\@width{width}
+\def\hmode@bgroup{\leavevmode\bgroup}
+
+% a helper command
+\def\makerobust#1{\expandafter\let\csname\expandafter
+  \@gobble\string#1 \endcsname#1%
+  \@edef#1{\noexpand\protect\expandafter\noexpand\csname\expandafter
+  \@gobble\string#1 \endcsname}}
+
+\catcode`\@=\atcatcode \let\atcatcode\undefined
+
+\endinput

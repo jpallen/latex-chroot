@@ -1,0 +1,28 @@
+def dims = 7.5u#,x_height#,desc_depth# enddef;
+def ital = 0 enddef;
+def fit_params = -.25,0 enddef;
+
+% composed of a modified pi-bar and the tail of eta
+
+def gen_letter=
+  pickup fine.nib;
+  pos3(vstem,-90); rt x3=hround(w-.75u); top y3l=x_height;	%top right
+  pos2(vstem,-90); y2=y3; x2=1/3w;				%top left
+  x1-.5hair=hround1.75u; y1-.5hair=4/3[top y2l,bot y2r];	%tip of bar
+  numeric slope; slope=angle((z2-z1)yscaled 2); pos1(hair,slope-90);
+  forsuffixes e=l,r: z1'e=(z2e-z1e)yscaled 2; endfor
+  filldraw circ_stroke z1e{z1'e}...z2e---z3e;		%bar
+  pos4(hair,0); z4=z1;             	%attachment
+  x5=x6; x6=x1-.5u; 
+  y5=y6; bot y6l-.5stem=-d-o; pos5(stem,0); pos6(stem,90); 
+  pos7(vstem,-90); rt x7=hround(w-.85u); top y7l=bar_height;	
+  pos8(vstem,angle(z5-z1)); top y8l=bar_height; z8 = whatever[z5,z1];
+  filldraw  circ_stroke z5e...z1e;
+  filldraw stroke z8e--z7e;
+enddef;
+
+cmchar "Lowercase digamma";
+beginchar(digamma,dims);
+this_letter; penlabels(1,2,3,5,7,8); endchar;
+
+picture savedpicture;

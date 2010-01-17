@@ -1,0 +1,222 @@
+%
+% These macros make it possible to read *.map files as either
+% \TeX{} or METAFONT input
+% See the $TEXMFROOT/tex/languages/greek/ibygrk directory for
+% use of this file as TeX input
+%
+% A well-known conditional test in METAFONT; 
+% It creates mismatch of character tokens 'k' and 'n' in TeX
+\if known cmbase: %                              Interpret as a METAFONT file
+     let re_catcode=relax; let let_=gobble; let no_let=gobble;
+  else: 
+     message "Must have cmbase loaded for this, or else some macros from it" ;
+%
+% END OF METAFONT INTERPRETATION---TeX INTERPRETATION FOLLOWS
+%
+  \else %                                             Interpret as a TeX file
+     \catcode`\_11 % allow underscore in csnames as in METAFONT
+     \def\re_catcode{\catcode`\=12 \catcode`\;12 \catcode`\_8}%
+     \def\ignore_to_comment#1#2{}%
+% Now activate all the characters from ^^80 to ^^ff
+     \count255=`\^^80
+     \loop \ifnum\count255 < `\^^ff
+       \catcode\count255\active \advance\count255 by 1 \repeat
+     % \catcode`\^^ff\active % If you want it, I don't in this case.
+     \expandafter\input\the\digraphs % Filename in a \toks register
+     \catcode`\;0 % treat the first ; (required by METAFONT) as an escape 
+     \catcode`\=14 % treat the = in the METAFONT part as a comment character
+     \let\let_\let \let\no_let\ignore_to_comment
+  \fi
+%
+% This is a rather specialized version of the map file,
+% developed for Greek only.  There are certain restrictions
+% in this case, because we do not want to alter Silvio Levy's
+% source code---only the mappings.  
+% The upper level codes (^^80---^^ff) are based on a version of
+% Greek Keys (a word-processor package for Macintosh, distributed
+% through the American Philological Association), but the mapping
+% is worked out by experience not from any documentation, and 
+% local customization often alters even this mapping.
+% Consistency is provided by the ASCII digraphs
+% and trigraphs to which all word-processor codes are remapped
+% before they are used in TeX.  These digraphs and trigraphs
+% (even tetragraphs in the case of iota subscript) are very close
+% to Ibycus/TLG betacode, except for the unfortunate uppercasing
+% of betacode.
+%
+%  a known set of word-processor        Some "hidden" characters
+%  equivalents is "let_" for TeX      Only METAFONT needs to know
+%  \no_let is used where there          what is in this column
+%  seems to be no certain mapping
+%
+\let_ ^^80;quotesnglright = ASCII"'";    endash = oct"046";
+\let_ ^^81;quotesnglleft  = ASCII"`";    emdash = oct"177";
+\let_ ^^82;peri_spomenon  = ASCII"=";    null_space = ASCII" ";
+\let_ ^^83;sp_lenis    = ASCII")";       dieresis = oct"053"; % use plus sign
+\let_ ^^84;sp_asper    = ASCII"(";       minute = ASCII"&"; % prime for numbers
+\let_ ^^85;lenis_oxy   = oct"136";       asper_glyph = oct"303";            
+\let_ ^^86;lenis_bary  = oct"137";       lenis_glyph = oct"307";
+\let_ ^^87;lenis_peri  = oct"134";       guillemotleft = ASCII"{"; %two small
+\let_ ^^88;asper_oxy   = oct"207";       guillemotright = ASCII"}"; % awks  
+\let_ ^^89;asper_bary  = oct"203";       iotasubscript = ASCII"|";
+\let_ ^^8a;asper_peri  = oct"100";       dubious = ASCII"!";
+\no_let \dmy;bary_tone = oct"275";       quotedblleft = oct"253";
+\no_let \dmy;oxy_tone  = oct"276";       quotedblright = oct"257";
+\no_let \dmy;diaeroxy  = oct"043";       bracketleftbt = oct"363";
+\no_let \dmy;diaerbary = oct"044";       bracketrightbt = oct"367";
+%
+% alpha with accents
+%
+\let_ ^^8b;a_oxy       = oct"210";       Digamma = ASCII"V";
+\let_ ^^8c;a_bary      = oct"200";       digamma = ASCII"v"; 
+\let_ ^^8d;a_peri      = oct"220";       boundarychar := oct"377"; % N.B. :=   
+\let_ ^^8e;a_len       = oct"202";       
+\let_ ^^8f;a_aspr      = oct"201";       
+\let_ ^^90;a_lenoxy    = oct"212";       
+\let_ ^^91;a_asproxy   = oct"211";       cigmalunate=ASCII"J";      
+\let_ ^^92;a_lenbary   = oct"223";       % "J" is all that's available
+\let_ ^^93;a_asprbary  = oct"213";	 sigmafinal=ASCII"j";
+\let_ ^^94;a_lenperi   = oct"222";	 r_aspr = oct"373"; % GreekKeys "="!!
+\let_ ^^95;a_asprperi  = oct"221";       r_len  = oct"374";
+%
+% alpha with accents and iota subscript
+% 
+\let_ ^^fb;a_isub      = oct"370";	 % Kerned back iotasubscript only
+\let_ ^^96;a_oxyisub       = oct"214";       e_peri = oct"214";     
+\let_ ^^97;a_baryisub      = oct"204";       e_asprperi = oct"204";    
+\let_ ^^98;a_periisub      = oct"224";       e_lenperi = oct"224";     
+\let_ ^^99;a_lenisub       = oct"206";       Koppa = oct"206";
+\let_ ^^9a;a_asprisub      = oct"205";       o_asprperi = oct"205";    
+\let_ ^^9b;a_lenoxyisub    = oct"216";       koppa = oct"216";
+\let_ ^^9c;a_asproxyisub   = oct"215";       o_peri = oct"215";           
+\let_ ^^9d;a_lenbaryisub   = oct"227";   
+\let_ ^^9e;a_asprbaryisub  = oct"217";       sampi = oct"217";   
+\let_ ^^9f;a_lenperiisub   = oct"226";       Cigmalunate=oct"226";
+\let_ ^^a0;a_asprperiisub  = oct"225";       o_lenperi = oct"225";        
+%
+% epsilon with accents
+%
+\let_ ^^a1;e_oxy      = oct"350";        angleleft = ASCII"<";  
+\let_ ^^a2;e_bary     = oct"340";        angleright = ASCII">"; 
+\let_ ^^a4;e_len      = oct"342";        braceleft = oct"333";  
+\let_ ^^a5;e_aspr     = oct"341";        braceright = oct"337"; 
+\let_ ^^a6;e_lenoxy   = oct"352";        dagger = oct"375";     
+\let_ ^^a7;e_asproxy  = oct"351";        daggerdbl = oct"376";  
+\let_ ^^a8;e_lenbary  = oct"343";        aspirate = oct"377";        
+\let_ ^^a9;e_asprbary = oct"353";	 
+%					 
+% eta with accents			 
+%					 
+\let_ ^^ae;h_oxy       = oct"240";
+\let_ ^^af;h_bary      = oct"230";
+\let_ ^^b0;h_peri      = oct"250";
+\let_ ^^b1;h_len       = oct"232";
+\let_ ^^b2;h_aspr      = oct"231";
+\let_ ^^b3;h_lenoxy    = oct"242";
+\let_ ^^b4;h_asproxy   = oct"241";
+\let_ ^^b5;h_lenbary   = oct"243";
+\let_ ^^b6;h_asprbary  = oct"233";
+\let_ ^^b7;h_lenperi   = oct"252";
+\let_ ^^b8;h_asprperi  = oct"251";
+%
+% eta with accents and iota subscript
+%
+% In this section and in the "omega with accents and iota subscript"
+% section at the end, the octal values are assigned twice.  The coding
+% originally followed the pattern of GreekKeys fonts in giving a map
+% position to every iota subscript composite.  But this is wasteful, since
+% there are only three correct positions for iota subscript.  Current
+% coding follows the practice seen in the Linotype Times Ten Greek of
+% kerning one of three iotasubscripts under the appropriate a, h, or w.
+% This does, unfortunately mean that the current mapping cannot be used
+% directly with GreekKeys input, but nobody seems ever to do that
+% anyway.
+%
+\let_ ^^fa;h_isub      = oct"371";       % The redundancy below here is
+\let_ ^^b9;h_oxyisub       = oct"244";   doti = oct"244";  % unavoidable
+\let_ ^^ba;h_baryisub      = oct"234";   dotI = oct"234"   % It derives in
+\let_ ^^bb;h_periisub      = oct"254";   dote = oct"254";  % part from the
+\let_ ^^bc;h_lenisub       = oct"236";   dotbt = oct"236"; % older coding
+\let_ ^^bd;h_asprisub      = oct"235";   dotJdlmnpqu = oct"235";   % Now the 
+\let_ ^^be;h_lenoxyisub    = oct"246";   dotkos = oct"246";        % only
+\let_ ^^bf;h_asproxyisub   = oct"245";   dotGZ = oct"245";         % isub
+\let_ ^^c0;h_lenbaryisub   = oct"247";   dotCEVaw = oct"247";      % code
+\let_ ^^c1;h_asprbaryisub  = oct"237";   dotchjz = oct"237";       % in MF
+\let_ ^^c2;h_lenperiisub   = oct"256";   dotBFLNPRSTW = oct"256";  % is the
+\let_ ^^c3;h_asprperiisub  = oct"255";   dotH = oct"255";         % first
+%
+%iota with accents
+%
+\let_ ^^db;i_oxy       = oct"320";
+\let_ ^^dc;i_bary      = oct"310";
+\let_ ^^dd;i_peri      = oct"330";
+\let_ ^^de;i_len       = oct"312";
+\let_ ^^df;i_aspr      = oct"311";
+\let_ ^^e0;i_lenoxy    = oct"322";
+\let_ ^^e1;i_asproxy   = oct"321";
+\let_ ^^e2;i_lenbary   = oct"323";
+\let_ ^^e3;i_asprbary  = oct"313";
+\let_ ^^e4;i_lenperi   = oct"332";
+\let_ ^^e5;i_asprperi  = oct"331";
+\let_ ^^f3;i_diaer     = oct"360";
+\let_ ^^fd;i_diaeroxy  = oct"362";
+\let_ ^^fe;i_diaerbary = oct"361";
+%
+% omicron with accents
+%
+\let_ ^^f1;o_oxy      = oct"354";
+\let_ ^^f2;o_bary     = oct"344";
+\let_ ^^f4;o_len      = oct"346";
+\let_ ^^f5;o_aspr     = oct"345";
+\let_ ^^f6;o_lenoxy   = oct"356";
+\let_ ^^f7;o_asproxy  = oct"355";
+\let_ ^^f8;o_lenbary  = oct"357";
+\let_ ^^f9;o_asprbary = oct"347";
+%
+% upsilon with accents
+%
+\let_ ^^e6;u_oxy       = oct"324";
+\let_ ^^e7;u_bary      = oct"314";
+\let_ ^^e8;u_peri      = oct"334";
+\let_ ^^e9;u_len       = oct"316";
+\let_ ^^ea;u_aspr      = oct"315";
+\let_ ^^eb;u_lenoxy    = oct"326";
+\let_ ^^ec;u_asproxy   = oct"325";
+\let_ ^^ed;u_lenbary   = oct"327";
+\let_ ^^ee;u_asprbary  = oct"317";
+\let_ ^^ef;u_lenperi   = oct"336";
+\let_ ^^f0;u_asprperi  = oct"335";
+\no_let \dmy;u_diaer     = oct"364"; % ^^23, but it's not worth the effort
+\no_let \dmy;u_diaeroxy  = oct"366"; % ^^40,         ditto
+\let_ ^^a3;u_diaerbary = oct"365";
+%
+% omega with accents
+%
+\let_ ^^c5;w_oxy       = oct"270";
+\let_ ^^c6;w_bary      = oct"260";
+\let_ ^^c7;w_peri      = oct"300";
+\let_ ^^c8;w_len       = oct"262";
+\let_ ^^c9;w_aspr      = oct"261";
+\let_ ^^ca;w_lenoxy    = oct"272";
+\let_ ^^cb;w_asproxy   = oct"271";
+\let_ ^^cc;w_lenbary   = oct"273";
+\let_ ^^cd;w_asprbary  = oct"263";
+\let_ ^^ce;w_lenperi   = oct"302";
+\let_ ^^cf;w_asprperi  = oct"301";
+%
+% omega with accents and iota subscript
+%
+\let_ ^^c4;w_isub      = oct"372";       % Kerned back iotasubscript only
+\let_ ^^d0;w_oxyisub       = oct"274";   dotAOQUXY = oct"274";
+\let_ ^^d1;w_baryisub      = oct"264";   dotDK = oct"264";
+\let_ ^^d2;w_periisub      = oct"304";   dotM = oct"304";
+\let_ ^^d3;w_lenisub       = oct"266";   dotgx = oct"266";
+\let_ ^^d4;w_asprisub      = oct"265";   dotfy = oct"265";
+\let_ ^^d5;w_lenoxyisub    = oct"276";   % oxy_tone
+\let_ ^^d6;w_asproxyisub   = oct"275";   % bary_tone
+\let_ ^^d7;w_lenbaryisub   = oct"277";   dotr = oct"277"
+\let_ ^^d8;w_asprbaryisub  = oct"267";   dotkoppa = oct"267";
+\let_ ^^d9;w_lenperiisub   = oct"306";   longum = oct"306";
+\let_ ^^da;w_asprperiisub  = oct"305";   breve = oct"305";
+
+\re_catcode

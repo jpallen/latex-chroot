@@ -1,0 +1,301 @@
+%% This file is part of the ANTOMEGA project version 0.7
+%% -----------------------------------------------------
+%% 
+%% It may be distributed under the terms of the LaTeX Project Public
+%% License, as described in lppl.txt in the base LaTeX distribution.
+%% Either version 1.0 or, at your option, any later version.
+%% Copyright (C) 2003 by Alexej Kryukov <basileia@yandex.ru>
+%% Information provided by Olaf Dietrich <olaf.dietrich@ikra.med.uni-muenchen.de>
+%%
+%% Please report errors to: A.M. Kryukov <basileia@yandex.ru>
+
+\makeatletter
+
+\LoadOCPByName{\LatinBabelUni}{babel2la}
+
+\ocplist\LatinBabelOCP=
+   \addbeforeocplist 2000 \LatinBabelUni
+\nullocplist
+
+\LoadOCPByName{\LatinNoJ}{la-noj}
+
+\ocplist\LatinNoJOCP=
+   \addbeforeocplist 2300 \LatinNoJ
+\nullocplist
+
+\LoadOCPByName{\LatinNoUv}{la-nouv}
+
+\ocplist\LatinNoUvOCP=
+   \addbeforeocplist 2400 \LatinNoUv
+\nullocplist
+
+\LoadOCPByName{\LatinLigatures}{la-lig}
+
+\ocplist\LatinLigaturesOCP=
+   \addbeforeocplist 2500 \LatinLigatures
+\nullocplist
+
+\LoadOCPByName{\LatinLongs}{la-longs}
+
+\ocplist\LatinLongsOCP=
+   \addbeforeocplist 2600 \LatinLongs
+\nullocplist
+
+\ifx\l@latin\@undefined
+   \ant@nopatterns{latin}
+   \adddialect\l@latin0
+\fi
+
+% Test if Latin Extended-A lccodes/uccodes were loaded and
+% load them if necessary.
+\ifx\equal{\lccode"0100}{"0100}\else%
+   \InputIfFileExists{uni0100.def}{}%
+      {\ant@nocodes{Latin}{Unicode}{0100--01ff}}\fi
+
+\ifx\westernrm\undefined\let\westernrm=\rmdefault\fi
+\ifx\westernsf\undefined\let\westernsf=\sfdefault\fi
+\ifx\westerntt\undefined\let\westerntt=\ttdefault\fi
+
+\ifx\westernencoding\undefined\let\westernencoding=\uniencoding\fi
+
+\def\latin@codes{%
+   \lccode`\J=`\i%
+   \lccode`\j=`\i%
+   \lccode"017F=`\s%
+   \lccode"0100=`\a%
+   \lccode"0101=`\a%
+   \lccode"0102=`\a%
+   \lccode"0103=`\a%
+   \lccode"0112=`\e%
+   \lccode"0113=`\e%
+   \lccode"0114=`\e%
+   \lccode"0115=`\e%
+   \lccode"012A=`\i%
+   \lccode"012B=`\i%
+   \lccode"012C=`\i%
+   \lccode"012D=`\i%
+   \lccode"014C=`\o%
+   \lccode"014D=`\o%
+   \lccode"010E=`\o%
+   \lccode"010F=`\o%
+   \lccode"016A=`\u%
+   \lccode"016B=`\u%
+   \lccode"016C=`\u%
+   \lccode"016D=`\u%
+   \makesameletter{"0232}{`\Y}%
+   \makesameletter{"0233}{`\y}%
+}
+
+\def\nolatin@codes{%
+   \lccode`\J=`\j%
+   \lccode`\j=`\j%
+   \lccode`\V=`\v%
+   \uccode`\U=`\u%
+   \lccode"017F="017F%
+   \lccode"0100="0100%
+   \lccode"0101="0101%
+   \lccode"0102="0102%
+   \lccode"0103="0103%
+   \lccode"0112="0112%
+   \lccode"0113="0113%
+   \lccode"0114="0114%
+   \lccode"0115="0115%
+   \lccode"012A="012A%
+   \lccode"012B="012B%
+   \lccode"012C="012C%
+   \lccode"012D="012D%
+   \lccode"014C="014C%
+   \lccode"014D="014D%
+   \lccode"010E="010E%
+   \lccode"010F="010F%
+   \lccode"016A="016A%
+   \lccode"016B="016B%
+   \lccode"016C="016C%
+   \lccode"016D="016D%
+}
+
+\def\latin@font{\fontfamily{\westernrm}%
+   \fontencoding{\westernencoding}\selectfont%
+   \let\rmdefault=\westernrm%
+   \let\sfdefault=\westernsf%
+   \let\ttdefault=\westerntt%
+   \let\encodingdefault=\westernencoding}
+
+\def\tmp@uni{unicode}
+\def\tmp@omega{omega}
+\def\tmp@tex{tex}
+
+\def\tmp@ucs{ucs-2}
+\def\tmp@utf{utf-8}
+\def\tmp@iso{iso-8859-1}
+\def\tmp@win{cp1252}
+
+\def\eventualLaPunct{\protect\pushocplist\BasicTexOCP}
+\def\eventualLaShorthands{\protect\pushocplist\LatinBabelOCP}
+\def\eventualLaInput{\protect\pushocplist\BasicInputOCP}
+\def\eventualLaAccents{\protect\pushocplist\BasicAccentsOCP}
+\def\eventualLaIJ{}
+\def\eventualLaUV{}
+\def\eventualLaLigatures{}
+\def\eventualLaS{}
+
+\ifx\eventualEuOutput\undefined
+   \def\eventualEuOutput{\protect\pushocplist\LatinUniOutOCP%
+   }
+\fi
+
+\def\latin@OCP{\protect\clearocplists%
+   \eventualLaInput%
+   \eventualLaPunct%
+   \eventualLaShorthands%
+   \eventualLaAccents%
+   \eventualLaIJ%
+   \eventualLaUV%
+   \eventualLaLigatures%
+   \eventualLaS%
+   \eventualEuOutput}
+
+\define@key{latin}{input}[ucs-2]{%
+   \def\@tmpa{#1}
+   \ifx\@tmpa\tmp@iso\def\eventualLaInput{%
+      \protect\pushocplist\BasicInputIsoOCP}
+      \typeout{Option: Latin input encoding=iso-8859-1}
+   \else\ifx\@tmpa\tmp@win\def\eventualLaInput{%
+      \protect\pushocplist\BasicInputWinOCP}
+      \typeout{Option: Latin input encoding=windows-1252}
+   \else\ifx\@tmpa\tmp@utf\def\eventualLaInput{%
+      \protect\pushocplist\BasicInputUtfOCP}
+      \typeout{Option: Latin input encoding=utf-8}
+   \else\def\eventualLaInput{%
+      \protect\pushocplist\BasicInputUcsOCP}
+      \typeout{Option: Latin input encoding=ucs-2}
+   \fi\fi\fi}
+
+\define@key{latin}{shorthands}[on]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\opt@enabled\def\eventualLaShorthands{%
+      \protect\pushocplist\LatinBabelOCP}%
+      \typeout{Option: Shorthands for Latin text enabled}%
+   \else\def\eventualLaShorthands{}%
+      \typeout{Option: Shorthands for Latin text disabled}%
+   \fi}
+
+\define@key{latin}{ij}[twoform]{%
+   \def\@tmpa{#1}%
+   \def\opt@oneform{oneform}%
+   \ifx\@tmpa\opt@oneform\def\eventualLaIJ{%
+      \protect\pushocplist\LatinNoJOCP}%
+      \typeout{Option: ij in Latin text are treated as a single letter}%
+   \else\def\eventualLaJ{}%
+      \typeout{Option: ij in Latin text are treated as different letters}%
+   \fi}
+
+\define@key{latin}{uv}[twoform]{%
+   \lccode`\V=`\u%
+   \uccode`\u=`\V%
+   \def\@tmpa{#1}%
+   \def\opt@oneform{oneform}%
+   \ifx\@tmpa\opt@oneform\def\eventualLaUV{%
+      \protect\pushocplist\LatinNoUvOCP}%
+      \typeout{Option: uv in Latin text are treated as a single letter}%
+   \else\def\eventualLaUV{}%
+      \typeout{Option: uv in Latin text are treated as different letters}%
+   \fi}
+
+\define@key{latin}{ligatures}[off]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\opt@enabled\def\eventualLaLigatures{%
+      \protect\pushocplist\LatinLongsOCP}%
+      \typeout{Option: Ligatires are used for typesetting latin text}%
+   \else\def\eventualLaLigatures{}%
+      \typeout{Option: Ligatires are not used for typesetting Latin text}%
+   \fi}
+
+\define@key{latin}{s}[oneform]{%
+   \def\@tmpa{#1}%
+   \def\opt@twoform{twoform}%
+   \ifx\@tmpa\opt@twoform\def\eventualLaS{%
+      \protect\pushocplist\LatinLongsOCP}%
+      \typeout{Option: Long s is used for typesetting Latin text}%
+   \else\def\eventualLaUV{}%
+      \typeout{Option: Long s is not used for typesetting latin text}%
+   \fi}
+
+\define@key{latin}{output}[unicode]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@tex\def\eventualEuOutput{%
+      \protect\pushocplist\LatinTexOutOCP}%
+      \def\westernencoding{T1}%
+   \else\ifx\@tmpa\tmp@omega\def\eventualEuOutput{%
+      \protect\pushocplist\LatinOmegaOutOCP}%
+      \def\westernencoding{UT1}%
+   \else\def\eventualEuOutput{%
+      \protect\pushocplist\LatinUniOutOCP}%
+      \def\westernencoding{UT1}%
+   \fi\fi}
+
+\def\latin@punctuation{%
+   \frenchspacing%
+}
+
+\def\nolatin@punctuation{%
+   \nonfrenchspacing%
+}
+
+\def\latin@captions{%
+   \def\prefacename{\locallatin{Praefatio}}%
+   \def\refname{\locallatin{Conspectus librorum}}%
+   \def\abstractname{\locallatin{Summarium}}%
+   \def\bibname{\locallatin{Conspectus librorum}}%
+   \def\chaptername{\locallatin{Caput}}%
+   \def\appendixname{\locallatin{Additamentum}}%
+   \def\contentsname{\locallatin{Index}}%
+   \def\listfigurename{\locallatin{Conspectus descriptionum}}%
+   \def\listtablename{\locallatin{Conspectus tabularum}}%
+   \def\indexname{\locallatin{Index rerum notabilium}}%
+   \def\figurename{\locallatin{Descriptio}}%
+   \def\tablename{\locallatin{Tabula}}%
+   \def\partname{\locallatin{Pars}}%
+   \def\enclname{\locallatin{Additur}}%
+   \def\ccname{\locallatin{Exemplar}}%
+   \def\headtoname{\ignorespaces}%
+   \def\pagename{\locallatin{pagina}}%
+   \def\seename{\locallatin{cfr.}}%
+   \def\alsoname{\locallatin{cfr.}}%
+   \def\proofname{\locallatin{Demonstratio}}% for AMS-\LaTeX
+   \def\glossaryname{\locallatin{Glossarium}}%
+   \def\today{\locallatin{\uppercase\expandafter{\romannumeral\day}%
+      \space \ifcase\month%
+      \or Januarii\or Februarii\or Martii\or Aprilis\or Maji\or Junii\or%
+      Julii\or Augusti\or Septembris\or Octobris\or Novembris\or%
+      Decembris\fi%
+      \space \uppercase\expandafter{\romannumeral\year}}}}
+
+\def\latin@language{%
+   \latin@codes%
+   \protect\language=\l@latin}
+
+\def\noextras@latin{%
+   \nolatin@codes%
+   \nolatin@punctuation%
+}
+
+\def\blockextras@latin{%
+   \latin@language%
+   \local@hyphenmins{latin}{2}{2}%
+   \latin@punctuation%
+   \latin@captions%
+   \local@marks{latin}%
+   \latin@OCP%
+   \latin@font%
+}
+
+\def\inlineextras@latin{%
+   \latin@language%
+   \local@hyphenmins{latin}{2}{2}%
+   \latin@punctuation%
+   \latin@OCP%
+   \latin@font%
+}
+
+\endinput

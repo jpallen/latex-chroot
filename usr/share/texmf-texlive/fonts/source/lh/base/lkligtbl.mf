@@ -1,0 +1,138 @@
+
+% lkligtbl.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) A.Berdnikov
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Macro definitions for lig & kern data
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+LHver_check(3,5); % like |version_check| in ec
+
+if known loaded_lgligtbl: endinput; fi
+loaded_lgligtbl:=1; % if known this file has been loaded
+
+%if unknown loaded_lgerrors:
+%   index:=0; input lgerrors; % error messages;
+%fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                               %%
+%%  Procedures which may be used to make the ligtable data       %%
+%%  independent from the particular font coding scheme           %%
+%%                                                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if unknown dummy_kern_char:
+   numeric dummy_kern_char; dummy_kern_char:=0;
+fi
+
+boolean debug_ligdata;  debug_ligdata:=false;
+
+def beginligtable =
+   boolean flag_gener, flag_sp, flag_fst;
+   flag_gener:=false; flag_sp:=false; flag_fst:=true;
+   def table_data = enddef;
+enddef;
+
+vardef labelchar (text chars) =
+   forsuffixes $=chars:
+      if (str $) <> "": if known $: if $ > -1:
+         if flag_sp:
+            flag_fst:=false;
+            expandafter def expandafter table_data expandafter =
+               table_data , $ :
+            enddef;
+         else:
+            expandafter def expandafter table_data expandafter =
+               table_data   $ :
+            enddef;
+         fi
+         flag_gener:=true; flag_sp:=false;
+      fi fi fi
+   endfor;
+enddef;
+
+vardef setkern @# (text chars)=
+   if flag_gener:
+      forsuffixes $=chars:
+         if (str $) <> "": if known $: if $ > -1:
+            if flag_sp:
+               expandafter def expandafter table_data expandafter =
+                  table_data , $ kern @#
+               enddef;
+            else:
+               expandafter def expandafter table_data expandafter =
+                  table_data   $ kern @#
+               enddef;
+            fi
+            flag_sp:=true;
+         fi fi fi
+      endfor;
+   fi;
+enddef;
+
+vardef setlig(suffix charA, charB) =
+   if flag_gener:
+      if (known charA) and (known charB):
+         if (charA > -1) and (charB > -1):
+            if flag_sp:
+               expandafter def expandafter table_data expandafter =
+                  table_data , charA =: charB
+               enddef;
+            else:
+               expandafter def expandafter table_data expandafter =
+                  table_data   charA =: charB
+               enddef;
+         fi;
+         flag_sp:=true;
+      fi fi;
+   fi;
+enddef;
+
+vardef endligtable=
+   if debug_ligdata: showtoken table_data; fi
+   if flag_gener:
+      if not flag_sp:
+         if not flag_fst:
+            message ("Something is wrong in ligtable:");
+            showtoken table_data;
+            message ("Dummy kerning with char "
+                   & (decimal dummy_kern_char) & " is inserted");
+            expandafter def expandafter table_data expandafter =
+               table_data   dummy_kern_char kern 0
+            enddef;
+            ligtable table_data;
+         fi
+      else:
+         ligtable table_data;
+      fi;
+   fi;
+   def table_data = enddef;
+enddef;
+
+vardef liggroup @# (text chars)=
+   def @# = enddef;
+   forsuffixes $=chars:
+      if (str $) <> "": if known $: if $ > -1:
+            expandafter def expandafter @# expandafter =
+               @# , $
+            enddef;
+      fi fi fi
+   endfor;
+   if debug_ligdata: showtoken @#; fi
+enddef;
+
+endinput;
+% end-of-file

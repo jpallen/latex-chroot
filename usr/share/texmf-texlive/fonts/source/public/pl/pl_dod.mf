@@ -1,0 +1,832 @@
+% ---------------------------------------------------------------------------
+% This is PL_DOD.MF ({\bif{}dodatkowy}, i.e., additional file for the Polish
+% extension of CM family) in text format.
+% ---------------------------------------------------------------------------
+% PL VERSION 1.09, April 13th, 2001 -- released for BachoTeX 2001
+% ---------------------------------------------------------------------------
+% AUTHORS: {\bif{}Bogus\l{}aw Jackowski \& Marek Ry\'cko}
+% ---------------------------------------------------------------------------
+% This file belongs to the public domain under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% 
+% In particular, only the authors are entitled to modify this file.
+% 
+% For details see either the file MEXINFO.POL or MEXINFO.ENG.
+% ---------------------------------------------------------------------------
+%%{\let\:\sl
+%\: This file provides accessories for making Polish diacritical characters: 
+%\: acute accent for |"C"|, |"N"|, |"L"|, |"S"|, |"Z"|, dot accent for |"Z"|,
+%\: cross for |"L"| and ogonek for |"A"| and |"E"|.  In order to avoid extra
+%\: parameters (62 should be enough) the macros do a lot of ``clever'' stuff,
+%\: trying to figure out needed dimensions. This is not always a trivial
+%\: task and in some cases such extra parameters may prove to be unavoidable.
+%\: Several additional parameters may be assigned a value, prior to reading
+%\: the driver file, in order to override the default behaviour.
+
+%\: One of them is
+%\:   --- the factor controlling the slope of accents over majuscules,
+%\:       |cap_flat|; if the default slope is, say, $\beta$, the resulting
+%\:       slope is equal to |(1-cap_flat)*|$\beta$; this parameter is used
+%\:       in the sources of the following fonts:
+%\        PLCSC10, PLDUNH10, PLTCSC10
+
+%\: Unexpectedly difficult to program turned out to be ogoneks. We decided
+%\: that the best looking are ogoneks such that a single B\`ezier segment
+%\: describes each of ogonek's edges. This necessitated introducing many
+%\: parameters controlling the positions of control points (for more details
+%\: see comments in the section ``OGONEK ACCESSORIES''). All these
+%\: (optional) parameters may be splitted into three groups of importance:
+%\: primary, secondary and tertiary. The primary parameters are intended
+%\: to be ``normally'' accessible to users, the secondary ones---only in
+%\: case of emergency, the tertiary ones---rather not at all.
+
+%\: The primary parameters are:
+
+%\:   --- the factor controlling the depth of ogoneks, |depth_corr|; the
+%\:       resulting depth is equal to |depth_corr*desc_depth#| if the value
+%\:       of |depth_corr| is known, |desc_depth#| otherwise
+%\:   --- the factor controlling the leftmost and tip positions
+%\:       of an ogonek, |left_corr|, |tip_xcorr| and |tip_ycorr|;
+%\:       the default distances are scaled using the values of the
+%\:       corresponding parameters       
+%\:   --- the scaling factor for the top and tip breadths of an ogonek,
+%\:       |top_breadth_corr|, |tip_breadth_corr|
+
+%\: Some of the primary parameters are used in the sources of the following
+%\: fonts:
+%   PLB10, PLBX5, PLBX6, PLBX7, PLBX8, PLFI10, PLITT10, PLR5, PLR6, PLR7,
+%   PLR8, PLR9, PLR12, PLR17, PLSL8, PLSL9, PLSL12, PLSSQ8, PLSSQI8, PLTI7,
+%   PLTI8, PLTI12, PLVTT10
+
+%\: The following four parameters we regard as of a secondary importance:
+
+%\:   --- the pen ogoneks are to be filled with, |ogonek_pen#| (this is
+%\:       the only sharp ogonek parameter and is used in the sources of 
+%\:       the {\commfont{}PLFF10} and {\commfont{}PLFI10} fonts)
+%\:   --- the darkness of ogoneks may be controlled using two parameters,
+%\:       |0<pre_lightness<1| and |0<post_lightness<1|, referring to the top
+%\:       and tip of an ogonek, respectively; used in {\commfont{}PLB10.MF}
+%\:   --- next two parameters, |pre_deflexion| and |post_deflexion|, control
+%\:       a rather small deflexion angle (in degrees) of the inner ogonek
+%\:       outline as compared to the outer one; they refere to the top and
+%\:       tip of an ogonek, respectively
+
+%\: The complete list of `ogonek' parameters can be found in the section
+%\: ``OGONEK ACCESSORIES.''
+
+%\: There is one more (rather unimportant) parameter, |is_smoke|. If this
+%\: variable is assigned a known value, `smoked' proofs will not contain
+%\: a rule marking the height of accented letters.
+%%}
+% ---------------------------------------------------------------------------
+
+
+% ---------------------------------------------------------------------------
+%                          LAYOUT SETUP:
+%        (A MIXTURE OF EXTENDED CM, EXTENDED ASCII, AND ``LOCAL'')
+% ---------------------------------------------------------------------------
+% Polish letters are in the positions of extended CM layout:
+
+def polish_uc_positions =
+ ogonked_A:=oct"201";   % 129
+ accented_C:=oct"202";  % 130
+ ogonked_E:=oct"206";   % 134
+ crossed_L:=oct"212";   % 138
+ accented_N:=oct"213";  % 139
+ accented_O:=oct"323";  % 211
+ accented_S:=oct"221";  % 145
+ accented_Z:=oct"231";  % 153
+ dotted_Z:=oct"233";    % 155
+enddef;
+
+def polish_lc_positions =
+ ogonked_a:=oct"241";   % 161
+ accented_c:=oct"242";  % 162
+ ogonked_e:=oct"246";   % 166
+ crossed_l:=oct"252";   % 170
+ accented_n:=oct"253";  % 171
+ accented_o:=oct"363";  % 243
+ accented_s:=oct"261";  % 177
+ accented_z:=oct"271";  % 185
+ dotted_z:=oct"273";    % 187
+enddef;
+
+% French quotation marks are in the positions of extended ASCII layout,
+% while Polish opening quotation mark is in the position of ASCII 255:
+
+def quotes_positions =
+ french_opening_quotes:=174; % <<
+ french_closing_quotes:=175; % >>
+ % exceptionally:
+ polish_opening_quotes:=255; % ,,
+enddef;
+
+polish_uc_positions; polish_lc_positions; quotes_positions;
+% ---------------------------------------------------------------------------
+%                            EXTRA PARAMETERS
+% ---------------------------------------------------------------------------
+% The variable |improve_kerns| should not be set to |true| if one wants
+% to have PL fonts compatible with respective CM ones; thus the commands
+% |if improve_kerns| ... |fi| may be regarded as comments (see also the files
+% POLAN.MF, POLKUR.MF, POLTYT.MF and POLKAP.MF).
+if unknown improve_kerns: boolean improve_kerns; improve_kerns=false; fi;
+
+if unknown is_small_cap: boolean is_small_cap; is_small_cap=false; fi;
+
+% The variable |limit_dist| is used in an argument to |put_cross| in
+% PL_DL.MF, PL_ML.MF, and PL_MLK.MF. It was introduced because of some
+% funny (although troublesome) fonts. The value of |u| is corrected by
+% |adjust_fit|, hence |limit_dist| is defined useng |vardef| and |u#|
+vardef limit_dist = 5/4u#*hppp enddef;
+
+% The proportion of |vair/stem| depends drastically on resolution;
+% e.g., for 300 dpi cmbx10 |vair=1| and |stem=5|, for 746 dpi cmbx10
+% (300 dpi, magstep 5) |vair=4| and |stem=12|, while, sharply speaking,
+% |stem#/vair#=3.15381|; hence a new variable |xvair| has been introduced
+% to be used in some crucial places instead of |vair|.
+vardef xvair = stem*vair#/stem# enddef;
+
+% In particular, |qvair| (``quote vair'') is defined using |xvair|.
+vardef qvair = max(round(xvair),fine+epsilon) enddef;
+% ---------------------------------------------------------------------------
+%                         GENERAL PURPOSE ACCESSORIES
+% ---------------------------------------------------------------------------
+vardef is_egyptian =
+% |false| for most of the CM fonts, except funny fonts;
+% |true| for the CC fonts
+ serifs and (1.4max(fine#,crisp#, tiny#)<slab#) and (1.6slab#>stem#)
+enddef;
+
+vardef is_bold = if serifs: (hair#+.5stem#)>1.5u# else: stem#>2u# fi\\ enddef;
+
+vardef is_cap =
+ (charcode=ogonked_A) or (charcode=accented_C) or (charcode=ogonked_E)\\ or
+ (charcode=crossed_L) or (charcode=accented_N) or (charcode=accented_O)\\ or
+ (charcode=accented_S) or (charcode=accented_Z) or (charcode=dotted_Z)
+enddef;
+
+%%% top is_known
+%%% top fix_virgin
+vardef is_known z suffix $ =
+% an auxiliary macro for |fix_virgin z|, used also while constructing ogoneks
+ (known x$) or (known x$l) or (known x$r)\\ or
+ (known y$) or (known y$l) or (known y$r)
+enddef;
+
+vardef fix_virgin z = % find a pair of virgin pairs
+ numeric ii,jj; jj:=1;
+ forever:
+  if is_known z[jj] or is_known z[jj+1]: % unknown gaps may occur
+  jj:=incr jj else: jj=ii fi; exitif known ii;
+ endfor;
+ jj:=ii+1;
+% now |ii+1=jj| and |z[ii]| and |z[jj]| are ``untouched''
+enddef;
+
+%%% italcorr corrital
+% correction of italic correction (cf. D. E. Knuth, The \MF{}book, p. 105):
+vardef corrital z suffix $ =
+% |z$| is the rightmost position of a pen (in accent path)
+ if known sharp_calc:
+  if not monospace:
+   save charic_; charic_=(rt(x$)-r)/hppp+slant*y$/vppp+.5u#;
+   if charic_>charic: charic:=charic_; fi
+  fi
+%| else: %| |charic=mono_charic#|, do nothing
+ fi
+enddef;
+
+%%% fine hi higher
+% |higher| is a counterpart to |lower| (see the file POLKAP.MF),
+% |hi| facilitates using higher values (which are reference points in
+% the floating world of CM fonts)
+def hi = if is_small_cap: higher fi\\ enddef;
+
+%%% top prepare_pen
+def prepare_pen suffix $ =
+%%% fine $ %%%% temporary MFT convention
+  if $>fudged.hair: $:=fudged.hair; fi
+  $.breadth:=$;
+  pickup if $=0: nullpen else: pencircle scaled $; $:=$-eps fi;
+  $.nib:=savepen; breadth_[$.nib]:=$;
+  forsuffixes $$=lft,rt,top,bot: shiftdef($.$$,$$ 0); endfor
+%%% qq $ %%%% ordinary MFT convention
+enddef;
+% ---------------------------------------------------------------------------
+%                          ACCENT ACCESSORIES
+% ---------------------------------------------------------------------------
+% |the_cap_flat| is a factor controlling the flatness of accents over
+% majuscules; a default value may be overriden by assigning a value to the
+% variable |cap_flat| (cf. also |the_|... macros in ogonek accessories).
+vardef the_cap_flat =
+ if known cap_flat: cap_flat elseif serifs and hefty: 1/5 else: 1/3 fi
+enddef;
+% ---------------------------------------------------------------------------
+% The |hpos_corr| variable is an optional parameter to |put_ogonek|, meant
+% to be set locally inside |beginchar| ... |endchar|, if a horizontal
+% correction of the accent position is needed:
+numeric hpos_corr;
+% ---------------------------------------------------------------------------
+%%%% temporary MFT convention:
+%%% top x_height diam a_wd a_ht i_ht u asc_height cap_A_wd
+% width of the acute accent:
+vardef a_wd@# = 9hi.u@# enddef;
+% height of the acute accent:
+vardef a_ht@# = min(asc_height@#,2hi.x_height@#) enddef;
+% height of the letter `i':
+vardef i_ht@#(suffix diam) =
+ if is_small_cap: a_ht@# % usually there is no dot over a small cap `i'
+ else: min(asc_height@#, 10/7hi.x_height@#+.5diam@#) fi
+enddef;
+% width of the letter `A' (used in |put_ogonek|):
+vardef cap_A_wd@# = 13u@# enddef;
+%%%% ordinary MFT convention:
+%%% qq x_height diam a_wd a_ht i_ht u asc_height cap_A_wd
+
+def mark_height(expr sharp_h)=
+% |sharp_h| is the height of an accented minuscule
+ if known sharp_calc:
+  charht:=if is_cap: h/vppp else: sharp_h fi;
+  if\\ (proofing>0) and is_cap:
+% BJ likes to have proofs vertically aligned (somehow):
+   proofoffset(0,h-charht*vppp-1mm);
+  fi
+ fi
+% say earlier, e.g., |is_smoke=1| if you're making `smoked' proofs
+% and you don't like to have a rule marking the height
+ if unknown is_smoke:
+  if proofing>0: proofrule((l+w/2,charht*hppp)t_,(r+u,charht*hppp)t_); fi
+  if displaying>0: screenrule((l+w/2,charht*hppp)t_,(r+u,charht*hppp)t_); fi
+ fi
+enddef;
+
+def fix_acc_pairs =
+ fix_virgin z;
+ begingroup
+% excerpt from |beginchar|:
+  save w,h; w=round(a_wd); h=round(a_ht);
+% excerpt from |mono_adjust|:
+  if monospace:
+   save u_; numeric u_; u_:=hi.u#; save u; u#:=u_;
+   numeric expansion_factor;
+   mono_charwd#=2 hi.letter_fit#+expansion_factor*a_wd#;
+   hi.u:=u#*expansion_factor*hppp;
+   w:=mono_charwd-shrink_fit-2 hi.letter_fit;
+  fi
+% end of the excerpts
+  numeric accent_gap,mid_stem; mid_stem=2/3[stem,hi.stem];
+  if serifs:
+   pickup crisp.nib;
+   x[jj]'=hround(w-2hi.u)-.5mid_stem; x[jj]':=x[jj]'-2/3[x[jj]',w-x[jj]'];
+   y[jj]'=h-.5mid_stem+eps-max(2/3[h,hi.x_height],hi.x_height+o+hair);
+   accent_gap=a_ht-(y[jj]'+.5mid_stem)-hi.x_height;
+   bot z[ii]=round(accent_hpos,
+    accent_gap+if is_cap: cap_height else: hi.x_height fi);
+   z[jj]=z[ii]+(z[jj]'
+    if is_cap: rotated (-the_cap_flat*angle(z[jj]')) fi);
+   numeric theta; theta=angle(z[ii]-z[jj])+90;
+   pos[jj](mid_stem,theta); pos[ii](hair,theta);
+  else:
+   pickup fine.nib;
+   rt x[jj]'r=hround(.5w-1.25hi.u);
+   top y[jj]'=h-vround(2/3[h,hi.x_height]);
+   z[ii]'=origin; pos[jj]'(mid_stem,0); pos[ii]'(vair,0);
+   accent_gap=a_ht-y[jj]'-hi.x_height;
+   if is_cap:
+    numeric beta; beta=-the_cap_flat*angle(z[jj]'-z[ii]');
+    z[ii]=round(accent_hpos,accent_gap+cap_height);
+    z[jj]=z[ii]+(z[jj]' rotated beta);
+    y[jj]r=y[jj]l=y[jj]; y[ii]r=y[ii]l=y[ii];
+    for xx:=jj,ii: forsuffixes $:=l,r:
+     (z[xx]$-z[ii]) rotated -beta=whatever[z[jj]'$,z[ii]'$];
+    endfor\\ endfor
+   else:
+    for xx:=jj,ii: forsuffixes $:=r, ,l:
+     z[xx]$=z[xx]'$+round(accent_hpos,
+      accent_gap+if is_small_cap: cap_height else: x_height fi);
+    endfor\\ endfor
+   fi
+  fi
+ endgroup;
+enddef;
+
+def fix_acc_top =
+ save accent_hpos; accent_hpos=0; % the value does not matter here
+ fix_acc_pairs; % |fix_acc_pairs| uses private values of |w|, |h| \& |u|
+% |z[ii]$| and |z[jj]$| (|$= ,r,l|) are fixed temporarily, will be released
+% fix the y coordinate of the top point of accent:
+ if serifs:
+  pickup crisp.nib;
+  y.a_top:=ypart(directionpoint left of
+   (z[jj]r{z[jj]r-z[ii]r}..{z[ii]l-z[jj]l}z[jj]l)); y'a_top:=top y.a_top;
+ else:
+  pickup fine.nib; y.a_top:=ypart(z[jj]r); y'a_top:=top y.a_top;
+ fi
+% release |z[ii]$| and |z[jj]$| (|$= ,r,l|):
+ forsuffixes $= ,r,l:
+  x[ii]$:=whatever; y[ii]$:=whatever; x[jj]$:=whatever; y[jj]$:=whatever;
+ endfor
+enddef;
+
+def put_accent =
+ numeric accent_hpos;
+ accent_hpos=.5w - if is_cap: .75 else: .5 fi\\ u
+  if known hpos_corr: +hpos_corr fi;
+ fix_acc_pairs; % |fix_acc_pairs| uses private values of |w|, |h| \& |u|
+ numeric hpos_corr; % |hpos_corr| is local: forget its value
+% draw the diagonal:
+ if serifs:
+  pickup crisp.nib; filldraw circ_stroke (z[jj]e--z[ii]e);
+  z.right=directionpoint up of (z[jj]r{z[jj]r-z[ii]r}..{z[ii]l-z[jj]l}z[jj]l);
+  z.top=directionpoint left of (z[jj]r{z[jj]r-z[ii]r}..{z[ii]l-z[jj]l}z[jj]l);
+ else:
+  pickup fine.nib; filldraw stroke (z[jj]e--z[ii]e);
+  z.right=z.top=z[jj]r;
+ fi
+ corrital z.right; % correct italic correction
+% adjust height (the same height is used in the program for the dotted `Z'):
+ h:=if is_cap: y.top else: a_ht fi;
+ mark_height(a_ht#); 
+ penlabels([ii],[jj]);
+enddef;
+% ---------------------------------------------------------------------------
+%                           DOT ACCENT ACCESSORIES
+% ---------------------------------------------------------------------------
+%%% good penkind
+def put_dot (suffix penkind) (expr sharp_d_d) = % the dot of the lc letter `i'
+% assumptions: for lowercase `z' the dot accent should be exactly the same
+% as the dot over `i'; a virtually contradictory demand is to be fullfiled
+% for capital `Z': the dot should have exactly the same shape as the dot
+% over dotted `z' (in any case, must not be smaller), not too close to
+% the top of `Z', and not protruding (too much) over the nominal height,
+% i.e., over the height of acute accent.
+ fix_acc_top;
+% now |y.a_top| and |y'a_top| are fixed; |y'a_top=top y.a_top| for a pen
+% appropriate for the acute accent
+ fix_virgin z;
+ save d_d_; % for sharp and discrete dot diameter
+ d_d_#=sharp_d_d; define_whole_blacker_pixels(d_d_);
+% compute the nominal height
+ h:=vround(
+  if charcode=dotted_Z: (cap_height#+i_ht#(d_d_)-hi.x_height#)
+  elseif charcode=dotted_z: % branch not used when |is_small_cap=true|
+   i_ht#(d_d_) fi\\ *hppp);
+ pickup penkind.nib; pos[jj](d_d_,90); pos[ii](d_d_,0);
+ x[jj]=x[ii]=good.x(.5w+if is_cap: .5 else: .25 fi\\ u);
+ top y[jj]r=h+1;
+ top y.i_top=if charcode=dotted_Z: cap_height else: x_height fi
+  if serifs: +min(oo,serif_drop) fi;
+ save gap_; gap_=bot y[jj]l-top y.i_top; % nominal gap between the dot and `z'
+% raise the lower edge of the dot if needed (cf. the code for the letter `i'
+% in ROMANL.MF):
+ if gap_ < slab: y[jj]l:=min(y[jj]r-eps,y.i_top+tiny+slab); fi
+ save ove_; ove_=top y[jj]r-y'a_top; % a nominal overshoot of the dot
+% lower the dot if needed (for dotted `Z' only):
+ if (charcode=dotted_Z) and (ove_>0):
+  save low_; % |low_| is to be the maximal acceptable lowering of the dot
+  low_=max(0,min(ove_,gap_-penkind)); % somewhat arbitrary formula...
+  forsuffixes $= ,l,r: y[jj]$:=y[jj]$-low_; endfor
+ fi
+ y[ii]=.5[y[jj]l,y[jj]r];
+% draw the dot:
+ dot([ii],[jj]);
+% dotted `Z' inherits the height of the accented `Z' which enables decreasing
+% by one the number of different heights in a font; dotted `z' has the height
+% of a lowercase `i' (exception: caps and small caps)
+ h:=y.a_top; mark_height(i_ht#(d_d_));
+ penlabels([ii],[jj]);
+enddef;
+% ---------------------------------------------------------------------------
+%                           L's CROSS ACCESSORIES
+% ---------------------------------------------------------------------------
+def put_cross(expr l_jut,r_jut) =
+ fix_virgin z;
+ numeric c_ht_; % height of the center of the cross
+ c_ht_=if is_cap: cap_bar else: bar fi;
+ numeric theta; theta=angle(11u#,.3[x_height#,cap_height#]);
+ pickup crisp.nib; pos[ii](c_ht_,theta+90); pos[jj](c_ht_,theta+90);
+ lft x[ii]r = hround(x1-l_jut)-eps;
+ rt x[jj]l = hround(x1+r_jut)+eps;
+ z[ii]-z[jj]=whatever*dir theta;
+% |.52| is one of CM (Computer Magic) numbers appearing in many CM programs,
+% among others in the programs for B, F, and H:
+ whatever[z[ii],z[jj]]=if not is_cap and hefty: top fi\\ (x1,.52cap_height);
+% |1/2[z[ii],z[jj]]| is now the center of the cross;
+% before drawing the stroke improve discretization:
+ save eps_;
+ eps_:=y[ii]l-good.y(y[ii]l);
+ forsuffixes $:=l, ,r: y[ii]$:=y[ii]$-eps_; endfor
+ eps_:=y[jj]r-good.y(y[jj]r);
+ forsuffixes $:=l, ,r: y[jj]$:=y[jj]$-eps_; endfor
+ filldraw stroke z[ii]e--z[jj]e; % now draw the stroke
+ corrital z[jj]l; % correct italic correction
+ penlabels([ii],[jj]);
+enddef;
+% ---------------------------------------------------------------------------
+%                           OGONEK ACCESSORIES
+% ---------------------------------------------------------------------------
+% This part is admittedly sophisticated, however, a wide spectrum of
+% different ogonek shapes is in fact to be programmed: one shape is needed
+% for caps, another for `a' with ogonek, yet another for `e' with ogonek,
+% as they all have different joins. Moreover, a sansserif ogonek differs
+% significantly from a serif one, a bold ogonek from a non-bold, an ogonek
+% for hefty fonts should still be different. And if you take into account
+% that the basic font unit |u| may change during one session of font
+% generation (monospace and caps-small-caps) and that a few different
+% pens may be used to draw a single letter, you'll understand why so many
+% |if| ... |else:| ... |fi| commands are used in the following code.
+% 
+% Outer and inner edges of an ogonek (suffixed with |l| and |r|, resp.)
+% are single B\`ezier segments; the outer one, a path
+%    |p=z_a..controls z_b and z_c ..z_d|
+% is constructed as follows: given pairs |z_a|, |z_d|, angles |alpha_a|,
+% |alpha_d| and two numbers |x_down|, |y_right|, find pairs |z_b| and |z_c|
+% such that the path |p| has the following properties:
+%   (a) |direction p(z_a)=alpha_a|
+%   (b) |direction p(z_d)=alpha_d-180| 
+%   (c) |direction p(x_down,some_y)=down|
+%   (d) |direction p(some_x,y_right)=right|
+% The problem is solved using a ``double'' bisection method, provided 
+% that appropriate limits |z_b'|, |z_b''| and |z_c'|, |z_c''| for |z_b|
+% and |z_c|, respectively, are given; more precisely,
+%       |z_b=|$\lambda_b$|[z_b',zb'']| and |z_c=|$\lambda_c$|[z_c',zc'']|
+% is supposed to hold for given |z_b'|, |z_b''|, |z_c'|, |z_c''| and
+% some $0<\lambda_b,\lambda_c<1$.
+%
+% The inner edge is constructed by a careful modification of the outer one. 
+%
+% If a default behaviour of our program is not satisfying, the user may
+% assign a value to the following ``emergency'' parameters (provided E knows
+% what E is doing):
+%       |depth_corr|, |left_corr|, |top_breadth_corr|, |tip_breadth_corr|,
+%       |tip_xcorr|, |tip_ycorr|, |pre_angle|, |post_angle|,
+%       |pre_limit|, |post_limit|, |pre_lightness|, |post_lightness|,
+%       |pre_deflexion|, and |post_deflexion|.
+% Any of these parameters, if known while generating a font, is used instead
+% of a default setting. The parameters are accessed only via macros:
+%       |the_ogonek_depth|, |the_left_pos|, |the_top_breadth_corr|,
+%       |the_tip_breadth_corr|, |the_tip_pos|,
+%       |the_pre_angle|, |the_post_angle|, |the_pre_limit|, |the_post_limit|,
+%       |the_pre_lightness|, |the_post_lightness|,
+%       |the_pre_deflexion|, and |the_post_deflexion|.
+% There is one sharp ogonek parameter, |ogonek_pen#|; a respective pen is
+% defined at the end of this file (and once again in POLKAP.MF after
+% |font_setup|) and used in the files PL_DL.MF, PL_ML.MF, PL_MLK.MF.
+% Any parameter may have its |lower| variant (see the file POLKAP.MF).
+% ---------------------------------------------------------------------------
+% two handy macros:
+vardef cross_point(expr a,b) (expr c,d) =
+ save z_; pair z_; z_=whatever[a,b]; z_=whatever[c,d]; z_
+% the crossing point of lines (not segments) |a--b| and |c--d| is returned
+enddef;
+
+vardef touch_time(expr p,q) = % a variant of |intersectionpoint|
+ save x_,y_; (x_,y_)=p intersectiontimes q; if x_<0: 0 else: y_ fi
+enddef;
+% ---------------------------------------------------------------------------
+% the kernel routine for the ogonek:
+numeric x_down,x_down',y_right,y_right',alpha_a,alpha_d;
+pair z_a,z_b,z_b',z_b'',z_c,z_c',z_c'',z_d;
+
+pair nz_,pz_;
+% with plain's |solve| embeded calls are not allowed, hence a bit tricky
+% variation:
+%%% known zsolve
+vardef zsolve@#(suffix z_)=
+% |@#| is the name of a real monotonic function; it is assumed that
+% |@#(z_')<=0|, |@#(z_'')>0| holds for given |z_'| and |z_''|
+ save nz_,pz_; pair nz_,pz_; % recursive calls are possible
+ nz_:=z_'; pz_:=z_'';
+ forever:
+  z_:=.5[nz_,pz_]; exitif abs(nz_-pz_)<=tolerance; % by default |tolerance=.1|
+  if @#(z_)<=0: nz_ else: pz_ fi :=z_;
+ endfor
+% on exit |z_| is (hopefully) near the point where |@#| changes from
+% negative to positive
+enddef;
+
+vardef down_dir(expr z_b)=
+ zsolve right_dir(z_c); % here |z_c| is computed
+ lft(xpart(directionpoint down of (z_a..controls z_b and z_c..z_d)))-x_down
+enddef;
+
+vardef right_dir(expr z_c)=
+ bot(ypart(directionpoint right of (z_a..controls z_b and z_c..z_d)))-y_right
+enddef;
+% ---------------------------------------------------------------------------
+% ogonek defaults:
+vardef the_ogonek_depth = % sharp value
+ if known depth_corr: depth_corr* fi\\ desc_depth#
+enddef;
+
+vardef the_left_pos =
+ if known left_corr: left_corr* fi
+  if monospace: 3.75 elseif serifs:
+   if hefty: 2.3 elseif is_bold: 1.7 else: 1.9 fi
+  else: % sansserif
+   if is_bold: 1.65 else: 1.55 fi\\ fi\\ hi.u
+enddef;
+
+vardef the_tip_pos =
+  (if monospace: 1.9 elseif serifs: if hefty: 1.85
+   elseif is_bold: 1.75 else: 2 fi\\ else: % sansserif
+    if is_bold: 2.1 else: 1.95 fi\\ fi\\ hi.u,
+   if serifs:
+    if monospace: 1.25 elseif hefty: 1 elseif is_bold: .75 else: 1.45 fi
+   else: % sansserif
+    .45 fi\\ hi.u)
+   if known tip_xcorr: xscaled\\ tip_xcorr fi
+   if known tip_ycorr: yscaled\\ tip_ycorr fi
+enddef;
+
+vardef the_top_breadth_corr =
+ if known top_breadth_corr: top_breadth_corr else:
+  if serifs: 1 elseif is_bold: 1.12 elseif is_cap: 1.06 else: .96 fi\\ fi
+enddef;
+
+vardef the_tip_breadth_corr =
+ if known tip_breadth_corr: tip_breadth_corr else: 1 fi
+enddef;
+
+vardef the_pre_angle = % refers to the outer edge
+ if known pre_angle: pre_angle else:
+  if serifs: if hefty: 208 elseif is_bold: 211 else: 214 fi\\ else: 211 fi
+ fi
+enddef;
+
+vardef the_post_angle = % refers to the outer edge
+ if known post_angle: post_angle else:
+  if serifs: if monospace: 60 elseif hefty: 66 elseif is_bold: 55 else: 74 fi
+  else: 25 fi\\ fi
+enddef;
+
+vardef the_pre_limit = % refers to the outer edge
+ if known pre_limit: pre_limit else: x_down-3.5hi.u fi
+enddef; 
+
+vardef the_post_limit = % refers to the outer edge
+ if known post_limit: post_limit else: x_down-2hi.u fi
+enddef; 
+
+vardef the_pre_lightness = % refers to the inner edge
+ if known pre_lightness: pre_lightness else:
+ if serifs and hefty: .97 elseif not serifs and is_bold: .6
+  elseif is_bold: .66  else: .78 fi\\ fi
+enddef;
+
+vardef the_post_lightness = % refers to the inner edge
+ if known post_lightness: post_lightness else:
+  if serifs:
+    if hefty: .95 elseif is_bold: .66 else: .82 fi
+  else: % sansserif
+  .75 fi\\ fi
+enddef;
+
+vardef the_post_deflexion = % refers to the inner edge
+ if known post_deflexion: post_deflexion elseif serifs and hefty: 0
+ else: -5 fi
+enddef;
+
+vardef the_pre_deflexion = % refers to the inner edge
+ if known pre_deflexion: pre_deflexion
+  elseif known join_angle and not serifs:
+   if is_bold: -4 else: -2 fi\\ 
+  elseif not serifs: if is_bold: -8 else: -4 fi\\ else: 0 fi
+enddef;
+% ---------------------------------------------------------------------------
+%%% fine lo
+vardef lo suffix z = % in a way |lo| is a counterpart to |hi|
+ if is_small_cap: z_a+((z-z_a) scaled sqrt(body_height#/higher.body_height#))
+ else: z fi
+enddef;
+% ---------------------------------------------------------------------------
+% parameters to |put_ogonek|:
+numeric join_angle; % starting (inner) ogonek direction, if known
+numeric ogonek_breadth; % ogonek breadth at the tip
+% starting (inner for `e' with ogonek, otherwise outer) ogonek position:
+pair ogonek_pos;
+% ---------------------------------------------------------------------------
+def put_ogonek(suffix penkind) =
+ begingroup
+  if monospace:
+% excerpt from |mono_adjust|:
+   save u_; numeric u_; u_:=hi.u#; save u; u#:=u_;
+   numeric expansion_factor;
+   mono_charwd#=2hi.letter_fit#+expansion_factor*cap_A_wd#; % cap_A_wd=13u
+   hi.u:=u#*expansion_factor*hppp;
+% now |u| is like in the letter `A'
+  fi
+
+  fix_virgin z; pickup penkind.nib;
+
+% `a' with ogonek attached to the hook deserves a special treatment:
+  if\\ (not is_small_cap) and (charcode=ogonked_a) and serifs and not is_bold:
+   if ypart(ogonek_pos)>.5penkind:
+    z[ii]~l=ogonek_pos;
+    pos[ii]~(max(the_top_breadth_corr*ogonek_breadth,penkind+epsilon),0);
+    ogonek_pos:=cross_point((0,.5penkind),(1,.5penkind))
+     (z[ii]~l,z[ii]~l+dir(the_pre_angle));
+   fi
+  fi
+
+% similarly, `e' with ogonek deserves a special treatment:
+  if\\ (not is_small_cap) and (charcode=ogonked_e):
+   if ypart(ogonek_pos)>.5penkind:
+    z[ii]~r=ogonek_pos;
+    pos[ii]~(max(the_top_breadth_corr*ogonek_breadth,penkind+epsilon),0);
+    ogonek_pos:=cross_point((0,.5penkind),(1,.5penkind))
+     (z[ii]~l,z[ii]~l+dir(join_angle));
+   fi
+  fi
+
+% invariant: |ypart(ogonek_pos)|$\le$|.5penkind|;
+% moreover, for `A' and `E': |ypart(ogonek_pos)=.5penkind|
+
+% OUTER EDGE:
+  alpha_a:=the_pre_angle; % starting direction
+  alpha_d:=180+the_post_angle; % ending direction
+  x_down:=if serifs: hround else: ceiling fi
+   (xpart(ogonek_pos)-the_left_pos); % left bound
+  y_right:=-vround(d+hi.o); % bottom bound
+  z_a:=(x_down+the_left_pos,ypart(ogonek_pos)); % starting point
+  z_d:=(xpart(z_a)-.5penkind,y_right+ypart(ogonek_pos))+
+   the_tip_pos; % ending point
+% guess the boundaries for control points:
+  z_b':=cross_point (z_a,z_a+dir alpha_a)
+   ((the_pre_limit,0),(the_pre_limit,1));
+  z_b'':=cross_point (z_b',z_a)\\ ((x_down,0),(x_down,1));
+  z_c':=cross_point (z_d,z_d+dir alpha_d)
+   ((the_post_limit,0),(the_post_limit,1));
+  z_c'':=cross_point (z_c',z_d)\\ ((0,y_right),(1,y_right));
+% THE PIVOT STEP OF THE OGONEK PROCEDURE, i.e.,
+% determine the control points (|z_b| and |z_c|) of the outer path:
+  zsolve down_dir(z_b); % |down_dir| calls `|zsolve right_dir(z_c)|'
+  x_down':=xpart(lft(directionpoint down of
+   (z_a..controls z_b and z_c..z_d)));
+  y_right':=ypart(bot(directionpoint right of
+   (z_a..controls z_b and z_c..z_d)));
+  if abs(x_down'-x_down,y_right'-y_right)>sqrt2:
+   message "ERROR: `ogonek' iteration hasn't converged! Final values:";
+   message "x_down="&decimal x_down'&" (should be "&decimal x_down&")";
+   message "y_right="&decimal y_right'&" (should be "&decimal y_right&")";
+   errhelp "Maybe Jackowski knows how to change them...";
+   errmessage "Probably, you have to change somehow the boundary values";
+  fi
+
+% small caps have ogoneks a bit smaller:
+  z[ii]l=z_a; z[ii]'l=lo.z_b; z[jj]'l=lo.z_c; z[jj]l=lo.z_d;
+
+% INNER EDGE:
+  pos[ii](max(the_top_breadth_corr*ogonek_breadth,penkind+epsilon),0);
+  pos[jj](max(the_tip_breadth_corr*ogonek_breadth,penkind+epsilon),
+   angle(direction 1 of (z_a..controls z_b and z_c..z_d))+
+    if serifs: 90 else: 80 fi);
+
+  z[ii]'r=z[ii]r+((z[ii]'l-z[ii]l) scaled the_pre_lightness
+   rotated the_pre_deflexion);
+  z[jj]'r=z[jj]r+((z[jj]'l-z[jj]l) scaled the_post_lightness
+   rotated the_post_deflexion);
+
+% trim the top of the ogonek, if necessary:
+  path ogonek.l, ogonek.r; numeric tt.r, tt.l;
+
+  ogonek.l=if is_known z[ii]~: % minuscule with ogonek
+    z[ii]~l{dir if charcode=ogonked_a: the_pre_angle else: join_angle fi}..fi
+    z[ii]l..controls z[ii]'l and z[jj]'l..z[jj]l;
+  ogonek.r=if is_known z[ii]~: % ditto
+    z[ii]~r{dir if charcode=ogonked_a: the_pre_angle else: join_angle fi}..fi
+    z[ii]r..controls z[ii]'r and z[jj]'r..z[jj]r;
+
+  tt.r=if serifs and (not is_small_cap) and (charcode=ogonked_a):
+   touch_time(p.l,ogonek.r) else: 0 fi;
+  tt.l=if\\ (not is_small_cap) and (charcode=ogonked_e):
+   touch_time(p.r,ogonek.l) else: 0 fi;
+% at last, draw the ogonek:
+   if ogonek_breadth>.5:
+    interim turningcheck:=0; filldraw
+    if\\ (not is_small_cap) and (charcode=ogonked_e):
+     (point tt.r of ogonek.r){direction tt.r of ogonek.r}..{curl 1} fi
+    subpath (tt.l,length ogonek.l) of ogonek.l--
+    reverse(subpath (tt.r,length ogonek.r) of ogonek.r)
+    if is_small_cap or (charcode<>ogonked_e): -- else: & fi\\ cycle;
+% the |draw| command covers with ink unwanted breaks:
+    pickup pensquare scaled (.5*sqrt2) rotated 45;
+     draw .5[z[ii]l,z[ii]r]..controls .5[z[ii]'l,z[ii]'r] and
+     .5[z[jj]'l,z[jj]'r].. .5[z[jj]l,z[jj]r];
+   else: % poor resolution:
+    pickup pensquare scaled (.5*sqrt2) rotated 45;
+    draw z[ii]l..controls z[ii]'l and z[jj]'l..z[jj]l;
+   fi
+
+  numeric join_angle, ogonek_breadth; pair ogonek_pos; % all they are local
+
+  penlabels([ii],[jj]);
+
+ endgroup
+enddef;
+% ---------------------------------------------------------------------------
+%                   MACROS FOR PROCESSING CHARS TWICE:
+%             PASS 1: COLLECTING TFM (SHARP) INFORMATION
+%             PASS 2: CREATING THE GLYPH
+% ---------------------------------------------------------------------------
+%%% define_pixels prepare_pen
+%%% beginchar beginchar_twice
+%%% endfor repeat_once
+
+let ori_draw:=draw;
+let ori_fill:=fill;
+let ori_filldraw:=filldraw;
+let ori_erase:=erase;
+let ori_special:=special;
+let ori_numspecial:=numspecial;
+
+mode_def canonical_sharp_mode = % nearly |proof| mode
+ proofing:=0;                   % no, we aren't making full proofs
+ fontmaking:=0;                 % no, we aren't making a font
+ tracingtitles:=0;              % don't show titles online
+ pixels_per_inch:=2601.72;      % that's 36 pixels per pt
+ blacker:=0;                    % no additional blackness
+ fillin:=0;                     % no compensation for fillin
+ o_correction:=1;               % no reduction in overshoot
+ blacker_min:=0;                % no write_white provision
+enddef;
+
+def beginchar_twice(expr c,w_sharp,h_sharp,d_sharp) =
+ begingroup
+  if string mode: string prev_mode; prev_mode:=mode;
+  else: numeric prev_mode; prev_mode:=mode;
+  fi
+  for sharp_calc_:=1, whatever:
+% |sharp_calc| is checked in |corrital|, |mark_height|, |put_accent|,
+% and |put_dot|
+   sharp_calc:=sharp_calc_;
+   if known sharp_calc: % carry out ``sharp'' calculations
+    begingroup save mode,mag; mode:=canonical_sharp_mode; mode_setup;
+    if known cmbase: font_setup;
+     if not serifs: fisp:=round(1/3[fine,crisp]); prepare_pen fisp; fi
+     if known ogonek_pen#:
+      define_whole_pixels(ogonek_pen); prepare_pen ogonek_pen;
+     fi
+% In POLKAP.MF the following setting is performed:
+%|    forsuffixes $=u,o,letter_fit,x_height,bar_height,body_height,stem:|
+%|     higher.$:=higher.$.# * hppp;|
+%|    endfor|
+     if is_small_cap: % a supplement to |font_setup|
+      define_pixels(higher.u,higher.bar_height);
+      define_corrected_pixels(higher.o);
+      define_whole_pixels(higher.letter_fit);
+      define_whole_vertical_pixels(higher.x_height,higher.body_height);
+      define_whole_blacker_pixels(higher.stem);
+     fi
+    fi
+    endgroup;
+    let draw:=killtext; % |killtext| was absent from earlier versions of plain
+    let fill:=killtext;
+    let filldraw:=killtext;
+    let erase:=killtext;
+    def special expr t = enddef;
+    def numspecial expr t = enddef;
+    charwd:=w_sharp; charht:=h_sharp; chardp:=d_sharp; charic:=0;
+   else: % carry out ``discrete'' calculations
+    save mode_guard_; % dedicated to those who use Karl Berry's modes.mf
+    mode:=prev_mode; mode_setup;
+    if known cmbase: font_setup;
+     if not serifs: fisp:=round(1/3[fine,crisp]); prepare_pen fisp; fi
+     if known ogonek_pen#:
+      define_whole_pixels(ogonek_pen); prepare_pen ogonek_pen;
+     fi
+     if is_small_cap: % a supplement to |font_setup| (see sharp calculations)
+      define_pixels(higher.u,higher.bar_height);
+      define_corrected_pixels(higher.o);
+      define_whole_pixels(higher.letter_fit);
+      define_whole_vertical_pixels(higher.x_height,higher.body_height);
+      define_whole_blacker_pixels(higher.stem);
+     fi
+    fi
+    let draw:=ori_draw;
+    let fill:=ori_fill;
+    let filldraw:=ori_filldraw;
+    let erase:=ori_erase;
+    let special:=ori_special;
+    let numspecial:=ori_numspecial;
+    charwd:=w_sharp;
+   fi
+   charcode:=if known c: byte c else: 0 fi;
+   w:=hround(w_sharp*hppp); h:=vround(h_sharp*hppp); d:=vround(d_sharp*hppp);
+   clearxy; clearit; clearpen; scantokens extra_beginchar;
+enddef;
+
+let repeat_once = endfor;
+
+% ---------------------------------------------------------------------------
+%              LAST MINUTE EXTRA FONT SETUP (repeated in POLKAP.MF)
+% ---------------------------------------------------------------------------
+if not serifs: fisp:=round(1/3[fine,crisp]); prepare_pen fisp; fi
+if known ogonek_pen#:
+ define_whole_pixels(ogonek_pen); prepare_pen ogonek_pen;
+fi
+% ---------------------------------------------------------------------------
+%                            THAT'S ALL, FOLKS.
+% ---------------------------------------------------------------------------
+endinput;
+%%\end

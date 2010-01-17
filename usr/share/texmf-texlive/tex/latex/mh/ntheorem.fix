@@ -1,0 +1,402 @@
+%%
+%% This is file `ntheorem.fix',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% empheq.dtx  (with options: `ntheorem')
+%% 
+%% It may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2003/12/01 or later.
+%% 
+%% This work has the LPPL maintenance status "maintained".
+%% 
+%% The Current Maintainer of this work is Morten H\o gholm.
+%% 
+%% This work consists of the files empheq.dtx and empheq.ins and the
+%% derived files empheq.sty and ntheorem.fix
+%% 
+\ProvidesFile{ntheorem.fix}
+  [2004/10/10 v2.11a
+  empheq support and fixes for ntheorem (MH)
+  ]
+\def\default_raisetag:{\nobreak}
+\def\raisetag#1{
+  \skip@#1\relax
+  \xdef\raise@tag{\default_raisetag:
+                  \vskip\iftagsleft@\else:-\fi:\the\skip@\relax}}
+\MH_let:NwN\raise@tag\default_raisetag:
+\def\displ@y@{\@display@init{%
+  \global\column@\z@ \global\dspbrk@lvl\m@ne
+  \global\tag@false \global\MH_let:NwN\raise@tag\default_raisetag:
+}}
+\def\MT_gobblelabel:w #1{\@ifnextchar[{\EQ_gobbleoptional:w}{}}
+\def\EQ_gobbleoptional:w [#1]{}
+\def\gmeasure@#1{%
+  \begingroup
+    \measuring@true
+    \totwidth@\z@
+    \global\MH_let:NwN\tag@lengths\@empty
+    \savecounters@
+    \setbox\@ne\vbox{%
+      \everycr{\noalign{\global\tag@false
+        \global\MH_let:NwN\raise@tag\default_raisetag:
+        \global\column@\z@}}%
+      \MH_let:NwN\label\MT_gobblelabel:w
+      \halign{%
+        \setboxz@h{$\m@th\displaystyle{##}$}%
+        \if_dim:w \wdz@>\totwidth@
+          \global\totwidth@\wdz@
+        \fi:
+        &\setboxz@h{\strut@{##}}%
+        \savetaglength@
+        \crcr
+        #1%
+        \math@cr@@@
+      }%
+    }%
+    \restorecounters@
+    \if@fleqn
+        \global\advance\totwidth@\@mathmargin
+    \fi:
+    \iftagsleft@
+        \if_dim:w \totwidth@>\displaywidth
+            \global\MH_let:NwN\gdisplaywidth@\totwidth@
+        \else:
+            \global\MH_let:NwN\gdisplaywidth@\displaywidth
+        \fi:
+    \fi:
+  \endgroup
+}
+\def\measure@#1{%
+  \begingroup
+    \measuring@true
+    \global\eqnshift@\z@
+    \global\alignsep@\z@
+    \global\MH_let:NwN\tag@lengths\@empty
+    \global\MH_let:NwN\field@lengths\@empty
+    \savecounters@
+    \global\setbox0\vbox{%
+      \MH_let:NwN\math@cr@@@\math@cr@@@align@measure
+      \everycr{\noalign{\global\tag@false
+        \global\MH_let:NwN\raise@tag\default_raisetag:
+        \global\column@\z@}}%
+      \MH_let:NwN\label\MT_gobblelabel:w
+      \global\row@\z@
+      \tabskip\z@
+      \halign{\span\align@preamble\crcr
+        #1%
+        \math@cr@@@
+        \global\column@\z@
+        \add@amps\maxfields@\cr
+      }%
+    }%
+    \restorecounters@
+    \ifodd\maxfields@
+      \global\advance\maxfields@\@ne
+    \fi:
+    \if_num:w \xatlevel@=\tw@
+      \if_num:w \maxfields@<\thr@@
+        \MH_let:NwN\xatlevel@\z@
+      \fi:
+    \fi:
+    \setbox\z@\vbox{%
+      \unvbox\z@ \unpenalty \global\setbox\@ne\lastbox
+    }%
+    \global\totwidth@\wd\@ne
+    \if@fleqn \global\advance\totwidth@\@mathmargin \fi:
+    \global\MH_let:NwN\maxcolumn@widths\@empty
+    \begingroup
+      \MH_let:NwN\or:\relax
+      \loop
+        \global\setbox\@ne\hbox{%
+          \unhbox\@ne \unskip \global\setbox\thr@@\lastbox
+        }%
+      \ifhbox\thr@@
+        \xdef\maxcolumn@widths{ \or: \the\wd\thr@@ \maxcolumn@widths}%
+      \repeat
+    \endgroup
+    \dimen@\displaywidth
+    \advance\dimen@-\totwidth@
+    \if_case:w \xatlevel@
+      \global\alignsep@\z@
+      \MH_let:NwN\minalignsep\z@
+      \@tempcntb\z@
+      \if@fleqn
+        \@tempcnta\@ne
+        \global\eqnshift@\@mathmargin
+      \else:
+        \@tempcnta\tw@
+        \global\eqnshift@\dimen@
+        \global\divide\eqnshift@\@tempcnta
+      \fi:
+    \or:
+      \@tempcntb\maxfields@
+      \divide\@tempcntb\tw@
+      \@tempcnta\@tempcntb
+      \advance\@tempcntb\m@ne
+      \if@fleqn
+        \global\eqnshift@\@mathmargin
+        \global\alignsep@\dimen@
+        \global\divide\alignsep@\@tempcnta
+      \else:
+        \global\advance\@tempcnta\@ne
+        \global\eqnshift@\dimen@
+        \global\divide\eqnshift@\@tempcnta
+        \global\alignsep@\eqnshift@
+      \fi:
+    \or:
+      \@tempcntb\maxfields@
+      \divide\@tempcntb\tw@
+      \global\advance\@tempcntb\m@ne
+      \global\@tempcnta\@tempcntb
+      \global\eqnshift@\z@
+      \global\alignsep@\dimen@
+      \if@fleqn
+        \global\advance\alignsep@\@mathmargin\relax
+      \fi:
+      \global\divide\alignsep@\@tempcntb
+    \fi:
+    \if_dim:w \alignsep@<\minalignsep\relax
+      \global\alignsep@\minalignsep\relax
+      \if_dim:w \eqnshift@>\z@
+        \if@fleqn\else:
+          \global\eqnshift@\displaywidth
+          \global\advance\eqnshift@-\totwidth@
+          \global\advance\eqnshift@-\@tempcntb\alignsep@
+          \global\divide\eqnshift@\tw@
+        \fi:
+      \fi:
+    \fi:
+    \if_dim:w \eqnshift@<\z@
+      \global\eqnshift@\z@
+    \fi:
+    \calc@shift@align
+    \global\tagshift@\totwidth@
+    \global\advance\tagshift@\@tempcntb\alignsep@
+    \if@fleqn
+      \if_num:w \xatlevel@=\tw@
+        \global\advance\tagshift@-\@mathmargin\relax
+      \fi:
+    \else:
+      \global\advance\tagshift@\eqnshift@
+    \fi:
+    \iftagsleft@ \else:
+      \global\advance\tagshift@-\displaywidth
+    \fi:
+    \dimen@\minalignsep\relax
+    \global\advance\totwidth@\@tempcntb\dimen@
+    \if_dim:w \totwidth@>\displaywidth
+      \global\MH_let:NwN\displaywidth@\totwidth@
+    \else:
+      \global\MH_let:NwN\displaywidth@\displaywidth
+    \fi:
+  \endgroup
+}
+\def\EQ_multline_labelhack:n #1{%
+  \begingroup\measuring@false\label@in@display{#1}\endgroup}
+\def\EQ_multline_labelhack_opt:nw #1[#2]{%
+  \begingroup\measuring@false\label@in@display{#1}[#2]\endgroup}
+\def\multline@#1{%
+  \Let@
+  \@display@init{\global\advance\row@\@ne \global\dspbrk@lvl\m@ne}%
+  \chardef\dspbrk@context\z@
+  \restore@math@cr
+  \MH_let:NwN\tag\tag@in@align
+  \global\tag@false \global\MH_let:NwN\raise@tag\default_raisetag:
+  \mmeasure@{#1}%
+  \MH_let:NwN\tag\gobble@tag
+  \MH_let:NwN\label\MT_gobblelabel:w
+  \tabskip \if@fleqn \@mathmargin \else: \z@skip \fi:
+  \totwidth@\displaywidth
+  \if@fleqn
+    \advance\totwidth@-\@mathmargin
+  \fi:
+  \halign\bgroup
+    \hbox to\totwidth@{%
+      \if@fleqn
+        \hskip \@centering \relax
+      \else:
+        \hfil
+      \fi:
+      \strut@
+      $\m@th\displaystyle{}##\endmultline@math
+      \hfil
+    }%
+    \crcr
+    \if@fleqn
+      \hskip-\@mathmargin
+      \def\multline@indent{\hskip\@mathmargin}% put it back
+    \else:
+      \hfilneg
+      \def\multline@indent{\hskip\multlinegap}%
+    \fi:
+    \iftagsleft@
+      \iftag@
+        \begingroup
+          \ifshifttag@
+            \rlap{\vbox{%
+              \normalbaselines
+              \hbox{%
+                \strut@
+                \make@display@tag
+              }%
+              \vbox to\lineht@{}%
+              \raise@tag
+            }}%
+              \multline@indent
+          \else:
+            \setbox\z@\hbox{\make@display@tag}%
+            \dimen@\@mathmargin \advance\dimen@-\wd\z@
+            \if_dim:w \dimen@<\multlinetaggap
+              \dimen@\multlinetaggap
+            \fi:
+            \box\z@ \hskip\dimen@\relax
+          \fi:
+        \endgroup
+      \else:
+        \multline@indent
+      \fi:
+    \else:
+      \multline@indent
+    \fi:
+  #1%
+}
+\def\mmeasure@#1{%
+  \begingroup
+    \measuring@true
+    \def\label##1{%
+      \@ifnextchar[
+        {\EQ_multline_labelhack_opt:nw {##1}}
+        {\EQ_multline_labelhack:n {##1}}
+    }
+    \def\math@cr@@@{\cr}%
+    \MH_let:NwN\shoveleft\@iden \MH_let:NwN\shoveright\@iden
+    \savecounters@
+    \global\row@\z@
+    \setbox\@ne\vbox{%
+      \global\MH_let:NwN\df@tag\@empty
+      \halign{%
+        \setboxz@h{\@lign$\m@th\displaystyle{}##$}%
+        \iftagsleft@
+          \if_num:w \row@=\@ne
+            \global\totwidth@\wdz@
+            \global\lineht@\ht\z@
+          \fi:
+        \else:
+          \global\totwidth@\wdz@
+          \global\lineht@\dp\z@
+        \fi:
+        \crcr
+        #1%
+        \crcr
+      }%
+    }%
+    \if_meaning:NN
+      \df@tag\@empty
+    \else:
+      \global\tag@true
+    \fi:
+    \if@eqnsw\global\tag@true\fi:
+    \iftag@
+      \setboxz@h{%
+        \if@eqnsw
+          \stepcounter{equation}%
+          \tagform@\theequation
+        \else:
+          \df@tag
+        \fi:
+      }%
+      \global\tagwidth@\wdz@
+      \dimen@\totwidth@
+      \advance\dimen@\tagwidth@
+      \advance\dimen@\multlinetaggap
+      \iftagsleft@\else:
+        \if@fleqn
+          \advance\dimen@\@mathmargin
+        \fi:
+      \fi:
+      \if_dim:w \dimen@>\displaywidth
+        \global\shifttag@true
+      \else:
+        \global\shifttag@false
+      \fi:
+    \fi:
+    \restorecounters@
+  \endgroup
+}
+\newlength\mintagvsep
+\mintagvsep5pt
+\def\EQ_only_endmark:{%
+  \MH_set_boolean_T:n {show_manual_tags}
+  \global\tag@true
+  \iftagsleft@
+    \gdef\df@tag{%
+      \hbox to \displaywidth{%
+        \hss
+        \raisebox{-\normallineskip
+                  -\depthof{\EQ_outerbox:{}}
+                  -\heightof{\EQ_outerbox:{}}
+                  -\dp\EQ_mathdisplay_box
+                  -\ht\EQ_mathdisplay_box}
+                 [0pt][0pt]{\PotEndMark{\maketag@@@}}}}
+  \else:
+    \gdef\df@tag{%
+      \raisebox{-\dp\EQ_mathdisplay_box
+                -\depthof{\EQ_outerbox:{}}}
+               {\PotEndMark{\maketag@@@}}}%
+  \fi:}
+\def\EQ_tag_plus_endmark:{%
+  \iftagsleft@
+    \gdef\maketag@@@##1{%
+      \hfuzz\displaywidth
+      \makebox[\widthof{##1}][l]{%
+        \hbox to \displaywidth{\m@th\normalfont##1\hss
+          \raisebox{-\dp\EQ_mathdisplay_box
+                    -\depthof{\EQ_outerbox:{}}}
+                   {\PotEndMark{\hss}}}}}%
+  \else:
+    \gdef\maketag@@@##1{%
+      \hbox{\m@th\normalfont##1\llap{\hss\PotEndMark{%
+        \settoheight{\@tempdima}{\@nameuse{\InTheoType Symbol}}%
+        \MH_addtolength:dn \@tempdima
+          {\g_EQ_bottomtag_depth_dim+\mintagvsep}
+        \setlength{\@tempdimb}
+          {\g_EQ_bottomrow_depth_dim+\depthof{\EQ_outerbox:{}}
+            +\depthof{\EQ_innerbox:{}}}
+        \if_dim:w \@tempdima>\@tempdimb
+          \MH_setlength:dn \@tempdima{-\dp\EQ_mathdisplay_box
+            -\@tempdima+\g_EQ_bottomrow_depth_dim}
+          \addtolength{\@tempdima}{\depthof{\EQ_innerbox:{}}}%
+          \def\EQ_next:{\raisebox{\@tempdima}}%
+        \else:
+          \def\EQ_next:{
+            \raisebox{-\dp\EQ_mathdisplay_box
+                      -\depthof{\EQ_outerbox:{}}}}%
+        \fi:\EQ_next:}}}}%
+  \fi:}
+\MH_let:NwN \MT_nonumber: \nonumber
+\def\g_EQ_latest_nonzerodepth_row_fint{\z@}
+\renewcommand*\nonumber{
+  \@tempcnta=\row@
+  \if_num:w \l_EQ_equationtype_int=\thr@@
+    \advance\@tempcnta\m@ne
+  \else:
+    \if_num:w \l_EQ_equationtype_int=4\relax
+      \advance\@tempcnta\m@ne
+    \fi:
+  \fi:
+  \if_num:w \g_EQ_latest_nonzerodepth_row_fint=\@tempcnta
+  \else:
+    \global\g_EQ_bottomtag_depth_dim=-\baselineskip
+  \fi:
+  \MT_nonumber:
+}
+\endinput
+%%
+%% End of file `ntheorem.fix'.

@@ -1,0 +1,39 @@
+%%% This is part of the hyplain package by Enrico Gregorio
+%%% You are allowed to do anything you want with this as long
+%%% as you cite the source and change name to the file
+%%% (but don't rename it plain.tex)
+%%% 
+%%% Its purpose is to load plain.tex but not hyphen.tex
+%%% in order to be able to define more languages than
+%%% American English.
+%%%
+%%% By running iniTeX on this file, you end up with a
+%%% plain TeX format with some new facilities for changing
+%%% the language (see hyrules.tex and hydoc.tex)
+
+\catcode`\{=1 % left brace is begin-group character
+\catcode`\}=2 % right brace is end-group character
+\catcode`\@=11 % Now @ is a letter
+
+%%% Save the original meaning of \input
+\let\orig@input\input
+
+%%% D. E. Knuth has decreed that plain.tex cannot be modified
+%%% except for preloaded fonts. But we can always use some
+%%% TeX trick; since the file is immutable, it will contain
+%%% the line `\input hyphen'; at that point we restore the
+%%% original meaning of \input and input hyrules.tex instead
+%%% of hyphen.tex
+\def\input hyphen {\let\input\orig@input \input hyrules }
+
+%%% Here we load plain.tex
+\orig@input plain
+
+%%% We change the contents of \fmtname
+\def\fmtname{plain (multiple language support)}
+%%% Just a reminder for \fmtversion which we keep identical
+%%% to the plain TeX version number
+% \def\fmtversion{3.14159265}
+\def\hyplainversion{1.0}
+
+\dump

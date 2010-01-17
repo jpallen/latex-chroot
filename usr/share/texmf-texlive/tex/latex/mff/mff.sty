@@ -1,0 +1,743 @@
+\def\MFF@version{1.21 [June 1996]}
+\typeout{LaTeX Style file MFF.STY, ver. \MFF@version}
+
+\def\MFFcatcode{%
+    \chardef\oldatcatcode=\catcode`@
+    \chardef\oldsubcatcode=\catcode`_
+    \catcode`@=11
+    \catcode`_=11
+}
+
+\def\noMFFcatcode{%
+    \catcode`@=\oldatcatcode
+    \catcode`_=\oldsubcatcode
+}
+
+\def\otherMFFcatcode{%
+    \catcode`@=12
+    \catcode`_=12
+}
+
+\def\letterMFFcatcode{%
+    \catcode`@=11
+    \catcode`_=11
+}
+
+\MFFcatcode
+
+\newif\ifMFF@dcfont
+\MFF@dcfontfalse
+
+%
+% select approximation scheme: dcfonts, sauter
+%
+
+\def\MFFsauter{\def\MFF@apptype{SAUTER}}
+\def\MFFdcfonts{\def\MFF@apptype{DCFONT}}
+
+\input{mfdcdata.tex}
+\input{mfsauter.tex}
+\input{mfcorfnt.tex}
+\input{mftricks.tex}
+\input{mfarithm.tex}
+
+\newwrite\MFF@outfont
+\newread\MFF@checkfont
+
+% type warning message
+\def\MFF@warning#1{\immediate\write16{<MFF/line=\the\inputlineno>: #1}}
+\def\MFF@warncorr#1{\MFF@warning{Variable "#1" is corrected}}
+
+%  open new font: #1 = internal name, #2 = file name, #3 = scaling
+\def\MFF@open#1#2#3{%
+    \immediate\openout\MFF@outfont=#2.mf
+    \openin\MFF@checkfont=#2.tfm
+    \ifeof\MFF@checkfont
+          \MFF@warning{No file #2.tfm -- dummy font will be used}%
+          \font #1=dummy\relax
+    \else
+          \font #1=#2 #3\relax
+    \fi
+    \closein\MFF@checkfont
+    \MFF@warning{Do not forget to process #2.mf
+              and reprocess this file}%
+}
+
+%  write to \MFF@outfont some string
+\def\MFF@write#1{\immediate\write\MFF@outfont{#1}\ignorespaces}
+
+%  close output file
+\def\MFF@close{\MFF@write{}\immediate\closeout\MFF@outfont}
+
+%
+%  output primitives
+%
+\chardef\tempoldCod=\catcode`# \chardef\tempoldcoD=\catcode`^
+\chardef\tempoldCoD=\catcode37
+\catcode`#=12 \catcode`^=6 \catcode37=12
+
+\def\MFF@p{#}
+\def\MFF@c{%}
+
+\def\MFF@comment^1{\MFF@write{% \space ^1}}
+\def\MFF@commstr^1^2{\MFF@write{^1 \space\space\space % ^2}}
+\def\MFF@capsprmdc{\MFF@write{lower.uu#:= lower.u#;}}
+\def\MFF@capsprm^1^2^3{\MFF@write{lower.^1#:= \space\space\space % ^3}
+                       \MFF@write{ \space\space\space ^1# * (^2);}}
+\def\MFF@capsval^1^2^3{\MFF@write{lower.^1:= \space\space\space % ^3}
+                       \MFF@write{ \space\space\space ^1 * (^2) ;}}
+\def\MFF@parameter^1^2^3{\MFF@write{^1:=\@tempa^2; \space\space\space % ^3}}
+\def\MFF@parmreal^1^2{\MFF@parm{^1}\MFF@parameter{^1#}{/36pt#}{^2}}
+\def\MFF@parmrule^1^2{\MFF@parm{^1}\MFF@parameter{^1#}{/100pt#}{^2}}
+\def\MFF@parmfactor^1^2{\MFF@parm{^1}\MFF@parameter{^1}{}{^2}}
+\def\MFF@parmsize^1{\MFF@convert{^1}\MFF@write{font_size \@tempa pt#;}}
+
+\catcode`#=\tempoldCod \catcode`^=\tempoldcoD \catcode37=\tempoldCoD
+
+% set slant value
+\def\MFFslant#1{\global\edef\MFF@slant{#1}}
+\def\MFFslantD#1{\global\edef\MFF@slant{sind(#1)/cosd(#1)}}
+
+% set flags
+\def\MFF@setflag#1#2{%
+    \if y#1 \global\expandafter\edef\csname MFF@#2\endcsname{true}\fi
+    \if n#1 \global\expandafter\edef\csname MFF@#2\endcsname{false}\fi}
+
+\def\MFFflagLigs#1{%
+    \if s#1 \def\MFF@ligs{\ifdim \@tempdima<6pt 1 \else 2\fi}\fi
+    \if n#1 \def\MFF@ligs{0}\fi
+    \if 0#1 \def\MFF@ligs{0}\fi
+    \if 1#1 \def\MFF@ligs{1}\fi
+    \if 2#1 \def\MFF@ligs{2}\fi
+}
+
+\def\MFFflagSquareDots#1{\MFF@setflag{#1}{squaredots}}
+\def\MFFflagHefty#1{\MFF@setflag{#1}{hefty}}
+\def\MFFflagSerifs#1{\MFF@setflag{#1}{serifs}}
+\def\MFFflagMonospace#1{\MFF@setflag{#1}{monospace}}
+\def\MFFflagVariantG#1{\MFF@setflag{#1}{variantg}}
+\def\MFFflagLowAsterisk#1{\MFF@setflag{#1}{lowasterisk}}
+\def\MFFflagMathSpacing#1{\MFF@setflag{#1}{mathfitting}}
+
+%
+% set font mixture
+%
+\def\MFF@add@cmr#1{\global\def\MFF@frac@CMR{#1}}
+\def\MFF@add@bold#1{\global\def\MFF@frac@CMB{#1}}
+\def\MFF@add@x#1{\global\def\MFF@frac@CMX{#1}}
+\def\MFF@add@bx#1{\MFF@add@b{#1}\MFF@add@x{#1}}
+\def\MFF@add@sf#1{\global\def\MFF@frac@CMS{#1}}
+\def\MFF@add@tt#1{\global\def\MFF@frac@CMT{#1}}
+\def\MFF@add@fib#1{\global\def\MFF@frac@FIB{#1}}
+\def\MFF@add@funny#1{\global\def\MFF@frac@CMF{#1}}
+
+\def\MFFmixture#1#2#3#4#5#6{\MFF@add@cmr{1}%
+    \MFF@add@bold{#1}\MFF@add@x{#2}\MFF@add@sf{#3}\MFF@add@tt{#4}%
+    \MFF@add@fib{#5}\MFF@add@funny{#6}%
+}
+
+\def\clearMFF{\MFFmixture{0}{0}{0}{0}{0}{0}}
+\def\mixMFF{\@ifnextchar[{\mixMFF@}{\mixMFF@[1.0]}}
+\def\setMFF{\clearMFF\mixMFF}
+
+\def\mixMFF@[#1]#2{%
+    \ifx \relax\expandafter\csname MFF@add@#2\endcsname
+         \else \csname MFF@add@#2\endcsname{#1}\fi
+}
+
+\def\MFFscaleWidth#1{\global\def\MFF@scale@width{#1}}
+\def\MFFscaleHeight#1{\global\def\MFF@scale@height{#1}}
+\def\MFFscaleAsc#1{\global\def\MFF@scale@asc{#1}}
+\def\MFFscaleDesc#1{\global\def\MFF@scale@desc{#1}}
+\def\MFFscaleMath#1{\global\def\MFF@scale@math{#1}}
+\def\MFFscaleBoldLines#1{\global\def\MFF@scale@bold{#1}}
+\def\MFFscaleThinLines#1{\global\def\MFF@scale@thin{#1}}
+\def\MFFscaleJoinLines#1{\global\def\MFF@scale@join{#1}}
+\def\MFFscaleNotchCut#1{\global\def\MFF@scale@notch{#1}}
+\def\MFFscaleDotSize#1{\global\def\MFF@scale@dot{#1}}
+\def\MFFscaleSerifDish#1{\global\def\MFF@scale@dish{#1}}
+
+\def\MFFcontrast{\@ifnextchar[{\MFF@@contrast}{\MFF@contrast}}%
+\def\MFF@@contrast[#1]{\global\edef\MFF@contrasttype{#1}%
+                        \global\edef\MFF@contrast{0.5}}
+\def\MFF@contrast#1{\global\edef\MFF@contrasttype{d}%
+                        \global\edef\MFF@contrast{#1}}
+
+
+\newif\if@MFF@checkit
+\def\MFFcheck{\@MFF@checkittrue}
+\def\MFFnocheck{\@MFF@checkitfalse}
+
+\newif\if@MFF@tricks
+
+%   z = empty (white), b = black,
+%   v = vertical, h = horizontal, r = slanted(/), l - slanted (\)
+%   d = dotted,   g = rectangular grid, s - slanted grid
+%   uppercase(*) = (*) + outline
+
+% #1 - var name, #2 - value
+\def\MFF@settrick#1#2{%
+    \@negargtrue
+    \@tfor \@temp:=zZbBvVhHrRlLdDgGsS\do
+    {\if \@temp#2
+         \@negargfalse \expandafter\edef\csname#1\endcsname{#2}%
+     \fi}%
+    \if@negarg \MFF@warning{Illegal pattern style: #2}\fi
+}
+
+% #1 - variable, #2 - list of legal values, #3 - command
+\def\MFF@checktrick#1#2#3{%
+    \@tfor \@temp:=#2\do
+    {\if \@temp#1\relax \@negargfalse #3 \fi}%
+}
+
+% !!!
+% argument #4 is not used currently - reserved for underline effect
+% !!!
+\def\MFFtrick#1#2#3#4#5{%
+    \MFF@settrick{MFF@trickchar}{#1}%
+    \MFF@settrick{MFF@trickbox}{#2}%
+    \MFF@settrick{MFF@trickshadow}{#3}%
+    \edef\MFF@trick@transform{#5}%
+    \@MFF@trickstrue}
+
+\def\trickMFFshadow#1{\MFF@settrick{MFF@trickshadow}{#1}}
+\def\trickMFFbox#1{\MFF@settrick{MFF@trickbox}{#1}}
+\def\trickMFFchar#1{\MFF@settrick{MFF@trickchar}{#1}}
+\def\trickMFFtransform#1{\edef\MFF@trick@transform{#1}}
+
+\def\MFFnotricks{\@MFF@tricksfalse}
+\def\MFFfonttricks{\@MFF@trickstrue}
+
+\def\MFFstdtrick#1{\csname MFF@stdtrick@#1\endcsname\@MFF@trickstrue}
+
+\def\MFF@stdtrick@standard{\MFFtrick{b}{z}{z}{}{}}%
+\def\MFF@stdtrick@reversed{\MFFtrick{z}{b}{z}{}{}}%
+\def\MFF@stdtrick@dotted{\MFFtrick{D}{z}{z}{}{}}%
+\def\MFF@stdtrick@striped{\MFFtrick{G}{z}{z}{}{}}%
+\def\MFF@stdtrick@stripedH{\MFFtrick{H}{z}{z}{}{}}%
+\def\MFF@stdtrick@stripedV{\MFFtrick{V}{z}{z}{}{}}%
+\def\MFF@stdtrick@slanted{\MFFtrick{S}{z}{z}{}{}}%
+\def\MFF@stdtrick@slantedR{\MFFtrick{R}{z}{z}{}{}}%
+\def\MFF@stdtrick@slantedL{\MFFtrick{L}{z}{z}{}{}}%
+\def\MFF@stdtrick@outlined{\MFFtrick{Z}{z}{z}{}{}}%
+\def\MFF@stdtrick@shadowed{\MFFtrick{b}{z}{b}{}{}}%
+\def\MFF@stdtrick@sHadowed{\MFFtrick{Z}{z}{Z}{}{}}%
+\def\MFF@stdtrick@shadowonly{\MFFtrick{z}{z}{b}{}{}}%
+
+\def\stepMFFoutline#1{\def\MFF@contourstep{#1}}
+\def\stepMFFshadow#1{\def\MFF@shadowstep{#1}}
+\def\cornerMFFshadow#1{\def\MFF@shadowstyle{#1}}
+
+\def\stepMFFboxpattern#1{\def\MFF@HPenstep{#1}}
+\def\penMFFboxpattern#1{\def\MFF@HPenpen{#1}}
+\def\stepMFFcharpattern#1{\def\MFF@MPenstep{#1}}
+\def\penMFFcharpattern#1{\def\MFF@MPenpen{#1}}
+\def\stepMFFshadowpattern#1{\def\MFF@SPenstep{#1}}
+\def\penMFFshadowpattern#1{\def\MFF@SPenpen{#1}}
+
+%
+% this code calculates the parameter value:
+%   #1 = parameter name
+%   #2 = font family
+%   \@tempdima = size,
+% output: \@tempdimb = value
+
+\def\MFF@calc#1#2{\csname \MFF@apptype @calc\endcsname{#1}{#2}}
+
+\def\SAUTER@calc#1#2{\@tempdimb=0pt \csname SAUTER@#2@#1\endcsname}
+
+\def\DCFONT@calc#1#2{\@tempdimb=0pt
+   \csname DCFNT@findpos@#2\endcsname
+   % calculate reference points
+   \@tempcntb=\@tempcnta \@tempdimb=\z@ \csname DCFNT@#2@#1\endcsname
+   \@ovxx=\@tempdimb
+   \advance\@tempcntb by 1 \@tempdimb=\z@ \csname DCFNT@#2@#1\endcsname
+   \@ovyy=\@tempdimb
+   % calculate local inclination
+   \MFF@dimenD=\@ovyy \advance \MFF@dimenD by -\@ovxx
+   \@tempcntb=\@tempcnta
+     \MFF@dimenD=\csname DCFNT@revint@#2\endcsname \MFF@dimenD
+   % calculate function
+   \@tempcntb=\@tempcnta \csname DCFNT@fntsize@#2\endcsname
+   \MFF@dimenA=\@tempdima \advance \MFF@dimenA by -\@tempdimb\relax
+   \MFF@multiply{\MFF@dimenA}{\MFF@dimenD}{\@tempdimb}%
+   \advance\@tempdimb by \@ovxx
+}
+
+% this macro adds fraction of parameter value from other font
+% #1 = parm name, #2 = font name
+\def\MFF@addparm#1#2{%
+    \@tempdimb=\csname MFF@frac@#2\endcsname pt\relax
+    \ifdim \@tempdimb=\z@\relax
+    \else
+        \MFF@calc{#1}{#2}%
+        \advance\@tempdimb by -\@ovro
+        \advance\@ovri by \csname MFF@frac@#2\endcsname \@tempdimb
+    \fi
+}
+
+% this macro calculates parameter value:
+%   #1 = variable name
+
+\def\MFF@parm#1{%
+    \MFF@calc{#1}{CMR}%
+    \@ovro=\@tempdimb  \@ovri=\MFF@frac@CMR\@tempdimb
+    %  add other font components
+    \MFF@addparm{#1}{CMX}%
+    \MFF@addparm{#1}{CMB}%
+    \MFF@addparm{#1}{CMS}%
+    \MFF@addparm{#1}{CMT}%
+    \MFF@addparm{#1}{CMF}%
+    \MFF@addparm{#1}{FIB}%
+    %  correct value
+    \@tempdimb=\@ovri
+    \csname MFF@assign@#1\endcsname
+    \csname MFF@correct@#1\endcsname
+    \MFF@convert{\@tempdimb}%
+}
+
+%
+%  this macro creates the parameter file for CMR font:
+%       #1 is (optional) scaling parameter
+%       #2 is internal font name
+%       #3 is font file name
+%       #4 is font size (in pt)
+%
+\def\MFFgener{\@ifnextchar[{\MFF@font}{\MFF@font[scaled 1000]}}
+
+%
+% !!! attention:
+%        stem, cap_stem are processed before other "thickness" parms
+%        bar_height is processed after x_height
+%        asc_height is processed after x_height
+%        curve      is processed after stem
+%        cap_stem   is processed after stem
+%        cap_curve  is processed after curve
+%
+%    the variables:
+%        thin_join, hair, vair, stem, curve, ess, flare, dot_size, bar,
+%        slab, cap_hair, cap_stem, cap_curve, cap_ess, cap_bar, cap_band
+%    are processed after crisp, tiny, fine
+%
+%    the variables stem_corr, vair_corr
+%    are processed after cap_hair, stem, fudge, curve
+%
+%    the variable vair_corr is processed after slab, fudge, hair
+%
+\def\MFF@font[#1]#2#3#4{%
+   \MFF@open{#2}{\MFFprefix#3}{#1}
+   \MFF@comment{Created by MMF/LaTeX (ver. \MFF@version) at \today.}
+   \MFF@write{}
+   \csname MFF@title@\MFF@apptype\endcsname
+   \MFF@write{}
+   \MFF@comment{This font is the modification of}
+   \csname MFF@\MFF@class \MFF@fam @header\endcsname
+   \@tempdima=#4\relax \ifdim \@tempdima<\z@ \@tempdima=\z@ \fi
+   \MFF@parmsize{#4}
+   \MFF@write{}
+   \MFF@parmreal{u}{unit width}
+   \MFF@parmreal{width_adj}{width adjustment for certain characters}
+   \MFF@parmreal{serif_fit}{extra sidebar near lowercase serifs}
+   \MFF@parmreal{cap_serif_fit}{extra sidebar near uppercase serifs}
+   \MFF@parmreal{letter_fit}{extra space added to all sidebars}
+   \MFF@write{}
+   \MFF@parmreal{body_height}{height of tallest characters}
+   \MFF@parmreal{x_height}{height of lowercase without ascenders}
+   \MFF@parmreal{asc_height}{height of lowercase ascenders}
+   \MFF@parmreal{cap_height}{height of caps}
+   \MFF@parmreal{fig_height}{height of numerals}
+   \MFF@parmreal{math_axis}{axis of symmetry for math symbols}
+   \MFF@parmreal{bar_height}{height of crossbar in lowercase e}
+   \MFF@parmreal{comma_depth}{depth of comma below baseline}
+   \MFF@parmreal{desc_depth}{depth of lowercase descenders}
+   \ifMFF@dcfont
+      \MFF@parmreal{acc_height}{height of accents}
+      \MFF@parmreal{dot_height}{height of y umlaut dots}
+      \MFF@parmreal{udot_height}{height of u umlaut dots (skipped actually)}
+   \fi
+   \MFF@write{}
+   \MFF@parmreal{crisp}{diameter of serif corners}
+   \MFF@parmreal{tiny}{diameter of rounded corners}
+   \MFF@parmreal{fine}{diameter of sharply rounded corners}
+   \MFF@parmreal{stem}{lowercase stem breadth}
+   \MFF@parmreal{cap_stem}{uppercase stem breadth}
+   \MFF@parmreal{thin_join}{width of extrafine details}
+   \MFF@parmreal{hair}{lowercase hairline breadth}
+   \MFF@parmreal{curve}{lowercase curve breadth}
+   \MFF@parmreal{ess}{breadth in middle of lowercase s}
+   \MFF@parmreal{flare}{diameter of bulbs or breadth of terminals}
+   \MFF@parmreal{dot_size}{diameter of dots}
+   \MFF@parmreal{cap_hair}{uppercase hairline breadth}
+   \MFF@parmreal{cap_curve}{uppercase curve breadth}
+   \MFF@parmreal{cap_ess}{breadth in middle of uppercase s}
+   \MFF@parmrule{rule_thickness}{thickness of lines in math symbols}
+   \MFF@write{}
+   \MFF@parmreal{dish}{amount erased at top or bottom of serifs}
+   \MFF@parmreal{bracket}{vertical distance from serif base to tangent}
+   \MFF@parmreal{jut}{protrusion of lowercase serifs}
+   \MFF@parmreal{cap_jut}{protrusion of uppercase serifs}
+   \MFF@parmreal{beak_jut}{horizontal protrusion of beak serifs}
+   \MFF@parmreal{beak}{vertical protrusion of beak serifs}
+   \MFF@parmreal{vair}{vertical diameter of hairlines}
+   \MFF@parmrule{notch_cut}{maximum breadth above or below notches}
+   \MFF@parmreal{bar}{lowercase bar thickness}
+   \MFF@parmreal{slab}{serif and arm thickness}
+   \MFF@parmreal{cap_bar}{uppercase bar thickness}
+   \MFF@parmreal{cap_band}{uppercase thickness above/below lobes}
+   \MFF@parmrule{cap_notch_cut}{max breadth above/below uppercase notches}
+   \MFF@parmreal{serif_drop}{vertical drop of sloped serifs}
+   \MFF@parmreal{apex_corr}{extra width at diagonal junctions}
+   \MFF@write{}
+   \MFF@parmreal{o}{amount of overshoot for curves}
+   \MFF@parmreal{apex_o}{amount of overshoot for diagonal junctions}
+   \MFF@write{}
+   \edef\@tempa{\MFF@slant}%
+   \MFF@parameter{slant}{}{tilt ratio (Delta x/Delta y)}
+   \MFF@parmfactor{fudge}{factor applied to weights of heavy characters}
+   \MFF@parmfactor{math_spread}{extra openness of math symbols}
+   \MFF@parmfactor{superness}{parameter for superellipses}
+   \MFF@parmfactor{superpull}{extra openness inside bowls}
+   \MFF@parmfactor{beak_darkness}{fraction of triangle inside beak serifs}
+   \MFF@write{}
+   \MFF@parmreal{stem_corr}{for small refinements of stem breadth}
+   \MFF@parmreal{vair_corr}{for small refinements of hairline height}
+   \MFF@write{}
+   \edef\@tempa{\MFF@ligs}%
+   \MFF@commstr{ligs:=\@tempa;}{level of ligatures to be included}
+   \MFF@write{}
+   \MFF@commstr{square_dots:=\MFF@squaredots;}{should dots be square?}
+   \MFF@commstr{hefty:=\MFF@hefty;}{should we try hard not to be overweight?}
+   \MFF@commstr{serifs:=\MFF@serifs;}{should serifs and bulbs be attached?}
+   \MFF@commstr{monospace:=\MFF@monospace;}{should all characters have the same width?}
+   \MFF@commstr{variant_g:=\MFF@variantg;}{should an italic-style g be used?}
+   \MFF@commstr{low_asterisk:=\MFF@lowasterisk;}{should the asterisk be centered at the axis?}
+   \MFF@commstr{math_fitting:=\MFF@mathfitting;}{should math-mode spacing be used?}
+   \if@MFF@tricks
+      \MFF@write{}
+      \MFF@comment{This part is taken from  "The ABC's of Special Effects"}
+      \MFF@comment{by Georgia K.M. Tobin in TUGBoat 9 (1988) No 1 pp. 15--18}
+      \MFF@comment{and from "Outline Fonts with Metafont"}
+      \MFF@comment{by Doug Henderson in TUGBoat 10 (1989) No 1 pp. 36--38.}
+      \MFF@maketrick
+   \fi
+   \MFF@write{}
+   \csname MFF@\MFF@class \MFF@fam @generate\endcsname
+   \MFF@close
+}
+
+%
+%  this macro adds parameters for CAPS
+\def\MFF@smallcaps{%
+    \MFF@comment{now come replacements used to set the lowercase caps}
+    \MFF@write{}
+    \MFF@capsprm{u}{16.0/21.0}{unit width}
+    \ifMFF@dcfont \MFF@capsprmdc \fi
+    \MFF@capsprm{width_adj}{1.0}{width adjustment for certain characters}
+    \MFF@capsprm{cap_serif_fit}{40.0/50.0}{extra sidebar near uppercase serifs}
+    \MFF@capsprm{letter_fit}{24.0/50.0}{extra space added to all sidebars}
+    \MFF@capsprm{body_height}{20.0/27.0}{height of tallest characters}
+    \MFF@capsprm{cap_height}{18.5/24.6}{height of caps}
+    \MFF@capsprm{x_height}{116.0/155.0}{height of lowercase without ascenders}
+    \MFF@capsprm{bar_height}{65.0/87.0}{height of crossbar in lowercase e}
+    \MFF@capsprm{comma_depth}{52.0/70.0}{depth of comma below baseline}
+    \MFF@capsprm{stem}{21.0/25.0}{lowercase stem breadth}
+    \MFF@capsprm{flare}{25.0/33.0}{diameter of bulbs or breadth of terminals}
+    \MFF@capsprm{cap_hair}{91.0/110.0}{uppercase hairline breadth}
+    \MFF@capsprm{cap_stem}{26.0/32.0}{uppercase stem breadth}
+    \MFF@capsprm{cap_curve}{31.0/37.0}{uppercase curve breadth}
+    \MFF@capsprm{cap_ess}{28.0/35.0}{breadth in middle of uppercase s}
+    \MFF@capsprm{cap_jut}{26.0/37.0}{protrusion of uppercase serifs}
+    \MFF@capsprm{beak_jut}{7.0/10.0}{horizontal protrusion of beak serifs}
+    \MFF@capsprm{beak}{52.0/70.0}{vertical protrusion of beak serifs}
+    \MFF@capsprm{slab}{91.0/110.0}{serif and arm thickness}
+    \MFF@capsprm{cap_bar}{91.0/110.0}{uppercase bar thickness}
+    \MFF@capsprm{cap_band}{91.0/110.0}{uppercase thickness above/below lobes}
+    \MFF@capsprm{cap_notch_cut}{1.0}{max breadth above/below uppercase notches}
+    \MFF@capsprm{o}{5.0/8.0}{amount of overshoot for curves}
+    \MFF@capsprm{apex_o}{4.0/8.0}{amount of overshoot for diagonal junctions}
+    \MFF@capsval{fudge}{1.0}{factor applied to weights of heavy characters}
+}
+
+\def\MFF@setcmbas#1{\MFF@common@header
+   \MFF@write{}%
+   \MFF@commstr{if unknown cmbase: input cmbase fi}{}%
+   \MFF@write{}%
+   \MFF@write{font_identifier:="#1/MFF";}%
+}
+
+\def\MFF@setdcbas#1{\MFF@common@header
+   \MFF@write{}%
+   \MFF@commstr{if unknown cmbase: }{}%
+   \MFF@commstr{\space\space\space if unknown dxbase: input dxbase; fi;}{}%
+   \MFF@commstr{else:}{}%
+   \MFF@commstr{\space\space\space show "You cannot use cmbase with DC fonts!"; }{}%
+   \MFF@commstr{\space\space\space endinput; }{}%
+   \MFF@commstr{fi;}{}%
+   \MFF@write{}%
+   \MFF@write{font_identifier:="#1/MFF";}%
+}
+
+\def\MFF@setgener#1{%
+   \MFF@commstr{generate #1}{switch to the driver file}%
+}
+
+% general header
+\def\MFF@common@header{\MFF@write{}
+   \MFF@comment{Composition\space\space\space\space\space\space\space:
+                bold=\MFF@frac@CMB, x=\MFF@frac@CMX,
+                sf=\MFF@frac@CMS, tt=\MFF@frac@CMT,
+                fib=\MFF@frac@FIB, funny=\MFF@frac@CMF}
+   \MFF@comment{Scale char size\space\space\space:
+                widht=\MFF@scale@width, height=\MFF@scale@height,
+                asc=\MFF@scale@asc, desc=\MFF@scale@desc,
+                math=\MFF@scale@math}
+   \MFF@comment{Scale char weight :
+                bold line factor=\MFF@scale@bold,
+                thin line factor=\MFF@scale@thin}
+   \MFF@comment{\space\space\space\space\space\space
+                \space\space\space\space\space\space
+                \space\space\space\space\space\space\space\space
+                contrast type=\MFF@contrasttype,
+                contrast factor=\MFF@contrast}
+   \MFF@comment{Scale variables\space\space\space:
+                join_lines\MFF@p\space * \MFF@scale@join,
+                notch_cut\MFF@p\space * \MFF@scale@notch,}
+   \MFF@comment{\space\space\space\space\space\space
+                \space\space\space\space\space\space
+                \space\space\space\space\space\space\space\space
+                dot_size\MFF@p\space * \MFF@scale@dot,
+                dish\MFF@p\space * \MFF@scale@dish}
+   \if@MFF@checkit \MFF@comment{Auto correction\space\space\space: ON}
+             \else \MFF@comment{Auto correction\space\space\space: OFF}
+   \fi
+   \if@MFF@tricks \MFF@comment{Add font tricks\space\space\space:
+                               foreground=\MFF@trickchar,
+                               background=\MFF@trickbox,
+                               shadow=\MFF@trickshadow,
+                               transform=\MFF@trick@transform}
+            \else  \MFF@comment{Add font tricks\space\space\space: none}
+   \fi
+}
+
+% CMR family
+\def\MFF@CMR@header{%
+   \MFF@dcfontfalse
+   \MFF@comment{Computer Modern Roman family}%
+   \MFF@comment{created by D.E.Knuth [driver=roman.mf]}%
+   \MFF@setcmbas{CMR}%
+}
+\def\MFF@CMR@generate{%
+   \MFF@setgener{roman}%
+}
+\def\MFF@CMI@header{%
+   \MFF@dcfontfalse
+   \MFF@comment{Computer Modern Text Italic family}%
+   \MFF@comment{created by D.E.Knuth [driver=textit.mf]}%
+   \MFF@setcmbas{CMTI}%
+}
+\def\MFF@CMI@generate{%
+   \MFF@setgener{textit}%
+}
+\def\MFF@CMC@header{%
+   \MFF@dcfontfalse
+   \MFF@comment{Computer Modern Caps and Small Caps family}%
+   \MFF@comment{created by D.E.Knuth [driver=csc.mf]}%
+   \MFF@setcmbas{CMCSC}%
+}
+\def\MFF@CMC@generate{%
+   \MFF@smallcaps\MFF@write{}%
+   \MFF@setgener{csc}%
+}
+
+% Samarin/Glonti Roman family
+\def\MFF@SGR@header{%
+   \MFF@dcfontfalse
+   \MFF@comment{Computer Modern Roman Cyrillic family}%
+   \MFF@comment{by N.Glonti and A.Samarin [driver=cyrillic.mf]}%
+   \MFF@setcmbas{CMRZ}%
+}
+\def\MFF@SGR@generate{%
+   \MFF@setgener{cyrillic}%
+}
+\def\MFF@SGI@header{%
+   \MFF@dcfontfalse
+   \MFF@comment{Computer Modern Text Italic Cyrillic family}%
+   \MFF@comment{by N.Glonti and A.Samarin [driver=cytextit.mf]}%
+   \MFF@setcmbas{CMRIZ}%
+}
+\def\MFF@SGI@generate{%
+   \MFF@setgener{cytextit}%
+}
+\def\MFF@SGC@header{%
+   \MFF@dcfontfalse
+   \MFF@comment{Computer Modern Small Caps Cyrillic family}%
+   \MFF@comment{by N.Glonti and A.Samarin [driver=cyccsc.mf]}%
+   \MFF@setcmbas{CMCCSC}%
+}
+\def\MFF@SGC@generate{%
+   \MFF@smallcaps\MFF@write{}%
+   \MFF@setgener{cyccsc}%
+}
+
+% Lapko/Khodulev Roman family
+\def\MFF@LHR@header{%
+   \MFF@dcfontfalse
+   \MFF@comment{Computer Modern Roman Cyrillic family}%
+   \MFF@comment{by A.Khodulev and O.Lapko [driver=ldrmfont.mf]}%
+   \MFF@setcmbas{LHR}%
+}
+\def\MFF@LHR@generate{%
+   \MFF@setgener{ldrmfont;}%
+   \MFF@write{bye.}%
+}
+\def\MFF@LHI@header{%
+   \MFF@dcfontfalse
+   \MFF@comment{Computer Modern Text Italic Cyrillic family}%
+   \MFF@comment{by A.Khodulev and O.Lapko [driver=ldrifont.mf]}%
+   \MFF@setcmbas{LHTI}%
+}
+\def\MFF@LHI@generate{%
+   \MFF@setgener{ldrifont;}%
+   \MFF@write{bye.}%
+}
+\def\MFF@LHC@header{%
+   \MFF@dcfontfalse
+   \MFF@comment{Computer Modern Small Caps Cyrillic family}%
+   \MFF@comment{by A.Khodulev and O.Lapko [driver=ldrcfont.mf]}%
+   \MFF@setcmbas{LHCSC}%
+}
+\def\MFF@LHC@generate{%
+   \MFF@smallcaps\MFF@write{}%
+   \MFF@setgener{ldrcfont;}%
+   \MFF@write{bye.}%
+}
+% Lapko/Khodulev Roman family (cyrillic only)
+\def\MFF@LLR@header{%
+   \MFF@dcfontfalse
+   \MFF@comment{Computer Modern Roman Cyrillic-only family}%
+   \MFF@comment{by A.Khodulev and O.Lapko [driver=ldrmfont.mf]}%
+   \MFF@setcmbas{LLR}%
+}
+\def\MFF@LLR@generate{%
+   \MFF@commstr{vfcoding=1; }{only cyrillic characters}%
+   \MFF@write{}\MFF@setgener{ldrmfont;}%
+   \MFF@write{bye.}%
+}
+\def\MFF@LLI@header{%
+   \MFF@dcfontfalse
+   \MFF@comment{Computer Modern Text Italic Cyrillic-only family}%
+   \MFF@comment{by A.Khodulev and O.Lapko [driver=ldrifont.mf]}%
+   \MFF@setcmbas{LLTI}%
+}
+\def\MFF@LLI@generate{%
+   \MFF@commstr{vfcoding=1; }{only cyrillic characters}%
+   \MFF@write{}\MFF@setgener{ldrifont;}%
+   \MFF@write{bye.}%
+}
+\def\MFF@LLC@header{%
+   \MFF@dcfontfalse
+   \MFF@comment{Computer Modern Small Caps Cyrillic-only family}%
+   \MFF@comment{by A.Khodulev and O.Lapko [driver=ldrcfont.mf]}%
+   \MFF@setcmbas{LLCSC}%
+}
+\def\MFF@LLC@generate{%
+   \MFF@smallcaps\MFF@write{}%
+   \MFF@commstr{vfcoding=1; }{only cyrillic characters}%
+   \MFF@write{}\MFF@setgener{ldrcfont;}%
+   \MFF@write{bye.}%
+}
+
+% DC family
+\def\MFF@DCR@header{%
+   \MFF@dcfonttrue
+   \MFF@comment{European Computer Modern Roman family}%
+   \MFF@comment{by J"org Knappen and Norbert Schwarz [driver=dxroman.mf]}%
+   \MFF@setdcbas{DCR}%
+}
+\def\MFF@DCR@generate{%
+   \MFF@setgener{dxroman}%
+}
+\def\MFF@DCI@header{%
+   \MFF@dcfonttrue
+   \MFF@comment{European Computer Modern Text Italic family}%
+   \MFF@comment{by J"org Knappen and Norbert Schwarz [driver=dxtextit.mf]}%
+   \MFF@setdcbas{DCTI}%
+}
+\def\MFF@DCI@generate{%
+   \MFF@setgener{dxtextit}%
+}
+\def\MFF@DCC@header{%
+   \MFF@dcfonttrue
+   \MFF@comment{European Computer Modern Caps and Small Caps family}%
+   \MFF@comment{by J"org Knappen and Norbert Schwarz [driver=dxcsc.mf]}%
+   \MFF@setdcbas{DCCSC}%
+}
+\def\MFF@DCC@generate{%
+   \MFF@smallcaps\MFF@write{}%
+   \MFF@setgener{dxcsc}%
+}
+
+\def\MFFclass@CMR{\def\MFF@class{CM}\def\MFF@fam{R}}
+\def\MFFclass@LHR{\def\MFF@class{LH}\def\MFF@fam{R}}
+\def\MFFclass@LLR{\def\MFF@class{LH}\def\MFF@fam{R}}
+\def\MFFclass@CMRZ{\def\MFF@class{SG}\def\MFF@fam{R}}
+\def\MFFclass@DCR{\def\MFF@class{DC}\def\MFF@fam{R}}
+
+\def\MFFclass@CMTI{\def\MFF@class{CM}\def\MFF@fam{I}}
+\def\MFFclass@LHTI{\def\MFF@class{LH}\def\MFF@fam{I}}
+\def\MFFclass@LLTI{\def\MFF@class{LH}\def\MFF@fam{I}}
+\def\MFFclass@CMRIZ{\def\MFF@class{SG}\def\MFF@fam{I}}
+\def\MFFclass@DCTI{\def\MFF@class{DC}\def\MFF@fam{I}}
+
+\def\MFFclass@CMCSC{\def\MFF@class{CM}\def\MFF@fam{C}}
+\def\MFFclass@LHCSC{\def\MFF@class{LH}\def\MFF@fam{C}}
+\def\MFFclass@LLCSC{\def\MFF@class{LH}\def\MFF@fam{C}}
+\def\MFFclass@CMCCSC{\def\MFF@class{SG}\def\MFF@fam{C}}
+\def\MFFclass@DCCSC{\def\MFF@class{DC}\def\MFF@fam{C}}
+
+\def\MFFclass#1{\csname MFFclass@#1\endcsname}
+
+\def\MFFdefault{\MFFnocheck
+%
+    \MFFscaleWidth{1}%
+    \MFFscaleHeight{1}%
+    \MFFscaleAsc{1}%
+    \MFFscaleDesc{1}%
+    \MFFscaleMath{1}%
+    \MFFscaleBoldLines{1}%
+    \MFFscaleThinLines{1}%
+    \MFFscaleJoinLines{1}%
+    \MFFscaleNotchCut{1}%
+    \MFFscaleDotSize{1}%
+    \MFFscaleSerifDish{1}%
+    \MFFcontrast[s]%
+%
+    \MFFslant{0}%
+    \MFFflagLigs{s}%
+    \MFFflagSquareDots{n}%
+    \MFFflagHefty{n}%
+    \MFFflagSerifs{y}%
+    \MFFflagMonospace{n}%
+    \MFFflagVariantG{n}%
+    \MFFflagLowAsterisk{n}%
+    \MFFflagMathSpacing{n}%
+%
+    \stepMFFoutline{0.075}%
+    \stepMFFshadow{0.5}%
+    \cornerMFFshadow{A}%
+    \stepMFFboxpattern{0.375}\penMFFboxpattern{0.075}%
+    \stepMFFcharpattern{0.375}\penMFFcharpattern{0.075}%
+    \stepMFFshadowpattern{0.375}\penMFFshadowpattern{0.075}%
+    \MFFstdtrick{standard}%
+    \MFFnotricks%
+%
+    \def\MFFprefix{xx}%
+    \MFFsauter
+    \MFFmixture{0}{0}{0}{0}{0}{0}%
+    \MFFclass{CMR}%
+}
+
+\MFFdefault
+\noMFFcatcode
+

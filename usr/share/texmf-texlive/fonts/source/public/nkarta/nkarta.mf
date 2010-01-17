@@ -1,0 +1,59 @@
+% Nkarta.mf
+% Author:      Daniel H. Luecking
+% Description: Derived from karta.mf (author and license  unknown)
+% Date:        02 March 2004
+% License:     Use at your own risk. If it is found that karta limits
+%              derived works, nkarta will be subject to those limits.
+
+mode_setup;
+smoothing := 0; autorounding := 0;
+FS# := if (known FontSize) and (numeric FontSize):
+         FontSize
+       else:
+         15pt#
+       fi/1000;
+define_pixels(FS);
+
+% In the original, the following code occurred after each path P[n] was
+% defined:
+%   if (turningnumber P[n])>=0: fill else: unfill reverse fi P[n];
+% This fails if turning number is 0. The following is more efficient
+% and has the same effect. Moreover, it puts the repeated code in a
+% macro issued only once per character.
+boolean debug; debug:=false;
+
+path P[];
+def drawthem expr t =
+if debug:                                               % debug
+  pickup pencircle scaled .4pt;                         %
+fi                                                      %
+  for n = 1 upto t:
+if debug:                                               %
+     addto currentpicture doublepath (P[n] scaled FS);  %
+else:                                                   %
+    addto currentpicture contour (P[n] scaled FS);
+fi
+    cullit;                                             % debug
+  endfor
+enddef;
+
+% I don't know what a space is needed for, but I've kept it.
+beginchar (32,280*FS#,0*FS#,0*FS#);
+"space";
+P1 := ((0,0)
+-- cycle) ;
+drawthem 1; % Seems useless.
+endchar;
+
+input nkchars.mf;
+
+font_slant:=0;
+font_normal_space:=280*FS#;
+font_normal_stretch:=140*FS#;
+font_normal_shrink:=93*FS#;
+font_x_height:=500*FS#;
+font_quad:=586*FS#;
+designsize:=FontSize;
+font_coding_scheme:="AppleStandard";
+font_identifier:="NKarta";
+end.

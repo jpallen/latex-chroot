@@ -1,0 +1,128 @@
+%% 
+%% This is file `patch.tex',
+%% generated with the docstrip utility.
+%% 
+%% The original source files were:
+%% 
+%% patch.doc 
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% You are *not* allowed to modify this file.
+%% 
+%% You are *not* allowed to distribute this file.
+%% For distribution of the original source see
+%% the terms for copying and modification in the file  patch.doc.
+%% 
+%% patch.doc/patch.tex
+%% (c) 1994 by David Kastrup (dak@pool.informatik.rwth-aachen.de)
+%% Version 0.91
+%% Redistribution of patch.doc is allowed, provided it is not modified
+%% in any way. The stripped version patch.tex may only be distributed
+%% as part of other packages, and only if the unstripped version
+%% is distributed on demand.
+\begingroup
+\catcode`@=11
+\toks@={\endgroup}
+\outer\def\endpatch{\the\toks@}
+\def\futuredef#1#2{\begingroup
+     \aftergroup\afterassignment \aftergroup#2%
+     \aftergroup\def \aftergroup#1%
+         \futurelet\next\^^90}
+\let\bgroup\relax   \let\egroup\relax
+\def\^^90{%
+    \ifcat\noexpand\next{%
+         \^^91{\aftergroup{\iffalse}\fi}%
+    \else\ifcat\noexpand\next}%
+         \^^91{\iffalse{\fi\aftergroup}}%
+    \else\ifcat\noexpand\next\space
+         \^^91{\expandafter\aftergroup\space}%
+    \else\ifcat\noexpand\next##
+         \^^91{\aftergroup########}%
+    \else
+         \let\next\^^93%
+                 \fi\fi\fi\fi\next}
+\def\^^91#1{\def\next@{\endgroup{#1}}%
+    \let\next\^^92}
+\def\^^92{\afterassignment\next@ \let\next= }
+\long\def\^^93#1{\endgroup{\aftergroup#1}}
+\def\@ndp@tch{\aftergroup\@ndp@tch}
+\def\gpatch{\ifnum\globaldefs<\z@
+                \expandafter\patch
+            \else
+                \expandafter\^^98%
+            \fi}
+\long\def\^^98#1#2#{\def\next{}%
+               \long\edef\next##1\@ndp@tch%
+                  {\ifx\next\empty\else\long\fi\gdef##1}%
+               \^^a0#1{#2}}
+\def\patch#1#2#{\def\next{}%
+  \long\edef\next##1\@ndp@tch
+     {\toks@ \noexpand\expandafter {\noexpand\the \toks@
+          \ifx\next\empty\else\long\fi \def##1}}%
+  \^^a0#1{#2}}
+\long\def\^^a0#1#2#3#4{\begingroup
+    \def\^^e0{#1}%
+    \toks@{\endgroup\next#1#2}%
+    \begingroup
+    \aftergroup\the\aftergroup\toks@
+    \toks@{#4}%
+    \expandafter\p@check\expandafter{#1#3}\@ndp@tch}
+\toksdef\p@match=\@ne
+\toksdef\p@replace=\tw@
+\def\p@check{\edef\next@{\the\toks@}%
+        \ifx\empty\next@  \expandafter\endgroup
+        \else  \expandafter\^^a1\fi}
+\def\^^a1{\iffalse{\fi
+       \expandafter\futuredef \expandafter\p@first
+       \expandafter\^^a2\the\toks@}}
+\def\^^a2#1#{\p@match{#1}\afterassignment\^^a3\p@replace}
+\def\^^a3{\afterassignment\^^a4\toks@\expandafter{\iffalse}\fi}
+\def\^^a4{\futuredef\next\^^a5}
+\def\^^a5{\ifx\next\p@first
+             \begingroup \toks@{}\expandafter\^^a6%
+          \else\ifx\next\@ndp@tch \^^e1\fi
+            \next \expandafter \^^a4%
+          \fi}
+\def\^^e1{\let\^^a4\endgroup
+          \newlinechar`\^^J
+          \toks@\expandafter{\next@}%
+          \errorcontextlines\m@ne
+          \errhelp{I am ignoring inapplicable patches. Go on.}%
+          \errmessage{When trying to patch
+            \expandafter\string\^^e0, which was defined as^^J%
+            \expandafter\meaning\^^e0^^J%
+            the following patches remained inapplicable:^^J%
+            \the\toks@^^J%
+            I will show the results of the succeeded patches as soon^^J%
+            as I can without further comment, so do not be surprised.}%
+          \aftergroup\show \expandafter\aftergroup\^^e0%
+}
+\def\^^a6{\edef\next{\the\p@match}%
+         \ifx\next\empty \endgroup\expandafter\^^ac%
+         \else \expandafter\^^a7\fi}
+\def\^^a7{\iffalse{\fi
+          \expandafter\futuredef\expandafter\next@
+          \expandafter\^^a8\the\p@match}}
+\def\^^a8{\afterassignment\^^a9\p@match\expandafter{\iffalse}\fi}
+\def\^^a9{\futuredef\next\^^aa}
+\def\^^aa{\ifx\next@\next
+              \expandafter\^^ab%
+          \else \aftergroup\p@first
+          \aftergroup\^^a4%
+          \the\toks@\next\expandafter\endgroup\fi}
+\def\^^ab{\toks@\expandafter\expandafter\expandafter{%
+         \expandafter\the\expandafter\toks@\next}%
+         \^^a6}
+\def\^^ac{\expandafter\^^ad\the\p@replace\@ndp@tch}
+\def\^^ad{\futuredef\next\^^ae}
+\def\^^ae{\ifx\next\@ndp@tch
+              \expandafter\p@check
+          \else
+              \next \expandafter\^^ad%
+          \fi}
+\endinput
+%% 
+%% End of file `patch.tex'.

@@ -1,0 +1,29 @@
+\catcode`\{=1
+\catcode`\}=2
+\catcode`\#=6
+\let\iftxxenc\iffalse
+\def\c#1/#2/#3/#4/#5 {\def\fontprefix{#1}\def\Encoding{#2}\input#3
+  \def\miprefix{#4}\def\fontdefs{#5}}
+\input cyrtex.cfg
+
+\let\next\font\long\def\font#1\undefined{\let\font\next\input\fontdefs
+  \let\next\lefthyphenmin\def\lefthyphenmin##1hyphen{\let\lefthyphenmin\next
+  \let\next\undefined\input hyphen.cfg}}
+\input plain
+\edef\fmtversion{\fmtversion-Cyr}
+
+\input txxextra
+
+%\input\Encoding defs
+\ifinpenc
+  \input plainenc
+  \fontencoding\Encoding
+  \inputencoding\definpenc
+\else
+  \let\PROTECT\relax\let\UNPROTECT\relax\def\makerobust#1{}
+\fi
+
+\catcode`\@=11
+\def\Russian{\set@hyphenmins22\language\l@russian}\let\Rus\Russian
+\def\English{\set@hyphenmins23\language\l@english}\let\Eng\English
+\catcode`\@=12

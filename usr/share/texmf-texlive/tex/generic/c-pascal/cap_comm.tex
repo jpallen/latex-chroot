@@ -1,0 +1,188 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     CAP  ---  Macros for typesetting programs in C and Pascal     %
+%       Micha\l{} Gulczy\'nski, Szczecin, Feb 1997 / Feb 1998       %
+%                     mgulcz@we.tuniv.szczecin.pl                   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  version 1.2
+%    This file contains common definitions used in the CAP package.
+%    It does not contain any useful macros itself.
+%
+
+
+%
+%      macro that compares two strings
+%
+\def\@Identical#1#2{%
+  MG\fi
+  \edef\@FirstString{#1}%
+  \edef\@SecondString{#2}%
+  \ifx \@FirstString \@SecondString
+}
+%
+%      font declarations
+%
+{% a tiny trick that lets TeX check if the user has PL fonts...
+ \catcode`\p = 12
+ \catcode`\l = 12
+ \catcode`\r = 12
+ \xdef\xxx{plr10}
+}
+\if\@Identical{\xxx}{\fontname\tenrm}
+  \font\tenttsl = plsltt10
+  \font\tenttit = plitt10
+\else
+  \font\tenttsl = cmsltt10
+  \font\tenttit = cmitt10
+\fi
+\let\IdentifierFont = \it
+\let\TextFont = \sl
+\let\KeywordFont = \bf
+\let\CommentFont = \tenttit
+\let\DirectiveFont = \tenttsl
+\let\SymbolFont = \tt
+\let\SpecialFont = \tt    % some characters: { } < > _ \ and | are very
+                          % special -- they exist only in tt fonts
+%
+%      registers and constants used in the program
+%
+\newif\if@TempBool            % temporary boolean
+\newread\@InFile              % file read by \Insert macros
+\newcount\@CharCode           % code of current character
+\newcount\@PrevChar           % code of previous charater
+\newcount\@WhereAmI           % one of the following values:
+\chardef\@NothingSpecial = 0
+\chardef\@Text = 1
+\chardef\@Directive = 2       % used only in C
+\chardef\@ShortComment = 3    % C: //... ;    Pascal: (* ... *)
+\chardef\@LongComment = 4     % C: /* ... */; Pascal: { ... }
+%
+%      I need a "not eof" function
+%
+\def\neof#1{%
+  MG\fi
+  \ifeof#1
+    \@TempBoolfalse
+  \else
+    \@TempBooltrue
+  \fi
+  \if@TempBool
+}
+%
+%      macro for changing catcodes of some special characters
+%
+\def\@TurnSpecialCharsOff{%
+  \catcode`\/=12
+  \catcode`\~=12
+  \catcode`\#=12
+  \catcode`\$=12
+  \catcode`\%=12
+  \catcode`\^=12
+  \catcode`\&=12
+  \catcode`\_=12
+  \catcode`\\=12
+  \catcode`\{=12
+  \catcode`\}=12
+  \catcode`\ =12
+  \catcode`\^^M=12
+}
+%
+%      macro that initiates all the variables
+%
+\def\@PrepareCPas{%
+  \begingroup
+  \parindent=0pt
+  \rightskip=0pt plus 1fil
+  \@TurnSpecialCharsOff
+  \def\@Word{}%
+  \@WhereAmI = \@NothingSpecial
+  \@PrevChar = 32
+  \SymbolFont
+}
+%
+%      macro that outputs the char specified as the argument;
+%      characters < > _  \ { | } are written with \SpecialFont
+%
+\def\@WriteChar#1{%
+  \def\@Check##1{%
+    \ifnum `#1=`##1
+      {\SpecialFont #1}%
+      \@TempBooltrue
+    \fi
+  }%
+  \@TempBoolfalse
+  \@Check{<}%
+  \@Check{>}%
+  \@Check{_}%
+  \@Check{\\}%
+  \@Check{\{}%
+  \@Check{\}}%
+  \@Check{|}%
+  \if@TempBool
+  \else
+    \ifnum `#1=13
+      \par\leavevmode
+    \else
+      \ifnum `#1=32
+        \hskip 1ex
+      \else
+        #1%
+      \fi
+    \fi
+  \fi
+}
+%
+%      checks if word #1 is a keyword and writes it out;
+%      #2 is a list of keywords separated with spaces
+%
+\def\@WriteWord#1#2{%
+  \if\@OnListOfKeywords{ #1 }{#2}%
+    {\KeywordFont #1}%
+  \else
+    {\IdentifierFont #1}%
+  \fi
+}
+%
+%      checks if string #2 contains string #1
+%
+\def\@OnListOfKeywords#1#2{%
+  MG\fi
+  \edef\@ExpandedArgument{{#1}}%
+  \expandafter\@@OnListOfKeywords\@ExpandedArgument{#2}\relax
+}
+\def\@@OnListOfKeywords#1#2{%
+  \def\@CheckList##1#1##2\@EndOfList{%
+    \if\@Identical{##2}{}%
+      \@TempBoolfalse
+    \else
+      \@TempBooltrue
+    \fi
+  }%
+  \expandafter\@CheckList#2#1\@EndOfList\relax
+  \if@TempBool
+}
+%
+%      checks if the specified character is a digit or a letter
+%
+\def\@DigitLetter#1{%
+  MG\fi
+  \@TempBoolfalse
+  \ifnum `\` < #1\relax   %   small letter?
+    \ifnum `\{ > #1\relax
+      \@TempBooltrue
+    \fi
+  \fi
+  \ifnum `\@ < #1\relax   %   capital letter?
+    \ifnum `\[ > #1\relax
+      \@TempBooltrue
+    \fi
+  \fi
+  \ifnum `\/ < #1\relax   %   digit?
+    \ifnum `\: > #1\relax
+      \@TempBooltrue
+    \fi
+  \fi
+  \if@TempBool
+}
+
+\endinput

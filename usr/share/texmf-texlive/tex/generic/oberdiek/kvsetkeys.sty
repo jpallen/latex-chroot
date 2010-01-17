@@ -1,0 +1,357 @@
+%%
+%% This is file `kvsetkeys.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% kvsetkeys.dtx  (with options: `package')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2006 by Heiko Oberdiek <oberdiek@uni-freiburg.de>
+%% 
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either
+%% version 1.3 of this license or (at your option) any later
+%% version. The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of
+%% LaTeX version 2005/12/01 or later.
+%% 
+%% This work has the LPPL maintenance status "maintained".
+%% 
+%% This Current Maintainer of this work is Heiko Oberdiek.
+%% 
+%% This work consists of the main source file kvsetkeys.dtx
+%% and the derived files
+%%    kvsetkeys.sty, kvsetkeys.pdf, kvsetkeys.ins, kvsetkeys.drv,
+%%    kvsetkeys-example.tex.
+%% 
+\begingroup
+  \expandafter\let\expandafter\x\csname ver@kvsetkeys.sty\endcsname
+  \ifcase 0%
+    \ifx\x\relax % plain
+    \else
+      \ifx\x\empty % LaTeX
+      \else
+        1%
+      \fi
+    \fi
+  \else
+    \expandafter\ifx\csname PackageInfo\endcsname\relax
+      \def\x#1#2{%
+        \immediate\write-1{Package #1 Info: #2.}%
+      }%
+    \else
+      \def\x#1#2{\PackageInfo{#1}{#2, stopped}}%
+    \fi
+    \x{kvsetkeys}{The package is already loaded}%
+    \endgroup
+    \expandafter\endinput
+  \fi
+\endgroup
+\begingroup
+  \expandafter\ifx\csname ProvidesPackage\endcsname\relax
+    \def\x#1#2#3[#4]{\endgroup
+      \immediate\write-1{Package: #3 #4}%
+      \xdef#1{#4}%
+    }%
+  \else
+    \def\x#1#2[#3]{\endgroup
+      #2[{#3}]%
+      \ifx#1\relax
+        \xdef#1{#3}%
+      \fi
+    }%
+  \fi
+\expandafter\x\csname ver@kvsetkeys.sty\endcsname
+\ProvidesPackage{kvsetkeys}%
+  [2006/10/19 v1.1 Key value parser with default handler support (HO)]
+\expandafter\edef\csname KVS@endinput\endcsname{%
+  \catcode39 \the\catcode39 % '
+  \catcode44 \the\catcode44 % ,
+  \catcode61 \the\catcode61 % =
+  \catcode64 \the\catcode64 % @
+  \catcode94 \the\catcode94 % ^
+  \catcode96 \the\catcode96 % `
+  \catcode126 \the\catcode126 % ~
+  \relax
+  \noexpand\endinput
+}
+\catcode39 12 % '
+\catcode44 12 % ,
+\catcode61 12 % =
+\catcode64 11 % @
+\catcode94 7 % ^
+\catcode96 12 % `
+\catcode126 13 % ~
+\def\KVS@empty{}
+\long\def\@ReturnAfterFi#1\fi{\fi#1}
+\def\kv@normalize#1{%
+  \begingroup
+    \toks@{,#1}%
+    \KVS@comma
+    \KVS@equal
+    \KVS@spaceA
+    \KVS@spaceB{ }%
+    \KVS@spaceC
+    \KVS@spaceD{ }%
+    \xdef\kv@global{\the\toks@}%
+  \endgroup
+  \let\kv@list\kv@global
+}
+\begingroup
+  \lccode`\,=`\,%
+  \lccode`\~=`\,%
+\lowercase{\endgroup
+  \def\KVS@comma{%
+    \toks@\expandafter{\expandafter}\expandafter
+    \KVS@@comma\the\toks@~\KVS@nil
+  }
+  \def\KVS@@comma#1~#2\KVS@nil{%
+    \toks@\expandafter{\the\toks@#1,}%
+    \toks2{#2}%
+    \edef\x{\the\toks2}%
+    \ifx\x\KVS@empty
+    \else
+      \@ReturnAfterFi{%
+        \KVS@@comma#2\KVS@nil
+      }%
+    \fi
+  }%
+}
+\begingroup
+  \lccode`\==`\=%
+  \lccode`\~=`\=%
+\lowercase{\endgroup
+  \def\KVS@equal{%
+    \toks@\expandafter{\expandafter}\expandafter
+    \KVS@@equal\the\toks@~\KVS@nil
+  }
+  \def\KVS@@equal#1~#2\KVS@nil{%
+    \edef\x{\the\toks@}%
+    \ifx\x\KVS@empty
+      \toks@{#1}%
+    \else
+      \toks@\expandafter{\the\toks@=#1}%
+    \fi
+    \toks2{#2}%
+    \edef\x{\the\toks2}%
+    \ifx\x\KVS@empty
+    \else
+      \@ReturnAfterFi{%
+        \KVS@@equal#2\KVS@nil
+      }%
+    \fi
+  }%
+}
+\def\KVS@spaceA{%
+  \toks@\expandafter{\expandafter}\expandafter
+  \KVS@@spaceA\the\toks@= \KVS@nil
+}
+\def\KVS@@spaceA#1= #2\KVS@nil{%
+  \edef\x{\the\toks@}%
+  \ifx\x\KVS@empty
+    \toks@{#1}%
+  \else
+    \toks@\expandafter{\the\toks@=#1}%
+  \fi
+  \toks2{#2}%
+  \edef\x{\the\toks2}%
+  \ifx\x\KVS@empty
+  \else
+    \@ReturnAfterFi{%
+      \KVS@@spaceA#2\KVS@nil
+    }%
+  \fi
+}
+\def\KVS@spaceB#1{%
+  \toks@\expandafter{\expandafter}\expandafter
+  \KVS@@spaceB\the\toks@#1,\KVS@nil
+}
+\def\KVS@@spaceB#1 ,#2\KVS@nil{%
+  \edef\x{\the\toks@}%
+  \ifx\x\KVS@empty
+    \toks@{#1}%
+  \else
+    \toks@\expandafter{\the\toks@,#1}%
+  \fi
+  \toks2{#2}%
+  \edef\x{\the\toks2}%
+  \ifx\x\KVS@empty
+  \else
+    \@ReturnAfterFi{%
+      \KVS@@spaceB#2\KVS@nil
+    }%
+  \fi
+}
+\def\KVS@spaceC{%
+  \toks@\expandafter{\expandafter}\expandafter
+  \KVS@@spaceC\the\toks@, \KVS@nil
+}
+\def\KVS@@spaceC#1, #2\KVS@nil{%
+  \edef\x{\the\toks@}%
+  \ifx\x\KVS@empty
+    \toks@{#1}%
+  \else
+    \toks@\expandafter{\the\toks@,#1}%
+  \fi
+  \toks2{#2}%
+  \edef\x{\the\toks2}%
+  \ifx\x\KVS@empty
+  \else
+    \@ReturnAfterFi{%
+      \KVS@@spaceC#2\KVS@nil
+    }%
+  \fi
+}
+\def\KVS@spaceD#1{%
+  \toks@\expandafter{\expandafter}\expandafter
+  \KVS@@spaceD\the\toks@#1=\KVS@nil
+}
+\def\KVS@@spaceD#1 =#2\KVS@nil{%
+  \edef\x{\the\toks@}%
+  \ifx\x\KVS@empty
+    \toks@{#1}%
+  \else
+    \toks@\expandafter{\the\toks@=#1}%
+  \fi
+  \toks2{#2}%
+  \edef\x{\the\toks2}%
+  \ifx\x\KVS@empty
+  \else
+    \@ReturnAfterFi{%
+      \KVS@@spaceD#2\KVS@nil
+    }%
+  \fi
+}
+\def\kv@parse#1{%
+  \kv@normalize{#1}%
+  \expandafter\kv@parse@normalized\expandafter{\kv@list}%
+}
+\def\kv@parse@normalized#1#2{%
+  \KVS@parse#1,\KVS@nil{#2}%
+}
+\def\KVS@parse#1,#2\KVS@nil#3{%
+  \begingroup
+    \toks@{#1}%
+    \edef\x{\the\toks@}%
+  \expandafter\endgroup
+  \ifx\x\KVS@empty
+  \else
+    \KVS@process#1=\KVS@nil{#3}%
+  \fi
+  \begingroup
+    \toks@{#2}%
+    \edef\x{\the\toks@}%
+  \expandafter\endgroup
+  \ifx\x\KVS@empty
+  \else
+    \@ReturnAfterFi{%
+      \KVS@parse#2\KVS@nil{#3}%
+    }%
+  \fi
+}
+\def\KVS@process#1=#2\KVS@nil#3{%
+  \def\kv@key{#1}%
+  \begingroup
+    \toks@{#2}%
+    \edef\x{\the\toks@}%
+  \expandafter\endgroup
+  \ifx\x\KVS@empty
+    \let\kv@value\relax
+    #3{#1}{}%
+  \else
+    \KVS@@process{#1}#2\KVS@nil{#3}%
+  \fi
+}
+\def\KVS@@process#1#2=\KVS@nil#3{%
+  \begingroup
+    \toks@{#2}%
+    \xdef\KVS@global{\the\toks@}%
+  \endgroup
+  \let\kv@value\KVS@global
+  #3{#1}{#2}%
+}
+\def\kv@processor@default#1#2#3{%
+  \begingroup\expandafter\expandafter\expandafter\endgroup
+  \expandafter\ifx\csname KV@#1@#2\endcsname\relax
+    \begingroup\expandafter\expandafter\expandafter\endgroup
+    \expandafter\ifx\csname KVS@#1@handler\endcsname\relax
+      \kv@error@unknownkey{#1}{#2}%
+    \else
+      \csname KVS@#1@handler\endcsname{#2}{#3}%
+      \relax
+    \fi
+  \else
+    \ifx\kv@value\relax
+      \begingroup\expandafter\expandafter\expandafter\endgroup
+      \expandafter\ifx\csname KV@#1@#2@default\endcsname\relax
+        \kv@error@novalue{#1}{#2}%
+      \else
+        \csname KV@#1@#2@default\endcsname
+        \relax
+      \fi
+    \else
+      \csname KV@#1@#2\endcsname{#3}%
+    \fi
+  \fi
+}
+\def\kv@set@family@handler#1{%
+  \KVS@set@family@handler{#1}\@nil
+}
+\def\KVS@set@family@handler#1\@nil#{%
+  \expandafter\def\csname KVS@#1@handler\endcsname##1##2%
+}
+\expandafter\ifx\csname MessageBreak\endcsname\relax
+  \def\MessageBreak{^^J}%
+\fi
+\expandafter\ifx\csname @ehc\endcsname\relax
+  \def\@ehc{%
+    Try typing \space\string<return\string> %
+    \space to proceed.\MessageBreak
+    If that doesn't work, type \space X %
+    \string<return\string> \space to quit\string.%
+  }%
+\fi
+\def\kv@error@novalue{%
+  \kv@error@generic{No value specified for}%
+}
+\def\kv@error@unknownkey{%
+  \kv@error@generic{Undefined}%
+}
+\def\kv@error@generic#1#2#3{%
+  \begingroup
+    \newlinechar=10 %
+    \def\MessageBreak{^^J}%
+    \expandafter\ifx\csname PackageError\endcsname\relax
+      \edef\x{%
+        \errhelp{%
+          The keyval family of the key `#3' is `#2'.\MessageBreak
+          \MessageBreak
+          \@ehc
+        }%
+      }%
+      \x
+      \errmessage{kvsetkeys: #1 key `#3'}%
+    \else
+      \edef\x{%
+        \noexpand\PackageError{kvsetkeys}{%
+           #1 key `#3'%
+        }{%
+          The keyval family of the key `#3' is `#2'.\MessageBreak
+          \MessageBreak
+          \@ehc
+        }%
+      }%
+      \x
+    \fi
+  \endgroup
+}%
+\def\kvsetkeys#1#2{%
+  \kv@parse{#2}{\kv@processor@default{#1}}%
+}
+\KVS@endinput
+\endinput
+%%
+%% End of file `kvsetkeys.sty'.

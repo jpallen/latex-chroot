@@ -1,0 +1,31 @@
+if unknown gen_sigma : readfrom("gen_sigma") fi
+     
+def dims = 8.5u#,x_height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+     
+def gen_letter =
+  pickup fine.nib;
+  rt x4r=hround(w-.75u); lft x4l-rt x4r=hround -.2[hair,stem];  %vert tangents
+  x5=lft x4l; y5+.5hair=h+oo; z5'l=z5'r=(u,-.2h);               %right tip
+  pos5(hair,angle z5'l+90);
+  pos3(whatever,-90); bot y3r=-oo; x3=.5w; z3'l=z3'r=z5'l xscaled -2;   %bottom
+  z3l+whatever*z3'l=z3r+(stem-currentbreadth)*(dir(angle z3'l-90)); %width=stem
+  filldraw circ_stroke club.e(5,4,3);                           %right stroke
+  y1+.5stem=h+oo; x1-.5stem=hround.75u;                         %left tip
+  z1'=(9u,-h); pos1(stem,angle z1'-90);
+  z2r=z3r; z2l-z3l=(hair-currentbreadth,0);
+  filldraw circ_stroke z1e{z1'}...{down}z2e;                    %left stroke
+enddef;
+     
+cmchar "Lowercase nu";
+beginchar("n",dims);
+this_letter; penlabels(1,2,3,4,5); endchar;
+     
+if boolean barebones: picture savedpicture; endinput; fi
+     
+cmchar "Lowercase sigma followed by nu";
+begindoublechar(oct"016",dim_sigma);
+mid_sigma; middoublechar(dims); this_letter; endchar;
+     
+picture savedpicture;

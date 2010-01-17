@@ -1,0 +1,543 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   bg.sty : A style file to annote backgammon matches and positions  %
+%								      %
+% 		Copyright by J. Richter 1994                          %
+%								      %
+% Distribution and use is free, as long as you don't change this file %
+%								      %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcount\@value
+\newcount\@f
+\newcount\@t
+
+\newcount\@movenumber
+\newfont{\@bigboardfont}{bg scaled 750}
+\newfont{\@normalboardfont}{bg scaled 500}
+\newfont{\@smallboardfont}{bg scaled 250}
+
+\newdimen\@whiteskip
+\@whiteskip=\textwidth
+\divide\@whiteskip by 2
+
+\def\@black{-1}
+\def\@white{1}
+\def\@middle{0}
+
+\newif\ifcube      % only true if the cubevalue should be printed with the boards
+\newif\ifblack     % only true if black is on move
+\newif\ifnumbers   % only true if boardpoints are numbered
+\newif\ifmoves     % only true if \move prints out his arguments
+\newif\ifindent    % only true if the moves of white are indented by \@whiteskip
+\newif\ifptsonmove % only true if points are numbered from the view of the one on move
+\newif\ifbothhalfs   % only true if both halfs of the board are printed
+\newif\ifsecmove     % only true if the move numbers change only every second move
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Some global default settings of the switches %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\boardtype{drawnormalboard}
+\indenttrue
+\numberstrue
+\cubetrue
+\movestrue
+\blacktrue
+\ptsonmovetrue
+\bothhalfstrue
+\secmovetrue
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macros to set and get the value of a point %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\@set[#1](#2){
+	\expandafter\xdef\csname point#1\endcsname{#2}}
+
+\def\@get#1[#2]{
+	\edef#1{\csname point#2\endcsname}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macro to make all points of the board empty %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\@clearboard{
+\@value=0{
+\loop \@set[\the\@value](0) \ifnum\@value<27\advance\@value by 1 \repeat}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macro to set the board to the configuration at the start of the game %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% White plays from 0 to 24 with 0 being the bar of White
+% Black plays from 25 to 1 with 25 being the bar of Black
+
+% a positive value means that White has this number of checkers on the point
+% a negative value means that Black has the negative of this number as 
+%                                          chechers on this point
+
+\def\initboard{
+\@set[0](0) \@set[1](2) \@set[2](0) \@set[3](0) \@set[4](0) \@set[5](0) \@set[6](-5)
+\@set[7](0) \@set[8](-3) \@set[9](0) \@set[10](0) \@set[11](0) \@set[12](5)
+\@set[13](-5) \@set[14](0) \@set[15](0) \@set[16](0) \@set[17](3) \@set[18](0)
+\@set[19](5) \@set[20](0) \@set[21](0) \@set[22](0) \@set[23](0) \@set[24](-2)
+\@set[25](0)
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macros to draw a single point %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\@whitehangingpoint[#1]{
+\@get\@dummy[#1]
+\@value=\@dummy{
+\ifnum\@value=0\vbox{\hbox{k}\hbox{l}\hbox{m}\hbox{n}\hbox{o}}\else
+\ifnum\@value=1\vbox{\hbox{K}\hbox{l}\hbox{m}\hbox{n}\hbox{o}}\else
+\ifnum\@value=2\vbox{\hbox{K}\hbox{L}\hbox{m}\hbox{n}\hbox{o}}\else
+\ifnum\@value=3\vbox{\hbox{K}\hbox{L}\hbox{M}\hbox{n}\hbox{o}}\else
+\ifnum\@value=4\vbox{\hbox{K}\hbox{L}\hbox{M}\hbox{N}\hbox{o}}\else
+\ifnum\@value=5\vbox{\hbox{K}\hbox{L}\hbox{M}\hbox{N}\hbox{O}}\else
+\ifnum\@value>5\advance\@value by 166
+\vbox{\hbox{K}\hbox{L}\hbox{M}\hbox{N}\hbox{\char\the\@value}}\else
+\ifnum\@value=-1\vbox{\hbox{P}\hbox{l}\hbox{m}\hbox{n}\hbox{o}}\else
+\ifnum\@value=-2\vbox{\hbox{P}\hbox{Q}\hbox{m}\hbox{n}\hbox{o}}\else
+\ifnum\@value=-3\vbox{\hbox{P}\hbox{Q}\hbox{R}\hbox{n}\hbox{o}}\else
+\ifnum\@value=-4\vbox{\hbox{P}\hbox{Q}\hbox{R}\hbox{S}\hbox{o}}\else
+\ifnum\@value=-5\vbox{\hbox{P}\hbox{Q}\hbox{R}\hbox{S}\hbox{T}}\else
+\ifnum\@value<-5\multiply\@value by -1\advance\@value by 176
+\vbox{\hbox{P}\hbox{Q}\hbox{R}\hbox{S}\hbox{\char\the\@value}}
+\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi}
+}
+
+\def\@blackhangingpoint[#1]{
+\@get\@dummy[#1]
+\@value=\@dummy{
+\ifnum\@value=0\vbox{\hbox{p}\hbox{q}\hbox{r}\hbox{s}\hbox{t}}\else
+\ifnum\@value=1\vbox{\hbox{U}\hbox{q}\hbox{r}\hbox{s}\hbox{t}}\else
+\ifnum\@value=2\vbox{\hbox{U}\hbox{V}\hbox{r}\hbox{s}\hbox{t}}\else
+\ifnum\@value=3\vbox{\hbox{U}\hbox{V}\hbox{W}\hbox{s}\hbox{t}}\else
+\ifnum\@value=4\vbox{\hbox{U}\hbox{V}\hbox{W}\hbox{X}\hbox{t}}\else
+\ifnum\@value=5\vbox{\hbox{U}\hbox{V}\hbox{W}\hbox{X}\hbox{Y}}\else
+\ifnum\@value>5\advance\@value by 186
+\vbox{\hbox{U}\hbox{V}\hbox{W}\hbox{X}\hbox{\char\the\@value}}\else
+\ifnum\@value=-1\vbox{\hbox{u}\hbox{q}\hbox{r}\hbox{s}\hbox{t}}\else
+\ifnum\@value=-2\vbox{\hbox{u}\hbox{v}\hbox{r}\hbox{s}\hbox{t}}\else
+\ifnum\@value=-3\vbox{\hbox{u}\hbox{v}\hbox{w}\hbox{s}\hbox{t}}\else
+\ifnum\@value=-4\vbox{\hbox{u}\hbox{v}\hbox{w}\hbox{x}\hbox{t}}\else
+\ifnum\@value=-5\vbox{\hbox{u}\hbox{v}\hbox{w}\hbox{x}\hbox{y}}\else
+\ifnum\@value<-5\multiply\@value by -1\advance\@value by 196
+\vbox{\hbox{u}\hbox{v}\hbox{w}\hbox{x}\hbox{\char\the\@value}}
+\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi}
+}
+
+\def\@whitestandingpoint[#1]{
+\@get\@dummy[#1]
+\@value=\@dummy{
+\ifnum\@value=0\vbox{\hbox{e}\hbox{d}\hbox{c}\hbox{b}\hbox{a}}\else
+\ifnum\@value=1\vbox{\hbox{e}\hbox{d}\hbox{c}\hbox{b}\hbox{A}}\else
+\ifnum\@value=2\vbox{\hbox{e}\hbox{d}\hbox{c}\hbox{B}\hbox{A}}\else
+\ifnum\@value=3\vbox{\hbox{e}\hbox{d}\hbox{C}\hbox{B}\hbox{A}}\else
+\ifnum\@value=4\vbox{\hbox{e}\hbox{D}\hbox{C}\hbox{B}\hbox{A}}\else
+\ifnum\@value=5\vbox{\hbox{E}\hbox{D}\hbox{C}\hbox{B}\hbox{A}}\else
+\ifnum\@value>5\advance\@value by 206
+\vbox{\hbox{\char\the\@value}\hbox{D}\hbox{C}\hbox{B}\hbox{A}}\else
+\ifnum\@value=-1\vbox{\hbox{e}\hbox{d}\hbox{c}\hbox{b}\hbox{0}}\else
+\ifnum\@value=-2\vbox{\hbox{e}\hbox{d}\hbox{c}\hbox{1}\hbox{0}}\else
+\ifnum\@value=-3\vbox{\hbox{e}\hbox{d}\hbox{2}\hbox{1}\hbox{0}}\else
+\ifnum\@value=-4\vbox{\hbox{e}\hbox{3}\hbox{2}\hbox{1}\hbox{0}}\else
+\ifnum\@value=-5\vbox{\hbox{4}\hbox{3}\hbox{2}\hbox{1}\hbox{0}}\else
+\ifnum\@value<-5\multiply\@value by -1\advance\@value by 216
+\vbox{\hbox{\char\the\@value}\hbox{3}\hbox{2}\hbox{1}\hbox{0}}
+\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi}
+}
+
+\def\@blackstandingpoint[#1]{
+\@get\@dummy[#1]
+\@value=\@dummy{
+\ifnum\@value=0\vbox{\hbox{j}\hbox{i}\hbox{h}\hbox{g}\hbox{f}}\else
+\ifnum\@value=1\vbox{\hbox{j}\hbox{i}\hbox{h}\hbox{g}\hbox{F}}\else
+\ifnum\@value=2\vbox{\hbox{j}\hbox{i}\hbox{h}\hbox{G}\hbox{F}}\else
+\ifnum\@value=3\vbox{\hbox{j}\hbox{i}\hbox{H}\hbox{G}\hbox{F}}\else
+\ifnum\@value=4\vbox{\hbox{j}\hbox{I}\hbox{H}\hbox{G}\hbox{F}}\else
+\ifnum\@value=5\vbox{\hbox{J}\hbox{I}\hbox{H}\hbox{G}\hbox{F}}\else
+\ifnum\@value>5\advance\@value by 226
+\vbox{\hbox{\char\the\@value}\hbox{I}\hbox{H}\hbox{G}\hbox{F}}\else
+\ifnum\@value=-1\vbox{\hbox{j}\hbox{i}\hbox{h}\hbox{g}\hbox{5}}\else
+\ifnum\@value=-2\vbox{\hbox{j}\hbox{i}\hbox{h}\hbox{6}\hbox{5}}\else
+\ifnum\@value=-3\vbox{\hbox{j}\hbox{i}\hbox{7}\hbox{6}\hbox{5}}\else
+\ifnum\@value=-4\vbox{\hbox{j}\hbox{8}\hbox{7}\hbox{6}\hbox{5}}\else
+\ifnum\@value=-5\vbox{\hbox{9}\hbox{8}\hbox{7}\hbox{6}\hbox{5}}\else
+\ifnum\@value<-5\multiply\@value by -1\advance\@value by 236
+\vbox{\hbox{\char\the\@value}\hbox{8}\hbox{7}\hbox{6}\hbox{5}}
+\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macro to draw the pieces on the bar %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\hangingbar[#1]{
+\@get\@dummy[#1]
+\@value=\@dummy{
+\ifnum\@value=0\vbox{\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{z}}\else
+\ifnum\@value=1\vbox{\hbox{*}\hbox{z}\hbox{z}\hbox{z}\hbox{z}}\else
+\ifnum\@value=2\vbox{\hbox{*}\hbox{*}\hbox{z}\hbox{z}\hbox{z}}\else
+\ifnum\@value=3\vbox{\hbox{*}\hbox{*}\hbox{*}\hbox{z}\hbox{z}}\else
+\ifnum\@value=4\vbox{\hbox{*}\hbox{*}\hbox{*}\hbox{*}\hbox{z}}\else
+\ifnum\@value=5\vbox{\hbox{*}\hbox{*}\hbox{*}\hbox{*}\hbox{*}}\else
+\ifnum\@value>5\advance\@value by 146
+\vbox{\hbox{*}\hbox{*}\hbox{*}\hbox{*}\hbox{\char\the\@value}}\else
+\ifnum\@value=-1\vbox{\hbox{@}\hbox{z}\hbox{z}\hbox{z}\hbox{z}}\else
+\ifnum\@value=-2\vbox{\hbox{@}\hbox{@}\hbox{z}\hbox{z}\hbox{z}}\else
+\ifnum\@value=-3\vbox{\hbox{@}\hbox{@}\hbox{@}\hbox{z}\hbox{z}}\else
+\ifnum\@value=-4\vbox{\hbox{@}\hbox{@}\hbox{@}\hbox{@}\hbox{z}}\else
+\ifnum\@value=-5\vbox{\hbox{@}\hbox{@}\hbox{@}\hbox{@}\hbox{@}}\else
+\ifnum\@value<-5\multiply\@value by -1\advance\@value by 156
+\vbox{\hbox{@}\hbox{@}\hbox{@}\hbox{@}\hbox{\char\the\@value}}
+\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi}
+}
+
+\def\standingbar[#1]{
+\@get\@dummy[#1]
+\@value=\@dummy{
+\ifnum\@value=0\vbox{\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{z}}\else
+\ifnum\@value=1\vbox{\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{*}}\else
+\ifnum\@value=2\vbox{\hbox{z}\hbox{z}\hbox{z}\hbox{*}\hbox{*}}\else
+\ifnum\@value=3\vbox{\hbox{z}\hbox{z}\hbox{*}\hbox{*}\hbox{*}}\else
+\ifnum\@value=4\vbox{\hbox{z}\hbox{*}\hbox{*}\hbox{*}\hbox{*}}\else
+\ifnum\@value=5\vbox{\hbox{*}\hbox{*}\hbox{*}\hbox{*}\hbox{*}}\else
+\ifnum\@value>5\advance\@value by 146
+\vbox{\hbox{\char\the\@value}\hbox{*}\hbox{*}\hbox{*}\hbox{*}}\else
+\ifnum\@value=-1\vbox{\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{@}}\else
+\ifnum\@value=-2\vbox{\hbox{z}\hbox{z}\hbox{z}\hbox{@}\hbox{@}}\else
+\ifnum\@value=-3\vbox{\hbox{z}\hbox{z}\hbox{@}\hbox{@}\hbox{@}}\else
+\ifnum\@value=-4\vbox{\hbox{z}\hbox{@}\hbox{@}\hbox{@}\hbox{@}}\else
+\ifnum\@value=-5\vbox{\hbox{@}\hbox{@}\hbox{@}\hbox{@}\hbox{@}}else
+\ifnum\@value<-5\multiply\@value by -1\advance\@value by 156
+\vbox{\hbox{\char\the\@value}\hbox{@}\hbox{@}\hbox{@}\hbox{@}}
+\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macros to draw some borders %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\@verticalborder{
+\@value=1\vbox{
+\loop \hbox{Z} \ifnum\@value<5\advance\@value by 1 \repeat}
+}
+
+\def\@horizontalborder{
+\ifbothhalfs
+\@value=1\hbox{
+\loop \hbox{-} \ifnum\@value<13\advance\@value by 1 \repeat}
+\else
+\@value=1\hbox{
+\loop \hbox{-} \ifnum\@value<7\advance\@value by 1 \repeat}
+\fi
+}
+
+\def\@middleoftheboard{
+\ifbothhalfs
+\hbox{  \vsize=0.5em
+	\hbox{Z}
+	\@value=1{
+	\loop \hbox{z} \ifnum\@value<6\advance\@value by 1 \repeat}
+	\hbox{ZzZ}
+	\@value=1{
+	\loop \hbox{z} \ifnum\@value<6\advance\@value by 1 \repeat}
+	\hbox{Z}
+}
+\else
+\hbox{  \vsize=0.5em
+	\hbox{Z}
+	\@value=1{
+	\loop \hbox{z} \ifnum\@value<6\advance\@value by 1 \repeat}
+	\hbox{ZzZ}
+}
+\fi
+}
+
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macros to write boards in various sizes %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\@onetotwelfe{\ifptsonmove
+\hbox{\char0\char128\char129\char130\char131\char132\char133\char0z\char0
+\ifbothhalfs
+\char134\char135\char136\char137\char138\char139\fi}
+\else
+\hbox{\char0\char151\char150\char149\char148\char147\char146\char0z\char0
+\ifbothhalfs
+\char145\char144\char143\char142\char141\char140
+\fi}
+\fi
+}
+\def\@twentyfourtothirteen{\ifptsonmove
+\hbox{\char0\char151\char150\char149\char148\char147\char146\char0z\char0
+\ifbothhalfs
+\char145\char144\char143\char142\char141\char140\fi}
+\else
+\hbox{\char0\char128\char129\char130\char131\char132\char133\char0z\char0
+\ifbothhalfs
+\char134\char135\char136\char137\char138\char139
+\fi}
+\fi
+}
+
+\def\@drawcube{
+\ifcube\@value=\cubeowner\relax
+\ifnum\@value=\@black\@value=\@cubevalue
+\advance\@value by 127
+\vbox{\hbox to 1.5em{	\hfill
+			\vbox{	\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{z}
+				\hbox{z}\hbox{z}\hbox{z}\hbox{z}
+				\hbox{-}\hbox{\hbox{Z}\char\the\@value\hbox{Z}}\hbox{-}
+				\hbox{z}}
+			}
+}
+\else\ifnum\@value=\@white\@value=\@cubevalue
+\advance\@value by 127
+\vbox{\hbox to 1.5em{	\hfill
+			\vbox{	\hbox{z}
+				\hbox{-}\hbox{\hbox{Z}\char\the\@value\hbox{Z}}\hbox{-}
+				\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{z}
+				\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{z}}
+			}
+}
+\else\ifnum\@value=\@middle\@value=\@cubevalue
+\advance\@value by 127
+\vbox{\hbox to 1.5em{	\hfill
+			\vbox{	\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{z}
+				\hbox{-}\hbox{\hbox{Z}\char\the\@value\hbox{Z}}\hbox{-}
+				\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{z}\hbox{z}}
+			}
+}
+\fi\fi\fi\fi
+}
+
+\def\@drawboard{
+\offinterlineskip
+\vbox{
+	\ifnumbers\ifblack\@twentyfourtothirteen\else\@onetotwelfe\fi\fi
+	\@horizontalborder
+	\hbox{  \@verticalborder
+		\@blackhangingpoint [24]
+		\@whitehangingpoint [23]
+		\@blackhangingpoint [22]
+		\@whitehangingpoint [21]
+		\@blackhangingpoint [20]
+		\@whitehangingpoint [19]
+		\@verticalborder
+		\hangingbar [0]
+		\@verticalborder
+		\ifbothhalfs
+		\@blackhangingpoint [18]
+		\@whitehangingpoint [17]
+		\@blackhangingpoint [16]
+		\@whitehangingpoint [15]
+		\@blackhangingpoint [14]
+		\@whitehangingpoint [13]
+		\@verticalborder
+		\fi
+	}
+	\@middleoftheboard
+	\hbox{  \@verticalborder
+		\@whitestandingpoint [1]
+		\@blackstandingpoint [2]
+		\@whitestandingpoint [3]
+		\@blackstandingpoint [4]
+		\@whitestandingpoint [5]
+		\@blackstandingpoint [6]
+		\@verticalborder
+		\standingbar [25]
+		\@verticalborder
+		\ifbothhalfs
+		\@whitestandingpoint [7]
+		\@blackstandingpoint [8]
+		\@whitestandingpoint [9]
+		\@blackstandingpoint [10]
+		\@whitestandingpoint [11]
+		\@blackstandingpoint [12]
+		\@verticalborder
+		\fi
+	}
+	\@horizontalborder
+	\ifnumbers\ifblack\@onetotwelfe\else\@twentyfourtothirteen\fi\fi
+}
+\@drawcube
+}
+
+\def\@drawbigboard{
+{\@bigboardfont
+\@drawboard
+}
+}
+
+\def\@drawnormalboard{
+{\@normalboardfont
+\@drawboard
+}
+}
+
+\def\@drawsmallboard{
+{\@smallboardfont
+\@drawboard
+}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macro to move a single checker %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\@movechecker(#1-#2){
+%
+\ifblack
+\xdef\from{#1}\xdef\to{#2}\xdef\@movecolour{\@black}\xdef\@negmovecolour{\@white}
+\else
+\@value=#1\multiply\@value by -1\advance\@value by 25\xdef\from{\the\@value}
+\@value=#2\multiply\@value by -1\advance\@value by 25\xdef\to{\the\@value}
+\xdef\@movecolour{\@white}\xdef\@negmovecolour{\@black}
+\fi
+%
+\@value=\@movecolour\multiply\@value by 25\advance\@value by 25\divide\@value by 2\relax
+\ifnum\@value=\to
+% bearoff %
+\@get\@dummy[\from]\@value=\@dummy\advance\@value by \@negmovecolour\@set[\from](\the\@value)
+\else\@get\@dummy[\to]\@value=\@dummy\multiply\@value by \@movecolour\relax
+\ifnum\@value=-1
+%A checker is hit%
+\gdef\washit{*}
+\@get\@dummy[\from]\@value=\@dummy\advance\@value by \@negmovecolour\@set[\from](\the\@value)
+\@set[\to](\@movecolour)
+\@value=\@movecolour\multiply\@value by 25\advance\@value by 25\divide\@value by 2\xdef\hit{\the\@value}
+\@get\@dummy[\hit]\@value=\@dummy\advance\@value by \@negmovecolour\@set[\hit](\the\@value)
+\else
+%normal move%
+\@get\@dummy[\from]\@value=\@dummy\advance\@value by \@negmovecolour\@set[\from](\the\@value)
+\@get\@dummy[\to]\@value=\@dummy\advance\@value by \@movecolour\@set[\to](\the\@value)
+\fi\fi
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macro to perform all moves contained in a string which    %
+% starts with a , and ends with 69-69,69-69.                %
+% defines \stringofmoves, which contains the formatted move %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\@moveallcheckers#1-#2,#3.{
+\@value=#1
+\ifnum\@value=69 %reached end of the list%
+\else\@f=#1\@t=#2%Delete blanks in #1 and #2 %
+\gdef\washit{}\@movechecker(\the\@f-\the\@t)
+\xdef\@dummy{\stringofmoves}
+\ifnum\@f=25\def\from{bar}\else\def\from{\the\@f}\fi
+\ifnum\@t=0\def\to{off}\else\def\to{\the\@t}\fi
+\edef\stringofmoves{\@dummy\comma\from--\to\washit}\gdef\comma{, }
+\expandafter\@moveallcheckers#3.\fi
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Commands for the position and the game environment %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\blackpoint}[2]{\@value=#1\@set[\the\@value](-#2)}
+\newcommand{\whitepoint}[2]{\@value=#1\advance\@value by -25
+			    \multiply\@value by -1
+			    \@set[\the\@value](#2)}
+\newcommand{\whitebar}[1]{\@set[0](#1)}
+\newcommand{\blackbar}[1]{\@set[25](-#1)}
+\newcommand{\smallboard}{\def\@boardtype{@drawsmallboard}}
+\newcommand{\normalboard}{\def\@boardtype{@drawnormalboard}}
+\newcommand{\bigboard}{\def\@boardtype{@drawbigboard}}
+\newcommand{\boardcaption}[1]{\def\capt{#1}}
+\newcommand{\blackonmove}{\global\blacktrue}
+\newcommand{\whiteonmove}{\global\blackfalse}
+\newcommand{\dontshownumbers}{\global\numbersfalse}
+\newcommand{\shownumbers}{\global\numberstrue}
+\newcommand{\togglenumbers}{\ifptsonmove\global\ptsonmovefalse\else\ptsonmovetrue\fi}
+\newcommand{\dontshowcube}{\global\cubefalse}
+\newcommand{\showcube}{\global\cubetrue}
+\newcommand{\blackcube}[1]{\gdef\cubeowner{\@black}\edef\@cubevalue{#1}}
+\newcommand{\whitecube}[1]{\gdef\cubeowner{\@white}\edef\@cubevalue{#1}}
+\newcommand{\middlecube}[1]{\gdef\cubeowner{\@middle}\edef\@cubevalue{#1}}
+\newcommand{\showmoves}{\global\movestrue}
+\newcommand{\dontshowmoves}{\global\movesfalse}
+\newcommand{\indentwhite}{\global\indenttrue}
+\newcommand{\dontindentwhite}{\global\indentfalse}
+\newcommand{\halfboard}{\global\bothhalfsfalse}
+\newcommand{\fullboard}{\global\bothhalfstrue}
+\newcommand{\halfincr}{\global\secmovetrue}
+\newcommand{\fullincr}{\global\secmovefalse}
+\newcommand{\printboard}{\par\vspace{2em}
+\centerline{\csname \@boardtype \endcsname}\par
+\vspace{0.5em}
+\centerline{\capt}
+\vspace*{1.5em}\par}
+\newcommand{\rawboard}{\mbox{\csname\@boardtype\endcsname}}
+\def\dices(#1#2){\@value=#1\multiply\@value by 10\advance\@value by #2\relax
+\the\@value}
+\newcommand{\move}[2]{\gdef\comma{}\gdef\stringofmoves{}\relax\expandafter\@moveallcheckers#2,69-69,69-69.
+\ifmoves
+\par\ifindent\ifblack\else\hspace*{\@whiteskip}\fi\fi
+\ifsecmove
+\@value=\@movenumber\advance\@value by 1\divide\@value 2
+\else
+\@value=\@movenumber
+\fi
+\the\@value. \ifblack$\bullet$ \else$\circ$ \fi
+\dices(#1)
+: \stringofmoves\par
+\fi
+\ifblack\global\blackfalse\else\blacktrue\fi
+\advance \@movenumber by 1}
+\newcommand{\textmove}[1]{\ifmoves
+\par\ifblack\else\ifindent\hspace*{\@whiteskip}\fi\fi
+\ifsecmove
+\@value=\@movenumber\advance\@value by 1\divide\@value 2
+\else
+\@value=\@movenumber
+\fi
+\the\@value. \ifblack$\bullet$ \else$\circ$ \fi#1\par
+\fi
+\ifblack\global\blackfalse\else\blacktrue\fi
+\advance \@movenumber by 1}
+\newcommand{\takecube}{\ifblack\gdef\cubeowner{\@white}\else\gdef\cubeowner{\@black}\fi
+\@value=\@cubevalue\multiply\@value by 2\edef\@cubevalue{\the\@value}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The position environment to produce a single board %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newenvironment{position}%
+{\@clearboard
+\gdef\capt{}
+\gdef\cubeowner{\@middle}
+\gdef\@cubevalue{1}
+}%
+{\printboard}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The game environment to annotate matches %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newenvironment{game}[2]%
+{\initboard
+\gdef\capt{}
+\global\blacktrue
+\gdef\cubeowner{\@middle}
+\gdef\@cubevalue{1}
+\global\@movenumber=1
+\ifx\@empty#1\else\ifx\@empty#2\else
+\ifindent
+\par\hbox{\large\hbox to \@whiteskip{$\bullet$ #1\hfill}\hbox{$\circ$ #2}}\par
+\else
+\par\vbox{\large\hbox{$\bullet$ #1\hfill}\hbox{$\circ$ #2}}\par
+\fi
+\vspace*{4ex}
+\fi\fi
+}%
+{}

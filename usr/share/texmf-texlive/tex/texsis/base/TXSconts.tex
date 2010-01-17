@@ -1,0 +1,180 @@
+%% file: TXSconts.tex - Table of Contents - TeXsis version 2.18
+%% $Id: TXSconts.tex,v 18.0 1999/07/09 17:26:11 myers Exp $
+%======================================================================*
+%
+%   These macros are an easy way to make a table of contents.
+% An entry in the table of contents is created with \addTOC like so:
+%
+%       \addTOC{level}{title-text}{page}
+%
+% The level is a number 0, 1, 2, etc for chapters, sections or
+% subsections and is used to control the indentation of the entry.
+% The page number should probably be {\folio}, so that it comes out
+% correctly, but you can use anything else you like.
+% 
+% \addTOC writes the table of contents information to a file called
+% \jobname.toc. At the end of the job you simply say \Contents to read
+% in this information and actually create the table of contents.
+% \Contents does not print any heading or change the page numbering --
+% you must take care of that yourself.
+%
+% If you include \TOCcID{chapter-id} in the title-text then the 
+% chapter-id will or will not be printed in the title depending on
+% whether you have set \showchaptIDtrue or \showchaptIDfalse at the
+% time you say \Contents.  Similarly, \TOCsID{section-id} displays the
+% section-id if \showsectIDtrue.  For example, if you say 
+%
+%       \addTOC{1}{\TOCsID{3.14}Section of $\pi$}{\folio}
+%
+% then the section number 3.14 will or will not be displayed when
+% \Contents is invoked, depending on \ifshowsectID.
+%
+% You can write anything you want to the table of contents file by
+% saying \TOCwrite{stuff}.  Use this to insert formatting information
+% or headings.
+%
+% Note that no table of contents information is written if \Contentsfalse
+% is set.  This is the default in TeXsis for most document formats
+% except \book and \thesis,  so you should explicitly say \Contentstrue
+% to get a table of contents.  If this file is \input separately then
+% \Contentstrue is already set.  
+%
+% This file is a part of TeXsis, but may be used by itself with Plain TeX.
+% (In that case \TOCcID and \TOCsID always show their arguments.)
+%
+% This file is a part of TeXsis.
+% (C) copyright 1991, 1994, 1997 by Eric Myers and Frank Paige.
+%----------------------------------------------------------------------*
+\message{Table of Contents.}
+\catcode`@=11
+
+% I/O and switches, etc:
+
+\newwrite\TOCout                        % table of contents temp file
+\newskip\TOCmargin \TOCmargin=3cm       % right margin indent for TOC
+
+\newif\ifContents                       % do we write out to table of contents?
+\Contentstrue                           % default is true if loaded by itself
+
+\def\ContentsSwitchtrue{\Contentstrue}  % \@obsolete in 2.18
+\def\ContentsSwitchfalse{\Contentsfalse}% \@obsolete in 2.18
+
+%---------------------------*
+% Initialization:  open the output file
+
+\def\TOCinit{%  open and initialize Table of Contents file
+ \ifContents                                    % is switch on?
+  \immediate\openout\TOCout=\jobname.toc        % yes: then open file
+  \immediate\write\TOCout{\@comment Table of Contents for job `\jobname'
+                                        -- Created at \runtime}%
+  \immediate\write\TOCout{\@comment ====================================}%
+  \gdef\TOCinit{\relax}%                        % initialize only once!
+ \fi}
+
+% \TOCwrite lets you write to the Table of Contents file
+
+\def\TOCwrite#1{\TOCinit\ifContents\write\TOCout{#1}\fi}
+
+%---------------------------*
+% \addTOC#1#2#3 adds a chapter, section, etc. to the table of contents,
+% by writing the arguments to the .toc file in just the way \TOCitem
+% wants to read them.  The arguments are:
+%       #1 = 0 for chapter, 1 for section, 2 for subsection
+%       #2 = title text
+%       #3 = page number
+
+\def\addTOC#1#2#3{% add entry to Table of Contents
+   \ifContents                                  % only if enabled
+     \TOCinit                                   % make sure file is open
+     \write\TOCout{\string\TOCitem{#1}}%        % type of entry
+     \edef\@line@{{{#2}}}%                      % expand title text
+     \write\TOCout\@line@                       % write title text to file
+     \write\TOCout{{#3}\@comment}%              % write page number to file
+   \fi}   
+
+% \TOCcID and \TOCsID just give their names as a \string, so they
+% can be written to the file.  They are re-defined to their active
+% forms later by \Contents.
+
+\def\TOCcID{\string\TOCcID}\def\TOCsID{\string\TOCsID}% 
+
+%---------------------------*
+% \TOCitem processes a Table of Contents entry. The arguments are the
+% same as for \addTOC.  
+
+\def\TOCitem#1#2#3{%          process a Table of Contents item
+   \ifcase#1\bigskip                            % \bigskip for chapters,
+     \or\medskip                                % \medskip for sections
+     \or\smallskip\fi                           % \smallskip for subsections
+   \begingroup                                  %
+     \advance\leftskip by #1\parindent          % indent sub-items
+     \raggedright\tolerance=1700                % don't justify
+     \advance\rightskip by \TOCmargin           % right margin comes in, but
+     \parfillskip=-\TOCmargin                   % page number at edge of page
+     \hangindent=1.41\parindent\hangafter=1     % hanging indentation
+     \noindent #2\hskip 0pt plus 10pt           % the text
+     \leaddots                                  % leaders to edge
+     \hbox to 2em{\hss\linkto{page.#3}{#3}}%    % the page number
+     \vskip 0pt                                 % end paragraph
+   \endgroup                                    %
+   }
+
+% Leaders for dots:
+
+\def\leaddots{\leaders\hbox to 10pt{\hss.\hss}\hfill}
+
+%---------------------------*
+% \Contents just reads and prints the table of contents file.
+% \label is disabled since it is not really part of the title. 
+
+\def\Contents{%  print out table of contents
+   \immediate\closeout\TOCout                   % close the .toc file!
+   \immediate\openin\TOCout=\jobname.toc        % now open it to read
+   \ifeof\TOCout\closein\TOCout                 % if EOF just close it
+     \emsg{> \string\Contents: no Table of Contents file \jobname.toc.}%
+   \else\immediate\closein\TOCout               % else close it and read in
+     \begingroup                                % make this local
+       \def\label##1{}\relax                    % disable \label in .toc file
+       \catcode`@=11\catcode`"=12               % no fancy active characters
+       \catcode`(=12\catcode`)=12               % no active ( or )
+       \catcode`[=12\catcode`]=12               % no active [ or ]
+       \def\TOCcID##1{\ifshowchaptID{##1} \fi}% % activate \TOCcID
+       \def\TOCsID##1{\ifshowsectID{##1} \fi}%  % activate \TOCsID
+       \ContentsFormat                          % customize layout
+       \noindent                                % supress any \par indent
+       \input \jobname.toc \relax               % read in the contents file
+     \endgroup                                  %
+   \fi}
+
+\let\contents=\Contents                         % synonym (since 2.14)
+
+% \ContentsFormat is done before the table of contents and lets
+% you customize the way the table is displayed. For example
+% you could say  \def\mib{}\def\n{} to turn off \mib and line breaks. 
+
+\def\ContentsFormat{\relax}             % default does nothing
+
+%---------------------------*
+% Plain TeX compatability:  you can use these macros with Plain TeX
+% simply by saying '\input TXSconts.tex ', but to do so we need to
+% make sure that the following macros from other parts of TeXsis are
+% defined or faked:
+
+\ifx\emsg\undefined             % if \emsg is undefined this is not TeXsis
+   \def\emsg#1{\immediate\write16{#1}}%  simple version of \emsg
+   {\catcode`\%=11 \gdef\@comment{% }}%  \@comment for writing '% ' to file 
+   \def\ifshowchaptID#1\fi{#1}\def\ifshowsectID#1\fi{#1}%
+   \def\runtime{\the\year/\the\month/\the\day\space\the\time}%
+   \def\linkto#1#2{\relax}%
+\fi
+
+%======================================================================*
+%                 (OLD TEXSIS 2.13 -- to be removed!)
+%  \addsectioncont#1#2#3 adds section number #1, with title #2, and
+%  level #3 (0 for chapter, 1 for section, 2 for subsection) to the
+%  table of contents page.  This is obsolete and replaced by \addTOC
+
+\def\addsectioncont#1#2#3{\@obsolete\addsectioncont\addTOC  
+  \addTOC{#1}{#2}{#3}}
+
+%>>> EOF TXSconts.tex <<<

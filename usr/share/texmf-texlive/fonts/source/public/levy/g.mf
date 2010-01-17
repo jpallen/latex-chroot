@@ -1,0 +1,36 @@
+if unknown gen_sigma : readfrom("gen_sigma") fi
+
+def dims = 10u#,x_height#,desc_depth# enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+
+def gen_letter=
+  pickup fine.nib;
+  begingroup
+    save t; t:=superness; save superness; superness:=.95t;
+    pos2(curve,90); top y2r=h+oo;			%top of left branch
+    pos1(hair,180); bot y1=top y2r-4/3curve;		%tip of hook
+    lft x1r=hround .5u; x2-x1=y2-y1;			%central arc is round
+    pos3(hair,0); pos4(hair,-180); rt x3r-lft x4r=stem; %bottom of cusp
+    y4=y3; .5[x3,x4]=.5w; if monowidth: y3=0 else: y3-.5stem=vround(-.8d) fi;
+    pos5(curve,-270); top y5r=h+oo; x5+.5curve=hround(w-.75u); %right branch
+    pos5'(curve,0); z5'=z5;
+    filldraw stroke z1e{up}...z2e{right}; drawloop(2,3,4,5);	%hook and cusp	
+    filldraw z5l{right}...z5'r{up}...z5r{left}--cycle;	%right branch
+    if monowidth:					%complete stem
+      x3'=x3r; x4'=x4r; y3'=y4'; y3'-.5stem=vround(-.8d);
+      filldraw z3r--z3'{down}...{up}z4'--z4r--cycle; fi
+  endgroup;
+enddef;
+
+cmchar "Lowercase gamma";
+beginchar("g",dims);
+this_letter; penlabels(1,2,3,3',4,4',5); endchar;
+
+if boolean barebones: picture savedpicture; endinput; fi
+
+cmchar "Lowercase sigma followed by gamma";
+begindoublechar(oct"007",dim_sigma);
+mid_sigma; middoublechar(dims); this_letter; endchar;
+
+picture savedpicture;

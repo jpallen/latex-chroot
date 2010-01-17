@@ -1,0 +1,98 @@
+% This is MEX2.TEX - a part of the Polish plain TeX and LaTeX formats.
+% Version 1.05,  18 December 1993
+%
+% Authors: Marek Ry\'cko & Bogus\l{}aw Jackowski
+%
+% This macro file belongs to the public domain
+% under the conditions specified by the author of TeX:
+%
+%   ``Macro files like PLAIN.TEX should not be changed in any way,
+%     except with respect to preloaded fonts,
+%     unless the changes are authorized by the authors of the macros.''
+%
+%                                           Donald E. Knuth
+%
+% For details see MEXINFO.ENG or MEXINFO.POL.
+
+\n@wlanguages
+
+\message{redefinitions of plain rules,}
+
+% Polish \dospecials sometimes must \do something also with active /
+\let\plaindospecials\dospecials % save the original meaning
+\expandafter\def\expandafter\dospecials\expandafter
+{\dospecials \ifx\pr@fix T\do\/\fi}
+% see also the redefinition of \@sanitize in LaMeX
+
+% The definition of \=
+% If you type
+%    `niebiesko\=czerwony'
+% to the input file then it will be hyphenated
+%    niebiesko-
+%    -czerwony
+% instead of:
+%    niebiesko-
+%    czerwony
+% The possibility of hyphenating both `niebiesko' and `czerwony' is retained.
+\exhyphenpenalty=10000 % breaking after explicit hyphen disabled
+\let\macron\=
+\def\={\kern0sp\discretionary{-}{-}{-}\penalty10000\hskip0sp\relax}
+% \kern0sp allows for the hyphenation of a word to the left of \=
+% \hskip0sp starts a new potentialy hyphenatable word
+% \penalty10000 disables line breaking at the glue.
+% (See The TeXbook, p. 454)
+% \penalty10000 is used instead of \nobreak deliberately because
+% \nobreak expands to \penalty\@MM and may cause troubles when written
+% in the expanded version to a file which is read while \catcode`@=12.
+% Please note that \= will work independently of the current value
+% of \hyphenchar. Always the character `-' is used. In particular, when
+% \hyphenchar does not lay between 0 and 255 breaking at \= is still allowed.
+
+% logos:
+\def\f@sl{\fontdimen1\the\font}% font slant
+% MeX
+\def\nM@X{M\kern-.111em\lower.6ex\hbox{E}\kern-.075emX}
+% to be used with slanted typefaces:
+\def\sM@X{M\kern-.25em\lower.6ex\hbox{E}\kern-.075emX}
+% general macro:
+\def\MeX{\ifnum\f@sl=0 \nM@X \else \sM@X \fi}
+
+% slightly different Polish mathematical customs
+% (write \arc\tg to obtain `arc tg' (with a tiny space))
+\def\arc#1{\mathop{\rm arc\,\escapechar-1 \string#1}\nolimits}
+
+\def\tg{\mathop{\rm tg}\nolimits}
+\def\tgh{\mathop{\rm tgh}\nolimits}
+\def\ctg{\mathop{\rm ctg}\nolimits}
+\def\ctgh{\mathop{\rm ctgh}\nolimits}
+
+% different shapes of less-or-equal and greater-or-equal:
+% in new positions in the font PLSY10 (family 2)
+\mathchardef\xleq="32AC \let\xle=\xleq
+\mathchardef\xgeq="32AD \let\xge=\xgeq
+
+% ``transparent'' space factor of the French closing quote:
+\sfcode`\>=\z@% 0
+% but NOT: \sfcode"\P@lqq>>=\z@% (following PLAIN TeX conventions)
+
+% Emulate the original plain and LaTeX formats using PL fonts:
+\def\emulateplain
+    {%
+    \exhyphenpenalty50
+    \let\=\macron
+    \let\slash\normalslash
+    \language\english
+    \nonfrenchspacing
+    \nonprefixing
+    }
+
+\message{defaults,}
+% (see the configuration file `MEXCONF.TEX'):
+
+\d@faultspacing
+\layout{\d@faultlayout} % defines also the meaning of `\polish'
+\language\d@faultlanguage
+\d@faultprefixing
+
+\endinput
+

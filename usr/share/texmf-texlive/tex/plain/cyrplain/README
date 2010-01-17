@@ -1,0 +1,86 @@
+This directory contains files which can be used to make rusified
+Plain TeX and other Plain TeX based formats, such as AMS-TeX, Texinfo
+or BLUe TeX, using cyrillic fonts in LCY encoding (which is an 8-bit
+extension of OT1 similar to cp866) or T2A encoding.
+
+The file `plainenc.tex' provides a preliminary support of
+inputenc/fontenc mechanisms for Plain TeX. It uses the standard
+*unmodified* LaTeX files: inputenc.sty, font encoding definition files
+(such as lcyenc.def), and input encoding definition files (koi8-r.def,
+cp866.def, etc), so that your documents may be in any input encoding
+supported by the `cyrillic' bundle of LaTeX.
+
+The files `example4.tex' and `example2.tex' contain examples of using
+different input encodings in Plain TeX.  See also a file example3.tex
+which shows another way to process Plain TeX files---using the `plain'
+package for LaTeX.
+
+To install russian support for Plain TeX, AMS-TeX, Texinfo or BLUe
+TeX, please do the following steps:
+
+1) To setup hyphenation, you will need russian hyphenation patterns
+and a file `hyphen.cfg' (either from BABEL or created manually). It is
+recommended to use russian hyphenation patterns contained in the
+`ruhyphen' package (see the README in the parent directory for more
+information). There you will find also documentation on installation
+and usage of patterns. Note, that for all Plain TeX-based formats it
+is recommended to use "combined" Russian-English patterns as a single
+language to avoid necessity to use language switching commands like
+\Russian and \English (you may use a sample "language.dat" from the
+ruhyphen package when creating format files).
+
+2) If you want to be able to use input encodings other than cp866, you
+should install the T2 package first. Then edit the file `cyrtex.cfg',
+and choose the default input encoding of your documents in the line
+"\def\definpenc{koi8-r}". In this case you must install BABEL, because
+we use some files from BABEL (e.g., plain.def, hyphen.cfg).
+
+Otherwise (if you will process only documents in cp866 encoding),
+change "\iftrue" to "\iffalse" in `cyrtex.cfg' (or put cp866 in the
+definition of \definpenc).
+
+Note that we use here the file `lcydefs.tex' which is part of the
+`cyrillic' bundle for LaTeX2e (CTAN:macros/latex/required/cyrillic).
+Note that this file should be generated as explained in `00readme.txt'
+from the `cyrillic' bundle.
+
+3) By default, we use LH fonts. You could change this to any other
+LCY- or T2A-encoded font set (e.g. to use Type1 virtual fonts like
+`C1 fonts package'), by redefining the command `\fontprefix' in
+cyrtex.cfg.
+
+We support LCY and T2A font encodings (see cyrtex.cfg). If you use
+T2A encoding, you should get EXMI fonts from CTAN:macros/ec-plain/*.mf
+and define \miprefix to `ex' in cyrtex.cfg.
+
+4) Edit the file `makefmts.sh' or `makefmts.bat' (depending on your
+platform), and (optionally) remove or comment out the lines which call
+INITEX for formats which you do not want to install.
+
+Then run the script/batch file `makefmts.sh' or `makefmts.bat'. This will
+create TeX format files: `cyrtex.fmt', `cyramstex.fmt', `cyrtexinfo.fmt'
+and `cyrblue.fmt' (maybe not all of them if you commented some lines
+in makefmts script). In case of `makefmts.bat', we use short DOSish
+filenames `cyramstx.fmt', `cyrtxinf.fmt' instead of `cyramstex.fmt',
+`cyrtexinfo.fmt'.  You can rename them to long names if your OS
+supports them. ;-) Finally, install the format files as usual (maybe
+creating symlinks or scripts/batch files which call TeX with these
+formats).
+
+Note: if you are using `amsppt' with AMS-TeX, you should also patch
+the file `amsppt.sty', changing some hard-coded CM fonts to the
+corresponding cyrillic fonts. The patch `amsppt.diff' is in the `etc'
+directory of the T2 package [if you do not have a `patch' utility, you
+may do the changes manually].
+
+Please, use plain.tex version 3.1415926 or above.
+
+To make your documents encoding independent, you can use macros like
+`\inputencoding{koi8-r}' in your documents (you can even use several
+input encodings in one document, --- see the file `example4.tex' in
+the directory `../examples').
+
+Please report bugs via email addresses given in the file README in
+the parent directory.
+
+Happy TeXing!

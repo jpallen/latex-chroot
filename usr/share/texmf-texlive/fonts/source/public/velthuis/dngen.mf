@@ -1,0 +1,90 @@
+%
+%    dngen.mf  Devanagari of arbitrary point size, thickness, slant,
+%              and alternate characters
+%
+%    Author     : Kevin Carmody <i@kevincarmody.com>
+%    Maintainer : Anshuman Pandey <apandey@u.washington.edu>
+%    Date       : 8 April 2004
+%
+%    This file is intended for use with arbitrary parameters passed
+%    to it.  You must always pass the following statement:
+%       input dninit;
+%    After this statement, you may pass any of the following
+%    parameters:
+%
+%    Parameter        Type      Default       Affects                     Example
+%
+%    font_size        Numeric   10pt#         Point size                  font_size := 24pt#;
+%    altfont          Boolean   false         Use of all alternate chars  altfont := true;
+%    bombayfont       Boolean   false         Use of Bombay style chars   bombayfont := true;
+%    calcuttafont     Boolean   false         Use of Calcutta style chars calcuttafont := true;
+%    nepalifont       Boolean   false         Use of Nepali style chars   nepalifont := true;
+%    boldfont         Boolean   false         Use of bold attributes      boldfont := true;
+%    italicfont       Boolean   false         Use of italic attributes    italicfont := true;
+%
+%    The above parameters set values of the ones below.  You may
+%    independently set the parameters below to further customize the
+%    font.
+%
+%    alta             Boolean   false         Use of alternate a          alta := true;
+%    altri            Boolean   false         Use of alternate .r and .R  altri := true;
+%    altli            Boolean   false         Use of alternate .l and .L  altli := true;
+%    altcha           Boolean   false         Use of alternate cha        altcha := true;
+%    altna            Boolean   false         Use of alternate .na        altna := true;
+%    altjha           Boolean   false         Use of alternate jha        altjha := true;
+%    altla            Boolean   false         Use of alternate la         altla := true;
+%    altsha           Boolean   false         Use of alternate "sa        altsha := true;
+%    altksa           Boolean   false         Use of alternate k.sa       altksa := true;
+%    altjna           Boolean   false         Use of alternate j~na       altjna := true;
+%    altone           Boolean   false         Use of alternate 1          altone := true;
+%    altfive          Boolean   false         Use of alternate 5          altfive := true;
+%    alteight         Boolean   false         Use of alternate 8          alteight := true;
+%    altnine          Boolean   false         Use of alternate 9          altnine := true;
+%    nepalijha        Boolean   false         Use of Nepali jha           nepalijha := true;
+%
+%    thickfactor      Numeric   1             Thickest stroke             thickfactor := 1.2;
+%    thinfactor       Numeric   1             Thinnest stroke             thinfactor := 2.0;
+%    subthickfactor   Numeric   1             Subscript thickness         subthickfactor := 1.2;
+%    slantratio       Numeric   0             Slantedness                 slantratio := 1/4;
+%    font_identifier  String    (calculated)  Internal font name          font_identifier := "DVSP16";
+%
+%    The font_size parameter is the size of the font.  You must use a
+%    unit followed by a #.  Units include:
+%       pt#   point         72.27pt# = 1in#
+%       pc#   pica          1pc# = 12pt#
+%       in#   inch          1in# = 2.54cm#
+%       mm#   millimeter    10mm# = 1cm#
+%       cm#   centimeter    1cm# = 1/2.54in#
+%       dd#   didot point   1157dd# = 1238pt#
+%       cc#   cicero        1cc# = 12dd#
+%    Font size is also a factor in determining stroke size.  See
+%    below.
+%
+%    Stroke thickness varies between thick and thin settings.  The
+%    thick setting is the product of the default thickness, font size,
+%    and the thickfactor parameter.  The thin setting is the product
+%    of the default thinness and the thinfactor parameter.  The
+%    subscript thickness is used instead of thickness in subscripts.
+%    It is a product of the default subscript thickness, font size,
+%    and the subthickfactor parameter.
+%
+%    The slantratio parameter is the ratio of the horizontal
+%    adjustment to the vertical height.  In trigonometrical terms,
+%    this ratio is the tangent of the slant angle, which starts at the
+%    vertical and runs clockwise.
+%
+%    The font identifier is used internally and is not a file name.
+%    The default font identifier is composed of three components:
+%    root, suffix, and size.  The root is DVNG, if bombayfont is
+%    true, the root is DVNB, if calcuttafont is true it is DVNC.
+%    if you specify any of the lower group of parameters, the root 
+%    is DVNX.  The suffix
+%    is B for bold font, I for italic font, BI for bold italic, and
+%    empty otherwise.  The size is the font size rounded to the
+%    nearest integer.
+%
+%    See dndefs.mf for more information.
+%
+
+input dndefs;
+input dnchars;

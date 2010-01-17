@@ -1,0 +1,102 @@
+%% file: IEEE.txs  (TeXsis version 2.17)
+%  $Revision: 17.2 $  :  $Date: 1996/12/16 04:47:47 $  :  $Author: myers $
+%======================================================================*
+%  IEEE -- TeXsis style file for IEEE conference proceedings
+%
+% Special thanks to T.C. Pierce <es051@eng.warwick.ac.uk> of the
+% Engineering Department, University of Warwick, for improvements.
+% 
+\ATunlock
+\emsg{\@comment\ IEEE conference proceedings layouts}
+
+
+% Parameters and macros common to all IEEE documents:
+
+\def\Eq#1{(\use{Eq.#1})}%               % equation are just (number)
+
+\bigskipamount=0.3cm plus 4pt minus 4pt
+\showsectIDfalse
+\quoteon
+\superrefsfalse
+
+\def\@refitem#1#2#3{\message{[#1]}      % #3 looks past ^^M for next arg
+   \refskip\noindent\hskip-\refindent   % indent, but write number
+   \hbox to \refindent {\hss \linkname{Ref.#1}{[#1]}\quad} % unindented
+   #3}
+
+%--------------------------------------------------*
+% IEEE Proceedings Layout:
+%
+\def\IEEEproceedings{% IEEE proceedings format
+   \auxswitchtrue                       % save tags and labels in .aux file
+   \refswitchtrue                       % save references in .ref file
+   \texsis                              % Initialize TeXsis
+   \hsize=9.5in \vsize=12.875in		% IEEE page size
+   \SetDoubleColumns{4.625in}%		% IEEE column size
+   \def\Tbf{\fourteenpoint\bf}%         % 14pt bold title
+   \def\tbf{\twelvepoint\bf}%           % 12pt bold section head
+   \let\titlepage=\@IEEEtp              % new \titlepage macro
+   \let\endtitlepage=\@IEEEetp          % new \endtitlepage macro
+   \let\abstract=\@IEEEabs              % new \abstract macro
+   \twelvepoint                         % roughly Elite type
+   \autoparens                          % auto-sizing of parens
+   \quoteon                             % automatic begin/end quotes
+   \nopagenumbers                       % don't print page numbers
+   \singlespaced\whitespaced            % 1.25 percent spacing
+}
+
+\def\@IEEEtp{%  \titlepage for IEEE layouts
+   \bgroup                              % begin titlepage group
+   \let\endmode=\relax                  % \endmode will end a field
+   \pageno=1}                           % start on page 1
+
+\def\@IEEEetp{% \endtitlepage for IEEE layouts
+   \endmode                             % end any open field
+   \egroup                              % end titlepage group
+   \doublecolumns			% go to double column mode for paper
+   \bigskip\bigskip}                    % don't skip page
+
+\def\@IEEEabs{% \abstract for IEEE layouts
+   \endmode                             % end previous field
+   \bgroup                              %
+      \vskip\baselineskip               % one blank line
+      \centerline{ABSTRACT}%            % "ABSTRACT", centered
+      \vskip\baselineskip               % another blank line
+      \leftskip=1in\rightskip=1in       % narrower abstract
+      \let\endmode=\endabstract         % to end \abstract
+      \noindent}                        % do not indent abstract
+                                        %
+
+%       \IEEEreduced makes an IEEE document 75% full size in 9pt type
+% for 8.5in x 11in paper:
+
+\def\IEEEreduced{% IEEE document reduced 75% of full size
+   \auxswitchtrue                       % save tags and labels in .aux file
+   \refswitchtrue                       % save references in .ref file
+   \def\Tbf{\fourteenpoint\bf}%         % 14pt bold title
+   \def\tbf{\ninepoint\bf}%             % 9pt bold section head
+   \RomanTablestrue                     % roman numeral table numbers
+   \texsis                              % Initialize TeXsis
+   \sectionskip=0.4cm plus 1pt minus 1pt % Adjust section skips
+   \subsectionskip=0.3cm plus 1pt minus 1pt
+   \sectionminspace=0.1\vsize           %
+   \parindent=0.2cm
+   \def\refskip{\vskip 0pt}%            % no skip between references
+   \hsize=7.125in \vsize=22.9cm		% 75% size
+   \SetDoubleColumns{3.46875in}% 	% 75% size
+   \advance\hoffset by -.3325in         % for above size
+   \advance\voffset by -.318125in       % for above size
+   \let\titlepage=\@IEEEtp              % new \titlepage macro
+   \let\endtitlepage=\@IEEEetp          % new \endtitlepage macro
+   \let\abstract=\@IEEEabs              % new \abstract macro
+   \tenpoint                            %
+   \nopagenumbers                       %
+   \autoparens                          % auto-sizing of parens
+   \quoteon                             % automatic begin/end quotes
+%   \singlespaced                        % normal spacing
+   }
+
+
+\ATlock
+
+%>>> EOF IEEE.txs <<<

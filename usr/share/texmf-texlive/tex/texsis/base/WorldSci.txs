@@ -1,0 +1,104 @@
+%% file: WorldSci.txs  (TeXsis version 2.16)
+%  $Revision: 16.0 $  :  $Date: 1994/05/12 19:47:25 $  :  $Author: myers $
+%======================================================================*
+%  WorldSci -- TeXsis style file for World-Scientific Publishers
+%
+% Thanks to Vladimir Alexiev <vladimir@cs.ualberta.ca> at the University
+% of Alberta for suggesting many improvements.  This fixes WorldSci.txs
+% to conform more closely to current publisher's guidelines.  (3 May 1994)
+\ATunlock
+\emsg{\@comment\ WorldSci: World-Scientific proceedings layouts}
+
+%--------------------------------------------------*
+%       \WorldScientific  conforms to the layout instructions given by 
+% World Scientific Publishing Co., but see their instructions for futher 
+% details.  One thing to keep in mind, they prefer headings of major 
+% sections in CAPITAL LETTERS.
+
+\def\WorldScientific{%  Document layout for World Scientific Proceedings
+   \hsize=150mm                         % horizontal page size
+   \vsize=220mm                         % vertical page size
+   \paper                               % everything is like \paper, except...
+   \showchaptIDfalse\showsectIDfalse    % consecutively number equations
+   \nopagenumbers                       % turn off page numbering
+% Title is 14 pt bold centered
+   \def\Tbf{\fourteenpoint\bf}%         % title is 14pt bold
+   \def\Title{%                         % World Sci title
+      \endmode                          % end any previous field
+      \vbox{\vskip1cm}%                 % skip down 1cm
+      \bgroup                           % open \title group
+      \let\endmode=\endTitle            % will end \title
+      \center\Tbf}%                     % centered, title boldface
+   \let\title=\Title                    % synonym
+   \let\@@endTitle=\endTitle            % save it
+   \def\endTitle{\@@endTitle            % old stuff
+      \vskip-\bigskipamount             % but with less skip
+      \vskip\medskipamount}%            %
+% Author is 12 pt bold centered, but address is 10 pt italic
+   \let\@getauthor=\@getauthWS          %
+% Abstract is indented, 10 pt
+   \def\abstract{%                      % for \WorldScientific
+      \endmode                          % end previous field
+      \bgroup                           % begin abstract group
+         \let\endmode=\endabstract      %
+         \singlespaced\whitespaced%     %
+         \leftskip=1.5cm\rightskip=1.5cm%
+         \vskip\baselineskip            %
+         \centerline{ABSTRACT}%         %
+         \smallskip%                    %
+         \tenpoint}%                    %
+% Captions should be 10 pt
+   \let\@ldcaption=\caption             % save it
+   \def\caption##1{%                    % and redefine
+      \tenpoint\@ldcaption{##1}}%       % using 10 pt default
+% Sections...
+   \let\chapter=\section                % no chapters
+   \sectionminspace=3\baselineskip      % fit more on a page
+   \sectionskip=0.7cm                   % ditto
+   \subsectionskip=0.5cm                % ditto
+   \def\tbf{\fourteenpoint\bf}          % section heading is 14 pt bold
+% Although figures and tables do not bear the section number, 
+% sections themselves should be numbered
+   \def\everysection{%                  % for every section: small reset
+      \global\edef\@fullID{\the\sectionnum.\space\space}%
+      \global\subsectionnum=\z@         % reset section counters...
+      \global\subsubsectionnum=\z@}%    % ...but not equations, etc
+   \def\everysubsection{%               % executed for every subsection
+      \global\edef\@fullID{\the\sectionnum.\the\subsectionnum.\space\space}%
+      \global\subsubsectionnum=\z@      % reset 
+      \let\@bf=\bf \let\bf=\it}%        % subsections are italic not bold
+   \def\everysubsubsection{             % executed for every subsubsection
+      \global\edef\@fullID{\the\sectionnum.%
+         \the\subsectionnum.\the\subsubsectionnum.\space\space}%
+      \let\@bf=\bf \let\bf=\it}%        % subsections are italic not bold
+   \def\aftersection{%                  % after \section
+      \vskip-4pt\nobreak}%              % reduce skip
+   \def\aftersubsection{%               % after \sub(sub)section
+      \vskip-4pt%                       % reduce skip
+      \nobreak                          % don't allow break
+      \let\bf=\@bf}                     % unalias \bf
+% make figure, table, equation numbers not include the section number
+   \let\@LabelParse=\LabelParse
+   \def\LabelParse{\def\@sectID{}\@LabelParse}
+% Footnotes should be 9 pt. Use \Footnote
+   \def\FootFont{\ninepoint}%           % like it says
+% References
+   \def\refFormat{%                     % reference format
+      \def\refskip{\vskip0pt plus 2pt}% % no skip but some stretch
+      \tenpoint}%                       % and 10pt
+}
+
+
+% \@getauthor for World Scientific
+{\obeylines\gdef\@getauthWS#1
+   #2
+   {#1\bigskip\def\n{\egroup\centerline\bgroup\bf}% %
+   \centerline{\bf #2}%              % first line is author's name,
+   \medskip\center%                  % next lines are affiliation/address
+   \tenpoint\it}%                    % 10 pt italic
+}
+
+\ATlock
+
+
+%>>> EOF WorldSci.txs <<<

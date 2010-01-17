@@ -1,0 +1,144 @@
+%Author: C.G. van der Laan, Hunzeweg 57, 9893PB
+%   Garnwerd, The Netherlands
+%   05941-1525, cgl@risc1.rug.nl.
+%Purpose: Verbatim macros via plain TeX, 
+%         to be used with AnyTeX.
+%                         *numvrb
+%User toks variables
+\newtoks\thisverbatim
+\newtoks\everyverbatim
+%
+%User customization
+\let\preverbatim\medskip
+\let\postverbatim\medbreak
+%                         *vrblin100
+%User `options': \numvrb
+\newcount\vrblin
+\def\numvrb{\vrblin0
+   \everypar{\advance\vrblin1
+    \llap{\sevenrm\the\vrblin\quad}}}
+\def\nonum{\everypar={}}
+%              : \emc
+\def\makeescape#1{\catcode`#1=0 }
+\def\makeactive#1{\catcode`#1=13 }
+{\makeactive\<
+ \gdef\emc{\makeactive\<%
+   \def<##1>{$\langle##1\rangle$}}}
+%                         *vrblin200
+%User macro
+\def\verbatim{\preverbatim\begingroup
+   \tt\setupverbatim
+   \the\everyverbatim\relax
+   \the\thisverbatim\relax
+   \verbatimgobble}
+%
+\def\endverbatim{\endgroup\postverbatim
+   \thisverbatim={}}
+%
+\def\setupverbatim{\makeactive\`%
+   \let\!=!\makeescape\!%Knuth&Levy  
+   \def\par{\leavevmode\endgraf}%TB381
+   \obeylines\uncatcodespecials
+   \obeyspaces}
+%
+{\obeyspaces\global\let =\ 
+ \obeylines\gdef\verbatimgobble#1^^M{}%
+ \makeactive\` \gdef`{\relax\lq}}%TB381 
+%
+\def\uncatcodespecials{\def\do##1{%
+   \catcode`##1=12 }\dospecials}
+%                         *vrblin250
+%Minimal | tag for inline verbatim
+\def\vrt{{\tt\char`\|}}\makeactive\|
+\def|{\bgroup\tt\setupverbatim
+      \the\everyverbatim\relax
+      \the\thisverbatim\relax
+      \def|{\egroup\thisverbatim{}}}
+%\endinput %14/2/94 cgl@risc1.rug.nl
+%                         *nonum
+%Contents
+%Newtoks
+%   \thisverbatim.................2
+%   \everyverbatim................3
+%Customing
+%   \preverbatim..................6
+%   \postverbatim.................7
+%Options
+%   \numvrb.....................103   
+%   \nonum......................106
+%   \makeescape.................108
+%   \makeactive.................109
+%   \emc........................111   
+%   <#1>........................112   
+%User macro
+%   \verbatim...................202
+%   \endverbatim................208
+%   \setupverbatim..............211
+%   \verbatimgobble.............218
+%   `...........................219
+%   \uncatcodespecials..........221
+%Inline verbatim
+%   \vrt........................252
+%   |...........................253
+%History of changes vrb.tex
+%March  94   Block comments omitted.
+%            Verbatim mode with exclamation 
+%            mark as escape char.
+%Febr 1994   Release Version 1.
+%
+%Examples. (Extract the above vrt.tex file
+%           and store this as vrt.tex.)
+%           
+%
+%1. To handle other fonts via change and emc (enable metacode).
+\thisverbatim={\emc}
+\verbatim 
+Some <meta code> and
+blah, blah, ...    !it
+Now text in italics!tt
+and back again in tt
+!endverbatim
+%
+%2. To handle numbering and verbatim file inclusion
+\everyverbatim={\numvrb}
+\thisverbatim={\makeescape\*
+               \catcode`\|=12                
+               \catcode`\!=12
+               \input vrb.tex
+               }
+\verbatim 
+Extras after file
+*endverbatim
+%
+%3. To restart (line)numbers
+\thisverbatim={\vrblin0 }
+\verbatim 
+Just some text with
+line numbers restarted.
+
+
+After two blank lines.
+!endverbatim
+%
+%4. In-line with alias tags
+{\makeactive\|
+\thisverbatim{\emc}
+Before |inline <text and \cs>| after.
+}
+\bye
+%History of changes
+%March  1994 Selective numbering added as example.
+%12 Feb 1994 File verbatim inclusion simplified. Just supply 
+%            as part of the replacement text of \thisverbatim
+%		          \input ... . 
+%            Now more than one file can be specified. 
+%            Moreover, the encoding is simpler. 
+%            Furthermore, the coding of the second | as alias
+%            for \endverbatim is simplified, similar to manmac.
+%            Last but not least the deficiencies as mentioned 
+%            in TeXbook p.381 have been incorporated. 
+%            In-line verbatim only via alias tags.
+%12 Jan 1994 \ea\relax omitted and file rearranged as test.
+%            \processl improved to handle blank lines.
+%            in-line verbatim added, explicitly
+%   Jan 1994 Name changes and submission to CTAN

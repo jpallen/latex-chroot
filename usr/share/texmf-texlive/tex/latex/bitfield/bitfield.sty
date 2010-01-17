@@ -1,0 +1,131 @@
+%%
+%% This is file `bitfield.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% bitfield.dtx  (with options: `package')
+%%    Dashed and layered boxes.
+%%
+%% File `bitfield.dtx'.
+%% Copyright (C) 1997-2001 Reuben Thomas (rrt@sc3d.org)
+%% Copyright (C) 2001      Roland Illig
+%% This file is distributed under the LaTeX Project Public License,
+%% and comes with no warranty.
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{bitfield}[2001/12/12 v2.00 Bit field diagrams]
+\RequirePackage{dashbox}[2001/12/11]
+\RequirePackage{calc}[1998/07/07]
+\RequirePackage{ifthen}
+\newcommand{\bitalign}{\centering}
+\newlength{\bitboxsep} \setlength{\bitboxsep}{\fboxsep}
+\newlength{\bitboxdepth} \setlength{\bitboxdepth}{0.9ex}
+\newlength{\bitboxheight} \setlength{\bitboxheight}{3.2ex}
+\newlength{\bitskip} \setlength{\bitskip}{0.8ex}
+\newlength{\bitrule} \setlength{\bitrule}{\fboxrule}
+\newlength{\bitlabellift} \setlength{\bitlabellift}{0.4ex}
+\newlength{\bitruleheight} \setlength{\bitruleheight}{0.6ex}
+\newlength{\bitruleendlift} \setlength{\bitruleendlift}{0.2ex}
+\newlength{\bitw@dth}
+\newlength{\bitb@xwidth}
+\newlength{\bitw@dthwidth}
+\newlength{\bitruled@pth}
+    \setlength{\bitruled@pth}{\bitrule-\bitruleheight}
+\newlength{\bitrule@ndheight}
+    \setlength{\bitrule@ndheight}%
+    {\bitruleheight*2-\bitrule-\bitruleendlift*2}
+\newboolean{bitb@xfirst}
+\newsavebox{\bitb@x}
+\newcommand{\bitb@xcmd}{\framebox}%
+\newcommand{\bitst@ckcmd}{\lbox}%
+\newcommand{\bitl@belcmd}{\bitl@bel}%
+\newcommand{\bitdec@destyle}[1]{%
+    \renewcommand{\bitb@xcmd}{\framebox}%
+    \renewcommand{\bitst@ckcmd}{\lbox}%
+    \renewcommand{\bitl@belcmd}{\bitpl@inlabel}%
+    \@tfor\reserved@a :=#1\do{%
+      \if d\reserved@a
+            \renewcommand{\bitb@xcmd}{\dashbox}%
+            \renewcommand{\bitst@ckcmd}{\dlbox}%
+        \else
+            \if r\reserved@a%
+                \renewcommand{\bitl@belcmd}{\bitrulel@bel}%
+            \fi
+        \fi}}
+\newcommand{\bitle@der}{%
+    \cleaders\hrule height \bitruleheight depth \bitruled@pth%
+    \hfill}
+\newcommand{\bitpl@inlabel}[2]{%
+    \makebox[#1]{\footnotesize #2}}
+\newcommand{\bitrulel@bel}[2]{%
+    \makebox[#1]{%
+        \footnotesize%
+        \rule[\bitruleendlift]{\bitrule}{\bitrule@ndheight}%
+        \bitle@der\,#2\,\bitle@der%
+        \rule[\bitruleendlift]{\bitrule}{\bitrule@ndheight}}%
+    }
+\newcommand{\bitl@bel}[4][0pt]{%
+    \sbox{\bitb@x}{#4}%
+     \setlength{\bitw@dthwidth}{\wd\bitb@x-\bitboxsep*2-\fboxrule*2}%
+     \addtolength{\bitw@dthwidth}{#1}%
+     \ifthenelse{\equal{#2}{}}{\relax}{\makebox[0pt][l]{%
+         \raisebox{\ht\bitb@x}{\raisebox{\bitlabellift}{%
+             {\hspace*{\fboxrule}\hspace*{\bitboxsep}%
+             \bitl@belcmd{\bitw@dthwidth}{#2}%
+         }}}}}%
+    \usebox{\bitb@x}%
+    }%
+\newcommand{\m@kebits}[3]{%
+    \setlength{\bitb@xwidth}{\bitw@dth*#2}%
+    \ifthenelse{\boolean{bitb@xfirst}}%
+        {}%
+        {\addtolength{\bitb@xwidth}{\fboxrule}}%
+    \setboolean{bitb@xfirst}{false}%
+    \setlength{\fboxsep}{0pt}%
+    \bitl@bel{#1}{#2}{\bitb@xcmd[\bitb@xwidth]%
+        {\rule[-\bitboxdepth]{0pt}{\bitboxheight}%
+        \hspace*{\bitboxsep}\hfill#3\hfill\hspace*{\bitboxsep}}%
+    \hspace*{-\fboxrule}}%
+    }
+\newcommand{\m@kestack}[3]{%
+    \setlength{\fboxsep}{0pt}%
+    \bitl@bel[-2\layersize]{#1}{#2}{\bitst@ckcmd{#3\hspace*{\fboxrule}}}%
+    }
+\newcommand{\bits}[4][]{%
+    \bitdec@destyle{#1}%
+    \m@kebits{#2}{#3}{#4}}
+\newcommand{\bitstack}[4][]{%
+    \bitdec@destyle{#1}%
+    \m@kestack{#2}{#3}{#4}}
+\newcommand{\bitsubspaced}[3][]{%
+    \bitdec@destyle{#1}%
+    \renewcommand{\bitalign}{\relax}%
+    \begin{xbitfield}[#2\bitw@dth]{0pt}{#2}#3\end{xbitfield}%
+    \hspace*{-\fboxrule}}
+\newcommand{\bitsub}[4][]{%
+    {\setlength{\bitskip}{-\fboxrule}%
+    \bitl@bel{#2}{#3}{\bitsubspaced[#1]{#3}{#4}}}}
+\newcommand{\bitdots}{%
+    \parbox{\textwidth}{%
+        \centering\vbox to 2.5ex{%
+            \cleaders\vbox to 0.8ex{\vfill.\vfill}\vfill}}}
+\newcommand{\bittext}[1]{%
+    \rule[-\bitboxdepth]{0pt}{\bitboxheight}#1}
+\newenvironment{xbitfield}[3][4in]%
+    {\setlength{\bitw@dth}{(#1-#2*2)/#3}%
+    \begin{minipage}{#1}\bitalign%
+    \offinterlineskip%
+    \endlinechar=-1%
+    \renewcommand{\\}%
+        {\par\vspace{\bitskip}\setboolean{bitb@xfirst}{true}}%
+    \setboolean{bitb@xfirst}{true}%
+    }%
+    {\end{minipage}%
+    \setboolean{bitb@xfirst}{false}}
+\newenvironment{bitfield}[2][4in]%
+    {\begin{xbitfield}[#1]{\layersize}{#2}}%
+    {\end{xbitfield}}
+\endinput
+%%
+%% End of file `bitfield.sty'.

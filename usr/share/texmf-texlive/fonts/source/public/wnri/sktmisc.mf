@@ -1,0 +1,72 @@
+%
+% Washington Romanized Indic miscellaneous characters
+%
+% File       : sktmisc.mf 
+% Author     : Thomas Ridgeway <ridgeway@u.washington.edu>
+% Date       : May 19 1992
+%
+% Copyright 1992 Humanities and Arts Computing Center, University of 
+% Washington. Licensed to the public according to the terms of the 
+% Free Software Foundation General Public License.
+%
+% WNRI is based on Computer Modern Italic and encoded according to
+% the Classical Sanskrit/Classical Sanskrit eXtended character set. 
+% See wnindic.map for more details.
+%
+% Contains programs to produce the characters "es-zet" and "rootsign".
+%
+
+% cmchar "German letter es-zet (sharp s)";
+newchar(eszett,4.5u#+max(4.5u#,.5stem#+flare#+curve#),asc_height#,0);
+italcorr asc_height#*slant-u#;
+adjust_fit(serif_fit#,0);
+pickup tiny.nib; pos1(stem',0); pos2(stem',0);
+lft x1l=lft x2l=hround(2.5u-.5stem'); bot y1=0; y2=y4=.5[x_height,y3];
+penpos3(vair-fine,90); fine.top y3r=h+oo;
+filldraw stroke z1e--z2e;  % stem
+numeric stem_edge,curve'; stem_edge=rt x1r; curve'=hround .5[stem',curve];
+pickup fine.nib; pos4(curve',0); pos5(vair,-90);
+pos2'(stem',180); z2'=z2; x3=.5[x2,x4]; rt x4r=hround(w-u);
+top y5l=x_height; lft x5=min(lft x4l,hround(stem_edge+u));
+filldraw stroke pulled_super_arc.e(2',3)(.5superpull)
+ & pulled_super_arc.e(3,4)(.5superpull)
+ & pulled_super_arc.e(4,5)(.5superpull);  % upper bowl
+pos5'(vair,90); z5'=z5; pos6(curve',0); pos7(vair,-90);
+rt x6r=hround(w-.5u)+3eps; y6=.4x_height; bot y7r=-oo;
+if serifs: pos8(hair,-180) else: pos8(vair,-110) fi;
+lft x8r=min(hround(stem_edge+.5u+1),lft x8r+x6r-2eps-x8l);
+x7=max(x8l+eps,.4[lft x8r,x6]);
+filldraw stroke pulled_super_arc.e(5',6)(.5superpull)
+ & pulled_super_arc.e(6,7)(.5superpull);  % lower bowl
+if serifs: pos9(5/7[vair,flare],-180);
+ y9-(x9-lft x9r)=vround .07x_height; bulb(7,8,9);  % bulb
+ penpos0(stem'-tiny,0); x0=x1; tiny.top y0=x_height;
+ serif(0,1,a,0,-jut);  % bar
+ dish_serif(1,2,b,1/3,jut,c,0,epsilon);  % serif
+else: bot y8r=vround .01h; x8l:=good.x x8l; y8l:=good.y(y8l+.5);
+ filldraw stroke term.e(7,8,left,1,4); fi  % terminal
+penlabels(0,1,2,3,4,5,6,7,8,9); endchar;
+
+% cmchar "Root sign";
+newchar(rootsign,8.5u#,body_height#,paren_depth#-rule_thickness#);
+ adjust_fit(0,-letter_fit#); pickup rule.nib;
+ w':=7u;
+ x1=good.x 1/9w'; x2=good.x .65w'; bot y1=-.5d; bot y2=asc_height;
+ draw z1--z2;  % diagonal
+ pickup crisp.nib; pos3(if monospace: else: .7 fi max(curve,rule_thickness),0);
+ x3l=1.5[x2,x1]; y3=.5[y1,y2];
+ pos4(rule_thickness,0); x4=x1; bot y4=-.5d;
+ pos5(vair,-45); x5l=good.x(x3l-u); z5l=whatever[z3r,z2];
+ z6=z5r+whatever*(z2-z3r)=whatever[z3l,z4l];
+ z7=whatever[z1,z2]=z3r+whatever*(z4l-z3l);
+ filldraw z5r--z6--z4l--z4--z7--z3r--z5l--cycle;  % left diagonal and serif
+x8=x2+2u; y8=y2;
+pickup rule.nib;
+draw z2--z8;
+picture V; transform t; t=identity shifted(2.5u,0);
+V=currentpicture transformed t; currentpicture:=V;
+% penlabels(1,2,3,4,5,6,7,8); 
+endchar;
+
+% end of file sktmisc.mf
+

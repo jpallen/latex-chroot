@@ -1,0 +1,328 @@
+%%
+%% This is file `timetabl.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% timetabl.dtx  (with options: `package')
+%% This file is part of the Calendar package,
+%% Copyright (C) 1996, 1997 Frank Bennett, Jr.
+%% All rights reserved.
+%% ------------------------------------------
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% You are not allowed to change this file.  You may however copy
+%% this file to a file with a different name and then change the
+%% copy if (a) you do not charge for the modified code, (b) you
+%% acknowledge the author of this file in the new file, if it
+%% is distributed to others, and (c) you attach these same
+%% conditions to the new file.
+%% 
+%% You are not allowed to distribute this file alone.  You are not
+%% allowed to take money for the distribution or use of this file
+%% (or a changed version) except for a nominal charge for copying
+%% etc.
+%% 
+%% You are allowed to distribute this file under the condition that
+%% it is distributed with all of its contents, intact.
+%% 
+%% For error reports, or offers to help make this a more powerful,
+%% friendlier, and altogether more thrilling package, please contact me on
+%% fb@soas.ac.uk.  Better yet, make a contribution to
+%% my pension.  Account details available on request.
+%% ------------------------------------------
+%% 
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{timetabl}
+          [1998/01/17 18:15:28 3.1.1.1 Timetable (Frank Bennett)]
+\newif\ifttbl@usecolor
+\newif\ifttbl@verbose
+\newlength\ttbl@tablewidth
+\newlength{\ttbl@hw}
+\newlength{\ttbl@templen}
+\newlength{\ttbl@widthlessboxes}
+\newlength{\ttbl@timetextlen}
+\newtoks\ttbl@tempreg@a
+\newtoks\ttbl@tempreg@b
+\newcount\ttbl@tempcount
+\newcount\ttbl@start
+\newcount\ttbl@end
+\newcount\ttbl@minuteblocks
+\newcount\ttbl@boxes
+\newcount\ttbl@days
+\newcount\ttbl@blocks
+\newcount\ttbl@time@start
+\newcount\ttbl@time@end
+\newcount\ttbl@hours@start
+\newcount\ttbl@minutes@start
+\newcount\ttbl@hours@end
+\newcount\ttbl@minutes@end
+\newcount\ttbl@minute@base
+\input calopts.cfg
+\InputIfFileExists{dates.cfg}{}{}
+\ProcessOptions
+\RequirePackage{array}[1996/06/14]
+\RequirePackage{calendar}
+\RequirePackage{longtable}
+\RequirePackage{rotating}
+  \def\ttbl@settablewidth{%
+    \setlength{\ttbl@tablewidth}{\hsize}}%
+\tracingdates=0%
+\define@key{opt}{leftspace}{\setlength{\LTleft}{#1}}
+\define@key{opt}{rightspace}{\setlength{\LTright}{#1}}
+\define@key{opt}{width}{\setlength{\ttbl@tablewidth}{#1}}
+\define@key{opt}{title}{\def\ttbl@title{#1}}
+\define@key{opt}{start}{\@settime\ttbl@start#1{}}
+\define@key{opt}{end}{\@settime\ttbl@end#1{}}
+\define@key{opt}{blockminutes}{\ttbl@minuteblocks=#1}
+\define@key{opt}{blocks}{\@setblocks#1,,{}}
+\define@key{opt}{labels}{\@extractlabels#1,,{}}
+\define@key{opt}{timeitemface}{\def\ttbl@timeitemface##1{{#1{##1}}}}
+\define@key{opt}{timelabelface}{\def\ttbl@timelabelface##1{{#1{##1}}}}
+\define@key{opt}{itemface}{\def\ttbl@itemface##1{{#1{##1}}}}
+\define@key{opt}{titleface}{\def\ttbl@titleface##1{{#1{##1}}}}
+\define@key{opt}{labelface}{\def\ttbl@labelface##1{{#1{##1}}}}
+\define@key{opt}{notimes}[f]{\@ttbl@usetimesfalse}
+\define@key{opt}{footer}{\def\ttbl@foot{#1}}
+\define@key{opt}{extralabelheight}{\ttbl@extralabelheight=#1}
+\newlength\ttbl@extralabelheight
+\newlength\ttbl@labelstrut%
+\newlength\ttbl@labelstrutbuf%
+\def\@settime#1#2:#3#{%
+  \ttbl@tempcount=#2%
+  \multiply\ttbl@tempcount by60%
+  \advance\ttbl@tempcount by#3%
+  \global#1\ttbl@tempcount}
+\def\@splitblocks#1-#2#{%
+  \def\@blockstarttext{#1}%
+  \def\@blockendtext{#2}}
+\def\@setblocks#1,#2#{%
+  \ifcat$#1$%
+    \let\next\@gobble%
+  \else%
+    \let\next\@setblocks%
+    \global\advance\ttbl@blocks by 1%
+    \@splitblocks#1{}%
+    \expandafter\@settime%
+      \expandafter\ttbl@time@start\@blockstarttext{}%
+    \expandafter\@settime%
+      \expandafter\ttbl@time@end\@blockendtext{}%
+    \let\ttbl@tempmac\ttbl@blocklist%
+    \edef\ttbl@blocklist{%
+      \ttbl@tempmac\the\ttbl@time@start-\the\ttbl@time@end,}%
+  \fi%
+    \next#2{}}
+\def\ttbl@chopblock#1-#2,#3#{%
+  \global\ttbl@time@start=#1%
+  \global\ttbl@time@end=#2%
+  \gdef\ttbl@blocklist{#3}}%
+\def\ttbl@labellist{}%
+\def\@extractlabels#1,#2#{%
+  \ifcat$#1$%
+    \ttbl@tempreg@a=\expandafter{\ttbl@labellist}%
+    \edef\ttbl@label##1{%
+      \noexpand\ifcase##1\the\ttbl@tempreg@a\noexpand\fi}%
+    \let\next\@gobble%
+  \else%
+    \let\next\@extractlabels%
+    \let\ttbl@tempmac\ttbl@labellist%
+    \expandafter\def%
+      \expandafter\ttbl@labellist%
+      \expandafter{%
+      \ttbl@tempmac\or #1}%
+  \fi%
+    \next#2{}}
+\def\ttbl@title{Conference Schedule}
+\@settime\ttbl@start8:00{}
+\@settime\ttbl@end17:00{}
+\ttbl@minuteblocks=60%
+\def\ttbl@blocklist{}%
+\def\ttbl@label#1{\themonth\space\theday}%
+\def\ttbl@timeitemface#1{{\small{#1}}}%
+\def\ttbl@timelabelface#1{{\small\textbf{#1}}}%
+\def\ttbl@itemface#1{{\small\textit{#1}}}%
+\def\ttbl@titleface#1{{\large\textbf{#1}}}%
+\def\ttbl@labelface#1{{\textbf{#1}}}%
+\newif\if@ttbl@usetimes%
+\@ttbl@usetimestrue%
+\def\ttbl@foot{}%
+\newcalendar%
+{timetable}
+{\cal@insert}
+{7}
+{\ttbl@boxes}
+{\ttbl@days}
+{&}
+{z\ttbl@gettimes}
+{\extrarowheight=3pt\ttbl@header}
+{\\\hline\end{longtable}}%
+{\cal@footer\newpage\cal@header}
+{\\\hline\ttbl@timecoltext}
+{\dates@requiremonthtrue\dates@requiredaytrue}
+{\message{^^JStart: \theshortweekday\space%
+    \theday\space\theshortmonth\space\theyear}%
+  \dates@date\cal@range@end%
+  \caldate%
+  \message{^^JEnd: \theshortweekday\space%
+    \theday\space\theshortmonth\space\theyear}%
+  \dates@date\cal@range@start%
+  \caldate%
+  \ttbl@days\cal@range@end%
+  \advance\ttbl@days by-\cal@range@start%
+  \advance\ttbl@days by1%
+\ifcat$\ttbl@blocklist$%
+  \ttbl@blocks\ttbl@end%
+  \advance\ttbl@blocks by-\ttbl@start%
+  \divide\ttbl@blocks by\ttbl@minuteblocks%
+\fi%
+\ttbl@boxes\ttbl@blocks%
+\multiply\ttbl@boxes by\ttbl@days%
+  \def\ttbl@gettimes{%
+    \ifcat$\ttbl@blocklist$%
+      \ttbl@time@start\cal@group@count%
+      \divide\ttbl@time@start by\ttbl@days%
+      \multiply\ttbl@time@start by\ttbl@minuteblocks%
+      \global\advance\ttbl@time@start by\ttbl@start%
+      \ttbl@time@end\ttbl@time@start%
+      \global\advance\ttbl@time@end by\ttbl@minuteblocks%
+    \else%
+      \expandafter\ttbl@chopblock\ttbl@blocklist-,{}%
+    \fi%
+      \mod{60}\ttbl@time@start\ttbl@minutes@start%
+      \ttbl@hours@start\dates@three%
+      \divide\ttbl@hours@start by60%
+      \mod{60}\ttbl@time@end\ttbl@minutes@end%
+      \ttbl@hours@end\dates@three%
+      \divide\ttbl@hours@end by60%
+      \ifnum\ttbl@minutes@start<10%
+        \edef\ttbl@minutes@start@mac{0\the\ttbl@minutes@start}%
+      \else%
+        \edef\ttbl@minutes@start@mac{\the\ttbl@minutes@start}%
+      \fi%
+      \ifnum\ttbl@minutes@end<10%
+        \edef\ttbl@minutes@end@mac{0\the\ttbl@minutes@end}%
+      \else%
+        \edef\ttbl@minutes@end@mac{\the\ttbl@minutes@end}%
+      \fi%
+      \xdef\ttbl@timecoltext{%
+        \noexpand\vbox{\vfil\vskip4pt%
+        \noexpand\begin{sideways}%
+        \noexpand\ttbl@timelabelface{%
+          \the\ttbl@hours@end:\ttbl@minutes@end@mac%
+        $\noexpand\leftarrow$%
+        \the\ttbl@hours@start:\ttbl@minutes@start@mac}%
+        \noexpand\end{sideways}%
+        \vfil}
+      &}}%
+\ttbl@tablewidth\textwidth%
+\message{Package Timetable: %
+  setting table \the\ttbl@tablewidth\space in width.^^J}%
+  \setlength{\ttbl@widthlessboxes}{2\arrayrulewidth}%
+  \addtolength{\ttbl@widthlessboxes}{\ttbl@days\arrayrulewidth}%
+  \addtolength{\ttbl@widthlessboxes}{2\tabcolsep}%
+  \setlength{\ttbl@templen}{2\tabcolsep}%
+  \addtolength{\ttbl@widthlessboxes}{\ttbl@days\ttbl@templen}%
+  \settoheight{\ttbl@timetextlen}{\ttbl@timelabelface{99:99--99:99}}%
+  \settodepth{\ttbl@templen}{\ttbl@timelabelface{99:99--99:99}}%
+  \addtolength{\ttbl@timetextlen}{\ttbl@templen}%
+  \addtolength{\ttbl@widthlessboxes}{\ttbl@timetextlen}%
+  \setlength{\ttbl@hw}{\ttbl@tablewidth}%
+  \addtolength{\ttbl@hw}{-\ttbl@widthlessboxes}%
+  \divide\ttbl@hw by\ttbl@days%
+\edef\ttbl@firstunit{%
+  m{\the\ttbl@timetextlen}%
+  \noexpand|}%
+\ttbl@tempreg@a=\expandafter{\expandafter|\ttbl@firstunit}%
+\edef\ttbl@dayunit{%
+  m{\the\ttbl@hw}%
+  \noexpand|}%
+\ttbl@tempreg@b=\expandafter{\ttbl@dayunit}%
+\ttbl@tempcount=1%
+\loop%
+ \edef\ttbl@tempmac{\the\ttbl@tempreg@a\the\ttbl@tempreg@b}%
+ \ttbl@tempreg@a=\expandafter{\ttbl@tempmac}%
+\ifnum\ttbl@tempcount<\ttbl@days%
+  \advance\ttbl@tempcount by1%
+\repeat%
+  \global\settoheight\ttbl@labelstrutbuf{\ttbl@labelface{W}}%
+  \global\advance\ttbl@labelstrutbuf by\ttbl@extralabelheight\relax%
+  \ifnum\ttbl@labelstrutbuf>\ttbl@labelstrut%
+    \global\ttbl@labelstrut\ttbl@labelstrutbuf%
+  \fi%
+  \def\ttbl@labeltext{}%
+  \dates@date=\cal@range@start%
+  \caldate%
+  \ttbl@tempcount=1%
+  \ttbl@tempreg@b={}%
+  \loop%
+   \protected@edef\ttbl@labeltext{\the\ttbl@tempreg@b&%
+     \noexpand\multicolumn{1}{c|}{%
+       \noexpand\ttbl@labelface{%
+          \ttbl@label{\ttbl@tempcount}}}}%
+   \ttbl@tempreg@b=\expandafter{\ttbl@labeltext}%
+  \ifnum\dates@date<\cal@range@end%
+    \advance\dates@date by1%
+    \caldate%
+    \advance\ttbl@tempcount by1%
+  \repeat%
+  \dates@date\cal@range@start%
+  \caldate%
+  \ttbl@tempcount\ttbl@days%
+  \advance\ttbl@tempcount by1%
+  \protected@edef\ttbl@header{%
+    \noexpand\begin{longtable}{\the\ttbl@tempreg@a}%
+    \noexpand\multicolumn{\ttbl@tempcount}{c}%
+      {\noexpand\ttbl@titleface{\ttbl@title}}%
+    \noexpand\\\noexpand\hline%
+    \noexpand\vrule width0pt depth 0pt height\ttbl@labelstrut\relax%
+    \the\ttbl@tempreg@b\noexpand\\%
+      \noexpand\hline\noexpand\hline\noexpand\endhead%
+      \ifcat$\ttbl@foot$\else%
+        \noexpand\multicolumn{\ttbl@tempcount}{l}%
+          {\noexpand\ttbl@foot}\noexpand\\%
+        \noexpand\endfoot%
+      \fi%
+    \noexpand\ttbl@timecoltext}}%
+{\par\medskip}%
+{\cal@get@appointments[\ttbl@time@start/\ttbl@time@end]}%
+{\relax%
+  \ifnum\dates@time@start>0\relax%
+    \ifnum\dates@time@start<\ttbl@time@start%
+      \protected@edef\cal@entry@text{%
+        \noexpand\cal@textcolor{\calcolor}{%
+          \noexpand\ttbl@itemface{%
+            \noexpand$\noexpand<\noexpand$%
+          \theshorttext\if@ttbl@usetimes, to \cal@appt@end@text\fi%
+          \noexpand$\noexpand>\noexpand$}}}%
+    \else%
+      \ifnum\dates@time@start<\dates@time@end%
+        \protected@edef\cal@entry@text{%
+         \if@ttbl@usetimes%
+          \noexpand\ttbl@timeitemface{%
+            \cal@appt@start@text%
+            --%
+            \cal@appt@end@text}%
+            \space%
+         \fi%
+         \noexpand\cal@textcolor{\calcolor}{%
+           \noexpand\ttbl@itemface{%
+             \thelongtext}}}%
+      \else%
+        \protected@edef\cal@entry@text{%
+         \if@ttbl@usetimes%
+          \noexpand\ttbl@timeitemface{%
+           \cal@appt@start@text}%
+           \space%
+         \fi%
+         \noexpand\cal@textcolor{\calcolor}{%
+           \noexpand\ttbl@itemface{%
+              \thelongtext}}}%
+      \fi%
+    \fi%
+  \fi}%
+{\theappointments}
+
+\endinput
+%%
+%% End of file `timetabl.sty'.

@@ -1,0 +1,68 @@
+%%
+%% This is file `achemso.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% achemso.dtx  (with options: `package')
+%% ----------------------------------------------------------------
+%% The achemso package - A BibTeX style for American Chemical
+%% Society publications
+%% Maintained by Joseph A. Wright
+%% E-mail: joseph.wright@morningstar2.co.uk
+%% Originally developed by Mats Dahlgren
+%%  (c) 1996-98 by Mats Dahlgren
+%%  (c) 2007 Joseph Wright
+%% Released under the LaTeX Project Public license v1.3 or later
+%% ----------------------------------------------------------------
+\NeedsTeXFormat{LaTeX2e}[2005/12/01]
+\ProvidesPackage{achemso}
+ [2007/01/17 v2.0 Enhancements for ACS publications]
+\def\ACSver{\texttt{achemso} v2.0 (2007/01/17)}
+\newif \ifACS@sctnnmbr \ACS@sctnnmbrfalse
+\newif \ifACS@lst      \ACS@lstfalse
+\newif \ifACS@note     \ACS@notefalse
+\DeclareOption{note}{\global\ACS@notetrue}
+\DeclareOption{number}{\global\ACS@sctnnmbrtrue}
+\DeclareOption{list}{\global\ACS@lsttrue}
+\DeclareOption*{\OptionNotUsed}
+\ProcessOptions
+\RequirePackage[super,nospace]{cite}
+ \@ifpackageloaded{babel}
+  {\ACS@notefalse\PackageWarning{achemso}%
+    {babel package loaded - note option disabled}}
+  {\relax}
+\def\ACS@biberror{\PackageError{achemso}%
+  {No bibliography name command defined}\@eha}
+\ifx\refname\undefined
+   \ifx\bibname\undefined
+      \ACS@biberror
+    \else
+      \ifACS@note
+        \renewcommand*{\bibname}{References and Notes}
+      \else
+        \renewcommand*{\bibname}{References}
+      \fi
+    \fi
+ \else
+   \ifACS@note
+     \renewcommand*{\refname}{References and Notes}
+   \fi
+\fi
+\ifACS@sctnnmbr
+  \RequirePackage[numbib]{tocbibind}
+\fi
+\ifACS@lst
+  \bibliographystyle{achemsol}
+  \RequirePackage[notcite]{showkeys}
+\else
+  \bibliographystyle{achemso}
+\fi
+\def\@biblabel#1{#1.}
+\def\ACS@bibwarning{\PackageWarning{achemso}%
+  {Additional bibliographystyle command ignored}}
+\def\bibliographystyle{\ACS@bibwarning\@gobble}
+
+\endinput
+%%
+%% End of file `achemso.sty'.

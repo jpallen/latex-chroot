@@ -1,0 +1,66 @@
+%%
+%%    FILE a6.sty
+%%
+\baselineskip=10pt
+\newcount\daysinpage
+\newdimen\cellwidth
+\newdimen\cellheight
+\vsize=5in\voffset=-0.2in
+\hsize=3.5in\hoffset=-0.25in
+\newdimen\sphsize
+\sphsize=\hsize
+\divide\sphsize by2\advance\sphsize by-0.4pt
+\cellheight=\vsize
+\divide\cellheight by3
+\advance\cellheight by-0.4pt\parindent=0pt
+\font\bf=cmbx12
+\font\rm=cmr12
+\font\small=cmr9
+\headline={\hfill
+ \ifodd\pageno
+  \rm\xdef\ftmk{\firstmark}%
+  \divide\pageno by2\advance\pageno by1
+  Week \#\the\pageno
+ \else
+  \bf\edef\btmk{\botmark}%
+  \ifx\ftmk\btmk\else\ftmk/\fi\btmk
+ \fi\hfill}
+\footline={}
+\def\newpage{\vfill\penalty-10000}
+\def\beginday{
+ \ifcase\daysinpage\or\hrule\or\hrule\or\or
+  \hrule\or\hrule\fi
+ \mark{\themonth} % Outside any box
+ \setbox1=\vbox to\cellheight\bgroup\vglue4pt
+ \ifnum\daysinpage>4\hsize=\sphsize\fi
+ \setbox3=\vbox\bgroup
+  \ifnum\daysinpage>2
+   \rightskip=1.45cm plus 1fill
+  \else
+   \leftskip=1.45cm plus 1fill\fi
+  \noindent\small}
+\def\endday{\egroup
+  \setbox0=\hbox to\hsize{\rm\ifholy\bf\fi
+   \ifnum\daysinpage=6\bf\fi
+   \ifnum\daysinpage>2
+    \hfill{{\rm\theshortweekday}
+    \ \the\Day\hskip0.5em}
+   \else
+    {\hskip0.5em\the\Day
+    \ {\rm\theshortweekday}}\hfill\fi}
+  \copy0\kern-\ht0\vskip0pt\box3
+  \vfill\egroup
+  \advance\daysinpage by1
+  \ifcase\daysinpage\or\box1\or\box1\or
+   \box1\newpage\or\box1\or\box1\or
+   \setbox2=\box1\or
+   \hbox{\box2\vrule\box1}\newpage
+   \daysinpage=0\fi}
+%
+% Local: from monday ...
+\Day=1\Month=1\dayno\prevday1\currentdate=\date
+% Local: ... to sunday.
+\Day=31\Month=12\dayno\nextday0\lastdate=\date
+\leftskip=3pt\rightskip=3pt
+\daysinpage=0
+\def\epilog{}

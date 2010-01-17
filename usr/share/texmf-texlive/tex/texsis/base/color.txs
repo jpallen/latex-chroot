@@ -1,0 +1,219 @@
+%% file: color.txs (TeXsis version 2.18)
+%  @(#) $Revision: 1.4 $ + $Date: 1998/09/30 04:48:06 $ + $Author: myers $
+%======================================================================*
+%  This file is a part of TeXsis, but it will also work with Plain TeX.
+% 
+%  This is color.txs, a collection of simple macros for changing the
+%  colors of TeX output when it is directed to a PostScript output 
+%  device.  They use \special commands to insert PostScript instructions
+%  in the output to change the colors.
+%
+%  These macros were designed specifically for Tomas Rokicki's dvips
+%  program (version 5.478 or greater) with the color.pro header file,
+%  but they should also work with any driver which understands the
+%  appropriate keywords in the \special commands, such as TeXview on a
+%  NeXT with a color monitor. 
+%  
+%-------------------------------
+%  EXAMPLES of the syntax:
+%
+%     \colorit{Red}{The text inside these brackets is colored Red}
+%
+%     \SetColor{Green}      % all text following is colored Green
+%
+%     \background{Yellow}   % makes the background color Yellow
+%
+%  The basic colors are:
+%  
+%     Black             White           Gray
+%     Red               Green           Blue            
+%     Cyan              Magenta         Yellow          
+%     Purple            Orange          Brown
+%    
+%  Note that color names all begin with an Initial Capital Letter.
+%  Additional colors are available, or can be defined.  See below.
+%
+%  You can change the color temporarily by pushing and popping the
+%  PostScript color stack, as in  
+%
+%     \PushColor{Purple}   % text after this is now in Purple
+%
+%     \PopColor            % return to the previous color
+%
+%  Note that color changes have nothing to do with TeX's grouping
+%  mechanism  {i.e. curly brackets}, but are based on the PostScript
+%  color stack.  {If you really want the color to change back at the
+%  end of a group, see \aftergroup in the TeXbook.}
+%
+%  For the basic colors above the following shortcuts are defined:
+%
+%    \Red{This text is colored Red}
+%
+%    \textGreen           % all text following is colored Green.
+%
+%  You can add similar shortcuts for colors other than those above
+%  with \addColor,  like so: 
+%
+%    \addColor{Salmon}    % defines \Salmon and \textSalmon macros
+%
+%    \Salmon{This text will be in Salmon}
+%
+%    \textSalmon          % changes the text color to Salmon
+%
+%  The allowed names for colors are listed below.  However, you don't
+%  have to define the shortcuts to be able to use one of those colors.
+%  You could say 
+%
+%       \colorit{BurntOrange}{Hook 'em Horns!}  
+%
+%  to color just that text in that color, or use \SetColor{Emerald},
+%  or \PushColor{Cerulean} and \PopColor, even if you have never
+%  used \addColor to define shortcuts for those colors.
+%
+%  A TeXnical note: You may need to include a "\ " or "{}" after
+%  \colorit or \Red, or leave a space *inside* the brackets, as in
+% 
+%    ``\colorit{Orange}{Julius, } \Red{Seize}\ her!'' he cried.
+%  
+%  or else there will not be a space after the colored word.  It's the
+%  same as saying \TeX\ to get the TeX logo with some space after it.
+%  But of course sometimes you will want different colors to abut.
+%
+%  You can define shortcuts for all of the colors in color.pro, most
+%  of which are based mainly on the colors in a box of 64 Crayola 
+%  Crayons, by saying \Crayolas.  See the end of this file for a
+%  complete list of the colors.  To print the available colors, in 
+%  their own colors, say \ListColors
+%
+%  You can define your own colors by specifying the CMYK color as a
+%  quadruple of intensity values between 0 and 1.  (CMYK means Cyan,
+%  Magenta, Yellow, and blacK.)  For example:
+%
+%    \SetCmykColor{.2 .3 .4 .1}   will give you a nice tan, man.
+%
+%    \PushCmykColor{.5 .5 .1 .2}  Old Blue Eyes  \PopColor
+%
+%-------------------------------
+%  These macros are based on Jim Hafner's COLORDVI.TEX, revised by him
+%  and Tomas Rokicki as of Aug. 1992.  My thanks to him for blazing the
+%  trail.  I have added the explicit color push/pop macros, and what I
+%  think is a better syntax, but these macros should also be mostly 
+%  backward compatible with the COLORDVI.TEX syntax.
+%
+%  Eric Myers <myers@umich.edu>      16 May 1997
+%  Department of Physics, University of Michigan, Ann Arbor, MI, USA
+%======================================================================*
+% Manipulate the color stack (and try to keep track of it):
+
+\newcount\colordepth  \colordepth=0
+
+\def\PushColor#1{\special{color push #1}\global\advance\colordepth by 1} 
+\def\PopColor{\special{color pop}\global\advance\colordepth by -1} 
+
+% Set the colors:
+
+\def\colorit#1#2{\PushColor{#1}#2\PopColor}
+\def\background#1{\special{background #1}}
+\def\SetColor#1{\glbclr{#1}\special{color #1}}
+
+% \glbclr is used to remember the global color in use, by saving
+% it in the definition of \globalColor.  Pushing and popping the 
+% color stack is preferable, but this works too.
+
+\def\glbclr#1{\gdef\globalColor##1{\colorit{#1}{##1}}}
+
+% Define your own CMYK colors:
+
+\def\SetCmykColor#1{\glbclr{cmyk #1}\special{color cmyk #1}}
+\def\PushCmykColor#1{\special{color push cmyk #1}}
+
+% OLD CMYK color functions from colordvi.sty (the names are rather
+% unspecific as to their function, but this makes everything backwards
+% compatible).
+
+\def\textColor#1{\setCmykColor{#1}}
+\def\Color#1#2{\PushCmykColor{#1}#2\PopColor}
+
+
+% Make your own \Color and \textColor shortcuts with \addColor
+
+\def\addColor#1{% 
+   \expandafter\gdef\csname #1\endcsname##1{\colorit{#1}{##1}}%
+   \expandafter\gdef\csname text#1\endcsname{\SetColor{#1}}%
+}
+
+\def\newColor #1 {\addColor{#1}} % more backward compatibility
+
+% The Basic colors:
+
+\addColor{Black}        \addColor{White}        \addColor{Gray}
+\addColor{Red}          \addColor{Green}        \addColor{Blue}         
+\addColor{Cyan}         \addColor{Magenta}      \addColor{Yellow}
+\addColor{Orange}       \addColor{Purple}       \addColor{Brown}
+
+
+% Say \Crayolas to get shortcuts for all of the colors in color.pro
+% which are mostly based on the colors in a box of 64 Crayola Crayons.
+% (See colordvi.sty for *approximate* Pantone color matches.)
+
+\def\Crayolas{% Define all colors from Crayola Crayon box
+   \doColors{\addColor}}
+
+% Say \ListColors to list all the colors
+
+\def\ListColors{% List all the colors, by name
+    \def\ShowAcolor##1{\SetColor{##1}{##1}\ }%
+    \doColors{\ShowAcolor}
+}
+
+
+\def\doColors#1{% apply a macro to all the colors
+   #1{Black}          #1{White}          #1{Gray}           
+   #1{Red}	      #1{Green}		 #1{Blue}	
+   #1{Yellow}         #1{Cyan}		 #1{Magenta}        
+   #1{GreenYellow}    #1{RoyalPurple}    #1{RedViolet}      
+   #1{BlueViolet}     #1{Fuchsia}        #1{Orange}         
+   #1{Goldenrod}      #1{Periwinkle}	 #1{Lavender}       
+   #1{Dandelion}      #1{CadetBlue}	 #1{Thistle}        
+   #1{Apricot}        #1{CornflowerBlue} #1{Orchid}         
+   #1{Peach}          #1{MidnightBlue}	 #1{DarkOrchid}     
+   #1{Melon}          #1{NavyBlue}	 #1{Purple}         
+   #1{YellowOrange}   #1{RoyalBlue}	 #1{Plum}           
+   #1{BurntOrange}    #1{Cerulean}	 #1{SpringGreen}    
+   #1{Bittersweet}    #1{OliveGreen}     #1{Violet}          
+   #1{RedOrange}      #1{ProcessBlue}	 #1{RawSienna}      
+   #1{Mahogany}       #1{SkyBlue}	 #1{Sepia}          
+   #1{Maroon}         #1{Turquoise}	 #1{CarnationPink}  
+   #1{BrickRed}       #1{TealBlue}	 #1{Tan}            
+   #1{OrangeRed}      #1{BlueGreen}      #1{Aquamarine} 
+   #1{RubineRed}      #1{Emerald}	 #1{Mulberry}    
+   #1{WildStrawberry} #1{JungleGreen}	 #1{Rhodamine}   
+   #1{Salmon}         #1{SeaGreen}	 #1{LimeGreen}   
+   #1{ForestGreen}    #1{YellowGreen}    #1{Brown}          
+   #1{VioletRed}      #1{PineGreen}
+}
+   
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%>>> EOF color.txs <<<

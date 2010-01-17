@@ -1,0 +1,278 @@
+% mmpunct.mf -- interpunction for use with malayalam
+% (c) 1993 Jeroen Hellingman
+% last edit: 24-JAN-1993
+
+%%%%%% some macros
+
+def dot(suffix a,b,c,d) =
+	eye(a,b,c,d)(3uw,3uh);
+enddef;
+
+def draw_dot(suffix a,b,c,d) = 
+	draw_eye(a,b,c,d);
+	fill z.a..z.b..z.c..z.d..cycle;
+enddef;
+
+def comma(suffix a,b,c,d,e,f) =
+	dot(a,b,c,d);
+	z.e = (x.c + .5uw, y.d - 1.5uh);
+	z.f = (x.d, y.d - 7uh);
+enddef;
+
+def upsidedown_comma(suffix a,b,c,d,e,f) =
+	dot(a,b,c,d);
+	z.e = (x.a - .5uw, y.b + 1.5uw);
+	z.f = (x.d, y.b + 7uh);
+enddef;
+
+def draw_comma(suffix a,b,c,d,e,f) =
+	draw_dot(a,b,c,d)
+	draw z.b{right}..z.e{down}..z.f;
+enddef;
+
+def draw_upsidedown_comma(suffix a,b,c,d,e,f) =
+	draw_dot(a,b,c,d)
+	draw z.d{left}..z.e{up}..z.f;
+enddef;
+
+%%%%%% actual punctuation marks
+
+beginchar(c_hyphen, 12uw#+rm#, 11uh#, 0uh#); "U+2010 hyphen";
+	pickup frame_pen;
+	z1 = (0, 10uh);
+	z2 = (12uw, 10uh);
+	draw z1--z2;
+	penlabels(1,2);
+endchar;
+
+% The funny thing happens that in Malayalam an en-dash is as wide
+% as a letter ma, and an em-dash as wide as a letter na.
+
+beginchar(c_en_dash, 20uw#+rm#, 11uh#, 0uh#); "U+2013 en-dash";
+	pickup frame_pen;
+	z1 = (0, 10uh);
+	z2 = (20uw, 10uh);
+	draw z1--z2;
+	penlabels(1,2);
+endchar;
+
+beginchar(c_em_dash, 32uw#+rm#, 11uh#, 0uh#); "U+2014 em-dash";
+	pickup frame_pen;
+	z1 = (0, 10uh);
+	z2 = (32uw, 10uh);
+	draw z1--z2;
+	penlabels(1,2);
+endchar;
+
+beginchar(c_comma,3uw#+rm#, 3uh#, 7uh#); "U+002C comma";
+    pickup sub_pen;
+	x1 = 0;
+	y4 = 0;
+    comma(1,2,3,4,5,6);
+    draw_comma(1,2,3,4,5,6);
+    penlabels(1,2,3,4,5,6); 
+endchar;
+
+beginchar(c_period,3uw#+rm#,3uh#,0); "U+002E period";
+    pickup sub_pen;
+	x1 = 0;
+	y4 = 0;
+    dot(1,2,3,4);
+    draw_dot(1,2,3,4);
+    penlabels(1,2,3,4); 
+endchar;
+
+beginchar(c_semicolon,3uw#+rm#, 16uh#, 7uh#); "U+003B semicolon";
+    pickup sub_pen;
+	x1 = 0;
+	y2 = 16uh;
+    dot(1,2,3,4);
+    x5 = 0;
+    y8 = 0;
+    comma(5,6,7,8,9,10);
+    draw_dot(1,2,3,4);
+    draw_comma(5,6,7,8,9,10);
+    penlabels(1,2,3,4,5,6,7,8,9,10); 
+endchar;
+
+beginchar(c_colon,3uw#+rm#, 16uh#, 0uh#); "U+003A colon";
+    pickup sub_pen;
+	x1 = 0;
+	y2 = 16uh;
+    dot(1,2,3,4);
+    x5 = 0;
+    y8 = 0;
+    dot(5,6,7,8);
+    draw_dot(1,2,3,4);
+    draw_dot(5,6,7,8);
+    penlabels(1,2,3,4,5,6,7,8); 
+endchar;
+
+beginchar(c_open_quote,3uw#+rm#, 25uh#, 0); "U+2018 single turned comma quotation mark";
+    pickup sub_pen;
+	x5 = 0uw;
+	y6 = 25uh;
+	upsidedown_comma(1,2,3,4,5,6);
+    draw_upsidedown_comma(1,2,3,4,5,6);
+    penlabels(1,2,3,4,5,6); 
+endchar;
+
+beginchar(c_close_quote,3uw#+rm#, 25uh#, 0); "U+2019 single comma quotation mark";
+    pickup sub_pen;
+	x1 = 0;
+	y2 = 25uh;
+    comma(1,2,3,4,5,6);
+    draw_comma(1,2,3,4,5,6);
+    penlabels(1,2,3,4,5,6); 
+endchar;
+
+beginchar(c_open_paren, 6uw#+rm#, 30uh#, 10uh#); "U+0028 opening parenthesis";
+	pickup frame_pen;
+	z1 = (6uw, 30uh);
+	z2 = (0, .5[y1,y3]);
+	z3 = (x1, -10uh);
+	draw z1..z2{down}..z3;
+	penlabels(1,2,3);
+endchar;
+
+beginchar(c_close_paren, 6uw#+rm#, 30uh#, 10uh#); "U+0029 closing parenthesis";
+	pickup frame_pen;
+	z1 = (0, 30uh);
+	z2 = (6uw, .5[y1,y3]);
+	z3 = (x1, -10uh);
+	draw z1..z2{down}..z3;
+	penlabels(1,2,3);
+endchar;
+
+beginchar(c_slash, 10uw#+rm#, 30uh#, 10uh#); "U+002F slash";
+	pickup frame_pen;
+	z1 = (10uw, 30uh);
+	z2 = (0, -10uh);
+	draw z1--z2;
+	penlabels(1,2);
+endchar;
+
+beginchar(c_open_bracket, 6uw#+rm#, 30uh#, 10uh#); "U+005B opening square bracket";
+	pickup frame_pen;
+	z1 = (6uw, 30uh);
+	z2 = (0, y1);
+	z3 = (x2, -10uh);
+	z4 = (x1, y3);
+	draw z1--z2--z3--z4;
+	penlabels(1,2,3,4);
+endchar;
+
+beginchar(c_close_bracket, 6uw#+rm#, 30uh#, 10uh#); "U+005D closing square bracket";
+	pickup frame_pen;
+	z1 = (0, 30uh);
+	z2 = (6uw, y1);
+	z3 = (x2, -10uh);
+	z4 = (x1, y3);
+	draw z1--z2--z3--z4;
+	penlabels(1,2,3,4);
+endchar;
+
+beginchar(c_question_mark, 12uw#+rm#, 25uh#, 0); "U+003F question mark";
+	pickup frame_pen;
+	z1=(0, 21uh);
+	z2=(.5[x1,x3], 25uh);
+	z3=(12uw, 21uh);
+	z4=(3uw, 11uh);
+	z5=(x2, 8uh);
+	z5'=(9uw, 9uh);
+	x7=x2;
+	y9=0;
+	eye(6,7,8,9)(4uw, 4uh);
+	draw z1..z2{right}..z3{down}..z4{down}..z5{right}..z5';
+	draw_eye(6,7,8,9);
+	penlabels(1,2,3,4,5,5',6,7,8,9);
+endchar;
+
+beginchar(c_exlamation_mark, 4uw#+rm#, 25uh#, 0); "U+0021 exclamation mark";
+	pickup frame_pen;
+	z1=(x4, 25uh);
+	z2=(x4, 9uh);
+	z3=(0, 2uh);
+	eye(3,4,5,6)(4uw,4uh);
+	draw z1--z2;
+	draw_eye(3,4,5,6);
+	penlabels(1,2,3,4,5,6);
+endchar;
+
+%%%%%% dotted circle to show placement of accents/matras, etc.
+
+beginchar(c_dotted_circle,30uw#+rm#,25uh#,5uh#); "U+25CC dotted circle";
+    numeric n, d, db, r, rb, i, a;
+    z0 = (15uw, 10uh);
+    n:=14;
+    d:=360/n; db:=360/(4n);
+    r:=15uh; rb:=15uh - thin;
+    
+    a := 0;
+    forsuffixes s = 1,2,3,4,5,6,7,8,9,10,11,12,13,14 :
+        z.s.a = z0 + r * dir (a+db);
+        z.s.b = z0 + r * dir a;
+        z.s.c = z0 + r * dir (a-db);
+        z.s.d = z0 + rb * dir (a-db);
+        z.s.e = z0 + rb * dir a;
+        z.s.f = z0 + rb * dir (a+db);
+        fill z.s.a..z.s.b..z.s.c--z.s.d..z.s.e..z.s.f--cycle;
+        a := a + d;
+        penlabels(s.a,s.b,s.c,s.d,s.e,s.f);
+    endfor;
+    penlabels(0);
+endchar;
+
+%%%%%% white square, to show missing characters
+
+if unknown newfont:
+beginchar(c_white_square,30uw#+rm#,25uh#,5uh#); "U+25A1 white square";
+	pickup pensquare scaled thick;
+
+	z1=(0,-5uh)+.5(thick, thick);
+	z2=(0,25uh)+.5(thick, -thick);
+	z3=(30uw, 25uh)+.5(-thick, - thick);
+	z4=(30uw, -5uh)+.5(-thick, thick);
+
+	draw z1--z2 & z2--z3 & z3--z4 & z4--cycle;
+
+	penlabels(1,2,3,4);
+endchar;
+fi;
+
+%%%%%% finally, a nice ornamental star
+
+if unknown newfont:
+beginchar(c_star,(30*cosd30)*uh#+rm#,25uh#,5uh#); "ornamental star";
+	pickup pencircle scaled 1.5uh;
+	z0=(15*cosd30*uh, 10uh); % center of star
+	rad := 15uh;
+	% points of star
+    z1=z0 + (0,rad);
+    z2=z1 rotatedabout (z0, 60);
+    z3=z2 rotatedabout (z0, 60);
+    z4=z3 rotatedabout (z0, 60);
+    z5=z4 rotatedabout (z0, 60);
+    z6=z5 rotatedabout (z0, 60);
+	% inner circle
+	rad := 5uh;
+    z10=(z0 + (0,rad)) rotatedabout (z0, 30);
+    z11=z10 rotatedabout (z0, 60);
+    z12=z11 rotatedabout (z0, 60);
+    z13=z12 rotatedabout (z0, 60);
+    z14=z13 rotatedabout (z0, 60);
+    z15=z14 rotatedabout (z0, 60);
+ 	filldraw z1--z10--z2--z11--z3--z12--z4--z13--z5--z14--z6--z15--cycle;
+ 	cullit;
+ 	rad := 4.5uh;
+ 	z20 = z0 + (0, rad);
+ 	z21 = z0 + (rad, 0);
+ 	z22 = z0 - (0, rad);
+ 	z23 = z0 - (rad, 0);
+ 	unfill z20{right}..z21{down}..z22{left}..z23{up}..cycle;
+
+    penlabels(range 1 thru 23);
+endchar;
+fi;
+
+% eof

@@ -1,0 +1,79 @@
+%    tracking.sty
+%
+%    17 Mar 1996
+%    Glazkov D.A.
+%    e-mail: glazkov@sci.lpi.msk.su
+%
+%    117924 Moscow, Leninsky Prosp. 53
+%    P.N.Lebedev Physical Institute of
+%    Russian Academy of Sciences
+%             RUSSIA
+%
+%       This style invoke the commands for tracking, i.e. automatical adjust
+%       spaces between symbols in a words or phrases to fit them into needed
+%       length. Any chain of symbols (including spaces) in current font may 
+%       be treated. No commands, including font switching, are allowed in the
+%       arguments of following macros - the result will be unpredictable.
+%
+%       The additional spaces between words are not disappear. It's meant that
+%       the result of macros is placed onto one line of text, because it
+%       is inserted into \hbox{...}.
+%
+%       These commands are based on the idea of the loop "\dolist" - see
+%       D.Knuth "The TeXbook" (the answer for Ex. 11.5).
+%
+%
+%       You may change this code freely. But please inform me if you use
+%       or improve these commands.
+%
+%
+%
+%       Available commands:
+%
+%
+%	\track{x}{abc}
+%	    abc - initial chain of symbols
+%           x   - additional space which is added to the right of each
+%                 symbol but the last (including "spaces"). May be positive,
+%                 negative and zero.
+%                   Ex.  \track{-.3pt}{This is a probe}
+%
+%
+%	\fittrack{x}{abc}
+%           abc - initial chain of symbols
+%           x   - final length for the result of this command. May be less
+%                 or greater thah the length of the initial chain.
+%                    Ex. \fittrack{8cm}{This is a probe}
+%
+%
+%	\ratiotrack{x}{abc}
+%           abc - initial chain of symbols
+%           x   - ratio, showing how many times the result of this command
+%                 is longer than the length of the initial chain. May be
+%                 less, greater or equal to 1.
+%                    Ex. \ratiotrack{1.2}{This is a probe}
+
+
+\def\dolist{\afterassignment\dodolist\let\next= }
+\def\dodolist{\ifx\next\endlist \let\next\relax
+   \else \\\let\next\dolist \fi
+   \next}
+\def\endlist{\endlist}
+
+\def\track#1#2{%
+\def\\{\expandafter\if\space\next\setbox0=\hbox{\ }%
+  \else \setbox0=\hbox{\next}\fi%
+     \box0\kern#1}%
+\leavevmode\hbox{\dolist#2\endlist\unkern}}
+
+\def\fittrack#1#2{%
+\newcount\n\n=0%
+\def\\{\advance\n by1}%
+\dolist#2\endlist%
+\advance\n by-1%
+\setbox0=\hbox{#2}%
+\dimen0=#1\advance\dimen0 by-\wd0\divide\dimen0 by\n%
+\track{\dimen0}{#2}}
+
+\def\ratiotrack#1#2{%
+\setbox0=\hbox{#2}\dimen0=#1\wd0\fittrack{\dimen0}{#2}}

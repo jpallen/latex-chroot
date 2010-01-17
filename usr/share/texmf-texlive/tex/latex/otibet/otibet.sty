@@ -1,0 +1,43 @@
+%
+% File otibet.sty
+% 
+% Copyright (c) 1997 Norbert Preining
+% this file is part of the otibet package.
+\def\fileversion{0.2}
+\def\filedate{1997/06/01}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{otibet}[\filedate\space\fileversion\space
+Tibet package for Omega]
+\input{otibet.tex}
+\def\makeendsym{{\tbfamily
+\leavevmode\vtop{\ialign{##\cr
+\char"1030 \cr
+\noalign{\kern -2pt\nointerlineskip}
+{\hskip1pt\usefont{T1}{cmr}{b}{n}-}\cr
+\noalign{\nointerlineskip}
+\char"1030 \cr }} 
+}}
+\def\outputtibetan{%
+  \let\TibetanInputOcpList=\tibetantrans
+  \def\tbfamily{\fontfamily{tib}\selectfont}
+}
+\def\outputlatin{%
+  \let\TibetanInputOcpList=\latintrans
+  \let\tbfamily=\relax
+}
+\DeclareOption{wylie-input}{%
+  \inputwylie}
+\DeclareOption{unicode-input}{%
+  \inputunicode}
+\DeclareOption{tibetan-output}{%
+  \outputtibetan}
+\DeclareOption{latin-output}{%
+  \outputlatin}
+\ExecuteOptions{wylie-input,tibetan-output}
+\ProcessOptions
+\DeclareTextFontCommand{\texttb}{\tbfamily\pushocplist\TibetanInputOcpList}
+\endinput
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

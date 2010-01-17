@@ -1,0 +1,63 @@
+% MAP.TEX
+
+% Marek Ry\'cko
+
+% Macro \map
+% for applying operations to token sequences
+
+% uses SPLIT.TEX
+
+% version 0.0 24.07.1993
+% version 0.1 1.5.1996
+%   -- english description
+
+\def\map
+      % for each element E of the token list #2
+      % ``execute'' the token list #1
+      % possibly making use of the following macros:
+      %   \mappre   the token list before E (without E)
+      %   \mapcur   the token E
+      %   \mappost  the token list after E (without E)
+      %   \mapupto  the token list from the beginning till and including E
+      %   \mapfrom  the token list from and including E till the end
+      %   \mapent   the entire token list
+      %
+      %   -------------\mapent----------------
+      %                   ---\mapfrom---------
+      %   ----\mapupto-----
+      %   ................E...................
+      %   ----\mappre----- ---\mappost--------
+      %                   
+      %                   |
+      %                   |
+      %                \mapcur
+      %
+    #1% operation
+    #2% token list
+    {{%
+    \def\mapent{#2}%
+    \def\mappre{}%
+    \let\mapfrom\mapent
+    % \mappre contains already processed sequence
+    % \mapfrom contains the sequence to be processed
+    % while nonempty \mapfrom do:
+    \ifx\empty\mapfrom \mapcontfalse \else \mapconttrue \fi
+    \loop \ifmapcont
+        % \mapfrom nonempty, so it can be split:
+        % split \mapfrom to head and tail:
+        \split\mapfrom\mapcur\mappost
+        % set \mapupto as the concatenation of \mappre and \mapcur:
+        \expandafter\expandafter\expandafter
+        \def\expandafter\expandafter\expandafter
+        \mapupto\expandafter\expandafter\expandafter
+        {\expandafter\mappre\mapcur}%
+        % execute operation(s):
+        #1%
+        % define new values of \mappre and \mapfrom
+        \expandafter\def\expandafter\mappre\expandafter{\mapupto}%
+        \expandafter\def\expandafter\mapfrom\expandafter{\mappost}%
+        % \mappre contains already processed sequence
+        % \mapfrom contains the sequence to be processed
+        \ifx\empty\mapfrom \mapcontfalse \else \mapconttrue \fi
+    \repeat}}%
+\newif\ifmapcont

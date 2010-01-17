@@ -1,0 +1,36 @@
+% Pierre A. MacKay, Dept. of Classics, University of Washington
+% mackay@cs.washington.edu
+% Walter Schmidt 
+% w.a.schmidt@gmx.net
+% ------------------------
+% 2004-10-18 added proper identification (\ProvidesPackage)
+% 2003-05-28 patched wrt/ T1 encoding, added \textgreek
+% 12/7/97  Convert to ibycus4
+% 4/12/95  Test for isolatin package and suppress ibycus3.map if it's there
+% 31/10/95 Added \input{iby3extr} for editor symbols
+% 25/1/95  Created.
+%
+% For use with LaTeX2e
+% Replaces iby4text.tex; does not call setiby4.tex
+% Use "\fontsize{14}{17pt}\selectfont" instead of "\setgreek14/17"
+% and "{\greek{}...}" instead of "\GK{}...\RM{}"
+% The fd file is named as it should be, for ``Unknown'' encoding
+% even though I have to use OT1 in the actual file
+
+\ProvidesPackage{ibycus4}[2004/10/18 v4.5 Ibycus4 (P.A.MacKay/WaS)]
+\newtoks\digraphs
+\digraphs={tlgsqq}
+\chardef \atcode = \the \catcode `\@
+\def\unletterat{\catcode`\@ = \the \atcode}
+\catcode`\@ = 11
+\ifx\@grave@A@grave@\undefined\input{ibycus4.map}
+\else\@latex@warning@no@line{%
+No GreekKeys upper ASCII. Post-positive ASCII sequences only}\fi
+% Don't use the GreekKeys equivalents if isolatin is in use.
+\unletterat
+\input{Uibycus4.fd}
+\def\greek{\fontencoding{OT1}\fontfamily{ibycus}\selectfont}
+\input{iby4extr}
+\DeclareTextFontCommand{\textgreek}{\greek}
+
+\endinput

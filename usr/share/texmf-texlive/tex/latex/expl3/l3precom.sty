@@ -1,0 +1,115 @@
+%%
+%% This is file `l3precom.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% l3precom.dtx  (with options: `package,precompile,trace')
+%% 
+%% 
+%% EXPERIMENTAL CODE
+%% 
+%% Do not distribute this file without also distributing the
+%% source files specified above.
+%% 
+%% Do not distribute a modified version of this file.
+%% 
+%% 
+%% File: l3precom.dtx Copyright (C) 1990-1998 LaTeX3 project
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{l3precom}
+          [1998/04/20 v1.0b L3 Experimental precompilation module]
+\RequirePackage{l3int}
+\RequirePackage{l3io}
+\RequirePackage{l3seq}
+\iow_new:N\c_cs_dump_stream
+\tlp_new:Nn\g_cs_dump_name_tlp{}
+\seq_new:N\g_cs_dump_seq
+\def_new:Npn\cs_record_name:N#1{
+      \seq_gput_left:Nn
+          \g_cs_trace_seq#1
+      \seq_gput_left:Nn
+          \g_cs_dump_seq#1}
+\def_new:Npn\cs_record_name:c{\exp_args:Nc\cs_record_name:N}
+\def_new:Npn\cs_dump:{
+  \iow_expanded_term:n{Precompiling~style~into~(\g_cs_dump_name_tlp)}
+  \iow_open:Nn\c_cs_dump_stream{\g_cs_dump_name_tlp}
+  \iow_expanded:Nn\c_cs_dump_stream
+    {\group_begin:
+     \tex_catcode:D`\token_to_string:N\*=11\scan_stop:
+     \token_to_string:N\CodeStart
+    }
+  \seq_map_inline:Nn
+       \g_cs_dump_seq
+       {\tex_message:D{.}
+        \iow_expanded:Nn\c_cs_dump_stream
+             {\token_to_string:N\gdef:Npn
+                 \token_to_string:N##1
+                 {\tlp_to_str:N##1}}
+       }
+  \iow_expanded:Nn
+     \c_cs_dump_stream
+     {\token_to_string:N\fint_gset:Nn
+                        \g_gen_sym_fint
+                        {\fint_use:N\g_gen_sym_fint}^^J
+      \token_to_string:N\fint_gset:Nn
+                        \g_ggen_sym_fint
+                        {\fint_use:N\g_ggen_sym_fint}}
+  \iow_expanded:Nn
+     \c_cs_dump_stream
+     {\group_end:}
+  \iow_close:N\c_cs_dump_stream
+  \tex_message:D{~finished}
+}
+\def_new:Npn\cs_load_dump:n#1{
+  \file_not_found:nTF{#1.cmp}
+      {\tlp_gset:Nn\g_cs_dump_name_tlp{#1.cmp}}
+      {\input{#1.cmp}
+       \let:NN\cs_dump:\fi:
+       \if_false:}}
+\fint_new:N\g_gen_sym_fint
+\fint_gset:Nn\g_gen_sym_fint{0}
+\fint_new:N\g_ggen_sym_fint
+\fint_gset:Nn\g_ggen_sym_fint{0}
+\def_new:Npn\cs_gen_sym:N#1{
+  \fint_gincr:N\g_gen_sym_fint
+  \tlp_set:Nc#1{l*\tex_romannumeral:D\fint_use:N\g_gen_sym_fint}
+  \exp_after:NN\cs_record_name:N#1
+  \exp_after:NN\tlp_clear_new:N#1}
+\def_new:Npn\cs_ggen_sym:N#1{
+  \fint_gincr:N\g_ggen_sym_fint
+  \tlp_set:Nc#1{g*\tex_romannumeral:D\fint_use:N\g_ggen_sym_fint}
+  \exp_after:NN\cs_record_name:N#1
+  \exp_after:NN\tlp_clear_new:N#1}
+\seq_new:N\g_cs_trace_seq
+\seq_new:N\g_register_trace_seq
+\def:Npn\cs_record_meaning:N#1{
+      \seq_gput_left:Nn
+          \g_cs_trace_seq#1}
+\def:Npn\register_record_name:N#1{
+      \seq_gput_left:Nn
+          \g_register_trace_seq#1}
+\def_new:Npn\dumpLaTeXstate#1{
+  \iow_expanded_term:n{Dumping~commands~into~(#1.dmp)}
+  \iow_open:Nn\c_cs_dump_stream{#1.dmp}
+  \seq_map_inline:Nn
+       \g_cs_trace_seq
+       {\tex_message:D{.}
+        \iow_expanded:Nn\c_cs_dump_stream
+             {\token_to_string:N##1~
+              \token_to_meaning:N##1}
+       }
+  \tex_message:D{~registers}
+  \seq_map_inline:Nn
+       \g_register_trace_seq
+       {\tex_message:D{.}
+        \iow_expanded:Nn\c_cs_dump_stream
+             {\token_to_string:N##1
+              \the_internal:D##1}
+       }
+  \tex_message:D{~finished}
+}
+
+%% 
+%%
+%% End of file `l3precom.sty'.

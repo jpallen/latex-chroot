@@ -1,0 +1,133 @@
+% Change of length into longueur for new modes.mf (Nicolas Brouard 4/11/91)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                           %
+%                      BOGEN                                %
+%                                                           %
+%      (Phrasierungsbogen und Bogen der Steigung 0)         %
+%                                                           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+def drawslurs (expr st, hflag, istart) =
+    save i, factor, longueur, height, depth;
+    numeric i,  absp, longueur, height, depth, factor, bnummer, quotum, quotum#;
+    factor:= 1/6;
+    if hflag = 0 : bnummer:=31; quotum#:=0.5*nhw#; quotum:=0.5*nhw;
+    else         : bnummer:=15; quotum#:=nhw#; quotum:=nhw;
+    fi;
+    for i=0 upto bnummer: fulllength:=(i+1)*quotum#;
+          if hflag = 0 : longueur:= fulllength; 
+            else : longueur:= fulllength/2;
+            fi;
+
+          depth := 0 ;
+
+          ww:= (i+1)*quotum;
+          hh:=0;
+          dd:=0;
+          absp := abs((-hh,ww));
+          if (factor*absp)>2nhh : factor:= 2nhh/absp fi;
+          height := factor*fulllength;
+
+% modif Ian Collier
+          if (hflag=0) and (i mod 2 = 0):      
+            height := height - factor*quotum#
+          fi;
+
+          beginchar(istart+i, longueur, height, depth);
+            clear;
+            z2l = (ww,hh);
+            z1l = origin;
+            z3r = (ww/2,h);
+            penpos1(thinwidth,90);
+            penpos2(thinwidth,90);
+            penpos3(5/12beamht,90);
+ %          currentpen := pencircle xscaled thinwidth yscaled beamht ;
+            pickup  pencircle scaled (1/16mm + blacker);
+            if hflag=0 : penstroke z1e..{right}z3e{right}..z2e; fi; 
+            if hflag<0 : penstroke z1e..{right}z3e; fi; 
+            if hflag>0 : 
+              penstroke (z3e{right}..z2e) shifted (-ww/2,0); fi; 
+          endchar;
+    endfor;
+enddef;
+
+def drawslursneg (expr st, hflag, istart) =
+    save i, factor, longueur, height, depth;
+    numeric i,  absp, longueur, height, depth, factor, bnummer, quotum, quotum#;
+    factor:= 1/6;
+    if hflag = 0 : bnummer:=31; quotum#:=0.5*nhw#; quotum:=0.5*nhw;
+    else         : bnummer:=15; quotum#:=nhw#; quotum:=nhw;
+    fi;
+    for i=0 upto bnummer: fulllength:=(i+1)*quotum#;
+         if hflag = 0 : longueur :=  fulllength;
+           else : longueur:=  fulllength/2; 
+           fi;
+         height := 0 ;
+
+         ww:= (i+1)*quotum;
+         hh:=0;
+         dd:=0;
+         absp := abs((dd,ww));
+         if (factor*absp)>2nhh : factor:= 2nhh/absp fi;
+         depth:=fulllength*factor; 
+
+% modif Ian Collier
+          if (hflag=0) and (i mod 2 = 0):      
+            depth := depth - factor*quotum#
+          fi;
+        beginchar(istart+i, longueur, height, depth);
+           clear;
+           z2r = (ww,-dd);
+           z1r = origin;
+           z3l = (ww/2,-d);
+           penpos1(thinwidth,90);
+           penpos2(thinwidth,90);
+           penpos3(5/12beamht,90);
+%          currentpen := pencircle xscaled thinwidth yscaled beamht ;
+            pickup  pencircle scaled (1/16mm + blacker);
+            if hflag=0 : penstroke z1e..{right}z3e{right}..z2e; fi; 
+            if hflag<0 : penstroke z1e..{right}z3e; fi; 
+            if hflag>0 : 
+              penstroke (z3e{right}..z2e) shifted (-ww/2,0); fi; 
+         endchar;
+    endfor;
+enddef;
+
+%%%%%%%%%%%%%%%%%%%
+% Bogen nach oben %
+%%%%%%%%%%%%%%%%%%%
+
+drawslurs(0,0,0);
+
+%%%%%%%%%%%%%%%%%%%%
+% Bogen nach unten %
+%%%%%%%%%%%%%%%%%%%%
+
+drawslursneg(0,0,32);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% linke Halbboegen  nach oben %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+drawslurs(0,-1,64);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% rechte Halbboegen  nach oben %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+drawslurs(0,1,80);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% linke Halbboegen  nach unten %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+drawslursneg(0,-1,96);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% rechte Halbboegen  nach unten %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+drawslursneg(0,1,112);
+
+end;

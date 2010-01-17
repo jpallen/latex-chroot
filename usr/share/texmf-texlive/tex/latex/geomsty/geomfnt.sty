@@ -1,0 +1,135 @@
+% $Header: /usr/home/levy/texts/geomsty/RCS/geomfnt.sty,v 1.2 95/07/03 14:44:31 levy Exp Locker: levy $
+% NFSS2 mods 95/06/18 by J Rawnsley
+
+\ifx\fmtname\format@e
+ \RequirePackage{amsfonts}
+ \RequirePackage{amssymb}
+\else
+ \input newlfont.sty
+ \input amsfonts.sty
+ \input amssymb.sty
+\fi
+
+\let\emptyset\varnothing
+\let\epsilon\varepsilon %to agree with figure labels; also looks better
+
+\def\hide@fi{\fi}
+\def\hide@else{\else}
+
+\ifx\DeclareMathAlphabet\@undefined
+ \def\mathss{\protect\pmathss}
+ \def\pmathss{\RIfM@\expandafter\mathss@\hide@else
+                 \expandafter\nonmatherr@\expandafter\mathss\hide@fi}
+ \newmathalphabet*\mathss@{cmss}{m}{n}
+ \def\mathtt{\protect\pmathtt}
+ \def\pmathtt{\RIfM@\expandafter\mathtt@\hide@else
+                 \expandafter\nonmatherr@\expandafter\mathtt\hide@fi}
+ \newmathalphabet*\mathtt@{cmtt}{m}{n}
+%
+% mods needed because of the Mittelbach-Schoepf font scheme
+%
+\def\bf{\ifmmode
+  \@warning{\string\bf\space ignored in mathmode; use \string\mathbf{...}}%
+  \else\protect\pbf\fi}
+\def\tt{\ifmmode
+  \@warning{\string\tt\space ignored in mathmode; use \string\mathtt{...}}%
+  \else\protect\ptt\fi}
+\def\rm{\ifmmode
+  \@warning{\string\rm\space ignored in mathmode; use \string\mathrm{...}}%
+  \else\protect\prm\fi}
+\def\it{\ifmmode
+  \@warning{\string\it\space ignored in mathmode; use \string\mathit{...}}%
+  \else\protect\pit\fi}
+\def\sf{\ifmmode
+  \@warning{\string\sf\space ignored in mathmode; use \string\mathss{...}}%
+  \else\protect\psf\fi}
+ \let\mathbf\bold
+\else
+ \DeclareMathAlphabet\mathss{OT1}{cmss}{m}{n}
+ \DeclareMathAlphabet\mathtt{OT1}{cmtt}{m}{n}
+ \let\text\textrm
+ \let\bold\mathbf
+\fi
+
+\let\sans\mathss
+\let\type\mathtt
+
+\def\${{\protect\pdollar}}
+\def\pdollar{\ifmmode\char`\$\else\text{\ifdim \fontdimen\@ne\font >\z@
+              \sl \else \normalshape \fi\char`\$}\fi}
+
+%
+% mod routines from amstex.sty
+%
+\def\bmod{\mskip-\medmuskip\mkern5mu\mathbin
+ {\operator@font mod}\penalty900
+ \mkern5mu\mskip-\medmuskip}
+\def\pmod#1{\allowbreak\ifinner\mkern8mu\else\mkern18mu\fi
+ ({\operator@font mod}\,\,#1)}
+\def\pod#1{\allowbreak\ifinner\mkern8mu\else\mkern18mu\fi(#1)}
+\def\mod#1{\allowbreak\ifinner\mkern12mu
+  \else\mkern18mu\fi{\operator@font mod}\,\,#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%  Math extension font
+%%  (from fontdef.ams)
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ifx\DeclareMathAlphabet\@undefined
+\new@fontshape{cmex}{m}{n}{%
+      <5>cmex7 at5pt%
+      <6>cmex7 at6pt%
+      <7>cmex7%
+      <8>cmex8%
+      <9>cmex9%
+      <10>cmex10%
+      <11>cmex10 at10.95pt%
+      <12>cmex10 at12pt%
+      <14>cmex10 at14.4pt%
+      <17>cmex10 at17.28pt%
+      <20>cmex10 at20.74pt%
+      <25>cmex10 at24.88pt%
+      }{}
+
+\extra@def{cmex}{}{}
+
+\define@mathgroup\mv@normal{3}{cmex}{m}{n}
+\define@mathgroup\mv@bold{3}{cmex}{b}{n}
+
+\new@mathgroup\cmss@group
+\define@mathgroup\mv@normal\cmss@group{cmss}{m}{n}
+\define@mathgroup\mv@bold\cmss@group{cmss}{b}{n}
+\else
+  \catcode`\ =9
+\DeclareFontShape{OMX}{cmex}{m}{n}{%
+      <-8> cmex7%
+      <8>cmex8%
+      <9>cmex9%
+      <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88>cmex10%
+      }{}%
+  \expandafter\let\csname OMX/cmex/m/n/10\endcsname\relax
+  \catcode`\ =10
+
+\DeclareSymbolFont{cmss}{OT1}{cmss}{m}{n}
+\fi
+
+%$Log:	geomfnt.sty,v $
+%Revision 1.2  95/07/03  14:44:31  levy
+%NFSS2 changes by John Rawnsley
+%
+%Revision 1.2  95/07/03  14:31:45  levy
+%NFSS2 changes by John Rawnsley
+%
+%Revision 1.2  95/07/03  14:09:28  levy
+%NFSS2 changes by John Rawnsley
+%
+%Revision 1.2  95/07/03  14:08:08  levy
+%*** empty log message ***
+%
+%Revision 1.1  92/04/07  09:45:07  levy
+%Initial revision
+%
+% Revision 1.1  92/04/07  09:09:01  levy
+% Initial revision

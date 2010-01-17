@@ -1,0 +1,194 @@
+%% file: TXSsymb.tex - Special Symbols - TeXsis version 2.18
+%% @(#) $Id: TXSsymb.tex,v 18.0 1999/07/09 17:24:29 myers Exp $
+%======================================================================*
+% EXTENDED MATH SYMBOLS FOR PHYSICS
+%       
+%       This file defines extensions to the symbols in Plain TeX which
+% are generally useful for physics papers, especially (but not only) for
+% high energy physics. See the comments for each definition.
+%-----------------------------------------------------------------------*
+\message{Extended math/physics symbols,}
+
+% Assorted special symbols:
+
+% Use \E{exponent} for scientific notation, in text or math mode
+
+\def\E#1{\hbox{$\times 10^{#1}$}}
+
+% ---------- Gradient, partial, laplacian, etc...
+
+\def\square{\hbox{{$\sqcup$}\llap{$\sqcap$}}}   % box laplacian
+\def\grad{\nabla}                               % synonym for the gradient
+\def\del{\partial}                              % synonym for \partial
+
+% ---------- Fractions.
+
+\def\frac#1#2{{#1\over#2}}
+\def\smallfrac#1#2{{\scriptstyle {#1 \over #2}}}
+\def\half{\ifinner {\scriptstyle {1 \over 2}}%
+          \else {\textstyle {1 \over 2}}\fi}
+
+% ---------- Bras, kets and vev's
+
+\def\bra#1{\langle#1\vert}              % \bra{stuff} gives <stuff|
+\def\ket#1{\vert#1\/\rangle}              % \ket{stuff} gives |stuff>
+\def\vev#1{\langle{#1}\rangle}          % \vev{stuff} gives <stuff>
+
+
+%       \simge and \simle make the "greater than about" and the "less
+% than about" symbols with spacing as relations.  \therefore is the 
+% three-dots-in-a-triangle symble for ``therefore''
+
+\def\simge{%  ``greater than about'' symbol
+    \mathrel{\rlap{\raise 0.511ex 
+        \hbox{$>$}}{\lower 0.511ex \hbox{$\sim$}}}}
+
+\def\simle{%  ``less than about'' symbol
+    \mathrel{\rlap{\raise 0.511ex 
+        \hbox{$<$}}{\lower 0.511ex \hbox{$\sim$}}}}
+
+\def\gtsim{\simge}                              % synonym for \simge
+\def\ltsim{\simle}                              % synonym for \simle
+
+
+\def\therefore{% three-dot symbol for ``therefore''
+   \setbox0=\hbox{$.\kern.2em.$}\dimen0=\wd0    %
+   \mathrel{\rlap{\raise.25ex\hbox to\dimen0{\hfil$\cdotp$\hfil}}%
+   \copy0}}
+
+
+%  \| gives a vertical bar appropriate to the context
+
+\def\|{\ifmmode\Vert\else \char`\|\fi}          
+
+% the pound Sterling symbol, from the \it italic font
+
+\def\sterling{{\hbox{\it\char'44}}}     
+
+% \degrees works in math or text mode.  Eg. 90\degrees or 45\degree
+
+\def\degrees{\hbox{$^\circ$}}                    % the degrees symbol, $^\circ$
+\def\degree{\degrees}                            % synonym
+
+% ---------- Functions -- all defined like \sin, etc. in Plain TeX:
+
+\def\real{\mathop{\rm Re}\nolimits}     % Re for real part
+\def\imag{\mathop{\rm Im}\nolimits}     % Im for imaginary part
+
+\def\tr{\mathop{\rm tr}\nolimits}       % tr for trace
+\def\Tr{\mathop{\rm Tr}\nolimits}       % Tr for functional trace
+\def\Det{\mathop{\rm Det}\nolimits}     % Det for functional determinant
+
+\def\mod{\mathop{\rm mod}\nolimits}     % mod for modulo
+\def\wrt{\mathop{\rm wrt}\nolimits}     % wrt for with respect to
+\def\diag{\mathop{\rm diag}\nolimits}   % diag for diagonal matrix
+
+% ---------- Abbreviations for units
+
+\def\TeV{{\rm TeV}}                     % 10^12 electron volts
+\def\GeV{{\rm GeV}}                     % 10^9  electron volts
+\def\MeV{{\rm MeV}}                     % 10^6  electron volts
+\def\keV{{\rm keV}}                     % 10^3  electron volts
+\def\eV{{\rm eV}}                       % 1     electron volt
+
+\def\Ry{{\rm Ry}}                       % Rydbergs
+
+\def\mb{{\rm mb}}                       % 10^-27 cm^2
+\def\mub{\hbox{\rm $\mu$b}}             % 10^-30 cm^2
+\def\nb{{\rm nb}}                       % 10^-33 cm^2
+\def\pb{{\rm pb}}                       % 10^-36 cm^2
+\def\fb{{\rm fb}}                       % 10^-39 cm^2
+
+\def\cmsec{{\rm cm^{-2}s^{-1}}}         % cm^-2s^-1 for luminosity
+
+% Build your own unit with \units.  Eg. \units{klik}
+
+\def\units#1{\hbox{\rm #1}} 
+\let\unit=\units                        % synonym
+
+% Use \dimensions{what}{power} to create the square bracket/power
+% notation for dimensional analysis.  Eg.  \dimensions{mass}{2}
+
+\def\dimensions#1#2{\hbox{$[\hbox{\rm #1}]^{#2}$}}
+
+%========================================*
+%       \parenbar puts a bar in small parentheses over a character to
+% indicate an optional antiparticle. \nunubar and \ppbar are special
+% cases.
+
+\def\parenbar#1{{\null\!                        % left-hand spacing
+   \mathop{\smash#1}\limits%                    % superscript above
+   ^{\hbox{\fiverm(--)}}%                       % 5pt type
+   \!\null}}                                    % right-hand spacing
+
+\def\nunubar{\parenbar{\nu}}
+\def\ppbar{\parenbar{p}}
+
+%========================================*
+%       \buildchar makes a compound symbol, placing #2 above #1 and #3
+% below it with \limits. \overcirc is a special case.
+
+\def\buildchar#1#2#3{{\null\!                   % \null, cancel space
+   \mathop{\vphantom{#1}\smash#1}\limits%       % #1 with spacing and
+   ^{#2}_{#3}%                                  %   #2 above, #3 below
+   \!\null}}                                    % cancel space, \null
+
+\def\overcirc#1{\buildchar{#1}{\circ}{}}
+
+% Sun and earth symbols
+
+\def\sun{{\hbox{$\odot$}}}\def\earth{{\hbox{$\oplus$}}}
+
+%========================================*
+%  \slashchar puts a slash through a character to represent contraction
+%  with Dirac matrices. 
+
+\def\slashchar#1{\setbox0=\hbox{$#1$}           % set a box for #1 
+   \dimen0=\wd0                                 % and get its size
+   \setbox1=\hbox{/} \dimen1=\wd1               % get size of /
+   \ifdim\dimen0>\dimen1                        % #1 is bigger
+      \rlap{\hbox to \dimen0{\hfil/\hfil}}      % so center / in box
+      #1                                        % and print #1
+   \else                                        % / is bigger
+      \rlap{\hbox to \dimen1{\hfil$#1$\hfil}}   % so center #1
+      /                                         % and print /
+   \fi}                                         %
+
+%========================================*
+%       \subrightarrow#1 puts the text #1 under an arrow of the 
+% appropriate length.
+
+\def\subrightarrow#1{%                          % #1 under arrow
+  \setbox0=\hbox{%                              % set a box
+    $\displaystyle\mathop{}%                    % no mathop
+    \limits_{#1}$}%                             % just limits
+  \dimen0=\wd0%                                 % get width
+  \advance \dimen0 by .5em%                     % add a bit
+  \mathrel{%                                    % space like =
+    \mathop{\hbox to \dimen0{\rightarrowfill}}% % arrow to width
+       \limits_{#1}}}                           % text below
+
+%========================================*
+% \vbig produces very (or variably) big delimiters. The syntax is
+% \vbigl<delim><size> or \vbigr<delim><size>, where <delim> is any
+% delimiter and <size> is any valid dimension in pt, cm, in,.... 
+% There is also a  \vbigm for (middle) relations.
+
+\newdimen\vbigd@men                             % for \vbig
+
+\def\vbigl{\mathopen\vbig}
+\def\vbigm{\mathrel\vbig}
+\def\vbigr{\mathclose\vbig}
+
+\def\vbig#1#2{{\vbigd@men=#2\divide\vbigd@men by 2%
+   \hbox{$\left#1\vbox to \vbigd@men{}\right.\n@space$}}}
+
+% \Leftcases and \Rightcases are just \vbig \{ or \} with \smash. These
+% can be used to make constructions like \cases with a number on each
+% line, but the spacing is NOT automatic.
+
+\def\Leftcases#1{\smash{\vbigl\{{#1}}}
+\def\Rightcases#1{\smash{\vbigr\}{#1}}}
+
+% >>> EOF TXSsymb.tex <<<
+

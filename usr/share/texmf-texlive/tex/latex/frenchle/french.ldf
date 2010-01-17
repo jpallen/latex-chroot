@@ -1,0 +1,88 @@
+%% This is french.ldf (french option for Babel) under LaTeX     --bg 2006/09/27
+%%
+%                  Copyright 1995-2006 Bernard GAULLE, Copyright notice: LPPL
+%%
+%%      checksum        = "46368 87 373 4073"
+%
+%
+\ProvidesFile{french.ldf}% originally:
+%       [1995/06/19 v1.0 the first try with Babel 3.4
+%       [1997/01/02 v1.2 well a just in time for 3.5 alpha
+%       [1997/02/21 v1.3 mods for 3.6, pb is loading babel.def at good time.
+%       [1997/03/28 v1.4 
+%       [1997/08/26 v1.5 
+%       [1999/09/21 v1.6 
+%       [2000/07/04 v1.7 % french light support (frenchle) added. 
+%       [2000/08/29 v1.8 % french light correction (frenchle speaks french)
+%       [2001/11/28 v1.9 % french loaded before babel, special case.
+%       [2003/11/19 v1.10 % french loaded before babel frenchle/frenchpro,
+%       [2004/06/25 v1.11 % mlp loaded before babel. \atcatcode removed. 
+%       [2004/09/13 v1.12 % messages numbers changed.
+%       [2005/03/21 v1.13 % pb francais/frenchb loaded before babel FrenchPro.
+        [2006/09/28 v1.14 % \main@language added before \selectlanguage.
+                 french option of babel loading the frenchle/FrenchPro package]
+\ifx\undefined\captionsfrench% In case french is allready loaded,
+\else% major switchs should be set now:
+  \ifx\@mlp@loaded\undefined% but only if the mlp package wasn't 
+  \else% already loaded.
+       \PackageError{\CurrentOption}%
+               {-80- Babel is willing to load the \CurrentOption\space option%
+               \MessageBreak but the mlp package is already loaded, %
+               please choose %
+               \MessageBreak either mlp with \CurrentOption\space option, %
+               \CurrentOption\space alone %
+               \MessageBreak or babel with \CurrentOption\space option}%
+               {just remove the superfluous package or option.}%
+  \expandafter\endinput\fi%
+ \expandafter\let\expandafter\ifLPA\csname iffalse\endcsname
+ \let\nofrenchtypography\relax
+ \let\nofrenchtranslation\relax
+ \let\nofrenchlayout\relax
+ \let\nofrenchmacros\relax
+ \let\nofrenchhyphenation\relax
+ \ifx\LdfInit\undefined\else\expandafter\LdfInit\fi
+ \main@language{french}\selectlanguage{french}% Select again French
+\expandafter\ifx\csname endfrench\endcsname\relax
+\PackageError{frenchle}{-93- You are using two French options for Babel, %
+                        please choose only one.}
+\let\endfrench\stop\fi
+ \endfrench% but stop it until \begin{document}.
+ \expandafter\endinput%
+\fi
+\ifnum\catcode`\@=11\else\expandafter\catcode`\@=11\fi%
+\ifx\undefined\babel@core@loaded% still undefined (>3.5)?
+           \let\babel@core@loaded\main@language\fi%
+\ifx\undefined\originalTeX \let\originalTeX\empty \fi
+\originalTeX
+\ifx\undefined\l@french\@nopatterns{French}\adddialect\l@french0\fi
+
+\protected@write\@auxout{}{\protect% insure files integrity
+\csname auxWARNINGii\protect\endcsname{\protect\typeout
+            {-34- this file and other auxiliary files require to
+                  use the following}}}
+\protected@write\@auxout{}{\protect%
+\csname auxWARNINGii\protect\endcsname{\protect\typeout
+            {-34- LaTeX packages: french and babel!}}}
+\protected@write\@auxout{}{\protect%
+\csname auxWARNINGii\protect\endcsname{\protect\typeout
+            {-34- check \protect\protect\protect\usepackage
+                  \protect\space or remove these files.
+                  Typesetting is aborted!}
+            \protect\stop}}%
+\let\auxWARNINGi=\@gobble% accept aux files produces by french
+\let\auxWARNINGii=\@gobble% and those produces by babel+french
+
+\InputIfFileExists{french.sty}{}% load our french pro package
+ {\InputIfFileExists{frenchle.sty}{}% or the light version if any,
+  {\PackageError{french/frenchle}%
+   {-63- french or frenchle style files not found}%
+   {-63- Check if files exist somewhere in your system.}%
+   \let\endfrench\stop%
+  }%
+ }%
+\endfrench% and stop it immediately until \begin{document}
+\let\noextrasfrancais\endfrench% bug in babel.sty version 3.5e
+\let\extrasfrancais\frenchTeXmods% ditto
+\let\captionsfrancais\captionsfrench%
+\main@language{french}%
+\endinput%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,0 +1,162 @@
+% how to run.
+% \input tree.sty or \documentstyle[tree]{..}
+% run through latex as you normally do
+% remember to send it to a postscript printer
+
+
+\special{header=tree-dvips.pro}
+
+
+\def\pscmd#1{\special{ps:@beginspec
+/nodemargin \@int{\the\nodemargin}\space pt def %
+\@int{\the\treelinewidth}\space pt setlinewidth %
+\ifdim\dashlength=0pt [] 0 setdash%
+/arrowwidth \@int{\the\arrowwidth}\space pt def %
+/arrowlength \@int{\the\arrowlength}\space pt def %
+\else [\@int{\the\dashlength}\space pt] 0 setdash \fi\space
+#1 %
+@endspec}}
+
+% parameters in tree mode
+\newdimen\nodemargin % 
+\nodemargin=2pt
+\newdimen\treelinewidth
+\treelinewidth=.3pt
+
+\def\thinline{\treelinewidth=.3pt}
+
+\newdimen\dashlength
+
+% \makedash{dimen}  makes dashes of dimen length if dimen = 0pt then 
+% solid line
+\def\makedash#1{\dashlength=#1}
+
+\newdimen\arrowwidth
+\arrowwidth 4pt
+\newdimen\arrowlength
+\arrowlength 4pt
+
+{\catcode`p=12 \catcode`t=12 \gdef\wnum#1pt{#1}}
+\def\@int#1{\expandafter\wnum#1}
+
+\def\node#1#2{\leavevmode
+              \setbox1=\hbox{#2}\pscmd{/#1 \@int{\the\wd1} \space pt
+                                           \@int{\the\ht1} \space pt
+                                           \@int{\the\dp1} \space pt
+                                       node}\box1\relax}           
+
+
+% A node of 0pt width and height
+% \nodepoint{nodename}[horizontal displacement][vertical displacement]
+% default is current point
+\def\nodepoint#1{\@ifnextchar [{\@nodepoint{#1}}{\@nodepoint{#1}[0pt][0pt]}}
+
+\def\@nodepoint#1[#2][#3]{{\@tempdima=#2 \@tempdimb=#3%
+\pscmd{/nodemargin 0 def %
+/#1 \@int{\the\@tempdima}\space pt \@int{\the\@tempdimb}\space pt %
+rmoveto 0 0 0 node}}}
+
+\newtoks\pos@t   \pos@t={top}    
+\newtoks\pos@b   \pos@b={bottom} 
+\newtoks\pos@l   \pos@l={left}   
+\newtoks\pos@r   \pos@r={right}  
+\newtoks\pos@tl   \pos@tl={topleft}    
+\newtoks\pos@tr   \pos@tr={topright}   
+\newtoks\pos@bl   \pos@bl={bottomleft} 
+\newtoks\pos@br   \pos@br={bottomright}  
+
+
+% \nodeconnect[fromloc]{fromnode}[toloc]{tonode}
+\def\nodeconnect{\@ifnextchar [{\@nodeconnect}{\@nodeconnect[b]}}
+\def\@nodeconnect[#1]#2{\@ifnextchar [{\@@nodeconnect[#1]{#2}}{\@@nodeconnect[#1]{#2}[t]}}
+
+\def\@@nodeconnect[#1]#2[#3]#4{\pscmd{%
+/#2 getnode node\the\csname pos@#1\endcsname \space%
+/#4 getnode node\the\csname pos@#3\endcsname\space nodeconnect}}
+
+% \anodeconnect[fromloc]{fromnode}[toloc]{tonode}
+\def\anodeconnect{\@ifnextchar [{\@anodeconnect}{\@anodeconnect[b]}}
+\def\@anodeconnect[#1]#2{\@ifnextchar [{\@@anodeconnect[#1]{#2}}{\@@anodeconnect[#1]{#2}[t]}}
+
+\def\@@anodeconnect[#1]#2[#3]#4{\pscmd{%
+/#2 getnode node\the\csname pos@#1\endcsname \space%
+/#4 getnode node\the\csname pos@#3\endcsname\space arrownodeconnect}}
+
+
+% \nodecurve[fromloc]{fromnode}[toloc]{tonode}{depthfrom}[depthto]
+
+\def\nodecurve{\@ifnextchar [{\@nodecurve}{\@nodecurve[b]}}
+\def\@nodecurve[#1]#2{\@ifnextchar [{\@@nodecurve[#1]{#2}}{\@@nodecurve[#1]{#2}[t]}}
+
+\def\@@nodecurve[#1]#2[#3]#4#5{\@ifnextchar [{\@@@nodecurve[#1]{#2}[#3]{#4}{#5}}%
+{\@@@nodecurve[#1]{#2}[#3]{#4}{#5}[#5]}}
+
+\def\@@@nodecurve[#1]#2[#3]#4#5[#6]{\@tempdima=#5%
+\@tempdimb=#6%
+\pscmd{/depth \@int{\the\@tempdimb} \space pt def %
+ /#4 \the\csname pos@#3\endcsname cur\space %
+ /depth \@int{\the\@tempdima} \space pt def %
+ /#2 \the\csname pos@#1\endcsname cur\space %
+nodecurve}}
+
+% \anodecurve[fromloc]{fromnode}[toloc]{tonode}{depth}
+
+\def\anodecurve{\@ifnextchar [{\@anodecurve}{\@anodecurve[b]}}
+\def\@anodecurve[#1]#2{\@ifnextchar [{\@@anodecurve[#1]{#2}}{\@@anodecurve[#1]{#2}[t]}}
+
+
+\def\@@anodecurve[#1]#2[#3]#4#5{\@ifnextchar [{\@@@anodecurve[#1]{#2}[#3]{#4}{#5}}%
+{\@@@anodecurve[#1]{#2}[#3]{#4}{#5}[#5]}}
+
+
+\def\@@@anodecurve[#1]#2[#3]#4#5[#6]{\@tempdima=#5%
+\@tempdimb=#6%
+\pscmd{/depth \@int{\the\@tempdimb} \space pt def %
+ /#4 \the\csname pos@#3\endcsname cur\space %
+ /depth \@int{\the\@tempdima} \space pt def %
+ /#2 \the\csname pos@#1\endcsname cur\space %
+arrownodecurve}}
+
+
+% above is well tested below is not
+\newif\iftransparent
+
+\def\nodebox#1{\pscmd{/#1 nodebox}}
+\def\nodeoval#1{\pscmd{/#1 nodeoval}}
+\def\nodetriangle#1#2{\pscmd{/#1 /#2 nodetriangle}}
+
+% \nodecircle[depth]{nodename}
+
+\def\nodecircle{\@ifnextchar [ {\@nodecircle}{\@nodecircle[0pt]}}
+
+\def\@nodecircle[#1]#2{\@tempdima=#1%
+\iftransparent
+\pscmd{\@int{\the\@tempdima}\space pt /#2 nodecircletrans}
+\else
+\pscmd{\@int{\the\@tempdima}\space pt /#2 nodecircle}\fi}
+
+
+% \barnodeconnect[depth]{fromnode}{tonode}
+\def\barnodeconnect{\@ifnextchar[ {\@barnodeconnect}{\@barnodeconnect[5pt]}}
+
+\def\@barnodeconnect[#1]#2#3{\@tempdima=#1 \ifdim\@tempdima<0pt
+\pscmd{\@int{\the\@tempdima}\space pt %
+/#2  getnode nodebottom /#3 getnode nodebottom barnodeconnect}
+\else
+\pscmd{\@int{\the\@tempdima}\space pt %
+/#2  getnode nodetop /#3 getnode nodetop barnodeconnect}
+\fi}
+
+\def\abarnodeconnect{\@ifnextchar[ {\@abarnodeconnect}{\@abarnodeconnect[5pt]}}
+
+\def\@abarnodeconnect[#1]#2#3{\@tempdima=#1 \ifdim\@tempdima<0pt
+\pscmd{\@int{\the\@tempdima}\space pt %
+/#2  getnode nodebottom /#3 getnode nodebottom arrowbarnodeconnect}
+% above replaces the line below.
+% /#2  getnode nodebottom /#3 getnode nodebottom abarnodeconnect}
+\else
+\pscmd{\@int{\the\@tempdima}\space pt %
+/#2  getnode nodetop /#3 getnode nodetop arrowbarnodeconnect}
+\fi}
+
+

@@ -1,0 +1,112 @@
+% Copyright (C) 1997, 1999 Claudio Beccari
+% The copyright holds only for the file that enucleates the spline macros,
+% not for the macros themselves that are copyright of J"orge Knappen.
+%
+% This file includes the spline macros for computing font paramenters
+% from a table. It includes all the macros written by J"orge Knappen for the
+% ec fonts.  Thanks to J"orge for the good things these macros do, blame to me
+% for their misuse.
+
+
+vardef simple_gendef@#(text aa)(text t)=
+ string s[];
+ s1:="";
+ s2:=str @#;
+ index:=1;
+ forsuffixes $=t: ydata[index]:=$ if s1<>s2: *@# fi;
+                 index:=index+1;
+ endfor;
+ if numpoints>(index-1): errmessage "Missing parameter"; message str aa; fi;
+ if numpoints<(index-1): errmessage "Too many parameters"; message str aa; fi;
+ aa:=ydata[merke];
+ if gencheck: message str aa fi;
+enddef;
+
+vardef extended_gendef@#(text aa)(text t)=
+ string s[];
+ s1:="";
+ s2:=str @#;
+ index:=1;
+ forsuffixes $=t: ydata[index]:=$ if s1<>s2: *@# fi;
+                 index:=index+1;
+ endfor;
+ if numpoints>(index-1): errmessage "Missing parameter"; message str aa; fi;
+ if numpoints<(index-1): errmessage "Too many parameters"; message str aa; fi;
+ if gensize>basedata[numpoints]:
+   numeric hilf [];
+   hilf[1]:=(ydata[numpoints]-ydata[numpoints-1])/(basedata[numpoints]-basedata[numpoints-1]);
+   hilf[2]:=(ydata[numpoints]-ydata[numpoints-2])/(basedata[numpoints]-basedata[numpoints-2]);
+   hilf[3]:=ydata[numpoints]-hilf1*basedata[numpoints];
+   hilf[4]:=ydata[numpoints]-hilf2*basedata[numpoints];
+   spy:=(hilf[1]*gensize+hilf[3])/2+(hilf[2]*gensize+hilf[4])/2;
+   aa:=spy;
+ else:
+ for index = 1 upto numpoints-1:
+    interval[index]:=basedata[index+1]-basedata[index];
+ endfor;
+ for index=1 upto numpoints:
+    spline[1][index]:=ydata[index];
+ endfor;
+ for index=2 upto numpoints-1:
+    alpha[index]:=3*((spline[1][index+1]*interval[index-1])%
+                   -(spline[1][index]*(basedata[index+1]-basedata[index-1]))%
+                   +(spline[1][index-1]*interval[index]))%
+                   /(interval[index-1]*interval[index]);
+ endfor;
+ spl[1]:=0;
+ spmu[1]:=0;
+ spz[1]:=0;
+ for index=2 upto numpoints-1:
+    spl[index]:=2*(basedata[index+1]-basedata[index-1])%
+                 -interval[index-1]*spmu[index-1];
+    spmu[index]:=interval[index]/spl[index];
+    spz[index]:=(alpha[index]-interval[index-1]*spz[index-1])/spl[index];
+ endfor;
+ spline[3][numpoints]:=0;
+ for index=numpoints-1 downto 1:
+    spline[3][index]:=spz[index]-spmu[index]*spline[3][index+1];
+ endfor;
+ for index=numpoints -1 downto 1:
+    spline[2][index]:=(spline[1][index+1]-spline[1][index])/interval[index]%
+             -interval[index]*(spline[3][index+1]*spline[3][index])/3;
+    spline[4][index]:=(spline[3][index+1]-spline[3][index])/(3*interval[index]);
+ endfor;
+ location:=1;
+ for term=1 upto numpoints-1:
+    if gensize > basedata[term]: location:=term; fi
+ endfor;
+ spx:=gensize-basedata[location];
+ spy:=((spline[4][location]*spx+spline[3][location])*spx+spline[2][location])*spx+spline[1][location];
+ aa:=spy; fi;
+ if gencheck: message str aa fi;
+enddef;
+
+vardef basedef(text t)=
+ boolean basevalue; boolean gencheck;
+ numeric index; numeric ergbnis; numeric location; numeric term;
+ numeric numpoints; numeric spx; numeric spy;
+ numeric basedata[]; numeric interval[]; numeric alpha[];
+ numeric spl[]; numeric spmu[]; numeric spz[];
+ numeric ydata[]; numeric spline[][];
+ basevalue:=false; gencheck:=false;
+ index:=1;
+ forsuffixes $=t: basedata[index]:=$;
+                 if $=gensize: basevalue:=true; merke:=index; fi;
+                 index:=index+1;
+ endfor;
+ numpoints:=index-1;
+ if numpoints<3: errmessage "Not enough reference points"; fi
+ if basevalue: def gendef=simple_gendef enddef; else:
+               def gendef=extended_gendef enddef; fi
+enddef;
+
+def clear_extra_memory= % Release ressources hold by the extrapolation routine
+ numeric index; numeric ergbnis; numeric location; numeric term;
+ numeric numpoints; numeric spx; numeric spy;
+ numeric basedata[]; numeric interval[]; numeric alpha[];
+ numeric spl[]; numeric spmu[]; numeric spz[];
+ numeric ydata[]; numeric spline[][];
+ numeric hilf []; string s[];
+enddef;
+
+endinput;

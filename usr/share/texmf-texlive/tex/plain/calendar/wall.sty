@@ -1,0 +1,60 @@
+%%
+%%    FILE wall.sty
+%%    
+\hsize=9.5in
+\vsize=7.5in\voffset=-0.65in
+\baselineskip=12pt
+\newcount\daysinrow
+\newdimen\cellwidth
+\newdimen\cellheight
+\cellheight=1.13in
+\parindent=0pt
+\cellwidth=\hsize
+\divide\cellwidth by7
+\advance\cellwidth by-0.4pt
+\font\BBf=cmbx12 at 24pt
+\font\Bf=cmbx10 at 20pt
+\font\Rm=cmr10 at 20pt
+\font\rm=cmr12 at 14pt
+\font\small=cmr9
+\footline={}
+\def\hstrut{\hrule height0pt depth0pt
+ width\cellwidth}
+\def\beginday{
+ \ifnum\daysinrow=0\setbox1=\hbox{\vrule}\fi
+ \setbox0=\vbox to\cellheight\bgroup
+  \hstrut\hsize=\cellwidth\vskip5pt
+  \setbox2=\vbox\bgroup\small}
+\def\endday{\egroup
+  \hbox{\hskip0.5em\Rm\ifholy\Bf\fi\the\Day}
+  \vskip2pt\box2\vfill\egroup
+ \setbox1=\hbox{\unhbox1\box0\vrule}
+ \advance\daysinrow by1
+ \ifnum\daysinrow=7\box1\hrule\daysinrow=0\fi}
+%
+\def\advancemonth{\ifnum\Month=12
+ \nextyear\Month=1\else\advance\Month by1\fi}
+% If no Month is given, take today's date.
+\ifnum\Month=0 \Month=\month
+ \ifnum\day>15 \advancemonth\fi\fi
+\Day=1\dayno
+\topskip=0pt\hbox{}
+\vfill
+\centerline{\BBf\themonth}
+\penalty10000
+\vskip40pt minus32pt
+% Local: from sunday ...
+\prevday0\currentdate=\date
+\hbox{\rm\loop
+ \hbox to\cellwidth{\hss\theweekday\hss}
+ \unskip\ifnum\weekd<6\advance\date by1\repeat}
+\penalty10000
+\vskip3pt
+% Local: ... to saturday.
+\Day=1 \advance\Month by1\dayno
+\advance\date by-1\nextday6\lastdate=\date
+\leftskip=3pt
+\raggedright
+\daysinrow=0
+\vbox\bgroup\hrule
+\def\epilog{\vfill\egroup\supereject}

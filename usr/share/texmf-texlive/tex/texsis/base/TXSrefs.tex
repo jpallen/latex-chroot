@@ -1,0 +1,772 @@
+%% TXSrefs.tex -  Citations and References - TeXsis version 2.18
+%% @(#) $Id: TXSrefs.tex,v 18.8 2000/05/16 22:46:08 myers Exp $
+%======================================================================*
+% TeXsis - TeX Macros for Physicists   --   Citations and References
+%
+%       These macros take care of citations and references with automatic
+% numbering. The references can either be typed in the body of the document
+% or collected at the beginning. In either case a new reference is defined
+% by saying
+%               \reference{<tag>} <text> \endreference
+%
+% The <tag> can be almost anything, including a number. If it begins
+% with "*" then the reference number is not incremented; this allows
+% multiple references with the same number. Otherwise, \reference causes
+% the next available reference number to be assigned to the <tag>. It also
+% saves the tag definition in \jobname.aux, and saves the reference
+% <text> in the file \jobname.ref.   The final punctuation should NOT be
+% typed in <text>; a period is added unless the next tag begins with "*", 
+% in which case a semicolon is added.
+%
+%        If \reference ... \endreference is typed in the body of the document,
+% the reference number is printed. The default format is a superscript, but
+% this can be changed:
+%       \superrefstrue     ==>    superscript reference numbers
+%       \superrefsfalse    ==>    reference numbers in []
+% \endreference actually looks ahead at the next token; if it is another
+% \reference, then a range is printed instead of separate numbers.
+%
+%       \referencelist ... \endreferencelist can be used to type all of the
+% references at the beginning of the document, with the format
+%       \referencelist
+%       \reference{<tag1>} <text1> \endreference
+%       \reference{<tag2>} <text2> \endreference
+%       ...
+%       \endreferencelist
+% While it is natural with this format to make the tag equal to the actual
+% reference number, this is not required.
+%
+%       Subsequent references to a previously defined reference are obtained
+% with \cite{<tag>}.  Again this has a look-ahead feature so that several
+% consecutive \cite's give the reference numbers separated by commas. If the
+% references are typed at the beginning with \referencelist, then all
+% references in the text are made with \cite. If the <tag> is not defined,
+% then \cite produces an error, which is flagged both in the printed document
+% and on the log file. A \Ref{<tag>} macro (note the case) is also provided
+% to print Ref.~<number> in the text. Other forms can be constructed if
+% desired with \use{Ref.<tag>}; see the definition of \Ref.
+%
+%       The list of references is printed by saying \ListReferences (or
+% \References for backwards compatibility). To allow for multiple
+% references with the same number, \ListReferences adds a semicolon to
+% the end of a reference if the next tag begins with "*" and a period
+% otherwise. Hence the final punctuation should not be typed in the
+% reference text. Note that \ListReferencese does not print a heading,
+% which should be inserted using \chapter, \section, or the appropriate
+% plain TeX commands. 
+%
+%       If \texsis has not been called, then the reference text will be
+% written to the screen, and \ListReferences will fail to print the
+% appropriate text. If \auxswitchfalse is used, then the AUX file will
+% not be written, and the tag definitions will appear on the screen
+% (surrounded by \csname ... \endcsname). This causes no harm unless the
+% checkpoint/restart feature is used, in which case the earlier tag
+% definitions will not be remembered.
+%======================================================================*
+% (C) Copyright 1986, 1992, 1995, 1997, 1999 by Eric Myers and Frank Paige.
+% This file is a part of TeXsis.  Distribution and/or modifications
+% are allowed under the terms of the LaTeX Project Public License (LPPL).
+% See the file COPYING or ftp://ftp.texsis.org/texsis/LPPL
+%======================================================================*
+\message{References and Citations.}
+\catcode`@=11                           % @ is a letter here for hidden names
+\catcode`\"=12 \catcode`\(=12 \catcode`\)=12
+
+%       Counters, switches and I/O:
+
+\newcount\refnum        \refnum=\z@     % counter for reference numbers
+\newcount\@firstrefnum  \@firstrefnum=1 % first of a series of refs
+\newcount\@lastrefnum   \@lastrefnum=1  % last of a series of refs
+\newcount\@BadRefs      \@BadRefs=0     % count undefined references
+
+\newif\ifrefswitch      \refswitchtrue  % output references by default
+\newif\ifbreakrefs      \breakrefstrue  % line break between refs?
+\newif\ifrefpunct       \refpuncttrue   % automatic punctuation at end?
+\newif\ifmarkit         \markittrue     % flag for "hidden" references
+\newif\ifnullname                       % flag for null or "*" labels
+\newif\iftagit                          % flag for tagging references
+\newif\ifreffollows                     % flag for many \ref's
+
+\def\refterminator{}                    % could be ) after a superscript
+\def\RefLabel{}                         % used in hyperlink tags
+
+% Indentation of references in the list is controled by \refindent 
+% If it is negative then it's automatically reset to the right values
+
+\newdimen\refindent      \refindent= -100pt     
+
+%  \@comment is for writing % to a file like the .ref file. It expands
+%  to the letter '%' and a space
+
+{\catcode`\%=11 \gdef\@comment{% }}
+
+\newcount\CiteType     \CiteType=1      % type of citation style
+%%\newif\ifsuperrefs    \superrefstrue  % OBSOLETE!  Use these:
+\def\superrefstrue{\CiteType=1}         %   Superscript citation marks
+\def\superrefsfalse{\CiteType=2}        %   In-line citation marks
+
+
+%==================================================*
+%  INITIALIZATION.   \refinit performs first time reference initialization
+
+\newwrite\reflistout                    % output file for ref text
+\newread\reflistin                      % input file for .ref file
+
+\def\@refinit{% Initialize reference file 
+  \immediate\closeout\reflistout        % and make sure output closed
+  \ifrefswitch                          % is .ref ouput enabled?
+    \@FileInit\reflistout=\jobname.ref[List of References]%% yes: initialize
+  \else                                 % no:  disable output
+    \let\@refwrite=\@refwrong \let\@refNXwrite=\@refwrong  
+  \fi
+  \gdef\refinit{\relax}}                % and disable \refinit
+
+% \refReset resets the counters so that more references can be
+% created after \ListReferences has been called;  For example, if
+% you listed the references for one chapter and want to begin collecting
+% references for the next chapter.
+
+\def\refReset{% reset reference/citation counters
+   \global\refnum=\z@                   % counter for reference numbers
+   \global\@firstrefnum=1               % first of a series of refs
+   \global\@lastrefnum=1                % last of a series of refs
+   \global\@BadRefs=0                   % count undefined references
+   \gdef\refinit{\@refinit}}            % re-enable \refinit
+
+\refReset                               % Make it so
+
+% \@refwrite{text} writes text to .ref file, while
+% \@refNXwrite{text} writes the text to the file without expanding it.
+
+\def\@refwrite#1{\refinit\immediate\write\reflistout{#1}}
+\def\@refNXwrite#1{\refinit\unexpandedwrite\reflistout{#1}} 
+
+\def\@refwrong#1{}% do nothing (sorry for the pun)
+
+
+%==================================================*
+%  REFERENCE TEXT.
+%  \reference{lable} <text> \endreference defines a new reference entry
+
+\long\def\reference#1{% cite a new reference, with reference text
+  \markittrue                           % enable citation in output
+  \@tagref{#1}%                         % get next number and tag it
+  \@GetRefText{#1}}                     % write ref text to .ref file
+
+\long\def\addreference#1{% \reference without citation
+  \markitfalse                          % don't cite in output
+  \@tagref{#1}%                         % get a number and tag it
+  \@GetRefText{#1}}                     % write ref text to .ref file
+
+\def\hiddenreference{\addreference}% backward compatability (v.2.02)
+
+
+%  \@tagref{label} assigns the next reference number to the label,
+%  unless the name begins with * or is null
+
+\def\@tagref#1{% assign a reference number to a tag
+  \stripblanks #1\endlist               % remove blanks. Result --> \tok
+  \XA\ifstar\tok*\relax                 % sets \nullnametrue if null or *'d
+  \ifnullname\relax\else                %   unless name is null
+    \def\RefLabel{#1}%                  % save label name
+    %%
+    \ifnum\CiteType=4                   % Footnotes references: coordinate
+       \ifnum\footnum>\refnum           % ...  \footnum and \refnum 
+          \global\refnum=\footnum \global\@firstrefnum=\refnum
+          \global\advance\@firstrefnum by \@ne
+        \fi
+    \fi
+    %%
+    \global\advance\refnum by \@ne      % increment the \refnum
+    \global\@lastrefnum=\refnum         %   and the \@lastrefnum
+    \edef\rnum{\the\refnum}%            % \rnum is the ref number
+    \tag{Ref.#1}{\rnum}%                % tag the reference number
+    \ifnum\CiteType>0                   % announce unless silent \reference
+       \immediate\write16{(\the\refnum) %% write comment to .LIS and terminal
+          First reference to "#1" on page \the\pageno.}\fi
+  \fi}                                  % end \ifnullname
+
+% \ifstar determines whether a tag begins with "*", and sets a flag
+
+\def\ifstar#1#2\relax{\ifx*#1\relax\nullnametrue\else\nullnamefalse\fi}
+
+
+%  \@GetRefText gets the reference text as everything up to the next
+%  \endreference and writes it to the .ref file, at least for citation
+%  styles which save the list to the end.   #1 is the label.
+%  #2 is lookahead past possible line end before \seeCR
+
+\def\@GetRefText#1#2{%                  % get and write reference text
+  \ifnum\CiteType=4\else                % footnotes rather than ref list?
+    \ifnullname                         % Is name null (set by \@tagref)?
+      \p@nctwrite{; }%                  %  punctuation for continuation
+      \@refwrite{\@comment ... Reference text for %%
+                "#1" defined on page \number\pageno.}% 
+      \@refwrite{\@refbreak}%           % and a possible line break
+    \else                               % No: just begin another...
+      \ifnum\refnum>1\p@nctwrite{. }\fi %!% trailing period, unless first one
+      \@refwrite{\@comment }%           %
+      \@refwrite{\@comment (\the\refnum) Reference text for %%
+                "#1" defined on page \number\pageno.}%  
+      \@refwrite{\string\@refitem{\the\refnum}{#1}}% write label info
+    \fi
+  \fi
+  %%
+  \begingroup                           % start group to write text
+    \def\endreference{\NX\endreference}% disable these in references
+    \def\reference{\NX\reference}\def\ref{\NX\ref}%   
+    \seeCR\newlinechar=`\^^M            % so ^^M seen by \@copyref
+    \@copyref#2}                        % copy text line to .ref file
+
+
+%   \@copyref copies the text up to the \endreference to the .ref
+%  file and then performs the \endreference
+
+\def\@copyref#1\endreference{% copy reference text to .ref file
+  \endgroup                             % end \seeCR
+  \ifnum\CiteType=4                     % footnotes rather than ref list?
+    \ifnum\footnum<\refnum\global\footnum=\refnum\fi % sync w/ \footnum
+    \Vfootnote{\ifnullname\relax\else
+        {\CiteStyle{\the\refnum}}\fi} %% That space is needed! Why?
+        {\hangindent=\parindent\hangafter=1\seeCR #1\@refpunct.}%
+  \else                                 % write text to .ref file
+    \@refNXwrite{#1\@endrefitem}%
+  \fi                                   %
+  \@endreference}       % do \endreference stuff...
+
+\def\@endrefitem#1{#1}  % for future expansion...
+
+
+%  \@endreference is post processing (what user thinks is \endreference).
+%  \@endreference checks to see if another \reference follows. If not, it puts
+%  the citation mark in the output
+
+\long\def\@endreference#1{% end a \reference and look ahead at next token
+  \reffollowsfalse                      % assume no cit'ns follow
+  \ifx#1\cite\reffollowstrue\fi         % is next token another \cite?
+  \ifx#1\citerange\reffollowstrue\fi    % or \citerange
+  \ifx#1\refrange\reffollowstrue\fi     % or \refrange
+  \ifx#1\ref\reffollowstrue\fi          % (or \ref, OLD TeXsis)
+  \ifx#1\reference\reffollowstrue       % \reference follows?
+     \ifnum\CiteType=3                  % citation for [named] references
+        \xdef\@refmark{\linkto{Ref.\RefLabel}{\RefLabel}}\add@refmark\fi 
+     \ifnum\CiteType=6                  % citation for (named) references
+        \xdef\@refmark{\linkto{Ref.\RefLabel}{\RefLabel}}\add@refmark\fi
+  \else                                 % not a \reference, so dump citations
+     \ifnum\@firstrefnum>\@lastrefnum\relax % If *'d \reference be quiet
+     \else                              %
+%
+% Construct the reference mark for this reference or range in \@refmark
+%
+       \ifnum\CiteType=3                % [named] reference
+          \xdef\@refmark{\linkto{Ref.\RefLabel}{\RefLabel}}% 
+       \else\ifnum\CiteType=6           % (named) reference
+          \xdef\@refmark{\linkto{Ref.\RefLabel}{\RefLabel}}% 
+       \else                            %
+         \ifnum\@firstrefnum=\@lastrefnum % is there only one reference?
+           \xdef\@refmark{\linkto{Ref.\the\@lastrefnum}{\the\@lastrefnum}}%
+         \else                          % no: write a  range of numbers
+            \xdef\@refmark{\linkto{Ref.\the\@firstrefnum}{\the\@firstrefnum}-%
+                        \linkto{Ref.\the\@lastrefnum}{\the\@lastrefnum}}%
+         \fi                            % end \ifnum\@firstrefnum=
+       \fi\fi                           % endif 3 or 5
+       %%
+       \global\@firstrefnum=\refnum     % reset \@firstrefnum to be ...
+       \global\advance\@firstrefnum by \@ne%   \refnum + 1
+       \add@refmark                     % add \@refmark to \@refmarklist
+     \fi % end \ifnum\@firstrefnum
+  \fi % end \ifx#1\reference
+  \flush@reflist{#1}}%                  % output ref mark list
+
+
+\def\endreference{% end the \reference text
+  \emsg{>  Whoops! \string\endreference was called without
+                first calling \string\reference.}\@errmark{REF?}% 
+  \emsg{>  I'll just ignore it.}% 
+  }% 
+
+\def\@refspace{\ }
+
+%  \citemark{#1} creates the citation mark, in a format determined
+% by \CiteType.  The possible choices are:
+%       0 =  no mark (silently adds the reference to list)
+%       1 =  superscript reference numbers
+%       2 =  reference numbers in the text in [brackets]
+%       3 =  citation in the text by name-date (using the label) in [brackets]
+%       4 =  supercript reference numbers for references as FOOTNOTES
+%       5 =  reference numbers in the text in (parens)
+%       6 =  citation in the text by name-date (using the label) in (parens)
+
+\def\citemark#1{% output the citation marks in the text
+   \relax\let\@sf\empty                 %
+   \ifhmode\edef\@sf{\spacefactor\the\spacefactor}\/\fi % save spacefactor
+   \ifcase\CiteType\relax               % 0: no citation mark 
+   \or                                  % 1: superscript numbers
+       $\relax{}^{\hbox{$\scriptstyle\CiteStyle{#1\refterminator}$}}$\relax 
+   \or {}~[{\CiteStyle{#1}}]\relax      % 2: [<number>] style in-line
+   \or {}~[{\CiteStyle{#1}}]\relax      % 3: [<text>] style in-line
+   \or                                  % 4: superscript numbers,
+       $\relax{}^{\hbox{$\scriptstyle\CiteStyle{#1\refterminator}$}}$\relax %
+   \or {}~({\CiteStyle{#1}})\relax      % 5: (<number>) style in-line   
+   \or {}~({\CiteStyle{#1}})\relax      % 6: (<text>) style in-line   
+   \else\relax\fi                       % else: nothing
+   \@sf}%                               % restore spacefactor
+
+\def\CiteStyle{\relax}            % default citation type size/style
+
+
+%       Turn off \citemark output.  For typing a list of references all
+% together at the begining of a document.
+
+\def\referencelist{% begin a list of references at front of document
+   \ifnum\CiteType=4                    % footnotes rather than ref list?
+        \emsg{> Warning: \string\referencelist is not compatible with %%
+                footnoted reference citations.}\fi
+   \begingroup
+       \pageno=0\CiteType=0}            % disable citations
+
+\def\endreferencelist{% end \referencelist
+   \endgroup}                           % all as it was
+
+%==================================================*
+%  CITATIONS. 
+%
+% New way of controlling citation style is by \CiteType.
+% The possible choices are:
+%       0 =  no mark (silently adds the reference to list)
+%       1 =  superscript reference numbers
+%       2 =  reference numbers in the text in [brackets]
+%       3 =  citation in the text by label as key, in [brackets]
+%       4 =  supercript reference numbers for references as FOOTNOTES
+%       5 =  reference numbers in the text in (parens)
+%       6 =  citation in the text by label as key, in (parens)
+
+\def\CiteBySuperscript{\CiteType=1}     % superscript number
+\def\CiteByNumber{\CiteType=2}          % reference number in [brackets]
+\def\CiteByTag{\CiteType=3}             % tag in [brackets]
+\def\CiteByLabel{\CiteType=3}           % synonym
+\def\CiteByFootnote{\CiteType=4}        % superscript number, text as footnote
+\def\CiteByWhatever{\CiteType=5}        % reference number in (parens)
+\def\CiteByAuthor{\CiteType=6}          % tag in (parens)
+
+
+% \cite{<label>} cites a previously defined reference given by
+% <label>.  (There is only one user argument, #2 is for lookahead.) 
+
+\long\def\cite#1#2{% cite a previous reference in the text 
+  \def\RefLabel{#1}%                    %
+  \markittrue                           % make sure output is on
+  \reffollowsfalse                      % assume no ref. follows
+  \ifx#2\cite\reffollowstrue\fi         % is next token another \cite?
+  \ifx#2\citerange\reffollowstrue\fi    % or \citerange
+  \ifx#2\refrange\reffollowstrue\fi     % or \refrange (OLD)
+  \ifx#2\ref\reffollowstrue\fi          % (or \ref, OLD TeXsis)
+  \ifx#2\reference\reffollowstrue\fi    % or is it \reference? then set flag.
+  \auxwritenow{\string\citation\string{#1\string}}%
+  \make@refmark{#1}%                    % make  reference mark in \@refmark
+  \add@refmark                          % add \@refmark to \@refmarklist
+  \flush@reflist{#2}}%                   % flush \@refmarklist to output
+
+\let\ref=\cite                          % \ref is synonym (old TeXsis)
+
+\def\@refmarklist{}                     % start with nothing in list
+
+
+% \nocite is for BIBTeX use.  It bumps the number and makes a BIBTeX
+% entry in the .aux file, but produces no output
+
+\def\nocite#1{% just make .aux entry for citation
+  \auxwritenow{\string\citation\string{#1\string}}}%  
+
+
+% \make@refmark takes the reference label and puts the reference number
+% (if there is one) in \@refmark
+
+\def\make@refmark#1{% make a reference mark
+  \testtag{Ref.#1}\ifundefined          % is it undefined? (tag -> \tok)
+    \emsg{> UNDEFINED REFERENCE #1 ON PAGE \number\pageno.}% error message
+    \global\advance\@BadRefs by 1       % count undefined references
+    \xdef\@refmark{{\tenbf #1}}%        % cite with label in boldface
+    \@errmark{REF?}%                    % and mark error in output
+  \else                                 % no:
+    \ifnum\CiteType=3                   % label or number citation?
+      \xdef\@refmark{\linkto{Ref.#1}{#1}}%  cite with text of label
+    \else
+   \xdef\@refmark{\linkto{Ref.\csname\tok\endcsname}{\csname\tok\endcsname}}% cite with number
+  \fi\fi}                               % end of \ifundefined
+
+
+%  \add@refmark adds \@refmark to the \@refmarklist
+
+\def\add@refmark{% add reference mark to accumulating list
+  \ifmarkit                             %
+  \ifx\@refmarklist\empty\relax         % any previous citations?
+     \xdef\@refmarklist{\@refmark}%     % no: just add this one
+  \else                                 % yes: add to list,
+    \ifnum\CiteType=3                   % name or number citation?
+      \xdef\@refmarklist{\@refmarklist; \@refmark}%  named citations
+    \else                               %
+      \xdef\@refmarklist{\@refmarklist,\@refmark}%  numbered citations
+  \fi\fi\fi}                               %
+
+
+% \flush@reflist flushes the \@refmarklist to the output.
+% #1 is the lookahead token, used to see if we need to add space afterwards.
+
+\long\def\flush@reflist#1{% flush list of references to output
+  \ifmarkit                             % is \markit set? Then write citation
+  \ifreffollows\else                    % Is there a following citation?
+    \citemark{\@refmarklist}%           % no: print citation
+    \gdef\@refmarklist{}%               %  empty \@refmarklist
+    \ifx#1\par\else\space@head{#1}\fi   % insert possible space before #1
+  \fi\fi                                % end \ifreffollows\ifmarkit
+  \def\@next{#1}\ifcat.\NX#1\def\@next{#1 }\fi % space after if punctuation
+  \@next}                               % put back lookahead #1
+
+
+% \space@head#1 takes the lookahead token from \@endreference or
+% \cite and does nothing if it is punctuation.  Otherwise it puts
+% in a \space.  It does not put the token back on the list! (the
+% calling macro does that.)  Note that in TeXsis ), ], and  " can
+% be active characters that have macro definitions, so they must
+% be handled separately.
+
+{\quoteon
+\gdef\space@head#1{\def\next{\space}%   % normally a space
+    \ifcat.\NX#1\relax\def\next{\relax}\fi % no space if punctuation
+    \ifx)#1\def\next{\relax}\fi         % no space if active )
+    \ifx]#1\def\next{\relax}\fi         % no space if active ]
+    \ifx"#1\def\next{\relax}\fi         % no space if active quote
+   \next}}%                             % space or nothing
+
+
+%  \Ref{label} (note the case!) returns the reference number of a
+%  previously entered reference for use in text.  If you don't like
+%  the way this looks you can change it to suit yourself.
+
+\def\Ref#1{%
+   \ifnum\CiteType=3 \citemark{\linkto{Ref.#1}{\use{Ref.#1}}}%
+   \else 
+     \testtag{Ref.#1}\ifundefined % is it undefined? (tag -> \tok)
+       Ref.~\use{Ref.#1}                % tagging error
+     \else 
+       \linkto{Ref.\csname\tok\endcsname}{Ref.~\csname\tok\endcsname}%
+   \fi\fi}
+
+% \refrange#1#2 cites a range of previously defined references like
+% \cite. #3 is a lookahead for another \cite or \ref
+
+\long\def\refrange#1#2#3{% cites a range of references
+  \ifnum\CiteType=3\emsg{> WARNING: \string\refrange\space %%
+                doesn't work with named citations.}\@errmark{REF?}\fi 
+  \reffollowsfalse                      % assume no ref. follows
+  \ifx#3\cite\reffollowstrue\fi         % is next token another \cite?
+  \ifx#3\ref\reffollowstrue\fi          % (or \ref, OLD TeXsis)
+  \ifx#3\reference\reffollowstrue\fi    % or is it \reference? then set flag.
+  \ifx#3\refrange\reffollowstrue\fi     % or \refrange
+%
+% Construct reference mark in \@refmark
+%
+  \make@refmark{#2}%                    % ref mark for 2nd ref
+  \xdef\@refmarktwo{\@refmark}%         % save for later
+  \make@refmark{#1}%                    % ref mark for 1st ref
+  \xdef\@refmark{\@refmark\hbox{--}\@refmarktwo}% create range of references
+  \add@refmark                          % add to \@refmarklist
+  \flush@reflist{#3}}                   % flush citation mark list
+
+\let\citerange=\refrange                % will be the new name some day
+
+
+%========================================================================*
+% REFERENCE FORMAT.   These are used in the reference text to print
+% properly volume numbers for journals, titles of books, etc. 
+
+%  \vol{volume of journal} is used for the volume number of a journal
+%  article.  The number is underlined when printed. (Underscoring looks
+%  better than boldface on the laser printer, but you can change this.)
+
+\def\vol#1{\undertext{#1}}
+
+% \booktitle{title of book} prints book title in slanted type
+% \ArticleTitle does the same for the title of a journal article,
+% but only if \ShowArticleTitletrue is set, and that is not the default.
+
+\def\booktitle#1{{\sl #1}}
+
+\newif\ifShowArticleTitle  \ShowArticleTitlefalse
+\def\ArticleTitle#1{\ifShowArticleTitle{\sl #1},\fi}
+
+% Some other useful shorthand for references
+
+\def\etal{{\it et al.}} \def\ie{{\it i.e.}}
+\def\cf{{\it cf.}}      \def\ibid{{\it ibid.}}
+
+%==================================================*
+%  LIST OF REFERENCES.   \ListReferences gets the list of references
+%  from the .ref file and adds it to the document.  \References is a
+%  synonym (from v.2.04).   No heading is printed; the user should add
+%  one with \chapter, \section, or whatever is appropriate.
+
+\def\ListReferences{%
+  \ifnum\CiteType>0
+     \ifnum\CiteType=4\relax\else
+         \@ListReferences
+  \fi\fi}
+
+
+\def\@ListReferences{\emsg{Reference List}% announce in .LIS file
+  \ifnum\refnum>\z@ \p@nctwrite{.}%     % write last "." for last ref
+    \@refwrite{\@comment>>> EOF \jobname.ref <<<}%% and EOF marker comment
+    \immediate\closeout\reflistout      %  then close the .ref file
+  \fi
+  \ifnum\@BadRefs>\z@                   % any undefine references?
+    \emsg{>}\emsg{> There were \the\@BadRefs\ undefined references.}%
+    \emsg{> See the file \jobname.log for the citations, or try running}%
+    \emsg{> TeXsis again to resolve forward references.}\emsg{>}%
+  \fi
+  %%
+  \begingroup
+    \offparens                          % make sure )&( not active
+    \immediate\openin\reflistin=\jobname.ref % try to open .ref file
+    \ifeof\reflistin                    % if EOF then it isn't there
+       \closein\reflistin               % so just close it and quit
+       \emsg{> \string\ListReferences: no references in \jobname.ref}%
+    \else                               % It's there? let's read it in
+       \catcode`@=11                    % Make @ a letter
+       \catcode`\^^M=10                 % Treat ^^M like whitespace
+       \def\reference{\@noendref}%      % In case of errors
+       \parindent=\z@                   % No indent for each item
+       \singlespaced                    % References single spaced!
+       \ifdim\refindent<0pt             % Is \refindent unset?  Then
+          \setbox9\hbox{\the\refnum.\quad}%   get size of largest \refnum
+          \refindent=\wd9               %     and use it for \refindent
+       \fi
+       \refFormat                       % User definable format info
+       \input\jobname.ref  \relax       % Read in text from .ref file
+       \vskip 0pt                       % Needed to force \leftskip!
+    \fi % \ifeof
+  \endgroup                             % end all character re-def's
+  \refReset                             % start over on references
+} 
+
+\def\References{\ListReferences}        % synonym
+
+
+%  \refFormat is called just before the reference file is read in.
+%  It can contain instructions for formatting the reference list. For example,
+%  in two-column output it might be good to have it include a \raggedright.
+
+\def\refFormat{\relax}%
+
+\def\@noendref#1{%
+   \emsg{>  Whoops! \string\reference{#1} was given before the}%
+   \emsg{>  \string\endreference for the previous \string\reference.}%
+   \emsg{>  I'll just ignore it and run the two together.}%
+   }%
+
+
+%  \@refitem starts a new reference, with the number in the left margin.
+%  For use by \ListReferences when printing reference list.
+%  #1 is the reference number, while #2 is the tag name
+%  \refskip is the skip between references (default is \smallskip).
+%  \refindent is the indentation of each entry after the first line
+
+\def\@refitem#1#2#3{\message{#1.}%   #3 looks past ^^M for next arg
+   \auxwritenow{\string\bibcite\string{#2\string}\string{#1\string}}% .AUX
+   \parskip=\z@\parindent=\z@           %
+   \leftskip=\refindent                 % left margin indented
+   \refskip                             % skip down for next entry
+   \par\noindent\hskip-\refindent       % first line of entry not indented
+   \ifnum\CiteType=3                    % Label entries with tag (#2)?
+      \hbox{\linkname{Ref.#1}{\RefNumStyle{#2}{.\quad}}}%
+   \else                                % Label tag with number (#1)
+      \ifnum\CiteType=6\else            %   (but no label for case =6)
+         \hbox to \refindent{\hfil\linkname{Ref.#1}{\RefNumStyle{#1}{.\quad}}}%
+   \fi\fi
+   #3}
+
+\def\refskip{\smallskip}                % default skip between entries
+
+% \RefNumStyle can manipulate the style of the reference number or
+% label in many ways.  You could just say \let\RefNumStyle=\bf
+% You could define it to be a macro which takes one argument, the number
+% eg. \def\RefNumStyle#1{\romannumeral#1}, or you could define it to
+% be a macro which takes two argments, eg. \def\RefNumStyle#1#2{#1}
+
+\def\RefNumStyle{\relax}                
+
+%  \@refpunct gets the punctuation for the reference text and kills
+%  the space and carriage return before it.
+
+\def\@refpunct#1{\unskip#1}             % remove space and print . or ;
+
+%  \p@nctwrite#1 writes punctuation #1 to .ref file only if \ifrefpunct
+%  is true.  Use this to turn off automatic punctuation of references.
+
+\def\p@nctwrite#1{%
+   \ifrefpunct\@refwrite{\NX\@refpunct#1}\fi}
+
+%  \@refbreak causes a line break if \ifbreakrefs is true.
+
+\def\@refbreak{\ifbreakrefs\hfill\break\fi}
+
+
+%======================================================================*
+%      \journal simplifies typing journal references in technical papers
+% by providing automatic formatting and automatic correct treatment of
+% abbreviations.  By default typing
+%               \journal Phys. Rev. Lett.;vol;page(year)
+% produces
+%               Phys. Rev. Lett. vol, page (year)
+% All periods in name are followed by a single space as if you had typed
+% Phys.\ Rev.\ Lett.\ and the volume number is underlined (not boldface),
+% using \vol{number}.
+%
+% If you first type \Eurostyletrue then \journal produces
+%               Phys. Rev. Lett. vol (year) page
+% appropriate to European journals.  Note that the arguments to \journal
+% are ALWAYS in the American order.
+%
+%      \journal can be used to define macros for specific journals, but
+% in this case all . MUST be typed as .\ because of the way that TeX
+% uses \catcodes for characters.
+
+
+\newif\ifEurostyle     \Eurostylefalse         % European style journals
+\offparens                                      % make sure ( and ) not active!
+
+%   When . is active instead of punctuation it gives no space
+
+{\catcode`\.=\active \gdef.{\hbox{\p@riod\null}}}% . is .\null for abbrev
+\def\p@riod{.}                                 % normal period
+
+%      Define main macro \journal.  This turns on definition of . and
+% turns off easy parens, then does work with \j@ounal.
+
+\def\journal{% cite an article in a journal by volume, page and year
+  \bgroup                                       % keep \catcode's local
+   \catcode`\.=\active                          % make . active
+   \offparens                                   % turn off easy parens
+   \j@urnal}%                                   % and do work
+
+ \def\j@urnal#1;#2,#3(#4){%  gets the \journal material
+   \ifEurostyle                                 %  choose style...
+      {#1} {\vol{#2}} (\@fullyear{#4}) #3\relax % European style
+   \else                                        % 
+      {#1} {\vol{#2}}, #3 (\@fullyear{#4})\relax% American style
+   \fi                                          %
+  \egroup}                                      % end group for . and ()
+
+% \@fullyear takes one argument, which is considered to be a year.
+% If it is less than 100 then it is an abreviation (Y2K problem!).
+% We add the current century to it if it is less than or equal to
+% THIS year, otherwise we add the LAST century.  This should survive
+% into the next millenium, but users should use 4-digit years.
+% Thanks to Scott Hannahs for this macro.
+
+\def\@fullyear#1{%
+  \begingroup                                     % make calculations local
+     \count255=\year                              % get current century
+        \divide \count255 by 100 \multiply \count255 by 100
+     \count254=\year                              % next year in this century
+        \advance \count254 by -\count255 \advance \count254 by 1
+     \count253=#1\relax                           % citation year
+     %%
+     \ifnum\count253<100                          % year < 100 needs century
+        \ifnum \count253>\count254                % high year 
+            \advance \count253 by -100\fi         %     means last century
+        \advance \count253 by \count255           % add centuries
+        \emsg{> WARNING: \string\@fullyear: possible Y2K problem. %%
+                  Year #1 interpreted as \the\count253.}%
+        \emsg{> Please use 4 digits for years.}%
+      \fi                                         %
+      \number\count253                            % display year
+      \endgroup}                                  % end local calculations
+
+%-----------------------------
+% Shorthand names of Journals:
+
+\def\NP{Nucl.\ Phys.}   \def\PL{Phys.\ Lett.}
+\def\PR{Phys.\ Rev.}    \def\PRL{Phys.\ Rev.\ Lett.}
+
+% These are the APS journal names used by REVTEX, and we can use them too
+
+\def\ao{Appl.\  Opt.\ }         \def\ap{Appl.\  Phys.\ }
+\def\apl{Appl.\ Phys.\ Lett.\ } \def\apj{Astrophys.\ J.\ }
+\def\jcp{J.\ Chem.\ Phys.\ }    \def\jmo{J.\ Mod.\ Opt.\ }
+\def\josa{J.\ Opt.\ Soc.\ Am.\ }\def\josaa{J.\ Opt.\ Soc.\ Am.\ A }
+\def\jpp{J.\ Phys.\ (Paris) }   \def\nat{Nature (London) }
+\def\oc{Opt.\ Commun.\ }        \def\ol{Opt.\ Lett.\ }
+\def\pl{Phys.\ Lett.\ }         \def\pra{Phys.\ Rev.\ A }
+\def\prb{Phys.\ Rev.\ B }       \def\prc{Phys.\ Rev.\ C }
+\def\prd{Phys.\ Rev.\ D }       \def\pre{Phys.\ Rev.\ E }
+\def\prl{Phys.\ Rev.\ Lett.\ }  \def\rmp{Rev.\ Mod.\ Phys.\ }
+\def\bell{Bell Syst.\ Tech.\ J.\ }
+\def\jqe{IEEE J.\ Quantum Electron.\ }
+\def\assp{IEEE Trans.\ Acoust.\ Speech Signal Process.\ }
+\def\aprop{IEEE Trans.\ Antennas Propag.\ }
+\def\mtt{IEEE Trans.\ Microwave Theory Tech.\ }
+\def\iovs{Invest.\ Ophthalmol.\ Vis.\ Sci.\ }
+\def\josab{J.\ Opt.\ Soc.\ Am.\ B }
+\def\pspie{Proc.\ Soc.\ Photo-Opt.\ Instrum.\ Eng.\ }
+\def\sjqe{Sov.\ J.\ Quantum Electron.\ }
+
+
+%======================================================================*
+% BIBTeX support for TeXsis     (C) Copyright by Bernd Dammann 1995, 1996
+%                               Used here by his permission.
+%
+% Adapted from TXSbib.tex, by Bernd Dammann <bernd@fki.dtu.dk>
+
+\message{BIBTeX support for TeXsis (macros and patches) v 0.92}
+
+% These are needed (BIBTeX looks for them), but we just define them
+% as \relax, to avoid TeXsis complaining about undefined things while
+% it scans the .aux file.
+%
+\def\citation#1{\relax} \def\bibdata#1{\relax}
+\def\bibstyle#1{\relax} \def\bibcite#1#2{\relax}
+
+% \emdash was in some of the .bib files that came with BIBTeX.  I
+% don't know what it is good for, so we define it as a dash
+\def\emdash{--}
+
+%  REFERENCE STYLE.  \ReferenceStyle{<style>} has the same 
+%  function as the corresponding \bibliographystyle LaTeX macro.  It 
+%  tells BIBTeX which .bst style file to use for producing the reference 
+%  list.  The <style> parameter is without the default extension .bst.
+%  Usually you will want \ReferencStyle{texsis}, but we don't do that
+%  automatically to allow user customization.
+
+\def\ReferenceStyle#1{\auxwritenow{\string\bibstyle\string{#1\string}}}
+\let\bibliographystyle=\ReferenceStyle  % LaTeX synonym
+
+
+%  REFERENCE FILES.  \ReferenceFiles{<file1>,...<fileN>} has the same 
+%  function as the corresponding \bibliography{} LaTeX macro (almost).  
+%  We write the \bibdata{<file1>,...<fileN>} information to the .aux 
+%  file (BIBTeX needs it there), and we load the referencelist (if it 
+%  exists).  Furthermore, we could use the TeXsis \ListReferences 
+%  macro to produce the list of references, to make this almost 
+%  behave as the LaTeX macro (we should then write a headline too).
+%  However, we leave it to the user to print the references by using
+%  \ListReferences.  This has the advantage that one can use the 
+%  \ReferenceFiles{} in the very beginning of the TeX source, so we 
+%  don't need to run TeXsis twice after running BIBTeX (as in LaTeX).
+%  This can be a big time saver, especially for long documents, and I 
+%  think it fits better with the TeXsis philosophy. -BD
+%
+\def\ReferenceFiles#1{% first write names of .bib files to .aux file
+    \auxwritenow{\string\bibdata\string{#1\string}}% 
+%
+% Now try to open an existing .bbl file and read it in
+%
+    \immediate\openin\reflistin=\jobname.bbl    % try to open .bbl file
+    \ifeof\reflistin                            % if EOF then it isn't there
+         \closein\reflistin                     % so just close it.
+    \else\immediate\closein\reflistin           % close so to \input
+       \input\jobname.bbl \relax                % \input the references
+    \fi}
+\let\bibliography=\ReferenceFiles       % LaTeX synonym
+
+%>>> EOF TXSrefs.tex <<<

@@ -1,0 +1,424 @@
+%%
+%% This is file `template.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% template.dtx  (with options: `package')
+%% 
+%%
+%% (C) Copyright 1999 David Carlisle, Frank Mittelbach
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{template}
+          [1999/09/28 v0.14 template parsing (DPC,FMi)]
+
+\RequirePackage{ldcsetup}
+\IgnoreWhiteSpace
+\newtoks\TP@toks
+\newtoks\TP@toksb
+\newtoks\TP@toksc
+\def\functiondefine#1#2#3{%
+  \def\@tempa##1#1##2##{%
+    \TP@toksb\expandafter{\expandafter\def\expandafter#2\@gobble##1#1}
+    \the\TP@toksb}%
+  \@tempa0##1##2##3##4##5##6##7##8##9{#3}}
+\def\TP@DCI#1#2#3{
+  \begingroup
+    \TP@get@restrictions {#2}                  % puts stuff in \TP@toks
+    \toks@\expandafter\expandafter\expandafter
+          {\csname TPD>/#2\endcsname\relax\relax}
+    \setkeys{\the\TP@toksc}             % temp OK?
+            {#3}                           % adds stuff to \TP@toks
+    \expandafter\TP@add@default \the\toks@ % prepends stuff to \TP@toks
+    \xdef#1{
+      \expandafter\ifx\csname TP>/#2\endcsname\TP@dpa
+        \the\TP@toks
+      \else
+        \noexpand\TP@assignments{\the\TP@toks}
+        \expandafter\noexpand\csname TP>/#2\endcsname
+      \fi}
+  \endgroup}
+\long\def\TP@dpa{\DoParameterAssignments}
+\def\TP@add@default#1#2{
+  \ifx#1\relax
+   \else
+     \@temptokena{#2}
+     \edef\@tempa{{\the\@temptokena\the\TP@toks}}
+     \TP@toks\@tempa
+    \expandafter\TP@add@default
+  \fi}
+\def\UseTemplate#1#2#3{
+  \TP@get@restrictions {#1/#2}                % from here ...
+  \toks@\expandafter\expandafter\expandafter
+        {\csname TPD>/#1/#2\endcsname\relax\relax}
+  \setkeys{\the\TP@toksc}{#3}
+  \expandafter \TP@add@default \the\toks@  % to here is :
+                % Shared with \def\DeclareCommandInstance
+  \TP@push
+  \csname TP>/#1/#2\endcsname}
+\def\DoParameterAssignments{
+  \expandafter\TP@pop\the\TP@stack\@@}
+\def\TP@pop#1#2\@@{
+  \global\TP@stack{#2}
+  #1}
+\newtoks\TP@stack
+\global\TP@stack{\relax}% avoid brace loss
+\def\TP@assignments{
+  \afterassignment\TP@push\TP@toks}
+\def\TP@push{
+  \global\TP@stack\expandafter
+    {\expandafter{\the\expandafter\TP@toks\expandafter}
+    \the\TP@stack}}
+\def\DeclareTemplateType#1#2{
+  \expandafter\def\csname TP@<#1>\endcsname{{}#2}}
+\def\TP@prefix#1{
+  <\expandafter\expandafter\expandafter
+    \@firstoftwo\csname TP@<#1>\endcsname>#1/}
+\def\TP@args#1{
+  \expandafter\expandafter\expandafter
+    \@secondoftwo\csname TP@<#1>\endcsname}
+\long\def\DeclareTemplate#1#2#3#4#5{
+  \@ifundefined{TP@<#1>}
+    {\undefinedtype\DeclareTemplateType{#1}#3}
+    {\ifnum#3=\TP@args{#1}\relax\else
+      \BadArgCount\fi}
+  \let\KV@elt\TP@elt
+  \def\KV@default@elt##1{
+    \PackageError{template}{Missing = after ##1}\@ehd}
+  \def\TP@name{#1/#2}
+  \toks@{}
+  \KV@parse{#4}
+  \expandafter\edef\csname TPD>/\TP@name\endcsname{\the\toks@}
+  \expandafter\newcommand\csname TP>/\TP@name\endcsname[#3]{#5}}
+\def\TP@elt#1#2{%
+  \let\TP@global\@empty
+  \TP@do{#1}#2\TP@do}
+\def\TP@f@shift#1#2{%
+  \TP@testopt{#1}{\TPkeycommand{#1}{#2}}}
+\def\TP@i@shift#1#2{%
+  \TP@testopt{#1}{\TP@instance{#1}{#2}}}
+\def\TP@instance#1#2#3{
+  \TP@define@key{#1}{
+    \TPinstance#3{#2}{##1}}}
+\def\TPinstance#1#2#3{
+  \expandafter\ifx\@car#3.\@nil\UseTemplate
+    \typeout{\string\UseTemplate\space seen}
+       {\TP@fudge#3}
+        \expandafter\addto@hook\expandafter\TP@toks\expandafter{
+                             \expandafter\KV@toks\expandafter{\TP@gtemp}
+                             \edef#1{\the\KV@toks}}
+  \else
+    \@letinstance#1{#2}{#3}
+    \expandafter\expandafter\expandafter\addto@hook
+    \expandafter\expandafter\expandafter\TP@toks
+    \expandafter\expandafter\expandafter{
+           \@letinstance#1{#2}{#3}}
+  \fi}
+\def\TP@do#1#2#3\TP@do{
+  \ifx#2f
+     \TP@f@shift{#1}#3\@@
+  \else\ifx#2n
+     \TP@testopt{#1}{\TPnamecommand{#1}}#3\@@
+  \else\ifx#2l
+     \TP@testopt{#1}{\TP@register\setlength{#1}}#3\@@
+  \else\ifx#2L
+     \TP@testopt{#1}{\TP@fakeregister\setlength\fake@length
+                                      {#1}}#3\@@
+  \else\ifx#2c
+     \TP@testopt{#1}{\TP@register\SetInternalCounter{#1}}#3\@@
+  \else\ifx#2C
+     \TP@testopt{#1}{\TP@fakeregister\SetInternalCounter\@tempcnta
+                                       {#1}}#3\@@
+  \else\ifx#2b
+     \TP@testopt{#1}{\TP@setboolean{#1}}#3\@@
+  \else\ifx#2s
+     \TP@testopt{#1}{\TP@booltest{#1}}#3\@@
+  \else\ifx#2g
+     \TP@testopt{#1}{\TP@setgeneral{#1}}#3\@@
+  \else\ifx#2x
+     \TP@testopt{#1}{\TP@setx{#1}}#3\@@
+  \else\ifx#2i
+     \TP@i@shift{#1}#3\@@
+  \else\ifx#2+
+     \def\TP@global{\addto@hook\TP@toks{\global}}
+     \TP@do{#1}#3\TP@do
+  \else
+      \PackageError{template}{Unknown~key~type~ (#2)~for~#1}\@eha
+    \fi
+    \fi
+    \fi
+    \fi
+    \fi
+    \fi
+    \fi
+    \fi
+    \fi
+    \fi
+    \fi
+    \fi}
+\def\TP@testopt#1#2{
+  \@ifnextchar[%]
+    {\TP@test@pt{#1}{#2}}
+    {\TP@zap@@{#2}}}
+\def\TP@zap@@#1#2\@@{
+  #1{#2}}
+\def\TP@test@pt#1#2[#3]#4\@@{
+  #2
+  {#4}
+  \begingroup
+    \TP@toks{}
+    \let\TP@remove\@gobble
+    \csname KV@\TP@name @#1\endcsname{#3}
+  \expandafter
+  \endgroup
+  \expandafter
+  \toks@\expandafter{
+     \csname KV@\TP@name @#1\expandafter\endcsname\expandafter
+         {\the\expandafter\TP@toks\expandafter}\the\toks@}}
+\def\TP@setx#1#2{
+  \TP@define@key{#1}{\addto@hook\TP@toks{#2}}}
+\def\TP@setgeneral#1#2{
+  \TP@define@key{#1}{#2}}
+\def\TP@setboolean#1#2{
+  \expandafter\let\csname if#2\endcsname\iftrue
+  \TP@define@key{#1}{
+    \TPsetboolean{#2}{##1}}
+}
+\def\TPsetboolean#1#2{
+  \expandafter\ifx\csname if#2\endcsname\relax
+    \PackageError{template}{Bad~boolean~setting~#1=#2}\@eha
+  \else
+    \expandafter\let\csname if#1\expandafter\endcsname
+                      \csname if#2\endcsname
+    \expandafter\addto@hook\expandafter\TP@toks\expandafter{
+             \expandafter\let
+             \csname if#1\expandafter\endcsname\csname if#2\endcsname}
+   \fi}
+\def\TP@booltest#1#2{
+  \TP@define@key{#1}{
+    \TPbooltest{##1}#2}}
+\def\TP@true{true}
+\def\TPbooltest#1#2#3{
+  \def\@tempa{#1}
+  \ifx\@tempa\TP@true
+     \addto@hook\TP@toks{#2}
+  \else
+     \addto@hook\TP@toks{#3}
+  \fi}
+\catcode`\:=11\relax
+\def\TP@register#1#2#3{
+  \TP@define@key{#2}{
+      \expandafter\ifx\@car##1\@nil\DelayEvaluation
+        \addto@hook\TP@toks{#1#3{##1}}
+       \else
+  \expandafter\ifx\@car##1..\@nil\MultiSelection
+       \begingroup
+        \TP@multi#1#3##1
+       \endgroup
+       \expandafter\in@\expandafter\DelayEvaluation
+                       \expandafter{\the\TP@multi@toks}
+       \ifin@
+         \addto@hook:No\TP@toks
+           {\expandafter#1\expandafter#3\expandafter
+             {\the\TP@multi@toks}}
+       \else
+         \addto@hook:No\TP@toks
+           {\expandafter  #3
+            \expandafter= \the\TP@multi@toks\relax}
+       \fi
+  \else
+      #1#3{##1}
+      \addto@hook:No\TP@toks
+         {\expandafter  #3
+          \expandafter= \the#3\relax}
+       \fi\fi}}
+\def\addto@hook:No#1#2 {
+      \expandafter\addto@hook\expandafter#1\expandafter{#2}}
+\catcode`\:=12\relax
+\let\DelayEvaluation\@firstofone
+\def\TP@define@key#1#2{%
+  \expandafter\def
+    \csname KV@\TP@name @#1\expandafter\endcsname
+      \expandafter##\expandafter1
+      \expandafter{
+         \expandafter\TP@remove
+           \csname KV@\TP@name @#1\expandafter\endcsname
+           \TP@global
+          #2}}
+\def\TP@remove#1{
+  \def\@tempa##1#1##2##3#1##4\@@{
+    \toks@{##1##3}}
+  \expandafter\@tempa\the\toks@#1\relax#1\@@}
+\def\TPkeycommand#1#2#3{
+  \TP@define@key{#1}{
+  \functiondefine#2#3{##1}
+        \expandafter\addto@hook\expandafter\TP@toks\expandafter{
+                        \the\TP@toksb{##1}}
+      }
+    }
+\catcode`\:=11\relax
+\def\TPnamecommand#1#2{
+  \TP@define@key{#1}{
+  \expandafter\ifx\@car##1..\@nil\MultiSelection
+       \begingroup
+        \TP@multi@name##1
+       \endgroup
+       \addto@hook:No\TP@toks
+            {\expandafter\def\expandafter#2\expandafter
+             {\the\TP@multi@toks}}
+  \else
+        \def#2{##1}                      % setting it?
+        \addto@hook\TP@toks{\def#2{##1}}
+  \fi
+      }
+    }
+\catcode`\:=12\relax
+\def\TP@multi@name #1#2#3#4{
+   \global\TP@multi@toks{\ifcase #2}
+   \@for\next:=\@empty #3\do{
+   \TP@do@multi\next
+}
+   \global\addto@hook\TP@multi@toks{\else #4\fi}
+  }
+\def\DeclareInstance{\DeclareCollectionInstance{}}
+\long\def\DeclareCollectionInstance#1#2#3#4{
+  \expandafter\TP@DCI\csname<#1>#2/#3\endcsname{#2/#4}}
+\def\UseCollection#1#2{
+  \expandafter\edef\csname TP@<#1>\endcsname{
+   {#2}
+   \TP@args{#1}}}
+\def\@letinstance#1#2#3{
+  \expandafter\let\expandafter#1\csname
+  \@ifundefined{\TP@prefix{#2}#3}
+   {<>#2/}
+   {\TP@prefix{#2}}
+   #3
+   \endcsname}
+\def\UseInstance#1#2{
+  \@letinstance\@tempa{#1}{#2}
+  \ifx\@tempa\relax
+     \INSTANCEundefined
+   \else
+    \expandafter\@tempa
+   \fi}
+\long\def\TP@fudge#1#2#3{%
+  \TP@DCI\TP@gtemp{#2/#3}}
+\def\ShowTemplate#1#2{
+   \typeout{*******~ Template:~ #1/#2~ *******}
+   \typeout{*}
+   \typeout{*~ Defaults:}
+   \typeout{*}
+   \typeout{\string\TPD>/#1/#2=
+      \expandafter\meaning\csname TPD>/#1/#2\endcsname}
+   \typeout{*}
+   \typeout{*~ Restrictions:}
+   \typeout{*}
+   \typeout{\string\TPR>/#1/#2=
+      \expandafter\meaning\csname TPR>/#1/#2\endcsname}
+   \typeout{*}
+   \typeout{*~ Body:}
+   \typeout{*}
+   \expandafter\show\csname TP>/#1/#2\endcsname}
+\def\ShowCollectionInstance#1#2#3{
+   \typeout{*******~ Instance:~ <#1>#2/#3~ *******}
+   \typeout{*}
+   \expandafter\show\csname <#1>#2/#3\endcsname}
+\def\ShowInstance{\ShowCollectionInstance{}}
+\catcode`\:=11\relax
+\def\TP@fakeregister#1#2#3#4{
+  \TP@define@key{#3}{
+      \expandafter\ifx\@car##1..\@nil\DelayEvaluation
+        \addto@hook\TP@toks{#1#2{##1}\edef#4{\the#2}}
+       \else
+  \expandafter\ifx\@car##1..\@nil\MultiSelection
+       \begingroup
+        \TP@multi#1#2##1
+       \endgroup
+       \addto@hook:No\TP@toks
+          {\expandafter\def\expandafter#4\expandafter
+           {\the\TP@multi@toks}}
+  \else
+      #1#2{##1}
+      \addto@hook:No\TP@toks
+                  {\expandafter
+                        \def
+                   \expandafter
+                         #4
+                   \expandafter
+                        {\the#2}}
+       \fi\fi}}
+\catcode`\:=12\relax
+\newtoks\TP@multi@toks
+\def\TP@multi #1#2#3#4#5#6{
+   \global\TP@multi@toks{\ifcase #4}
+   \@for\next:=\@empty #5\do{
+     \expandafter \expandafter\expandafter\ifx\expandafter
+                  \@car\next..\@nil\DelayEvaluation
+       \TP@do@multi\next
+     \else
+       #1#2{\next}
+       \TP@do@multi{\the#2}
+     \fi
+   }
+   \global\addto@hook\TP@multi@toks{\else #6\fi}
+  }
+\def\TP@do@multi#1{
+     \global\expandafter\addto@hook\expandafter\TP@multi@toks
+                 \expandafter{\expandafter\or #1 }
+}
+\newlength\fake@length
+\def\IfExistsInstanceTF#1#2{
+  \expandafter\ifx\csname <>#1/#2\endcsname\relax
+    \expandafter\@secondoftwo
+  \else
+    \expandafter\@firstoftwo
+  \fi}
+\def\IfExistsInstanceTF#1#2{
+  \@letinstance\@tempa{#1}{#2}
+  \ifx\@tempa\relax
+    \expandafter\@secondoftwo
+  \else
+    \expandafter\@firstoftwo
+  \fi}
+\def\DeclareRestrictedTemplate#1#2#3#4{
+  % CCC do we need a group here??
+  \letcc { TPD>/#1/#2 } { TPD>/#1/#3 }
+  \letcc {  TP>/#1/#2 } {  TP>/#1/#3 }
+  \TP@get@restrictions   {#1/#3}          % puts stuff in \TP@toks
+  \setkeys{\the\TP@toksc}                      % temp OK?
+          {#4}                            % adds stuff to \TP@toks
+  \TP@store@restrictions {#1/#2}{#1/#3}} % stores the contents of
+                                         % \TP@toks
+\def\letcc#1#2{
+  \expandafter \let
+    \csname #1 \expandafter \endcsname
+       \csname #2 \endcsname}
+\def\TP@get@restrictions#1{    % Returns to \TP@toks the restrictions
+                               % stored in the TP-structure (at present
+                               % in YAM) of the template #1
+  \@ifundefined {TPR>/#1}
+    {\TP@toks {}}
+    {\TP@toks \expandafter\expandafter\expandafter
+              {\csname TPR>/#1\endcsname}}
+  \@ifundefined {TPO>/#1}
+    {\@namedef {TPO>/#1} {#1}
+     \TP@toksc {#1} }                  % temp OK?
+    {\TP@toksc \expandafter\expandafter\expandafter
+                  {\csname TPO>/#1\endcsname} }}
+\def\TP@store@restrictions#1#2{  % Stores the contents of \TP@toks
+                                 % in the TP-structure (at present
+                                 % in YAM) of the template #1
+  \expandafter\edef\csname TPR>/#1\endcsname{\the\TP@toks}
+  \@ifundefined{TPO>/#2}
+    {\@namedef{TPO>/#1}{#2}}
+    {\letcc{TPO>/#1}{TPO>/#2}}}
+
+\endinput
+%%
+%% End of file `template.sty'.

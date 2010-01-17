@@ -1,0 +1,58 @@
+%% file: spine.txs - 3-Ring Binder labels - TeXsis version 2.18
+%% @(#)  $Id: spine.txs,v 18.1 2001/04/06 22:47:06 myers Exp $ 
+%======================================================================*
+% spine.txs - labels for the spine of a 3-Ring binder
+%
+% (C) copyright 1994, 1999 by Eric Myers and Frank E. Paige.
+% This file is a part of TeXsis.  Distribution and/or modifications
+% are allowed under the terms of the LaTeX Project Public License (LPPL).
+% See the file COPYING or ftp://ftp.texsis.org/texsis/LPPL
+%======================================================================*
+% \spine{text} makes a boxed label for the spine of a 3 ring binder
+% This is printed in \Landscape mode, 24pt type, and with a ruled box
+% around it.  The box will be at least 15cm long, but will extend
+% if the text requires more space.  Instructions for installing the
+% label in the spine of a binder are printed, but if more than one
+% label is created the instructions are only printed once.
+
+\def\spine#1{\spineSetup
+%%   \headline={\LandscapeSpecial}%               % and force it every page
+   \setbox0=\hbox{\twentyfourpoint\bf\quad #1\quad}%    
+   \dimen0=\wd0                                 % 
+   \ifdim\wd0<15cm \dimen0=15cm\fi              %  Minimum size 15cm
+   \vskip 1cm plus 2cm                          %
+   \tightboxit{\vbox to 1in{\vfill              %
+     \hbox to \dimen0{\hfil\box0\hfil}%         %
+     \vfill}}%                                  %
+   \vskip 1cm plus 2cm}                         %
+
+\def\spineSetup{%  once-only setup for \spine
+   \LandscapeSpecial                            % Landscape mode
+   \vbox{\hsize=15cm                            %
+     \bigskip\bigskip                           %
+     \tenpoint\parskip=\smallskipamount         %
+     \noindent                                  %
+     How to install the spine label on a binder:
+
+     \item{1.}
+     Cut out the label around the outside of the 
+     bounding ruled box.  Leave extra paper
+     (about 1.5cm or so) on the RIGHT side.
+
+     \item{2.}
+     Obtain a long thin plastic ruler or similar object which can 
+     slide down the pocket on the binder spine.
+
+     \item{3.}
+     Put the label along the ruler, face up, and fold the extra tab 
+     of paper on the right of the label over the end of the ruler.
+
+     \item{4.}
+     Slide the ruler, with the label on it, down the spine of the 
+     binder.  When the label is in place remove the ruler.  The label 
+     will remain.
+     \bigskip\bigskip
+   \gdef\spineSetup{\relax}              % only show once!
+   }}
+
+%>>> EOF spine.txs <<<

@@ -1,0 +1,172 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Tabelle aller Zeichenverbindungen
+% Stand 27.01.1992
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentstyle[arabtex]{article}
+\pagestyle{myheadings}
+\thispagestyle{empty}
+\parskip=5mm
+\parindent=0mm
+\setarab
+
+\begin{document}
+{\huge \bf Arab\TeX\ Ligatures \hfil \today }
+\markright{Arab\TeX\ Ligatures \hfil \today }
+
+\novocalize
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newdimen \fw             \newcount \nf
+
+\def \tableformat #1*{% Tabellenformat berechnen
+% columns
+\fw \hsize \advance \fw -3pt \relax
+\nf 1
+\ctfd #1,\end
+\divide \fw \nf }
+
+\def \ctfd #1,#2\end{% Felder zaehlen
+\advance \nf 1
+\ifx #2\relax \relax \let \next \relax
+\else \def \next {\ctfd #2\end }%
+\fi \next }
+
+\def \enter #1\end {% Element eintragen
+\hbox to \fw {\hss <#1>\hss }%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def \tableline #1*#2*#3*#4*{% eine Zeile eintragen
+% beg row columns end
+%\hrule
+%\leavevmode
+%\hrule
+\hbox {%
+\ifx #2A\enter -a#4\end \else
+\enter -#2#4\end
+\fi
+\vrule
+\addtoline #1*#2*#3,*#4*%
+}
+%\hrule
+\typeout{#2 * #3}% Statusmeldung
+}
+
+\def \addtoline #1*#2*#3,#4*#5*{% Tabellenelemente eintragen
+% beg row column columns end
+\ifx #2A\enter #1#3#2#5\end
+\else \enter #1#3a#2#5\end
+\fi
+\ifx #4\relax \relax \let \next \relax
+\else \def \next {\addtoline #1*#2*#4*#5*}%
+\fi \next }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newif \ifcon
+
+\def \testcon #1#2*{% pruefe ob verbindbar
+\contrue
+\ifx #1A\confalse \else
+\ifx #1E\confalse \else
+\ifx #1d\confalse \else
+\ifx #1r\confalse \else
+\ifx #1z\confalse \else
+\ifx #1w\confalse \else
+\ifx #1_\ifx #2d\confalse \fi \else
+\ifx #1^\ifx #2z\confalse \fi \else
+\ifx #2\relax \relax \else
+\testcon #2*%
+\fi\fi\fi\fi\fi\fi\fi\fi\fi }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def \addlines #1*#2*#3*#4*{% Zeilenblock aufbauen
+% beg rows columns end
+\addrow #1*#2,*#3*#4*}
+
+\def \addrow #1*#2,#3*#4*#5*{% Zeilen eintragen
+% beg row rows columns end
+\ifx #5\relax \relax \contrue 
+  \tableline #1*#2*#4*#5*% eine Zeile
+\else \testcon #2*%
+  \ifcon
+  \tableline #1*#2*#4*#5*% eine Zeile
+  \fi
+\fi
+\ifx #3\relax \relax \let \next \relax
+\else \def \next {\addrow #1*#3*#4*#5*}% weiter
+%  \ifcon \\
+%  \fi
+\fi \next }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def \ligtab #1*#2*#3*#4*{% Tabelle ausgeben
+% beg rows columns end
+{\offinterlineskip \tableformat #3*% Format aufbauen
+\leavevmode
+\tableline #1*-*#3**% Kopfzeile eintragen
+\hrule
+%\tracingmacros = 1 %
+\addlines #1*#2*#3*#4*% Tabellenrumpf eintragen
+\tracingmacros = 0 %
+}}
+
+\def \ligtable #1#2{% alle Tabellen
+% rows columns
+\expandafter \ligtabi #2*#1*}
+
+\def \ligtabi #1*#2*{% erstes Argument explizit
+% columns rows
+\expandafter \ligtabii #2*#1*}
+
+\def \ligtabii #1*#2*{% beide Argumente explizit
+% rows columns
+
+%Anfangsform -- Endform
+initial form to final form
+
+\ligtab *#1*#2**%
+
+%Mittelform -- Endform
+medial form to final form
+
+\ligtab -*#1*#2**%
+
+\newpage
+%Anfangsform -- Mittelform
+initial form to medial form
+
+\ligtab *#1*#2*-*%
+
+\newpage
+%Mittelform -- Mittelform
+medial form to medial form
+
+\ligtab -*#1*#2*-*%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def \crow {A,p,_t,^c,_h,_d,^z,^s,.d,.z,.g,q,k,l,m,n,h,w,y,E,%
+lA,p^c,m^c,h^c,hm,py,pm,hE}
+
+\def \ccol {p,_t,^c,^s,.d,.z,.g,q,k,l,m,h}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\huge
+\Huge
+\Large
+
+\ligtable \crow \ccol
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\tracingmacros=0
+\end{document}
+

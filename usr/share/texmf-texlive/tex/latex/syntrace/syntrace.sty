@@ -1,0 +1,66 @@
+%%
+%% This is file `syntrace.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% syntrace.dtx  (with options: `package')
+%% This is a generated file.
+%% 
+%% Copyright (C) 2006 by Mathieu Boretti
+%% 
+%% This file may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either
+%% version 1.3 of this license or (at your option) any later
+%% version. The latest version of this license is in:
+%% 
+%% http://www.latex-project.org/lppl.txt
+%% 
+%% and version 1.3 or later is part of all distributions of
+%% LaTeX version 2003/12/01 or later.
+%% 
+%% The current Maintainer of this work is Mathieu Boretti
+%% 
+%% This work consists of the file syntrace.ins and
+%% syntrace.dtx and the derived file syntrace.sty
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{syntrace}[2006/08/13 v1.0 Package for dealing with trace in synttree]
+\RequirePackage{ifthen}
+\RequirePackage{synttree}
+\newcounter{syntrace@startvalue}
+\setcounter{syntrace@startvalue}{0}
+\newcounter{syntrace@labelcounter}
+\setcounter{syntrace@labelcounter}{\arabic{syntrace@startvalue}}
+\renewcommand*{\thesyntrace@labelcounter}{%
+    \alph{syntrace@labelcounter}%
+}
+\newcommand*{\syntrace@labelletter}{%
+    \ensuremath{t}%
+}
+\newcommand*{\syntrace@displaytrace}[1]{%
+    \raisebox{-.5\height}{\scriptsize\mbox{#1}}%
+}
+\newcommand*{\traceLabel}[1]{%
+    \refstepcounter{syntrace@labelcounter}%
+    \syntrace@displaytrace{\thesyntrace@labelcounter}%
+    \label{syntrace-#1}%
+}
+\newcommand*{\traceReference}[1]{%
+    \syntrace@labelletter\syntrace@displaytrace{\ref{syntrace-#1}}%
+}
+\newcommand*{\syntrace@reset}{%
+    \setcounter{syntrace@labelcounter}{\arabic{syntrace@startvalue}}%
+}
+\let\syntrace@syntree=\synttree
+\def\synttree{\@ifstar%
+    \syntrace@syntree%
+    \syntree@star%
+}
+\def\syntree@star{%
+    \syntrace@reset%
+    \syntrace@syntree%
+}
+
+\endinput
+%%
+%% End of file `syntrace.sty'.

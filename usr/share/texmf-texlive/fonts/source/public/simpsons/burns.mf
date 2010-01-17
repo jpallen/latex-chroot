@@ -1,0 +1,171 @@
+% burns.mf by Raymond Chen (rjc@math.princeton.edu) 
+ 
+% Monty Burns. 
+ 
+pictureof(Burns, 24u#, 24u#, 0); 
+    pickup thinpen; 
+ 
+    localpath ear; 
+    ear = (8u, 15u) .. (6u, 15.9u) .. (4.4u, 14.5u) .. (5.5u, 12.4u) .. 
+          (6.7u, 12.8u); 
+    % We don't draw the ear until it's been clipped by Burns' sideburns. 
+ 
+    localpath head; 
+    z1h = (9u, 20.6u);          % join point for Burns' hair 
+    z2h = (7u, 13u);            % terminal join point for interpathing 
+    z1e = (12u, 15u);           % beginning of Burns' eye 
+    z2e = (16u, 12u);           % end of Burns' eye 
+    z3e = (20u, 14u);           % where Burns' eyebrow might be 
+    z4e = (20.5u, 17u);         % the forward lobe of his forehead 
+    labels(1h, 2h, 1e, 2e, 3e, 4e); 
+    head = postclip( 
+           z1e                   .. tension 3 and 1 .. 
+           z2e{dir -5}           .. 
+           z3e                   .. 
+           z4e{up}               .. 
+           (16  u, 21.8u)        .. 
+           (12  u, 21.6u)        .. 
+           z1h                   .. tension 1 and 2 .. 
+           ( 5.7u, 19  u)        .. % inflection upwards slightly 
+           ( 3.7u, 16.5u){down}  .. 
+%          ( 5  u, 14  u) 
+           z2h 
+           , ear); 
+ 
+% Now split the head at z1h into the forehead and the hair. 
+% Although the intersectiontimes should give us an integer, we round just 
+% in case something got lost in translation. 
+ 
+    numeric t; t = round xpart(head intersectiontimes z1h); 
+    if t < 0: errmessage("Unable to find Burns' hairline"); fi 
+ 
+    localpath outerhair; 
+    outerhair = subpath(t, infinity) of head; 
+    head := subpath(0, t) of head; 
+ 
+    localpath innerhair;        % the inner boundary of Burns' hair, 
+                                % and his sideburns. 
+    innerhair = 
+                z1h{direction 0 of outerhair} .. 
+                (8.8u, 16u){down} .. 
+                (8.3u, 12.5u) .. 
+                (8u, 12.3u) .. tension 2 .. 
+                z2h .. tension 2 .. 
+                (8u, 16u) .. 
+                (8.5u, 18u) .. 
+           {up} z1h; 
+ 
+    draw preclip(ear, innerhair);  % now the ear can be drawn 
+    drawtau( (5.2u, 14.5u), (6.7u, 15u), (6.1u, 13.4u), (6.3u, 15.5u) ); 
+ 
+% Now split innerhair at z2h. 
+ 
+    numeric t; t = round xpart(innerhair intersectiontimes z2h); 
+    if t < 0: errmessage("Unable to find Burns' sideburns"); fi 
+ 
+    localpath interhair; 
+    interhair = reverse subpath(t, length innerhair - .5) of innerhair; 
+    innerhair := subpath(0,t) of innerhair; 
+ 
+% Now we can clip the innerhair so his sideburns stop at the hairline 
+    draw innerhair; 
+    draw preclip(interhair, innerhair); 
+ 
+% Now what's left of Burns' hair can be drawn 
+    for i= 0 step .3 until .8: 
+        draw prepostclip(interpath(i, outerhair, interhair), innerhair, ear); 
+    endfor 
+ 
+    localpath beak; 
+    z1b = (17  u, 12.5u);            % first two beak points 
+    z2b = (20.3u,  8.5u); 
+                                    % Beak contains an inflection point 
+    beak = z1b{(z2b-z1b) rotated -5} .. z2b .. 
+           (21.6u,  6  u)       .. tension 1 and 3 .. 
+           (21.7u,  3.8u)       .. tension 3 and 3 .. 
+           (20.3u,  5.3u)       .. 
+           (18  u,  7  u)       .. 
+           (17  u,  8  u){up}   .. 
+    {right}(18.4u,  9  u); 
+ 
+    draw (reverse beak) hardjoin head; 
+ 
+% Now Burns' right eye. 
+    draw subpath(0,1) of head; 
+    localpath eye_bottom; 
+    eye_bottom = z1e {direction 0 of head} .. 
+                 (14.5u, 10.9u) .. {dir 40} z2e; 
+    draw eye_bottom; 
+% The bag under Burns' eye. 
+    draw (subpath(.4, 1) of eye_bottom) shifted (-.3u, -.5u); 
+ 
+% Burns' left eye. 
+    draw prepostclip( 
+        (18u, 10.5u) .. (19.8u, 12u) .. (19u, 13u), 
+        beak, head); 
+ 
+    localpath mouth; 
+    mouth = preclip( 
+           (18.5u, 7u) .. tension 1 and 2 .. 
+           (18u, 4.5u) .. tension 2 and 1 .. 
+           (10u, 7.8u) .. 
+           (8.2u, 7.5u), beak); 
+    draw mouth; 
+ 
+if false: 
+    % back of neck 
+    localpath neck; 
+    neck = preclip( 
+        (9u, 7u){down} .. %tension .9 and 3 .. 
+        {-(1,1.5)}(7.2u, 0u), ear); 
+    draw neck; 
+ 
+fi 
+ 
+    % Burns' fangs, err, teeth.  Must be drawn after the chin. 
+    numeric n; n = 5; % number of teeth, minus 1 
+    % n points equally spaced. 
+    numeric t[]; 
+ 
+    % The following wild macro makes t0 ... t[n] equally spaced. 
+ 
+    for i = 1 upto n: t[i] - t[i-1] = endfor whatever; 
+    t0 = 1.1; t[n] = 2; 
+ 
+    localpath teeth; 
+    teeth = 
+    for i = 1 upto n: 
+        hide( makelabel.top(decimal(i-1), point t[i-1] of mouth); ) 
+        bend(60, point t[i-1] of mouth, point t[i] of mouth) & 
+    endfor 
+        bend(60, point 2 of mouth, point 3 of mouth); 
+    draw teeth; 
+ 
+    z1c = (13.3u, 5.5u);                % the inner cavity of the chin 
+    z2c = (9.5u, 0u);                   % the bottom tip of the neck 
+    z3c = (5.5u, 4u);                   % the bottom of the back of the neck 
+    labels(1c, 2c, 3c); 
+ 
+    localpath neck; 
+    neck = prepostclip( (15u, 7u) .. z1c .. tension 2 .. z2c & 
+                    bend(20, z2c, z3c) & 
+                    z3c{dir 80}.. (6.4u, 13u), teeth, ear); 
+    draw neck; 
+ 
+    % Draw Burns' suit jacket 
+    draw z3c .. {curl5} (2.5u, 0u); 
+    draw z3c .. (6u, 0u); 
+ 
+    z1j = neck intersectionpoint ((0u, 3u) .. (24u, 3u)); 
+    draw z1j .. (14.3u, 0u); 
+    draw z1j .. (11.4u, 0u); 
+ 
+% Burns' age spots. 
+    localpath agespot; 
+    agespot = fullcircle xscaled 1.5 scaled .4u rotated -15; 
+    draw agespot shifted (12u, 19.5u); 
+    draw agespot shifted (10.4u, 17.4u); 
+    draw agespot shifted (12.8u, 15.8u); 
+ 
+    eyepos(Burns, 14.2u#, 12.1u#, 18.6u#, 12.0u#); 
+endpicture; 

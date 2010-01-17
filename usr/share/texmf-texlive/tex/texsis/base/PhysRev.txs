@@ -1,0 +1,427 @@
+%% file: PhysRev.txs  (TeXsis version 2.18)
+%% @(#) $Id: PhysRev.txs,v 18.1 2001/04/06 22:31:57 myers Exp $
+%========================================================================*
+% PhysRev.txs  -  Physical Review Style for TeXsis
+%
+% The following document formats are defined in this style file.
+%
+%   \PhysRev      - Formats papers as they would appear in 
+%                       Physical Review A, B, C, D, or E
+%   \PhysRevLett  - Formats papers as they would appear in 
+%                       Physical Review Letters
+%   \PhysRevManuscript - Formats papers for _Submission_ to Physical
+%                               Review or Physical Reveiw Letters
+%
+%  The Volume/Series/Issue and page number can be set by seting the 
+%  following AFTER you have invoked \PhysRev or \PhysRevLett:
+%
+%       \def\Series{D}  % or A, B, C, E
+%       \let\Volno=32
+%       \let\Issueno=10
+%       \let\Pageno=2736
+%
+%  This is a good attempt to replicate the style of the Physical Review,
+%  but there may still be some subltle differences.  We would appreciate
+%  suggestions or comments via e-mail to texsis@texsis.org
+%========================================================================*
+\ATunlock                                     % use @ as a letter
+\emsg{\@comment\ PhysRev: Physical Review journal style}%
+
+
+\tenpoint                            % roughly Elite type
+\parindent=1.5em                     % indent about 2 characters
+\parskip=0.5\smallskipamount         % not much skip betwen paragraphs
+\baselineskip=12pt plus 0.5pt        % a little extra stretch for 2 columns
+\hsize=42.5pc \vsize=55\baselineskip %
+\skip\footins=0.5cm                  % space above wide footnotes
+\sectionskip=0.80cm  plus 0.1cm minus 0.1cm %
+\subsectionskip=0.65cm plus 0.1cm minus 0.1cm %
+
+
+%--------------------------------------------------*
+% HEADLINES and FOOTLINES for all Physical Review layouts
+
+\def\Series{}
+\newcount\Volno  \Volno=0       
+\newcount\Issueno\Issueno=0
+\newcount\Pageno  \Pageno=1             % page number to start on
+
+% some extra fonts for headline and footline
+
+\font\smallheadfont=cmcsc10
+\font\largeheadfont=cmcsc10
+
+\headlineoffset=0pt
+
+\def\VolumeBanner#1#2#3#4{%    define the title page header
+  \ifx\relax#1\relax\else\def\Series{#1}\fi             % #1 = A... or L
+  \ifx\relax#2\relax\else\Volno=#2\fi                   % #2 = volume
+  \ifx\relax#3\relax\else\Issueno=#3\fi                 % #3 = issue
+  \ifx\relax#4\relax\else\Pageno=#4\fi                  % #4 = page
+%
+  \ifx\Series{L}%                                       % Letters
+     \def\@VolumeBanner{\largeheadfont                  % 
+        \rlap{Volume \the\Volno, Number \the\Issueno}%  %
+        \hss PHYSICAL REVIEW LETTERS                    %
+        \hss \today}%                                   %
+  \else                                                 % Phys Rev
+     \def\@VolumeBanner{\rlap{PHYSICAL REVIEW #1}%      %
+     \hss VOLUME \the\Volno, NUMBER \the\Issueno        %
+     \hss \llap{\the\Pageno}}%                          %
+  \fi}
+
+
+\def\@Volume{$\underline{\hbox{{\the\Volno}%
+        \vrule height12pt depth2ptwidth\z@}}$}
+
+\def\TitleBanner#1{\def\@TitleBanner{#1}}% for right hand (odd) pages
+
+\def\AuthorBanner#1{\def\@AuthorBanner{#1}}% for left hand (even) pages
+
+\VolumeBanner{}{}{}{}\TitleBanner{}\AuthorBanner{}% defaults are empty
+
+
+%==================================================*
+% REFERENCES:  some differences from Plain TeXsis
+
+\superrefsfalse                         % Physical Review's new style now
+
+% How to list the references at the end
+
+\ifx\undefined\@stdListRefs
+  \let\@stdListRefs=\ListReferences      % save standard TeXsis definition
+\fi
+
+%  How to display reference numbers in the list at the end
+
+\def\@refitem#1#2#3{% reference item (#3 eats the ^^M, #2 is label)
+   \vskip 0pt\vfil\penalty-1\vfilneg    % favour breaks here, weakly
+   \refskip                             % some space between citations
+   % print citation number, based on type of citation
+   \ifcase\CiteType\relax               % 0: no citation mark 
+   \or \message{#1.}%                   % 1: superscript numbers
+     \hangindent 1em\hangafter 1   ${}^{#1}$%
+   \or \message{[#1]}%                  % 2: [<number>] style in-line 
+     \noindent\hskip-\refindent         % indent, but write number
+     \hbox to \refindent{\hss \linkname{Ref.#1}{[#1]}\quad} % unindented
+   \else\relax\fi                       % else: nothing
+   #3}
+
+\def\refskip{\vskip0pt plus 2pt}% only a little stretch between refs
+
+\def\Ref#1{% citations in text are ``Ref. [xx]''
+     \testtag{Ref.#1}\ifundefined % is it undefined? (tag -> \tok)
+        Ref.~[\use{Ref.#1}]             % force a tagging error
+     \else 
+        \linkto{Ref.\csname\tok\endcsname}{Ref.~[\csname\tok\endcsname]}%
+   \fi}
+
+
+%======================================================================*
+% TITLE material -- modified for Physical Review layout
+
+\def\titlepage{\pageno=\Pageno                  % start on page \Pageno
+      \begingroup                               %
+      \singlespaced}                            %
+
+\def\endtitlepage{\bigskip\endgroup             % some skip and glue
+      \vskip 0pt                                % 
+      \doublecolumns}                           % start doing double columns
+
+\def\author{% first line after as author's name, following lines are address
+     \endmode\begingroup                        % end any previous mode
+     \let\endmode=\endauthor                    % \endmode will end \author
+     \begingroup\obeylines                      % to see author's name
+     \PRgetauthor}                              % next line = author's name
+
+{\obeylines\gdef\PRgetauthor#1
+  #2
+  {#1\bigskip
+     \centerline{\elevenpoint #2}% first line is author's name
+     \endgroup                                  % end \obeylines for lookahead
+     \raggedcenter\relax                        % fill as you can
+     \def\\{\discretionary{}{}{,}}%             % , unless line breaks
+     \def\n{\penalty10000}%                     % \n would like to break
+     \ninepoint\it                              % rest is affiliation
+}}                                              % 
+
+\def\endauthor{\vskip 0pt\endraggedcenter\endgroup\smallskip}
+
+\def\abstract{%
+      \centerline{(Received \@PUBdate)}%        % the date from \pubdate
+      \vskip\baselineskip                       % another blank line
+      \begingroup                               %
+      \leftskip=1in \rightskip=1in              % narrower abstract margins
+      \ninepoint}                               % 9 pt type for the text
+
+\def\endabstract{\medskip\endgroup}
+
+
+%==================================================*
+% SECTION LEVELS: Modified from \section in TXSsects.tex:
+
+
+\def\section#1{%        create a new section of a document
+   \vskip\sectionskip                           % make some space
+   \goodbreak\pagecheck\sectionminspace         % new page if needed
+   \global\advance\sectionnum by \@ne           % increment section counter
+   \global\subsectionnum=\z@                    % reset subsections
+   \global\subsubsectionnum=\z@                 % reset subsubsections
+%
+%  Section ID:
+%
+   \edef\lab@l{\@chaptID\SectionStyle{\the\sectionnum}}% For \label
+   \ifshowsectID                                % show section number?
+     \global\edef\@sectID{\SectionStyle{\the\sectionnum}.}% save for later
+     \global\edef\@fullID{\lab@l.\space\space}% % what we will use here
+     \r@set                                     %   and reset counters 
+   \else\gdef\@fullID{}\fi                      % otherwise  section ID is empty
+   \everysection                                % user customization here
+%
+%  Print the Section title, in uppercase bold
+%
+   \vbox{%                                      % keep heading in \vbox
+     \center                                    % centered for Phys Rev 
+       \uppercase{\tbf \lab@l.\ \ #1}%          % Section headings in uppercase
+     \endcenter                                 %
+     \vskip-\baselineskip                       % undo it
+     \vskip0.85\sectionskip\relax}%             % skip below title
+   \nobreak                                     % no break after title
+%
+%  Table of Contents and Running Headlines:
+%
+   \begingroup                                  % group for \contents, etc.
+     \def\label##1{}%                           % disable \label
+     \global\edef\SectionTitle{#1}%             % or nothing
+     \def\n{}\def\nl{}\def\mib{}%               % turn off \n, etc
+     \ifnum\chapternum=0\setHeadline{#1}\fi     % no chapt. number -> set headine
+     \emsg{Section \@fullID #1}%                % announce in log file
+     \def\@quote{\string\@quote\relax}%         % in case of \quoteon
+     \addTOC{1}{\NX\TOCsID{\lab@l.}#1}{\folio}% % Table of Contents entry
+   \endgroup                                    % end group
+   \s@ction                                     % checkenv, etc..
+   \aftersection}                               % user can customize
+
+%--------------------------------------------------*
+% Modified from \subsection in TXSsects.tex
+
+\def\subsection#1{%    % create a subsection of a document
+   \vskip\subsectionskip                        % make some space
+   \goodbreak\pagecheck\sectionminspace         % new page if needed
+   \global\advance\subsectionnum by \@ne        % increment counter
+   \global\subsubsectionnum=\z@                 % reset subsubsection
+%
+%  Subsection ID:
+%
+   \edef\lab@l{\@chaptID\@sectID\SubsectionStyle{\the\subsectionnum}}%
+   \ifshowsectID                                % show section number?
+     \global\edef\@fullID{\lab@l.\space}%       % yes: define it
+   \else\gdef\@fullID{}\fi                      % otherwise it's empty
+   \everysubsection                             % user can customize
+%
+%  Print the subsection title
+%
+   \vbox{%                                      % heading in \vbox
+     \center                                    % centered for Phys Rev 
+       {\tbf \lab@l.\ \ #1}%                    %
+     \endcenter                                 %
+     \vskip-\baselineskip                       % undo it
+     \vskip0.85\subsectionskip\relax}%              % same skip above and below
+   \nobreak                                     %
+%
+   \begingroup                                  % group for \contents, etc.
+     \def\label##1{}%                           % disable \label
+     \global\edef\SubsectionTitle{#1}%          % or nothing
+     \def\n{}\def\nl{}\def\mib{}%               % disable \n, etc
+     \emsg{\@fullID #1}%                   % announce in log file
+     \def\@quote{\string\@quote\relax}%         % in case of \quoteon
+     \addTOC{2}{\NX\TOCsID{\lab@l.}#1}{\folio}% % Table of Contents entry
+   \endgroup                                    % end \contents group
+   \s@ction                                     % end of section 
+   \aftersubsection}                            % room to customize
+
+%--------------------------------------------------*
+% Modified from \subsubsection in TXSsects.tex
+
+\def\subsubsection#1{%         % create a subsubsection of a document
+   \vskip\subsectionskip                        % make some space
+   \goodbreak\pagecheck\sectionminspace         % new page if needed
+   \global\advance\subsubsectionnum by \@ne     % increment counter
+%
+%  Sub-subsection ID:
+%
+   \edef\lab@l{\SubsubsectionStyle{\the\subsubsectionnum}}% just the number
+   \ifshowsectID                                % show section number?
+     \global\edef\@fullID{\lab@l.\space\space}% % yes: define it
+   \else\gdef\@fullID{}\fi                      % else it's empty
+   \everysubsubsection                          % user can customize here
+%
+%  Print the sub-subsection title
+%
+   \vbox{%                                      % heading in \vbox
+     \center                                    % centered for Phys Rev 
+       {\bf \lab@l.\ \ #1}%                     %
+     \endcenter                                 %
+     \vskip-\baselineskip                       % undo it
+     \vskip\subsectionskip\relax}%              % same skip above and below
+   \nobreak                                     %
+%
+   \begingroup                                  % group for \contents, etc.
+     \def\label##1{}%                           % disable \label
+     \global\edef\SubsectionTitle{#1}%          % or nothing
+     \def\n{}\def\nl{}\def\mib{}%               % turn off \n, etc
+     \emsg{\@fullID #1}%                        % announce in log file
+     \def\@quote{\string\@quote\relax}%         % in case of \quoteon
+     \addTOC{3}{\NX\TOCsID{\lab@l.}#1}{\folio}% % Table of Contents entry
+   \endgroup                                    % end group
+   \s@ction                                     % end of section
+   \aftersubsection}                            % room to customize
+
+
+%======================================================================*
+% \PhysRev and \PhysRevLett layouts
+
+\def\PhysRev{%  Physical Review two column layout
+   \auxswitchtrue                       % save tags and labels in .aux file
+   \refswitchtrue                       % save references in .ref file
+   \tenpoint                            % roughly Elite type
+%%   \setbox\strutbox=\hbox{\vrule height8.5pt depth3.5pt width\z@}%
+   \SetDoubleColumns{20.5pc}%           %
+   \ifx\LFins\undefined\else            % These may not be defined in mTeXsis
+      \skip\LFins=1cm   \skip\RFins=1cm\fi    % space above column footnotes
+%%   \advance\hoffset by -.3in \advance\voffset by -.3in % for this size
+   \footlineoffset=12pt
+%
+   \showchaptIDfalse                    % no chapter number in equation numbers
+   \showsectIDfalse                     % no section number in equation numbers
+   \def\SectionStyle##1{\uppercase      % section numbers in upper case
+        \expandafter{\romannumeral ##1}}%     roman numerals
+   \def\SubsectionStyle##1{\LetterN{##1}}% subsections are UC letters
+   \def\SubsubsectionStyle##1{##1}%     % subsubsections are numbered
+   \RomanTablestrue                     % roman numerals for table numbers
+   \def\Tbf{\twelvepoint\bf}%           % 12pt bold title
+   \def\tbf{\tenpoint\bf}%              % 10pt bold for section head
+%
+   \autoparens                          % auto-sizing of parens
+   \quoteon                             % automatic begin/end quotes
+   \pageno=\Pageno                      % start page numbering on \Pageno
+%
+   \headline={% headline for Physical Review A, B, C, D, E...
+     \ifnum\pageno=\Pageno                      % First page header
+       {\largeheadfont \@VolumeBanner}%         %
+     \else\ifodd\pageno                         % right (odd) page header
+       {\rlap{\@Volume}%                        %
+          \hss \largeheadfont \@TitleBanner     %
+          \hss \llap{\folio}}%                  %
+     \else                                      % left (even) page header
+       {\rlap{\folio}%                          %
+       \hss \largeheadfont \@AuthorBanner       %
+        \hss \llap{\@Volume}}\fi\fi}%           %
+%
+   \footline={% copyright claim at bottom of first page
+     \ifnum\pageno=\Pageno                      %
+        {\tenrm \hbox to\colwidth{\hfill{\@Volume}}\hss %
+        \hbox to\colwidth{\folio \hfill         %
+             \copyright\ \the\year\ The American Physical Society}}%
+     \fi}
+%
+   \def\ListReferences{% PhysRev version of \ListReferences
+     \enddoublecolumns                     % balance columns so far
+     \dimen@=\pagegoal                  % get total page size
+     \advance\dimen@ by -\pagetotal     % get page space remaining
+     \ifdim\dimen@>0pt \ifdim\dimen@< 1cm % not enough to look good?
+         \vfil\eject                    %
+     \else                              %
+         \bigskip                       %
+         \line{\hfill \hbox to 20.5pc{\hrulefill}\hfill}%
+         \bigskip                       %
+     \fi\fi                             %
+     \doublecolumns                     % back to double columns for list
+     \@stdListRefs                      %
+     \vfill                             % 
+     \enddoublecolumns}%
+%
+   \def\refFormat{\ninepoint}% reference text is in slightly smaller type
+}% end \PhysRev
+
+%---
+%  The layout of Physical Review Letters is slightly different,
+% mostly in how the headlines and footlines are treated, and the references
+
+\def\PhysRevLett{% 
+   \PhysRev     % same as Physical Review, with following changes
+   \def\Series{L}%                              % Assume Phys. Rev. Lett.
+   \null\vskip 0.1cm                            % some skip at top
+%
+   \headline={\hbox{\vbox{\hbox to \pagewidth{\largeheadfont %
+        Volume \the\Volno, Number \the\Issueno \hss %
+        PHYSICAL REVIEW LETTERS \hss \today}%
+        \vskip 0.32cm\hrule}}}%
+   \footlineoffset=24pt                 %
+   \footline={% copyright claim at bottom of first page
+     \ifnum\pageno=\Pageno              %
+        {\tenrm \ifodd\pageno\else\rlap{\folio}\fi %
+        \hss{\copyright\ \the\year\ The American Physical Society}\hss
+        \ifodd\pageno\llap{\folio}\fi}%
+     \else
+        \ifodd\pageno                   % right (odd) page header
+         {\hss \folio}%
+        \else                           % left (even) page header
+         {\folio \hss}%
+     \fi\fi}
+%
+     \def\section##1{\relax}%           % no sections in PRL
+     \def\subsection##1{\relax}%        % no subsections in PRL
+     \def\subsubsection##1{\relax}%     % no subsubsections in PRL
+%
+     \def\ListReferences{% PhysRevLett version of \ListReferences
+       \dimen@=\pagetotal               % how far so far
+       \ifdim\dimen@>\pageheight\advance\dimen@ by -\pageheight\fi
+       \advance\dimen@ by 1cm           %
+       \ifdim\dimen@>\pagetotal         % not enough to look good?
+          \bigskip\goodbreak            %
+       \else                            %
+          \vskip\subsectionskip         %
+          \line{\hfill \hbox to 6pc{\hrulefill}\hfill}%
+          \vskip\subsectionskip         %
+       \fi                              %
+       \@stdListRefs}%                  %
+}% end \PhysRevLett
+
+
+%======================================================================*
+% \PhysRevManuscript is a layout similar to \preprint, but printed
+% in \TrueDoubleSpacing and with other things set the way Physical
+% Review wants them for submitted manuscripts.
+
+
+\def\PhysRevManuscript{% layout for manuscripts to be submitted to journals
+   \preprint                            % start with preprint form
+   \TrueDoubleSpacing                   % manuscripts have real double spacing
+   \showchaptIDfalse                    % no chapter number in equations
+   \showsectIDfalse                     % no section number in equations
+   \def\SectionStyle##1{\uppercase      % section numbers in upper case
+         \expandafter{\romannumeral ##1}}%     roman numerals
+   \def\SubsectionStyle##1{\LetterN{##1}}% subsections are UC letters
+   \def\SubsubsectionStyle##1{##1}%     % subsubsections are numbered
+   \RomanTablestrue                     % roman numerals for table numbers
+   \FiguresLast\TablesLast              % figures and tables at the end
+   \ListCaptions                        % collect a list of captions
+   \offparens                           % no automatic paren sizing
+   \superrefsfalse                      % PR has abandoned superscripts
+   \def\Tbf{\twelvepoint\bf}%           % 12pt bold title
+   \def\tbf{\twelvepoint\bf}%           % 12pt bold section head
+   \parindent=1em                       % indent about 2 characters
+   \parskip=\smallskipamount            % not much space between paragraphs
+   \def\everysection{\vfill\eject}%     % start new section on new page
+   \gdef\captionspacing{\TrueDoubleSpacing}%
+   \def\abstract{\begingroup\narrower\narrower\vskip 1\baselineskip plus 1fil}%
+   \def\ListReferences{\vskip 2\baselineskip\@stdListRefs}%
+   }
+
+% Once the Phys. Rev. style file is loaded \Manuscript is specific to
+% Physical Review:
+
+\let\Manuscript=\PhysRevManuscript
+
+%>>> EOF PhysRev.txs <<<

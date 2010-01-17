@@ -1,0 +1,62 @@
+% Copyright 2003-2005 Han The Thanh <hanthethanh@gmx.net>.
+% This file is part of vntex.  License: LPPL, version 1.3 or newer,
+% according to http://www.latex-project.org/lppl.txt
+
+% Computer Modern Roman Italic lower case "i" precomposed glyphs:
+% Inclusion:
+%               i'      i`      i?      i~      i.
+
+begin_letter(i);
+    set_letter_dimens(i)(
+        5u#, x_height#, 0,
+        1/3x_height#*slant + .5hair# + .5u#,
+        if monospace: u#, u# else: 0, 0 fi
+    );
+    pickup fine.nib;
+    x0 = 0;
+    x5 = w;
+    x2 = .5w + .25u;
+    x3 = .5w - .25u;
+    hook_in(0, 1, 2)(skewed);
+    hook_out(3, 4, 5)(skewed);  % hooks
+    filldraw stroke z2e -- z3e;  % stem
+    math_fit( - 2/3x_height#*slant + .5hair# + .5u#, ic#);
+    penlabels(0, 1, 2, 3, 4, 5);
+    set_letter_join(i, x1, .25w# + .15u#);
+    set_letter_join(i.dot_, x4, .75w# + .1u#);
+end_letter;
+
+begin_letter(idot);
+    idot_h# := min(asc_height#, 10/7x_height# + .5flare#);
+    set_letter_dimens(idot)(
+        5u#, idot_h#, 0,
+        max(1/3x_height#*slant + .5hair# + .5u#, idot_h#*slant + .5flare# - 2u#),
+        if monospace: u#, u# else: 0, 0 fi
+    );
+    pickup fine.nib;
+    x0 = 0;
+    x5 = w;
+    x2 = .5w + .25u;
+    x3 = .5w - .25u;
+    hook_in(0, 1, 2)(skewed);
+    hook_out(3, 4, 5)(skewed);  % hooks
+    filldraw stroke z2e -- z3e;  % stem
+    pos8(flare, 0);
+    pos9(flare, 90);
+    x8 = .5w if not monospace: -.4(h - x_height)*slant fi;
+    top y9r = h + 1;
+    if bot y9l - top y1 < slab:
+        y9l := min(y9r - eps, y1 + fine + slab);
+    fi
+    x8 = x9;
+    y8 = .5[y9l, y9r];
+    dot(8, 9); % dot
+    math_fit( - 2/3x_height#*slant + .5hair# + .5u#, ic#);
+    penlabels(0, 1, 2, 3, 4, 5, 8, 9);
+    set_letter_join(idot, x1, .25w# + .15u#);
+    set_letter_join(idot.dot_, x4, .75w# + .1u#);
+end_letter;
+
+input vnicomp;
+
+endinput;

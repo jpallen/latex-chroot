@@ -1,0 +1,255 @@
+%%
+%% This is file `cjwplain.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cjwplain.dtx  (with options: `package')
+%% 
+%% Copyright (C) 1995 by Colin J. Wynne
+%% 
+%% This file is part of cjwplain, a style providing
+%% Plain TeX functionality under LaTeX2e.
+%% 
+ \NeedsTeXFormat{LaTeX2e}
+ \ProvidesPackage{cjwplain}
+ [1995/05/01 v0.5
+                         Plain TeX Macros for LaTeX2e---CJW]
+\def\RCSinfo{$Id: cjwplain.dtx,v 1.2 1998/08/31 22:57:40 cwynne Exp $}
+
+\def\RCSsplit $#1: #2,v #3 #4 #5 #6 #7${
+  \gdef\filename   {#2}
+  \gdef\fileversion{#3}
+  \gdef\filedate   {#4}
+  \gdef\filetime   {#5}
+  \gdef\fileauthor {#6}
+  \gdef\filelocker {#7}}
+
+\expandafter\RCSsplit\RCSinfo
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%%
+\newif\if@outerallocs     \@outerallocsfalse
+\newif\if@diagnostics     \@diagnosticstrue
+\newif\if@plainskips      \@plainskipsfalse
+\newif\if@strictline      \@strictlinetrue
+\newif\if@tabbing         \@tabbingtrue
+\newif\if@strictitem      \@strictitemfalse
+\newif\if@eqalign         \@eqaligntrue
+\newif\if@strictfootnotes \@strictfootnotesfalse
+\newif\if@altfootnotes    \@altfootnotesfalse
+\newif\if@plainoutput     \@plainoutputfalse
+\newif\if@magnification   \@magnificationfalse
+\DeclareOption{outerallocs}{\@outerallocstrue}
+\DeclareOption{outerallocsoff}{\@outerallocsfalse}
+
+\DeclareOption{diagnostics}{\@diagnosticstrue}
+\DeclareOption{diagnosticsoff}{\@diagnosticsfalse}
+
+\DeclareOption{plainskips}{\@plainskipstrue}
+\DeclareOption{planiskipsoff}{\@plainskipsfalse}
+
+\DeclareOption{strictline}{\@strictlinetrue}
+\DeclareOption{strictlineoff}{\@strictlinefalse}
+
+\DeclareOption{tabbing}{\@tabbingtrue}
+\DeclareOption{tabbingoff}{\@tabbingfalse}
+
+\DeclareOption{strictitem}{\@strictitemtrue}
+\DeclareOption{strictitemoff}{\@strictitemfalse}
+
+\DeclareOption{eqalign}{\@eqaligntrue}
+\DeclareOption{eqalignoff}{\@eqalignfalse}
+\DeclareOption{strictfootnotes}{%
+  \@strictfootnotestrue \@altfootnotesfalse}
+\DeclareOption{altfootnotes}{%
+  \@altfootnotestrue \@strictfootnotesfalse}
+\DeclareOption{footnotesoff}{%
+  \@altfootnotesfalse \@strictfootnotesfalse}
+
+\DeclareOption{magnification}{\@magnificationtrue}
+\DeclareOption{magnificationoff}{\@magnificationfalse}
+\DeclareOption{plainoutput}{%
+  \@plainoutputtrue \@strictfootnotestrue
+  \@altfootnotesfalse \@magnificationtrue}
+\DeclareOption{plainoutputoff}{\@plainoutputfalse}
+\DeclareOption{none}{%
+  \@outerallocsfalse    \@eqalignfalse
+  \@diagnosticsfalse    \@plainskipsfalse
+  \@strictfootnotesfalse\@strictlinefalse
+  \@altfootnotesfalse   \@tabbingfalse
+  \@magnificationfalse  \@strictitemfalse
+  \@plainoutputfalse}
+
+\DeclareOption{all}{%
+  \@outerallocstrue    \@eqaligntrue
+  \@diagnosticstrue    \@plainskipstrue
+  \@strictfootnotestrue\@strictlinetrue
+  \@altfootnotestrue   \@tabbingtrue
+  \@magnificationtrue  \@strictitemtrue
+  \@plainoutputtrue}
+\DeclareOption*{%
+  \PackageWarning{cjwplain}{Unknown option `\CurrentOption'}}
+\ProcessOptions*
+\if@outerallocs
+
+\outer\def\newcount{\alloc@0\count\countdef\insc@unt}
+\outer\def\newdimen{\alloc@1\dimen\dimendef\insc@unt}
+\outer\def\newskip{\alloc@2\skip\skipdef\insc@unt}
+
+\outer\def\newbox{\alloc@4\box\chardef\insc@unt}
+\outer\def\newwrite{\alloc@7\write\chardef\sixt@@n}
+\outer\def\newfam{\alloc@8\fam\chardef\sixt@@n}
+
+\fi
+\if@diagnostics
+
+\showboxbreadth=5
+\showboxdepth=3
+\setcounter{errorcontextlines}{5}
+
+\fi
+\if@plainskips
+  \def\smallskip{\vskip\smallskipamount}
+  \def\medskip{\vskip\medskipamount}
+  \def\bigskip{\vskip\bigskipamount}
+\fi
+\let\plainline\@@line
+
+\if@strictline
+
+\let\latex@line\line
+\let\line\@@line
+\def\@picture(#1,#2)(#3,#4){%
+  \let\line\latex@line%
+  \@picht#2\unitlength
+  \setbox\@picbox\hbox to#1\unitlength\bgroup
+    \hskip -#3\unitlength
+    \lower #4\unitlength\hbox\bgroup
+      \ignorespaces}
+
+\fi
+\if@tabbing
+  \InputIfFileExists{cjwpltab.clo}{}{%
+    \PackageWarning{cjwplain}{Option `cjwpltab.clo' not found.}
+    \@tabbingfalse}
+\fi
+\def\@@item{\par\hang\textindent}
+\let\plainitem\@@item
+\def\itemitem{\par\indent \hangindent2\parindent \textindent}
+\if@strictitem
+  \let\latexitem\item
+  \let\item\@@item
+\fi
+\outer\def\beginsection#1\par{\vskip\z@ plus.3\vsize\penalty-250
+  \vskip\z@ plus-.3\vsize\bigskip\vskip\parskip
+  \message{#1}\leftline{\bf#1}\nobreak\smallskip\noindent}
+\outer\def\bye{\end{document}}
+\let\plaincentering\@centering
+
+\if@eqalign
+
+\def\eqalign#1{\null\,\vcenter{\openup\jot\m@th
+  \ialign{\strut\hfil$\displaystyle{##}$&$\displaystyle{{}##}$\hfil
+      \crcr#1\crcr}}\,}
+
+\def\eqalignno#1{\displ@y \tabskip\@centering
+  \halign to\displaywidth{\hfil$\@lign\displaystyle{##}$\tabskip\z@skip
+    &$\@lign\displaystyle{{}##}$\hfil\tabskip\@centering
+    &\llap{$\@lign##$}\tabskip\z@skip\crcr
+    #1\crcr}}
+\def\leqalignno#1{\displ@y \tabskip\@centering
+  \halign to\displaywidth{\hfil$\@lign\displaystyle{##}$\tabskip\z@skip
+    &$\@lign\displaystyle{{}##}$\hfil\tabskip\@centering
+    &\kern-\displaywidth\rlap{$\@lign##$}\tabskip\displaywidth\crcr
+    #1\crcr}}
+
+\else
+\@namedef{eqnarray*}{%
+  \let \\ \cr $$\null\,\vcenter{\openup\jot\m@th
+  \ialign{\strut\hfil$\displaystyle{##}$&$\displaystyle{{}##}$\hfil\crcr}}}
+\@namedef{endeqnarray*}{\crcr}
+
+\fi
+\if@plainoutput
+  \InputIfFileExists{cjwplout.clo}{}{%
+    \PackageWarning{cjwplain}{Option `cjwplout.clo' not found.}
+    \@tabbingfalse}
+\fi
+\if@plainoutput\else
+
+\def\footline{\@ifnextchar ={\@@footline}{\@@footline=}}
+\def\@@footline=#1{\gdef\@oddfoot{#1} \gdef\@evenfoot{#1}}
+
+\def\headline{\@ifnextchar ={\@@headline}{\@@headline=}}
+\def\@@headline=#1{\gdef\@oddhead{#1} \gdef\@evenhead{#1}}
+
+\def\nopagenumbers{\let\@oddfoot\relax \let\@evenfoot\relax}
+\let\pageno\c@page
+\newcommand{\folio}[1][\pageno]{\@folio{#1}}
+\def\@folio#1{%
+  \edef\@tempa{\string#1}%
+  \expandafter\@ifundefined{c@\@tempa}% % Does the counter exist?
+    {% %   No such counter.
+      \ifnum #1 <\z@ \romannumeral-#1
+        \else \number #1
+      \fi
+    }%
+    {% %   It is a counter.
+      \ifnum\value{#1}<\z@ \roman{#1} \else \arabic{#1} \fi}
+  }
+\def\advancepageno{\ifnum\pageno<\z@ \global\advance\pageno\m@ne
+  \else\global\advance\pageno\@ne \fi}
+\let\normalbottom\flushbottom
+\def\topinsert{\begin{figure}[t]}
+\def\pageinsert{\begin{figure}[p]}
+\def\midinsert{\begin{figure}[htpb]}
+\def\endinsert{\end{figure}}
+
+\fi
+
+\let\latex@footnote\footnote
+
+\def\@@footnote#1{\let\@sf\empty % parameter #2 (the text) is read later
+  \ifhmode\edef\@sf{\spacefactor\the\spacefactor}\/\fi
+  #1\@sf\vfootnote{#1}}
+\def\vfootnote#1{\insert\footins\bgroup
+  \interlinepenalty\interfootnotelinepenalty
+  \splittopskip\ht\strutbox % top baseline for broken footnotes
+  \splitmaxdepth\dp\strutbox \floatingpenalty\@MM
+  \leftskip\z@skip \rightskip\z@skip \spaceskip\z@skip
+  \xspaceskip\z@skip
+  \textindent{#1}\footstrut\futurelet\next\fo@t}
+\def\fo@t{\ifcat\bgroup\noexpand\next \let\next\f@@t
+  \else\let\next\f@t\fi \next}
+\def\f@@t{\bgroup\aftergroup\@foot\let\next}
+\def\f@t#1{#1\@foot}
+\def\@foot{\strut\egroup}
+\def\footstrut{\vbox to\splittopskip{}}
+\if@strictfootnotes
+  \let\footnote\@@footnote
+\fi
+\if@altfootnotes
+  \def\footnote#1{\latex@footnote[#1]}
+\fi
+\if@magnification
+  \def\magnification{\afterassignment\m@g\count@}
+  \def\m@g{\mag\count@
+    \hsize6.5truein\vsize8.9truein\dimen\footins8truein}
+\fi
+\endinput
+%%
+%% End of file `cjwplain.sty'.

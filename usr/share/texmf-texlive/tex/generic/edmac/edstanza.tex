@@ -1,0 +1,92 @@
+%%
+%% This is file `edstanza.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% edstanza.doc 
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from edstanza.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file edstanza.doc.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+
+\def\fileversion{0.01}
+\def\filedate{92/6/25}
+\def\docdate {92/6/25}
+
+%% \CheckSum{191}
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%%
+   \ifx\edmacloaded\relax\else
+     \errmessage{EDSTANZA requires EDMAC.}\endinput\fi
+  \chardef\body=\catcode`\@
+  \catcode`\@=11
+  \chardef\next=\catcode`\&
+  \catcode`\&=\active
+  \newcount\stanza@count
+  \newdimen\stanzaindentbase
+  \stanzaindentbase=20pt
+\def\strip@szacnt#1,#2|{\def\@tempb{#1}\def\@tempa{#2|}}
+\def\setstanzavalues#1#2{\def\@tempa{#2,,|}%
+        \stanza@count\z@
+     \def\next{\expandafter\strip@szacnt\@tempa
+            \ifx\@tempb\empty\let\next\relax\else
+            \expandafter\mathchardef\csname #1@\number\stanza@count
+            @\endcsname\@tempb\relax
+            \advance\stanza@count\@ne\fi\next}%
+      \next}
+\def\stanza@line{\parindent=\csname sza@\number\stanza@count
+                 @\endcsname\stanzaindentbase
+            \pstart\stanza@hang\ignorespaces}
+\xdef\stanza@hang{\noexpand\leavevmode\noexpand\startlock
+            \hangindent\expandafter
+            \noexpand\csname sza@0@\endcsname\stanzaindentbase
+            \hangafter\@ne}
+\def\sza@penalty{\count@\csname szp@\number\stanza@count @\endcsname
+          \ifnum\count@>\@M\advance\count@-\@M\penalty-\else
+          \penalty\fi\count@}
+\let\endstanzaextra\relax
+\xdef\stanza{\begingroup\catcode`\&\active\global\stanza@count\@ne
+         \noexpand\ifnum\expandafter\noexpand
+         \csname sza@0@\endcsname=\z@\let\noexpand\stanza@hang\relax
+         \let\noexpand\endlock\relax\noexpand\else\interlinepenalty
+         \@M\rightskip\z@ plus 1fil\relax\noexpand\fi\noexpand\ifnum
+         \expandafter\noexpand\csname szp@0@\endcsname=\z@
+         \let\noexpand\sza@penalty\relax\noexpand\fi \def\noexpand&{%
+         \noexpand\endlock\noexpand\pend\noexpand\sza@penalty\global
+         \advance\stanza@count\@ne\noexpand\stanza@line}\def\noexpand
+         \&{\noexpand\endlock\noexpand\pend\endgroup\endstanzaextra}%
+         \noexpand\stanza@line}
+  \catcode`\&=\next
+  \catcode`\@=\body
+  \let\ampersand=\&
+  \setstanzavalues{szp}{0}
+    \endinput
+\endinput
+%%
+%% End of file `edstanza.tex'.

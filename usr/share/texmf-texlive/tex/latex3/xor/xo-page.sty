@@ -1,0 +1,283 @@
+%%
+%% This is file `xo-page.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xo-page.dtx  (with options: `package,progress')
+%% 
+%% Not for distribution
+%% 
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%% 
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+
+\def\@tempa#1: #2.dtx,v #3 #4 #5 #6 #7${
+  \ProvidesPackage{#2}[#4 #3 #5 #6]}
+\@tempa$Id: xo-page.dtx,v 1.34 2000/08/11 07:14:27 latex3 Exp $
+\IgnoreWhiteSpace
+\let\initialise@footins@action\relax
+\let\deal@with@footins@action\relax
+\DeclareTemplateType{footnotesetup}{0}
+\DeclareTemplate{footnotesetup}{std}{0}{
+   text-sep    =+l \skip\footins,
+   max-height  =+l \dimen\footins,
+ }
+ {
+
+  \global\skip\footins 10pt plus 5pt
+  \global\dimen\footins.7\textheight
+
+  \DoParameterAssignments
+
+  \let\initialise@footins@action\relax
+  \let\deal@with@footins@action\relax
+
+  \global\count\footins\@m
+
+ }
+\DeclareTemplate{footnotesetup}{ftnright}{0}{
+   text-sep    =+l \rcol@footinsskip,
+   max-height  =+l \dimen\footins,
+ }
+ {
+
+  \global\rcol@footinsskip 10pt plus 5pt
+  \global\dimen\footins\textheight
+
+  \DoParameterAssignments
+
+  \let\initialise@footins@action\initialise@footins@ftnright
+  \let\deal@with@footins@action\deal@with@footins@ftnright
+
+ }
+\DeclareTemplate{footnotesetup}{margin}{0}{
+   max-height  =+l \dimen\footins,
+ }
+ {
+
+  \global\dimen\footins.7\textheight
+
+  \DoParameterAssignments
+
+  \let\initialise@footins@action\initialise@footins@margin
+  \let\deal@with@footins@action\deal@with@footins@margin
+
+  \global\count\footins\z@
+  \global\skip\footins \z@
+
+ }
+\newbox\saved@footins
+\newskip\rcol@footinsskip
+\def \initialise@footins@ftnright {
+  \global\setbox\saved@footins\box\voidb@x
+  \global\skip\footins\z@
+  \global\count\footins\z@
+  \global\dimen\footins\textheight
+}
+\def \deal@with@footins@ftnright {
+  \ifnum\curr@col@count<\col@count
+    \ifvoid\footins
+    \else
+      \global\setbox\saved@footins
+        \vbox{\unvbox\saved@footins
+              \unvbox\footins}
+    \fi
+    \count@\col@count
+    \advance\count@\m@ne
+    \ifnum\curr@col@count=\count@ % cur col = second last col
+       \global\count\footins\@m
+       \global\skip\footins\rcol@footinsskip
+       \ifvoid\saved@footins
+       \else
+         \insert\footins{\unvbox\saved@footins}
+       \fi
+    \fi
+  \fi
+}
+\def \deal@with@footins@margin {
+  \ifvoid\footins
+  \else
+    \global\setbox\saved@footins
+      \vbox{\unvbox\saved@footins
+            \unvbox\footins}
+  \fi
+}
+\def \initialise@footins@margin {
+  \global\setbox\saved@footins\box\voidb@x
+}
+\def\test@named@key #1#2#3#4 {
+    \global\expandafter\let \expandafter #1
+       \csname #2 \endcsname
+    \ifx #1 \relax
+      \PackageError{template}{#3~ unknown}
+        {#3~ can~ be~ either~ #4}
+    \fi
+}
+\def\DeclareFloatArea#1#2{
+ \xdef\known@areas{\known@areas#1}
+ \DeclareInstance{floatareasetup}{#1}{std}
+   { name = #1,  #2 }
+ \UseInstance{floatareasetup}{#1}
+}
+\DeclareTemplateType{floatareasetup}{0}
+\DeclareTemplate{floatareasetup}{std}{0}{
+   name            =n \floatareasetup@name,
+   class-close-list=n \floatareasetup@class@close,
+   all-close-list  =n \floatareasetup@all@close,
+   max-float-num   =C \floatareasetup@maxfloats,
+ }
+ {
+
+  \DoParameterAssignments
+  \@ifundefined{\floatareasetup@name @float@count}
+      {\expandafter\newcount\csname \floatareasetup@name
+                                     @float@count\endcsname}
+      {}
+  \global\expandafter\let
+     \csname pagesetup@ \floatareasetup@name @float@num\endcsname
+        \floatareasetup@maxfloats
+  \global\expandafter\let
+     \csname pagesetup@ \floatareasetup@name @class@close\endcsname
+        \floatareasetup@class@close
+  \global\expandafter\let
+     \csname pagesetup@ \floatareasetup@name @all@close\endcsname
+        \floatareasetup@all@close
+  \global\expandafter\let
+       \csname area@\floatareasetup@name\endcsname
+       \@empty
+}
+\DeclareTemplateType{pagesetup2}{0}
+\DeclareTemplate{pagesetup2}{std}{0}{
+   column-num    =+c \col@count,
+   column-width  =+l \columnwidth,
+   column-height =+l \textheight,          % FMi tmp
+   column-sep    =+l \columnsep,
+   max-float-num =C \pagesetup@max@float@num,
+   float-callout-constraint            =n \pagesetup@float@callout,
+   float-callout-span-constraint       =n \pagesetup@float@callout@span,
+   bottom-float-footnote-constraint    =n \pagesetup@float@footnote,
+   flush-float-callout-constraint      =n \pagesetup@flush@float@callout,
+   flush-float-callout-span-constraint =n \pagesetup@flush@float@callout@span,
+   flush-bottom-float-footnote-constraint =n
+                                         \pagesetup@flush@float@footnote,
+   area-list =n \pagesetup@area@list,
+   defer-class-close-list=n \pagesetup@ddd@class@close,
+   defer-all-close-list  =n \pagesetup@ddd@all@close,
+   footnote-setup =i {footnotesetup} \pagesetup@footnote@setup,
+   float-float-sep        =+l \pagesetup@float@float@sep,
+   float-area-sep         =+l \pagesetup@float@area@sep,
+   float-text-sep         =+l \pagesetup@float@text@sep,
+   float-inline-sep       =+l \pagesetup@float@inline@sep,
+   grid-point-sep   =+L \pagesetup@grid@point@sep,
+  }
+  {
+    \newpage
+
+    \global\col@count\@ne
+    \def\pagesetup@max@float@num{3}
+    \def\pagesetup@float@callout{column}
+    \def\pagesetup@float@footnote{none}
+    \def\pagesetup@flush@float@callout{\pagesetup@float@callout}
+    \def\pagesetup@flush@float@footnote{\pagesetup@float@footnote}
+    \def\pagesetup@float@callout@span{flexible}
+    \def\pagesetup@flush@float@callout@span{\pagesetup@float@callout@span}
+    \let\pagesetup@ddd@class@close\maxdimen %impossible value
+    \let\pagesetup@ddd@all@close\@empty
+    \def\pagesetup@footnote@setup{\UseTemplate{footnotesetup}{std}{}}
+    \global\let\pagesetup@grid@point@sep\z@  % no grid points by default
+
+    \DoParameterAssignments
+     \ifdim \pagesetup@grid@point@sep = \z@
+       \global\let\snap@to@grid\dummy@snap@to@grid
+       \IgnoreAlignToGrid
+       \global\let\std@AlignToGrid\relax
+     \else
+       \global\let\snap@to@grid\std@snap@to@grid
+       \ObeyAlignToGrid
+     \fi
+    \split@skip{float-text-sep}
+               \pagesetup@float@text@sep
+               \dimen@
+               {\global\pagesetup@float@text@shrink}
+    \split@skip{float-inline-sep}
+               \pagesetup@float@inline@sep
+               \dimen@
+               {\global\pagesetup@float@inline@shrink}
+    \global\pagesetup@float@inline@sep \@ne\pagesetup@float@inline@sep
+    \global\hsize\columnwidth
+    \global\linewidth\columnwidth
+
+  \setlength \@tempdima {\headheight + \headsep}
+  \xdef \pagebodytopvpos {\the\@tempdima}
+
+  \setlength \@tempdima {\@tempdima + \textheight}
+  \xdef \pagebodybotvpos {\the\@tempdima}
+
+%% horiz
+  \setlength \@tempdima {\columnwidth + \columnsep}
+  \xdef \columndisplacement {\the\@tempdima}
+
+    \ifx\pagesetup@ddd@class@close\maxdimen %  not set?
+       \let\pagesetup@ddd@class@close\pagesetup@area@list
+    \fi
+    \test@named@key
+        \std@check@callout@constraints
+        {check@callout@\pagesetup@float@callout}
+        {float-callout-constraint}
+        {`none',~ `page',~ `column',~ or~ `after'}
+    \test@named@key
+        \relaxed@check@callout@constraints
+        {check@callout@\pagesetup@flush@float@callout}
+        {flush-float-callout-constraint}
+        {`none',~ `page',~ `column',~ or~ `after'}
+    \test@named@key
+        \std@check@some@constraints
+        {check@float@footnote@\pagesetup@float@footnote}
+        {bottom-float-footnote-constraint}
+        {`none'~ or~ `forbidden'}
+    \test@named@key
+        \relaxed@check@some@constraints
+        {check@float@footnote@\pagesetup@flush@float@footnote}
+        {flush-bottom-float-footnote-constraint}
+        {`none'~ or~ `forbidden'}
+    \test@named@key
+        \std@calculate@target@fl@column
+        {calculate@target@fl@column@\pagesetup@float@callout@span}
+        {float-callout-span-constraint}
+        {`strict'~ or~ `flexible'}
+    \test@named@key
+        \relaxed@calculate@target@fl@column
+        {calculate@target@fl@column@\pagesetup@flush@float@callout@span}
+        {flush-float-callout-span-constraint}
+        {`strict'~ or~ `flexible'}
+    \global\let\check@some@constraints\std@check@some@constraints
+    \global\let\check@callout@constraints\std@check@callout@constraints
+    \global\let\calculate@target@fl@column\std@calculate@target@fl@column
+    \global\let\used@areas\@empty
+    \expandafter
+    \@for \expandafter \@tempa \expandafter:\expandafter=
+           \pagesetup@area@list \do
+        {
+          \xdef\used@areas{\used@areas\@tempa}
+          \UseInstance{floatareasetup}{\@tempa}
+        }
+
+    \pagesetup@footnote@setup
+    \initialise@next@page
+    \setup@collection@or
+  }
+\endinput
+%%
+%% End of file `xo-page.sty'.

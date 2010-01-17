@@ -1,0 +1,45 @@
+% This is autotab.sty as of 5. October 1989
+% written by Gabriele Kruljac
+%            Max-Planck-Institute Stuttgart
+%            kruljac@ds0mpi11
+% this style generates tabular lines from data files
+% see autotab.tex for a description
+%
+% notice that the input data has to be written in valid TeX syntax
+% (i.e. \_, \% and so on)
+%
+% The name of the input data file will be read from the terminal
+% everytime the command \readtabline{...} is used
+ 
+\typeout{Document substyle `autotab' by MPI FKF, Version 1.0 as of 5. October 1989}
+ 
+\newif\ifnoteof
+\newcount\reccount
+\def\testeof{\ifeof10\global\noteoffalse\else\global\noteoftrue\fi}
+ 
+\long\def\readtabline#1{%
+\global\def\autotabline{}
+\let\septabline={\noexpand\septabline}
+\let\septabcol={\noexpand\septabcol}
+\let\savenu=\"
+\let\"=u
+\noteoftrue
+\message{Please type the name of the tabular input data file:}
+\read16 to\inputfile
+\openin10=\inputfile
+\loop
+     \read10 to\inrec
+     \testeof
+\ifnoteof
+     \advance\reccount by 1
+     \ifnum\reccount=#1
+           \global\edef\autotabline{\autotabline\inrec\septabline}
+           \reccount=0
+     \else
+           \global\edef\autotabline{\autotabline\inrec\septabcol}
+     \fi
+\repeat
+\closein10
+\let\"=\savenu
+\global\let\septabcol=&
+\global\let\septabline=\\}

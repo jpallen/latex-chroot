@@ -1,0 +1,74 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                two colume output from TUGboat
+%              vol. 6, No. 1 (1985) by Craig Platt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\newif\iftitle                %true if this is a titlepage
+  \global\titlefalse
+
+
+\def\titlepage{\global\titletrue} 
+
+\def\onepageout#1{\shipout\vbox{%
+ \offinterlineskip%
+ \vbox to 3pc{%
+   \iftitle \global\titlefalse%
+   \else\ifodd\pageno\rightheadline\else\leftheadline\fi\fi \vfill}%
+ \vbox to \vsize{#1%
+      \ifvoid\footins\else%
+      \vskip\skip\footins \kern-3pt%
+%     \hrule height\ruleht width\hsize \kern-\ruleht \kern3pt%
+      \unvbox\footins\fi%
+    \boxmaxdepth=\maxdepth}}%
+\advancepageno}
+
+\newdimen\colwidth \newdimen\bigcolheight		%%%1
+\colwidth=13pc \bigcolheight=98pc			%%%2 
+
+\output{\onepageout{\unvbox225}}
+
+\newbox\partialpage
+\newdimen\savesize					%%%3
+
+\def\begindoublecolumns{\begingroup
+	\savesize=\vsize				%%%4
+	\output={\global\setbox\partialpage=\vbox{\unvbox255}}\eject
+	\output={\doublecolumnout} \hsize=\colwidth \vsize=\bigcolheight
+	\advance\vsize by -2\ht\partialpage}		%%%5
+
+\def\enddoublecolumns{\output={\balancecolumns}\eject
+	\global\output={\onepageout{\unvbox255}}	%%%6
+	\global\vsize=\savesize				%%%7
+	\endgroup \pagegoal=\vsize}
+
+\def\doublecolumnout{\dimen0=\pageheight
+	\advance\dimen0 by-\ht\partialpage \splittopskip=\topskip
+	\setbox0=\vsplit255 to\dimen0
+	\setbox2=\vsplit255 to\dimen0
+	\onepageout\pagesofar
+	\global\vsize=\bigcolheight			%%%8
+	\unvbox255 \penalty\outputpenalty}
+
+\def\pagesofar{\unvbox\partialpage
+	\wd0=\hsize \wd2=\hsize \hbox to\pagewidth{\box0\hfil\box2}}
+
+\def\balancecolumns{\setbox0=\vbox{\unvbox255} \dimen0=\ht0
+	\advance\dimen0 by\topskip \advance\dimen0 by-\baselineskip
+	\divide\dimen0 by2 \splittopskip=\topskip
+	{\vbadness=10000 \loop \global\setbox3=\copy0
+	   \global\setbox1=\vsplit3 to\dimen0
+	   \ifdim\ht3>\dimen0 \global\advance\dimen0 by1pt \repeat}
+	\setbox0=\vbox to\dimen0{\unvbox1}
+	\setbox2=\vbox to\dimen0{\unvbox3}
+	\global\output={\balancingerror}		%%%9
+	\pagesofar}
+
+\newhelp\balerrhelp{Please change the page		%%%10
+                       into one that works.} 		%%%11
+
+\def\balancingerror{\errhelp=\balerrhelp		%%%12
+	\errmessage{Page can't be balanced}		%%%13
+	\onepageout{\unvbox255}}			%%%14
+
+	

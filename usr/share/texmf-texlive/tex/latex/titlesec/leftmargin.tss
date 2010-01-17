@@ -1,0 +1,54 @@
+% +--------------------------------------------------+
+% | Typeset titlesec.tex to get the documentation.   |
+% +--------------------------------------------------+
+%
+% Copyright (c) 1998-2005 by Javier Bezos.
+% All Rights Reserved.
+%
+% This file is part of the titlesec distribution release 2.6
+% -----------------------------------------------------------
+%
+% This program can be redistributed and/or modified under the terms
+% of the LaTeX Project Public License Distributed from CTAN
+% archives in directory macros/latex/base/lppl.txt; either
+% version 1 of the License, or any later version.
+
+\ProvidesFile{leftmargin.tss}[2005/01/22]
+
+\gdef\ttlh@leftmargin#1#2#3#4#5#6#7#8{%
+  \global\@noskipsectrue
+  \addtolength\@tempskipb{#6}%
+  \xdef\ttl@makeline##1{\hskip-\the\@tempskipb\relax##1}%
+  \leftskip\z@skip
+  \rightskip\z@skip
+  \ttl@changecentercr
+  #1\ifhmode\ttl@hmode@error\fi
+  \parindent\z@
+  \global\setbox\ttl@box\vtop{%
+    \setlength\hsize{#6}%
+    \linewidth\hsize
+    \everypar{}%
+    \color@begingroup
+    \ifttl@label{\strut#2\strut}\ttl@calc\hspace{#3}\fi
+	\strut#4{#8}\kern\z@\strut\@@par
+    \color@endgroup}%
+  \advance\@tempskipa\ht\ttl@box
+  \advance\@tempskipa\dp\ttl@box
+  \advance\@tempskipa-\pagegoal
+  \advance\@tempskipa\pagestretch
+  \@tempskipb\pagegoal
+  \pagegoal-\@tempskipa
+  \ifdim\bottomtitlespace<\z@\else
+    \def\@textbottom{\vskip\z@\@plus.0001fil}%
+  \fi
+  \penalty9999
+  \pagegoal\@tempskipb
+  \dp\ttl@box=\z@
+  \gdef\@svsechd##1##2{%   
+    \llap{\box\ttl@box##2}%
+    \if@afterindent\hskip\parindent\fi}}
+
+\endinput
+
+
+

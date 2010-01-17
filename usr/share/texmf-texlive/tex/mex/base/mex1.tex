@@ -1,0 +1,776 @@
+% This is MEX1.TEX - a part of the Polish plain TeX and LaTeX formats.
+% Version 1.05,  18 December 1993
+%
+% Authors: Marek Ry\'cko & Bogus\l{}aw Jackowski
+%
+% This macro file belongs to the public domain
+% under the conditions specified by the author of TeX:
+%
+%   ``Macro files like PLAIN.TEX should not be changed in any way,
+%     except with respect to preloaded fonts,
+%     unless the changes are authorized by the authors of the macros.''
+%
+%                                           Donald E. Knuth
+%
+% For details see MEXINFO.ENG or MEXINFO.POL.
+%
+% INITIAL ASSIGNMENTS:
+\catcode`\#=6 % hash mark is macro parameter character
+\catcode`\^=7 % circumflex is for superscripts (and for the next line)
+\catcode`\^^I=10 % ascii tab is a blank space
+\chardef\active=13 \catcode`\~=\active % tilde is active
+\catcode`\^^L=\active \outer\def^^L{\par} % ascii form-feed is `\outer\par'
+\catcode`@=11 % @ is temporarily a letter
+
+\message{polish auxiliary macros,}
+% not available for user
+
+% macros for making operations on sequences:
+
+\def\m@pone%
+    #1% one-argument operation (applicable to hexadecimal numbers)
+%   #2% a macro of the form `\do A\do C ...'
+    {%
+    \def\do##1{#1{\P@lcd{##1}}}%
+%   #2% execute
+    }
+\def\m@ptwo%
+    #1% two-argument operation (applicable to hexadecimal numbers)
+%   #2% a macro of the form `\do Aa\do Cc ...'
+    {%
+    \def\do##1##2%
+        {#1{\P@lcd{##1}}{\P@lcd{##2}}}%
+%   #2% execute
+    }
+
+% operations on character codes and on pairs of char. codes:
+\def\l@t% make letter a character
+    #1%
+    {\catcode`#1=11 }
+\def\@th% make other a character
+    #1%
+    {\catcode`#1=12 }
+\def\@ct% make active a character
+    #1%
+    {\catcode`#1=\active}
+
+\def\mkl@t% make letter
+    #1%
+    {\catcode"#1=11 }
+
+\def\P@lsf% space factor of capital letters
+    #1%
+    {\sfcode"#1=999 }
+\def\P@lcase
+    #1% UC letter code
+    #2% lc letter code
+    {\uccode"#1="#1
+    \lccode"#2="#2
+    \uccode"#2="#1
+    \lccode"#1="#2 }
+\def\P@lm
+    #1% polish character code like 86
+    {%
+    \mathcode"#1="71#1 %  e.g., \mathcode"86="7186
+    }
+
+% prepare reading the `font encoding' of the polish characters:
+
+% the primary meanings of the macros \@Pl and \@qq:
+
+% macro \@Pl for defining the encoding of polish characters:
+% syntax & semantics, e.g.:
+% \@Pl a a1
+%   define a category code of ^^a1 as `letter',
+%   define the token /a as a macro expanding to the letter ^^a1,
+%   define the token /aa as a macro expanding to uppercase hexadecimal A1
+
+\@th\/% / is of category "other"
+\l@t\^^00% character of the code 0 is a letter
+\def\prim@Pl% Polish letter encoding
+    #1 % letter (e.g., a)
+    #2 % hex code (UC or lc) of a polish letter
+    {%
+    % during the execution of this definition
+    % all the codes of `a' and `A' must be `normal'
+    \def\defineone{\expandafter\def\csname/#1\endcsname}%
+    \def\definetwo{\expandafter\def\csname/#1#1\endcsname}%
+        % auxiliary macros for defining something later
+        % in the `\uppercase' environment such that #1
+        % is not converted to the uppercase
+    \uppercase{\def\H@x{#2}}%
+    \uppercase{\uccode`\a"#2}%
+        % if #2 is a hex number including lowercase
+        % letters, then they are first converted to uppercase
+        % (one of them may be `a')
+        % and then the UC code of `a' becomes temporarily
+        % a character of a code "#2
+    \ifnum"\H@x=0
+        \defineone{^^00}%
+            % the letter of the code 0 cannot be created by uppercacing
+    \else
+        \uppercase{\defineone{a}}%
+            % first convert a letter `a' to uppercase
+            % which is temporarily a character of a code "#2
+            % then define a token /#1 as expanding to this letter
+    \fi
+    \uccode`\a=`\A
+        % restore the original UC value for `a'
+    \uppercase{\definetwo{#2}}%
+        % if #2 is a hex number including lowercase
+        % letters, then they are first converted to uppercase
+        % (one of them may be `a')
+        % and then the control sequence like /aa is defined
+        % as a macro expanding to a two-digit hexadecimal (uppercase)
+        % representation of a code of the corresponding
+        % polish letter
+    \uppercase{\catcode"#2=11 }%
+        % assign category `letter' to #2
+    }%
+\catcode`\^^00=9% character of the code 0 is ignored
+
+\def\prim@qq% quotation mark encoding
+    % define /,, token as the hex code of the char ,, (etc.)
+    #1#2 % two characters representing a quote: ,, '' << >>
+    #3 %    two heahadecimal digits (`af' etc.) (UC or lc)
+    {%
+    % #1#2 must have categories `other'
+    \uppercase{\expandafter\def\csname/#1#2\endcsname{#3}}%
+        % first convert #3 to uppercase and then
+        % define /,, token as the hex code of the char ,, (etc.)
+    }%
+
+% the secondary meanings of the macros \@Pl and \@qq:
+
+\@ct\^^00% character of the code 0 is active
+\def\sec@Pl% Polish letter encoding
+    #1 % letter (e.g., a)
+    #2 % hex code (e.g., a1) (UC or lc) of a polish letter
+    %   - define the character of the code a1 as an active character
+    %   - define this active character as a macro expanding to the
+    %     polish diacritical letter corresponding to a, in the current
+    %     font layout)
+    {%
+    % It is assumed that during the execution of this definition
+    % the UC code of `~' is 0
+    \def\defineit##1{\edef##1{\csname/#1\endcsname}}%
+        % auxiliary macro for defining something later
+        % in the `\uppercase' environment such that #1
+        % is not converted to the uppercase
+    \uppercase{\def\H@x{#2}}%
+    \uppercase{\uccode`\~"#2}%
+        % if #2 is a hex number including lowercase
+        % letters, then they are first converted to uppercase
+        % and then the UC code of `~' becomes temporarily
+        % a character of a code "#2
+    \ifnum"\H@x=0
+        \defineit{^^00}%
+            % the active char. of the code 0 cannot be created by uppercacing
+    \else
+        \uppercase{\defineit~}%
+            % first convert the active `~' to uppercase
+            % which is temporarily a character of a code "#2
+            % then define this new active character as a macro
+            % expanding to the Polish diacritical
+            % letter corresponding to #1 in the current font layout
+    \fi
+    \uccode`\~=\z@
+        % restore the original UC value for `~'
+    \uppercase{\catcode"#2\active}%
+        % assign category `active' to #2
+    }%
+\catcode`\^^00=9% character of the code 0 is ignored
+\def\sec@qq% quotation mark encoding
+    % define /,, token as the hex code of the char ,, (etc.)
+    #1#2 % two characters representing a quote: ,, '' << >>
+    #3 %    two heahadecimal digits (`af' etc.) (UC or lc)
+    {}% do nothing
+
+% auxiliary macros for reading font definitions
+% from PLAIN.TEX and LFONTS.TEX files:
+
+% ASSUMPTION:
+%
+% It's assumed that in the files `plain.tex' and `lfonts.tex'
+% the commands `\font' consist of the following components:
+%   1. the control sequence \font
+%   2. a control sequence (TeX's font identifier)
+%   3. the equality sign =
+%   4. a (possibly empty) sequence of spaces
+%   5. a name of a font consisting of at least two characters
+
+\def\f@n#1=#2#3%
+    {%
+    \def\thepr@f{#2#3}%
+    \of@n#1%
+    \ifx\thepr@f\@ldpref % see the MEXCONF.TEX file
+      \n@wpref%
+    \else
+      \thepr@f%
+    \fi
+    }%
+
+% The command \f@@nt substitutes \font in the LaTeX macro \@getfont
+% used for loading font on demand.
+
+\def\f@@nt
+    #1% a control sequence name
+    % We assume that the macro \@getfont is used in such a way
+    % that the fourth parameter to this macro is either
+    %   1. a name of a font consisting of at least two characters or
+    %   2. a sequence of tokens expanding to a name of a font
+    %      such that the first token expands to at least two
+    %      first characters of this name.
+    % This assumption is satisfied by all standard versions
+    % of the LFONTS.TEX file.
+    %
+    % The token following `\f@@nt#1' is either the first letter
+    % of the font name (usually the letter `c' of the `cm...' name)
+    % or it is an abbreviation of a font name  (a macro)
+    % expanding at the first level to a multicharacter name
+    % (e.g., `\@mbi' expanding to `cmmib10').
+    {\expandafter\f@@@t\expandafter#1}
+
+\def\f@@@t#1#2#3%
+    {%
+    \def\thepr@f{#2#3}%
+    \global\font#1%
+    \ifx\thepr@f\@ldpref % see the MEXCONF.TEX file
+      \n@wpref%
+    \else
+      \thepr@f%
+    \fi
+    }%
+
+% Macros for redefining font abbreviations like \@mbi and \@mbsy.
+% It is assumed that \@mbi and \@mbsy expand to a sequence to at least
+% two characters.
+
+\def\redeff@nt#1%
+    {\expandafter\redeff@@nt#1\redeff@@@nt#1}
+\def\redeff@@nt#1#2#3\redeff@@@nt#4%
+    {%
+    \def\thepr@f{#1#2}%
+    \edef#4%
+    {\ifx\thepr@f\@ldpref % see the MEXCONF.TEX file
+      \n@wpref%
+    \else
+      \thepr@f%
+    \fi#3}%
+    }%
+
+% auxiliary definitions for the lists of characters:
+\@th\/% / is of category `other'
+\def\P@lcd% Polish code
+    % \P@lcd{a} expands on the third level to something like 86
+    % (two-digit UC hex representation of code)
+    #1% letter
+    {\csname/#1#1\endcsname}%
+
+\def\P@lqq% Polish quote
+    % \P@lqq,, expands on the third level to two character hexadecimal
+    % code of the corresponding character
+    #1#2% representation of a quote
+    {\csname/#1#2\endcsname}
+
+% lists of Polish characters:
+\def\UCP@llist
+    {%
+    \do A% A with ogonek
+    \do C% accented C
+    \do E% E with ogonek
+    \do L% crossed L
+    \do N% accented N
+    \do O% accented O
+    \do S% accented S
+    \do X% accented Z
+    \do Z% dotted Z
+    }
+\def\P@llist
+    {%
+    \do A% A with ogonek
+    \do C% accented C
+    \do E% E with ogonek
+    \do L% crossed L
+    \do N% accented N
+    \do O% accented O
+    \do S% accented S
+    \do X% accented Z
+    \do Z% dotted Z
+    \do a% tailed a
+    \do c% accented c
+    \do e% tailed e
+    \do l% crossed l
+    \do n% accented n
+    \do o% accented o
+    \do s% accented s
+    \do x% accented z
+    \do z% dotted z
+    }
+\def\UClcP@llist
+    {%
+    \do Aa% A with ogonek
+    \do Cc% accented C
+    \do Ee% E with ogonek
+    \do Ll% crossed L
+    \do Nn% accented N
+    \do Oo% accented O
+    \do Ss% accented S
+    \do Xx% accented Z
+    \do Zz% dotted Z
+    }%
+
+% auxiliary macros for language and font layout definitions:
+\def\d@finelanguage
+    #1% language name (e.g., `english')
+    #2% full language name (if different from #1)
+    #3% layout codes
+    #4% hyphenation patterns file name
+    #5% special notation before reading hyphenation patterns
+    {%
+    \expandafter\def\csname f@nt#1\endcsname{#3}%
+    \donothyph@nate{#1}%
+    %
+    % `\chardef\...language=...\relax' etc.
+    \def\ch@rd{\expandafter\chardef\csname#1language\endcsname}%
+    \expandafter\ch@rd\number\count@\relax
+    \advance\count@1
+    %
+    \begingroup
+    \let\e\expandafter
+    %
+    % prepare reading the hyphenation patterns
+    \e\toks\e0\e{\r@adpatterns}%
+    \toks1{\r@adpatt{#1}{#2}{#4}{#5}}%
+    \xdef\r@adpatterns{\the\toks0 \the\toks1 }
+    %
+    % prepare executing the appropriate `\newlanguage' commands
+    % after reading PLAIN or LPLAIN
+    \e\toks\e0\e{\n@wlanguages}%
+    \e\toks\e1\e{\e\newlanguage\csname#1language\endcsname}%
+    \xdef\n@wlanguages{\the\toks0 \the\toks1 }%
+    %
+    \endgroup
+    }
+\def\r@adpatt
+    % the command used several times by \r@adpatterns:
+    % read the hyphenation patterns for the language #1
+    #1% name of the language (english, pl, pone, mazovia, latintwo, etc.)
+    #2% full language name
+    #3% name of the hyphenation patterns file
+    #4% special notation like \P@lhyphnotation
+    % Only \patterns and \hyphenation are to be defined globally;
+    % the rest of changes is to be done only for the time 
+    % of reading patterns and exceptions.
+    % (Group around the replacement text of \r@adpatt added 18 XII 1993.)
+    {{%
+    \csname f@nt#1\endcsname % define the #1 encoding
+    #4% turn on the special notation
+    %
+    % define the name to be displayed:
+    \uppercase{\def\l@nname{#2}}%
+    \ifx\empty\l@nname \uppercase{\def\l@nname{#1}}\fi
+    %
+    \expandafter\language\csname#1language\endcsname% turn on the language
+    \expandafter\if\csname hyph@nat@#1\endcsname T%
+        \def\next{\input#3\relax}%
+        \def\extram@ssage{}%
+    \else
+        \def\next{\patterns{}\hyphenation{}}%
+        \def\extram@ssage{, empty}%
+    \fi
+    \message{hyphenation [\l@nname\extram@ssage],}%
+    \next
+    }}
+\def\P@lhyphnotation
+    % special notation to be introduced before reading
+    % polish hyphenation pattern files
+    {%
+    \m@ptwo\P@lcase\UClcP@llist% assign UC & lc codes
+    \prefixing
+    }
+\def\donothyph@nate
+    #1% language name
+    {%
+    % do not hyphenate this language unless otherwise specified:
+    \expandafter\let\csname hyph@nat@#1\endcsname F%
+    }
+\def\hyph@nate
+    % allow hyphenating this language
+    #1% (pl, pone, mazovia, ...)
+    {\expandafter\let\csname hyph@nat@#1\endcsname T}%
+
+% The main macros for defining languages.
+
+% The following macros can be used to define languages
+% (almost) arbitrary number of times and in any order.
+
+\def\d@finesinglelanguage
+    % macro for defining `single-layout languages', i.e., languages,
+    % where characters are in the same positions for all fonts:
+    #1% language name (e.g., `english')
+    #2% language full name
+    #3% hyphenation patterns file name
+    {%
+    \d@finelanguage{#1}{#2}{}{#3}{}%
+    %
+    % For single-layout languages like English
+    % the commands \english and \englishlanguage are synonims.
+    % For the English language the following two lines are
+    % equivalent to: \let\english\englishlanguage
+    \def\l@t{\expandafter\let\csname#1\endcsname}%
+    \expandafter\l@t\csname#1language\endcsname%
+    }
+% define the Polish font layout (language in TeX terms):
+\def\d@finelayout
+    #1% layout (language) name (pl, pone, mazovia, latin)
+    #2% full language name
+    #3% layout codes
+    {%
+    \d@finelanguage{#1}{#2}{#3}{\P@lhyphen}{\P@lhyphnotation}%
+    }
+
+\message{prefixing,}
+% prefixing and non-prefixing
+
+% In the following section nothing is dependent on particular
+% codes of Polish characters in a font.
+
+% The following Polish characters in the Mazovia encoding
+% are used in comments:
+%            Ü  ç  ë  °
+% (meaning: /a /c /e /Z)
+
+% there are two possible notations:
+%   1. with \prefixing turned on:                     /a /c /e ...
+%   2. with \prefixing turned off (\nonprefixing):    Ü  ç  ë  ...
+
+% prefixed /a (with active /) expands to a single letter Ü
+
+\@ct\/
+\def\prefixing % / becomes `active' and meaning \P@lch
+    {\@ct    \/% make / active
+     \let/\P@lch % assign the (Plain or LaTeX) meaning
+     \let\pr@fix T}
+\@th\/
+\def\nonprefixing % / becomes `other'
+    {\let\pr@fix F\@th\/}
+% we use \let\pr@fix T and \let\pr@fix F instead of \newif-s
+% because we are before reading plain
+
+% \normalslash expands to  /  of category `other'
+\def\normalslash{/}
+
+% In the forthcoming definitions the following short macro expanding to
+% \ifx followed by active / will be useful to make them more efficient:
+\@ct\/% / is active
+\def\P@lifs% \ifx active-slash
+        {\ifx/}
+\@th\/% / is "other" again
+% we will define a macro expanding to `\ifx/#1/\else...' where the first /
+% is active and the remaining ones are of the category `other'
+
+% The active / will be a synonim of the macro \P@lch,
+% where \P@lch is equivalent either to \pslash or to \l@slash
+% in Plain or in LaTeX, respectively;
+
+% \pslash (for Plain and to-be-protected in LaTeX)
+\expandafter\def\expandafter\pslash\expandafter#\expandafter1\expandafter
+    {\P@lifs
+    % Think about the two lines above as:
+    %   \def\pslash#1{\ifx/
+    % where the / is active.
+    %
+    #1\expandafter/% the slash is of category `other'
+    \else\ifx#1\pslash\expandafter/% \pslash\pslash
+    \else\expandafter\ifx
+        \csname
+            /%
+            \noexpand#1% \noexpand is included in case of active #1
+                       % or of /\a where \def\a{anything}
+        \endcsname
+        \relax % THEN:
+        \P@lerr{#1}%
+    \else
+        \@xpfififi
+        \csname/#1\endcsname
+    \fi\fi\fi}
+\def\@xpfififi{\expandafter\@xpiii}
+\def\@xpiii{\expandafter\@xpii\expandafter}%
+\def\@xpii{\expandafter\expandafter\expandafter}%
+% The \expandafter trickery in the macro replacement text causes
+% that in the correct use of the macro / or \pslash
+% (// \pslash\pslash /\pslash \pslash/ /a /e /c etc.)
+% after typesetting the appropriate character, no tokens from
+% the replacement text of this macro are left in the TeX's input
+% token list.
+\def\P@lerr
+    #1% illegal argument
+    {\begingroup
+    \newlinechar=`\*%
+    \errorcontextlines=0 %
+    \errhelp={%
+    Only the characters:  aeclnosxzAECLNOSXYZ/  can appear after / .*%
+    % (We do not mention the possibility of writing /\pslash)
+    Proceed, I'll omit both / and the following character.*%
+    You can also correct your mistake by typing now `I' followed by*%
+    whatever should be in place of the incorrect pair of characters.*%
+    For example if you typed `/w' and you meant `w', type `Iw' now.}%
+    \errmessage{%
+    MeX error: Illegal pair of characters%
+    \space\space\noexpand/\noexpand#1\space\space occured}%
+    \endgroup}
+
+\@ct\/% / is active
+\def\l@slash{\protect\pslash}
+% In Plain \P@lch is \pslash, in LaTeX \P@lch is \l@slash.
+% Default (in Plain):
+\let\P@lch\pslash
+\let/\P@lch
+
+% Synonims to ,, '' << >> to be used in math mode:
+\def\plqq{\char"\P@lqq,, }% Polish left quote  ,,
+\def\prqq{\char"\P@lqq'' }% Polish right quote    ''
+\def\flqq{\char"\P@lqq<< }% French left quote  <<
+\def\frqq{\char"\P@lqq>> }% French right quote    >>
+
+\message{definitions of languages,}
+% initial values (prepare reading language definitions):
+\countdef\count@=255 \count@0 % for counting languages
+\def\empty{}
+\def\r@adpatterns{}
+\def\n@wlanguages{\count19=-1 }% starting from 0
+
+% the first (zero in fact) language is English
+\d@finesinglelanguage{english}{}{\@nghyphen}%
+
+% definitions of codes in the font layout in the Polish fonts:
+% (the hexadecimal digits may be upper or lowercase)
+
+% Each of the following \d@finelayout commands
+% includes the definition of a \f@nt<layout> command,
+% where <layout> is a font layout name like `pl' `mazovia' etc.
+
+% The \f@nt<layout> command results in executing several times
+% a command of the form:      \@Pl <letter> <code>
+% and a command of the form:  \@qq <char><char> <code>
+%
+% There are two meanings of the \@Pl and \@qq commands:
+% the primary meanings and the secondary meanings.
+%
+% The primary meanings of the commands \@Pl and \@qq
+% change the `state' of MeX, in the following way:
+%
+% command of the form: \@Pl <letter> <code>
+% (take \@Pl a a1 as an example, i.e., <letter>=a <code>=a1)
+%   - define the character of the code a1 as a `letter'
+%   - define the control sequence /a as a macro expanding to the
+%     letter of the code a1
+%   - define the control sequence /aa as a macro expanding to the
+%     two-character uppercase hexadecimal code of the corresponding
+%     letter, in this case to A1
+%
+% command of the form: \@qq <char><char> <code>
+% (take \@qq ,, ff as an example, i.e., <char>=, <code>=ff)
+%   - define the control sequence /,, as a macro expanding to the
+%     two-character uppercase hexadecimal code of the corresponding
+%     quotation mark, in this case to FF
+
+% The secondary meanings of the commands \@Pl and \@qq are the following:
+
+% command of the form: \@Pl <letter> <code>
+% (take \@Pl a a1 as an example, i.e., <letter>=a <code>=a1)
+%   - define the character of the code a1 as an active character
+%   - define this active character as a macro expanding to the
+%     polish diacritical letter corresponding to a, in the current
+%     font layout)
+%
+% command of the form: \@qq <char><char> <code>
+%   - do nothing
+
+% the default meaning is primary
+% it is redefined for a moment by the macro \layout
+
+\let\@Pl\prim@Pl
+\let\@qq\prim@qq
+
+% (The \f@nt... commands are used by the layout switching commands
+% -- see the MEX2.TEX file)
+
+% The PL font layout:
+% (The codes of the Polish letters in the PL font layout
+% equal to the corresponding codes of the Polish letters
+% in the Extended Computer Modern font layout;
+% This is the standard INTERNAL code of the MeX and LaMeX formats.)
+
+\def\standardf@ntlayout{pl}% might be moved to MEXCONF.TEX
+    % after checking out thoroughly if everything is OK.
+
+\d@finelayout{pl}{}
+{%
+\@Pl A  81  % è
+\@Pl C  82  % ï
+\@Pl E  86  % ê
+\@Pl L  8a  % ú
+\@Pl N  8b  % •
+\@Pl O  d3  % £
+\@Pl S  91  % ò
+\@Pl X  99  % †
+\@Pl Z  9b  % °
+%
+\@Pl a  a1  % Ü
+\@Pl c  a2  % ç
+\@Pl e  a6  % ë
+\@Pl l  aa  % í
+\@Pl n  ab  % §
+\@Pl o  f3  % ¢
+\@Pl s  b1  % û
+\@Pl x  b9  % ¶
+\@Pl z  bb  % ß
+%
+\@qq ,, ff
+\@qq '' 22
+\@qq << ae
+\@qq >> af
+}
+
+% the Mazovia font layout:
+
+\d@finelayout{mazovia}{}
+{%
+\@Pl A  8f  % è
+\@Pl C  95  % ï
+\@Pl E  90  % ê
+\@Pl L  9c  % ú
+\@Pl N  a5  % •
+\@Pl O  a3  % £
+\@Pl S  98  % ò
+\@Pl X  a0  % †
+\@Pl Z  a1  % °
+%
+\@Pl a  86  % Ü
+\@Pl c  8d  % ç
+\@Pl e  91  % ë
+\@Pl l  92  % í
+\@Pl n  a4  % §
+\@Pl o  a2  % ¢
+\@Pl s  9e  % û
+\@Pl x  a6  % ¶
+\@Pl z  a7  % ß
+%
+\@qq ,, ff
+\@qq '' 22
+\@qq << ae
+\@qq >> af
+}
+
+% the Latin 2 font layout:
+
+\d@finelayout{latintwo}{latin 2}
+{%
+\@Pl A  a4  % è
+\@Pl C  8f  % ï
+\@Pl E  a8  % ê
+\@Pl L  9d  % ú
+\@Pl N  e3  % •
+\@Pl O  e0  % £
+\@Pl S  97  % ò
+\@Pl X  8d  % †
+\@Pl Z  bd  % °
+%
+\@Pl a  a5  % Ü
+\@Pl c  86  % ç
+\@Pl e  a9  % ë
+\@Pl l  88  % í
+\@Pl n  e4  % §
+\@Pl o  a2  % ¢
+\@Pl s  98  % û
+\@Pl x  ab  % ¶
+\@Pl z  be  % ß
+%
+\@qq ,, ff
+\@qq '' 22
+\@qq << ae
+\@qq >> af
+}
+
+% the (old) P1 font layout:
+
+\d@finelayout{pone}{p1}
+{%
+\@Pl A  00  % è
+\@Pl C  01  % ï
+\@Pl E  02  % ê
+\@Pl L  03  % ú
+\@Pl N  04  % •
+\@Pl O  05  % £
+\@Pl S  06  % ò
+\@Pl X  07  % †
+\@Pl Z  08  % °
+%
+\@Pl a  0a  % Ü
+\@Pl c  10  % ç
+\@Pl e  11  % ë
+\@Pl l  19  % í
+\@Pl n  1b  % §
+\@Pl o  1c  % ¢
+\@Pl s  1d  % û
+\@Pl x  1e  % ¶
+\@Pl z  1f  % ß
+%
+\@qq ,, 18
+\@qq '' 22
+\@qq << 1a
+\@qq >> 20
+}
+\count@0 % restore the normal value of the counter
+
+% macro for switching font layouts
+% (also turns on the appropriate hyphenation patterns)
+\def\layout
+    #1% language name (pl, mazovia etc...}
+    {%
+    % change the `state' of MeX -- remember the new layout:
+    \csname f@nt#1\endcsname%
+    % assign the category \letter to the Polish characters:
+    \m@pone\mkl@t\P@llist
+    % possibly define the Polish characters in the internal MeX encoding
+    % as active characters expanding to letters in the font codes:
+    \edef\currf@ntlayout{#1}%
+    \ifx\currf@ntlayout\standardf@ntlayout
+        % just leave as it is
+    \else
+        % define active Polish diacritical characters:
+        % first assign the secondary meaning to \@Pl and \@qq
+        \let\@Pl\sec@Pl \let\@qq\sec@qq
+        % now define the active characters of the internal MeX codes
+        % (the same as the codes of the \standardf@ntlayout)
+        \csname f@nt\standardf@ntlayout\endcsname%
+        % restore the primary meaning of \@Pl and \@qq
+        \let\@Pl\prim@Pl \let\@qq\prim@qq
+    \fi
+    \m@pone\P@lsf\UCP@llist% assign space factor 999 to UC Pol. let.
+    \m@ptwo\P@lcase\UClcP@llist% assign UC & lc codes
+        % note that UC & lc codes are assigned
+        % to the letters according to the FONT layout
+        % and not to the active characters expanding to them
+        % (so in nonstandard font layouts
+        % first expand, then apply \upper-lower-case)
+    \m@pone\P@lm\P@llist % assign mathcodes to polish letters
+    % change the meaning of `\polish' to one of the languages
+    \expandafter\let\expandafter\polish
+        \csname#1language\endcsname%
+    \language\polish
+    }
+
+% No languages are hyphenated
+% unless specified otherwise in the configuration file.
+
+\input mexconf % MeX configuration file
+
+% Read (empty or real) hyphenation patterns
+% for all defined languages and for all font layouts
+% (Prefixing is turned on automatically, then turned off):
+\r@adpatterns
+\nonprefixing % prefix notation should not be turned on while reading PLAIN
+\endinput

@@ -1,0 +1,641 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This is file tabmac.tex 1.0. 
+% You find here macros for tabular structures compatible with
+% Edmac (authored by Lavagnino/Wujastyk). The use of the macros is
+% explained in German language in file tabanlei.dvi. The macros were 
+% developed for Edmac 2.3, but this file has been adjusted to Edmac 3.16.
+%
+% ATTENTION: This file uses some Edmac control sequences (like
+% \text, \Afootnote etc.) and redefines \morenoexpands. If you yourself 
+% redefined some Edmac control sequences, be careful: some adjustements 
+% might be necessary.
+% October 1996
+%
+% My kind thanks to Nora G^Ädeke for valuable support. Any hints and 
+% comments are welcome, please contact Herbert Breger,  
+% Leibniz-Archiv, Waterloostr. 8, D -- 30169 Hannover, Germany
+% Tel.: 511 - 1267 327
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+
+\def\morenoexpands{\def\ss{\noexpand\ss}\def\"##1{\noexpand\"##1}%
+        \def\'##1{\noexpand\'##1}\def\`##1{\noexpand\`##1}%
+        \def\^##1{\noexpand\^##1}\def\phantom##1{\noexpand\phantom{##1}}%
+        \def\hphantom##1{\noexpand\hphantom{##1}}%
+        \def\underbrace##1{\noexpand\underbrace{##1}}%
+        \def\dots{\noexpand\dots}%
+        \let\rtab=0\let\ztab=0\let\ltab=0\let\rtabtext=0\let\ltabtext=0%
+        \let\davor=0\let\danach=0\let\T=0%
+        \let\wastrich=0\let\waklam=0\let\wapunkte=0\let\seklam=0%
+        \let\sepunkte=0\let\sestrich=0\let\seklamgl=0\let\Seklamgl=0%
+        \let\atab=0\let\atabell=0}
+
+\newcount\Undcount
+\newbox\hilfsbox
+\newskip\hilfsskip
+\newbox\Hilfsbox
+\newcount\hilfscount
+\newcount\stellencount
+
+\newdimen\eins
+\newdimen\zwei
+\newdimen\drei
+\newdimen\vier
+\newdimen\fuenf
+\newdimen\sechs
+\newdimen\sieben
+\newdimen\acht
+\newdimen\neun
+\newdimen\zehn
+\newdimen\elf
+\newdimen\zwoelf
+\newdimen\dreizehn
+\newdimen\vierzehn
+\newdimen\fuenfzehn
+\newdimen\sechszehn
+\newdimen\siebzehn
+\newdimen\achtzehn
+\newdimen\neunzehn
+\newdimen\zwanzig
+\newdimen\einundzwanzig
+\newdimen\zweiundzwanzig
+\newdimen\dreiundzwanzig
+\newdimen\vierundzwanzig
+\newdimen\fuenfundzwanzig
+\newdimen\sechsundzwanzig
+\newdimen\siebenundzwanzig
+\newdimen\achtundzwanzig
+\newdimen\neunundzwanzig
+\newdimen\dreissig
+\newdimen\einunddreissig
+\newdimen\zweiunddreissig
+\newdimen\dreiunddreissig
+\newdimen\vierunddreissig
+\newdimen\fuenfunddreissig
+\newdimen\sechsunddreissig
+\newdimen\siebenunddreissig
+\newdimen\achtunddreissig
+\newdimen\neununddreissig
+\newdimen\vierzig
+\newdimen\einvierzig
+\newdimen\zweivierzig
+\newdimen\dreivierzig
+\newdimen\viervierzig
+\newdimen\fuenfvierzig
+\newdimen\sechsvierzig
+\newdimen\siebenvierzig
+\newdimen\achtvierzig
+\newdimen\neunvierzig
+\newdimen\fuenfzig
+\newdimen\einfuenfzig
+\newdimen\zweifuenfzig
+\newdimen\dreifuenfzig
+\newdimen\vierfuenfzig
+\newdimen\fuenffuenfzig
+\newdimen\sechsfuenfzig
+\newdimen\siebenfuenfzig
+\newdimen\achtfuenfzig
+\newdimen\neunfuenfzig
+\newdimen\sechzig
+
+\stellencount=0
+
+\def\Dimenzuordnung{\ifcase \the\stellencount \eins %???
+        \or \eins \or \zwei \or \drei \or \vier \or \fuenf
+        \or \sechs \or \sieben \or \acht \or \neun \or \zehn
+        \or \elf \or \zwoelf \or \dreizehn \or \vierzehn
+        \or \fuenfzehn \or \sechszehn \or \siebzehn \or
+        \achtzehn \or \neunzehn \or \zwanzig \or \einundzwanzig
+        \or \zweiundzwanzig \or \dreiundzwanzig \or \vierundzwanzig
+        \or \fuenfundzwanzig \or \sechsundzwanzig \or \siebenundzwanzig
+        \or \achtundzwanzig \or \neunundzwanzig \or \dreissig 
+        \or \einunddreissig \or \zweiunddreissig \or \dreiunddreissig
+        \or \vierunddreissig \or \fuenfunddreissig \or \sechsunddreissig
+        \or \siebenunddreissig \or \achtunddreissig \or \neununddreissig
+        \or \vierzig \or \einvierzig \or \zweivierzig \or \dreivierzig 
+        \or \viervierzig \or \fuenfvierzig \or \sechsvierzig \or 
+        \siebenvierzig \or \achtvierzig \or \neunvierzig \or \fuenfzig
+        \or \einfuenfzig \or \zweifuenfzig \or \dreifuenfzig \or
+        \or \vierfuenfzig \or \fuenffuenfzig \or \sechsfuenfzig \or
+        \or \siebenfuenfzig \or \achtfuenfzig \or \neunfuenfzig \or
+        \sechzig \else 0pt =0pt \errmessage{Tabelle hat mehr als sechzig 
+        Spalten} \fi }
+
+\def\dimenzuordnung{\ifdim\Dimenzuordnung < \wd\hilfsbox
+        \Dimenzuordnung = \wd\hilfsbox
+        \else \relax \fi}
+
+\let\TEXT=\text
+\def\xtext #1#2/{\TEXT{#1}{#2}/}
+\let\A@@footnote=\Afootnote
+\let\B@@footnote=\Bfootnote
+\let\C@@footnote=\Cfootnote%
+\let\D@@footnote=\Dfootnote
+\let\@line@@num=\linenum%
+\def\verschwinden #1/{\relax}
+
+\Undcount=1
+\let\Relax=\relax
+\let\NEXT=\next
+\newcount\@hilfs@count
+
+\def\messen #1&{%
+    \ifx #1! \ifnum\stellencount=0\let\NEXT\relax%  
+              \else\tabfehlermeldung%
+                    \stellencount=0%    
+                    \let\NEXT\messen%
+              \fi%
+    \else\setbox\hilfsbox=\hbox{$\displaystyle{#1}$}%
+           \advance\stellencount by 1 %
+                \dimenzuordnung%
+           \let\NEXT\messen% 
+    \fi\NEXT}
+
+
+\def\messentext #1&{%
+    \ifx #1! \ifnum\stellencount=0\let\NEXT\relax%  
+              \else\tabfehlermeldung%
+                    \stellencount=0%    
+                    \let\NEXT\messentext%
+              \fi%
+    \else\setbox\hilfsbox=\hbox{#1}%
+           \advance\stellencount by 1 %
+                \dimenzuordnung%
+           \let\NEXT\messentext% 
+    \fi\NEXT}
+
+\def\Messen #1!{%
+        \ifx #1&\let\NEXT\relax% 
+        \else\messen #1&!&!&%
+                \let\NEXT\Messen%
+       \fi\NEXT}
+\def\Messentext #1!{%
+        \ifx #1&\let\NEXT\relax% 
+        \else\messentext #1&!&!&%
+                \let\NEXT\Messentext%
+       \fi\NEXT}
+
+\newskip\abstand
+\global\abstand=10pt 
+
+
+\let\LABEL=\label
+\def\Label#1{\LABEL#1}
+\let\NEXT\relax
+\let\Next=\next
+\def\variab{\relax}
+
+\def\tabfehlermeldung{%
+       \ifnum\stellencount=1\relax%
+       \else\ifnum\Undcount=1\relax%
+             \else\ifnum\stellencount=\Undcount\relax%
+                   \else\errmessage{Anzahl  der Tabulatoren ist nicht 
+                         gleich der Anzahl in der vorigen Zeile
+                         (oder Ausrufungszeichen vergessen ?)}%
+                   \fi%
+              \fi\Undcount=\stellencount%
+        \fi}
+\def\rverteilen #1&{\def\label##1{}%
+       \ifx #1! \ifnum\stellencount=0%\removelastskip
+                     \let\Next\relax% 
+                \else\stellencount=0% 
+                      \let\Next=\rverteilen% 
+                \fi%
+       \else% 
+           \footnoteverschw%
+           \advance\stellencount by 1%
+           \setbox\hilfsbox=\hbox{$\displaystyle{#1}$}%
+           \let\text=\xtext\let\Dfootnote=\D@@footnote%
+           \let\Afootnote=\A@@footnote\let\Bfootnote=\B@@footnote%
+           \let\Cfootnote=\C@@footnote\let\linenum=\@line@@num%
+           \hilfsskip=\Dimenzuordnung%
+           \advance\hilfsskip by -\wd\hilfsbox\def\label##1{\Label{{##1}}}%
+           \hskip\hilfsskip$\displaystyle{#1}$%
+           \hskip\abstand%
+           \let\Next=\rverteilen% 
+       \fi\Next}
+
+\def\rverteilentext #1&{\def\label##1{}%
+       \ifx #1! \ifnum\stellencount=0%\removelastskip
+                    \let\Next\relax% 
+                \else\stellencount=0% 
+                      \let\Next=\rverteilentext% 
+                \fi%
+       \else% 
+           \footnoteverschw%
+           \advance\stellencount by 1%
+           \setbox\hilfsbox=\hbox{#1}%
+           \let\text=\xtext\let\Dfootnote=\D@@footnote%
+           \let\Afootnote=\A@@footnote\let\Bfootnote=\B@@footnote%
+           \let\Cfootnote=\C@@footnote\let\linenum=\@line@@num%
+           \hilfsskip=\Dimenzuordnung%
+           \advance\hilfsskip by -\wd\hilfsbox\def\label##1{\Label{{##1}}}%
+           \hskip\hilfsskip#1%
+           \hskip\abstand%
+           \let\Next=\rverteilentext% 
+       \fi\Next}
+\def\lverteilen #1&{\def\label##1{}%
+    \ifx #1! \ifnum\stellencount=0 \let\Next\relax%
+              \else\stellencount=0%
+                    \let\Next=\lverteilen% 
+              \fi%
+     \else   \footnoteverschw%   
+              \advance\stellencount by 1%
+              \setbox\hilfsbox=\hbox{$\displaystyle{#1}$}%
+              \hilfsskip=\Dimenzuordnung%
+              \advance\hilfsskip by -\wd\hilfsbox%
+              \let\text=\xtext\let\Afootnote=\A@@footnote%
+              \let\Bfootnote=\B@@footnote\let\Cfootnote=\C@@footnote%
+              \let\Dfootnote=\D@@footnote\def\label##1{\Label{{##1}}}%
+              \let\linenum=\@line@@num%
+              $\displaystyle{#1}$\hskip\hilfsskip\hskip\abstand%
+              \let\Next=\lverteilen%
+     \fi\Next}
+
+\def\lverteilentext #1&{\def\label##1{}%
+    \ifx #1! \ifnum\stellencount=0 \let\Next\relax%
+              \else\stellencount=0%
+                    \let\Next=\lverteilentext% 
+              \fi%
+     \else   \footnoteverschw%   
+              \advance\stellencount by 1%
+              \setbox\hilfsbox=\hbox{#1}%
+              \hilfsskip=\Dimenzuordnung%
+              \advance\hilfsskip by -\wd\hilfsbox%
+              \let\text=\xtext\let\Afootnote=\A@@footnote%
+              \let\Bfootnote=\B@@footnote\let\Cfootnote=\C@@footnote%
+              \let\Dfootnote=\D@@footnote\def\label##1{\Label{{##1}}}%
+              \let\linenum=\@line@@num%
+              #1\hskip\hilfsskip\hskip\abstand%
+              \let\Next=\lverteilentext%
+     \fi\Next}
+\def\zverteilen #1&{\def\label##1{}%
+    \ifx #1! \ifnum\stellencount=0\let\Next\relax%
+             \else\stellencount=0%
+                   \let\Next=\zverteilen%
+             \fi%
+    \else    \footnoteverschw%
+             \advance\stellencount by 1%
+             \setbox\hilfsbox=\hbox{$\displaystyle{#1}$}%
+             \hilfsskip=\Dimenzuordnung%
+             \advance\hilfsskip by -\wd\hilfsbox%
+             \let\text=\xtext\let\Afootnote=\A@@footnote%
+             \let\Bfootnote=\B@@footnote\let\Cfootnote=\C@@footnote%
+             \let\Dfootnote=\D@@footnote\def\label##1{\Label{{##1}}}%
+             \let\linenum=\@line@@num%
+             \hskip 0.5\hilfsskip$\displaystyle{#1}$\hskip0.5\hilfsskip%
+             \hskip\abstand%
+             \let\Next=\zverteilen%
+     \fi\Next}
+\let\NEXT=\relax
+
+\def\rsetzen #1!{%
+    \ifx #1& \let\NEXT\relax
+    \else%
+          \centerline{\rverteilen #1&!&!&}
+            \let\NEXT=\rsetzen
+    \fi\NEXT}
+
+\def\rsetzentext #1!{%
+    \ifx #1& \let\NEXT\relax
+    \else \centerline{\rverteilentext #1&!&!&}
+            \let\NEXT=\rsetzentext
+    \fi\NEXT}
+
+\def\lsetzen #1!{%
+    \ifx #1&\let\NEXT\relax
+    \else%
+         \centerline{\lverteilen #1&!&!&}
+            \let\NEXT=\lsetzen
+    \fi\NEXT}
+
+\def\lsetzentext #1!{%
+    \ifx #1& \let\NEXT\relax
+    \else%
+         \centerline{\lverteilentext #1&!&!&}
+           \let\NEXT=\lsetzentext
+    \fi\NEXT}
+\def\zsetzen #1!{%
+    \ifx #1& \let\NEXT\relax%
+    \else \centerline{\zverteilen #1&!&!&}
+          \let\NEXT=\zsetzen
+     \fi\NEXT}
+\def\nullsetzen{%
+    \advance\stellencount by 1 %
+    \Dimenzuordnung=0pt%
+    \ifnum\stellencount=30\let\NEXT\relax%
+          \stellencount=0%
+    \else\let\NEXT\nullsetzen%
+    \fi\NEXT}
+\def\footnoteverschw{%
+    \let\text\relax%
+    \let\Afootnote=\verschwinden% 
+    \let\Bfootnote=\verschwinden%
+    \let\Cfootnote=\verschwinden%
+    \let\Dfootnote=\verschwinden%
+    \let\linenum=\@gobble%
+    }
+
+\def\Seklam#1{\vbox to 10pt{\vss\hbox{$\left\{\vrule width0pt height #1pt 
+              depth 0pt \right. $\hss}\vfil%
+                }} 
+\def\Seklamgl#1#2{\vbox to 4pt{\vss\hbox{$#1\left\{\vrule width0pt height #2pt 
+              depth 0pt \right. $}\vfil%
+                  }} 
+\def\seklam#1{\vbox to 10pt{\vss\hbox{$\left.\vrule width0pt height #1pt 
+              depth 0pt \right\} $\hss}\vfil%
+                }} 
+\def\seklamgl#1#2{\vbox to 4pt{\vss\hbox{$\left.\vrule width0pt height #1pt 
+              depth 0pt \right\}#2 $}\vfil%
+                  }} 
+\def\sestrich#1{\vbox to 8pt{\vss\hbox{\vrule height #1pt}\vfil}}%
+\def\sepunkte#1{\vbox to 1pt{\vss\vbox to #1pt%
+         {\cleaders\hbox{$\m@th\hbox{.}\vbox to 0.5em{ }$}\vfil}}}
+
+\newdimen\klamdimen
+\klamdimen=0pt
+
+\def\@add@#1{%
+     \ifx#1|\advance\klamdimen by-\abstand%
+             \let\next=\relax%
+     \else\advance\klamdimen by \the#1%
+        \advance\klamdimen by\abstand%
+        \let\next=\@add@%
+     \fi\next}
+\def\waklam#1|{%
+     \@add@#1|%
+     \hbox to\the\Dimenzuordnung{\hbox to% 
+             \the\klamdimen{\upbracefill}\hss}}
+\def\Waklam#1|{%
+     \@add@#1|%
+     \hbox to \the\Dimenzuordnung{\hbox to% 
+          \the\klamdimen{\downbracefill}\hss}}
+
+\def\waklamec#1|{%
+     \@add@#1|%
+     \hbox to\the\Dimenzuordnung{\hbox to% 
+             \the\klamdimen{\vrule height 4pt\hrulefill\vrule height 4pt}\hss}}
+
+\def\waklamect#1|{\hbox to 0pt{\T{6}{\waklamec#1|}\hss}}
+
+\def\wastrich#1|{%
+     \@add@#1|%
+     \hbox to\the\Dimenzuordnung{\hbox to% 
+             \the\klamdimen{\hrulefill}\hss}}
+
+\def\wapunkte#1|{%
+    \@add@#1|%
+    \hbox to\the\Dimenzuordnung{\hbox to%
+            \the\klamdimen{\dotfill}\hss}}      
+ 
+\let\@waklam@=\waklam     
+\def\@WAKLAM@#1|{\@waklam@#1|}
+\let\@Waklam@=\Waklam
+\def\@WAKlam@#1|{\@Waklam@#1|}
+\let\@wastrich@=\wastrich
+\def\@WASTRICH@#1|{\@wastrich@#1|}
+
+\def\linksltab#1{%   
+        \hbox to 0pt{\vbox{\tabindent%
+        \moveleft\Hilfsskip\hbox{\ #1}}\hss}%
+        }
+
+\def\linksrtab#1#2{%  
+        #2\hbox to 0pt{\vbox{\tabindent%
+        \advance\Hilfsskip by\eins%
+        \moveleft\Hilfsskip\hbox{\ #1}}\hss}%
+        }
+
+\def\linksztab#1#2{%   
+        \hbox to 0pt{\vbox{\tabindent\stellencount=\Undcount%
+        \advance\Hilfsskip by 0.5\eins%
+        \setbox\hilfsbox=\hbox{\def\label##1{}%
+        \footnoteverschw$\displaystyle{#2}$}%
+        \advance\Hilfsskip by -0.5\wd\hilfsbox%
+        \moveleft\Hilfsskip\hbox{\ #1}}\hss}%
+        #2}
+
+\def\rechtsztab#1#2{% 
+        \setbox\hilfsbox=\hbox{\def\label##1{}%
+        \footnoteverschw#2}\Undcount=\stellencount%
+        #1\hbox to 0pt{\vbox{\tabindent\stellencount=\Undcount%
+        \advance\Hilfsskip by 0.5\Dimenzuordnung%  
+        \advance\Hilfsskip by -\wd\hilfsbox%
+        \setbox\hilfsbox=\hbox{\def\label##1{}%
+        \footnoteverschw$\displaystyle{#1}$}%
+        \advance\Hilfsskip by -0.5\wd\hilfsbox%
+        \advance\Hilfsskip by \abstand%
+        \moveright\Hilfsskip\hbox{ #2}}\hss}%
+        }
+
+\def\rechtsltab#1#2{%  
+        \setbox\hilfsbox=\hbox{\def\label##1{}\footnoteverschw#2}\Undcount=\stellencount%
+        #1\hbox to0pt{\vbox{\tabindent\stellencount=\Undcount%
+        \advance\Hilfsskip by\Dimenzuordnung%
+        \advance\Hilfsskip by-\wd\hilfsbox%
+        \setbox\hilfsbox=\hbox{\def\label##1{}%
+        \footnoteverschw$\displaystyle{#1}$}%
+        \advance\Hilfsskip by-\wd\hilfsbox%
+        \advance\Hilfsskip by\abstand%
+        \moveright\Hilfsskip\hbox{ #2}}\hss}%
+        }
+
+\def\rechtsrtab#1#2{%  
+        \setbox\hilfsbox=\hbox{\def\label##1{}\footnoteverschw#2}%
+        #1\hbox to0pt{\vbox{\tabindent%
+        \advance\Hilfsskip by-\wd\hilfsbox%
+        \advance\Hilfsskip by\abstand%
+        \moveright\Hilfsskip\hbox{ #2}}\hss}%
+        }
+
+\def\footnotewieder{%
+        \def\Afootnote##1##2/{\A@@footnote{##1}{##2}}
+        \def\Bfootnote##1##2/{\B@@footnote{##1}{##2}}
+        \def\Cfootnote##1##2/{\C@@footnote{##1}{##2}}
+        \def\Dfootnote##1##2/{\D@@footnote{##1}{##2}}
+        }
+
+
+\def\rtab#1{%
+    \def\label##1{}%
+    \def\waklam##1|{}% 
+    \def\Waklam##1|{}%
+    \def\wastrich##1|{}%    
+    \def\davor##1##2{\linksrtab{##1}{##2}}%
+    \def\danach##1##2{\rechtsrtab{##1}{##2}}%
+    \footnoteverschw%
+    \stellencount=0%
+   \nullsetzen%
+   \stellencount=0
+    \Messen #1!&!%
+   \global\Undcount=1
+   \def\waklam##1|{\@WAKLAM@##1|}%
+    \def\Waklam##1|{\@WAKlam@##1|}%
+    \def\wastrich##1|{\@WASTRICH@##1|}%
+    \variab
+    \rsetzen #1!&!%
+    \footnotewieder
+    }
+
+\def\rtabtext #1{%
+    \def\label##1{}%
+    \def\waklam##1|{}% 
+    \def\Waklam##1|{}%
+    \def\wastrich##1|{}%    
+    \footnoteverschw%
+    \stellencount=0%
+    \nullsetzen%
+    \stellencount=0
+    \Messentext #1!&!%
+    \global\Undcount=1
+    \def\waklam##1|{\@WAKLAM@##1|}%
+    \def\Waklam##1|{\@WAKlam@##1|}%
+    \def\wastrich##1|{\@WASTRICH@##1|}%
+    \variab
+    \rsetzentext #1!&!%
+    \footnotewieder
+    }
+
+
+\def\ltab #1{%
+    \def\label##1{}%
+    \def\waklam##1|{}% 
+    \def\Waklam##1|{}%
+    \def\wastrich##1|{}%    
+    \def\davor##1##2{\linksltab{##1}{##2}}%
+    \def\danach##1##2{\rechtsltab{##1}{##2}}%
+    \footnoteverschw%
+    \stellencount=0%
+    \nullsetzen%
+    \stellencount=0%
+    \Messen #1!&!%
+    \global\Undcount=1
+    \def\waklam##1|{\@WAKLAM@##1|}%
+    \def\Waklam##1|{\@WAKlam@##1|}%
+    \def\wastrich##1|{\@WASTRICH@##1|}%
+    \variab
+    \lsetzen #1!&!%
+    \footnotewieder
+    }
+
+\def\ltabtext #1{%
+    \def\label##1{}%
+    \def\waklam##1|{}% 
+    \def\Waklam##1|{}%
+    \def\wastrich##1|{}%    
+    \footnoteverschw%
+    \stellencount=0%
+    \nullsetzen%
+    \stellencount=0%
+    \Messentext #1!&!%
+    \global\Undcount=1
+   \def\waklam##1|{\@WAKLAM@##1|}%
+    \def\Waklam##1|{\@WAKlam@##1|}%
+    \def\wastrich##1|{\@WASTRICH@##1|}%
+    \variab
+    \lsetzentext#1!&!%
+    \footnotewieder
+    }
+
+
+\def\ztab #1{%
+    \def\label##1{}%
+    \def\waklam##1|{}% 
+    \def\Waklam##1|{}%
+    \def\wastrich##1|{}%    
+    \def\davor##1##2{\linksztab{##1}{##2}}%
+    \def\danach##1##2{\rechtsztab{##1}{##2}}%
+    \footnoteverschw%
+    \stellencount=0%
+    \nullsetzen%
+    \stellencount=0%
+    \Messen #1!&!%
+    \global\Undcount=1
+   \def\waklam##1|{\@WAKLAM@##1|}%
+    \def\Waklam##1|{\@WAKlam@##1|}%
+    \def\wastrich##1|{\@WASTRICH@##1|}%
+    \variab
+    \zsetzen #1!&!%
+    \footnotewieder
+    }
+
+\def\breitertext#1{%\stellencount=\Undcount%
+     \hbox to \the\Dimenzuordnung{\hbox{#1}\hss}%   
+     }
+\def\breiter#1{%
+     \hbox to \the\Dimenzuordnung{\hbox{$\displaystyle{#1}$}\hss}%
+     }
+
+
+\def\tabellzwischen #1&{%
+     \ifx #1! \let\NEXT\relax \stellencount=0  
+     \else   \advance \stellencount by 1 
+            \Dimenzuordnung = #1 mm 
+            \let\NEXT=\tabellzwischen
+     \fi \NEXT }
+   
+\def\atabell #1!{%
+    \tabellzwischen #1&!&}
+\def\Setzen #1&{%
+    \ifx #1\relax \let\NEXT=\relax   
+    \else \advance\stellencount by 1
+          \let\tabelskip=\Dimenzuordnung
+          \TAB #1|
+          \let\NEXT=\Setzen
+    \fi\NEXT}
+
+
+\def\ATAB #1!{%
+    \ifx #1\Relax \centerline{\Setzen #1\relax&}
+             \let\Next\relax 
+    \else \centerline{\Setzen #1&\relax&}
+          \let\Next=\ATAB 
+    \fi\Next}
+\def\atab #1{%
+     \variab%
+     \ATAB #1!\Relax!}
+
+\newskip\HILFSskip
+\newskip\Hilfsskip
+
+\def\TABINDENT{%  
+    \ifnum\stellencount=30\let\NEXT\relax\stellencount=0%
+    \else\advance\stellencount by 1%
+         \advance\Hilfsskip by\Dimenzuordnung% 
+         \ifdim\Dimenzuordnung=0pt\advance\hilfscount by 1%   
+         \else\advance\Hilfsskip by \the\hilfscount\abstand%  
+         \hilfscount=1\fi%                                    
+         \let\NEXT=\TABINDENT%
+    \fi\NEXT}%
+\def\tabindent{% 
+    \stellencount=0%
+    \Hilfsskip=0pt%
+    \hilfscount=1%
+    \TABINDENT%
+    \hilfsskip=\hsize% 
+    \advance\hilfsskip by -\Hilfsskip% 
+    \Hilfsskip=0.5\hilfsskip% 
+    }%
+
+\def\TAB #1|#2|{%
+    \setbox\tabhilfbox=\hbox{$\displaystyle{#1}$}%
+    \setbox\tabHilfbox=\hbox{$\displaystyle{#2}$}%
+    \advance\tabelskip by -\wd\tabhilfbox%
+    \advance\tabelskip by -\wd\tabHilfbox%
+    \unhbox\tabhilfbox\hskip\tabelskip%
+    \unhbox\tabHilfbox}%
+
+\def\TABtext #1|#2|{%
+    \setbox\tabhilfbox=\hbox{#1}%
+    \setbox\tabHilfbox=\hbox{#2}%
+    \advance\tabelskip by -\wd\tabhilfbox%
+    \advance\tabelskip by -\wd\tabHilfbox%
+    \unhbox\tabhilfbox\hskip\tabelskip%
+    \unhbox\tabHilfbox}%
+\newbox\tabhilfbox
+\newbox\tabHilfbox
+
+\makeatother
+\endinput
+---------- cut here ---------- cut here ---------- cut here ----------

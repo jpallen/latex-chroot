@@ -1,0 +1,39 @@
+%
+% This package is for using the aspect ratio symbol in math mode and in
+% text mode by means of the command \AR.
+%
+% It is supposed to work both with LaTeX209 and LaTeXe
+% It requires the METAFONT files ar5.mf, ar6.mf, ar7.mf, ar8.mf, ar9.mf,
+%                                ar10.mf, ar12.mf
+%
+\ifx\documentclass\undefined
+% With LaTeX209 the symbol is available in just one size (by default)
+% but the user can edit the next line in order to get the size s/he wants
+  \newfont{\ar}{ar10 at 10pt}
+  \load{\normalsize}{\ar}
+  \def\AR{\mbox{\ar A}}
+\else
+% While with LaTeXe all standard sizes are available 
+% (no bold version available...sorry!) 
+  \DeclareFontFamily{U}{ar}{}
+  \DeclareFontShape{U}{ar}{m}{it}%
+       {<5><6><7><8><9>gen*ar%
+        <10><10.95>ar10%
+        <12><14.4><17.28><20.74><24.88>ar12%
+        }{}
+  \DeclareFontShape{U}{ar}{b}{it}%
+     {<->ssub*ar/m/it}{}
+  \DeclareFontShape{U}{ar}{bx}{it}%
+     {<->ssub*ar/m/it}{}
+  \DeclareMathAlphabet{\mar}{U}{ar}{m}{it}%
+  \SetMathAlphabet{\mar}{normal}{U}{ar}{m}{it}%
+  \SetMathAlphabet{\mar}{bold}{U}{ar}{bx}{it}% actually uses medium series
+  \if@compatibility
+   \def\tar{\fontencoding{U}\fontfamily{ar}\itshape}
+   \DeclareRobustCommand{\ar}{\ifmmode\let\cf@ar\mar\else\let\cf@ar\tar\fi\cf@ar}
+  \else
+   \DeclareOldFontCommand{\ar}{\fontencoding{U}\fontfamily{ar}\itshape}{\mar}%
+  \fi
+  \DeclareRobustCommand{\AR}{{\ar A}}
+\fi
+\endinput

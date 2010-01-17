@@ -1,0 +1,227 @@
+%%
+%% This is file `xmarks.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xmarks.dtx  (with options: `package')
+%% 
+%% Not for distribution
+%% 
+%% (C) Copyright 1999-2000 Frank Mittelbach, David Carlisle, Chris Rowley
+%% All rights reserved.
+%% 
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+%% (C) Copyright 1999 Frank Mittelbach
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+\def\next#1: #2.dtx,v #3 #4 #5 #6 #7$#8{
+\ProvidesPackage{#2}
+  [#4 #3 #8 (#6)]}
+\next$Id: xmarks.dtx,v 1.6 2000/06/13 20:47:23 latex3 Exp $
+       {multiple marks}
+\RequirePackage{ldcsetup}
+\IgnoreWhiteSpace
+\long\def\@firstofthree#1#2#3{#1}
+\long\def\@secondofthree#1#2#3{#2}
+\long\def\@thirdofthree#1#2#3{#3}
+\def \tlp@to@str@N {\expandafter \tlp@to@str@aux \meaning}
+\def \tlp@to@str@aux #1>{}
+\def \tlp@to@str@c #1 {\expandafter \tlp@to@str@N \csname#1\endcsname}
+\def\queue@new@c#1{\@namedef{#1}{}}
+\def\queue@gadd@Nn#1#2{\expandafter\gdef\expandafter#1\expandafter
+    {#1\queue@elt#2\queue@eelt}
+}
+\def\queue@gadd@cn#1{\expandafter\queue@gadd@Nn\csname#1\endcsname}
+\def\queue@top@NN#1#2{
+  \queue@empty@err@N#1
+  \expandafter\queue@top@split@w#1\q@stop{\def#2}
+}
+\def\queue@top@split@w\queue@elt#1\queue@eelt#2\q@stop#3{#3{#1}}
+\def\queue@top@cN#1{\expandafter\queue@top@NN\csname#1\endcsname}
+\def \queue@pop@aux@nnNN #1#2#3{
+  \queue@empty@err@N #3
+  \expandafter\queue@pop@aux@w #3\q@stop #1#2#3}
+\def \queue@pop@aux@w \queue@elt#1\queue@eelt
+                #2\q@stop #3#4#5#6{#3#5{#2}#4#6{#1}}
+\def \queue@gpop@NN #1#2{\queue@pop@aux@nnNN \gdef \def #1 #2
+}
+\def \queue@gpop@cN #1{\expandafter\queue@gpop@NN\csname#1\endcsname}
+\def\queue@empty@err@N #1{\ifx#1\@empty \ERROR \fi}
+\def \quark@new@N #1{\def #1{#1}}
+\quark@new@N \q@stop
+\quark@new@N \q@no@value
+\quark@new@N \q@nil
+\quark@new@N\q@error
+\quark@new@N\q@mark
+\def \quark@if@no@value@NTF #1{
+     \ifx\q@no@value#1
+          \expandafter\@firstoftwo
+     \else \expandafter\@secondoftwo \fi}
+\def \quark@if@no@value@NF #1{\quark@if@no@value@NTF {#1}\@empty}
+\def \quark@if@no@value@nTF #1{\gdef \@gtempa {#1}
+    \quark@if@no@value@NTF\@gtempa}
+\def \quark@if@no@value@nF #1{\quark@if@no@value@nTF {#1}\@empty}
+\def \quark@if@no@value@nT #1#2{\quark@if@no@value@nTF {#1}
+        {#2}\@empty}
+\def\quark@if@nil@NTF#1{
+  \ifx#1\q@nil
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo\fi}
+\def \prop@new@N #1{\def #1{}}
+\long\def \prop@put@NNn #1#2{\prop@split@aux@NNn
+                             #1#2{\prop@put@aux@w {\def #1}#2}}
+\long\def \prop@gput@NNn #1#2{\prop@split@aux@NNn
+                                #1#2{\prop@put@aux@w {\gdef #1}#2}}
+\def \prop@gput@NNo #1#2#3{
+  \expandafter\prop@gput@NNn \expandafter #1 \expandafter
+                          #2 \expandafter { #3 } }
+\def \prop@gput@cco #1#2#3{
+  \expandafter\prop@gput@NNn \csname #1\expandafter\endcsname
+                             \csname #2\expandafter\endcsname
+                             \expandafter { #3 } }
+\def \prop@gput@ccn #1#2{
+  \expandafter\prop@gput@NNn \csname #1\expandafter\endcsname
+                             \csname #2\endcsname
+                              }
+\long\def \prop@put@aux@w #1#2#3#4#5#6{
+  \quark@if@no@value@nTF {#4}
+    {#1{#2{#6}#3}}
+    {\def\tmp@w ##1#2\q@no@value {#1{#3#2{#6}##1}}
+     \tmp@w #5}}
+\long\def \prop@split@aux@NNn #1#2#3{
+  \def\tmp@w ##1#2##2##3\q@stop {#3{##1}{##2}{##3}}
+  \expandafter\tmp@w #1#2\q@no@value \q@stop}
+\long\def \prop@get@NNN #1#2{\prop@split@aux@NNn
+                                    #1#2\prop@get@aux@w}
+\long\def \prop@get@aux@w #1#2#3#4{\def#4{#2}}
+\let \prop@map@funct@Nn \@gobbletwo
+\def \prop@map@NN #1#2{
+  \let \prop@map@funct@Nn #2
+  \expandafter\prop@map@aux@w #1\q@stop \q@stop}
+\def \prop@map@aux@w #1#2{
+  \ifx #1\q@stop \else
+    \prop@map@funct@Nn #1{#2}
+    \expandafter\prop@map@aux@w
+  \fi}
+\def \prop@map@cN #1{
+  \expandafter \prop@map@NN \csname #1\endcsname }
+\def\mark@new#1{
+   \newcommand* #1 {{}{}{}}
+   \queue@new@c{\string#1@seq}
+   \prop@gput@NNn\mark@last@plist#1{1}
+   \prop@gput@NNn\mark@curr@plist#1{0}
+   \mark@put@Nn#1{}%
+   \expandafter\g@addto@macro\expandafter\mark@save@state\expandafter{%
+      \expandafter\global\expandafter\let
+                 \csname saved\string#1@seq\expandafter\endcsname
+                 \csname\string#1@seq\endcsname}
+   \expandafter\g@addto@macro\expandafter\mark@restore@state@internal\expandafter{%
+      \expandafter\global\expandafter\let
+                 \csname\string#1@seq\expandafter\endcsname
+                 \csname saved\string#1@seq\endcsname}
+}
+\def\mark@save@state{%
+      \global\let\saved@mark@curr@plist\mark@curr@plist
+      \global\let\saved@mark@last@plist\mark@last@plist}
+\def\mark@restore@state@internal{%
+      \global\let\mark@curr@plist\saved@mark@curr@plist
+      \global\let\mark@last@plist\saved@mark@last@plist}
+\def\mark@restore@state#1{%
+      \mark@restore@state@internal
+      \hbox{}%
+      \@temptokena\expandafter{\mark@last@plist}%
+      \mark
+         {\the\@temptokena}
+      \penalty-20203\relax
+      \global\output{%
+         \ifnum-20203=\outputpenalty\else \ERROR \fi
+         \global\setbox\@cclv\box\voidb@x
+         #1%
+        }%
+}
+\def\mark@put@Nn#1{%    % wtest hack }
+   \@temptokena\expandafter{\mark@curr@plist}
+   \prop@get@NNN\mark@curr@plist#1\@tempa
+   \@tempcnta\@tempa
+   \advance\@tempcnta\@ne
+   \expandafter
+   \prop@gput@NNn\expandafter\mark@curr@plist\expandafter#1\expandafter
+                 {\the\@tempcnta}
+   \@temptokena\expandafter{\mark@curr@plist}
+   \mark
+       {\the\@temptokena}
+   \queue@gadd@cn{\string#1@seq}%
+}
+\def\mark@put@Nnn#1#2#3{
+   \mark@put@Nn#1{#2#3}}
+\def\mark@update@structure{
+  \prop@map@NN\mark@last@plist\mark@retrieve@single@Nn
+  \expandafter\gdef\expandafter\mark@last@plist\expandafter{\botmark}
+}
+\def\mark@retrieve@single@Nn#1#2{
+   \@temptokena\expandafter{\botmark}%
+   \prop@get@NNN\botmark#1\@tempa
+   \@tempcnta\@tempa
+   \advance\@tempcnta-#2\relax
+   \ifcase\@tempcnta
+     \queue@top@cN{\string#1@seq}\@tempa
+     \let\@tempb\@tempa
+     \let\@tempc\@tempa
+   \or
+     \queue@gpop@cN{\string#1@seq}\@tempa
+     \queue@top@cN{\string#1@seq}\@tempb
+     \let\@tempc\@tempb
+   \else
+     \queue@gpop@cN{\string#1@seq}\@tempa
+     \queue@top@cN{\string#1@seq}\@tempb
+     \@whilenum \@tempcnta>\@ne\do
+        {\advance\@tempcnta\m@ne
+         \queue@gpop@cN{\string#1@seq}
+            \@tempc
+        }
+     \queue@top@cN{\string#1@seq}\@tempc
+   \fi
+   \@temptokena\expandafter{\@tempa}
+   \@temptokenb\expandafter{\@tempb}
+   \@temptokenc\expandafter{\@tempc}
+   \edef#1{{\the\@temptokena}{\the\@temptokenb}{\the\@temptokenc}}
+}
+\newtoks\@temptokenb
+\newtoks\@temptokenc
+\prop@new@N\mark@curr@plist
+\prop@new@N\mark@last@plist
+\def\mark@get@first@N{%
+       \expandafter\@secondofthree}
+\def\mark@get@last@N{%
+       \expandafter\@thirdofthree}
+\def\mark@get@previous@N{%
+       \expandafter\@firstofthree}
+\def\mark@get@first@N{%
+       \expandafter\@secondofthree}
+\def\mark@get@last@N{%
+       \expandafter\@thirdofthree}
+\def\mark@get@previous@N{%
+       \expandafter\@firstofthree}
+\def\DeclareMarkType#1{
+  \expandafter\mark@new\csname mark@#1\endcsname}
+\def\PutMark#1{
+   \@ifundefined{mark@#1}{\ERROR}{}
+   \expandafter\mark@put@Nn\csname mark@#1\endcsname}
+\def\PreviousMark#1{
+  \expandafter\mark@get@previous@N\csname mark@#1\endcsname}
+\def\FirstMark#1{
+  \expandafter\mark@get@first@N\csname mark@#1\endcsname}
+\def\LastMark#1{
+  \expandafter\mark@get@last@N\csname mark@#1\endcsname}
+\endinput
+%%
+%% End of file `xmarks.sty'.

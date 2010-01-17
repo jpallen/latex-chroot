@@ -1,0 +1,53 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  this is musicbrg.mf
+%
+%  Version 0.99 [August 93] Andreas Egler
+%               [January]   Daniel  Taupin
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+transform t;
+path p;
+
+pen thin_pen, med_pen, thick_pen;
+thin_pen:= pencircle scaled .15pt;
+med_pen:= pencircle scaled thin;
+thick_pen:= pencircle scaled med;
+
+apog_fact=0.75;
+
+%%%%%%%%%%%%%%
+% big braces %
+%%%%%%%%%%%%%%
+%
+% change firstbrace and lastbrace if you need smaller or larger braces
+%
+
+firstbrace:=20;  % smallest brace is 2*20 pt (\simeq 14mm)
+lastbrace:=99;   % largest brace is 2*99 pt (\simeq 69mm)
+
+def bigbrace(expr v) =
+    vwidth:=v*pt;
+    hwidth:=.2vwidth;
+    actwidth:=.035vwidth;
+
+    x1=hwidth;  y1=vwidth;
+    x2l=.2hwidth; y2=.75vwidth;
+    x3r=.8hwidth;  y3=1/3vwidth;
+    x4=0; y4=0;
+    penpos1(thinwidth,-90);
+    penpos2(1.25med+.8actwidth,40);
+    penpos3(1.25med+actwidth,45);
+    penpos4(.5thin+thinwidth,-90);
+
+    currentpen:= pencircle;
+    penstroke z1e..z2e..z3e..{left+sw}z4e;
+    addto currentpicture also currentpicture reflectedabout (origin, right);
+    penlabels(1,2,3,4);
+enddef;
+
+for v=firstbrace upto lastbrace :
+    beginchar (v-firstbrace, .2v*pt#, 0, 0);
+        bigbrace (v);
+    endchar;
+endfor;
+

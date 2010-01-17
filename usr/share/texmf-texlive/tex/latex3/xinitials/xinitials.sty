@@ -1,0 +1,93 @@
+%%
+%% This is file `xinitials.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xinitials.dtx  (with options: `package')
+%% 
+%%
+%% $Header: /usr3/users/latex3/design/consolidation/CURRENT/RCS/xinitials.dtx,v 1.7 2000/01/28 13:39:56 latex3 Exp $
+%%
+%% (C) Copyright 1999-2000 Frank Mittelbach
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{xinitials}
+          [2000/01/28 v0.1h templates for initials]
+\RequirePackage{template,galley2}
+\IgnoreWhiteSpace
+\catcode`\:=11\relax
+\newlength\initial@raise
+\newbox\initial@box
+\DeclareTemplateType{initial}{3}
+\DeclareTemplate{initial}{std}{3}{
+  initial-font    =f0  \initial@font,
+  h-adjust        =L  \initial@hadjust,
+  initial-format  =f1 \initial@charformat,
+  nominal-height  =L  \initial@height,
+  parshape-list   =f0 \initial@parshape,
+  quote-format    =f1 \initial@quoteformat,
+  quote-sep       =L  \initial@leftsep,
+  text-format     =f1 \initial@textformat,
+  text-sep        =L  \initial@rightsep,
+  top-sep         =L  \initial@topsep,
+  v-adjust        =L  \initial@vadjust,
+}
+{
+  \let\initial@vadjust\z@
+  \let\initial@hadjust\z@
+  \let\initial@leftsep\z@
+  \let\initial@rightsep\z@
+  \let\initial@height\maxdimen
+  \let\initial@topsep\z@
+  \let\initial@parshape\z@
+  \let\initial@quoteformat\@firstofone
+  \let\initial@charformat\@firstofone
+  \let\initial@textformat\textsc
+  \DoParameterAssignments
+  \ifvmode \else
+    \PackageError{xinitials}{Initial~ inside~ paragraph}
+      {Initials~ can~ only~ be~ used~ at~ the~ beginning~
+       of~ a~ paragraph}
+    \par
+  \fi
+  \sbox\initial@box{
+       \kern\initial@hadjust
+       \initial@charformat{
+         \initial@font #2
+         }
+       \kern\initial@rightsep
+  }
+  \setGALleftparshape:nnn \z@  {\wd\initial@box}
+                               \initial@parshape
+  \setGALbreak:n {-3}
+  \noindent
+  \setlength\initial@raise{-\baselineskip*(\parshape@linecnt-2)
+                               -\initial@vadjust}
+    \ifdim\initial@height=\maxdimen
+       \def\initial@height{\height+\initial@raise+\initial@topsep}
+    \fi
+  \llap{
+    \llap{\IfValueT{#1}{\smash{\initial@quoteformat{#1}}}
+          \kern-\initial@hadjust
+          \kern\initial@leftsep}
+    \rlap{
+      \raisebox{\initial@raise}
+             [\initial@height]
+             [\z@]
+             {\box\initial@box}
+      }
+    \kern\parshape@firstlineindent
+  }
+  \IfValueT{#3}
+            { \initial@textformat{#3} }
+}
+\catcode`\:=12\relax
+\endinput
+%%
+%% End of file `xinitials.sty'.

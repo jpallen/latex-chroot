@@ -1,0 +1,75 @@
+%%
+%% This is file `hml.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% htmlstuf.dtx  (with options: `htmlmonthevent')
+%% This file is part of the Calendar package,
+%% Copyright (C) 1996, 1997 Frank Bennett, Jr.
+%% All rights reserved.
+%% ------------------------------------------
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% You are not allowed to change this file.  You may however copy
+%% this file to a file with a different name and then change the
+%% copy if (a) you do not charge for the modified code, (b) you
+%% acknowledge the author of this file in the new file, if it
+%% is distributed to others, and (c) you attach these same
+%% conditions to the new file.
+%% 
+%% You are not allowed to distribute this file alone.  You are not
+%% allowed to take money for the distribution or use of this file
+%% (or a changed version) except for a nominal charge for copying
+%% etc.
+%% 
+%% You are allowed to distribute this file under the condition that
+%% it is distributed with all of its contents, intact.
+%% 
+%% For error reports, or offers to help make this a more powerful,
+%% friendlier, and altogether more thrilling package, please contact me on
+%% fb@soas.ac.uk.  Better yet, make a contribution to
+%% my pension.  Account details available on request.
+%% ------------------------------------------
+%% 
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{hml}
+          [1997/11/06 07:33:21 2.1.1.6 HTML calendar (Frank Bennett)]
+\RequirePackage{hmonth}
+\RequirePackage{hlist}
+\newtoks\hml@one
+\newtoks\hml@two
+\def\htmlmonthlist#1#2{%
+  \hml@one={#1}
+  \hml@two={#2}
+  \dateread{}}
+\def\endhtmlmonthlist{%
+  \ifnum\dates@subrange@start=0%
+    \dates@subrange@start\dates@date%
+    \dates@subrange@end\dates@date%
+  \fi%
+  \global\dates@date\dates@subrange@start%
+  \global\dates@day=1\relax%
+  \dates@fix%
+  \cal@range@start\dates@date%
+  \global\dates@date\dates@subrange@end%
+  \caldate%
+  \global\dates@day\dates@days%
+  \dates@fix%
+  \cal@range@end\dates@date%
+  \global\dates@date=\cal@range@start
+  \caldate
+  \edef\hml@start{\theday\space\themonth\space\theyear\space}
+  \global\dates@date=\cal@range@end
+  \caldate
+  \edef\hml@end{\theday\space\themonth\space\theyear}
+  \edef\hml@range{\hml@start to \hml@end\space}
+  \edef\hml@htmlmonth{\noexpand\begin{htmlmonth}{\the\hml@one}{\the\hml@two}}
+  \edef\hml@htmllist{\noexpand\begin{htmllist}{\the\hml@one}{\the\hml@two}}
+  \expandafter\hml@htmlmonth\hml@range\end{htmlmonth}
+  \expandafter\hml@htmllist\hml@range\end{htmllist}x}
+
+\endinput
+%%
+%% End of file `hml.sty'.

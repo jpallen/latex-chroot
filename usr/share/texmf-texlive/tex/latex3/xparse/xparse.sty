@@ -1,0 +1,218 @@
+%%
+%% This is file `xparse.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xparse.dtx  (with options: `package')
+%% 
+%%
+%% (C) Copyright 1999 Frank Mittelbach, Chris Rowley, David Carlisle
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{xparse}
+          [1999/09/10 v0.17 generic document command parser]
+\RequirePackage{ldcsetup}
+\IgnoreWhiteSpace
+
+\newtoks\@temptokenb
+\newtoks\xparsed@args
+\long\def\DeclareDocumentCommand #1 #2 #3{
+   \@tempcnta\z@
+   \toks@{}
+   \@temptokena\toks@
+   \@temptokenb\toks@
+   \@ddc#2X
+   \edef#1{
+    \noexpand\@ddc@
+    {\the\toks@}
+    \expandafter\noexpand\csname\string#1\endcsname
+    \noexpand#1
+    }
+   \long\expandafter\def\csname\string#1\expandafter\endcsname
+          \the\@temptokena{#3}}
+\long\def\DeclareDocumentEnvironment#1#2#3#4{
+  \expandafter\DeclareDocumentCommand\csname #1\endcsname{#2}{
+    \xparsed@args\toks@
+    #3}
+   \expandafter\let\csname end #1\endcsname\@parsed@endenv
+  \long\expandafter\def\csname end \string\\#1\expandafter\endcsname
+    \the\@temptokena {#4}}
+\def\@parsed@endenv{
+  \expandafter\@parsed@endenv@\the\xparsed@args}
+\def\@parsed@endenv@#1{
+  \csname end\string#1\endcsname}
+\def\@ddc@#1#2#3{
+  \ifx\protect\@typeset@protect
+    \expandafter\@firstofone
+  \else
+    \protect#3\expandafter\@gobble
+  \fi
+  {\toks@{#2} #1\the\toks@}}
+\def\@ddc#1{
+  \ifx #1X
+  \else
+  \ifx #1m
+   \addto@hook\@temptokenb m
+  \else
+  \toks@\expandafter{%
+     \the\expandafter\toks@
+     \csname @ddc@\the\@temptokenb\expandafter\endcsname
+     \csname @ddc@#1\endcsname}
+   \@temptokenb{}
+  \fi
+  \advance\@tempcnta\@ne
+  \@temptokena\expandafter{
+     \the\expandafter\@temptokena\expandafter##\the\@tempcnta}
+  \expandafter
+  \@ddc
+  \fi}
+\long\def\@ddc@s#1\toks@{
+  \@ifstar
+    {\addto@hook\toks@\BooleanTrue #1\toks@}
+    {\addto@hook\toks@\BooleanFalse #1\toks@}}
+\long\def\@ddc@m#1\toks@#2{
+ \addto@hook\toks@{{#2}} #1\toks@}
+\long\def\@ddc@o#1\toks@{
+   \@ifnextchar[
+     {\@ddc@o@{#1}}
+     {\addto@hook\toks@\NoValue #1\toks@}}
+\long\def\@ddc@o@#1[#2]{
+  \addto@hook\toks@{{#2}} #1\toks@}
+\def\@ddc#1{
+  \ifx #1X
+    \perhaps@grab@ms
+  \else
+    \ifx #1m
+      \addto@hook\@temptokenb m
+    \else
+      \toks@\expandafter{%
+         \the\expandafter\toks@
+         \csname @ddc@x\the\@temptokenb\expandafter\endcsname
+         \csname @ddc@#1\endcsname}
+      \@temptokenb{}
+      \ifx #1O
+         \let\next@ddc\grab@default
+      \else
+         \ifx #1C
+           \let\next@ddc\grab@default
+         \fi
+      \fi
+    \fi
+    \advance\@tempcnta\@ne
+    \@temptokena\expandafter{
+      \the\expandafter\@temptokena\expandafter##\the\@tempcnta}
+    \expandafter
+    \next@ddc
+  \fi
+}
+\let\next@ddc\@ddc
+\def\grab@default #1{
+      \toks@\expandafter{%
+         \the\toks@
+         {#1}}
+  \let\next@ddc\@ddc
+  \@ddc
+}
+\long\def\@ddc@O#1#2\toks@{
+   \@ifnextchar[
+     {\@ddc@o@{#2}}
+     {\addto@hook\toks@{{#1}} #2\toks@}}
+\long\def\@ddc@c#1\toks@{
+   \@ifnextchar (
+     {\@ddc@c@ #1}
+     {\PackageError{xparse}{Missing~ coordinate~ argument}
+        {A~ value~ of~ (0,0)~ is~ assumed}
+      \addto@hook\toks@{{00}} #1\toks@}
+     }
+\long\def\@ddc@c@#1(#2,#3){
+  \addto@hook\toks@{{{#2}{#3}}} #1\toks@}
+\long\def\@ddc@C#1#2\toks@{
+   \@ifnextchar (
+     {\@ddc@c@ #2}
+     {\addto@hook\toks@{{#1}} #2\toks@}}
+\let\perhaps@grab@ms\relax
+\def\grab@ms {
+     \toks@\expandafter{
+        \the\expandafter\toks@
+          \csname @ddc@x\the\@temptokenb\endcsname
+}}
+\let\@ddc@m\undefined
+\long\def\@ddc@xm#1\toks@#2{
+ \addto@hook\toks@{{#2}} #1\toks@}
+\long\def\@ddc@xmm#1\toks@#2#3{
+ \addto@hook\toks@{{#2}{#3}} #1\toks@}
+\long\def\@ddc@xmmm#1\toks@#2#3#4{
+ \addto@hook\toks@{{#2}{#3}{#4}} #1\toks@}
+\long\def\@ddc@xmmmm#1\toks@#2#3#4#5{
+ \addto@hook\toks@{{#2}{#3}{#4}{#5}} #1\toks@}
+\long\def\@ddc@xmmmmm#1\toks@#2#3#4#5#6{
+ \addto@hook\toks@{{#2}{#3}{#4}{#5}{#6}} #1\toks@}
+\long\def\@ddc@xmmmmmm#1\toks@#2#3#4#5#6#7{
+ \addto@hook\toks@{{#2}{#3}{#4}{#5}{#6}{#7}} #1\toks@}
+\long\def\@ddc@xmmmmmmm#1\toks@#2#3#4#5#6#7#8{
+ \addto@hook\toks@{{#2}{#3}{#4}{#5}{#6}{#7}{#8}} #1\toks@}
+\long\def\@ddc@xmmmmmmmm#1\toks@#2#3#4#5#6#7#8#9{
+ \addto@hook\toks@{{#2}{#3}{#4}{#5}{#6}{#7}{#8}{#9}} #1\toks@}
+\long\def\@ddc@xmmmmmmmmm\the\toks@#1#2#3#4#5#6#7#8#9{
+ \addto@hook\toks@{{#1}{#2}{#3}{#4}{#5}{#6}{#7}{#8}{#9}}\the\toks@}
+\let\@ddc@x\relax
+\long\def\DeclareDocumentEnvironment#1#2#3#4{
+  \expandafter\DeclareDocumentCommand\csname #1\endcsname{#2}{
+    #3}
+   \@namedef{end #1}{#4}
+}
+\let\@parsed@endenv\undefined
+\let\@parsed@endenv@\undefined
+\def\IfSomethingTF#1{\def\something@in{#1} \If@SomethingTF}
+\def\IfSomethingT#1#2#3{\def\something@in{#1}
+                        \If@SomethingTF{#2}{#3}\@empty}
+\def\IfSomethingF#1#2#3{\def\something@in{#1}
+                        \If@SomethingTF{#2}\@empty{#3}}
+\def\If@SomethingTF#1{
+   \def\something@tmp{#1}
+   \ifx\something@tmp\something@in
+     \expandafter\@secondofthree
+   \else
+       \expandafter\def\expandafter\something@tmpb\expandafter{#1}
+       \ifx\something@tmp\something@tmpb
+         \expandafter\expandafter\expandafter\@thirdofthree
+       \else
+         \expandafter\expandafter\expandafter\@firstofone
+       \fi
+   \fi
+   {\expandafter\If@SomethingTF\expandafter{#1}}
+}
+\long\def\@secondofthree#1#2#3{#2}
+\long\def\@thirdofthree #1#2#3{#3}
+\def\NoValue{-NoValue-}
+\def\NoValueInIt{\NoValue}
+\def\IfNoValueTF{\IfSomethingTF\NoValue}
+\def\IfNoValueT {\IfSomethingT \NoValue}
+\def\IfNoValueF {\IfSomethingF \NoValue}
+\def\IfValueTF #1 #2 #3 { \IfNoValueTF {#1} {#3} {#2} }
+\let \IfValueT \IfNoValueF
+\let \IfValueF \IfNoValueT
+\def\BooleanFalse{TF}
+\def\BooleanTrue{TT}
+\def\IfBooleanTF #1 {
+   \if#1
+       \expandafter\@firstoftwo
+   \else
+       \expandafter\@secondoftwo
+   \fi
+}
+\def\IfBooleanT #1 #2 {
+   \IfBooleanTF {#1} {#2} \@empty
+}
+\def\IfBooleanF #1 {
+   \IfBooleanTF {#1} \@empty
+}
+\endinput
+%%
+%% End of file `xparse.sty'.

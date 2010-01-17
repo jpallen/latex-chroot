@@ -1,0 +1,88 @@
+%%% ====================================================================
+%%% amssym.def + pxfonts (JM+SW) 09.03.2001. Public domain
+%%% macros borowed from amssym.def ver. 2.2b and amstex.tex ver. 2.1
+%%% by American Mathematical Society
+%%% This file must not be changed. However, if you do make changes,
+%%% you first rename it to some other name.
+%%% ====================================================================
+\expandafter\ifx\csname amsqpx.def\endcsname\relax \else\endinput\fi
+\ifx\PT\undefined\def\PT{pt}\fi
+%
+%  Store the catcode of the @ in the csname so that it can be restored later.
+\expandafter\edef\csname amsqpx.def\endcsname{%
+       \catcode`\noexpand\@=\the\catcode`\@\space}
+%  Set the catcode to 11 for use in private control sequence names.
+\catcode`\@=11
+%
+%  Include all definitions related to the fonts msam, msbm and eufm, so that
+%%%                                            ^pxsya^pxsyb   ^pxmia (JM)
+%  when this file is used by itself, the results with respect to those fonts
+%  are equivalent to what they would have been using AMS-TeX.
+%  Most symbols in fonts pxsya and pxsyb are defined using \newsymbol;
+%  however, a few symbols that replace composites defined in plain must be
+%  defined with \mathchardef.
+
+\def\undefine#1{\let#1\undefined}
+\def\newsymbol#1#2#3#4#5{\let\next@\relax
+ \ifnum#2=\@ne\let\next@\pxafam@\else
+ \ifnum#2=\tw@\let\next@\pxbfam@\fi\fi
+ \mathchardef#1="#3\next@#4#5}
+\def\mathhexbox@#1#2#3{\relax
+ \ifmmode\mathpalette{}{\m@th\mathchar"#1#2#3}%
+ \else\leavevmode\hbox{$\m@th\mathchar"#1#2#3$}\fi}
+\def\hexnumber@#1{\ifcase#1 0\or 1\or 2\or 3\or 4\or 5\or 6\or 7\or 8\or
+ 9\or A\or B\or C\or D\or E\or F\fi}
+
+\font\tenpxa=pxsya at 10\PT % msam10
+\font\sevenpxa=pxsya at 7\PT % msam7
+\font\fivepxa=pxsya at 5\PT % msam5
+\newfam\pxafam
+\textfont\pxafam=\tenpxa
+\scriptfont\pxafam=\sevenpxa
+\scriptscriptfont\pxafam=\fivepxa
+\edef\pxafam@{\hexnumber@\pxafam}
+\mathchardef\dabar@"0\pxafam@39
+\def\dashrightarrow{\mathrel{\dabar@\dabar@\mathchar"0\pxafam@4B}}
+\def\dashleftarrow{\mathrel{\mathchar"0\pxafam@4C\dabar@\dabar@}}
+\let\dasharrow\dashrightarrow
+\def\ulcorner{\delimiter"4\pxafam@70\pxafam@70 }
+\def\urcorner{\delimiter"5\pxafam@71\pxafam@71 }
+\def\llcorner{\delimiter"4\pxafam@78\pxafam@78 }
+\def\lrcorner{\delimiter"5\pxafam@79\pxafam@79 }
+%    Note that there should not be a final space after the digits for a
+%    \mathhexbox@.
+\def\yen{{\mathhexbox@\pxafam@55}}
+\def\checkmark{{\mathhexbox@\pxafam@58}}
+\def\circledR{{\mathhexbox@\pxafam@72}}
+\def\maltese{{\mathhexbox@\pxafam@7A}}
+
+\font\tenpxb=pxsyb at 10\PT % msbm10
+\font\sevenpxb=pxsyb at 7\PT % msbm7
+\font\fivepxb=pxsyb at 5\PT % msbm5
+\newfam\pxbfam
+\textfont\pxbfam=\tenpxb
+\scriptfont\pxbfam=\sevenpxb
+\scriptscriptfont\pxbfam=\fivepxb
+\edef\pxbfam@{\hexnumber@\pxbfam}
+\def\Bbb#1{{\fam\pxbfam\relax#1}}
+\def\widehat#1{\setbox\z@\hbox{$\m@th#1$}%
+ \ifdim\wd\z@>\tw@ em\mathaccent"0\pxbfam@5B{#1}%
+ \else\mathaccent"0362{#1}\fi}
+\def\widetilde#1{\setbox\z@\hbox{$\m@th#1$}%
+ \ifdim\wd\z@>\tw@ em\mathaccent"0\pxbfam@5D{#1}%
+ \else\mathaccent"0365{#1}\fi}
+
+\font\tenpxfm=pxmia at 10\PT % eufm10
+\font\sevenpxfm=pxmia at 7\PT % eufm7
+\font\fivepxfm=pxmia at 5\PT % eufm5
+\newfam\pxfmfam
+\textfont\pxfmfam=\tenpxfm
+\scriptfont\pxfmfam=\sevenpxfm
+\scriptscriptfont\pxfmfam=\fivepxfm
+\def\frak#1{{\fam\pxfmfam\relax#1}}
+\let\goth\frak
+
+%  Restore the catcode value for @ that was previously saved.
+\csname amsqpx.def\endcsname
+
+\endinput

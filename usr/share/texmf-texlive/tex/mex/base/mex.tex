@@ -1,0 +1,56 @@
+% This is MEX.TEX - the Polish plain TeX format.
+% (The version number and date is at the end of the file)
+%
+% Authors: Marek Ry\'cko & Bogus\l{}aw Jackowski
+%
+% This macro file belongs to the public domain
+% under the conditions specified by the author of TeX:
+%
+%   ``Macro files like PLAIN.TEX should not be changed in any way,
+%     except with respect to preloaded fonts,
+%     unless the changes are authorized by the authors of the macros.''
+%
+%                                           Donald E. Knuth
+%
+% For details see MEXINFO.ENG or MEXINFO.POL.
+%
+\catcode`\{=1 % left brace is begin-group character
+\catcode`\}=2 % right brace is end-group character
+\message{Preloading the MeX format:}
+%
+\input mex1
+
+% reading PLAIN with `\input hyphen' eliminated
+\let\i@t\input \def\input#1 {\message{SKIPPED}}%
+    % in PLAIN there is only `\input hyphen' followed by a space token
+\let\of@n\font \let\font\f@n
+\i@t \pl@in \relax
+\catcode`@=11 % @ is again a letter
+\let\input\i@t \let\i@t\undefined
+\let\font\of@n \let\f@n\undefined
+
+\input mex2
+
+% Format identification:
+%
+\begingroup \let~\space \def\'{\string\'} \catcode`\&=12 % other
+%
+% identification data:
+\def\a{MeX}        % format name
+\def\b{1.05}       % format version
+\def\c{18~XII~1993} % format date
+%
+\edef\x{This~is~\a~~Version~\b~~\c~~(B.~Jackowski~&~M.~Ry\'cko)}
+\edef\z{\immediate\write16{\x}\noexpand\the\everyjob}
+\global\everyjob\expandafter{\z}
+\newtoks\everyjob\global\everyjob{}
+%
+\global\let\plainfmtname\fmtname
+\global\let\plainfmtversion\fmtversion
+\xdef\fmtname{\a}
+\xdef\fmtversion{\b}% identifies the current format
+%
+\endgroup
+
+\@th\@% @ are no longer letters
+% local modifications, then \dump

@@ -1,0 +1,54 @@
+% This file is part of the Petri-nets packages. See file README for
+% copyright notice.
+
+\ProvidesPackage{pndraw}
+
+\newenvironment{petrinet}{\beginnet}{\endnet}
+
+%%
+%% running standard LaTeX
+%%
+
+\begingroup
+  \catcode`\:=11
+  \gdef\input:pndraw{\input pndraw.tex
+                     \endinput}
+  \expandafter\ifx\csname pdfoutput\endcsname\relax
+    \aftergroup\input:pndraw
+  \fi
+\endgroup
+
+%%
+%% running pdfLaTeX
+%%
+
+\input pnversion
+
+\usepackage{graphicx}
+
+\newcounter{pncount}
+\setcounter{pncount}{0}
+
+\catcode`\:=11
+{\catcode`\^^M=\active \let^^M=\relax %
+ \global\def\net:drop #1^^M{}%
+ \global\def\beginnet #1(#2)(#3){\bgroup%
+   \let\pst=\net:drop%
+   \let\place=\net:drop%
+   \let\trans=\net:drop%
+   \let\store=\net:drop%
+   \let\module=\net:drop%
+   \let\source=\net:drop%
+   \let\text=\net:drop%
+   \let\link=\net:drop%
+   \let\arc=\net:drop%
+   \let\label=\net:drop%
+   \let\showbb=\net:drop%
+   \catcode`\^^M=\active\let^^M=\relax}}
+\catcode`\:=12
+
+\def\endnet{\egroup
+  \addtocounter{pncount}{1}%
+  \includegraphics{\jobname-fig\thepncount.pdf}}
+
+\immediate\write18{pn2pdf \jobname}

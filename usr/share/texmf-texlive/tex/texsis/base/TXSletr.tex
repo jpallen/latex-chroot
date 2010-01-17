@@ -1,0 +1,357 @@
+%% file: TXSletr.tex - Letter Format - TeXsis version 2.18
+%% @(#) $Id: TXSletr.tex,v 18.1 2000/06/01 21:49:58 myers Exp $
+%======================================================================*
+%
+%       A format for typing simple business letters.  These macros 
+%  follow closely the letter format given in The TeXbook. The macros
+%  here are tuned for BNL stationary, but can easily be adapted for
+%  other stationary.  A typical letter would look like:
+%
+%       \letter                         % set up letter document format
+%       \withEnvelope                   % to create an envelope too
+%       \letterhead{xxxx}               % xxxx is phone extension
+%       \address                        % get address in box
+%               <name and address>      % line endings are respected!
+%       \body                           % text of letter follows
+%       Dear whoever,
+%
+%               <text of your letter>
+%
+%       \closing                        % begin closing
+%       Sincerely yours,                % closing salutation, indented
+%       Your Name                       % indented, followed by a space
+%       Your Title                      % optional additional line(s)
+%       \annotations                    % initials, enclosures, etc.
+%               <text>                  % can also use \ps
+%       \cc <name>                      % carbon copies
+%           <name>                      % to more than one person
+%       \bye                            % end of letter
+%
+% -----------------------------------------------------------------------
+\message{Letter Format,}
+\catcode`@=11                           % @ is a letter here
+
+%       dimensions, counters, and boxes: \hdimphone and \vdimphone are the 
+% positions relative to the page edge -- not the print boundaries -- of the 
+% telephone number in \phoneletterhead. They are correct here for BNL 
+% stationary. Similarly, \hdimdate and \vdimdate are the positions for the
+% date. These can be changed in TXSsite.tex to fit other stationary with 
+% a generally similar format.   
+
+\newdimen\headlineoffset        \headlineoffset = 0.25 truein
+\newdimen\longindent            \longindent = 3.5 truein
+
+\newdimen\hdimphone             \hdimphone = 6.2truein
+\newdimen\vdimphone             \vdimphone = 1.9truein
+\newdimen\hdimdate              \hdimdate = 5.5truein
+\newdimen\vdimdate              \vdimdate = 2.15truein
+
+\newskip\bigletterskip                  % skip down before address
+\bigletterskip=0.5 true in plus 0.5 true in minus .375 true in
+
+% -----------------------------------------------------------------------
+%       Initialization. \LetterFormat is called by \letter but can also be
+% called separately.
+
+\def\LetterFormat{%                     %
+   \nopagenumbers                       % kill page numbers
+   \singlespaced                        % letters always begin \singlespaced
+   \quoteon                             % automatic open/close quotes
+   \headline={\LetterHeadline}%         % running headline has addressee
+   \let\endmode=\par                    % start with this for \endmode
+   \def\addressee{}\def\theAddress{}%   % start with no addressee or address
+   \let\date=\letterdate                % \date puts date on top of letter
+   \let\body=\letterbody                % \body begins text of letter
+   \obsolete\text\body                  % \text is obsolete as of 2.17
+   \let\cc=\ccletr                      % carbon copy for letters
+}
+ 
+\def\Letter{%   document format for letters
+   \ContentsSwitchfalse                 % no table of contents
+   \refswitchfalse                      % no reference list
+   \auxswitchfalse                      % no forward references
+   \texsis                              % initialize
+   \LetterFormat}                       % Setup using \LetterFormat
+
+\def\letter{\Letter}                    % synonym
+
+
+% \LetterHeadline does the running heads for pages after the first
+
+\def\LetterHeadline{%                   % headline for extra pages
+   \ifnum\pageno>1                      % headline placement and spacing
+      \ifx\addressee\empty\relax        % no addressee, so
+         {\hfil Page \folio}%           %        just page number
+      \else                             % otherwise addressee, date, page
+         {\tenrm To \addressee\hfil\today\hfil Page \folio}%
+      \fi                               %
+   \else\hfil\fi}                       % but nothing on page 1
+                                
+
+%       \LetterWidth adjusts the width of the letter to allow long or
+% short letters to be fit nicely on the page.
+
+\def\LetterWidth#1{%                    % set width for letter
+   \hsize=#1                            % set \hsize
+   \dimen0=#1                           % calculate horizontal shift ...
+   \advance \dimen0 by -6.5truein       % subtract default
+   \divide \dimen0 by 2                 % 
+   \advance \hoffset by -\dimen0        % center letter
+   \advance \longindent by \dimen0      % adjust closing
+}
+\def\letterwidth{\LetterWidth}          % synonym
+
+\def\endletter{\endmode                 % how to end a letter
+    \par\vfill\supereject               % as usual, from Plain TeX
+    \checktags                          % any undefined tags?
+    \end}                               % exit
+
+%-----------------------------------------------------------------------
+%   \beginlinemode ends the previous mode and starts a mode where 
+% \obeylines is in effect.  \beginparmode ends the previous mode and
+% starts a mode where lines are concatenated.
+ 
+\def\beginlinemode{\endmode\begingroup\parindent=0pt\parskip=0pt
+     \obeylines\def\endmode{\par\endgroup}}
+ 
+\def\beginparmode{\endmode\begingroup\parskip=\medskipamount 
+   \def\endmode{\par\endgroup}}
+ 
+%-----------------------------------------------------------------------
+%       \address gets the address in a vbox, as well as printing it at
+% the top of the letter.  Line endings are respected here. The first
+% line after \address is the \addressee, which is used in the heading on
+% all pages after the first.
+ 
+\def\address{%       
+   \vskip\bigletterskip                 % skip down for address
+   \beginlinemode                       % look for line ends in address 
+   \getaddress}                         % and get address
+
+\newbox\theaddress                      % to collect the address in
+
+{\obeylines\gdef\getAddress#1
+   #2
+  {#1\gdef\addressee{#2}\global\setbox\theaddress=\vbox\bgroup%%
+   #2
+   \def\endmode{\egroup\endgroup \copy\theaddress}%
+}}% end \gdef and \obeylines
+
+\let\getaddress=\getAddress             % default address collection
+
+
+%     Use \body before typing the body of the letter. This is defined
+% to be \letterbody.   \text is no longer a synonym (as of 2.17)!
+ 
+\def\letterbody{%
+   \vskip\bigletterskip                 % skip down for address
+   \bigskip                             % skip some more
+   \beginparmode                        % paragraph mode
+   \raggedright\pretolerance=2500       % Letters are not justified
+   \noindent}                           % don't indent salutation
+
+
+%    Use \closing at the end of the letter.  It automatically puts a 
+% space for a signature between the 1st and 2nd lines after \closing.
+% It also defines \theSignature for a possible \Envelope. 
+ 
+\def\closing{\beginlinemode\getclosing}
+{\obeylines\gdef\getclosing#1
+   #2
+   #3
+   {#1\nobreak\bigskip\nobreak\bigskip \leftskip=\longindent #2
+   \nobreak\vskip .5 true in \gdef\theSignature{#3}%
+   #3
+}}
+ 
+
+%   \annotations and \ps are used at the end of the letter. \annotations
+% respects lines while \ps gives paragraph mode.  \ps has no
+% indentation, but you have to provide the ``P.S.'' yourself. 
+% \ccletr is \cc for letters, and \Encl can be used to note enclosures
+    
+\def\annotations{\beginlinemode\nobreak\bigskip 
+   \def\par{\endgraf\nobreak}\obeylines\par}
+
+\def\ps{\beginparmode\nobreak\bigskip   
+  \interlinepenalty 5000\def\par{\endgraf\penalty 5000}
+  \noindent}
+    
+\def\ccletr{\beginlinemode
+   \nobreak \bigskip                    % skip down
+   \def\par{\endgraf\nobreak}%          % as for \annotations
+   \obeylines\par                       % obey lines
+   \ccitem{cc:\ }}%                     % print cc:
+\def\cc{\ccletr}                        % synonyms
+\def\CC{\cc}                            % synonyms
+    
+\def\Encl{\beginlinemode
+   \nobreak \bigskip                    % skip down
+   \def\par{\endgraf\nobreak}%          % as for \annotations
+   \obeylines\par                       % obey lines
+   \ccitem{Encl:\ }}                    % print cc:
+\def\encl{\Encl}                        % synonym
+    
+%   \ccitem does the work for \cc and \Encl
+\def\ccitem#1{\setbox0\hbox{#1\quad}%   % box0 = argument
+    \parindent=\wd0                     % get its width
+    \hang                               % hanging indentation
+    \rlap{\copy0}%                      % and write it
+    \nobreak                            % forbid break
+    \vskip-\baselineskip\relax}         % kill the skip
+
+\def\newpage{\vfill\eject}
+    
+%======================================================================*
+% LETTERHEADS (simple):
+%
+%       \letterhead just spaces down and puts the date at the top of the 
+% page. \phoneletterhead puts in a phone number and the date at positions
+% given by \hdimphone, \vdimphone and \hdimdate, \vdimdate relative to
+% the true page boundaries.  Customized versions of these can be put
+% in the TXSsite.tex file (see the Installation Appendix in the Manual).
+ 
+\def\letterhead#1{%             %
+   \vbox{\vskip 0.5 truein}%    % skip down for the date
+   \line{\hfil\today}%          % right justify date
+   \vskip\bigletterskip}%       % space down to the address
+              
+\def\phoneletterhead#1{%                        % #1 is phone number
+   \vbox{\vskip-\voffset\vskip-\headlineoffset  % skip down to position
+      \vskip\vdimphone}                         % of phone number
+   \hbox{\hskip-\hoffset\hskip\hdimphone #1}%   % skip over to number
+   \vskip-\vdimphone\vskip\vdimdate             % skip down to date
+   \hbox{\hskip-\hoffset\hskip\hdimdate \today} % date 
+   }                                            %
+              
+\def\letterdate{%               % \letterdate just puts date on letters
+   \vbox{\vskip 0.5 truein}%    % skip down for the date
+   \line{\hfil\today}%          % right justify date
+   \bigskip}                    % space down to the address
+
+
+%======================================================================*
+% Printing Envelopes:
+%
+% \MakeEnvelope prints an envelope, using #1 as the address and #2
+% as the return address.   If you print this (in landscape mode!) and
+% feed a blank envelope through your printer you'll get a printed envelope.
+%
+% \withEnvelope changes the definition of \address in the letter macros
+% so that the address is saved in a macro, not a box. It then arranges
+% for an appropriate \MakeEnvelope command to be written to the file
+% \jobname.env at the end of the job (when you say \endletter or \bye).
+% Run that file through TeXsis and print the output (in landscape) and
+% you'll get your envelope.
+%
+% Note that the modified \address requires that you begin the body of
+% the letter with \body, not \text.
+%
+\message{with envelopes.}
+
+% Envelope Dimensions: (change these in TXSsite.tex if yours are different)
+
+\newdimen\EnvlWidth      \EnvlWidth=24cm          % Envelope width
+\newdimen\EnvlHeight     \EnvlHeight=10.5cm       % Envelope height
+\newdimen\EnvlVoffset    \EnvlVoffset=1.25in      % vertical start position
+
+% \withEnvelope changes \address to use the alternate version below,
+% and arranges to have the envelope file \jobname.env created at the 
+% end of the job, using \Envelope.  The way this is done is a real hack,
+% but it works:  In TeXsis \bye calls \checktags to check for undefined
+% tags (labels for equations and such).  But since tags aren't used all
+% that much in letters we simply change \checktags to call \Envelope instead.
+
+\def\withEnvelope{%
+  \let\getaddress=\getEnvAddressee      %
+  \def\checktags{\emsg{\@comment Writing the envelope to \jobname.env...}%
+        \Envelope                       %
+        \immediate\write\Envout{\NX\bye}% make sure it ends with \bye!
+        \gdef\checktags{}%             % prevent recursion (really?)
+        }
+}
+
+
+%    Alternate version of \getaddress for \Envelope changes the
+% behaviour of \address.  Everything up to the following \body is the
+% address, and the first line is the \addressee.
+ 
+{\obeylines\gdef\getEnvAddressee#1
+   #2
+  {#1\gdef\addressee{#2}\getEnvAddress}%
+\gdef\getEnvAddress#1\body{\xdef\theAddress{\addressee
+    #1}\endaddress}%
+}% end \obeylines
+
+
+\def\endaddress{\endgroup               % end \linemode
+   \vbox{\parskip=0pt\parindent=0pt\theAddress\vskip 0pt}% print it
+   \letterbody}                         % do the \body
+
+
+%    \Envelope writes commands to the file \jobname.env for producing
+% an envelope addressed to the addressee, with the return address
+% of the signer of the letter constructed from \theSignature (from \closing)
+% and \ReturnAddress (from TXSsite.tex, or you set it yourself).  
+
+\newwrite\Envout                        % output Envelope file
+
+\def\EnvInit{\@FileInit\Envout=\jobname.env[Envelope]\gdef\EnvInit{}}
+
+\def\Envelope{\endmode\def\endmode{\relax}%
+  \EnvInit
+  \immediate\write\Envout{\NX\texsis\NX\ATunlock}%
+  \immediate\write\Envout{\NX\MakeEnvelope{\theAddress}\@comment}%
+  \immediate\write\Envout{{\theSignature\NX\n\ReturnAddress}}%
+}
+
+
+%    \MakeEnvelope{address}{return address} actually prints the envelope.
+% \MakeEnvelope sets things up and turns on \obeylines to see line
+% endings, then calls   \@MakeEnvelope to actually make the envelope.  
+
+\def\MakeEnvelope{\vfill\eject          % start on a new page
+   \hsize=\EnvlWidth\vsize=\EnvlHeight  % size page to match envelope
+   \hoffset= -0.90in                    % left offset is edge of envelope
+   \voffset=\EnvlVoffset                % down to the top of the envelope
+   \emsg{Envelope offset is \the\EnvlVoffset\ from the top (hope that's okay).}
+   \nopagenumbers                       %
+   \begingroup\singlespaced\obeylines   % single spaced
+   \@MakeEnvelope}%
+
+\def\@MakeEnvelope#1#2{% print address & return address on envelope
+%%  \tightbox{\loosebox{%---% ONLY FOR TESTING
+  \vbox to \EnvlHeight{\hsize=\EnvlWidth % Envelope Size
+    \vskip 0.2cm\line{\hskip 0.8cm      % space return address down and over
+      \vbox to 2.5cm{\hsize=8cm\parskip=0pt\parindent=0pt %
+         #2\vss}\hfill}%                % Return Address:
+    \vskip 1cm plus 1fil\line{\hskip 9cm% space address down and over
+      \vbox{\hsize=14cm\parskip=0pt\parindent=0pt %
+         #1\vss}\hfill}%                % Mailing Address
+    \vskip 1cm plus 1fil}%              % space below address
+%% }}%---% ONLY FOR TESTING
+   \endgroup\vfill}                     % end \obeylines, skip rest of page
+
+\def\ReturnAddress{\hbox{\ }\hfill\relax}% change this in TXSsite.tex
+\def\theSignature{}%   
+
+%======================================================================*
+% FORM LETTERS.
+%
+% The form letter macros formerly in TXSform.tex have been moved to a
+% style file, Formletr.txs, so that they are only loaded when needed
+% (since that is infrequent).  But to be able to specify the label
+% dimensions in the site file we need to define the dimensions anyway.
+
+\newdimen\fullHsize     \fullHsize=8.5in        % hsize for label page
+\newdimen\fullVsize     \fullVsize=11.50in      % vsize for label page
+\newdimen\lblHsize      \lblHsize=2.833in       % width of standard label
+\newdimen\lblVsize      \lblVsize=1.365in       % ht. of std. label - a bit
+\newdimen\lblVoffset    \lblVoffset=-.900in     % vertical starting position
+\newdimen\lblHoffset    \lblHoffset=-0.750in    % horizontal starting position
+
+\autoload\formLetters{Formletr.txs}\autoload\formletters{Formletr.txs}
+\autoload\formLabels{Formletr.txs}\autoload\formlabels{Formletr.txs}
+\autoload\formEnvelopes{Formletr.txs}\autoload\formenvelopes{Formletr.txs}
+
+%>>> EOF TXSletr.tex <<<

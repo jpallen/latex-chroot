@@ -1,0 +1,965 @@
+% Xucuri Font `xucfont.mf'
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Designed and (c) by Johannes Heinecke                                     %
+%                     Humboldt-Universit"at zu Berlin                       %
+%                     Philosophische Faskult"at II                          %
+%                     Institut f"ur deutsche Sprache und Linguistik         %
+%                     Computerlinguistik                                    %
+%                     J"agerstr. 10/11                                      %
+%                     D - 10099 Berlin                                      %
+%                     <heinecke@compling.hu-berlin.de>                      %
+% Please send any improvements, corrections, suggestions, enhancements etc  %
+% to the Author!                                                            %
+%                                                                           %
+% Version 0.1 as of 29th March 1997                                         %
+%                                                                           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+
+
+% Serifen: Aufruf xuc_serif(Punktnr, 1|-1);  
+% unten: -1 Serife f"ur oben, 1 f"ur unten
+def xuc_serif (suffix $)(expr unten) =
+   z$a = (x$-.5px1, y$+ ((mxserifonset-.55py1)*unten));
+   z$d = (x$+.5px1, y$a);
+
+   z$c = (x$-px1, y$-(.55py1*unten));
+   z$f = (x$+px1, y$c);
+
+   z$b = (x$c, y$c+(.5py1*unten));
+   z$e = (x$f, y$b);
+
+   if unten = 1:
+      fill z$a--z$d{down}..{right}z$e--z$f--z$c--z$b{right}..{up}cycle
+   else:
+      fill z$a--z$d{up}..{right}z$e--z$f--z$c--z$b{right}..{down}cycle
+   fi;
+   labels($a, $b, $c, $d, $e, $f); 
+enddef;
+
+
+% links = 1: linke Halbserife, links = -1: rechte Halbserife
+def xuc_halbserif (suffix $)(expr unten, links) =
+   z$a = (x$-(.5px1*links), y$+ ((mxserifonset-.55py1)*unten));
+   z$d = (x$, y$a);
+
+   z$c = (x$-(px1*links), y$-(.55py1*unten));
+   z$f = (x$, y$c);
+
+   z$b = (x$c, y$c+(.5py1*unten));
+
+   if unten = 1:
+      if links = 1:
+         fill z$a--z$d--z$f--z$c--z$b{right}..{up}cycle
+      else:
+         fill z$a--z$d--z$f--z$c--z$b{left}..{up}cycle
+      fi;
+   else:
+      if links = 1:
+         fill z$a--z$d--z$f--z$c--z$b{right}..{down}cycle
+      else:
+         fill z$a--z$d--z$f--z$c--z$b{left}..{down}cycle
+      fi;
+   fi;
+%   labels($a, $b, $c, $d, $f); 
+enddef;
+
+
+% Kleiner Haken links oben
+def xuc_haken (suffix $) =
+    z$x = (x$ - mxhalf, y$ + .5mxtop);
+    draw z$x{down}..{right}z$;
+    xuc_serif($x, -1);
+    labels($x);
+enddef;
+
+% Grosser Haken links oben
+def xuc_haken_gross (suffix $) =
+    z$x = (x$ - mxone, y$ + .5mxtop);
+    z$y = (x$ - mxhalf, y$);
+    draw z$x{down}..{right}z$y--z$;
+    xuc_serif($x, -1);
+    labels($x, $y);
+enddef;
+
+% Grosser Haken rechts unten
+def xuc_fuss_gross (suffix $) =
+    z$x = (x$ + mxone, y$ - mxthird);
+    z$y = (x$ + mxhalf, y$);
+    draw z$x{up}..{left}z$y--z$;
+    xuc_serif($x, 1);
+    labels($x, $y);
+enddef;
+
+% Kleiner Haken rechts unten
+def xuc_fuss (suffix $) =
+    z$x = (x$ + mxhalf, y$ - mxthird);
+    draw z$x{up}..{left}z$;
+    xuc_serif($x, 1);
+    labels($x);
+enddef;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Character Definitions: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% ^C %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "^C - ^Cin (+C, oct001)";
+beginchar(oct"001", mxzw#+1mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (0, 0);
+   z2 = (x1, mxheight);
+   draw z1--z2;
+   xuc_serif(1, 1);
+   xuc_serif(2, -1);
+   z3 = (x1, mxlittle);
+   xuc_fuss_gross(3);
+   penlabels(range 1 thru 3);
+endchar;
+
+
+
+
+%% K %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "K";
+beginchar("K", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (mxone, 0);
+   z2 = (x1, mxheight);
+   z3 = (x1, .5[y1, y2]);
+   z4 = (x1-mxone, mxlittle);
+   z5 = (x1+mxone, y4-mxthird);
+   draw z1--z2;
+   xuc_serif(1, 1);
+   xuc_serif(2, -1);
+   xuc_serif(4, -1);
+   xuc_serif(5, 1);
+   draw z4{down}..{down}z5;
+
+   penlabels(range 1 thru 5);
+endchar;
+
+
+%% S %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "S";
+beginchar("S", mxzw#+mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft z2 = (0, mxheight);
+   z5 = (x2+mxhalf, mxmiddle);
+   bot z3 = (x5, 0);
+   z1 = (x2, .5[y3, y5]);
+   z4 = (x2+mxone, y1);
+   draw z2---z1..z3..z4..{left}z5;
+   xuc_serif(2, -1);
+   penlabels(range 1 thru 5);
+endchar;
+
+
+
+%% ^DZ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "^DZ/^J - ^Jan (oct010)";
+beginchar(oct"010", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft z1 = (mxone, mxheight-.5mxtop);
+   bot z2 = (x1, 0);
+   draw z1--z2;
+   xuc_serif(2, 1);
+   xuc_haken_gross(1);
+ 
+   z3 = (x1+mxhalf, y1);
+   z5 = (x2, mxmiddle);
+   z4 = (x1+mxone, .5[y1, y5]);
+   z6 = (x1-mxone, y2);
+   draw z1---z3..z4..z5..{down}z6;
+   xuc_serif(6, 1);
+   penlabels(range 1 thru 6);
+endchar;
+
+
+%% X %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "X";
+beginchar("X", mxzw#+mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft z1 = (0, mxheight);
+   bot z2 = (x1, mxthird);
+   draw z1--z2;
+   xuc_fuss_gross(2);
+   xuc_serif(1, -1);
+
+   z3 = (x1, mxmiddle);
+   z4 = (x1+mxone, mxlittle);
+   xuc_halbserif(4, 1, -1);
+   z5 = (x4, y1);
+   draw z3{up}..{right}z4--z5;
+   xuc_serif(5, -1);
+   penlabels(range 1 thru 5);
+endchar;
+
+
+
+%% ^.c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "^.C - ^.Car (,C .+C oct014)";
+beginchar(oct"014", mxzw#+1.5mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft z1 = (0, mxheight);
+   z2 = (x1, mxlittle);
+   x4 = x1+1.5mxone;
+   z3 = (.5[x1, x4], y2);
+   bot z5 = (x3, 0);
+
+   y4 = .5[y3, y5];
+   z6 = (x1, y4);
+   z7 = (x4-.5mxhalf, y1);
+   z8 = (x7, y1-.5mxtop);
+   draw z8--z7--z1--z2---z3..z4..z5..{up}z6;
+   xuc_serif(8, 1);
+   xuc_halbserif(1, -1, 1);
+   xuc_serif(6, -1);
+   penlabels(range 1 thru 8);
+endchar;
+
+%% A %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "A";
+beginchar("A", mxzw#+1.5mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft z1 = (0, mxheight);
+   z2 = (x1, y1-.5mxtop);
+   z3 = (x1+1.5mxone, y1);
+   z4 = (x3, y2);
+%   z5 = (x1+1.2mxone, y1);
+   z5 = (.5[z2, z3]);
+   z6 = (x1, 1.5mxthird);
+   bot z7 = (x1+mxhalf, 0);
+   z8 = (x3, mxthird);
+  
+   draw z1--z2{right}..z5..{right}z3--z4;
+   xuc_serif(1, -1);
+   xuc_serif(4, 1);
+
+   draw z5..{down}z6..{right}z7..{up}z8;
+   xuc_serif(8, -1);
+   penlabels(range 1 thru 8);
+endchar;
+%endinput;
+
+
+% %% A1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% xucchar "A  -- variant A1";
+% beginchar(oct"0??", mxzw#+mxone#, mxheight#, 0);
+%    pickup xuc_pen;
+%    lft z1 = (0, mxlittle+.35mxtop);
+%    bot z2 = (x1, mxthird);
+%    draw z1--z2;
+%    xuc_serif(1, -1);
+%    xuc_halbserif(2, 1, 1);
+%    xuc_fuss_gross(2);
+% 
+%    z3 = (x1, mxheight);
+%    z5 = (x2x, mxheight-.5mxtop);
+%    z4 = .5[z3, z5];
+%    draw z3{down}..{dir 65}z4..{dir -80}z5;
+%    xuc_serif(3, -1);
+%    xuc_serif(5, 1);
+% 
+%    penlabels(range 1 thru 5);
+% endchar;
+
+
+
+%% I1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "I1 - short I, (Old Georgian), oct012";
+beginchar(oct"012", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   bot lft z1 = (0, mxmiddle);
+   z3 = (x1+2mxone, y1);
+   bot z2 = (.5[x1, x3], 0);
+   z4 = (x2, 2mxmiddle);
+   z5 = (x1+mxhalf, y4);
+
+   draw z1{down}..z2..z3..{left}z4---z5;
+   xuc_serif(1, -1);
+   xuc_haken(5);
+   penlabels(range 1 thru 5);
+endchar;
+
+
+%% .K %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar ".K - .Kan (oct003)";
+beginchar(oct"003", mxzw#+mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft z1 = (0, mxheight);
+   z2 = (x1, mxheight-mxtop);
+   z3 = (x1+mxhalf, y2-mxthird);
+
+   bot z4 = (x1+mxone, 0);
+   z5 = (x4, y4+mxtop);
+   z6 = (x3, y2);
+   draw z1---z2..z3---z5;
+   draw z4---z5..z6---z2;
+   xuc_serif(1, -1);
+   xuc_serif(4, 1);
+   penlabels(range 1 thru 6);
+endchar;
+
+
+%% C %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "C";
+beginchar("C", mxzw#+2.75mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft x3 = 0;
+   lft x1 = 1.75mxone;
+   x2 = x4 = .5[x1, x3];
+   y2 = mxheight;
+   bot y4 = 0;
+   y3 = .5[y4, y2];
+   y1 = mxlittle;
+   z5 = (x1, mxmiddle);
+   z6 = (x5+mxhalf, y5);
+   z7 = (x5+mxone, mxthird);
+   z8 = (x7, y4);
+   draw z1..{left}z2..z3..z4{right}..z5;
+   draw z5---z6..z7---z8;
+   xuc_serif(1, 1);
+   xuc_serif(8, 1);
+   xuc_halbserif(5, -1, 1);
+   penlabels(range 1 thru 8);
+endchar;
+ 
+%% G %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "G";
+beginchar("G", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft z1 = (0, mxlittle);
+   z2 = (x1, mxheight);
+   z3 = (x1+mxone, y2);
+   bot z4 = (x3, mxmiddle);
+   z5 = (x4+mxhalf, y4-mxthird);
+
+   draw z1--z2--z3--z4{right}..{down}z5;
+   xuc_serif(1, 1);
+   xuc_halbserif(2, -1, 1);
+   xuc_halbserif(3, -1, -1);
+   xuc_halbserif(4, 1, 1);
+   xuc_halbserif(5, 1, 1);
+   xuc_fuss(5);
+   penlabels(range 1 thru 5);
+endchar;
+
+
+
+%% Q %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "Q";
+beginchar("Q", mxzw#+mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (mxone, 0);
+   z2 = (x1, mxheight);
+   z3 = (x1, mxlittle);
+   z6 = (x1-mxone, y2);
+   z5 = (x6, .5[y3, y2]);
+   z4 = (.5[x5, x3], y3);
+   draw z1--z2;
+   xuc_serif(1, 1);
+   xuc_serif(2, -1);
+  
+   draw z6---z5...z4---z3;
+   xuc_serif(6, -1);
+   penlabels(range 1 thru 6);
+endchar;
+
+
+%% ^Z %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "^Z - ^Zan (+Z, oct007)";
+beginchar(oct"007", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (2mxone, 0);
+   z2 = (x1, mxheight);
+   z3 = (x1, mxlittle);
+   z5 = (x1-mxone, .5[y3, y2]);
+   z4 = (.5[x5, x3], y3);
+   draw z1--z2;
+   xuc_serif(1, 1);
+   xuc_serif(2, -1);
+  
+   draw z5{down}..z4---z3;
+   xuc_halbserif(5, -1, -1);
+   xuc_haken_gross(5);
+%   xuc_haken(5);
+   penlabels(range 1 thru 5);
+endchar;
+
+
+
+
+%% B %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "B";
+beginchar("B", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (mxone, mxthird);
+   z2 = (x1, mxheight);
+   z6 = (x1-mxone, y2);
+   z3 = (x1, mxlittle);
+   z5 = (x6, .5[y3, y2]);
+   z4 = (.5[x5, x3], y3);
+%   draw z6---z5...z4---z3;
+   draw z6--z5{down}...z4---z3;
+   draw z2--z1;
+
+   xuc_fuss_gross(1);
+   xuc_halbserif(1, 1, 1);
+   xuc_serif(2, -1);
+  
+
+   xuc_serif(6, -1);
+   penlabels(range 1 thru 6);
+endchar;
+%endinput;
+
+
+%% ^S %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "^S - ^San (+S, oct005)";
+beginchar(oct"005", mxzw#+mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   y9 = mxmiddle;
+   lft bot z1 = (mxone, .5[0, y9]);
+   z2 = (x1, mxheight);
+   z3 = (x1, mxlittle);
+   z6 = (x1-mxone, y2);
+   z5 = (x6, .5[y3, y2]);
+   z4 = (.5[x5, x3], y3);
+
+   bot z7 = (x4, 0);
+   z8 = (x6, y1);
+   x9 = x4;
+   draw z2---z1..z7..z8..{right}z9;
+
+   xuc_serif(2, -1);
+  
+   draw z6---z5...z4---z3;
+   xuc_serif(6, -1);
+   penlabels(range 1 thru 9);
+endchar;
+
+
+%% R %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "R";
+beginchar("R", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   y9 = mxmiddle;
+   lft bot z1 = (mxone, .5[0, y9]);
+   z2 = (x1, mxheight);
+   z3 = (x1, mxlittle);
+
+   z8 = (x1-mxone, y1);
+   x9 = .5[x8, x1];
+   bot z7 = (x9, 0);
+   draw z2---z1..z7..z8..{right}z9;
+
+   xuc_serif(2, -1);
+   xuc_fuss_gross(3);
+   penlabels(range 1 thru 9);
+endchar;
+
+
+
+%% O %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "O";
+beginchar("O", mxzw#+2.75mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   z2 = (2mxone, .5mxheight);
+   lft z4 = (0, y2);
+
+   bot z1 = (.5[x4,x2], 0);
+   z3 = (x1, mxheight);
+   draw z1..z2..z3..z4..cycle;
+
+   y5 = y2 - (sind 30)*mxone;
+   x5 = x1 + (cosd 30)*mxone;
+
+   z7 = (3mxone, y5);
+   z6 = (.5[x5,x7], y1);
+   draw z5{down}..{right}z6..{up}z7;
+
+   xuc_serif(7, -1);
+   penlabels(range 1 thru 7);
+endchar;
+
+
+%% U %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "U";
+beginchar("U", mxzw#+2.5mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   z2 = (2mxone, .5mxheight);
+   lft z4 = (0, y2);
+
+   bot z1 = (.5[x4,x2], 0);
+   z3 = (x1, mxheight);
+   draw z1..z2..z3..z4..cycle;
+
+   y5 = y2 - (sind 30)*mxone;
+   x5 = x1 + (cosd 30)*mxone;
+
+   lft z6 = (2.5mxone, y1);
+   draw z5{right}..z6;
+
+   xuc_serif(6, 1);
+   penlabels(range 1 thru 6);
+endchar;
+
+
+
+
+%% D %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "D";
+beginchar("D", mxzw#+1.8mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft z2 = (1.8mxone, .5mxlittle);
+   lft z4 = (0, y2);
+
+   bot z1 = (.5[x4,x2], 0);
+   z3 = (x1, mxlittle+.5mxthird);
+   draw z1..z2..z3..z4..cycle;
+
+   z5 = (x3, mxheight);
+   draw z3--z5;
+
+   z6 = (x4, y5-.5mxtop);
+   z7 = (x6, y5);
+   z8 = (x2, y5);
+   z9 = (x8, y6);
+   draw z6--z7---z8---z9;
+
+   xuc_serif(6, 1);
+   xuc_serif(9, 1);
+   penlabels(range 1 thru 9);
+endchar;
+
+%% E %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "E";
+beginchar("E", mxzw#+mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (mxone, 0);
+   z2 = (x1, mxheight);
+   lft z3 = (0, y2);
+   z4 = (x3, mxlittle);
+   z5 = (x1, mxlittle);
+   rt z6 = (2mxone, y5);
+   z7 = (x6, .5y6);
+   draw z1--z2--z3--z4;
+
+   xuc_serif(1, 1);
+   xuc_halbserif(2, -1, -1);
+   xuc_halbserif(3, -1, 1);
+
+   xuc_serif(4, 1);
+
+   penlabels(range 1 thru 4);
+endchar;
+
+
+%% N %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "N";
+beginchar("N", mxzw#+mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   bot lft z1 = (0, 0);
+   z2 = (x1, mxheight);
+   z3 = (x1+mxone, y2);
+   z4 = (x3, 1.2mxlittle);
+
+   z5 = (x1, mxmiddle);
+   z6 = (x3, y1);
+
+   z7 = (.5[x5, x6], y5);
+   z8 = (x6, .5[y5, y6]);
+   draw z1--z2--z3--z4;
+   draw z5..z7{right}..{down}z8..z6;
+
+   xuc_serif(1, 1);
+   xuc_halbserif(2, -1, 1);
+   xuc_halbserif(3, -1, -1);
+   xuc_serif(4, 1);
+   xuc_serif(6, 1);
+
+   penlabels(range 1 thru 6);
+endchar;
+
+
+%% T %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "T";
+beginchar("T", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (mxone, 0);
+   z2 = (x1, mxheight);
+   lft z3 = (0, .5[y1, y2]);
+   draw z1--z2{left}..{down}z3..{right}z1;
+
+   z5 = (x1, mxlittle);
+   z6 = (x1+mxone, y5);
+%   z7 = (x6, .5y6);
+
+%   draw z5--z6--z7;
+   xuc_fuss_gross(5);
+   xuc_halbserif(1, 1, -1);
+   xuc_halbserif(2, -1, -1);
+
+%   xuc_halbserif(6, -1, -1);
+%   xuc_serif(7, 1);
+
+   penlabels(range 1 thru 7);
+endchar;
+
+
+
+
+
+%% V %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "V";
+beginchar("V", mxzw#+1.8mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (.9mxone, 0);
+   z2 = (x1, mxheight);
+   lft z3 = (0, y2);
+   z4 = (x3, mxlittle);
+   z5 = (x1, mxlittle);
+   z6 = (x1+.9mxone, y5);
+   z7 = (x6, .5y6);
+   draw z1--z2--z3--z4;
+   draw z5--z6--z7;
+   xuc_serif(1, 1);
+   xuc_halbserif(2, -1, -1);
+   xuc_halbserif(3, -1, 1);
+   xuc_serif(4, 1);
+   xuc_halbserif(6, -1, -1);
+   xuc_serif(7, 1);
+
+   penlabels(range 1 thru 7);
+endchar;
+
+
+%% E %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "EE - (Long E) oct(016)";
+beginchar(oct"016", mxzw#+mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (0, 0);
+   z2 = (x1, mxheight);
+   z5 = (x1, mxlittle);
+   z6 = (x1+mxone, y5);
+   z7 = (x6, .5y6);
+   draw z1--z2;
+   draw z5--z6--z7;
+   
+   z3 = (x6, y2);
+   z4 = (x6, y2-.5mxtop);
+   draw z3--z4;
+
+   xuc_serif(1, 1);
+   xuc_serif(2, -1);
+   xuc_serif(3, -1);
+   xuc_serif(4, 1);
+   xuc_halbserif(6, -1, -1);
+   xuc_serif(7, 1);
+
+   penlabels(range 1 thru 7);
+endchar;
+
+
+%% L %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "L";
+beginchar("L", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (mxone, .5mxlittle);
+   z2 = (x1, mxheight);
+   lft z3 = (0, y2);
+   z4 = (x3, mxlittle+mxthird);
+   draw z1--z2--z3--z4;
+
+   z5 = (x1, mxlittle);
+   z7 = (x1+mxone, .5mxlittle);
+   z6 = (.5[x5, x7], y5);
+   bot z8 = (.x6, 0);
+
+   draw z5---z6..z7..z8{left}..{up}z1;
+
+   xuc_halbserif(2, -1, -1);
+   xuc_halbserif(3, -1, 1);
+   xuc_serif(4, 1);
+
+   penlabels(range 1 thru 8);
+endchar;
+
+%% H %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "H";
+beginchar("H", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (mxone, .5mxlittle);
+   z2 = (x1, mxheight);
+   lft z3 = (0, y2);
+   z4 = (x3, mxlittle);
+   draw z1--z2--z3--z4;
+
+   z5 = (x1, mxlittle);
+   z7 = (x1+mxone, .5mxlittle);
+   z6 = (.5[x5, x7], y5);
+   bot z8 = (.x6, 0);
+
+   draw z6{right}..z7..z8{left}..{up}z1;
+
+   xuc_halbserif(2, -1, -1);
+   xuc_halbserif(3, -1, 1);
+   xuc_serif(4, 1);
+
+   penlabels(range 1 thru 8);
+endchar;
+
+
+%% Z %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "Z";
+beginchar("Z", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (mxone, .5mxlittle);
+   z2 = (x1, mxheight-.5mxtop);
+   draw z1--z2;
+
+   z5 = (x1, mxlittle);
+   z7 = (x1+mxone, .5mxlittle);
+   z6 = (.5[x5, x7], y5);
+   bot z8 = (.x6, 0);
+
+   draw z5--z6{right}..z7..z8{left}..{up}z1;
+
+   xuc_halbserif(2, -1, -1);
+%   xuc_haken(2);
+   xuc_haken_gross(2);
+   penlabels(range 1 thru 8);
+endchar;
+
+
+%% I %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "I";
+beginchar("I", mxzw#+mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (mxone, 0);
+   z2 = (x1, mxheight-.5mxtop);
+   draw z1--z2;
+   xuc_serif(1, 1);
+%   xuc_haken(2);
+   xuc_haken_gross(2);
+   penlabels(range 1 thru 2);
+endchar;
+
+
+%% W %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "W";
+beginchar("W", mxzw#+mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (mxone, 0);
+   z2 = (x1, mxheight);
+   draw z1--z2;
+
+   z3 = (x1, mxlittle);
+   xuc_serif(1, 1);
+   xuc_serif(2, -1);
+   xuc_haken_gross(3);
+   penlabels(range 1 thru 3);
+endchar;
+
+
+%% M %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "M";
+beginchar("M", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft z8 = (mxone, mxheight-.5mxtop);
+   z1 = (x8, mxlittle);
+   lft bot z2 = (mxhalf, 0);
+   lft z3 = (0, .5mxlittle);
+   z4 = (x2, mxlittle);
+   z5 = (x8+.5mxone, y4);
+   z6 = (x8+mxone, y3);
+   z7 = (x6, y2);
+   draw z8--z1{down}..{left}z2..z3..{right}z4--z5{right}..{down}z6--z7;
+   xuc_haken_gross(8);
+   xuc_serif(7, 1);
+   xuc_halbserif(8, -1, -1);
+   penlabels(range 1 thru 8);
+endchar;
+
+
+%% DZ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "Dz (j) - Dzil";
+beginchar("J", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft z8 = (mxone, mxheight);
+   z1 = (x8, mxlittle);
+   lft bot z2 = (mxhalf, 0);
+   lft z3 = (0, .5mxlittle);
+   z4 = (x2, mxlittle);
+   z5 = (x8+.5mxone, y4);
+   z6 = (x8+mxone, y3);
+   z7 = (x6, y2);
+   draw z8--z1{down}..{left}z2..z3..{right}z4--z5{right}..{down}z6--z7;
+   xuc_serif(8, -1);
+   xuc_serif(7, 1);
+   penlabels(range 1 thru 8);
+endchar;
+
+
+
+%% OO/HO %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "OO - HO (Old Georgian), oct011";
+beginchar(oct"011", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft z8 = (mxone, mxheight);
+   z1 = (x8, mxlittle);
+   lft bot z2 = (mxhalf, 0);
+   lft z3 = (0, .5mxlittle);
+   z4 = (x2, mxlittle);
+   lft z5 = (1.5mxone, y4);
+   lft z6 = (2mxone, y3);
+   z7 = (x6, y2);
+   draw z8--z1{down}..{left}z2..z3..{right}z4--z5{right}..{down}z6--z7;
+
+   z12 = (x8, 1.2mxlittle);
+   z10 = (x6, .5[y8, y12]);
+   z9 = (.5[x8, x10], y8);
+   z11 = (x9, y12);
+   draw z8--z9{right}..{down}z10..{left}z11--z12;
+   
+   xuc_halbserif(8, -1, 1);
+   xuc_serif(7, 1);
+
+   penlabels(range 1 thru 12);
+endchar;
+
+
+
+
+%% .G %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar ".G - .Gan (oct002)";
+beginchar(oct"002", mxzw#+1.3mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   bot lft z1 = (0, 0);
+   z5 = (x1+1.3mxone, y1);
+   z2 = (x1, mxheight-mxtop);
+   z4 = (x5, y2);
+   z3 = (.5[x1, x5], mxheight);
+   draw z1--z2{up}..{right}z3..{down}z4--z5;
+   xuc_serif(1, 1);
+   xuc_serif(5, 1);
+
+   penlabels(range 1 thru 5);
+endchar;
+
+
+
+%% .P %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar ".P - .Par (oct004)";
+beginchar(oct"004", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+%   lft z6 = (0, mxheight);
+   lft z1 = (mxone, mxheight-.5mxtop);
+   z5 = (x1+1mxone, y1);
+   z2 = (x1, mxmiddle);
+   z4 = (x5, y2);
+   bot z3 = (.5[x1, x5], 0);
+   draw z1--z2{down}..{right}z3..{up}z4--z5;
+   xuc_halbserif(1, -1, -1);
+   xuc_serif(5, -1);
+%   xuc_haken(1);
+   xuc_haken_gross(1);
+   penlabels(range 1 thru 6);
+endchar;
+
+
+
+%% .T %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar ".T - .Tar (oct006)";
+beginchar(oct"006", mxzw#+mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (0, mxthird);
+   z2 = (x1, mxheight);
+   z6 = (x1, mxlittle);
+   z4 = (x1+mxone, .5[y2, y6]);
+   x3 = x5 = .5[x4, x6];
+   y3 = y2;
+   y5 = y6;
+   draw z1--z2--z3{right}..{down}z4..{left}z5--z6;
+   xuc_halbserif(2, -1, 1);
+   xuc_halbserif(1, 1, 1);
+   xuc_fuss_gross(1);
+   penlabels(range 1 thru 6);
+endchar;
+
+
+%% .C %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar ".C - .Cil (oct000)";
+beginchar(oct"000", mxzw#+mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (0, 0);
+   z2 = (x1, mxheight);
+   z6 = (x1, mxlittle);
+   z4 = (x1+mxone, .5[y2, y6]);
+   x3 = x5 = .5[x4, x6];
+   y3 = y2;
+   y5 = y6;
+   draw z1--z2--z3{right}..{down}z4..{left}z5--z6;
+
+   z7 = (x1, mxmiddle);
+   xuc_halbserif(2, -1, 1);
+   xuc_serif(1, 1);
+   xuc_fuss_gross(7);
+   penlabels(range 1 thru 7);
+endchar;
+
+
+%% P %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "P";
+beginchar("P", mxzw#+2mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft bot z1 = (mxone, 0);
+   z2 = (x1, mxheight);
+   x4 = x1+mxone;
+   x8 = x1-mxone;
+   x3 = x5 = .5[x4, x2];
+   x9 = x7 = .5[x8, x2];
+   y3 = y9 = y2;
+   y7 = y5 = mxlittle;
+   y4 = y8 = .5[y2, y5];
+
+   
+   draw z1--z2;
+   draw z3{right}..{down}z4..{left}z5--z7..{up}z8..{right}z9--cycle;;
+   xuc_serif(1, 1);
+
+   penlabels(range 1 thru 9);
+endchar;
+
+
+%% Qh %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xucchar "Qh - qhar (oct015)";
+beginchar(oct"015", mxzw#+1.5mxone#, mxheight#, 0);
+   pickup xuc_pen;
+   lft z3 = (0, mxheight);
+   z6 = (x3 + 1.5mxone, y3);
+   x4 = x3;
+   x5 = x6;
+   y4 = y5 = mxlittle;
+   z2 = (.5[x4, x5], y4);
+   bot z1 = (x2, 0);
+   draw z1--z2;
+   draw z3--z4--z5--z6;
+   xuc_serif(1, 1);
+   xuc_serif(3, -1);
+   xuc_serif(6, -1);
+   penlabels(range 1 thru 6);
+endchar;
+
+% Dummy Digits for Ligatures
+%xucchar "0 (empty)";
+%beginchar("0", mxzw#+mxone#, mxheight#, 0);
+%endchar;
+%
+%xucchar "1 (empty)";
+%beginchar("1", mxzw#+mxone#, mxheight#, 0);
+%endchar;
+

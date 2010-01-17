@@ -1,0 +1,48 @@
+
+% Rolf Niepraschk -- Rolf.Niepraschk@ptb.de
+
+% Draws visible frames for the text and margin area, and lines
+% for the head and foot to check layout in detail. Using the package
+% option "noframe" you can draw the frames later only for a single 
+% page with \AddToShipoutPicture*{\ShowFramePicture}. Another useful 
+% options maybe eso-pic's "colorgrid", "grid" and "texcoord".
+
+\ProvidesPackage{showframe}[2005/12/18 v0.1g showframe (new impl., RN)]
+
+\newif\ifSF@frame\SF@frametrue
+ 
+\DeclareOption{noframe}{\SF@framefalse}
+\DeclareOption*{\PassOptionsToPackage{\CurrentOption}{eso-pic}}
+\ProcessOptions\relax
+
+\RequirePackage{eso-pic}[2002/10/30]
+
+\newcommand\ShowFramePicture{%
+  \begingroup
+    \normalcolor\thicklines%
+    \AtTextLowerLeft{%
+      \framebox(\LenToUnit{\textwidth},\LenToUnit{\textheight}){}}%  
+    \AtTextUpperLeft{%
+      \put(0,\LenToUnit{\headsep}){%
+        \framebox(\LenToUnit{\textwidth},\LenToUnit{\headheight}){}}}%  
+    \AtTextLowerLeft{%
+      \put(0,\LenToUnit{-\footskip}){%
+        \line(1,0){\LenToUnit{\textwidth}}}}%
+    \AtTextLowerLeft{%
+      \@tempdima=\textwidth\advance\@tempdima\marginparsep%
+      \if@twoside%
+        \ifodd\c@page\else%
+          \if@mparswitch
+            \@tempdima=-\marginparsep\advance\@tempdima-\marginparwidth%
+          \fi
+        \fi% 
+      \fi%
+      \put(\LenToUnit{\@tempdima},0)%
+        {\framebox(\LenToUnit{\marginparwidth},\LenToUnit{\textheight}){}}%
+    }% 
+  \endgroup
+}
+
+\ifSF@frame\AddToShipoutPicture{\ShowFramePicture}\fi
+
+\endinput

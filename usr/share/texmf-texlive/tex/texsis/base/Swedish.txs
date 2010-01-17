@@ -1,0 +1,83 @@
+%% file: Swedish.txs  (TeXsis version 2.17)
+%  $Revision: 1.4 $  :  $Date: 1995/05/23 17:59:05 $  :  $Author: myers $
+%======================================================================*
+% Native language support for TeXsis in Swedish, with the Babel-TeX package
+%
+% These macros make small changes to TeXsis so that names for things
+% like tables, figures and references are in Swedish rather than
+% English.  This file also loads the babel-tex package, if needed.
+% 
+% Using TeXsis with babel and Swedish (or some other language) is very
+% simple: 
+% 
+%   o Retrieve the Babel package from CTAN
+%   o Install a plain TeX with Babel for the idioms you want 
+%     (instruction in the babel package). Dump it to btex.fmt (for example)
+%   o Dump the TeXsis package exactly as in the instruction, only
+%     at the initex step do   initex '&btex texsis \dump'
+%     i.e. use the babel-plain base format where you used plain for an
+%     english-only version
+%   o Call the dumped format btexsis.fmt (or whatever you prefer).
+%   o Now btexsis work like texsis normally, but you can load
+%     multi-language support simply doing   \input Swedish.txs.
+%
+% Many thanks to Anders Ynnerman <andersy@galilei.tfr.se> for checking this.
+%======================================================================*
+\message{TeXsis in Svensk.}%  
+
+%  If Swedish.txs has already been loaded, then simply exit
+
+\ifx\undefined\Swedish\else     % if \Swedish is already defined then this has
+  \Swedish                      % already been defined.  Select \Swedish 
+  \expandafter\endinput         % and exit this file
+\fi
+
+% Look for swedish.sty, the Babel-TeX style for Swedish, if needed
+
+\ifx\undefined\captionsswedish          % has swedish.sty been loaded?
+  \immediate\openin\patchfile=swedish.sty % try to open it
+  \ifeof\patchfile                      % EOF?  Then it's not there
+     \emsg{> You need the Babel-TeX file italaian.sty in your input path...}%
+  \fi                                   %
+  \immediate\closein\patchfile          % close it
+  \input swedish.sty \relax             % try to read it anyway
+\fi
+
+%======================================================================*
+% \Swedish selects Swedish support for Babel, and re-defines names
+% of things for TeXsis
+
+\def\Swedish{% re-define TeXsis macros for Swedish
+  \selectlanguage{swedish}%  Babel uses Swedish...
+%
+% Referencing macros are re-defined. 
+%
+  \def\Corollary##1{corollario~\use{Cor.##1}}%
+  \def\Definition##1{definizione~\use{Def.##1}}%
+%
+  \def\Eq##1{Eq.~($\use{Eq.##1}$)}%   
+  \def\Eqs##1{Eqs.~($\use{Eq.##1}$)}%
+%
+  \def\Fig##1{Fig.~fig.~\use{Fg.##1}}%
+  \def\Fg##1{\use{Fg.##1}}%
+  \def\Figs##1{Figurs~\use{Fg.##1}}%
+  \def\Lemma##1{lemma~\use{Lem.##1}}%
+  \def\Ref##1{Ref.~\use{Ref.##1}}%
+%
+  \def\Tab##1{Tabell~\use{Tb.##1}}%
+  \def\Tbl##1{Tableller~\use{Tb.##1}}%
+  \def\Theorem##1{teorema~\use{Thm.##1}}%
+%
+% Names used in longer macros are re-defined.
+%
+  \def\AbstractName{Sammanfattning}%
+  \def\FigureName{Figur}%
+  \def\TableName{Tabell}%
+  \def\DraftName{Preliminary Draft}% 
+}
+
+% Make it so.
+
+\Swedish
+
+%>>EOF Swedish.txs <<<

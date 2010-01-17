@@ -1,0 +1,77 @@
+%
+% nodraw.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) A.Khodulev
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Disable almost all of cmbase drawing commands
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+LHver_check(3,5); % like |version_check| in ec
+
+def addto text t = enddef;     % Draw nothing
+def filldraw text t = enddef;
+%vardef serif(suffix $,$$,@) % serif at |z$| for stroke from |z$$|
+% (expr darkness,jut) suffix modifier = enddef;
+def dish_serif text t = enddef;
+%def nodish_serif text t = enddef;
+vardef sloped_serif.l(suffix $,$$,@)(expr darkness,jut,drop) = enddef;
+vardef sloped_serif.r(suffix $,$$,@)(expr darkness,jut,drop) = enddef;
+vardef arm(suffix $,$$,@)(expr darkness,jut) =  % arm from |z$| to |z$$|
+ x@0=good.x(x$$r-jut); y@0=y$r;
+ if serifs: y@1=y$l; z@1=z$$l+whatever*(z$$r-z@0); z@2=.5[z$l,z@1]; fi
+ penlabels(@0,@1,@2); enddef;
+def bulb(suffix $,$$,$$$) = z$$$r=z$$r; enddef;
+def v_bulb(suffix $,$$)= enddef;
+def dot(suffix $,$$) = enddef;
+def comma(suffix $,@)(expr dot_size,jut,depth) = enddef;
+def ammoc(suffix $,@)(expr dot_size,jut,depth) = enddef;
+def f_stroke(suffix $,$$,@,left_serif,right_serif)(expr left_jut,right_jut)=
+ enddef;
+def h_stroke(suffix $,@,@@,$$) =
+ penpos$$(x@@r-x@@l,0); x$$=x@@; bot y$$=0;
+ y@@=1/3[bar_height,x_height]; enddef;
+def hook_out(suffix $,$$,$$$) suffix modifier= % |x$| and |x$$$| (only) are known
+ pos$(stem,0); pos$$(vair,90); x$$$:=hround(x$$$+.5hair-eps)-.5hair; pos$$$(hair,180);
+ y$=1/4x_height; bot y$$l=-oo; y$$$=1/3x_height;
+ if skewed.modifier: x$$=x$+1.25u; else: x$$=x$+1.5u; fi enddef;  % hook
+def hook_in(suffix $,$$,$$$)suffix modifier= % |x$| and |x$$$| (only) are known
+ x$:=hround(x$-.5hair)+.5hair; pos$(hair,180); pos$$(vair,90); pos$$$(stem,0);
+ y$=2/3x_height; top y$$r=x_height+oo; y$$$=3/4x_height;
+ if skewed.modifier: x$$=x$$$-1.25u; else: x$$=x$$$-1.5u; fi enddef;  % hook
+%def ital_arch(suffix $,$$,$$$) = enddef;
+def draw_circle = enddef;
+def left_paren(expr min_breadth, max_breadth) = enddef;
+def right_paren(expr min_breadth, max_breadth) = enddef;
+def left_bracket(expr breadth,do_top,do_bot) = enddef;
+def right_bracket(expr breadth,do_top,do_bot) = enddef;
+def left_curly(expr min_breadth, max_breadth) = enddef;
+def right_curly(expr min_breadth, max_breadth) = enddef;
+def left_angle(expr breadth) = enddef;
+def right_angle(expr breadth) = enddef;
+def big_slash(expr breadth) = enddef;
+def big_blash(expr breadth) = enddef;
+def big_sqrt = enddef;
+def big_hat = enddef;
+def big_tilde = enddef;
+def labels text t = enddef;
+def penlabels text t = enddef;
+
+endinput;
+vardef bar_stroke(expr left_jut,right_jut) = enddef;
+vardef cyr_serif(suffix $,$$,@)  % serif at |z$| for stroke from |z$$|
+ (expr darkness,beak_darkness,jut,beak_jut) =
+enddef;
+
+%end of file

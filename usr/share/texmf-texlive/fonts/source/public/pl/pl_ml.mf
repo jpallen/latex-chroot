@@ -1,0 +1,327 @@
+% ---------------------------------------------------------------------------
+% This is PL_ML.MF ({\bif{}ma\l{}e polskie litery}, i.e., lowercase Polish
+% letters: a and e with ogonek, crossed l, accented c, n, o, s, z,
+% and dotted z) in text format.
+% The program is based on excerpts from the ROMANL.MF file.
+% ---------------------------------------------------------------------------
+% PL VERSION 1.09, April 13th, 2001 -- released for BachoTeX 2001
+% ---------------------------------------------------------------------------
+% AUTHORS OF ADAPTATION: {\bif{}Bogus\l{}aw Jackowski \& Marek Ry\'cko}
+% ---------------------------------------------------------------------------
+% This file belongs to the public domain under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% 
+% For details see either the file MEXINFO.POL or MEXINFO.ENG.
+% ---------------------------------------------------------------------------
+
+
+% ---------------------------------------------------------------------------
+%%% beginchar beginchar_twice
+%%% endfor repeat_once
+% ---------------------------------------------------------------------------
+
+cmchar "The letter a with ogonek";
+beginchar(ogonked_a,9u#,x_height#,the_ogonek_depth);
+ bh#:=min(bar_height#,1.14x_height#-bar_height#); define_pixels(bh);
+ italcorr 1/3[bh#,x_height#]*slant+.5stem#-serif_fit#-2u#;
+ adjust_fit(0,serif_fit# if serifs: if hair#+.5stem#>1.5u#:-.25u# fi\\fi);
+ pickup fine.nib; top y3r=h+vround 1.5oo;
+ if serifs: pos1(flare,180); pos2(hair,180);
+  pos3(vair,90);  lft x1r=hround max(u,2.1u-.5flare); x3=.5w-.5u;
+  y1=min(bh+.5flare+2vair+2,.9[bh,h]-.5flare);
+  bulb(3,2,1);  % bulb
+ else: pos1(5/7[vair,flare],95); x1l=good.x 1.5u; x1r:=good.x x1r;
+  pos3(1/8[vair,thin_join],90);
+  x3=.5w-.2u; top y1r=vround .82[bh,top y3r];
+  filldraw stroke term.e(3,1,left,.9,4); fi  % terminal
+ pos4(stem,0); rt x4r=hround(w-2.5u+.5stem); y4=1/3[bh,h];
+ pos5(stem,0); x5=x4; y5=max(.55bh,2vair);
+ filldraw stroke super_arc.e(3,4)&z4e..z5e;  % arc and stem
+ pos6(.3[thin_join,vair],90); x6=x4; bot y6=bh;
+ pos7(hround(curve-2stem_corr),180);
+ lft x7r=hround max(.5u,1.5u-.5curve); y7=1/3[top y8l,top y6r];
+ pos8(vair,270); x8l=.5w-.75u; bot y8r=-oo;
+ pos9(thin_join,360); z9l=z5l;
+ (x,y8r)=whatever[z8l,z9l]; x8r:=max(x,x8-u);
+ {{interim superness:=more_super;
+  filldraw stroke z9e{down}...z8e{left}...{up}z7e&super_arc.e(7,6)}}; % bowl
+ if serifs: numeric shaved_stem; shaved_stem=hround(stem-3stem_corr);
+  if is_bold: pickup tiny.nib;
+   pos5'(shaved_stem,0); rt x5'r=fine.rt x5r; y5'=y5;
+   pos10(shaved_stem,0); x10=x5'; y10=.2[.5tiny,bh];
+   pos11(shaved_stem,0); rt x11r=hround(w-.25u); bot y11=0;
+   pos12(shaved_stem,0); x11=x12; top y12=slab+eps;
+   filldraw z5'l---z10l...z11l{right}--z11r
+    --z12r{left}...z10r+.75(z12-z11)---z5'r--cycle;  % foot
+  else: pickup crisp.nib; pos5'(shaved_stem,0); rt x5'r=fine.rt x5r; y5'=y5;
+   pos10(shaved_stem,0); x10=x5'; y10=1/3bh;
+   pos11(.2[vair,stem],90); x11r=.5[x10r,x12r]; bot y11l=-vround .5oo;
+   pos12(hair,180); rt x12l=hround(w-.1u); y12=max(y10,y11+vair);
+   pos13(hair,180); x13=x12; top y13=max(vround .6bh,top y12);
+   (x',y11l)=whatever[z11r,z12r]; x11l:=max(x',x10);
+   filldraw stroke z5'e---z10e...z11e{right}...z12e---z13e; fi  % hook
+ else: numeric shaved_stem; shaved_stem=hround(stem-stem_corr);
+  pickup tiny.nib; pos5'(shaved_stem,0); rt x5'r=fine.rt x5r; y5'=y5;
+  pos10(shaved_stem,0); x10=x5'; bot y10=0;
+  filldraw stroke z5'e--z10e; % base of stem
+ fi;
+ penlabels(1,2,3,4,5,6,7,8,9,10,11,12,13);
+ if serifs: path p.l; p.l=z5'l---z10l...z11l{right}; fi
+ def the_pen=
+  if known ogonek_pen: ogonek_pen elseif serifs: tiny else: fine fi
+ enddef;
+ ogonek_breadth=if serifs and is_bold: slab else: xvair fi;
+ ogonek_pos=if serifs: (point if is_bold: 1.75 of p.l) else: 1.85 of p.l)+
+  .5the_pen*up fi\\ else: (x10l,.5the_pen) fi;
+ put_ogonek(the_pen);
+endchar; % a with ogonek
+
+cmchar "The letter accented c";
+beginchar_twice(accented_c,8u#,x_height#,0);
+ italcorr x_height#*slant-.2u#;
+ adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);
+ pickup fine.nib; pos2(vair',90); pos4(vair',270);
+ x2=x4=.5(w+u); top y2r=vround(h+1.5oo); bot y4r=-oo;
+ pos3(curve,180); lft x3r=hround max(.6u,1.35u-.5curve); y3=.5h;
+ if serifs: pos1(hair,0); pos0(flare,0);
+  y1=min(bar_height+.5flare+2vair'+2,.9[bar_height,h]-.5flare);
+  rt x1r=hround(w-.7u); bulb(2,1,0);  % bulb
+  pos5(hair,0); rt x5r=hround(w-.5u);
+  y5=max(good.y(.5bar_height-.9),y4l+vair');
+  (x,y4l)=whatever[z4r,z5l]; x4l:=min(x,x4l+.5u);
+   filldraw stroke pulled_super_arc.e(2,3)(.7superpull)
+   & pulled_super_arc.e(3,4)(.5superpull)
+   ..tension .9 and 1..{x5-x4,5(y5-y4)}z5e;  % arc and lower terminal
+ else: pos1(4/7[vair',flare],80);
+  rt x1r=hround(w-.6u); top y1r=vround .82[bar_height,top y2r];
+  filldraw stroke term.e(2,1,right,.8,4);  % upper terminal
+  pos5(.6[vair',flare],275); rt x5r=hround(w-.5u);
+  y5r=good.y(y5r+1/3bar_height-y5); y5l:=good.y y5l; x5l:=good.x x5l;
+  forsuffixes e=l,r: path p.e; p.e=z4e{right}..tension .9 and 1..z5e;
+   if angle direction 1 of p.e>75:
+    p.e:=z4e{right}..tension atleast.9 and 1..{dir 75}z5e; fi endfor
+  filldraw stroke pulled_super_arc.e(2,3)(.7superpull)
+   & pulled_super_arc.e(3,4)(.5superpull) & p.e; fi  % arc and lower terminal
+ penlabels(0,1,2,3,4,5);
+ hpos_corr=-.25u; put_accent;
+ repeat_once
+endchar; % accented c
+
+cmchar "The letter e with ogonek";
+beginchar(ogonked_e,7.25u#+max(.75u#,.5curve#),x_height#,the_ogonek_depth);
+ italcorr .5[bar_height#,x_height#]*slant+.5min(curve#-1.5u#,0);
+ adjust_fit(if monospace: .25u#,.5u# else: 0,0 fi);
+ numeric left_curve,right_curve;
+ left_curve=right_curve+6stem_corr=curve if not serifs: -3stem_corr fi;
+ if right_curve<tiny.breadth: right_curve:=tiny.breadth; fi
+ if left_curve<tiny.breadth: left_curve:=tiny.breadth; fi
+ pickup tiny.nib; pos1(right_curve,0);
+ pos2(vair,90); pos3(left_curve,180);
+ y1=good.y bar_height; top y2r=h+vround 1.5oo; y0l=bot y1;
+ rt x1r=hround min(w-.5u,w-u+.5right_curve);
+ lft x3r=hround max(.5u,1.25u-.5left_curve); x2=.5w+.25u;
+ {{interim superness:=more_super;
+  filldraw stroke super_arc.e(1,2)}};  % right bowl
+ y3=.5[y2,y4]; bot y4r=-oo; x4=x2+.25u;
+ if serifs: pos4(vair',270); pos5(hair,360);
+  y5=max(good.y(.5bar_height-.9),y4l+vair); x5r=x1r;
+  (x,y4l)=whatever[z4r,z5]; x4l:=min(x,x4l+.5u);
+  filldraw stroke pulled_arc.e(2,3) & pulled_arc.e(3,4)
+   ...{x5-x4,5(y5-y4)}z5e; % left bowl, arc, and terminal
+ else: pos4(vair,270);
+  filldraw stroke super_arc.e(2,3) & super_arc.e(3,4);  % left bowl and arc
+  pickup fine.nib; pos4'(vair,270); z4=z4';
+  pos5(.5[vair,flare],275); rt x5r=hround(w-.6u);
+  y5r=good.y(y5r+1/3bar_height-y5); y5l:=good.y y5l; x5l:=good.x x5l;
+  filldraw stroke term.e(4',5,right,1,4); fi  % terminal
+ path testpath; testpath=super_arc.r(2,3) & super_arc.r(3,4);
+ y1'r=y0r=y0l+.6[thin_join,vair]; y1'l=y0l; x1'l=x1'r=x1;
+ forsuffixes $=l,r:
+  x0$=xpart(((0,y0$)--(x1,y0$)) intersectionpoint testpath); endfor
+ fill stroke z0e--z1'e;  % crossbar
+ penlabels(0,1,2,3,4,5);
+ path p.r;
+ p.r=if serifs: pulled_arc.r(3,4)...{x5-x4,5(y5-y4)}z5r
+  else: term.r(4',5,right,1,4) fi;
+ def the_pen=
+  if known ogonek_pen: ogonek_pen elseif serifs: tiny else: fine fi
+ enddef;
+ numeric tt; % the time...
+ tt=if serifs: if hefty: 2.6 else: 2.5 fi else: % sansserif
+  if is_bold: .6 else: .8 fi\\ fi;
+ join_angle=angle((direction tt of p.r) rotated 180);
+ ogonek_breadth=if serifs and is_bold: slab else: xvair fi;
+ ogonek_pos=(point tt of p.r)+.5(the_pen-if serifs: tiny else: fine fi)*
+  unitvector((direction tt of p.r) rotated 90);
+ put_ogonek(the_pen);
+endchar; % e with ogonek
+
+cmchar "The letter crossed l";
+beginchar_twice(crossed_l,5u#,asc_height#,0);
+ italcorr asc_height#*slant-serif_fit#+.5stem#-2u#;
+ charwd_:=charwd;
+ adjust_fit(serif_fit#+stem_shift#,serif_fit#-stem_shift#);
+ pickup tiny.nib; pos1(stem',0); pos2(stem',0);
+ if odd(w-stem'): change_width; fi
+ lft x1l=hround(.5w-.5stem'); x1=x2; top y1=h; bot y2=0;
+ filldraw stroke z1e--z2e; % stem
+ if serifs: sloped_serif.l(1,2,a,1/3,jut,serif_drop); % upper serif
+  dish_serif(2,1,b,1/3,jut,c,1/3,jut); fi % lower serif
+ penlabels(1,2);
+ numeric unbalance;
+ unbalance=if monospace: 1 else: 1.1 fi;
+ if not monospace:
+  numeric cross_fit#; 
+  cross_fit#=serif_fit#+if not serifs: if is_bold: 1 else: .75 fi\\ else:
+   .5 fi\\ u#;
+  charwd:=charwd_;
+  adjust_fit(cross_fit#+stem_shift#,unbalance*cross_fit#-stem_shift#);
+ fi
+ numeric l_jut;
+% some funny fonts have an extremally small |jut|:
+ l_jut=.5stem+if serifs: max(limit_dist,if hefty: .8 fi\\ jut) else: 1.7u fi;
+ put_cross(l_jut,unbalance*l_jut);
+ repeat_once
+endchar; % crossed l
+
+cmchar "The letter accented n";
+beginchar_twice(accented_n,10u#,x_height#,0);
+ italcorr .5[bar_height#,x_height#]*slant-serif_fit#+.5stem#-2u#;
+ adjust_fit(serif_fit#+stem_shift#,serif_fit#-stem_shift#);
+ pickup tiny.nib; pos1(stem,0); pos2(stem,0);
+ numeric shaved_stem; shaved_stem=hround(stem-2stem_corr);
+ pos1'(shaved_stem,0); pos2'(shaved_stem,0); pos3(stem,0);
+ lft x1l=hround(2.5u-.5stem); x1l=x1'l=x2l=x2'l; x3=w-x1;
+ top y1=h+min(oo,serif_drop); bot y2=0; y1=y1'; y2=y2';
+ filldraw stroke z1'e--z2'e;  % left stem
+ h_stroke(2,a,3,4);  % arch and right stem
+ if serifs: sloped_serif.l(1',2',b,1/3,jut,serif_drop); % upper left serif
+  numeric inner_jut; pickup tiny.nib;
+  if rt x2r+jut+.5u+1<=lft x4l-jut: inner_jut=jut;
+  else: rt x2r+jut+.5u+1=lft x4l-inner_jut; fi
+  dish_serif(2,1,c,1/3,jut,d,1/3,jut); % lower left serif
+  dish_serif(4,3,e,1/3,inner_jut,f,1/3,jut); fi % lower right serif
+ penlabels(1,2,3,4);
+ hpos_corr=-.5u; put_accent;
+ repeat_once
+endchar;% accented n
+
+cmchar "The letter accented o";
+beginchar_twice(accented_o,9u#,x_height#,0);
+ italcorr .7x_height#*slant;
+ adjust_fit(if monospace: .5u#,.5u# else: 0,0 fi);
+ penpos1(vair,90); penpos3(vair',-90);
+ penpos2(curve,180); penpos4(curve,0);
+ x2r=hround max(.5u,1.25u-.5curve);
+ x4r=w-x2r; x1=x3=.5w; y1r=h+vround 1.5oo; y3r=-oo;
+ y2=y4=.5h-vair_corr; y2l:=y4l:=.52h;
+ penstroke pulled_arc.e(1,2) & pulled_arc.e(2,3)
+  & pulled_arc.e(3,4) & pulled_arc.e(4,1) & cycle;  % bowl
+ penlabels(1,2,3,4);
+ put_accent;
+ repeat_once
+endchar;% accented o
+
+cmchar "The letter accented s";
+beginchar_twice(accented_s,7.1u#,x_height#,0);
+ italcorr x_height#*slant-if serifs:.55u# else:.3u# fi;
+ adjust_fit(if monospace: .5u#,.4u# else: 0,if serifs:0 else:-.2u# fi fi);
+ numeric theta; theta=90-angle(40u,h); slope:=-h/40u;  % angle at middle
+ numeric s_slab; s_slab=if serifs:vair else:Vround .1[vair,stem] fi;
+ numeric ess'; ess'=max(fine.breadth,ess);
+ pickup fine.nib; pos2(max(fine.breadth,s_slab-vround vair_corr),-100);
+ pos0(ess',theta); pos7(s_slab,-90); x2l=x0=x7=.5w;
+ top y2l=h+vround 1.5oo; bot y7r=-oo;
+ y0-.5ess'=y7l+if serifs:.54 else: .52 fi\\(y2r-y7l-ess');
+ lft x3l=hround .6u; rt x6r=hround(w-.6u);
+ x3r-x3l=x6r-x6l=hround .5[s_slab,ess']-fine;
+ ellipse_set(2l,3l,4l,0l); ellipse_set(2r,3r,4r,0r); y3=y3r;
+ ellipse_set(7l,6l,5l,0l); ellipse_set(7r,6r,5r,0r); y6=y6r;
+ interim superness:=more_super;
+ filldraw stroke super_arc.e(2,3) & z3e{down}
+  ..z4e---z5e..z6e{down} & super_arc.e(6,7);  % main stroke
+ if serifs: pos1(hair,180); pos8(hair,180);
+  rt x1l=hround(w-1.05u); lft x8r=hround .6u;
+  bot y1=min(bot y2r,vround 1/5[top y5r,h]);
+  top y8=max(top y7l,vround 5/6 bot y4l);
+  filldraw stroke z1e{up}....{left}z2e;  % upper arc
+  filldraw stroke z7e{left}....{x8-x7,5(y8-y7)}z8e;  % lower arc
+  path upper_arc, lower_arc;
+  upper_arc=z1{up}....{left}z2; lower_arc=z7{left}....{x8-x7,5(y8-y7)}z8;
+  pos10(.3[fine.breadth,cap_hair],0); pos9(.3[fine.breadth,cap_hair],0);
+  x10r=x1l; top y10=top y2l; x9l=x8r; bot y9=bot y7r;
+  x1l-x1'=x8'-x8r=1.6cap_curve-fine; y1'=y1; y8'=y8;
+  numeric t; t=xpart(upper_arc intersectiontimes(z10l--z1'));
+  filldraw z1l--z10r--z10l--subpath(t,0) of upper_arc--cycle;  % upper barb
+  t:=xpart(lower_arc intersectiontimes(z9r--z8'));
+  filldraw z8r--z9l--z9r--subpath(t,1) of lower_arc--cycle;  % lower barb
+ else: pos1(4/7[s_slab,flare],-100); pos8(flare,-100);
+  x1l=good.x(x1l+w-u-rt x1); lft x8r=hround .5u;
+  top y1l=vround(.93h+1.5oo); bot y8r=vround .1h-oo;
+  filldraw stroke term.e(2,1,right,.9,4);  % upper arc and terminal
+  filldraw stroke term.e(7,8,left,1,4); fi  % lower arc and terminal
+ penlabels(0,1,1',2,3,4,5,6,7,8,8',9,10);
+ hpos_corr=-.5u; put_accent;
+ repeat_once
+endchar;% accented s
+
+cmchar "The letter accented z";
+beginchar_twice(accented_z,8u#,x_height#,0);
+ italcorr x_height#*slant-.5serif_fit#-.3u#;
+ adjust_fit(0,.5serif_fit#);
+ numeric arm_thickness[\\],z_stem;
+ if hefty: arm_thickness1=Vround(vair-vair_corr); arm_thickness2=vair;
+  z_stem=.6[vair,stem];
+ else: arm_thickness1=vair; arm_thickness2=vair'; z_stem=.9[vair,stem]; fi
+ pickup tiny.nib; rt x1r=rt x2r=hround(w-.8u); lft x3l=lft x4l=hround .5u;
+ top y1=h; y2=min(y1,h-2/3arm_thickness1);
+ bot y4=0; y3=max(y4,2/3arm_thickness2);
+ numeric alpha; alpha=diag_ratio(1,z_stem-tiny,y2-y3,x2r-x3l-slant*(y2-y3));
+ penpos1(alpha*(z_stem-tiny),0); penpos2(alpha*(z_stem-tiny),0);
+ penpos3(alpha*(z_stem-tiny),0); penpos4(alpha*(z_stem-tiny),0);
+ pair delta; delta=penoffset z3-z2 of currentpen;
+ fill top lft z1l--z2l+delta---z3l+delta..lft z3l---lft z4l..bot z4l
+  ---bot rt z4r--z3r-delta---z2r-delta..rt z2r---rt z1r..top z1r
+  ---cycle;  % diagonal
+ pickup crisp.nib; pos5(arm_thickness1,90); pos6(hair,180);
+ top y5r=h; x5=x1; lft x6r=hround .75u; y6=good.y(y5l-beak/1.4)-eps;
+ arm(5,6,a,beak_darkness,-.4beak_jut);  % upper arm and beak
+ pos7(arm_thickness2,-90); pos8(hair,0);
+ bot y7r=0; x7=x4; rt x8r=hround(w-.75u); y8=good.y(y7l+beak/1.2)+eps;
+ arm(7,8,b,beak_darkness,.6beak_jut);  % lower arm and beak
+ penlabels(1,2,3,4,5,6,7,8);
+ hpos_corr=-.5u; put_accent;
+ repeat_once
+endchar;% accented z
+
+cmchar "The letter dotted z";
+beginchar_twice(dotted_z,8u#,x_height#,0);
+ italcorr x_height#*slant-.5serif_fit#-.3u#;
+ adjust_fit(0,.5serif_fit#);
+ numeric arm_thickness[\\],z_stem;
+ if hefty: arm_thickness1=Vround(vair-vair_corr); arm_thickness2=vair;
+  z_stem=.6[vair,stem];
+ else: arm_thickness1=vair; arm_thickness2=vair'; z_stem=.9[vair,stem]; fi
+ pickup tiny.nib; rt x1r=rt x2r=hround(w-.8u); lft x3l=lft x4l=hround .5u;
+ top y1=h; y2=min(y1,h-2/3arm_thickness1);
+ bot y4=0; y3=max(y4,2/3arm_thickness2);
+ numeric alpha; alpha=diag_ratio(1,z_stem-tiny,y2-y3,x2r-x3l-slant*(y2-y3));
+ penpos1(alpha*(z_stem-tiny),0); penpos2(alpha*(z_stem-tiny),0);
+ penpos3(alpha*(z_stem-tiny),0); penpos4(alpha*(z_stem-tiny),0);
+ pair delta; delta=penoffset z3-z2 of currentpen;
+ fill top lft z1l--z2l+delta---z3l+delta..lft z3l---lft z4l..bot z4l
+  ---bot rt z4r--z3r-delta---z2r-delta..rt z2r---rt z1r..top z1r
+  ---cycle;  % diagonal
+ pickup crisp.nib; pos5(arm_thickness1,90); pos6(hair,180);
+ top y5r=h; x5=x1; lft x6r=hround .75u; y6=good.y(y5l-beak/1.4)-eps;
+ arm(5,6,a,beak_darkness,-.4beak_jut);  % upper arm and beak
+ pos7(arm_thickness2,-90); pos8(hair,0);
+ bot y7r=0; x7=x4; rt x8r=hround(w-.75u); y8=good.y(y7l+beak/1.2)+eps;
+ arm(7,8,b,beak_darkness,.6beak_jut);  % lower arm and beak
+ penlabels(1,2,3,4,5,6,7,8);
+ put_dot(tiny,max(dot_size#,cap_curve#));
+ repeat_once
+endchar;% dotted z
+
+endinput;
+%%\end

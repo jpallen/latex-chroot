@@ -1,0 +1,67 @@
+% 
+% Washington Romanized Indic base file
+%
+% File       : haccbase.mf (was nuhacccm.mf)
+% Author     : Thomas Ridgeway <ridgeway@u.washington.edu>
+% Date       : May 19 1992
+%
+% Updated by : Anshuman Pandey <apandey@u.washington.edu>
+% On         : 18 Feb 1998
+%
+% Copyright 1992 Humanities and Arts Computing Center, University of 
+% Washington. Licensed to the public according to the terms of the 
+% Free Software Foundation General Public License.
+%
+% WNRI is based on Computer Modern Roman and encoded according to
+% the Classical Sanskrit/Classical Sanskrit eXtended character set. 
+% See wnindic.map for more details.
+%
+
+string charmsg; % charmsg will hold text passed by redefined cmchar
+
+% if we are very short of string space we will dodge instead
+% redef cmchar so that it saves the string until known if needed
+%def cmchar text t = charmsg := t; enddef;
+def cmchar text t = enddef;
+
+string oldendchar; oldendchar=extra_endchar;
+def oechar = r:=r+shrink_fit; w:=r-l; enddef;
+
+if unknown testing: boolean testing; testing=false; fi
+
+% redef beginchar: beginchar if the charcode symbol is known, else skip
+def newchar (suffix mycode)(expr w_sharp,h_sharp,d_sharp) =
+  if testing:  if unknown cp.mycode: show cp.mycode; fi fi
+  iff known cp.mycode:  
+    beginchar(cp.mycode,w_sharp,h_sharp,d_sharp);
+enddef;
+
+% define points relative to which accents may be placed
+pair tla,tca,tra,lla,lca,lra;
+
+% assign values to a pair from x and y expressions
+%%% !!! the suffixes passed are really pairs !!!
+def pairassign (suffix thispair)(expr thisx, thisy) =
+    pair thispair;
+    xpart thispair=thisx; ypart thispair=thisy;
+enddef;
+
+% equate one pair to another  thispair:=thatpair
+%%% !!! the suffixes passed are really pairs !!!
+def pairequate (suffix thispair, thatpair) =
+    pair thispair;
+    xpart thispair= xpart thatpair;
+    ypart thispair= ypart thatpair;
+enddef;
+
+% abbreviations for reducing string lengths
+def cza = addto currentpicture also enddef;
+%def czt = shifted (xpart tca,aspect_ratio(ypart tca - x_height)); adjustacctht; enddef;
+%def czl = shifted (xpart lca,0); deepen; enddef;
+def czo = & oldendchar; enddef;
+def czu = At:=identity shifted ((xpart tca) + slant*(ypart tca - x_height),aspect_ratio*(ypart tca - x_height)); enddef;
+def czr = At:=identity shifted ((xpart tra) + slant*(ypart tra - x_height),aspect_ratio*(ypart tra - x_height)); enddef;
+def czd = At:=identity shifted ((xpart lca) + slant*(ypart lca),aspect_ratio*ypart lca); enddef;
+def czdm = At:=identity shifted ((xpart lca) + slant*(ypart lca),aspect_ratio*(if (ypart lca)> -o: -o else: (ypart lca) fi)); enddef;
+
+% end of file haccbase.mf

@@ -1,0 +1,88 @@
+%%% ====================================================================
+%%% amssym.def + txfonts (JM+SW) 09.03.2001. Public domain
+%%% macros borowed from amssym.def ver. 2.2b and amstex.tex ver. 2.1
+%%% by American Mathematical Society
+%%% This file must not be changed. However, if you do make changes,
+%%% you first rename it to some other name.
+%%% ====================================================================
+\expandafter\ifx\csname amsqtx.def\endcsname\relax \else\endinput\fi
+\ifx\PT\undefined\def\PT{pt}\fi
+%
+%  Store the catcode of the @ in the csname so that it can be restored later.
+\expandafter\edef\csname amsqtx.def\endcsname{%
+       \catcode`\noexpand\@=\the\catcode`\@\space}
+%  Set the catcode to 11 for use in private control sequence names.
+\catcode`\@=11
+%
+%  Include all definitions related to the fonts msam, msbm and eufm, so that
+%%%                                            ^txsya^txsyb   ^txmia (JM)
+%  when this file is used by itself, the results with respect to those fonts
+%  are equivalent to what they would have been using AMS-TeX.
+%  Most symbols in fonts txsya and txsyb are defined using \newsymbol;
+%  however, a few symbols that replace composites defined in plain must be
+%  defined with \mathchardef.
+
+\def\undefine#1{\let#1\undefined}
+\def\newsymbol#1#2#3#4#5{\let\next@\relax
+ \ifnum#2=\@ne\let\next@\txafam@\else
+ \ifnum#2=\tw@\let\next@\txbfam@\fi\fi
+ \mathchardef#1="#3\next@#4#5}
+\def\mathhexbox@#1#2#3{\relax
+ \ifmmode\mathpalette{}{\m@th\mathchar"#1#2#3}%
+ \else\leavevmode\hbox{$\m@th\mathchar"#1#2#3$}\fi}
+\def\hexnumber@#1{\ifcase#1 0\or 1\or 2\or 3\or 4\or 5\or 6\or 7\or 8\or
+ 9\or A\or B\or C\or D\or E\or F\fi}
+
+\font\tentxa=txsya at 10\PT % msam10
+\font\seventxa=txsya at 7\PT % msam7
+\font\fivetxa=txsya at 5\PT % msam5
+\newfam\txafam
+\textfont\txafam=\tentxa
+\scriptfont\txafam=\seventxa
+\scriptscriptfont\txafam=\fivetxa
+\edef\txafam@{\hexnumber@\txafam}
+\mathchardef\dabar@"0\txafam@39
+\def\dashrightarrow{\mathrel{\dabar@\dabar@\mathchar"0\txafam@4B}}
+\def\dashleftarrow{\mathrel{\mathchar"0\txafam@4C\dabar@\dabar@}}
+\let\dasharrow\dashrightarrow
+\def\ulcorner{\delimiter"4\txafam@70\txafam@70 }
+\def\urcorner{\delimiter"5\txafam@71\txafam@71 }
+\def\llcorner{\delimiter"4\txafam@78\txafam@78 }
+\def\lrcorner{\delimiter"5\txafam@79\txafam@79 }
+%    Note that there should not be a final space after the digits for a
+%    \mathhexbox@.
+\def\yen{{\mathhexbox@\txafam@55}}
+\def\checkmark{{\mathhexbox@\txafam@58}}
+\def\circledR{{\mathhexbox@\txafam@72}}
+\def\maltese{{\mathhexbox@\txafam@7A}}
+
+\font\tentxb=txsyb at 10\PT % msbm10
+\font\seventxb=txsyb at 7\PT % msbm7
+\font\fivetxb=txsyb at 5\PT % msbm5
+\newfam\txbfam
+\textfont\txbfam=\tentxb
+\scriptfont\txbfam=\seventxb
+\scriptscriptfont\txbfam=\fivetxb
+\edef\txbfam@{\hexnumber@\txbfam}
+\def\Bbb#1{{\fam\txbfam\relax#1}}
+\def\widehat#1{\setbox\z@\hbox{$\m@th#1$}%
+ \ifdim\wd\z@>\tw@ em\mathaccent"0\txbfam@5B{#1}%
+ \else\mathaccent"0362{#1}\fi}
+\def\widetilde#1{\setbox\z@\hbox{$\m@th#1$}%
+ \ifdim\wd\z@>\tw@ em\mathaccent"0\txbfam@5D{#1}%
+ \else\mathaccent"0365{#1}\fi}
+%%--
+\font\teneufm=txmia at 10\PT % eufm10
+\font\seveneufm=txmia at 7\PT % eufm7
+\font\fiveeufm=txmia at 5\PT % eufm5
+\newfam\eufmfam
+\textfont\eufmfam=\teneufm
+\scriptfont\eufmfam=\seveneufm
+\scriptscriptfont\eufmfam=\fiveeufm
+\def\frak#1{{\fam\eufmfam\relax#1}}
+\let\goth\frak
+
+%  Restore the catcode value for @ that was previously saved.
+\csname amsqtx.def\endcsname
+
+\endinput

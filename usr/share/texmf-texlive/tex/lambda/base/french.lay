@@ -1,0 +1,42 @@
+     \ocp\IdOCP=id
+     \ocplist\NilOCP=
+     \addbeforeocplist 500 \IdOCP
+     \addbeforeocplist 1750 \IdOCP
+     \addbeforeocplist 2000 \IdOCP
+     \addbeforeocplist 3500 \IdOCP
+     \nullocplist
+     \ocp\BasicFrenchTexUni=french2uni
+     \ocp\BasicLatinUniToFont=uni2lat
+     \ocp\BasicLatinUniToFontNoFfi=uni2lat-noffi
+     \ocplist\BasicFrenchOCP=
+     \addbeforeocplist 500 \BasicFrenchTexUni
+     \addbeforeocplist 1750 \IdOCP
+     \addbeforeocplist 2000 \IdOCP
+     \addbeforeocplist 3500 \BasicLatinUniToFont
+     \nullocplist
+
+\def\frenchpunctuation{%
+\def\LeftPointingDoubleAngleQuotationMark{^^^^00ab\kern.1667em}%
+\def\RightPointingDoubleAngleQuotationMark{\unskip\kern.1667em^^^^00bb}%
+\def\LeftDoubleQuotationMark{^^^^201c}%
+\def\RightDoubleQuotationMark{^^^^201d}%
+\def\QuestionMark{\unskip\kern.1667em?}%
+\def\ExclamationMark{\unskip\kern.1667em!}%
+\def\Semicolon{\unskip\kern.1667em;}%
+\def\Colon{\unskip~:\typeout{French colon!}}}
+
+\makeatletter
+\newenvironment{french}{\frenchpunctuation\language=\l@french\def\today{\number\day
+    \ifnum1=\day \ier\fi
+    \space \ifcase\month
+    \or janvier\or f\'evrier\or mars\or avril\or mai\or juin\or
+    juillet\or ao\^ut\or septembre\or octobre\or novembre\or
+    d\'ecembre\fi
+    \space \number\year}%
+\def\addcontentsline##1##2##3{%
+  \addtocontents{##1}{\protect\contentsline{##2}{\protect\pushocplist\BasicFrenchOCP##3}{\thepage}}}%
+\pushocplist\BasicFrenchOCP}{}
+\newcommand{\localfrench}[1]{{\frenchpunctuation\protect\pushocplist\BasicFrenchOCP#1}}
+\makeatother
+
+\endinput

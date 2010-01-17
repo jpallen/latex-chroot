@@ -1,0 +1,92 @@
+%
+% ldtitle.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Driver file for SLITeX Roman and Sans Serif fonts
+% - modified TITLE.MF in Computer Modern fonts
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% This makes a short font (caps and digits only)
+%
+
+LHver_check(3,5); % like |version_check| in ec
+
+font_coding_scheme:="Caps and digits/Cyr - "&enc_name;
+
+input lxpseudo;
+
+mode_setup; font_setup;
+pseudo_setup;    % |pseudo_setup| from ec
+
+if altcoding:
+   input romanu; % upper case (majuscules)
+fi
+
+if altcoding or wncoding:
+   input romand; % numerals
+fi
+
+input lgcyru;	 % Cyrillic upper case (majuscules)
+
+font_slant slant; font_x_height x_height#;
+if monospace: font_normal_space 9u#; % no stretching or shrinking
+   font_quad 18u#;
+   font_extra_space 9u#;
+   if wncoding: input lwnligs; fi % input ligs for Cyrillic in WNCYR
+else: font_normal_space 6u#+2letter_fit#;
+   font_normal_stretch 3u#; font_normal_shrink 2u#;
+   font_quad 18u#+4letter_fit#;
+   font_extra_space 2u#;
+   k#:=-.5u#; kk#:=-1.5u#; kkk#:=-2u#; % three degrees of kerning
+   %
+   % Latin ligs & kerns
+   %   There are just the same ligs and kerns as in CM
+   %   but they are built in more visible form
+   %
+   TITLEfont:=true; SmallCapsfont:=false; ROMANfont:=false;
+   if altcoding:
+      ligtable "P": "T": "Y":
+		    "A" kern kk#;
+      ligtable "F": "V": "W":
+		    "A" kern if serifs: kkk# else: kk#\\fi,
+	  "K": "X": "O" kern k#,
+		    "C" kern k#,
+		    "G" kern k#,
+		    "Q" kern k#;
+      ligtable "O": "D":
+		    "X" kern k#,
+		    "W" kern k#,
+		    "A" kern k#,
+		    "V" kern k#,
+		    "Y" kern k#;
+      ligtable "A": if serifs: "R": fi
+		    "C" kern k#,
+		    "O" kern k#,
+		    "G" kern k#,
+		    "U" kern k#,
+		    "Q" kern k#,
+	       "L": "T" kern kk#,
+		    "Y" kern kkk#,
+		    "V" kern kk#,
+		    "W" kern kkk#;
+      ligtable "I": "I" kern -k#;  % Richard III
+   fi
+   %
+   scantokens("input "&(substring(fonteq-2,fonteq) of param_base)&"liker"); % Cyrillic ligs & kerns
+fi
+
+bye.
+%end of file

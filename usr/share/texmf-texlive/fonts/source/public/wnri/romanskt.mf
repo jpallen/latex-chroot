@@ -1,0 +1,193 @@
+% 
+% Washington Romanized Indic Roman fonts driver file
+%
+% File       : romanskt.mf
+% Author     : Thomas Ridgeway <ridgeway@u.washington.edu>
+% Date       : May 19 1992
+%
+% Updated by : Anshuman Pandey <apandey@u.washington.edu>
+% On         : 18 Feb 1998
+%
+% Copyright 1992 Humanities and Arts Computing Center, University of 
+% Washington. Licensed to the public according to the terms of the 
+% Free Software Foundation General Public License.
+%
+% WNRI is based on Computer Modern Roman and encoded according to
+% the Classical Sanskrit/Classical Sanskrit eXtended character set. 
+% See wnindic.map for more details.
+%
+
+%font_coding_scheme:="TeX Romanized Indic";
+font_coding_scheme:="Classical Sanskrit eXtended (CSX)";
+spanish_shriek=oct"074"; spanish_query=oct"076";
+
+numeric cdilorigin; cdilorigin=if monospace: -o else: 0 fi;
+
+mode_setup; font_setup;
+input product;
+if production:
+ input romanu;  % upper case (majuscules)
+ input romanl;  % lower case (minuscules)
+ input greeku;  % upper case Greek letters
+ input romand;  % numerals
+ input romanp;  % ampersand, question marks, currency sign
+ input romspl;  % lowercase specials (dotless \i, ligature \ae, etc.)
+ input romspu;  % uppercase specials (\AE, \OE, \O)
+ input punct;   % punctuation symbols common to roman and italic text
+ input accent;  % accents common to roman and italic text
+ if ligs>1: input romlig; fi   % letter ligatures
+ if ligs>0: input comlig; fi   % ligatures common with italic text
+ if ligs<=1: input romsub; fi  % substitutes for ligatures
+fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin massive departure from roman.mf parent file
+
+mono_charic#:=0;
+input haccbase;     % altered base
+
+% dot_sharp_values used by various other macros
+def dot_sharp_values =
+numeric dot_diam#; dot_diam#=max(dot_size#,cap_curve#);
+numeric dot_top#;
+dot_top#=min(asc_height#,10/7x_height#+.5dot_diam#);
+enddef;
+
+input wnindic.map;
+def cp = plain enddef;
+input gamma;
+input ligature;   % pickup the ae AE
+input sktmisc;    % eszett and rootsign
+input acctmax;
+
+% create characters with diacritics
+
+% overdot characters
+input odotacct; input romanua; input romanla;
+
+% underdot characters
+input udotacct; input romanua; input romanla;
+
+% hatted characters
+input hattacct; input romanla;
+
+% scandinavian ring accent characters
+input orngacct; input romanua; input romanla;
+
+% umlauted characters
+input umlaacct; input romanla; input romanua;
+
+% acute accented characters
+input acutacct; input romanla; input ligature;
+input facutact; input romanua; 
+
+% macron characters
+input macracct; input romanua; input romanla;
+
+% macron and acute accented characters
+input baraacct; input romanla; 
+input fbaraact; input romanua;
+
+% grave accented characters
+input gravacct; input romanla;
+
+% macron and grave accented characters
+input bargacct; input romanla; 
+input fbargact; input romanua;
+
+% cedilla characters
+input cdilacct; input romanla; input romanua;
+
+% tilde characters
+input tildacct; input romanla; input romanua;
+
+% breve accented characters
+input brevacct; input romanla;
+
+% macron breve accented characters
+input brbracct; input romanla;
+
+% underbar characters
+input ubaracct; input romanla; input romanua;
+
+% underdot acute accented characters
+input udacacct; input romanla;
+
+% underdot grave characters
+input udgracct; input romanla;
+
+% underdot macron characters
+input udmcacct; input romanla; input romanua;
+
+% underdot macron acute accented characters
+input mudaacct; input romanla;
+
+% hachek accented characters
+input hachacct; input romanla; 
+input fhachact; input romanua;
+
+% under double dot (under-umlaut) accented characters
+input uumlacct; input romanla;  input romanua;
+
+% candrabindu characters
+input bnduacct; input romanla; % input romanua;
+
+% flat breve/cup accented characters
+%input fbrevact; input romanla; input romanua;
+
+% under-breve accented characters
+input ubrvacct; input romanla; input romanua;
+
+% resume roman.mf original text  ( no kerning for extended chars yet)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+
+ligtable "!": "`" =: spanish_shriek;
+ligtable "?": "`" =: spanish_query;
+font_slant slant; font_x_height x_height#;
+if monospace: font_normal_space 9u#; % no stretching or shrinking
+ font_quad 18u#;
+ font_extra_space 9u#;
+else: font_normal_space 6u#+2letter_fit#;
+ font_normal_stretch 3u#; font_normal_shrink 2u#;
+ font_quad 18u#+4letter_fit#;
+ font_extra_space 2u#;
+ k#:=-.5u#; kk#:=-1.5u#; kkk#:=-2u#; % three degrees of kerning
+ ligtable "k": if serifs: "v": "a" kern -u#, fi\\"w": "e" kern
+k#,
+  "a" kern k#, "o" kern k#, "c" kern k#;
+ ligtable "P": "A" kern kk#,
+  "y": "o" kern k#, "e" kern k#, "a" kern k#, "." kern kk#, ","
+kern kk#;
+ ligtable "F": "V": "W": if serifs: "o" kern kk#, "e" kern kk#,
+"u" kern kk#,
+    "r" kern kk#, "a" kern kk#, "A" kern kkk#,
+   else: "o" kern k#, "e" kern k#, "u" kern k#,
+    "r" kern k#, "a" kern k#, "A" kern kk#, fi
+  "K": "X": "O" kern k#, "C" kern k#, "G" kern k#, "Q" kern k#;
+ ligtable "T": "y" kern if serifs: k# else: kk# fi,
+  "Y": "e" kern kk#, "o" kern kk#,
+   "r" kern kk#, "a" kern kk#, "A" kern kk#, "u" kern kk#;
+ ligtable "O": "D": "X" kern k#, "W" kern k#, "A" kern k#,
+   "V" kern k#, "Y" kern k#;
+ if serifs: ligtable "h": "m": "n":
+   "t" kern k#, "u" kern k#, "b" kern k#, "y" kern k#, "v" kern
+k#, "w" kern k#;
+  ligtable "c": "h" kern k#, "k" kern k#; fi
+ ligtable "o": "b": "p": "e" kern -k#, "o" kern -k#, "x" kern k#,
+   "d" kern -k#, "c" kern -k#, "q" kern -k#,
+  "a": if serifs: "v" kern k#, "j" kern u#, else: "r" kern k#, fi
+  "t": "y" kern k#,
+  "u": "w" kern k#;
+ ligtable "A": if serifs: "R": fi\\ "t" kern k#,
+  "C" kern k#, "O" kern k#, "G" kern k#, "U" kern k#, "Q" kern
+k#,
+  "L": "T" kern kk#, "Y" kern kk#, "V" kern kkk#, "W" kern kkk#;
+ ligtable "g": "j" kern -k#; % logjam
+ ligtable "I": "I" kern -k#; fi % Richard III
+ % there are ligature/kern programs for |"f"| in the {\tt romlig} file
+ % and for |"-"|, |"`"|, and |"'"| in the {\tt comlig} file
+bye.
+
+% end of file romanskt.mf
+

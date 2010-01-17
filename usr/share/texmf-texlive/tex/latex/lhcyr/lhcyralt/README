@@ -1,0 +1,175 @@
+
+  LHCYR 1.0 (c) 1998 V.V.Zhytnikov (vvzhy@td.lpi.ac.ru)
+  The LaTeX 2e style for Russian typesetting in bilingual environment
+  Available at CTAN:/tex-archive/macros/latex/contrib/supported/lhcyr
+  Main CTAN sites:   ctan.tug.org   ftp.dante.de   ftp.tex.ac.uk
+
+  This package is free. You may modify and use it for whatever
+  purpose you want. But you are not allowed to redistribute modified
+  version under the same name.
+
+  CONTENTS
+
+      1. General Features
+      2. Installing Fonts
+      3. Generating Format File
+      4. Using lhcyralt Style
+
+
+  1. GENERAL FEATURES
+
+     LaTeX 2e style lhcyralt is intended for typesetting Russian or
+     bilingual English-Russian documents. Other latin-alphabet
+     languages will probably work as well but none where tested.
+
+     The style is based on the so called lh-fonts in the Alternative
+     (AKA codepage 866) encoding which is standard for Russian in the
+     MS-DOS.  The style works by replacing each standard TeX computer
+     modern text font by the analogous lh-font (e.g. cmr10 -> lhr10 etc
+     replacing all 'cm' by 'lh').  Upper part of an lh-font (character
+     codes 0-127) exactly coincides with the corresponding cm-font and
+     its lower part (codes 128-255) contains Russian alphabet in the
+     Alternative encoding together with some extra symbols such as
+     Russian number sign and angular double quotes.
+
+     The installation described below is emTeX specific but provides
+     rather good idea how the package can be installed with other
+     TeX distributives. I assume that you have Metafont and it can
+     automatically generate fonts upon request.
+
+     The lhcyralt package consists of the following files:
+
+        README             - this file
+
+        lhcyralt.sty       - LaTeX 2e style file
+
+        ot1lhdh.fd         - LaTeX 2e font driver files
+        ot1lhfib.fd
+        ot1lhfr.fd
+        ot1lhr.fd
+        ot1lhss.fd
+        ot1lhtt.fd
+        ot1lhvtt.fd
+
+        hyphen.cfg         - LaTeX 2e hyphenation configuration file
+        rhyphen.tex        - Russian hyphenation patterns by A.Slepukhin
+                             in the Alternative encoding
+
+        dvidrv.mfj         - mfjob configuration files for automatic
+        lhjob.mfj            font generation
+
+        karabas.tex        - sample and test files
+        kniga.tex
+        otchet.tex
+        pismo.tex
+        rusfonts.tex
+        statya.tex
+
+
+  2. INSTALLING FONTS
+
+     First of all make sure that you have metafont sources for
+     standard cm (Knuth's computer modern) fonts. They are used for
+     the upper part of the lh-fonts. If not then get them at
+       CTAN: /tex-archive/fonts/cm
+
+     Next get latest lh-fonts distributive. It available at
+       CTAN: /tex-archive/fonts/cyrillic/lh
+       ftp:  ftp.vsu.ru/pub/tex
+
+     Create some temporary directory and unpack .zip or .tgz lh-font
+     archive with the directory structure (use -d switch with pkunzip.exe).
+     Go into the subdirectory \tex and create in it directory \tex\wrk
+     (if absent). Return to \tex and run plain TeX on the 01cm-lh.tex
+       tex 01cm-lh.tex
+     This will create several files in the \tex\wkr directory.
+     Copy all *.mf files from the directory \mf (about 750K) and
+     from the directory \tex\wrk into the place where your Metafont
+     looks for *.mf source files.
+
+     Now we have to tell mfjob how to generate lh-fonts replace your
+     dvidrv.mfj file with the dvidrv.mfj file provided with the lhcyralt
+     package. If you have some specific dvidrv.mfj containing your local
+     nonstandard definitions you must extract definition for lh-fonts
+     generation from lhcyralt's dvidrv.mfj and manually insert it into
+     your local dvidrv.mfj file.
+
+     To create *.tfm files for lh-fonts run mfjob on lhjob.mfj file
+       mfjob lhjob.mfj
+     This may take from several minutes up to an hours depending on
+     the computer. Copy created *.tfm files into the directory where
+     your TeX looks for the *.tfm.
+
+     If you have testfont.tex you may test lh-fonts by running
+       tex testfont
+     when prompted for font name type
+       lhr10
+       \table\end
+     and print or preview the resulting tesfont.dvi.
+
+
+  3. GENERATING FORMAT FILE
+
+     To enable correct Russian hyphenation you have to create a new
+     LaTeX 2e format file. With the lhcyralt style both English and Russian
+     languages are represented as one combined language (from the TeX's
+     point of view). With such setup you can freely mix English and Russian
+     words with correct hyphenation for both languages without any
+     language switching commands. This approach is orthogonal to the method
+     used by the LaTeX's babel package. With babel each language is
+     stored separately (you may have more than two languages but must
+     use explicit language switching commands). If the babel package is
+     installed on your system you must disable it (at least temporary
+     during new LaTeX format generation).
+
+     Rename any hyphen.cfg file to something else (This file may
+     resides in the babel's directory). Copy the
+       hyphen.cfg  and  rhyphen.tex
+     files from the lhcyralt distributive into directory where TeX
+     can find them. Make sure that you have the file hyphen.tex
+     and this file is the original Knuth's US-English hyphenation
+     patterns file. Sometimes with babel installed this patterns
+     are renamed to ushyph1.tex or something else. If so or in the
+     case then you want to use some other English hyphenation tables
+     (say UK-patterns) edit hyphen.cfg and replace {hyphen.tex} by
+     {ushyph1.tex} or any other pattern file name.
+
+     Create LaTeX format file by running
+
+       tex386.exe /i /o /8 /mt15000 latex.ltx
+
+     You'll get new latex format file latex.ftm. Use it with the same
+     /mt switch as during format generation:
+
+       tex386.exe /mt15000 &latex
+
+
+  4. USING lhcyralt STYLE
+
+     Now copy lhcyralt.sty and all *.fd files into the directory where
+     your TeX can find them and include the line
+
+       \usepackage{lhcyralt}
+
+     into the LaTeX document header. With this style you can freely
+     type English and Russian in the Alternative encoding. Besides
+     you get three extra commands
+        \No  \<  \>
+     for Russian number sign and Russian angular double quotes.
+
+     With the additional [russtyle] option enabled
+
+       \usepackage[russtyle]{lhcyralt}
+
+     all English texts such as "Chapter", "Appendix" are replaced
+     by the corresponding Russian translations "Glava","Prilozhenie" etc.
+
+     You may test lhcyralt style by latexing test files
+       karabas.tex
+       rusfonts.tex
+     and sample files
+       kniga.tex
+       otchet.tex
+       pismo.tex
+       statya.tex
+

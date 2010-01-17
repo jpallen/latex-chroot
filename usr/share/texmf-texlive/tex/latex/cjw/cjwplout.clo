@@ -1,0 +1,99 @@
+%%
+%% This is file `cjwplout.clo',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cjwplain.dtx  (with options: `output')
+%% 
+%% Copyright (C) 1995 by Colin J. Wynne
+%% 
+%% This file is part of cjwplain, a style providing
+%% Plain TeX functionality under LaTeX2e.
+%% 
+ \NeedsTeXFormat{LaTeX2e}
+  \ProvidesFile{cjwplout.clo}
+ [1995/05/01 v0.5
+                   Plain TeX Output Macros for LaTeX2e---CJW]
+\def\RCSinfo{$Id: cjwplain.dtx,v 1.2 1998/08/31 22:57:40 cwynne Exp $}
+
+\def\RCSsplit $#1: #2,v #3 #4 #5 #6 #7${
+  \gdef\filename   {#2}
+  \gdef\fileversion{#3}
+  \gdef\filedate   {#4}
+  \gdef\filetime   {#5}
+  \gdef\fileauthor {#6}
+  \gdef\filelocker {#7}}
+
+\expandafter\RCSsplit\RCSinfo
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%%
+\countdef\pageno=0 \pageno=1 % first page is number 1
+\newtoks\headline \headline={\hfil} % headline is normally blank
+\newtoks\footline \footline={\hss\reset@font\folio\hss}
+  % footline is normally a centered page number in font \tenrm
+\def\nopagenumbers{\footline{\hfil}} % blank out the footline
+\def\folio{%
+  \ifnum\pageno<\z@ \romannumeral-\pageno \else\number\pageno \fi}
+\def\advancepageno{\ifnum\pageno<\z@ \global\advance\pageno\m@ne
+  \else\global\advance\pageno\@ne \fi} % increase |pageno|
+\newif\ifr@ggedbottom
+\def\raggedbottom{\topskip 10\p@ plus60\p@ \r@ggedbottomtrue}
+\def\normalbottom{\topskip 10\p@ \r@ggedbottomfalse}
+                                       % undoes \raggedbottom
+\newinsert\topins
+\newif\ifp@ge \newif\if@mid
+\def\topinsert{\@midfalse\p@gefalse\@ins}
+\def\midinsert{\@midtrue\@ins}
+\def\pageinsert{\@midfalse\p@getrue\@ins}
+\skip\topins=\z@skip % no space added when a topinsert is present
+\count\topins=1000 % magnification factor (1 to 1)
+\dimen\topins=\maxdimen % no limit per page
+\def\@ins{\par\begingroup\setbox\z@\vbox\bgroup} % start a \vbox
+\def\endinsert{\egroup % finish the \vbox
+    \if@mid \dimen@\ht\z@ \advance\dimen@\dp\z@ \advance\dimen@12\p@
+  \advance\dimen@\pagetotal \advance\dimen@-\pageshrink
+  \ifdim\dimen@>\pagegoal\@midfalse\p@gefalse\fi\fi
+    \if@mid \bigskip\box\z@\bigbreak
+    \else\insert\topins{\penalty100 % floating insertion
+  \splittopskip\z@skip
+  \splitmaxdepth\maxdimen \floatingpenalty\z@
+  \ifp@ge \dimen@\dp\z@
+  \vbox to\vsize{\unvbox\z@\kern-\dimen@}% depth is zero
+  \else \box\z@\nobreak\bigskip\fi}\fi\endgroup}
+\def\plainoutput{\shipout\vbox{\makeheadline\pagebody\makefootline}%
+  \advancepageno
+  \ifnum\outputpenalty>-\@MM \else\dosupereject\fi}
+\def\pagebody{\vbox to\vsize{\boxmaxdepth\maxdepth \pagecontents}}
+\def\makeheadline{\vbox to\z@{\vskip-22.5\p@
+  \@@line{\vbox to8.5\p@{}\the\headline}\vss}\nointerlineskip}
+\def\makefootline{\baselineskip24\p@\@@line{\the\footline}}
+\def\dosupereject{\ifnum\insertpenalties>\z@
+                 % something is being held over
+  \@@line{}\kern-\topskip\nobreak\vfill\supereject\fi}
+
+\def\pagecontents{\ifvoid\topins\else\unvbox\topins\fi
+  \dimen@=\dp\@cclv \unvbox\@cclv % open up \box255
+  \ifvoid\footins\else % footnote info is present
+    \vskip\skip\footins
+    \footnoterule
+    \unvbox\footins\fi
+  \ifr@ggedbottom \kern-\dimen@ \vfil \fi}
+  \output{\plainoutput}
+\endinput
+%%
+%% End of file `cjwplout.clo'.

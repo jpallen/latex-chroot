@@ -1,0 +1,256 @@
+%
+% llvligtb.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.1 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Ligatures
+% This file should be called for NOT monospaced fonts !
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+LHver_check(3,5); % like |version_check| in ec
+
+% The following ligatures are integrated:
+%
+% for CM fonts:
+% !`
+% ?`
+% for T2
+% --  gives -
+% --- gives --
+% -<hyphenchar> gives <hyphenchar>
+% common
+% <<
+% >>
+% ,,(LH:in new version only)
+% ''
+% ``
+%
+
+if known spanish_shriek: % for CM fonts only
+
+   ligtable "!": "`" =: spanish_shriek;
+   ligtable "?": "`" =: spanish_query;
+
+fi
+
+if genmode="ex": % for T2 only
+
+   %english quotes
+   ligtable
+    "`":  "`"=:oct"020",       %ec:``
+          oct"020" kern 2u#,   %ec:``
+          "?" kern 2u#,
+          "!" kern 2u#;
+
+   ligtable
+    "'":  "'"=:oct"021",       %ec:''
+          oct"021" kern 2u#,   %ec:''
+          "?" kern 2u#,
+          "!" kern 2u#;
+
+   %dashes
+   ligtable
+    "-":  "-" =: oct"025",     %endash
+     oct"177" =: oct"177";     % <hyphen><hyphenchar> => <hyphenchar>
+
+   ligtable
+    oct"025": "-"=: oct"026";  % "---"  => cyremdash in t2 !!!
+
+fi
+
+
+% ligatures for cyrillic quotes
+if (altcoding and (ligs <> 0)) % for CM
+   or (genmode="ex"):          % or if T2 started
+
+      beginligtable
+         labelchar ([ASCII"<"]);
+            setlig ([ASCII"<"],CYR_.flqq);  % "<<"
+      endligtable;
+
+      beginligtable
+         labelchar ([ASCII">"]);
+            setlig ([ASCII">"],CYR_.frqq);  % ">>"
+      endligtable;
+
+      beginligtable
+         labelchar ([ASCII","]);
+            setlig ([ASCII","],CYR_.baseqq);  % ",,"
+      endligtable;
+
+% ligatures for closing cyrillic quotes in CM
+      beginligtable
+         labelchar ([oct"134"]);
+            setlig ([ASCII"`"],CYR_.grqq);  % "```"
+      endligtable;
+
+      beginligtable
+         labelchar ([oct"042"]);
+            setlig ([ASCII"'"],CYR_.grqq);  % "'''"
+      endligtable;
+
+fi
+
+k#:=-.5u#; ku#:=-1u#; kk#:=-1.5u#; kkk#:=-2u#; % four degrees of kerning
+
+% kerning for T2 only
+if genmode="ex":
+
+      beginligtable
+         labelchar (boundarychar);
+           setkern [-kk#] ([oct"020"], %ec:``
+                           [oct"021"], %ec:''
+                           CYR_.baseqq,%t2:,,
+                           [oct"055"], %-
+                           [oct"140"], %`
+                           [oct"047"]);%'
+      endligtable;
+
+      beginligtable
+         labelchar ([oct"020"]);       %ec:``
+           setkern [2u#]  ([oct"140"], %`
+                           [oct"020"]);%ec:``
+           setkern [-kk#] (boundarychar);
+      endligtable;
+
+      beginligtable
+         labelchar ([oct"021"]);       %ec:''
+%           setlig ([ASCII"'"],[oct"020"]);  % "'''" - CM compatibility
+           setkern [2u#]  ([oct"047"], %'
+                           [oct"021"]);%ec:''
+           setkern [-kk#] (boundarychar);
+      endligtable;
+
+fi % for T2 only
+
+
+% here is used full Cyrillic letter stuff for kerning
+   beginligtable
+        labelchar (CYR_.baseqq);      %ec[oct"022"]:,,
+           if roman_ec:
+              setkern [2u#]  ([oct"015"]); %ec:,
+           fi
+           if altcoding or roman_ec:
+              setkern [2u#]  ([ASCII","]);
+           fi
+        if roman_ec:
+           labelchar ([oct"015"]);
+        fi
+              setkern [2u#]  (CYR_.baseqq);%t2:,,
+              setkern [-kk#] (boundarychar);
+              if altcoding or roman_ec:
+                 setkern [kkk#] ([ASCII"V"]);
+                 setkern [kk#]  ([ASCII"W"],
+                                 [ASCII"Y"]);
+                 setkern [k#]   ([ASCII"O"],
+                                 [ASCII"C"],
+                                 [ASCII"G"],
+                                 [ASCII"Q"]);
+                 if not TITLEfont:
+                    if ROMANfont:
+                       setkern [-kkk#] ([ASCII"j"]);
+                       setkern [u#]    ([ASCII"g"]);
+                    fi
+                    if ROMANfont or SmallCapsfont:
+                       setkern [u#]    ([ASCII"y"]);
+                    fi
+                    setkern [kk#]      ([ASCII"v"]);
+                    setkern [-u#]      ([ASCII"w"]);
+                 fi
+              fi
+              setkern [-kk#] (CYR_.D);
+              setkern [kkk#]  (CYR_.IZH,
+                               CYR_.IZH_dgr,
+                               CYR_.IZH_uml,
+                               CYR_.IZH_ac);
+              setkern [kk#]   (CYR_.Y,
+                               CYR_.Y_hcrs,
+                               CYR_.Y_bar,
+                               CYR_.Y_ac,
+                               CYR_.LAT_W);
+              setkern [kk#]   (CYR_.U,
+                               CYR_.U_shrt,
+                               CYR_.U_bar,
+                               CYR_.U_gr,
+                               CYR_.U_ac,
+                               CYR_.U_uml,
+                               CYR_.U_dac,
+                               CYR_.U_hat,
+                               CYR_.U_tld,
+                               CYR_.U_com);
+              setkern [k#]    (CYR_.O,
+                               CYR_.O_uml,
+                               CYR_.O_lcom,
+                               CYR_.O_bar,
+                               CYR_.O_ac,
+                               CYR_.F,
+                               CYR_.OTLD,
+                               CYR_.OTLD_uml,
+                               CYR_.OTLD_bar,
+                               CYR_.OTLD_ac,
+                               CYR_.ABH_HA,
+                               CYR_.LAT_Q,
+                               CYR_.OMGA,
+                               CYR_.OMGA_tlo,
+                               CYR_.OT,
+                               CYR_.PSI,
+                               CYR_.FITA,
+                               CYR_.OMGA_rnd,
+                               CYR_.OO_cdot,
+                               CYR_.OO_cddot,
+                               CYR_.S,
+                               CYR_.S_dsc,
+                               CYR_.UKR_E,
+                               CYR_.UKR_E_ac,
+                               CYR_.KOPPA,
+                               CYR_.VKOPPA);
+           if not TITLEfont:
+              if ROMANfont:
+                 setkern [-kkk#] (CYR_.lat_j);
+              fi
+              if ROMANfont or SmallCapsfont:
+              setkern [-kk#] (CYR_.d);
+              setkern [u#]    (CYR_.u,
+                               CYR_.u_shrt,
+                               CYR_.u_bar,
+                               CYR_.u_gr,
+                               CYR_.u_ac,
+                               CYR_.u_uml,
+                               CYR_.u_dac,
+                               CYR_.u_hat,
+                               CYR_.u_tld,
+                               CYR_.u_com);
+              fi
+              setkern [-u#]   (CYR_.lat_w);
+              setkern [kk#]   (CYR_.izh,
+                               CYR_.izh_dgr,
+                               CYR_.izh_uml,
+                               CYR_.izh_ac,
+                               CYR_.lat_w,
+                               CYR_.y,
+                               CYR_.y_hcrs,
+                               CYR_.y_bar,
+                               CYR_.y_ac);
+           fi
+   endligtable;
+
+   beginligtable
+         labelchar (CYR_.frqq);%ec[oct"024"]:>>
+              setkern [kk#]   ([ASCII"."],
+			       [ASCII","]);
+   endligtable;
+
+endinput;
+%end of file

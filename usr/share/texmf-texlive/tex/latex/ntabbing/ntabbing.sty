@@ -1,0 +1,61 @@
+%% This file contains the ntabbing.sty
+%% Written by Gideon Stupp stupp@math.tau.ac.il
+%%
+%% The ntabbing environment is an extension  of the tabbing environment.
+%% Two commands added:
+%% \label{} -  enumerates the and gives
+%%            a reference to the line just like any \label operation.
+%%
+%% \reset   - Resets line numbering.
+%%
+\NeedsTeXFormat{LaTeX2e}
+ \ProvidesPackage{ntabbing}[2000/03/20 v2.0 tabbing enhancements]
+
+\newcounter{g@linecounter}
+\newbox\g@numbox%
+\newdimen\numboxsize          \numboxsize=1.5em%
+\newbox\g@seperator           \setbox\g@seperator=\hbox{:}
+
+\gdef\g@setnumbox{
+      \refstepcounter{g@linecounter}%
+      \global\setbox\g@numbox=\hbox to\numboxsize{\hfil \theg@linecounter\copy\g@seperator\hfil }
+}
+
+% newlabel increments counter and set numbox. Empty labels are not passed to old label.
+\gdef\g@newlabel#1{\g@setnumbox\ifx#1\@empty\else\g@oldlabel{#1}\fi}
+
+% Change tabbing startline to give empty default value to numbox
+\gdef\g@newstartline{\global\setbox\g@numbox=\hbox to\numboxsize{}
+    \g@oldstartline}
+
+% Change tabbing stopline to print numbox before current line.
+\gdef\g@newstopline{\unskip\@stopfield\if@rjfield
+\global\@rjfieldfalse
+   \@tempdima\@totalleftmargin \advance\@tempdima\linewidth
+ \hb@xt@\@tempdima{\@itemfudge\box\g@numbox\hskip\dimen\@curtabmar
+   \box\@curline\hfil\box\@curfield}\else\@addfield
+   \hbox{\@itemfudge\box\g@numbox\hskip\dimen\@curtabmar\box\@curline}\fi}
+
+%ntabbing environment definition.
+\def\ntabbing{
+
+\def\reset{\setcounter{g@linecounter}{0}}
+
+\let\g@oldstopline=\@stopline
+\let\@stopline=\g@newstopline
+
+\let\g@oldstartline=\@startline
+\let\@startline=\g@newstartline
+
+\let\g@oldlabel=\label
+\let\label=\g@newlabel
+
+\let\g@oldcaption=\caption
+
+% redefine \caption{} to support the old \label
+\def\caption##1{\let\label=\g@oldlabel \g@oldcaption{##1}}
+ \tabbing
+
+} % Of ntabbing.
+
+\def\endntabbing {\endtabbing}

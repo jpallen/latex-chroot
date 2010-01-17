@@ -1,0 +1,312 @@
+%%% Stephen Moye
+%%% Stephen_Moye@brown.edu
+%%% Brown University
+%%% Graphic Services
+
+\newdimen\dspsize
+\newdimen\leading
+\newdimen\ascheight
+\newdimen\xheight
+\newdimen\adjust
+\newdimen\sampletextwd
+\newdimen\abcdwd
+\newdimen\twocolwd
+\newcount\scratch
+\newcount\divisor
+\newtoks\texttoks
+
+%%%
+
+%%%
+
+%%% Set it very small, then find a 
+%%% scaling factor to get it to fit
+% #1 - font; #2 - width to fit; #3 - the text
+\def\fitit#1#2#3{\font\dsp=#1 at .1pt
+\setbox0=\hbox{\dsp #3}%
+\dspsize=#2 
+\scratch=\dspsize \multiply\scratch10 \divisor=\wd0
+\divide\scratch by \divisor
+\dspsize=\scratch pt \divide\dspsize by 100
+\message{\the\dspsize}%
+\font\dsp=#1 at \dspsize
+\hbox{\dsp#3}}
+
+%%% Leading derived from the characteristics of the type
+\def\setleading{%
+\setbox0=\hbox{Ilpgy}
+\setbox1=\hbox{x}
+\xheight=\ht1
+\ascheight=\ht0
+\leading=\ht0
+\adjust=\xheight \advance\adjust-.5\leading
+\advance\leading\dp0
+\leading=1.175\leading  
+\ifdim\dp0<.05\ht0 \advance\adjust.5\xheight\fi
+\advance\leading by \adjust
+\baselineskip\leading
+\message{the leading=\the\leading}}
+
+\def\setuptype#1{%
+\font\Diamond=#1 at 4pt
+\font\Pearl=#1 at 4.5pt
+\font\Ruby=#1 at 5pt
+\font\Nonpareil=#1 at 6pt
+\font\Emerald=#1 at 6.5pt
+\font\Minion=#1 at 7pt
+\font\Brevier=#1 at 7.5pt
+\font\Bourgeois=#1 at 8pt
+\font\LongPrimer=#1 at 9pt
+\font\SmallPica=#1 at 10pt
+\font\Pica=#1 at 12pt
+\font\English=#1 at 14pt
+\font\GreatPrimer=#1 at 16pt
+\font\Paragon=#1 at 18pt
+\font\Twolinesmallpica=#1 at 21pt
+\font\Twolinepica=#1 at 24pt}
+
+\def\isetuptype#1{%
+\font\iDiamond=#1 at 4pt
+\font\iPearl=#1 at 4.5pt
+\font\iRuby=#1 at 5pt
+\font\iNonpareil=#1 at 6pt
+\font\iEmerald=#1 at 6.5pt
+\font\iMinion=#1 at 7pt
+\font\iBrevier=#1 at 7.5pt
+\font\iBourgeois=#1 at 8pt
+\font\iLongPrimer=#1 at 9pt
+\font\iSmallPica=#1 at 10pt
+\font\iPica=#1 at 12pt
+\font\iEnglish=#1 at 14pt
+\font\iGreatPrimer=#1 at 16pt
+\font\iParagon=#1 at 18pt
+\font\iTwolinesmallpica=#1 at 21pt
+\font\iTwolinepica=#1 at 24pt}
+
+\def\bsetuptype#1{%
+\font\bDiamond=#1 at 4pt
+\font\bPearl=#1 at 4.5pt
+\font\bRuby=#1 at 5pt
+\font\bNonpareil=#1 at 6pt
+\font\bEmerald=#1 at 6.5pt
+\font\bMinion=#1 at 7pt
+\font\bBrevier=#1 at 7.5pt
+\font\bBourgeois=#1 at 8pt
+\font\bLongPrimer=#1 at 9pt
+\font\bSmallPica=#1 at 10pt
+\font\bPica=#1 at 12pt
+\font\bEnglish=#1 at 14pt
+\font\bGreatPrimer=#1 at 16pt
+\font\bParagon=#1 at 18pt
+\font\bTwolinesmallpica=#1 at 21pt
+\font\bTwolinepica=#1 at 24pt}
+
+\def\bisetuptype#1{%
+\font\biDiamond=#1 at 4pt
+\font\biPearl=#1 at 4.5pt
+\font\biRuby=#1 at 5pt
+\font\biNonpareil=#1 at 6pt
+\font\biEmerald=#1 at 6.5pt
+\font\biMinion=#1 at 7pt
+\font\biBrevier=#1 at 7.5pt
+\font\biBourgeois=#1 at 8pt
+\font\biLongPrimer=#1 at 9pt
+\font\biSmallPica=#1 at 10pt
+\font\biPica=#1 at 12pt
+\font\biEnglish=#1 at 14pt
+\font\biGreatPrimer=#1 at 16pt
+\font\biParagon=#1 at 18pt
+\font\biTwolinesmallpica=#1 at 21pt
+\font\biTwolinepica=#1 at 24pt}
+
+\def\bigtosmall#1{%
+\begingroup\obeylines\offinterlineskip
+\fitit{#1}{\abcdwd}{ABCD}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDE}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFG}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFGHI}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFGHIJK}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFGHIJKLMN}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFGHIJKLMNOPQ}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFGHIJKLMNOPQRST}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFGHIJKLMNOPQRSTUVW}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFGHIJKLMNOPQRSTUVWXYZ}
+\endgroup}
+
+\def\smalltobig#1{%
+\begingroup\obeylines\offinterlineskip
+\fitit{#1}{\abcdwd}{ABCDEFGHIJKLMNOPQRSTUVWXYZ}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFGHIJKLMNOPQRSTUVW}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFGHIJKLMNOPQRST}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFGHIJKLMNOPQ}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFGHIJKLMN}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFGHIJK}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFGHI}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDEFG}
+\vfill
+\fitit{#1}{\abcdwd}{ABCDE}
+\vfill
+\fitit{#1}{\abcdwd}{ABCD}
+\endgroup}
+
+\texttoks={Quousque tandem a\-bu\-te\-re, Ca\-ti\-li\-na,
+patientia nostra? Qua\-m\-diu nos etiam furor iste tuus
+eludet? quem ad finem sese effrenata jactibit
+audicia? nihilne te nocturnum pr\ae si\-di\-um palatii,
+nihil urbis vigil\ae. Lorem ipsum dolor sit amet,
+consectetuer adipiscing elit, sed diam nonummy nibh
+eusi\-mod tincidunt ut laor\-eet dolore magna
+ali\-quam erat volutpat. Ut wisi enim ad minim
+veniam, quis nostrud exerci tation ullamcorper
+suscipit la\-bortis nisl ut ali\-quip exea commodo
+consequat. Quousque tandem abutere, Catilina,
+patientia nostra? Quamdiu nos etiam furor iste tuus
+eludet? quem ad finem sese effrenata jactibit
+audicia? nihilne te nocturnum pr\ae sidium palatii,
+nihil urbis vigil\ae.}
+
+%%% 1-Roman TeX name, 2-Italic TeX name, 3-name of size,
+%%% 4-number of lines in sample
+\def\textsamps#1#2#3#4{%
+\begingroup#1\setleading %% Uniform leading
+\setbox0=\vbox{%
+\hbadness10000\emergencystretch1em\hsize\sampletextwd\the\texttoks}%
+\setbox1=\vsplit0 to #4\baselineskip
+\setbox2=\vbox{#2%
+\hbadness10000\emergencystretch1em\hsize\sampletextwd\the\texttoks}%
+\setbox3=\vsplit2 to #4\baselineskip
+\line{%
+\vbox{\hsize\sampletextwd\centerline{\strut#1[#3]}\unvbox1}%
+\hfill
+\vbox{\hsize\sampletextwd\centerline{\strut#2[#3]}\unvbox3}\hskip.05in}%
+\endgroup}
+
+%%% #1 - Font TeX name; #2 - number of lines in sample
+%%% #3 - Printed name of font
+\def\textbox#1#2#3{%
+\begingroup#1%
+\setbox0=\vbox{%
+\hbadness10000\emergencystretch1em\hsize\sampletextwd\the\texttoks}%
+\setbox1=\vsplit0 to #2\baselineskip
+\vbox{\hsize\sampletextwd\centerline{\strut#1[#3]}\unvbox1}%
+\endgroup}
+
+%%%
+%%% Example
+%%%
+
+%%% Setup
+
+%%% We don't need indents, complaints about \vboxes and page numbers
+\parindent0pt
+\vbadness10000
+\nopagenumbers
+
+%%% Set up all the ype
+\isetuptype{ACaslonI}
+\setuptype{ACaslon}
+\bsetuptype{ACaslonB}
+\bisetuptype{ACaslonBI}
+
+%%% Shape the page
+\vsize10in
+\voffset-.5in
+\hsize7.5in
+\hoffset-.5in
+
+%%% The width of the text sample columns:
+\sampletextwd2.7in
+%%% The width of the ABCD example
+\abcdwd1.4in
+%%% Now the overall width of the text column examples
+\twocolwd=\hsize
+\advance\twocolwd-\abcdwd
+\advance\twocolwd2\sampletextwd
+\divide\twocolwd2
+
+%%%
+%%% Experiments
+%%%
+
+\centerline{\fitit{ACaslon}{4.1in}{A SAMPLE}}
+
+\smallskip
+
+\hrule
+
+\smallskip
+
+\line{\vbox to 8in{\hsize\twocolwd%
+\textsamps{\Ruby}{\iRuby}{Ruby}{6}%
+\vfill
+\textsamps{\Nonpareil}{\iNonpareil}{Nonpareil}{6}%
+\vfill
+\textsamps{\Minion}{\iMinion}{Minion}{5}%
+\vfill
+\textsamps{\Bourgeois}{\iBourgeois}{Bourgeois}{5}%
+\vfill
+\textsamps{\LongPrimer}{\iLongPrimer}{Long Primer}{4}%
+\vfill
+\textsamps{\SmallPica}{\iSmallPica}{Small Pica}{4}%
+\vfill
+\textsamps{\Pica}{\iPica}{Pica}{4}%
+\vfill
+\textsamps{\English}{\iEnglish}{English}{4}}%
+\hfill
+\vrule
+\hfill
+\vbox to 8in{\hsize1in
+\bigtosmall{ACaslon}
+\vfill
+\smalltobig{ACaslonI}
+\vfill
+\bigtosmall{ACaslonB}
+\vfill
+\smalltobig{ACaslonBI}}}
+
+\smallskip
+\hrule
+\smallskip
+\hrule
+\smallskip
+
+\Minion \setleading
+
+\sampletextwd=\hsize \divide\sampletextwd4 \advance\sampletextwd-1pc
+
+\line{%
+\textbox{\Minion}{4}{Roman}
+\hfill
+\textbox{\iMinion}{4}{Italick}
+\hfill
+\textbox{\bMinion}{4}{Bold}
+\hfill
+\textbox{\biMinion}{4}{Bold-Italick}}
+
+\smallskip
+\hrule
+\smallskip
+\hrule
+\smallskip
+\centerline{\iPica Adobe Caslon --- \Pica Carol Twombly}
+
+
+%%% The End
+
+\bye

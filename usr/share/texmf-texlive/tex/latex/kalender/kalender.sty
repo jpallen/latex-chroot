@@ -1,0 +1,246 @@
+%====================================================================
+% Allg. (La)TeX-Regeln:
+% Dieser Style darf uebernommen oder geandert werden, aber nur mit 
+% Nennung des Orginalautors. (ich habe ja auch meinen Stolz ;-))
+%====================================================================
+% Style zum automatischen Ertellen eines Kalenders
+% Es werden die Packete ifthen und calc benîtigt
+% zum Erstellen nur den Befehl \Kalender{Jahr} eingeben
+% Jahr: Die Jahreszahl z.B. 1995
+% Jîrg Sîhner 24.03.95
+% e-mail: joerg.soehner@stud.uni-karlsruhe.de
+% www: http://www.uni-karlsruhe.de/~uh6f
+%
+% Kalender.sty berÅcksichtigt Schaltjahre.
+% Referenzjahr ist 1900. Es sind alle Jahre mîglch; auch < 1900
+% Er berÅckisichtigt auch folgende Regeln:
+%     Jahrhundert-Jahre sind keine Schaltjahre
+%     Jahrhundert-Jahre, die durch 400 teilbar sind, sind Schaltjahre
+%====================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{kalender}[1995/03/25 Kalender-Style von Joerg Soehner]
+\RequirePackage{ifthen,calc}
+\newcounter{Jahr}
+\newcounter{Vorjahr}
+\newcounter{Nextjahr}
+\newcounter{n}
+\newcounter{vielfaches}
+\newboolean{Schaltjahr}
+\newcounter{differ}
+\newcounter{grenze}
+\newcounter{ycopya}
+\newcounter{ycopyb}
+\newcounter{ykoordrahmen}
+\newcounter{spalte} % ZÑhler fÅr Spalte, wo Tage gesetzt werden
+\newcounter{zeile} % ZÑhler fÅr Monatszeile
+\newcounter{tag} % ZÑhler fÅr die Tage
+\newcounter{xkoord} % x-Koordinate fÅr Setzen der Tage
+\newcounter{ykoord} % y-Koordinate fÅr Setzen der Tage
+\newcounter{monatnr} % FÅr Ermittlung der Monatsgrenze
+\newcounter{monatna} % FÅr Ermittlung des Monatsnamen
+\newcounter{zeilenanzahl} %FÅr mehrere Zeilen pro Monat
+\newcounter{ykoordmonat}
+\newcounter{boxhoehe}
+\newcounter{Kurzjahr}
+
+\newcommand{\Kalender}[1]{
+\setcounter{Jahr}{#1}     %hier wird das Jahr dem ZÑhler zugewiesen
+\setcounter{Vorjahr}{\value{Jahr}-1} %das Vor- und das Nachfolgejahr
+\setcounter{Nextjahr}{\value{Jahr}+1}
+% ab hier werden die Kurzbezeichungen erstellt
+\setcounter{Kurzjahr}{#1}
+\whiledo{\value{Vorjahr} > 99}{\setcounter{Vorjahr}{
+\value{Vorjahr}- 100}}
+\whiledo{\value{Kurzjahr} > 99}{\setcounter{Kurzjahr}{
+\value{Kurzjahr}- 100}}
+\ifthenelse{\value{Kurzjahr} = 100}{\setcounter{Kurjahr}{00}}
+% ein kleiner Hinweis, da· es ein wenig dauert
+\typeout{Erstelle Kalender des Jahres \theJahr}
+\typeout{... bitte warten ...}
+\begin{scriptsize}
+\unitlength0.7mm
+\begin{picture}(198,143)
+\modulJahr{#1}  %dieser Befehl errechnet die Spalte fÅr den ersten Tag
+\Tage           %dieser Befehl setzt die Tage
+\Kalenderrahmen %am Schlu· noch der Rahmen um das Ganze
+\end{picture}
+\end{scriptsize}}
+
+
+%#####################################################################
+%=====================================================================
+% Damit wird das Schaltjahr berÅcksichtigt und die Position des ersten
+% Tages wird ermittelt. Fixjahr ist 1900 (ist halt so)
+%=====================================================================
+
+\newcommand{\modulJahr}[1]{%
+\setcounter{n}{#1}
+\setcounter{vielfaches}{0}
+\setcounter{differ}{\value{n}-1900}
+\setcounter{n}{\value{n}-1900} %Jahresabstand von Jahr und Fixjahr
+
+%fÅr Jahre Åber Fixjahr 1900
+\ifthenelse{\value{n} > 0}{
+\whiledo{\value{n} > 4}{ %solange n>4, 4 wegen den Schaltjahren
+\setcounter{n}{\value{n}-4}  % Anzahl der Schaltjahren werden ermittelt
+\stepcounter{vielfaches}} % Volltreffer: Jahr ist Schaltjahr, oder doch nicht
+\ifthenelse{\value{n}=4}{%
+\setboolean{Schaltjahr}{true}}{\setboolean{Schaltjahr}{false}}}{}
+
+%fÅr Jahre unter Fixjahr 1900
+\ifthenelse{\value{n} < 0}{
+\whiledo{\value{n} < -4}{ %solange n<-4
+\setcounter{n}{\value{n}+4}
+\addtocounter{vielfaches}{-1}}
+\ifthenelse{\value{n}=-4}{%
+\setboolean{Schaltjahr}{true}\addtocounter{vielfaches}{-1}}{%
+\setboolean{Schaltjahr}{false}}}{}
+
+%fÅr das Fixjahr 1900
+\ifthenelse{\value{n} = 0}{
+\setcounter{vielfaches}{0}
+\setboolean{Schaltjahr}{false}}{}
+
+% wenn Jahr durch 100 teilbar, dann kein Schaltjahr
+\setcounter{n}{#1} %Jahresabstand von Jahr und Fixjahr
+\whiledo{\value{n} > 100}{ %solange n>100, 100 wegen den Jahrhunderten
+\setcounter{n}{\value{n}-100}}  % Anzahl der Schaltjahren werden ermittelt
+\ifthenelse{\value{n}=100}{%
+\setboolean{Schaltjahr}{false}}{}
+% wenn Jahr durch 400 teilbar, dann wiederum = Schaltjahr
+\setcounter{n}{#1} %Jahresabstand von Jahr und Fixjahr
+\whiledo{\value{n} > 400}{ %solange n>100, 100 wegen den Jahrhunderten
+\setcounter{n}{\value{n}-400}}  % Anzahl der Schaltjahren werden ermittelt
+\ifthenelse{\value{n}=400}{%
+\setboolean{Schaltjahr}{true}}{}
+}
+
+
+%#####################################################################
+%==============================
+% Hier wird die Spalte mit den Monatsnamen definiert
+% mit Vorjahr und Nachfolgejahr
+%=====================================================================
+\newcommand{\monatname}{%
+\ifcase\value{monatna}\or
+\ifthenelse{\value{Vorjahr} < 10}{\bf Dezember 0\theVorjahr}{\bf Dezember
+\theVorjahr}\or
+       {\bf Januar \theJahr}\or
+       {\bf Februar}\or
+       {\bf M"arz}\or
+       {\bf April}\or
+       {\bf Mai}\or
+       {\bf Juni}\or
+       {\bf Juli}\or
+       {\bf August}\or
+       {\bf September}\or
+       {\bf Oktober}\or
+       {\bf November}\or
+\ifthenelse{\value{Kurzjahr} < 10}{\bf Dezember 0\theKurzjahr}{\bf Dezember
+\theKurzjahr}
+       \or
+       {\bf Januar \theNextjahr}\fi}
+
+%#####################################################################
+%=====================================================================
+% Hier werden die Anzahl der Tage des Monats gesetzt
+% Das Schaltjahr wird auch berÅcksichtigt
+%====================================================================
+
+\newcommand{\setgrenze}{%
+  \ifcase\value{monatnr}\or {\setcounter{grenze}{31+1}}\or
+         {\ifthenelse{\boolean{Schaltjahr}}{
+            \setcounter{grenze}{29+1}}{\setcounter{grenze}{28+1}}}\or
+         {\setcounter{grenze}{31+1}}\or
+         {\setcounter{grenze}{30+1}}\or
+         {\setcounter{grenze}{31+1}}\or
+         {\setcounter{grenze}{30+1}}\or
+         {\setcounter{grenze}{31+1}}\or
+         {\setcounter{grenze}{31+1}}\or
+         {\setcounter{grenze}{30+1}}\or
+         {\setcounter{grenze}{31+1}}\or
+         {\setcounter{grenze}{30+1}}\or
+         {\setcounter{grenze}{31+1}}\or\fi}
+
+% das +1 kommt daher, weil Zeilennummer <> Monatsnummer
+%=====================================================================
+
+%#####################################################################
+%=====================================================================
+% Hier wird der Rahmen des Kalenders gesetzt und mein Vermerk
+%=====================================================================
+
+\newcommand{\Kalenderrahmen}{
+\setcounter{ykoordrahmen}{141-\value{ykoord}-3}
+\setcounter{ycopya}{\value{ykoord}-14}
+\setcounter{ycopyb}{\value{ykoord}-17}
+\put(0,141){\line(0,-1){\value{ykoordrahmen}}} %linke Randlinie
+\multiput(30,141)(6,0){29}{\line(0,-1){\value{ykoordrahmen}}} %senkr Linien
+\put(1.5,135){\bf Monat}
+\multiput(30,135)(42,0){4}{\makebox(6,0)[b]{\bf M\hspace*{-0.4mm}o}}
+\multiput(36,135)(42,0){4}{\makebox(6,0)[b]{\bf Di}}
+\multiput(42,135)(42,0){4}{\makebox(6,0)[b]{\bf Mi}}
+\multiput(48,135)(42,0){4}{\makebox(6,0)[b]{\bf Do}}
+\multiput(54,135)(42,0){4}{\makebox(6,0)[b]{\bf Fr}}
+\multiput(60,135)(42,0){4}{\makebox(6,0)[b]{\bf Sa}}
+\multiput(66,135)(42,0){4}{\makebox(6,0)[b]{\bf So}}
+\put(0,141){\line(1,0){198}}
+\put(0,133){\line(1,0){198}}
+\put(158,\value{ycopya}){\makebox(30,15)[t]{\tiny \copyright 1995 J"org
+S"ohner}}
+\put(158,\value{ycopyb}){\makebox(30,15)[t]{\tiny formed and printed by
+\LaTeXe}}}
+
+%####################################################################
+%====================================================================
+% Hier werden die Tage richtig gesetzt
+%====================================================================
+
+\newcommand{\Tage}{
+\setcounter{monatnr}{12} %Monatsnummer wird gesetzt (mit Dezember fÑngts an)
+\setcounter{ykoord}{130} % Anfangs - y - Koordinate
+\setcounter{monatna}{1} % FÅr dem Monatsnamen
+\setcounter{spalte}{5+\value{differ}+\value{vielfaches}}
+% Die Zahl 5 bedeutet, dass der 1 Dez. 1899 am 5. Wochentag (Freitag beginnt)
+\whiledo{\value{spalte} > 28}{\setcounter{spalte}{\value{spalte} - 28}}
+\whiledo{\value{spalte} < 1}{\setcounter{spalte}{\value{spalte} + 28}}
+\setcounter{zeile}{1}
+\setzetage} % Die Tage werden nun fÅr alle Monate gesetzt
+
+%===================================================================
+\newcommand{\zeileunten}{\setcounter{ykoord}{\value{ykoord}-4}}
+\newcommand{\linie}{\setcounter{ykoord}{\value{ykoord}-1}
+          \put(0,\value{ykoord}){\line(1,0){198}}
+          \setcounter{ykoord}{\value{ykoord}-3}}
+%=====================================================================
+\newcommand{\setzemonatname}{\setcounter{ykoordmonat}{\value{ykoord}+3}
+   \setcounter{boxhoehe}{\value{zeilenanzahl}*4}
+\put(1.5,\value{ykoordmonat}){\makebox(0,\value{boxhoehe})[l]{\monatname}}}
+%===================================================================
+\newcommand{\setxkoord}{\setcounter{xkoord}{24+3+\value{spalte}*6}}
+
+%===================================================================
+
+\newcommand{\setzetage}{ % Befehl zum Setzen der Tage
+\setcounter{tag}{1}
+\setgrenze % Die Monatsgrenze wird ermittel
+\setcounter{zeilenanzahl}{1}
+\whiledo{\value{tag} < \value{grenze}}{\setxkoord
+\put(\value{xkoord},\value{ykoord}){\makebox(0,0)[b]{\thetag}}
+\stepcounter{tag}
+\stepcounter{spalte}
+\ifthenelse{\value{spalte}=29}{\setcounter{spalte}{1}
+\ifthenelse{\value{tag} <
+\value{grenze}}{\zeileunten\stepcounter{zeilenanzahl}}{}}{}
+}
+\linie
+\setzemonatname
+\stepcounter{zeile}
+\whiledo{\value{zeile} < 15}{\stepcounter{monatnr}
+\stepcounter{monatna}
+\ifthenelse{\value{monatnr} > 12}{\setcounter{monatnr}{1}}{}
+\setzetage}  % fÅr die restlichen Monate
+}
+%========================== E N D E =================================
+
+

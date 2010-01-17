@@ -1,0 +1,52 @@
+%kanspc%
+% generates striped characters with shading
+%input kanmode;
+font_size 72pt#;
+slant:=0;
+pen_width#:=2.5pt#;
+% Following code(with minor modifications) is taken from the article,  
+% The ABC's of Special Effects by Georgia K. M. Tobin,
+% that appeared in TUGboat, Volume 9(1988), No. 1
+vardef special_effects=
+% creates characters filled with stripes and followed by a shadow.
+    cullit;
+    picture Normalchar;
+         Normalchar:=currentpicture;
+    clearit;
+% Depending on the output device, pen size(0.1pt) may need to be
+% changed.
+    pickup pencircle scaled 0.1pt; 
+    filldraw (0,-d)--(w,-d)--
+         (w,h)--(0,h)--cycle;
+    picture Blackbox;
+         Blackbox:=currentpicture;
+    picture Reversevideo;
+         Reversevideo:=Blackbox-Normalchar;
+    clearit;
+% Depending on the output device,stepsize(uh/3) may need to be
+% changed.
+    for f=-d step uh/3 until h:
+      draw(0,f)--(w,f);
+    endfor;
+    currentpicture:=
+                   currentpicture-Reversevideo;
+    cullit;
+    picture Stripedchar;
+         Stripedchar:=currentpicture;
+    clearit;
+% Depending on the output device,offset(1.5pt) may need to be
+% changed.
+    currentpicture:=Normalchar shifted(1.5pt,-1.5pt);
+    picture Shadow;
+           Shadow:=currentpicture;
+    clearit;
+    currentpicture:=Shadow-Normalchar;
+    cullit;
+    picture Shadowonly;
+           Shadowonly:=currentpicture;
+    clearit;
+
+    currentpicture:=Shadowonly+Stripedchar;
+enddef;
+input kanmain;  
+%%

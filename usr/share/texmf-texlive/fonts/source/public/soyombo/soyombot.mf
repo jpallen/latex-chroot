@@ -1,0 +1,145 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% File: soyombot.mf
+% Date: August 20, 1996
+% Author: Oliver Corff
+% (c) 1996 Ulaanbaatar, Macau, Berlin
+%
+% A metafont for providing the Soyombo symbol to LaTeX-users.
+%
+% Usage: see package soyombo 
+%
+% No options.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% This font contains only one character, the Soyombo. %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+mode_setup;
+	mg:=3/4;
+	n#:=mg*pt#;
+	width#:=mg*24pt#;
+	height#:=mg*45pt#;
+	depth#:=mg*0pt#;
+	y_ofs#:=mg*0pt#;
+	center#:=.5width#;
+
+	define_pixels(width,height,depth,
+		n,y_ofs,center);
+
+	font_size = 10pt#;
+
+beginchar("#",width#,height#,depth#);
+	"Soyombo";
+	% First the vertical walls:
+	x1=x4=x2-5n=x3-5n=center-11n;
+	x5+5n=x8+5n=x6=x7=center+11n;
+	y1=y2=y5=y6=0-y_ofs;
+	y3=y4=y7=y8=24n-y_ofs;
+	fill z1--z2--z3--z4--cycle;
+	fill z5--z6--z7--z8--cycle;
+
+	% Now the triangles:
+	x10=x13=center;
+	x9=x12=center-5n;
+	x11=x14=center+5n;
+	y9=y11=3n-y_ofs;
+	y10=0-y_ofs;
+	y12=y14=y4;
+	y13=y12-3n;
+	fill z9--z10--z11--cycle;
+	fill z12--z13--z14--cycle;
+
+	% Now the horizontal walls:
+	x15+5n=x18+5n=x19+5n=x22+5n=center=x16-5n=x17-5n=x20-5n=x21-5n;
+	y15=y16=y9+1n;
+	y17=y18=y15+2n;
+	y19=y20=y21-2n;
+	y21=y22=y13-1n;
+	fill z15--z16--z17--z18--cycle;
+	fill z19--z20--z21--z22--cycle;
+
+	% Now the Yin and Yang:
+	% First the "big" circle:
+	x23=x24=center;
+	y23=y18+1n;
+	y24=y19-1n;
+	fill z23..z24..cycle;
+
+	% Then one "eye":
+	x25=x26=center;
+	y25=y23+2.35n-1n;
+	y26=y23+2.25n+1n;
+	unfill z25..z26..cycle;
+
+	% And the other "eye":
+	x27=x28=center;
+	y27=y24-2.35n-1n;
+	y28=y24-2.25n+1n;
+	unfill z27..z28..cycle;
+
+	% Finally the separation between the two fishes:
+	pickup pencircle scaled .5n;
+	undraw halfcircle rotated 90 scaled 5.30n shifted (center,.5[y25,y26]) ;
+	undraw halfcircle rotated 270 scaled 5.30n shifted (center,.5[y27,y28]);
+
+	% Now the moon:
+	x29+5.5n=x31-5.5n=center;
+	x30=x32=center;
+	y29=y31=y4+6.5n;
+	y30=y4+1n;
+	y32=y30+2n;
+	
+	fill z29..z30..z31 & z31..z32..z29 & cycle;
+
+	% Now the sun:
+	x33=x34=center;
+	y33=y32+1n;
+	y34=y33+8n;
+	fill z33..z34..cycle;
+
+	% Now the flame:
+	x126=x113=center;
+	x101+2.5n=center;
+	x125-2.5n=center;
+	x102=x107=center-1.75n;
+	x103=center-1.75n;
+	x119=x121=center+1.5n;
+	x104=x108=center-1n;
+	x106=center-1.25n;
+	x110=center-.5n;
+	x111=center-.25n;
+	x105=center-1.5n;
+	x109=x112=center-.5n;
+	x114=center-1/4n;
+	x115=center+.75n;
+	x116=x117=center+0.5n;
+	x118=x122=center+1n;
+	x120=center+1.25n;
+	x123=center+2n;
+	x124=center+1.75n;
+
+
+	y126=y34+n;
+	y101=y108=y118=y125=y126+2.5n;
+	y102=y106=y120=y124=y101+1.25n;
+	y103=y105=y110=y115=y121=y123=y101+2n;
+	y104=y122=y111-.25n=y101+3n;
+	y107=y109=y117=y119=y101+.5n;
+	y116=y101+1n;
+	y112=y114=y101+4n;
+	y113=y101+5.5n;
+
+	fill z125..z126..z101			% lower half circle
+		..flex(z101,z102,z103,z104)	% left small flame
+		& flex(z104,z105,z106,z107)	% left small flame
+		..z107..z108..z109		% left flame separator
+		..flex(z109,z110,z111,z112,z113)% central flame
+		& flex(z113,z114,z115,z116,z117)% central flame
+		..z117..z118..z119		% right flame separator
+		..flex(z119,z120,z121,z122)	% right small flame 
+		& flex(z122,z123,z124,z125)	% right small flame
+		..cycle;
+	penlabels(range 1 thru 125);
+endchar;
+
+end.

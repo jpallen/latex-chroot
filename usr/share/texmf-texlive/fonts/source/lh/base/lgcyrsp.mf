@@ -1,0 +1,166 @@
+%
+% lgcyrsp.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Uppercase Cyrillic letters 0--127 for T2 encoding
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% List of letternames and their codes in T2
+%
+% SP_LJE           -        Special title Lje
+% SP_NJE           -        Specisl title Nje
+%
+
+LHver_check(3,5); % like |version_check| in ec
+
+iff not concrete:%
+lhchar "Title Cyrillic letter LJE (Soft L)";
+cyrchar(LJE_title,13.5u#,cap_height#,0); % DL_width:N_width
+if is_small_cap: getcharcode(lje); fi;
+italcorr .52*.7cap_height#*slant-.5u#; % D*.52h
+adjust_fit(cap_serif_fit# if not serifs:+.5(cap_stem#-u#) fi, %DL_adj
+ 4u# if serifs:-.5width_adj# fi);%lsftsn_adj;lsftsnwd-.5width_adj
+% upper_l;
+pickup tiny.nib; pos1(cap_stem,0); pos2(cap_stem,0);
+rt x1r=rt x2r=w-hround max(2u,3u-.5cap_stem); top y1=h; bot y2=0;
+filldraw stroke z1e--z2e; %stem
+numeric bulb_diam; bulb_diam=flare+(cap_stem-stem);
+numeric light_hair,bot_vair,left_jut;
+light_hair=max(tiny.breadth,fudged.hair if hefty:-4stem_corr fi);
+left_jut=
+   if serifs: max(limit_dist,1.1cap_jut)
+   else:      hround (w+cap_serif_fit-rt x2r-.65u) fi;
+bot_vair=Vround(.5[vair,light_hair]);
+x3=1/3[w-rt x1r-(1/6left_jut),rt x1r] if not serifs:-.5(cap_stem-u) fi+eps;
+if serifs:
+ pos3(light_hair,0); pos4(light_hair,-90);
+ pos6(bulb_diam,-180); pos5(cap_hair,-180);
+ top y3=h; y6=1/6h-max(0,flare-stem-2vair_corr-.5); z6r=z5r;
+ lft x6r=l+letter_fit+hround(.5u-.5);
+ x4=max(lft x5r+.5bulb_diam,.4[lft x5r,rt x3r]); bot y4r=-o;
+ filldraw stroke z4e{right}..
+  controls (min(15/16[x4,x3],max(x4,lft x6r+2flare-eps))+(x3e-x3),y4e)
+  and (x3e,min(y6-.5,1/3h-eps)+1/3(y4e-y4))..z3e; % left tail
+ {{less_tense; bulb(4,5,6)}};
+else:
+ pos3'(slab,90); pos1'(slab,90);
+ lft x3'=x3-.5light_hair; rt x1'=x1r; top y3'r=top y1'r=h;
+ filldraw stroke z3'e--z1'e;
+ pickup fine.nib; pos3(max(fine.breadth,light_hair),0); pos4(bot_vair,-90); pos5(bot_vair,-90);
+ bot y5r=0; x4=2/3[x3l,x5r]; lft x5=l+letter_fit+hround(.35u-.5);
+ bot y4r=bot y5r; y3=y3'; x4l:=.25[x4,x5];
+ path p;
+ p=stroke z3{down}
+   ..controls (x3,y5+.35h-eps) and (min(7/8[x4,x3],x5+2.5light_hair+.5u),y4)
+   ..{left}z4--z5;
+ z6=point .35 of p;
+ pos6(max(fine.breadth,7/8[bot_vair,light_hair]),angle(direction .35 of p)+90);
+ filldraw stroke z3e{down}...z6e{direction .35 of p}...{left}z4e--z5e; fi % arc
+%%%
+if serifs:
+ x0=x3; y0=0;
+ numeric inner_jut; inner_jut=.5(lft x1l-rt x3r)+.5crisp+eps;
+ nodish_serif(2,1,a,1/3,cap_jut,b,1/3,.5cap_jut); %!!! % lower right serif
+ nodish_serif(1,2,c,1/3,inner_jut,d,1/3,cap_jut);    %upper right serif
+ nodish_serif(3,0,e,1/3,cap_jut,f,1/3,inner_jut); fi %upper left serif
+%%%%%
+% now the b part
+w:=w+3.75u if serifs:-.5width_adj fi;%lsftsnwd-.25u-.5width_adj
+% lsftsn_bowl(2);special
+_zero:=2;
+_one:=7; _two:=8; _three:=9; _four:=10; _five:=11;
+%
+numeric bar[],right_curve;
+if known lower.cap_height#: % for Small Caps fonts
+   bar1=cap_band; right_curve=cap_curve if hefty:-3stem_corr fi;
+   y2.bh-y1.bh=cap_bar; .5[y2.bh,y1.bh]=.52lower.cap_height#*hppp;
+else:
+   bar1=vair'; right_curve=curve if hefty:-3stem_corr fi;
+   set_bar_axis;
+fi
+penpos[_three](right_curve,0);%!!!
+penpos[_four](bar1,-90); penpos[_five](bar1,-90);%!!!
+z[_five]r=(x[_zero],tiny.bot y[_zero]); y[_four]=y[_five];%!!!
+y[_three]=.5[y[_two]l,y[_four]l];
+y[_one]l=y[_two]l=y1.bh; y[_one]r=y[_two]r=y2.bh;
+x[_two]l=x[_two]r=x[_four]=w-3.75u; %.5v_width+.75u;
+x[_one]l=x[_one]r=x[_zero]; x[_three]r=hround(w-.6u);
+x[_two]l:=x[_four]l:=x[_two]r-.25curve;
+fill stroke
+ {{if not serifs: interim superness:=more_super; fi
+  z[_five]e..super_arc.e([_four],[_three])}} &
+ super_arc.e([_three],[_two])..z[_one]e;  % lobe
+%%%
+%%%%%
+penlabels(1,2,3,4,5,6,7,8,9,10,11); endchar;
+
+lhchar "Title Cyrillic letter NJE (Soft N - looks like Hb)";
+cyrchar(NJE_title,13.5u#,cap_height#,0);
+if is_small_cap: getcharcode(nje); fi;
+italcorr .52*.7cap_height#*slant-.5u#; % D*.52h
+adjust_fit(cap_serif_fit#,
+ 4u# if serifs:-.5width_adj# fi);%lsftsn_adj;lsftsnwd-.5width_adj
+% upper_n;
+pickup tiny.nib; pos1(cap_stem,0); pos2(cap_stem,0);
+pos3(cap_stem,0); pos4(cap_stem,0);
+lft x1l=lft x2l=hround max(2u,3u-.5cap_stem); x3=x4=w-x1;
+top y1=top y3=h; bot y2=bot y4=0;
+filldraw stroke z1e--z2e; % left stem
+filldraw stroke z3e--z4e; % right stem
+penpos5(cap_bar,90); penpos6(cap_bar,90);
+x5=x1; x6=x3; y5=y6=.52h;
+fill stroke z5e--z6e;  % bar
+%%%
+if serifs:
+ numeric inner_jut;
+ if rt x1r+cap_jut+.5u+1<=lft x3l-cap_jut: inner_jut=cap_jut;
+  else: rt x1r+inner_jut+.5u+1=lft x3l-inner_jut; fi
+ dish_serif(1,2,a,1/3,cap_jut,b,1/3,inner_jut);  % upper left serif
+ dish_serif(2,1,c,1/3,cap_jut,d,1/3,inner_jut);  % lower left serif
+ dish_serif(3,4,e,1/3,inner_jut,f,1/3,cap_jut);  % upper rt serif
+ nodish_serif(4,3,g,1/3,inner_jut,h,1/3,.5cap_jut); fi  %!!!% lower rt serif
+%%%%%
+% now the b part
+w:=w+3.75u if serifs:-.5width_adj fi;%lsftsnwd-.25u-.5width_adj
+% lsftsn_bowl(4);special
+_zero:=4;
+_one:=7; _two:=8; _three:=9; _four:=10; _five:=11;
+%
+numeric bar[],right_curve;
+if known lower.cap_height#: % for Small Caps fonts
+   bar1=cap_band; right_curve=cap_curve if hefty:-3stem_corr fi;
+   y2.bh-y1.bh=cap_bar; .5[y2.bh,y1.bh]=.52lower.cap_height#*hppp;
+else:
+   bar1=vair'; right_curve=curve if hefty:-3stem_corr fi;
+   set_bar_axis;
+fi
+penpos[_three](right_curve,0);%!!!
+penpos[_four](bar1,-90); penpos[_five](bar1,-90);%!!!
+z[_five]r=(x[_zero],tiny.bot y[_zero]); y[_four]=y[_five];%!!!
+y[_three]=.5[y[_two]l,y[_four]l];
+y[_one]l=y[_two]l=y1.bh; y[_one]r=y[_two]r=y2.bh;
+x[_two]l=x[_two]r=x[_four]=w-3.75u; %.5v_width+.75u;
+x[_one]l=x[_one]r=x[_zero]; x[_three]r=hround(w-.6u);
+x[_two]l:=x[_four]l:=x[_two]r-.25curve;
+fill stroke
+ {{if not serifs: interim superness:=more_super; fi
+  z[_five]e..super_arc.e([_four],[_three])}} &
+ super_arc.e([_three],[_two])..z[_one]e;  % lobe
+%%%
+penlabels(1,2,3,4,5,6,7,8,9,10,11); endchar;
+
+endinput;
+%end of file

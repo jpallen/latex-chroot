@@ -1,0 +1,68 @@
+%
+%   This file is part of MusiXTeX
+%
+%   MusiXTeX is free software; you can redistribute it and/or modify
+%   it under the terms of the GNU General Public License as published by
+%   the Free Software Foundation; either version 2, or (at your option)
+%   any later version.
+%
+%   MusiXTeX is distributed in the hope that it will be useful,
+%   but WITHOUT ANY WARRANTY; without even the implied warranty of
+%   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%   GNU General Public License for more details.
+%
+%   You should have received a copy of the GNU General Public License
+%   along with MusiXTeX; see the file COPYING.  If not, write to
+%   the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+%   Boston, MA 02111-1307, USA.
+%
+\immediate\write10{MusiXCHOir T.89\space<24 March 1998>}%
+
+\ifx\undefined\braceheight \else \endinput \fi
+
+\edef\catcodeat{\the\catcode`\@}\catcode`\@=11
+\catcodesmusic
+
+% big parentheses for e.g. multiline text
+
+\newskip\braceheight \braceheight=4\Interligne\relax
+\def\ChoirStrut{\vphantom{\^Wgjpqy}}
+
+\def\biglbrace{\let\@Ti\llap \let\@Tii\{\relax \C@br}
+\def\bigrbrace{\let\@Ti\rlap \let\@Tii\}\relax \C@br}
+\def\C@br{\C@tx{\@Ti{$\left\@Tii\vbox\@to\braceheight{}\right.\n@space$}\vss}}
+
+% multiline text
+
+\def\@kti{\kern\thr@@\Internote\strut}
+\def\@kmi{\kernm\Internote\strut}
+
+\def\Dtx#1|#2*{\C@tx{\lrlap{\@kti#1\ChoirStrut}\lrlap{\@kti#2\ChoirStrut}\vss}}
+\def\Drtx#1|#2*{\C@tx{\rlap{\@kmi#1\ChoirStrut}\rlap{\@kmi#2\ChoirStrut}\vss}}
+
+\def\Ttx#1|#2|#3*{\C@tx{\lrlap{\@kti#1\ChoirStrut}\lrlap{\@kti#2\ChoirStrut}\lrlap{\@kti#3\ChoirStrut}\vss}}
+\def\Trtx#1|#2|#3*{\C@tx{\rlap{\@kmi#1\ChoirStrut}\rlap{\@kmi#2\ChoirStrut}\rlap{\@kmi#3\ChoirStrut}\vss}}
+
+\def\Qtx#1|#2|#3|#4*{\C@tx{\lrlap{\@kti#1\ChoirStrut}\lrlap{\@kti#2\ChoirStrut}%
+  \lrlap{\@kti#3\ChoirStrut}\lrlap{\@kti#4\ChoirStrut}\vss}}
+\def\Qrtx#1|#2|#3|#4*{\C@tx{\rlap{\@kmi#1\ChoirStrut}\rlap{\@kmi#2\ChoirStrut}\rlap{\@kmi#3\ChoirStrut}%
+  \rlap{\@kmi#4\ChoirStrut}\vss}}
+
+\def\tx#1*{\C@tx{\lrlap{\@kti#1\ChoirStrut}\vss}}
+\def\rtx#1*{\C@tx{\rlap{\@kmi#1\ChoirStrut}\vss}}
+
+% longation rule
+
+\newskip\@ihf
+\def\thf{\getcurpos\advance\y@v-\@ihf \advance\y@v-\tw@\Interligne
+  \llap{\vrule\@width\y@v\@height\lthick\kern\Interligne}}%
+
+\def\ixhf#1{\setbox\ch@box\hbox{#1}\getcurpos \advance\y@v\h@lf\wd\ch@box
+  \advance\y@v\Interligne \global\@ihf\y@v \box\ch@box}
+
+\def\ihf#1{\setbox\ch@box\hbox{#1}\getcurpos \advance\y@v\wd\ch@box
+  \global\@ihf\y@v \box\ch@box}
+
+\endcatcodesmusic
+\catcode`\@=\catcodeat
+\endinput

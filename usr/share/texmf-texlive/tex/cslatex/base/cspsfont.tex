@@ -1,0 +1,276 @@
+%% 
+%% This is file `cspsfont.tex',
+%% generated with the docstrip utility.
+%% 
+%% The original source files were:
+%% 
+%% cspsfont.doc  (with options: `file')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% You are *not* allowed to modify this file.
+%% 
+%% You are *not* allowed to distribute this file.
+%% For distribution of the original source see
+%% the terms for copying and modification in the file  cspsfont.doc.
+%% 
+\def\fileversion{v.1.0d}
+\def\filedate{1995/12/02}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesFile{cspsfont}[\filedate\space CsPsFont utility \fileversion]
+\typeout{CsPsFont utility \fileversion}
+\typeout{(C) Z. Wagner, \filedate}
+\typeout{Czech documentation \docdate}
+\edef\restoreAt{\noexpand\catcode`\noexpand\@\the\catcode`\@}
+\makeatletter
+\edef\Cps@filedate{\filedate}
+\edef\Cps@fileversion{\fileversion}
+\RequirePackage{verbatim}
+\def\PkgWrite{%
+  \let\do\@makeother\dospecials
+  \def\exclam{!}
+  \catcode`\^^M\active
+  \catcode`\!0
+  \def\verbatim@processline{{%
+    \let\protect\@unexpandable@noexpand
+    \edef\Cps@line{\the\verbatim@line}% expanduj v\v{s}e
+    \immediate\write\Cps@Pkg@Write{\Cps@line}}}%
+  \verbatim@start}
+\let\endPkgWrite\relax
+\def\Author{\def\Cps@author}
+\def\Comment#1{\def\Cps@comment{\sp #1}}
+\def\FontPath#1{%
+  \edef\Cps@fontpath{#1}%
+  \def\ZW@tempa{name}%
+  \def\ZW@tempb{.ext}%
+  \filename@parse{\Cps@fontpath\ZW@tempa\ZW@tempb}%
+  \ifx\filename@area\Cps@fontpath
+  \else
+    \Wr@ngPathErr
+  \fi}
+\def\Wr@ngPathErr{%
+  \errhelp{No help available, read the documentation!}%
+  \errmessage{The path name should end with a~slash}}
+\def\fd#1#2{\immediate\openout\Cps@Pkg@Write#1#2.fd \relax
+  \typeout{Generating <#1#2.fd>}
+  \def\Cps@enc{#1}
+  \def\Cps@fam{#2}
+  \def\protect{\noexpand}
+  \immediate\write\Cps@Pkg@Write
+    {\string\ProvidesFile
+      {#1#2.fd}[\number\year/\two@digits{\month}/\two@digits{\day}%
+      \Cps@comment]}
+  \@ifundefined{Cps@comment}{}{%
+   \ifx\Cps@comment\empty
+   \else
+    \immediate\write\Cps@Pkg@Write{\string\typeout{\Cps@comment}}%
+    \@ifundefined{Cps@author}{}{%
+     \ifx\Cps@author\empty
+     \else
+      \immediate\write\Cps@Pkg@Write
+       {\string\typeout
+        {(C)\sp \Cps@author,
+          \number\year/\two@digits{\month}/\two@digits{\day}}}%
+     \fi
+    }%
+   \fi
+  }%
+  \immediate\write\Cps@Pkg@Write
+    {\string\typeout{Created\sp by\sp CsPsFont\sp utility\sp \Cps@fileversion\sp
+      (C)\sp Z.\sp Wagner,\sp \Cps@filedate}}\let\protect\relax}
+\def\endfd{%
+  \immediate\closeout\Cps@Pkg@Write
+  \typeout{End of fd-file}}
+\newwrite\Cps@Pkg@Write
+\def\sp{\protect\space}
+\def\Wr@ngEnvErr{%
+  \errhelp{Some macros can only be used
+    inside the <fontdecl> environment.^^J%
+    The macro at the end of the top line is one of them.}%
+  \errmessage{This is not valid outside <fontdecl>}}
+\let\Cps@IgnoreSpaces\Wr@ngEnvErr
+\let\FamilySetup\Wr@ngEnvErr
+\let\ShapeSetup\Wr@ngEnvErr
+\def\Cps@RestoreSpaces{\catcode`\ =10 }
+\def\Cps@GetParams{\Cps@IgnoreSpaces \Cps@XGetParams}
+\def\Cps@XGetParams#1.{%
+  \edef\Cps@Params{#1}\Cps@RestoreSpaces \Cps@continue}
+\def\Def#1{\@ifundefined{#1}{\@namedef{#1}}{\@gobble}}
+\begingroup
+  \catcode`\]=2
+  \catcode`\[=1
+  \catcode`\|=0
+  \catcode`\}=12
+  \catcode`\{=12
+  \catcode`\\=12
+  |gdef|Cps@LB[{]
+  |gdef|Cps@RB[}]
+  |gdef|Cps@BS[\]
+|endgroup
+\newcommand\fontdecl[2][m/n]{%
+  \def\Cps@base{#2}%
+  \def\Cps@default{#1}%
+  \def\Cps@IgnoreSpaces{\catcode`\ =9 }%
+  \def\FamilySetup{\get@setup{Cps@FAM}}%
+  \def\ShapeSetup{\Cps@IgnoreSpaces\Shape@Setup}%
+  \typeout{Declaring font \Cps@enc/\Cps@fam}\Cps@scan@suffix}
+\newcommand\Cps@scan@suffix[1][]{\edef\Cps@sfx{#1}}
+\def\BasBX{\BasBX@true \BXasB@false}
+\def\BXasB{\BXasB@true \BasBX@false}
+\newif\ifBasBX@  \newif\ifBXasB@
+\def\Shape@Setup#1{\Cps@RestoreSpaces \get@setup{Cps@#1STP}}
+\def\get@setup#1{%
+  \def\Cps@make@def{\Def{#1}}\begingroup
+    \@sanitize \scan@setup}
+\def\scan@setup#1{\endgroup \Cps@make@def{#1}}
+\def\MakeSeries{\Cps@IgnoreSpaces \M@keSeries}
+\def\M@keSeries#1{\providecommand\Series@List{#1}\Cps@RestoreSpaces}
+\def\MakeShape{\Cps@IgnoreSpaces \M@keShape}
+\def\M@keShape#1{\providecommand\Shape@List{#1}\Cps@RestoreSpaces}
+\def\FontDef{\let\Cps@continue\Cps@FontDef \Cps@GetParams}
+\def\Cps@FontDef{%
+  \def\Cps@@FD##1/##2=##3.{\Def{Cps@FD@##1/##2}{##3}}%
+  \expandafter\Cps@@FD\Cps@Params.}
+\def\FontSub{\let\Cps@continue\Cps@FontSub \Cps@GetParams}
+\def\Cps@FontSub{%
+  \def\Cps@@FS##1/##2=##3.{\Def{Cps@FS@##1/##2}{##3}}%
+  \expandafter\Cps@@FS\Cps@Params.}
+\def\SeriesSuffix{\let\Cps@continue\Cps@SeriesSuffix \Cps@GetParams}
+\def\Cps@SeriesSuffix{%
+  \def\Cps@@Ser##1/##2.{\Def{Cps@ser@##1}{##2}}%
+  \expandafter\Cps@@Ser\Cps@Params.}
+\def\ShapeSuffix{\let\Cps@continue\Cps@ShapeSuffix \Cps@GetParams}
+\def\Cps@ShapeSuffix{%
+  \def\Cps@@Sh##1/##2.{\Def{Cps@sh@##1}{##2}}%
+  \expandafter\Cps@@Sh\Cps@Params.}
+\def\SeriesAlias{\let\Cps@continue\Cps@SeriesAlias \Cps@GetParams}
+\def\Cps@SeriesAlias{%
+  \def\Cps@@seral##1/##2.{\Def{Cps@seral@##1}{##2}}%
+  \expandafter\Cps@@seral\Cps@Params.}
+\def\ShapeAlias{\let\Cps@continue\Cps@ShapeAlias \Cps@GetParams}
+\def\Cps@ShapeAlias{%
+  \def\Cps@@shal##1/##2.{\Def{Cps@shal@##1}{##2}}%
+  \expandafter\Cps@@shal\Cps@Params.}
+\def\endfontdecl{\Cps@Commence
+  \Cps@FirstPass \Cps@bxb \Cps@SecondPass \Cps@ThirdPass}
+\def\Cps@Commence{%
+  \MakeSeries{m,b,bx}%
+  \MakeShape{n,sl,it,sc}%
+  \SeriesSuffix m/r.%
+  \SeriesSuffix b/b.%
+  \SeriesSuffix bx/b.%
+  \ShapeSuffix n/.%
+  \ShapeSuffix it/i.%
+  \ShapeSuffix sl/o.%
+  \ShapeSuffix sc/c.%
+  \SeriesAlias b/bx.%
+  \SeriesAlias bx/b.%
+  \ShapeAlias sl/it.%
+  \ShapeAlias it/sl.%
+  \immediate\write\Cps@Pkg@Write
+    {\string\DeclareFontFamily{\Cps@enc}{\Cps@fam}%
+     {\@ifundefined{Cps@FAM}{}{\Cps@FAM}}}}
+\def\@ifNoFont#1.{\@ifundefined{Cps@FD@#1}}
+\def\@ifNoSub#1.{\@ifundefined{Cps@FS@#1}}
+\def\Cps@FontMade#1=#2.{\expandafter\edef\csname Made@#1\endcsname{#2}%
+  \typeout{#1=#2}}
+\def\Cps@FontSubst#1=#2.{\expandafter\edef\csname Subst@#1\endcsname{#2}%
+  \typeout{#1->#2}}
+\def\@ifIgnoreFont#1.#2#3{%
+  \edef\ZW@tempa{\@nameuse{Cps@FD@#1}}%
+  \ifx\ZW@tempa\empty \def\ZW@tempa{#2}\else \def\ZW@tempa{#3}\fi
+  \ZW@tempa}
+\def\@ifFontMade#1.#2#3{\@ifundefined{Made@#1}{#3}{#2}}
+\def\@ifFontSubst#1.#2#3{\@ifundefined{Subst@#1}{#3}{#2}}
+\def\@ifFontExists#1.{%
+  \edef\ZW@tempa{\Cps@fontpath#1.tfm}\IfFileExists{\ZW@tempa}}
+\def\Cps@FirstPass{%
+ \@for\s@ries:=\Series@List\do{%
+  \@for\sh@pe:=\Shape@List\do{\Cps@First@Pass}}}
+\def\Cps@First@Pass{%
+  \edef\Cps@font{\s@ries/\sh@pe}%
+  \expandafter\@ifNoFont\Cps@font.%
+   {\edef\f@name
+     {\Cps@base\@nameuse{Cps@ser@\s@ries}\@nameuse{Cps@sh@\sh@pe}\Cps@sfx}}%
+   {\expandafter\@ifIgnoreFont\Cps@font.%
+     {\let\f@name\relax}%
+     {\edef\f@name{\@nameuse{Cps@FD@\Cps@font}}}}%
+  \@ifundefined{f@name}{}{%
+    \@ifFontExists\f@name.%
+      {\Cps@FontMade\Cps@font=\f@name.\Cps@WriteFdef}{}}}
+\def\Cps@WriteFdef{%
+  \immediate\write\Cps@Pkg@Write
+   {\string\DeclareFontShape
+    {\Cps@enc}{\Cps@fam}{\s@ries}{\sh@pe}{<-> \f@name}%
+     {\@ifundefined{Cps@\s@ries/\sh@pe @STP}{}%
+       {\@nameuse{Cps@\s@ries/\sh@pe @STP}}}}}
+\def\Cps@bxb{%
+  \ifBasBX@
+    \@for\sh@pe:=\Shape@List\do{\Cps@repl{b}{bx}}%
+  \fi
+  \ifBXasB@
+    \@for\sh@pe:=\Shape@List\do{\Cps@repl{bx}{b}}%
+  \fi}
+\def\Cps@repl#1#2{%
+  \edef\Cps@font{#1/\sh@pe}%
+  \edef\s@ries{#1}%
+  \expandafter\@ifFontMade\Cps@font.{}{%
+    \expandafter\@ifNoFont\Cps@font.{%
+      \edef\tri@lf@nt{#2/\sh@pe}%
+      \expandafter\@ifFontMade\tri@lf@nt.%
+        {\edef\f@name{\@nameuse{Made@\tri@lf@nt}}%
+          \Cps@FontMade\Cps@font=\f@name.\Cps@WriteFdef}%
+        {}%
+      }%
+      {}%
+    }}
+\def\Cps@SecondPass{%
+  \@for\s@ries:=\Series@List\do{%
+    \@for\sh@pe:=\Shape@List\do{\Cps@Second@Pass}}}
+\def\Cps@Second@Pass{%
+  \edef\Cps@font{\s@ries/\sh@pe}%
+  \expandafter\@ifFontMade\Cps@font.{}{%
+    \expandafter\@ifNoFont\Cps@font.{%
+      \expandafter\@ifNoSub\Cps@font.{}%
+      {\edef\f@name{\@nameuse{Cps@FS@\Cps@font}}\Cps@Try@Subst}%
+      \expandafter\@ifFontSubst\Cps@font.{}%
+        {\Cps@TryShape\s@ries.}%
+      \expandafter\@ifFontSubst\Cps@font.{}%
+        {\Cps@TrySeries}%
+    }{}%
+  }}
+\def\Cps@Try@Subst{\expandafter
+  \@ifFontMade\f@name.{%
+    \Cps@FontSubst\Cps@font=\f@name.%
+    {\edef\f@name{sub * \f@name}\Cps@WriteFdef}}%
+  {}}
+\def\Cps@TryShape#1.{%
+  \@ifundefined{Cps@shal@\sh@pe}{}%
+  {\edef\f@name{#1/\@nameuse{Cps@shal@\sh@pe}}\Cps@Try@Subst}}
+\def\Cps@TrySeries{%
+  \@ifundefined{Cps@seral@\s@ries}{}%
+  {\edef\f@name{\@nameuse{Cps@seral@\s@ries}/\sh@pe}\Cps@Try@Subst
+    \expandafter\@ifFontSubst\Cps@font.{}%
+      {\Cps@TryShape\@nameuse{Cps@seral@\s@ries}.}}}
+\def\Cps@ThirdPass{%
+  \edef\f@name{\Cps@default}%
+  \expandafter\@ifFontMade\f@name.{}%
+  {\expandafter\@ifFontSubst\f@name.{}{\let\f@name\empty}}%
+  \ifx\f@name\empty
+  \else
+    \@for\s@ries:=\Series@List\do{%
+      \@for\sh@pe:=\Shape@List\do{\Cps@Third@Pass}}%
+   \fi}
+\def\Cps@Third@Pass{%
+  \edef\Cps@font{\s@ries/\sh@pe}%
+  \expandafter\@ifNoFont\Cps@font.{%
+    \expandafter\@ifFontMade\Cps@font.{}{%
+      \expandafter\@ifFontSubst\Cps@font.{}{\Cps@Try@Subst}}}%
+  {}}
+
+\restoreAt
+\endinput
+%% 
+%% End of file `cspsfont.tex'.

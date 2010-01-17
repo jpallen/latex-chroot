@@ -1,0 +1,136 @@
+% maggie.mf by Raymond Chen (rjc@math.princeton.edu) 
+ 
+% Maggie Simpson. 
+ 
+pictureof(Maggie, 20u#, 20u#, 0); 
+    pickup thinpen; 
+ 
+    localpath eye_right; 
+    z.eye_right = (8u, 8u);             % base for right eye 
+ 
+    eye_right = (superellipse( (3.6u, 0u), (1.5u, 2u), 
+                  (-.8u, 0u), (1.5u, -2u), .7) ) shifted z.eye_right; 
+    draw eye_right; 
+ 
+    localpath nose; 
+    z.nose = (12u, 4u);                 % base for nose 
+    z1n = (.8u, .9u);                   % where nose meets pacifier 
+    z1n.dir = -dir10;                   % direction through z1n 
+    z2n = (xpart z1n, -2.7u);           % bottom turn of pacifier 
+    labelsoffset(z.nose, 1n, 2n, 3n);   % Label the points 
+    nose = preclip( ( 
+            (-u, 3u) --- (1u, 3u) ..    % bridge of nose 
+            (2u, 2u) ..                 % tip 
+            z1n{z1n.dir} ..             % through here 
+            (0u, .8u) ..                % return 
+            (-1.7u, -1.4u) ..           % back of pacifier 
+            (0u, -3u) ..                % bottom of pacifier 
+            z2n ..                      % turn 
+            tension 2 .. 
+            {z1n.dir}z1n                % end of front of pacifier 
+           )shifted z.nose, eye_right); 
+    draw nose; 
+ 
+    % The handle of the pacifier 
+    numeric t; t = 1.2u;                % handle thickness 
+ 
+    penpos1p(t, 0);                     % hump of the bowl 
+    penpos2p(t, 90);                    % upper handle 
+    penpos3p(t,-90);                    % lower handle 
+    z1p = z.nose + (1.3u, -1u); 
+    x2p = 
+    x3p = xpart z.nose + .2u; 
+    y1p = 1/2[y2p, y3p]; 
+    y2p - y1p = .8u; 
+ 
+    penlabels(1p, 2p, 3p); 
+ 
+    overdraw z1p.l{up}   .. z2p.l{left} .. z2p.r{right} .. 
+             z1p.r{down} .. z3p.r{left} .. z3p.l{right} .. cycle; 
+ 
+    localpath eye_left; 
+    z.eye_left = (12u, 8u); 
+ 
+    eye_left = prepostclip( ( 
+                (1u, -1.3u){right}.. 
+                (2.7u, .5u){up}.. 
+                (1u, 2u){left}.. 
+                {down}(-.8u, .5u) ) shifted z.eye_left, nose, eye_right); 
+    draw eye_left; 
+ 
+    localpath hair; 
+    hair = preclip( 
+           (14u, 7.5u) :: 
+           (16.2u, 8.8u) :: 
+           (15u, 9.1u) :: 
+           (17u, 11u) :: 
+           (14.7u, 11.8u) :: 
+           (15.4u, 14.4u) :: 
+           (13u, 14u) :: 
+           (10.7u, 16.4u) :: 
+           (8.7u, 13.9u) :: 
+           (5.3u, 15.5u) :: 
+           (4u, 12u) :: 
+           (1.4u, 11u) :: 
+           (2.8u, 8u) :: 
+           (1.1u, 6u) :: 
+           (4.2u, 4.5u) :: 
+           (3u, 2.5u) :: 
+           (6u, 2.6u) .. (6u, 1.5u) .. (8u, .7u){right} .. 
+           (10.3u, 1u), eye_left); 
+    z1h = point infinity of hair; 
+    draw hair; 
+ 
+    % Maggie's adorable bow 
+    numeric t; t = .7u;                 % size of knot 
+    def ::: = ..tension 2 .. enddef; % for bow drawing 
+    z.bow = (11u, 13u); 
+    z1b = (-t,  t);                     %      7\      /5 
+    z2b = ( t,  t);                     %      | \    / | 
+    z3b = ( t, -t);                     %      |  1--2  | 
+    z4b = (-t, -t);                     %      |  |  |  | 
+    z5b = (3t, 2.5t);                   %      |  4--3  | 
+    z6b = (3t, -2t);                    %      | /    \ | 
+    z7b = (-3.5t, 3t);                  %      8/      \6 
+    z8b = (-3.2t, -2.5t); 
+ 
+    overdraw (z2b ::: z5b ::: z6b ::: z3b -- cycle) shifted z.bow;  % right bow 
+    overdraw (z1b ::: z7b ::: z8b ::: z4b -- cycle) shifted z.bow;  % left bow 
+    overdraw (z1b ::: z2b ::: z3b ::: z4b ::: cycle) shifted z.bow; % the knot 
+ 
+    labelsoffset(z.bow, 1b, 2b, 3b, 4b, 5b, 6b, 7b, 8b); 
+ 
+    % Maggie's ear 
+    z.ear = (5u, 5u); 
+    draw ( (1.5u, 1u) .. (-.2u, -.4u) .. (1.5u, -1.4u) ) shifted z.ear; 
+ 
+    drawtau( z.ear + (.3u, -.5u), 
+             z.ear + (1.3u, .5u), 
+             z.ear + (1u, -1.1u), 
+             z.ear + (1u, .5u) ); 
+ 
+    % Maggie's chin (and mouth, sucking on the pacifier) 
+    draw postclip( 
+        ( (-.4u, .2u) .. (0,0) .. (2u, 1u) ) shifted z1h, nose); 
+ 
+    % The front of the Maggie baggie 
+    draw bend(20, z1h, (.3u + xpart z1h, 0)); 
+ 
+    % The back of the Maggie baggie 
+    draw postclip( 
+        (4.2u, 0u){dir 60} .. {dir 45}(5.5u, 2.5u), hair); 
+ 
+    pickup lashpen; 
+    localpath lash; 
+ 
+    rlash( (0  u,  .8u), (-.6u, 1.8u), 0); 
+    rlash( (1  u, 1.6u), ( .8u, 2.4u), 0); 
+    rlash( (2.5u, 1.5u), (2.7u, 2.2u), 0); 
+ 
+    llash( ( .5u, 1.9u), ( .4u, 2.3u), 0); 
+    llash( (1.8u, 1.9u), (1.9u, 2.3u), 0); 
+    llash( (2.5u, 1.5u), (2.7u, 1.8u), 0); 
+ 
+    eyepos(Maggie, 9.2u#, 8.1u#, 12.7u#, 8.1u#); 
+ 
+endpicture; 

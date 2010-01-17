@@ -1,0 +1,171 @@
+%% This file is part of the ANTOMEGA project version 0.6
+%% -----------------------------------------------------
+%% 
+%% It may be distributed under the terms of the LaTeX Project Public
+%% License, as described in lppl.txt in the base LaTeX distribution.
+%% Either version 1.0 or, at your option, any later version.
+%% Copyright (C) 2001 -- 2003 by Alexej Kryukov
+%% Please report errors to: A.M. Kryukov <basileia@yandex.ru>
+
+\makeatletter
+
+\ifx\l@english\@undefined
+   \ifx\l@USenglish\@undefined
+      \ifx\l@american\@undefined
+         \ant@nopatterns{English}
+         \adddialect\l@english0
+      \else
+         \let\l@english\l@american
+      \fi
+   \else
+      \let\l@english\l@USenglish
+   \fi
+\fi
+\ifx\l@american\@undefined
+   \let\l@american\l@english
+\fi
+\ifx\l@british\@undefined
+   \ifx\l@UKenglish\@undefined
+      \adddialect\l@british\l@english
+  \else
+      \let\l@british\l@UKenglish
+  \fi
+\fi
+
+\ifx\westernrm\undefined\let\westernrm=\rmdefault\fi
+\ifx\westernsf\undefined\let\westernsf=\sfdefault\fi
+\ifx\westerntt\undefined\let\westerntt=\ttdefault\fi
+
+\ifx\westernencoding\undefined\let\westernencoding=\uniencoding\fi
+
+\def\english@font{\fontfamily{\westernrm}%
+   \fontencoding{\westernencoding}\selectfont%
+   \let\rmdefault=\westernrm\let\sfdefault=\westernsf%
+   \let\ttdefault=\westerntt\let\encodingdefault=\westernencoding}
+
+\def\tmp@us{us}
+\def\tmp@uk{uk}
+\def\tmp@british{british}
+\def\tmp@american{american}
+\def\en@dialect{\l@english}
+\def\english@language{\protect\language=\en@dialect}
+
+\define@key{english}{dialect}[american]{%
+  \def\@tmpa{#1}
+  \ifx\@tmpa\tmp@uk\def\en@dialect{\l@british}
+     \typeout{Option: english dialect=british}
+  \else\ifx\@tmpa\tmp@british\def\en@dialect{\l@british}
+     \typeout{Option: english dialect=british}%
+  \else\ifx\@tmpa\tmp@us\def\en@dialect{\l@american}
+     \typeout{Option: english dialect=american}%
+  \else\ifx\@tmpa\tmp@american\def\en@dialect{\l@american}
+     \typeout{Option: english dialect=american}
+  \fi\fi\fi\fi}
+
+\def\tmp@uni{unicode}
+\def\tmp@omega{omega}
+\def\tmp@tex{tex}
+
+\def\tmp@ucs{ucs-2}
+\def\tmp@utf{utf-8}
+\def\tmp@iso{iso-8859-1}
+\def\tmp@win{cp1252}
+
+\def\eventualEnPunct{\protect\pushocplist\BasicTexOCP}
+\def\eventualEnShorthands{\protect\pushocplist\BasicBabelOCP}
+\def\eventualEnInput{\protect\pushocplist\BasicInputOCP}
+\def\eventualEnAccents{\protect\pushocplist\BasicAccentsOCP}
+
+\ifx\eventualEuOutput\undefined
+   \def\eventualEuOutput{\protect\pushocplist\LatinUniOutOCP%
+   }
+\fi
+
+\def\english@OCP{\protect\clearocplists%
+   \eventualEnInput%
+   \eventualEnPunct%
+   \eventualEnShorthands%
+   \eventualEnAccents%
+   \eventualEuOutput}
+
+\define@key{english}{input}[ucs-2]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@utf\def\eventualEnInput{%
+      \protect\pushocplist\BasicInputUtfOCP}%
+      \typeout{Option: English input encoding=utf-8}%
+   \else\ifx\@tmpa\tmp@iso\def\eventualEnInput{%
+      \protect\pushocplist\BasicInputIsoOCP}%
+      \typeout{Option: English input encoding=iso-8859-1}%
+   \else\ifx\@tmpa\tmp@win\def\eventualEnInput{%
+      \protect\pushocplist\BasicInputWinOCP}%
+      \typeout{Option: English input encoding=windows-1252}%
+   \else\def\eventualEnInput{%
+      \protect\pushocplist\BasicInputUcsOCP}%
+      \typeout{Option: English input encoding=ucs-2}%
+   \fi\fi\fi}
+
+\define@key{english}{shorthands}[on]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\opt@enabled\def\eventualEnShorthands{%
+      \protect\pushocplist\BasicBabelOCP}%
+      \typeout{Option: Shorthands for English text enabled}%
+   \else\def\eventualEnShorthands{}%
+      \typeout{Option: Shorthands for English text disabled}%
+   \fi}
+
+\define@key{english}{output}[unicode]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@tex\def\eventualEuOutput{%
+      \protect\pushocplist\LatinTexOutOCP}%
+      \def\westernencoding{T1}%
+   \else\ifx\@tmpa\tmp@omega\def\eventualEuOutput{%
+      \protect\pushocplist\LatinOmegaOutOCP}%
+      \def\westernencoding{UT1}%
+   \else\def\eventualEuOutput{%
+      \protect\pushocplist\LatinUniOutOCP}%
+      \def\westernencoding{UT1}%
+   \fi\fi}
+
+\def\english@captions{%
+   \def\prefacename{\localenglish{Preface}}%
+   \def\refname{\localenglish{References}}%
+   \def\abstractname{\localenglish{Abstract}}%
+   \def\bibname{\localenglish{Bibliography}}%
+   \def\chaptername{\localenglish{Chapter}}%
+   \def\appendixname{\localenglish{Appendix}}%
+   \def\contentsname{\localenglish{Contents}}%
+   \def\listfigurename{\localenglish{List of Figures}}%
+   \def\listtablename{\localenglish{List of Tables}}%
+   \def\indexname{\localenglish{Index}}%
+   \def\figurename{\localenglish{Figure}}%
+   \def\tablename{\localenglish{Table}}%
+   \def\partname{\localenglish{Part}}%
+   \def\enclname{\localenglish{encl}}%
+   \def\ccname{\localenglish{cc}}%
+   \def\headtoname{\localenglish{To}}%
+   \def\pagename{\localenglish{Page}}%
+   \def\seename{\localenglish{see}}%
+   \def\alsoname{\localenglish{see also}}%
+   \def\proofname{\localenglish{Proof}}%
+   \def\today{\localenglish{\ifcase\month\or%
+      January\or February\or March\or April\or May\or June\or%
+      July\or August\or September\or October\or November\or December\fi%
+      \space\number\day, \number\year}}}
+
+\def\noextras@english{}
+
+\def\blockextras@english{%
+   \english@language%
+   \local@hyphenmins{english}{2}{3}%
+   \english@captions%
+   \local@marks{english}%
+   \english@OCP%
+   \english@font}
+
+\def\inlineextras@english{%
+   \english@language%
+   \local@hyphenmins{english}{2}{3}%
+   \english@OCP%
+   \english@font}
+
+\endinput

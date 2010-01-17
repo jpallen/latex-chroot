@@ -1,0 +1,34 @@
+% File incp1253.otp
+% Conversion to Unicode from Windows Greek codepage (CP1253)
+% Copyright (c) 2002 Roozbeh Pournader
+% This file is part of the Omega project.
+%
+% This file was derived from information available from
+% Microsoft's website about codepages
+% (http://www.microsoft.com/globaldev/)
+%
+
+input:  1;
+output: 2;
+
+tables:
+
+tabcp1253[@"40] = {
+@"20AC, @"FFFD, @"201A, @"0192, @"201E, @"2026, @"2020, @"2021,
+@"FFFD, @"2030, @"FFFD, @"2039, @"FFFD, @"FFFD, @"FFFD, @"FFFD,
+@"FFFD, @"2018, @"2019, @"201C, @"201D, @"2022, @"2013, @"2014,
+@"FFFD, @"2122, @"FFFD, @"203A, @"FFFD, @"FFFD, @"FFFD, @"FFFD,
+@"00A0, @"0385, @"0386, @"00A3, @"00A4, @"00A5, @"00A6, @"00A7,
+@"00A8, @"00A9, @"FFFD, @"00AB, @"00AC, @"00AD, @"00AE, @"2015,
+@"00B0, @"00B1, @"00B2, @"00B3, @"0384, @"00B5, @"00B6, @"00B7,
+@"0388, @"0389, @"038A, @"00BB, @"038C, @"00BD, @"038E, @"038F
+};
+
+expressions:
+
+@"00-@"7F       => \1;
+@"80-@"BF       => #(tabcp1253[\1-@"80]);
+@"D2		=> @"FFFD;
+@"FF		=> @"FFFD;
+@"C0-@"FF	=> #(\1 + @"2D0);
+.               => @"FFFD;

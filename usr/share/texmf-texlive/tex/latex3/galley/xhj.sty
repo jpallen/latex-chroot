@@ -1,0 +1,313 @@
+%%
+%% This is file `xhj.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xhj.dtx  (with options: `package,trace')
+%% 
+%%
+%% $Header: /usr3/users/latex3/design/consolidation/CURRENT/RCS/xhj.dtx,v 1.8 2000/01/14 15:24:24 latex3 Exp $
+%%
+%% (C) Copyright 1999-2000 Frank Mittelbach
+%% All rights reserved.
+%%
+%% Not for general distribution. In its present form it is not allowed
+%% to put this package onto CD or an archive without consulting the
+%% the authors.
+%%
+%% This module only works in conjunction with the galley2 module.
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{xhj}
+          [2000/01/14 v0.3c hyphenation & justification]
+
+%%
+\NeedsTeXFormat{LaTeX2e}[1998/12/01]
+\RequirePackage{template,xparse}
+                                 % be loaded afterwards !!!!
+\IgnoreWhiteSpace
+\catcode`\:=11\relax
+\def\@usefontdimen#1{\fontdimen#1\font}
+\def\fontslant             {\@usefontdimen1}
+\def\fontwordspace         {\@usefontdimen2}
+\def\fontwordspacestretch  {\@usefontdimen3}
+\def\fontwordspaceshrink   {\@usefontdimen4}
+\def\fontex                {\@usefontdimen5}
+\def\fontem                {\@usefontdimen6}
+\def\fontextraspace        {\@usefontdimen7}
+\DeclareTemplateType{measure}{1}
+\DeclareTemplate{measure}{absolute}{1}{
+  leftmargin  =l \leftmargin,
+  rightmargin =l \rightmargin,
+ }{
+  \DoParameterAssignments
+  \IfNoValueF{#1} { \setlength\leftmargin{ #1 + \@totalleftmargin } }
+  \setSGPVmeasure:nn \leftmargin {\hsize -\leftmargin -\rightmargin }
+}
+\DeclareTemplate{measure}{relative}{1}{
+  leftmargin  =l \leftmargin,
+  rightmargin =l \rightmargin,
+ }{
+  \DoParameterAssignments
+  \IfNoValueF{#1} { \setlength\leftmargin{#1} }
+  \addSGPVmeasure:nn \leftmargin { -\leftmargin -\rightmargin }
+}
+\DeclareTemplateType{pshape}{0}
+\DeclareTemplate{pshape}{cutout}{0}{
+  no-page-break-boolean  =s {\setGALbreak:n {-3}}{},
+  left-side-boolean      =s {}{\let\shape@side\setGALrightparshape:nnn},
+  normal-lines-num       =C  \pshape@normalines,
+  parshape-list          =f0 \pshape@parshape,
+ }{
+  \let\pshape@normalines\z@
+  \let\shape@side\setGALleftparshape:nnn
+  \DoParameterAssignments
+  \shape@side \pshape@normalines \z@ \pshape@parshape
+ }
+\DeclareInstance{pshape}{staggered}{cutout}{
+   no-page-break-boolean = true,
+   normal-lines-num  = 1,
+   parshape-list = { 20pt, 40pt, 60pt },
+}
+\DeclareInstance{pshape}{ltriangle}{cutout}{
+   no-page-break-boolean = true,
+   normal-lines-num  = 0,
+   parshape-list = { 60pt, 40pt, 20pt },
+}
+\DeclareInstance{pshape}{rectangle}{cutout}{
+   no-page-break-boolean = false,
+   normal-lines-num  = 0,
+   parshape-list = { },
+}
+\DeclareTemplateType{justification}{0}
+\DeclareTemplate{justification}{single}{0}{
+  startskip    =L \justification@a ,
+  leftskip     =L \justification@b ,
+  rightskip    =L \justification@c ,
+  parfillskip  =L \justification@d ,
+  spaceskip    =L \justification@e ,
+  xspaceskip   =L \justification@f ,
+  linefillskip =L \justification@g ,
+  parindent    =L \justification@h ,
+ }{
+  \def\justification@a{\z@}
+  \def\justification@b{\leftskip}
+  \def\justification@c{\rightskip}
+  \def\justification@d{\parfillskip}
+  \def\justification@e{\spaceskip}
+  \def\justification@f{\xspaceskip}
+  \def\justification@g{\justification@d}
+  \def\justification@h{\parindent}
+  \DoParameterAssignments
+  \xdef \GAL@j@
+            {{\justification@a}
+             {\justification@b}
+             {\justification@c}
+             {\justification@d}
+             {\justification@e}
+             {\justification@f}
+             {\justification@g}
+             {\justification@h}
+             }
+  \GAL@prepare@reassign:NN  \GAL@j@  \GAL@j@s
+ }
+\DeclareTemplate{justification}{std}{0}{
+  startskip      =L  \justification@a ,
+  leftskip       =L  \justification@b ,
+  rightskip      =L  \justification@c ,
+  parfillskip    =L  \justification@d ,
+  spaceskip      =L  \justification@e ,
+  xspaceskip     =L  \justification@f ,
+  linefillskip   =L  \justification@g ,
+  parindent      =L  \justification@h ,
+ }
+ {
+  \def\justification@a{\z@}
+  \def\justification@b{\leftskip}
+  \def\justification@c{\rightskip}
+  \def\justification@d{\parfillskip}
+  \def\justification@e{\spaceskip}
+  \def\justification@f{\xspaceskip}
+  \def\justification@g{\justification@d}
+  \def\justification@h{\parindent}
+  \DoParameterAssignments
+  \edef \@tempa {\noexpand \setSGPVthing:nn j
+                                {{\justification@a}
+                                 {\justification@b}
+                                 {\justification@c}
+                                 {\justification@d}
+                                 {\justification@e}
+                                 {\justification@f}
+                                 {\justification@g}
+                                 {\justification@h}
+                                }
+                }
+  \@tempa
+  \expandafter \setup@paragraph@justification \GAL@j@
+}
+\DeclareTemplate{justification}{complex}{0}{
+  first-para-justification-setup =i {justification}
+                                            \justification@first,
+  other-para-justification-setup =i {justification}
+                                            \justification@other,
+ }
+ {
+  \DoParameterAssignments
+  \justification@other
+  \justification@first
+ }
+\DeclareInstance{justification}{adjust}{std}
+   {rightskip  =0pt,
+    leftskip   =0pt,
+    startskip  =0pt,
+    parfillskip=\fill
+}
+\DeclareInstance{justification}{default}{std}
+   {rightskip  =0pt,
+    leftskip   =0pt,
+    startskip  =0pt,
+    parfillskip=\fill
+}
+\DeclareInstance{justification}{adjust2}{std}
+   {parindent  = 0pt,
+    rightskip  = 0pt,
+    leftskip   = 0pt,
+    startskip  = 0pt,
+    parfillskip= 20pt plus 1fil
+}
+\DeclareInstance{justification}{center}{std}
+   {parindent  =0pt,
+    rightskip  =\fill,
+    leftskip   =\fill,
+    startskip  =0pt,
+    parfillskip=0pt
+}
+\DeclareInstance{justification}{centermiddle}{std}
+   {parindent  =0pt,
+    rightskip  =36pt plus 1fill,
+    leftskip   =36pt plus 1fill,
+    startskip  =-36pt plus -1fill,
+    parfillskip=-36pt plus -1fill,
+    linefillskip= 0pt,
+}
+\DeclareInstance{justification}{raggedright}{std}
+   {rightskip  = \DelayEvaluation 0pt plus 2em,
+    leftskip   = 0pt,
+    startskip  = 0pt,
+    parfillskip= \fill,
+    spaceskip =  \DelayEvaluation \fontwordspace,
+    xspaceskip = \DelayEvaluation \fontwordspace + \fontextraspace,
+}
+\DeclareInstance{justification}{flushleft}{std}
+   {rightskip  =\fill,
+    leftskip   =0pt,
+    startskip  =0pt,
+    parfillskip=\fill,
+}
+\DeclareInstance{justification}{raggedleft}{std}
+   {leftskip   = \DelayEvaluation 0pt plus 2em,
+    rightskip  = 0pt,
+    startskip  = 0pt,
+    parfillskip= 0pt,
+    spaceskip  = \DelayEvaluation \fontwordspace,
+    xspaceskip = \DelayEvaluation \fontwordspace + \fontextraspace,
+}
+\DeclareInstance{justification}{flushright}{std}
+   {leftskip   = \fill,
+    rightskip  = 0pt,
+    startskip  = 0pt,
+    parfillskip= 0pt,
+}
+\DeclareInstance{justification}{centerfirst}{single}
+   {parindent  = 0pt,
+    rightskip  = \fill,
+    leftskip   = -\fill,
+    parfillskip= 0pt,
+    startskip  = 0pt plus 2fill,
+    linefillskip= 0pt,
+}
+\DeclareInstance{justification}{centerfirst-adjust}{complex}
+ {  first-para-justification-setup = centerfirst,
+    other-para-justification-setup = adjust
+ }
+\DeclareTemplateType{linebreak}{0}
+\DeclareTemplate{linebreak}{TeX}{0}{
+  pretolerance         =c [100]   \pretolerance,
+  tolerance            =c [200]   \tolerance,
+  linepenalty          =c [10]    \linepenalty,
+  binoppenalty         =c [700]   \binoppenalty,
+  relpenalty           =c [500]   \relpenalty,
+  hbadness             =c [1000]  \hbadness,
+  adjdemerits          =c [10000] \adjdemerits,
+  doublehyphendemerits =c [10000] \doublehyphendemerits,
+  finalhyphendemerits  =c [5000]  \finalhyphendemerits,
+  hfuzz                =l [.1pt] \hfuzz,
+  emergencystretch     =l [0pt]  \emergencystretch,
+}
+ {\DoParameterAssignments
+  \GAL@typeout{Now~ changing~ linebreaking}
+ }
+\DeclareInstance{linebreak}{default}{TeX}{}
+\DeclareInstance{linebreak}{fussy}{TeX}{}
+\DeclareInstance{linebreak}{sloppy}{TeX}
+  {
+  tolerance            = 9999,
+  hfuzz                = .5pt,
+  emergencystretch     = \DelayEvaluation 3em,
+  }
+\def\fussy {\UseInstance{linebreak}{fussy}}
+\def\sloppy{\UseInstance{linebreak}{sloppy}}
+\DeclareTemplateType{hyphenation}{0}
+
+\DeclareTemplate{hyphenation}{TeX}{0}{
+  uchyph                   =c [1]   \uchyph,
+  hyphenpenalty            =c [50]  \hyphenpenalty,
+  exhyphenpenalty          =c [50]  \exhyphenpenalty,
+  lefthyphenmin            =c       \lefthyphenmin,
+  righthyphenmin           =c       \righthyphenmin,
+}
+ {\DoParameterAssignments
+  \GAL@typeout{Now~ changing~ hyphenation}
+ }
+\newcount\@@lefthyphenmin
+\DeclareTemplate{hyphenation}{std}{0}{
+  hyphen-enable-boolean    =s  {\ifnum\@@lefthyphenmin>\z@
+                                  \lefthyphenmin\@@lefthyphenmin
+                                \fi}
+                               {\@@lefthyphenmin\lefthyphenmin
+                                \lefthyphenmin\@M},
+  hyphen-uppercase-boolean =s  {\uchyph\@ne}{\uchyph\z@},
+  hyphen-discourage-boolean=s  {\hyphenpenalty\@highpenalty
+                                \exhyphenpenalty\@highpenalty}{},
+  hyphen-encourage-boolean =s  {\hyphenpenalty\@lowpenalty
+                                \exhyphenpenalty\@lowpenalty}{},
+}
+ {\DoParameterAssignments
+  \GAL@typeout{Now~ changing~ hyphenation}
+ }
+\DeclareInstance{hyphenation}{default}{TeX}
+    {}
+\DeclareInstance{hyphenation}{off}{std}
+    {hyphen-enable-boolean = false}
+\DeclareInstance{hyphenation}{on}{std}
+    {hyphen-enable-boolean = true}
+\DeclareInstance{hyphenation}{discourage}{std}
+    {hyphen-enable-boolean = true,
+     hyphen-discourage-boolean = true}
+\DeclareTemplateType{hj}{0}
+\DeclareTemplate{hj}{std}{0}{
+  justification-setup =i {justification} [default] \hj@justification,
+  linebreak-setup     =i {linebreak}     [default] \hj@linebreak,
+  hyphenation-setup   =i {hyphenation}   [default] \hj@hyphenation,
+}
+ {\DoParameterAssignments
+  \hj@justification
+  \hj@linebreak
+  \hj@hyphenation
+ }
+\DeclareInstance{hj}{default}{std}{}
+\catcode`\:=12\relax
+\endinput
+%%
+%% End of file `xhj.sty'.

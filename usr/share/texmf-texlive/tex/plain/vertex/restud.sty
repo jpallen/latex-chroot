@@ -1,0 +1,193 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%    Review of Economic Students --- style file
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Since this style uses the notes-at-end by default, it is necessary to
+% put \Notes on a line by itself right before \Refs in order to
+% get the Acknowlegement and Notes printed.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Special fonts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\font\sixteenrmB=cmbx10 scaled \magstep4
+\font\sctwelve=cmcsc10 scaled\magstep1
+\font\scten=cmcsc10
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Set pagesize
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\hsize=32pc
+\vsize=51pc
+\hoffset=1in
+\voffset=1in
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Headline and footline
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\nopagenumbers 
+\def\rightheadline{\hbox to\hsize{\tenrm\hfil\uppercase{\runname}\hskip 3em\uppercase{\runtitle}\hfil\folio}}
+\def\leftheadline{\hbox to \hsize{\tenrm\folio \hfil {\scten REVIEW OF ECONOMIC STUDENTS}\hfil}} 
+\headline={\ifodd\pageno\rightheadline\else\leftheadline\fi}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Define topmatter style
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\TitleFont{\sixteenrmB}
+\def\AuthorFont{\sctwelve}
+
+\def\DoCenteredTitle#1{
+    \titlepage\global
+    \CenterBox
+       \titlebox
+       \TitleFont
+       {20pt}
+       {#1}}
+
+\def\title#1{\DoCenteredTitle{#1}}
+
+\def\author#1{\DoCenteredAuthor{#1}}
+
+\def\affil#1{\global\setbox\affilbox\hbox{\tenit\noindent #1}}
+
+\def\thanks#1{\global\setbox\thanksbox\hbox{\eightpoint
+  {\it Acknowledgement.}\space#1\par}}
+
+\def\date#1{\global\setbox\datebox\vbox{\tenrm #1 \hfil}}
+
+\def\abstract#1{\global\setbox\abstractbox
+     \vbox{\eightpoint\hsize=28pc #1}}
+
+\def\keywords#1{}
+\def\address#1{}
+
+\def\topmatter{\relax}
+\def\endtopmatter{\DoTop}
+\def\document{\DoPaper\noindent}
+
+\let\SectionFont=\scten
+\RomanSectionfalse
+
+\def\section#1\par{\DoCenteredSection{\uppercase{#1}}}
+
+\def\subsection#1\par{\BigBreak\noindent
+   {\it \number\SectionNumber.\number\SubsectionNumber.\enspace #1\hfil}
+   \nobreak\medskip\noindent}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Redefine \fnote since REStud has notes at end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\fnote#1{$^{\the\FootNumber}$
+\insert\endnoteins{\eightpoint\smallskip\number\FootNumber. #1\par}
+\global\advance\FootNumber by 1}
+
+%\def\fnote#1{$^{\the\FootNumber}$
+%\insert\endnoteins{\eightpoint
+%  \begingroup\smallskip\number\FootNumber.\space#1\par\endgroup}
+%  \global\advance\FootNumber by 1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Math conventions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\outer\def\proclaim #1. #2\par{\medbreak
+  {\tenpoint\bf#1.\enspace}{\sl#2}\par
+  \ifdim\lastskip<\medskipamount \removelastskip\penalty55\medskip\fi}
+
+\def\proof{\goodbreak{\it Proof.\enspace}}
+
+\def\qed{$\parallel$}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     Redefine figure macro
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\Figure#1#2#3{
+     \midinsert
+     \vbox to #2{\vfil}
+     \hbox to \hsize{\vbox{\parindent=0pt
+     {\scten Figure \number#1}. \rm #3}}
+     \endinsert}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\RefFont=\eightpoint
+
+\def\Notes{\ifvoid\thanksbox\relax\else
+\vfill\supereject
+\vbox{\hsize=28pc\eightpoint\noindent\unhbox\thanksbox\par}\fi
+\ifvoid\endnoteins\relax\else
+ \bigskip
+ \line{\eightpoint\rm NOTES \hfil}
+ \medskip
+ \unvbox\endnoteins
+\fi}
+
+\def\DoRefs{\BigBreak
+{\noindent\eightpoint\rm REFERENCES}
+\vskip .5pc
+\RefFont}
+
+\def\Refs{\DoRefs}
+
+\def\by#1{\setbox\bybox\hbox{\eightpoint\sc\expandafter\uppercase{#1}}}
+
+\def\SetRef{\vskip 2pt
+
+  \ifjour\jourfalse\vbox{\HangRef
+     \unhbox\bybox\space (\unhbox\yrbox), ``\unhbox\paperbox'', 
+     \unhbox\jourbox, {\bf \unhbox\volbox} 
+     \ifvoid\nobox\relax\else (\unhbox\nobox), \fi
+     \unhbox\pagesbox. \par}\fi
+  
+  \ifbook\bookfalse\par\vbox{\HangRef
+     \unhbox\bybox\space {\it \unhbox\bookbox}. \unhbox\publaddrbox : 
+         \unhbox\publbox , \unhbox\yrbox.\par}\fi
+
+ \ifinbook\inbookfalse\par\vbox{\HangRef
+     \unhbox\bybox\space (\unhbox\yrbox): ``\unhbox\paperbox,'' in 
+     {\it \unhbox\bookbox}, ed. by {\rm \unhbox\editorbox}.
+     \unhbox\publaddrbox : \unhbox\publbox \ifvoid\pagesbox\relax
+     \else, \unhbox\pagesbox .\fi\par}\fi
+
+ \ifunpublished\unpublishedfalse\par\vbox{\HangRef
+     \unhbox\bybox\space(\unhbox\yrbox):
+    ``\unhbox\paperbox, '' \unhbox\paperinfobox .\par}\fi
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Set the paper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\titlehead{\vbox{\eightpoint
+\line{Review of Economic Students (1986) LIII, 001--002 \hfil 0034-6527/86/000100001\$2.00}
+\line{$\copyright$ 1986 The Society for Limited Economic Analysis \hfil}
+}}
+\def\titlefoot{\hfil}
+
+\def\DoTop{\Reset
+\vglue 2pc
+\line{\hfil\box\titlebox\hfil}
+\vskip 2pc
+\line{\hfil\box\authorbox\hfil}
+\vskip.25pc
+\line{\hfil\box\affilbox\hfil}
+\vskip 2pc
+\line{\hfil\box\abstractbox\hfil}
+\vskip2pc}
+
+\def\DoPaper{\relax}
+
+\tenpoint
+\parindent=20pt
+\def\footnoterule{}

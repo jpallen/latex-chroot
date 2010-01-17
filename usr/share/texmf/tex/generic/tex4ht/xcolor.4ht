@@ -1,0 +1,99 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% xcolor.4ht                            2008-02-28-20:51 %
+% Copyright (C) 2007--2008       Eitan M. Gurari         %
+%                                                        %
+% This work may be distributed and/or modified under the %
+% conditions of the LaTeX Project Public License, either %
+% version 1.3c of this license or (at your option) any   %
+% later version. The latest version of this license is   %
+% in                                                     %
+%   http://www.latex-project.org/lppl.txt                %
+% and version 1.3c or later is part of all distributions %
+% of LaTeX version 2005/12/01 or later.                  %
+%                                                        %
+% This work has the LPPL maintenance status "maintained".%
+%                                                        %
+% This Current Maintainer of this work                   %
+% is Eitan M. Gurari.                                    %
+%                                                        %
+% If you modify this program your changing its signature %
+% with a directive of the following form will be         %
+% appreciated.                                           %
+%            \message{signature}                         %
+%                                                        %
+%                             gurari@cse.ohio-state.edu  %
+%                 http://www.cse.ohio-state.edu/~gurari  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\immediate\write-1{version 2008-02-28-20:51}
+
+\input color.4ht
+\def\rowc@l@rs[#1]#2#3#4%
+ {\global\rownum=\z@
+  \global\@rowcolorstrue
+  \@ifxempty{#3}%
+    {\def\@oddrowcolor{\@norowcolor}}%
+    {\def\@oddrowcolor{\a:rowcolors{#3}%
+                       \gdef\CT@row@color{\CT@color{#3}}}}%
+  \@ifxempty{#4}%
+    {\def\@evenrowcolor{\@norowcolor}}%
+    {\def\@evenrowcolor{\a:rowcolors{#4}%
+                        \gdef\CT@row@color{\CT@color{#4}}}}%
+  \if@rowcmd
+    \def\@rowcolors
+     {#1\if@rowcolors
+        \o:noalign:{\relax\ifnum\rownum<#2\@norowcolor\else
+                 \ifodd\rownum\@oddrowcolor\else\@evenrowcolor\fi\fi}%
+      \fi}%
+  \else
+    \def\@rowcolors
+     {\if@rowcolors
+        \ifnum\rownum<#2\o:noalign:{\@norowcolor}\else
+        #1\o:noalign:{\ifodd\rownum\@oddrowcolor\else\@evenrowcolor\fi}\fi
+      \fi}%
+  \fi
+  \CT@everycr{\@rowc@lors\the\everycr}%
+  \ignorespaces}
+\NewConfigure{rowcolors}{1}
+\def\@rowc@lors{\o:noalign:{\global\advance\rownum\@ne}\@rowcolors}
+\def\showrowcolors{\o:noalign:{\global\@rowcolorstrue}\@rowcolors}
+\def\hiderowcolors{\o:noalign:{\global\@rowcolorsfalse\@norowcolor}}
+\def\:temp#1#2#3{{\set@color}}
+\HLet\color@block\:temp
+\def\:temp#1#2#3{}
+\HLet\boxframe\:temp
+\let\XC:definec@lor\XC@definec@lor
+\def\XC@definec@lor[#1]#2[#3]#4#5{%
+   \expandafter\ifx\csname HColor!#2\endcsname\relax\else
+        \csname HColor!#4\endcsname #3!//%
+        \edef\:temp{{HColor}{#1}{\HColor}}%
+        \expandafter\Configure\:temp
+   \fi
+   \XC:definec@lor[#1]{#2}[#3]{#4}{#5}%
+}
+\expandafter\def\csname get!HColor\endcsname#1!#2//{%
+  \expandafter\ifx \csname HColor!#1\endcsname\relax
+     \let\HColor=\relax
+     \expandafter\ifx \csname\string\color @#1\endcsname \relax\else
+   \expandafter\ifx \csname colortyp:\endcsname\relax \else
+      \csname colortyp:\expandafter\expandafter\expandafter\endcsname
+         \csname\string\color @#1\expandafter\endcsname
+         \space .!//%
+\fi \fi
+%
+  \else
+     \csname HColor!#1\endcsname #2//%
+  \fi
+}
+\expandafter\def\csname c:HColor!gray:\endcsname{%
+     \expandafter\def\csname HColor!gray\endcsname##1!##2//}
+\Configure{HColor!gray}{\Configure{HColor}{}{}}
+\expandafter\def\csname c:HColor!rgb:\endcsname{%
+     \expandafter\def\csname HColor!rgb\endcsname##1,##2,##3!##4//}
+\Configure{HColor!rgb}{\Configure{HColor}{}{}}
+\expandafter\def\csname c:HColor!cmyk:\endcsname{%
+     \expandafter\def\csname HColor!cmyk\endcsname##1,##2,##3,##4!##5//}
+\Configure{HColor!cmyk}{\Configure{HColor}{}{}}
+
+\Hinput{xcolor}
+\endinput
+

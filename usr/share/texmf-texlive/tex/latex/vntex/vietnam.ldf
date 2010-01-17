@@ -1,0 +1,88 @@
+% Copyright 2000-2005 Werner Lemberg <wl@gnu.org>.
+% This file is part of vntex.  License: LPPL, version 1.3 or newer,
+% according to http://www.latex-project.org/lppl.txt
+%
+%
+% vietnam.ldf
+%
+% written by Werner LEMBERG <wl@gnu.org>
+%
+% History
+%
+%   1.0  2000/09/01
+%
+%     First version.
+%
+%   1.1  2001/05/26
+%
+%     Moved \endlinechar downwards.
+%
+%   post 1.1  ?
+%
+%     Don't check for dblaccnt.sty.
+%     Add support for ucs.sty.
+%     Don't define \captionsvietnam but load vncaps.tex.
+%
+%   1.2  2005/04/21
+%
+%     Add copyright message.
+%     Minor clean-ups.
+
+\ProvidesLanguage{vietnam}
+    [2005/04/21 v1.2 Vietnamese support from the babel system]
+
+\LdfInit{vietnam}{captionsvietnam}
+
+\ifx\l@vietnam \@undefined
+  \adddialect\l@vietnam 0
+\fi
+
+\let\latinencoding\cf@encoding
+
+\InputIfFileExists{t5enc.def}
+  {\message{Loading definitions for the Vietnamese font encoding}}
+  {\errhelp{I can't find the file `t5enc.def' for Vietnamese fonts}
+   \errmessage{Since I do not know what the T5 encoding means^^J
+               I can't typeset Vietnamese.^^J
+               I stop here, while you get a suitable `t5enc.def' file}
+   \@@end}                                                                              
+
+
+\@ifpackageloaded{inputenc}{}
+  {\PackageWarning{babel}{No input encoding specified for Vietnamese}}
+
+\endlinechar \m@ne
+
+\@ifpackageloaded{ucs}{
+  \PreloadUnicodePage{0}
+  \PreloadUnicodePage{1}
+  \PreloadUnicodePage{30}
+  \ifx \UnicodeCharFilter \@undefined
+%   \UCSProtectionUnichar
+    \UCSProtectionIeC
+  \else
+    \UnicodeCharFilter\IeC
+  \fi}{}
+
+\DeclareRobustCommand{\viettext}{
+  \fontencoding{T5}\selectfont
+  \def\encodingdefault{T5}
+  \language\l@vietnam}
+\let\viet \viettext
+\DeclareTextFontCommand{\textviet}{\viet}
+
+\addto\extrasvietnam{\viettext}
+\addto\noextrasvietnam{\latintext}
+
+\addto\extrasvietnam{\bbl@frenchspacing}
+\addto\noextrasvietnam{\bbl@nonfrenchspacing}
+
+\input{vncaps.tex}
+
+\ldf@finish{vietnam}
+
+\endlinechar `\^^M
+
+\endinput
+
+% end of vietnam.ldf

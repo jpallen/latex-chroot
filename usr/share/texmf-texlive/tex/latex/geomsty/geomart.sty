@@ -1,0 +1,193 @@
+% $Header: /a/tampa/h/tampa_a/fac/levy/texts/geombook/RCS/geomart.sty,v 1.7 94/07/22 09:55:30 levy Exp Locker: levy $
+
+%
+% This is the geom style article file, by Silvio Levy.
+% It contains modifications to article.sty of <16 Mar 88>.
+%
+% \typeout{Reading geomart.sty $Revision: 1.7 $ (changes to article.sty)}
+
+%  Marginpars go on right side of page.
+
+\@mparswitchfalse  
+
+% Input size-dependent information.  \@ptsize.sty is defined in book.sty.
+
+\input geomar1\@ptsize.sty\relax
+
+% Layout parameters
+
+\tolerance 1000
+\clubpenalty 10000
+\widowpenalty 10000
+\hfuzz=.1pt
+
+% First two levels of enumerations are (a) and (i), respectively,
+% rather than 1. and (a).
+
+\let\@@currentlabel\relax  %assign initial value
+
+\def\labelenumi{\theenumi}
+\def\theenumi{(\alph{enumi})}
+\def\p@enumi{\@@currentlabel}
+
+\def\labelenumii{\theenumii}
+\def\theenumii{(\roman{enumii})}
+\def\p@enumii{\@@currentlabel}
+
+\def\p@enumiii{\@@currentlabel}
+
+\def\p@enumiv{\@@currentlabel}
+
+% Less space around contents of \fbox (2pt instead of 3pt)
+
+\fboxsep = 2pt 
+
+% No explicit \@mkboth needed in \tableofcontents 
+% marks are automatically added by \section*
+
+\@ifundefined{contentsname}{\def\contentsname{Contents}}{}
+\def\tableofcontents{{\starredcontentsfalse\section*{\contentsname}\@starttoc{toc}}}
+
+% Contents line for part
+
+\def\l@part#1#2{\addpenalty{\@secpenalty}
+   \addvspace{2em plus 1pt}  % space above part line
+   \begingroup
+     \def\\{\unskip\ \ignorespaces} % deal with \\ in chapter titles --SL
+     \@tempdima 3em         % width of box holding part number, used by 
+     \parindent \z@                             %% \numberline
+     \rightskip \@pnumwidth plus 3em  % allow ragged right           
+     \parfillskip -\rightskip         % when line wraps around --SL
+     \hangindent 1.5em    % hangindent is same as l@section below --SL
+     {\bf                 % set line in boldface
+     \leavevmode          % TeX command to enter horizontal mode.       
+     #1\hfil \hbox to\@pnumwidth{\hss #2}}\par
+     \nobreak             % Never break after part entry
+   \endgroup}
+
+% Treat contents entry for section same as the others
+
+\def\l@section{\@dottedtocline{1}{0em}{2.3em}}
+\def\l@subsection{\@dottedtocline{2}{2.3em}{3.2em}}
+\def\l@subsubsection{\@dottedtocline{3}{5.5em}{4.1em}}
+\def\l@paragraph{\@dottedtocline{4}{9.6em}{5em}}
+\def\l@subparagraph{\@dottedtocline{5}{14.6em}{6em}}
+
+\def\l@ssection{\@dottedtocline{1}{0em}{0em}}
+\def\l@ssubsection{\@dottedtocline{2}{2.3em}{0em}}
+\def\l@ssubsubsection{\@dottedtocline{3}{5.5em}{0em}}
+\def\l@sparagraph{\@dottedtocline{4}{9.6em}{0em}}
+\def\l@ssubparagraph{\@dottedtocline{5}{14.6em}{0em}}
+
+% No explicit \@mkboth needed in \listoffigures \listoftables \thebibliography
+% marks are automatically added by \section*
+
+\@ifundefined{listfigurename}{\def\listfigurename{List of Figures}}{}
+\@ifundefined{listtablename}{\def\listtablename{List of Tables}}{}
+\def\listoffigures{\section*{\listfigurename}\@starttoc{lof}}
+\def\listoftables{\section*{\listtablename}\@starttoc{lot}}
+
+% no indentation for figure contents line, since there are
+% no higher-level entries
+
+\def\l@figure{\@dottedtocline{1}{0em}{2.3em}}
+\let\l@table\l@figure
+
+\@ifundefined{refname}{\def\refname{References}}{}
+\def\thebibliography#1{\section*{\refname}\list
+ {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}\leftmargin\labelwidth
+ \advance\leftmargin\labelsep
+ \usecounter{enumi}}
+ \def\newblock{\hskip .11em plus .33em minus .07em}
+ \sloppy\clubpenalty4000\widowpenalty4000
+ \sfcode`\.=1000\relax}
+
+% Index uses two columns and smaller type.
+
+\@ifundefined{indexname}{\def\indexname{Index}}{}
+\def\theindex{\begingroup\section*{\indexname}\small
+    \parindent\z@
+    \parskip\z@ plus .3pt\relax\let\item\@idxitem
+    \begin{multicols}2}
+\def\endtheindex{\end{multicols}\endgroup}
+
+\def\glo#1{${}^{\dagger}$#1\index{\dag #1}}
+
+\@ifundefined{glossaryname}{\def\glossaryname{Glossary}}{}
+\newenvironment{theglossary}%
+  {\begingroup\section*{\glossaryname}\small
+    \begin{multicols}2}%
+  {\end{multicols}\endgroup}
+\def\entry{\medbreak\@ifnextchar[{\entry@}{\entry@@}}
+\def\entry@@#1{\par\noindent{\bf #1.}\enspace\ignorespaces}
+\def\entry@[#1]#2{\par\noindent{\bf #2} #1.\enspace\ignorespaces}
+
+% Indentation in index is smaller (12pt instead of 40pt)
+
+\def\@idxitem{\par\hangindent 12pt}
+
+% Allow more of the page to be taken by figures.
+
+\def\bottomfraction{.7}
+\def\floatpagefraction{.7}
+
+% Captions at set with a width somewhat smaller than the main text width
+
+\newdimen\@captionmargin\@captionmargin=\parindent
+\newdimen\@captionwidth\@captionwidth=\hsize
+\advance\@captionwidth by -2\@captionmargin
+
+% left and right footers (normally set by RCS)
+
+\def\leftfoot{{}}
+\def\rightfoot{{}}
+
+% Definition of 'headings' page style.  
+
+\def\ps@headings{\let\@mkboth\markboth
+  \def\@oddfoot{\ifproofing\leftfoot\hfil\rightfoot\unskip\else\hfil\fi}
+  \def\@evenfoot{\ifproofing\leftfoot\hfil\rightfoot\unskip\else\hfil\fi}
+  \def\@evenhead{\footnotesize\rm\thepage\hfil\leftmark}%      Left heading.
+  \def\@oddhead{\footnotesize\rm\hbox{}\rightmark\hfil\thepage}%Right heading
+  \def\ssectionmark##1{\markbothsame{##1}}%
+  \def\sectionmark##1{{%  Expand the \ifnum, not the ##1
+    \edef\@tempa{\ifnum \c@secnumdepth >\z@ \thesection. \fi}%
+    \expandafter \markbothsame \expandafter{\@tempa ##1}}}}
+
+\def\ps@plain{\let\@mkboth\markboth
+  \def\@oddfoot{\ifproofing\leftfoot\hfil\rightfoot\else\hfil\fi}%
+  \def\@evenfoot{\ifproofing\leftfoot\hfil\rightfoot\else\hfil\fi}%
+  \def\@evenhead{\hfil}\def\@oddhead{\hfil}}
+
+% Put the new \ps@headings into effect.
+
+\ps@headings
+
+% $Log:	geomart.sty,v $
+%Revision 1.7  94/07/22  09:55:30  levy
+%\contentsname etc.
+%
+%Revision 1.6  1994/04/08  22:04:06  levy
+%initial value for @@currentlabel
+%
+%Revision 1.5  92/07/17  13:44:17  levy
+%*** empty log message ***
+%
+%Revision 1.4  92/07/13  21:54:23  levy
+%further cleaned up the environments
+%
+%Revision 1.3  92/07/13  08:49:21  levy
+%theoremSt -> Theorem
+%
+%Revision 1.2  92/06/10  12:38:44  levy
+%geomart12 -> geomar12
+%
+%Revision 1.1  92/04/07  09:09:05  levy
+%Initial revision
+%
+%Revision 1.3  1992/03/20  22:39:40  levy
+%*** empty log message ***
+%
+%Revision 1.2  1992/03/20  19:17:42  levy
+%*** empty log message ***
+%

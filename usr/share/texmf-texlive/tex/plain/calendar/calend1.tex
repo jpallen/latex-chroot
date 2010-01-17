@@ -1,0 +1,85 @@
+%%
+%%  FILE calend1.tex
+%%
+\def\loadadvanced{\relax}
+% Convert from Julian date and time in
+% \date to long date (in local time) 
+\def\JDTtoL{\advance\date by500
+ \advance\date by\timezone\divide\date by1000}
+%% Trigonometric functions
+\def\sintable#1{\ifcase #1 0\or100\or199
+ \or296\or389\or479\or565\or644\or717
+ \or783\or841\or891\or932\or964\or985
+ \or997\or1000\or992\or974\or946\or909
+ \or863\or808\or746\or675\or598\or516
+ \or427\or335\or239\or141\or42\or-58
+ \or-158\fi}
+% Reduces modulo 2\pi (requires positive
+% argument theta):
+% theta := theta MOD 2\pi, where
+% theta = count1*10^(-3)
+\def\twopimod{\count2 =\count1
+ \divide\count2 by6284 \count3 =1853
+ \count4 =6283\multiply\count3  by\count2
+ \multiply\count4  by\count2  
+ \divide\count3  by10000
+ \advance\count3  by\count4  
+ \advance\count1  by-\count3}
+\newif\ifsign
+% v := sin(theta), where
+% v = count4*10^(-3);
+% theta = count1*10^(-3)
+% theta is reduced MOD 2\pi to be
+% 0<=theta<2\pi by \TWOPIMOD,
+% then linear interpolation is performed
+% using \SINTABLE.
+\def\Sin{
+ \ifnum\count1<0 \signtrue
+ \count1=-\count1\else \signfalse\fi
+ \loop\ifnum\count1>6284\twopimod\repeat
+ \ifnum\count1>3142
+ \advance\count1 by-3142
+ \ifsign\signfalse\else\signtrue\fi\fi
+ \multiply\count1  by10 \count3 =\count1 
+ \divide\count3  by1000 \count2 =\count3 
+ \multiply\count3  by1000
+ \advance\count3  by-\count1  
+ \count5 =\sintable{\count2 }
+ \count4 =\count5\advance\count2  by1
+ \advance\count4  by -\sintable{\count2 }
+ \multiply\count4  by\count3  
+ \divide\count4  by1000
+ \advance\count4  by\count5  
+ \ifsign\count4 =-\count4 \fi}
+% v := cos(theta), where
+% v = count4*10^(-3);
+% theta = count1*10^(-3).
+% \SIN is evaluated on pi/2-theta.
+\def\Cos{\advance\count1  by-1571
+ \multiply\count1  by-1\Sin}
+% Linear transformation of T giving
+% theta := a*T+b, where
+% T = count0*10^(-6);
+% theta = count1*10^(-3);
+% a = #1*10^3+#2+#3*10^(-3);
+% b = #4*10^(-3)
+\def\lin#1.#2.#3+#4.{\count1 =#3
+ \count2 =#2 \count3 =#1 
+ \multiply\count1 by\count0
+ \multiply\count2 by\count0 
+ \multiply\count3 by\count0
+ \divide\count1 by1000
+ \advance\count1 by\count2
+ \divide\count1 by1000
+ \advance\count1 by\count3
+ \advance\count1 by #4}
+% Accumulate value returned by a
+% trigonometric function, scaled by
+% factor f, into count6:
+% ac := ac+f*v, where
+% ac = count6*10^(-7)
+% v = value of SIN or COS =count4*10^(-3)
+% f = #1*10^(-4)
+\def\fac#1{\multiply\count4  by #1
+ \advance\count6  by\count4}
+\def\id{\count4=\count1}  % Identity

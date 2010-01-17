@@ -1,0 +1,134 @@
+% AUTO-PST-PDF
+% This is the auto-pst-pdf package, by Will Robertson.
+% Proper documentation forthcoming (if ever).
+%
+% This document may be distributed under the terms and conditions of
+% the LaTeX Project Public License, version 1.3c or later (your preference): 
+%  <http://www.latex-project.org/lppl.txt>
+%
+% The package is "maintained" by Will Robertson.
+% Contact: <wspr81 [at] gmail [dot] com>
+% Copyright 2006 by Will Robertson
+%
+% BASIC USAGE
+% This package provides a wrapper around pst-pdf to automatically
+% accomodate for typesetting either with DVI or PDF output. With
+% default package option [on], typesetting under pdfLaTeX will
+% automatically initiate a LaTeX->dvips->ps2pdf->pdfcrop run to
+% generate the required PDF figures for the document.
+%
+% After this has been done and the figures no longer need to be
+% re-generated, the package can be given the [off] option to save
+% compilation time.
+%
+% REQUIREMENTS
+% pdfTeX must be called with the --shell-escape option, and Heiko
+% Oberdiek's pdfcrop Perl script must be installed.
+%
+% Loads the following packages for convenience:
+%   color,graphicx,psfrag,pst-pdf
+%
+% Requires e-TeX because I'm lazy.
+%
+% ADDITIONAL USAGE
+% Macros are provided to easily facilitate figures created by the
+% MATLAB package laprint and the Mathematica package MathPSfrag. Also,
+% a generic psfrag wrapper is provided.
+%
+%  \mathfig{<filename>}   - insert a Mathematica graphic 
+%                           (without -psfrag suffix)
+%  \matlabfig{<filename>} - insert a Matlab graphic
+%  \psfragfig{<filename>} - insert an EPS with psfrag statements 
+%                           in either or both of the files 
+%                             <document>-psfrag.tex 
+%                             <filename>-psfrag.tex
+%
+% The above commands also accept an optional argument 
+% which is passed to \includegraphics.
+
+%% Declaration
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{auto-pst-pdf}
+  [2006/11/30 v0.1 Wrapper for pst-pdf]
+
+%% Package options
+\newif\if@apstpdf@off@
+\@apstpdf@off@false
+\DeclareOption{off}{\@apstpdf@off@true}
+\DeclareOption{on}{\@apstpdf@off@false}
+\ExecuteOptions{on}
+\ProcessOptions
+
+\RequirePackage{ifpdf,etex,color,graphicx,psfrag}
+
+%%%%%%%%%%%%%%%%%%%%%%
+%% Base functionality:
+%
+% For compilation, we use the [notightpage] pst-pdf option and the
+% pdfcrop Perl script because Matlab-created EPS figures have elements
+% that extend ouside their bounding boxes, and end up with clipped
+% content after ps2pdf.
+%
+% Otherwise the script ps4pdf would be sufficient.
+
+\ifpdf
+% pdfLaTeX compilation; requires supplementary processing for psfrag to work:
+  \unless\if@apstpdf@off@
+    \immediate\write18{latex -disable-write18 "\unexpanded{\let\APPmakepictures\empty\input}{\jobname.tex}"}
+    \immediate\write18{dvips -o \jobname-pics.ps \jobname.dvi}
+    \immediate\write18{ps2pdf \jobname-pics.ps \jobname-pics-nocrop.pdf}
+    \immediate\write18{pdfcrop \jobname-pics-nocrop.pdf \jobname-pics.pdf}
+  \fi
+  \RequirePackage[notightpage]{pst-pdf}
+\else
+  \ifdefined\APPmakepictures
+% LaTeX compilation induced by this package:
+    \RequirePackage[notightpage]{pst-pdf}
+  \else
+% LaTeX compilation from scratch (as in `latex \jobname.tex`):
+    \newenvironment{postscript}{}{}
+  \fi
+\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Extras for external packages:
+%
+% Commands are provided that mirror \includegraphics (and similarly
+% accept an optional argument) for the output of different
+% psfrag-related packages. This provides a consistent and easy way to
+% include such figures in the document.
+%
+% Please suggest wrappers for other packages that output psfrag 
+% (for example: R, Maple, LabView, ... ?)
+
+%% Matlab's laprint:
+% We need to disable the scaling that laprint applies
+% to \includegraphics in here, because otherwise labels that extend
+% outside the bounding box of the generated PostScript file will
+% change the intended width of the graphic.
+\let\apstpdf@ig\includegraphics
+\newcommand\matlabfig[2][]{%
+  \begin{postscript}
+    \renewcommand\includegraphics[2][]{\apstpdf@ig[#1]{##2}}
+    \input{#2}
+  \end{postscript}}
+
+%% Mathematica's MathPSfrag output:
+\newcommand\mathfig[2][]{%
+  \begin{postscript}
+    \input{#2-psfrag}%
+    \includegraphics[#1]{#2-psfrag}%
+  \end{postscript}}
+
+%% Regular old EPS graphics:
+% Include your psfrag commands in the files <document>-psfrag.tex
+% and/or <figname>-psfrag.tex, where <document> is the filename of the
+% main document and <figname> is the filename of the graphics
+% inserted.
+\newcommand\psfragfig[2][]{%
+  \begin{postscript}
+    \InputIfFileExists{#1-psfrag}{}{}%
+    \includegraphics[#1]{#2}%
+  \end{postscript}}
+
+\InputIfFileExists{\jobname-psfrag}{}{}%

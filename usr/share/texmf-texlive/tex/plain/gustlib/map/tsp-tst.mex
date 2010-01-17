@@ -1,0 +1,68 @@
+% TSP-TEST.MEX
+
+% test zestawu makr TSP
+
+% Bogus/law Jackowski i Marek Ry/cko
+% 24 lipca 1993 r., dotkni/ete 14 lutego 1997 r.
+
+\input split
+\input map
+\input tsp
+\prefixing
+
+\def\wlaz
+    {%
+    Wlaz/l pies do kuchni
+    {i\nobreak} porwa/l mi/esa /cwier{/c,}
+    {a\nobreak} jaki/s kucharz g/lupi
+    zar/aba/l go na /smier{/c.}
+    {A\nobreak} drugi kucharz m/adr{y,}
+    co lito/s/c {w\nobreak} sercu mia/l
+    postawi/l mu nagrobek
+    {i\nobreak} taki napis da}
+\edef\lista
+    {\wlaz{/l:} \wlaz{/l...}}
+
+\def\test
+    #1% odst/ep zamiast spacji
+    #2% odst/ep mi/edzy literami
+    {%
+    \def\paramtest{#1#2}
+    \ifx\paramtest\empty\else
+        % odst/ep zamiast spacji:
+        \def\tspsp  {#1}
+        % odst/ep mi/edzy literami:
+        \def\tsplet {#2}
+    \fi
+    \leftline{\tt \string\def\string\tspsp\{\tspsp\}\space\space
+        \string\def\string\tsplet\{\tsplet\}}
+    \vskip2pt
+    \expandafter\tsp\expandafter{\lista}
+    \vskip6pt
+    \message{.}
+    }
+
+\font\xxx plr12 scaled \magstep1 \xxx
+\baselineskip16.4pt
+\vsize24.7cm
+\nopagenumbers
+\chardef\{"7B
+\chardef\}"7D
+
+\message{Prosz/e czeka/c.}
+
+{\tenrm
+\line{Test makra {\tt\string\tsp}\hss
+    1 maja 1996 r.}
+\smallskip
+\hrule
+\vfill
+}
+\test {}                               {}%       standard
+\test {0.555em plus.2777em minus.111em} {.1em}%
+\test {0.28em plus.1em minus.111em}    {-.05em}%
+\test {0.22em plus.1em minus.111em}    {-.06em}%
+\test {0.333em plus.167em minus.111em} {0em}%
+\leftline{\tt zwyk/ly tekst:}\vskip2pt
+\tsp  {\lista}%                                  bez u/zycia makra
+\eject\end

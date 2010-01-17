@@ -1,0 +1,340 @@
+%% This file is part of the ANTOMEGA project version 0.7
+%% -----------------------------------------------------
+%% 
+%% It may be distributed under the terms of the LaTeX Project Public
+%% License, as described in lppl.txt in the base LaTeX distribution.
+%% Either version 1.0 or, at your option, any later version.
+%% Copyright (C) 2001 -- 2003 by Alexej Kryukov
+%% Please report errors to: A.M. Kryukov <basileia@yandex.ru>
+
+\makeatletter
+
+\LoadOCPByName{\CyrUniToTex}{uni2t2a}
+\LoadOCPByName{\CyrWinUni}{wincyr2uni}
+\LoadOCPByName{\CyrDosUni}{dosrus2uni}
+\LoadOCPByName{\CyrIsoUni}{isocyr2uni}
+\LoadOCPByName{\CyrKoiUni}{koirus2uni}
+\LoadOCPByName{\CyrLatUni}{latcyr2uni}
+\LoadOCPByName{\CyrBabelUni}{babel2ru}
+
+\ocplist\CyrillicWinOCP=
+   \addbeforeocplist 500 \CyrWinUni
+\nullocplist
+
+\ocplist\CyrillicDosOCP=
+   \addbeforeocplist 500 \CyrDosUni
+\nullocplist
+
+\ocplist\CyrillicIsoOCP=
+   \addbeforeocplist 500 \CyrIsoUni
+\nullocplist
+
+\ocplist\CyrillicKoiOCP=
+   \addbeforeocplist 500 \CyrKoiUni
+\nullocplist
+
+\ocplist\CyrillicLatinOCP=
+   \addbeforeocplist 500 \CyrLatUni
+\nullocplist
+
+\ocplist\CyrillicTexOCP=
+   \addbeforeocplist 1750 \BasicTexUni
+\nullocplist
+
+\ocplist\CyrillicBabelOCP=
+   \addbeforeocplist 2000 \CyrBabelUni
+\nullocplist
+
+\ocplist\CyrUniOutOCP=
+   \addbeforeocplist 3500 \LatinUniToLig
+\nullocplist
+
+\ocplist\CyrTexOutOCP=
+   \addbeforeocplist 3500 \CyrUniToTex
+\nullocplist
+
+\ocplist\CyrOmegaOutOCP=
+   \addbeforeocplist 3500 \UniToOmega
+\nullocplist
+
+\ifx\l@russian\@undefined
+   \ant@nopatterns{Russian}
+   \adddialect\l@russian0
+\fi
+
+% Test if Cyrillic lccodes/uccodes were loaded and
+% load them if necessary.
+\ifx\equal{\lccode"0451}{"0451}\else%
+   \InputIfFileExists{uni0400.def}{}%
+      {\ant@nocodes{Russian}{Unicode}{0400--04ff}}\fi
+
+\def\@ralph#1{%
+   \ifcase#1\or ^^^^0430\or ^^^^0431\or ^^^^0432\or ^^^^0433 \or ^^^^0434 \or ^^^^0435\or
+   ^^^^0436\or ^^^^0437\or ^^^^0438\or ^^^^0439\or ^^^^043a\or ^^^^043b\or ^^^^043c\or
+   ^^^^043d\or ^^^^043e\or ^^^^043f\or ^^^^0440\or ^^^^0441\or ^^^^0442\or ^^^^0443\or
+   ^^^^0444\or ^^^^0445\or ^^^^0446\or ^^^^0447\or ^^^^0448\or ^^^^0449\or
+   ^^^^044a\or ^^^^044b\or ^^^^044c\or ^^^^044d\or ^^^^044e\or ^^^^044f
+   \else\@ctrerr\fi}
+\def\@Ralph#1{%
+   \ifcase#1\or ^^^^0410\or ^^^^0411\or ^^^^0412\or ^^^^0413\or ^^^^0414\or ^^^^0415\or
+   ^^^^0416\or ^^^^0417\or ^^^^0418\or ^^^^0419\or ^^^^041a\or ^^^^041b\or ^^^^041c\or
+   ^^^^041d\or ^^^^041e\or ^^^^041f\or ^^^^0420\or ^^^^0421\or ^^^^0422\or ^^^^0423\or
+   ^^^^0424\or ^^^^0425\or ^^^^0426\or ^^^^0427\or ^^^^0428\or ^^^^0429\or
+   ^^^^042a\or ^^^^042b\or ^^^^042c\or ^^^^042d\or ^^^^042e\or ^^^^042f
+  \else\@ctrerr\fi}
+
+\def\russian@punctuation{%
+   \frenchspacing%
+   \def\No{^^^^2116\kern.1667em}%
+   \def\cyrdash{^^^^2014}%
+   \def\PlainTextEmDash{\ifdim\lastskip>\z@\unskip\nobreak\hskip.2em\fi%
+      \cyrdash\hskip.2em\ignorespaces}%
+   \def\CompoundNamesEmDash{\leavevmode\ifdim\lastskip>\z@\unskip\fi%
+      \nobreak\cyrdash\penalty\exhyphenpenalty\hskip\z@skip\ignorespaces}%
+   \def\DirectSpeechEmDash{\leavevmode%
+      \nobreak\cyrdash\nobreak\hskip.35em\ignorespaces}}
+
+\def\norussian@punctuation{%
+   \nonfrenchspacing%
+   \let\No\@undefined%
+   \let\cyrdash\@undefined%
+   \let\PlainTextEmDash\@undefined%
+   \let\CompoundNamesEmDash\@undefined%
+   \let\DirectSpeechEmDash\@undefined%
+}
+
+\let\russianrm=\rmdefault
+\let\russiansf=\sfdefault
+\let\russiantt=\ttdefault
+
+\def\russian@font{\fontfamily{\russianrm}%
+   \fontencoding{\rusencoding}\selectfont%
+   \let\rmdefault=\russianrm%
+   \let\sfdefault=\russiansf%
+   \let\ttdefault=\russiantt%
+   \let\encodingdefault=\rusencoding}
+
+\def\tmp@ucs{ucs-2}
+\def\tmp@utf{utf-8}
+\def\tmp@win{cp1251}
+\def\tmp@dos{cp866}
+\def\tmp@iso{iso-8859-5}
+\def\tmp@koi{koi8-r}
+\def\tmp@lat{translit}
+
+\def\eventualRuPunct{\protect\pushocplist\CyrillicTexOCP}
+\def\eventualRuShorthands{\protect\pushocplist\CyrillicBabelOCP}
+\def\eventualRuAccents{\protect\pushocplist\BasicAccentsOCP}
+\def\eventualRuInput{\protect\pushocplist\BasicInputOCP}
+
+\def\russian@OCP{\protect\clearocplists%
+   \eventualRuInput%
+   \eventualRuPunct%
+   \eventualRuShorthands%
+   \eventualRuAccents%
+   \eventualRuOutput}
+
+\define@key{russian}{input}[ucs-2]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@win\def\eventualRuInput{%
+      \protect\pushocplist\CyrillicWinOCP}%
+      \typeout{Option: Russian input encoding=windows-1251}%
+   \else\ifx\@tmpa\tmp@dos\def\eventualRuInput{%
+      \protect\pushocplist\CyrillicDosOCP}%
+      \typeout{Option: Russian input encoding=ibm-866}%
+   \else\ifx\@tmpa\tmp@iso\def\eventualRuInput{%
+      \protect\pushocplist\CyrillicIsoOCP}%
+      \typeout{Option: Russian input encoding=iso-8859-5}%
+   \else\ifx\@tmpa\tmp@koi\def\eventualRuInput{%
+      \protect\pushocplist\CyrillicKoiOCP}%
+      \typeout{Option: Russian input encoding=koi8-ru}%
+   \else\ifx\@tmpa\tmp@lat\def\eventualRuInput{%
+      \protect\pushocplist\CyrillicLatinOCP}%
+      \typeout{Option: Russian input encoding=translit}%
+   \else\ifx\@tmpa\tmp@utf\def\eventualRuInput{%
+      \protect\pushocplist\BasicInputUtfOCP}%
+      \typeout{Option: Russian input encoding=utf-8}%
+   \else\def\eventualRuInput{%
+      \protect\pushocplist\BasicInputUcsOCP}%
+      \typeout{Option: Russian input encoding=ucs-2}%
+   \fi\fi\fi\fi\fi\fi}
+
+\define@key{russian}{shorthands}[on]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\opt@enabled\def\eventualRuShorthands{%
+      \protect\pushocplist\CyrillicBabelOCP}%
+      \typeout{Option: Shorthands for Russian text enabled}%
+   \else\def\eventualRuShorthands{}%
+      \typeout{Option: Shorthands for Russian text disabled}%
+   \fi}
+
+\def\tmp@uni{unicode}
+\def\tmp@omega{omega}
+\def\tmp@tex{tex}
+\def\eventualRuOutput{\protect\pushocplist\CyrUniOutOCP}
+\def\rusencoding{UT1}
+
+\define@key{russian}{output}[unicode]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@omega\def\eventualRuOutput{%
+         \protect\pushocplist\CyrOmegaOutOCP}%
+      \def\rusencoding{UT1}%
+   \else\ifx\@tmpa\tmp@tex\def\eventualRuOutput{%
+         \protect\pushocplist\CyrTexOutOCP}%
+      \def\rusencoding{T2A}%
+   \else\def\eventualRuOutput{%
+         \protect\pushocplist\CyrUniOutOCP}%
+      \def\rusencoding{UT1}%
+   \fi\fi%
+   \ifx\rusencoding\uniencoding\else%
+     \ant@load@encoding{\rusencoding}%
+   \fi%
+}
+
+\def\tmp@alphrus{russian}
+\def\tmp@alphlat{latin}
+\def\russian@alph{}
+
+\define@key{russian}{alph}[latin]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@alphrus\def\russian@alph{%
+      \def\alph####1{\expandafter\@ralph\csname c@####1\endcsname}%
+      \def\Alph####1{\expandafter\@Ralph\csname c@####1\endcsname}}%
+      \oaddto\noextras@russian{%
+      \def\alph##1{\expandafter\@alph\csname c@##1\endcsname}%
+      \def\Alph##1{\expandafter\@Alph\csname c@##1\endcsname}}%
+      \typeout{Option: Russian Alph=russian}%
+   \else\def\russian@alph{}%
+      \typeout{Option: Russian Alph=latin}%
+   \fi}
+
+\def\tmp@old{old}
+\def\tmp@modern{modern}
+\def\russian@captions{\moderncaptions}
+
+\define@key{russian}{orthography}[modern]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@old\def\russian@captions{\oldcaptions}%
+   \else\def\russian@captions{\moderncaptions}%
+   \fi}
+
+\def\moderncaptions{%
+   \def\prefacename{\localrussian{^^^^041f^^^^0440^^^^0435^^^^0434^^^^0438^^^^0441^^^^043b^^^^043e^^^^0432^^^^0438^^^^0435}}%
+   \def\refname{\localrussian{^^^^041f^^^^0440^^^^0438^^^^043c^^^^0435^^^^0447^^^^0430^^^^043d^^^^0438^^^^044f}}%
+   \def\abstractname{\localrussian{^^^^0410^^^^043d^^^^043d^^^^043e^^^^0442^^^^0430^^^^0446^^^^0438^^^^044f}}%
+   \def\bibname{\localrussian{^^^^0411^^^^0438^^^^0431^^^^043b^^^^0438^^^^043e^^^^0433^^^^0440^^^^0430^^^^0444^^^^0438^^^^044f}}%
+   \def\chaptername{\localrussian{^^^^0413^^^^043b^^^^0430^^^^0432^^^^0430}}%
+   \def\appendixname{\localrussian{^^^^041f^^^^0440^^^^0438^^^^043b^^^^043e^^^^0436^^^^0435^^^^043d^^^^0438^^^^0435}}%
+   \def\contentsname{\localrussian{^^^^041e^^^^0433^^^^043b^^^^0430^^^^0432^^^^043b^^^^0435^^^^043d^^^^0438^^^^0435}}%
+   \def\listfigurename{\localrussian{^^^^0421^^^^043f^^^^0438^^^^0441^^^^043e^^^^043a ^^^^0438^^^^043b^^^^043b^^^^044e^^^^0441^^^^0442^^^^0440^^^^0430^^^^0446^^^^0438^^^^0439}}%
+   \def\listtablename{\localrussian{^^^^0421^^^^043f^^^^0438^^^^0441^^^^043e^^^^043a ^^^^0442^^^^0430^^^^0431^^^^043b^^^^0438^^^^0446}}%
+   \def\indexname{\localrussian{^^^^041f^^^^0440^^^^0435^^^^0434^^^^043c^^^^0435^^^^0442^^^^043d^^^^044b^^^^0439 ^^^^0443^^^^043a^^^^0430^^^^0437^^^^0430^^^^0442^^^^0435^^^^043b^^^^044c}}%
+   \def\authorname{\localrussian{^^^^0418^^^^043c^^^^0435^^^^043d^^^^043d^^^^043e^^^^0439 ^^^^0443^^^^043a^^^^0430^^^^0437^^^^0430^^^^0442^^^^0435^^^^043b^^^^044c}}%
+   \def\figurename{\localrussian{^^^^0420^^^^0438^^^^0441.}}%
+   \def\tablename{\localrussian{^^^^0422^^^^0430^^^^0431^^^^043b^^^^0438^^^^0446^^^^0430}}%
+   \def\partname{\localrussian{^^^^0427^^^^0430^^^^0441^^^^0442^^^^044c}}%
+   \def\enclname{\localrussian{^^^^0432^^^^043a^^^^043b.}}%
+   \def\ccname{\localrussian{^^^^0438^^^^0441^^^^0445.}}%
+   \def\headtoname{\localrussian{^^^^0432^^^^0445.}}%
+   \def\pagename{\localrussian{^^^^0441.}}%
+   \def\seename{\localrussian{^^^^0441^^^^043c.}}%
+   \def\alsoname{\localrussian{^^^^0441^^^^043c. ^^^^0442^^^^0430^^^^043a^^^^0436^^^^0435}}%
+   \def\proofname{\localrussian{^^^^0414^^^^043e^^^^043a^^^^0430^^^^0437^^^^0430^^^^0442^^^^0435^^^^043b^^^^044c^^^^0441^^^^0442^^^^0432^^^^043e}}%
+   \def\today{\localrussian{\number\day%
+      \space\ifcase\month\or%
+      ^^^^044f^^^^043d^^^^0432^^^^0430^^^^0440^^^^044f\or
+      ^^^^0444^^^^0435^^^^0432^^^^0440^^^^0430^^^^043b^^^^044f\or
+      ^^^^043c^^^^0430^^^^0440^^^^0442^^^^0430\or
+      ^^^^0430^^^^043f^^^^0440^^^^0435^^^^043b^^^^044f\or
+      ^^^^043c^^^^0430^^^^044f\or
+      ^^^^0438^^^^044e^^^^043d^^^^044f\or
+      ^^^^0438^^^^044e^^^^043b^^^^044f\or
+      ^^^^0430^^^^0432^^^^0433^^^^0443^^^^0441^^^^0442^^^^0430\or
+      ^^^^0441^^^^0435^^^^043d^^^^0442^^^^044f^^^^0431^^^^0440^^^^044f\or
+      ^^^^043e^^^^043a^^^^0442^^^^044f^^^^0431^^^^0440^^^^044f\or
+      ^^^^043d^^^^043e^^^^044f^^^^0431^^^^0440^^^^044f\or
+      ^^^^0434^^^^0435^^^^043a^^^^0430^^^^0431^^^^0440^^^^044f\fi%
+      \space \number\year\space ^^^^0433.}}}
+
+\def\oldcaptions{%
+   \def\prefacename{\localrussian{^^^^041f^^^^0440^^^^0435^^^^0434^^^^0438^^^^0441^^^^043b^^^^043e^^^^0432^^^^0456^^^^0435}}%
+   \def\refname{\localrussian{^^^^041f^^^^0440^^^^0438^^^^043c^^^^0463^^^^0447^^^^0430^^^^043d^^^^0456^^^^044f}}%
+   \def\abstractname{\localrussian{^^^^0410^^^^043d^^^^043d^^^^043e^^^^0442^^^^0430^^^^0446^^^^0456^^^^044f}}%
+   \def\bibname{\localrussian{^^^^0411^^^^0438^^^^0431^^^^043b^^^^0456^^^^043e^^^^0433^^^^0440^^^^0430^^^^0444^^^^0456^^^^044f}}%
+   \def\chaptername{\localrussian{^^^^0413^^^^043b^^^^0430^^^^0432^^^^0430}}%
+   \def\appendixname{\localrussian{^^^^041f^^^^0440^^^^0438^^^^043b^^^^043e^^^^0436^^^^0435^^^^043d^^^^0456^^^^0435}}%
+   \def\contentsname{\localrussian{^^^^041e^^^^0433^^^^043b^^^^0430^^^^0432^^^^043b^^^^0435^^^^043d^^^^0456^^^^0435}}%
+   \def\listfigurename{\localrussian{^^^^0421^^^^043f^^^^0438^^^^0441^^^^043e^^^^043a^^^^044a ^^^^0438^^^^043b^^^^043b^^^^044e^^^^0441^^^^0442^^^^0440^^^^0430^^^^0446^^^^0456^^^^0439}}%
+   \def\listtablename{\localrussian{^^^^0421^^^^043f^^^^0438^^^^0441^^^^043e^^^^043a^^^^044a ^^^^0442^^^^0430^^^^0431^^^^043b^^^^0438^^^^0446^^^^044a}}%
+   \def\indexname{\localrussian{^^^^041f^^^^0440^^^^0435^^^^0434^^^^043c^^^^0463^^^^0442^^^^043d^^^^044b^^^^0439 ^^^^0443^^^^043a^^^^0430^^^^0437^^^^0430^^^^0442^^^^0435^^^^043b^^^^044c}}%
+   \def\authorname{\localrussian{^^^^0418^^^^043c^^^^0435^^^^043d^^^^043d^^^^043e^^^^0439 ^^^^0443^^^^043a^^^^0430^^^^0437^^^^0430^^^^0442^^^^0435^^^^043b^^^^044c}}%
+   \def\figurename{\localrussian{^^^^0420^^^^0438^^^^0441.}}%
+   \def\tablename{\localrussian{^^^^0422^^^^0430^^^^0431^^^^043b^^^^0438^^^^0446^^^^0430}}%
+   \def\partname{\localrussian{^^^^0427^^^^0430^^^^0441^^^^0442^^^^044c}}%
+   \def\enclname{\localrussian{^^^^0432^^^^043a^^^^043b.}}%
+   \def\ccname{\localrussian{^^^^0438^^^^0441^^^^0445.}}%
+   \def\headtoname{\localrussian{^^^^0432^^^^0445.}}%
+   \def\pagename{\localrussian{^^^^0441.}}%
+   \def\seename{\localrussian{^^^^0441^^^^043c.}}%
+   \def\alsoname{\localrussian{^^^^0441^^^^043c. ^^^^0442^^^^0430^^^^043a^^^^0436^^^^0435}}%
+   \def\proofname{\localrussian{^^^^0414^^^^043e^^^^043a^^^^0430^^^^0437^^^^0430^^^^0442^^^^0435^^^^043b^^^^044c^^^^0441^^^^0442^^^^0432^^^^043e}}%
+   \def\today{\localrussian{\number\day%
+      \space\ifcase\month\or%
+      ^^^^044f^^^^043d^^^^0432^^^^0430^^^^0440^^^^044f\or
+      ^^^^0444^^^^0435^^^^0432^^^^0440^^^^0430^^^^043b^^^^044f\or
+      ^^^^043c^^^^0430^^^^0440^^^^0442^^^^0430\or
+      ^^^^0430^^^^043f^^^^0440^^^^0435^^^^043b^^^^044f\or
+      ^^^^043c^^^^0430^^^^044f\or
+      ^^^^0456^^^^044e^^^^043d^^^^044f\or
+      ^^^^0456^^^^044e^^^^043b^^^^044f\or
+      ^^^^0430^^^^0432^^^^0433^^^^0443^^^^0441^^^^0442^^^^0430\or
+      ^^^^0441^^^^0435^^^^043d^^^^0442^^^^044f^^^^0431^^^^0440^^^^044f\or
+      ^^^^043e^^^^043a^^^^0442^^^^044f^^^^0431^^^^0440^^^^044f\or
+      ^^^^043d^^^^043e^^^^044f^^^^0431^^^^0440^^^^044f\or
+      ^^^^0434^^^^0435^^^^043a^^^^0430^^^^0431^^^^0440^^^^044f\fi%
+      \space \number\year\space ^^^^0433.}}}
+
+% The folllowing is based on some ideas from ruscor.sty
+
+\def\russian@capsformat{%
+   \def\@seccntformat##1{\csname pre##1\endcsname%
+      \csname the##1\endcsname%
+      \csname post##1\endcsname}%
+   \def\@aftersepkern{\hspace{0.5em}}%
+   \def\postchapter{.\@aftersepkern}%
+   \def\postsection{.\@aftersepkern}%
+   \def\postsubsection{.\@aftersepkern}%
+   \def\postsubsubsection{.\@aftersepkern}%
+   \def\postparagraph{.\@aftersepkern}%
+   \def\postsubparagraph{.\@aftersepkern}%
+   \def\prechapter{}%
+   \def\presection{}%
+   \def\presubsection{}%
+   \def\presubsubsection{}%
+   \def\preparagraph{}%
+   \def\presubparagraph{}}
+
+\def\russian@language{\protect\language=\l@russian}
+
+\def\noextras@russian{%
+   \norussian@punctuation}
+   
+\def\blockextras@russian{%
+   \russian@language%
+   \local@hyphenmins{russian}{2}{2}%
+   \russian@alph%
+   \russian@punctuation%
+   \russian@captions%
+   \russian@capsformat%
+   \local@marks{russian}%
+   \russian@OCP%
+   \russian@font}
+
+\def\inlineextras@russian{%
+   \russian@language%
+   \local@hyphenmins{russian}{2}{2}%
+   \russian@punctuation%
+   \russian@OCP%
+   \russian@font}
+
+\endinput

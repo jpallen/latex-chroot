@@ -1,0 +1,934 @@
+% ---------------------------------------------------------------------------
+%              THIS FILE BELONGS TO THE TAP PACKAGE
+% ---------------------------------------------------------------------------
+% Macros for typesetting tables in a simple manner using PostScript
+% for filling, hashing, etc. cells of the table.
+% Authors:
+%   Bogus\l{}aw Jackowski, Piotr Pianowski and Piotr Strzelczyk
+%   BOP s.c., Piastowska 70, 80-363 Gda\'nsk, Poland
+%   Email: B.Jackowski@GUST.ORG.PL
+% History:
+%   The starting point of this package was a neat package
+%   by Michael J. Ferguson. With his kind permission we rebuilt
+%   the package from scratch. Some notational ``bells and whistles''
+%   have been added, and---which is perhaps more important---the package
+%   has been enhanced by PostScript-oriented features (painting cells with
+%   an arbitrary colour, drawing diagonal strokes, etc.).
+%   The package does not use tabskip glues for imposing a desired width;
+%   this makes the code a bit more complex, yet gives some advantages.
+% Version: 0.70, Friday, May 3rd, 1996 (BachoTeX 96 release)
+% Version: 0.70a, Monday, October 20th, 1997 (setting \everymath corrected)
+% Version: 0.70b, Monday, October 20th, 1997
+%    * first step towards using struts implicitly in \X and \Y macros
+% Version: 0.71, Tuesday, January 27th, 1998
+%    * Staszek Wawrykiewicz encountered a nasty typo
+%      (\edef\rightcellside{\leftcellside}) -- fixed
+%    * implicit struts in \X and \Y macros (inherited from the \B macro) added
+%    * \desiredwidth ignored for zero-width tables (this protect against
+%      infinite loops and arithmetic overflow in empty tables)
+% Version: 0.72, Wednesday, August 26th, 1998
+%    * the assignment `\let\span_\sp@n' replaced by an explicit definition
+%      of \span_ (used in \usecells_), as the definitions of \sp@n in plain
+%      and LaTeX2e incompatibly differ
+% Version: 0.73, Monday, November 13th, 1999
+%    * the standard meaning of \left and \right restored in math
+% Version: 0.74, Sunday, March 12th, 2000
+%    * `TAPS' changed to `TAP' in messages; \inputlineno displayed
+%    * \outer\def\begintable{} defined locally in \deftable (protection
+%      against missing \endtable)
+%    * \tapspecial and \psunitsperinch introduced; can be redefined
+%      if a DVI-to-PS driver needs other settings
+%    * several macros introduced for convenient handling anchors:
+%        \bstroke \estroke \brectangle \brectangle
+%        \bgenstroke \egenstroke \bgenrectangle \bgenrectangle
+%    * a new suffix for \B macro introduced: `=' followed by a dimen;
+%      creates a row of a given height (inspired by Tadeush Sheibak's
+%      valuable comments -- thanks)
+%    * \tapverboseon and \tapverboseoff added (suggested by Janusz M. Nowacki)
+%    * some code cleaning
+% Version: 0.75, Friday, March 24th, 2000
+%    * inside a table, \Lslash and \lslash (the latter introduced for the
+%      sake uniformness) refer to the outer meaning of \L and \l, presumably
+%      Knuthian Polish L and l, respectively (pointed out by Jan Krupa)
+% Version: 0.76, Saturday, June 9th, 2001
+%    * for math inside a table, both ordinary and display (the latter
+%      missing so far), most symbols retrieve their original meaning,
+%      including | and "
+% Version: 0.77, Monday, July 30th, 2001
+%    * a bug fixed -- wrong positioning of rectangle corners (with
+%      \asymcellcorr) corrected, namely, the condition:
+%        \if#2l-\fi \ifignorecellstate 1\else
+%        \ifcase\cellstate 2\or 1\or 0\fi\fi
+%      replaced by:
+%        \if#2l-\fi \ifignorecellstate 1\else
+%        \ifcase\cellstate \if#2l0\else2\fi\or 1\or \if#2l2\else0\fi\fi\fi
+%    * a message displaying the current version of TAP added (Jacek
+%      Kmiecik's suggestion)
+% =========================================================================
+\ifx\tapmacrosareloaded\relax % anti-double loading barrier
+  \expandafter\endinput\else\let\tapmacrosareloaded\relax
+  \immediate\write16{%
+  This is TAP version 0.77 (BOP TeX macro package for setting tables)}%
+\fi
+% =============================== Preamble ================================
+\let\normalexclam!
+\let\normalat@
+\let\normalquotes"
+\let\normalvbar|
+\def\normalundscore{_}% an exception
+
+\edef\dblquotecatcode{\the\catcode`\"}
+\edef\brokenbarcatcode{\the\catcode`\|}
+\edef\exclamcatcode{\the\catcode`\!}
+\edef\undscorecatcode{\the\catcode`\_}
+\edef\atcatcode{\the\catcode`\@}
+\def\tableactive{%
+  \catcode`\|13 \catcode`\@13 \catcode`\"13 \catcode`\!13\relax}
+
+% define a generic PostScript special; can be redefined before or after
+% reading the tap.tex file
+\ifx\tapspecial\unknown % default is dvips
+  \def\psunitsperinch{Resolution}% dvips PS entity
+  \def\tapspecial#1{\special{ps:#1}}% standard dvips PS special
+\fi
+
+\catcode`\_=11
+\catcode`\@=11 % temporarily, in a moment it will be active
+
+\def\psunits_setup{\tapspecial{%
+  /in {\psunitsperinch\space mul} def
+  /bp {72 div in} def
+  /pt {72.27 div in} def
+  /sp {65536 div pt} def
+  /dd {1238 mul 1157 div pt} def
+  /cc {12 mul dd} def
+  /mm {25.4 div in} def
+  /cm {10 mul mm} def
+  /trth {\number\trth\space sp} def
+  /TRTH {\number\TRTH\space sp} def
+}}
+
+% an attempt to avoid exploiting extra \count registers
+% (\mscount is used by \span_):
+\ifx\mscount\undefined_ \let\mscount\@multicnt \fi
+\ifx\mscount\undefined_ \csname newcount\endcsname\mscount \fi
+
+\tableactive
+
+\def|{\ifmmode \vert\else \normalvbar \fi} % effectively undoes activeness
+\let!\normalexclam
+\let@\normalat
+\let"\normalquotes
+
+% ============================= Table macros ==============================
+% \trth = normal table rule thickness (default .4pt)
+% \TRTH = bold table rule thickness (default 1.2pt)
+\newdimen\trth \trth=.4pt
+\newdimen\TRTH \TRTH=1.2pt
+\newcount\align_state \align_state=0 % 0 -- between lines after \cr
+                                     % 1 -- beginning of line in \br
+                                     % 2 -- midline
+                                     % 3 -- endline in \er
+
+\def\hssf{\hskip 0pt plus 1fill minus 1fill}
+%general math form
+\def\math#1{\relax $\relax#1\relax$}
+\def\displaymath #1{\relax$\displaystyle #1\relax$}
+
+\newtoks\everytable \everytable{\relax}
+\newtoks\thistable \thistable{\relax}
+
+\newdimen\desiredwidth
+\def\width_accuracy_limit{.01pt}% not to be changed
+\newdimen\widthaccuracy \widthaccuracy\width_accuracy_limit
+\newif\iflongcalculation
+
+\newbox\table_box
+
+\newbox\box_tmp
+\newdimen\innerht \newdimen\innerdp % to be used in \X, \x, \Y, and \y
+\newdimen\normht  \newdimen\normdp  % for normal rows
+\newdimen\extraht \newdimen\extradp % for vertically extended rows
+
+\def\defaultcellmarg{0.5em} % \cellmarg is by default set to .5em of
+\newdimen\cellmarg          % the current font at the beginning of a table
+
+\newcount\cellnum
+\newcount\maxcellnum
+\newdimen\cellcorr
+\newdimen\maxcellcorr
+\newdimen\mincellcorr
+\newcount\cellstate % 0 -- aligned to left
+                    % 1 -- centered
+                    % 2 -- aligned to right
+
+\newif\ifignorecellstate
+
+% \ostrut means ``open'' strut (to be followed by height <dimen> depth
+% <dimen>, \istrut means inner strut to be used in \X, \x, \Y, and \y
+\def\ostrut{\vrule width0mm}
+\def\istrut{\ostrut height\innerht depth\innerdp\relax}
+
+\def\defaultstrut{%
+  \setbox\box_tmp\hbox{(pl}%
+  \settablestrut \ht\box_tmp \dp\box_tmp \ht\box_tmp \dp\box_tmp
+  \adjusttablestrut .45ex .15ex .95ex .55ex
+  \setstrut \normht \normdp
+}
+
+\def\setstrut{\afterassignment\innerdp\innerht}
+
+\def\adjuststrut{\afterassignment\adjuststrut_\advance\innerht}
+\def\adjuststrut_{\advance\innerdp}
+
+\def\settablestrut{\afterassignment\settablestrut_\normht}
+\def\settablestrut_{\afterassignment\settablestrut__\normdp}
+\def\settablestrut__{\afterassignment\settablestrut___\extraht}
+\def\settablestrut___{\extradp}
+
+\def\adjusttablestrut{\afterassignment\adjusttablestrut_\advance\normht}
+\def\adjusttablestrut_{\afterassignment\adjusttablestrut__\advance\normdp}
+\def\adjusttablestrut__{\afterassignment\adjusttablestrut___\advance\extraht}
+\def\adjusttablestrut___{\advance\extradp}
+
+\def\symcellcorr{\ignorecellstatetrue}
+\def\asymcellcorr{\ignorecellstatefalse}
+\symcellcorr
+
+% \leftcellside and \rightcellside will be subjected to expansion
+% using \edef in \begintableformat, hence no \ifnum-s can be involved;
+% for the same reason \noexpand-s are used in \update_mincellmarg;
+% \antileftcellside and \antirightcellside for the sake of symmetry
+% are programmed similarly; ignoring the cell state is meant as a global
+% setting, hence \ifignorecellstate can be subjected to \edef
+
+\newdimen\mincellmarg
+\def\update_mincellmarg{%
+  \dim_tmp\cellmarg \advance\dim_tmp\cellcorr
+  \noexpand\ifdim\dim_tmp<\mincellmarg \global\mincellmarg\dim_tmp
+  \noexpand\fi}
+
+\def\leftcellside{%
+  \global\advance\cellnum1\kern\cellmarg
+  \ifignorecellstate \kern\cellcorr \update_mincellmarg
+  \else {\multiply\cellcorr\cellstate \kern\cellcorr \update_mincellmarg
+  }\fi
+}
+\def\antileftcellside{\hskip-\cellmarg
+  \ifignorecellstate \kern-\cellcorr
+  \else {\multiply\cellcorr\cellstate \kern-\cellcorr}\fi
+}
+\def\rightcellside{%
+  \global\advance\cellnum1\kern\cellmarg
+  \ifignorecellstate \kern\cellcorr \update_mincellmarg
+  \else {\cellstate-\cellstate \advance\cellstate2
+    \multiply\cellcorr\cellstate \kern\cellcorr \update_mincellmarg
+  }\fi
+}
+\def\antirightcellside{\hskip-\cellmarg
+  \ifignorecellstate \kern-\cellcorr
+  \else {\cellstate-\cellstate \advance\cellstate2
+    \multiply\cellcorr\cellstate \kern-\cellcorr}\fi
+}
+
+\def\beginflatcell{\vbox to0mm\bgroup\vss \hbox\bgroup \istrut}
+\def\endflatcell{\egroup\vss\egroup}
+
+\def\begindimencell{\vbox to\tablerowheight\bgroup\vss \hbox\bgroup}
+\def\enddimencell{\egroup\vss\egroup}
+
+\newif\ifv_squash
+\newbox\cell_box
+\def\normcellbox{\hbox\bgroup\v_squashfalse\let\v_box_or_top\vbox\cellbox_}
+\def\flatcellbox{\hbox\bgroup\v_squashtrue\let\v_box_or_top\vbox\cellbox_}
+\def\normcelltop{\hbox\bgroup\v_squashfalse\let\v_box_or_top\vtop\cellbox_}
+\def\flatcelltop{\hbox\bgroup\v_squashtrue\let\v_box_or_top\vtop\cellbox_}
+\def\cellbox_#1#{\def\cellbox_parm{#1}%
+  \ifx\cellbox_parm\empty \expandafter \cellbox_a \else
+  \expandafter \cellbox_p \fi}
+\def\cellbox_a#1{% aligned cell box
+  \setbox\cell_box\v_box_or_top{%
+    \let\\\cr
+    \let@\normalat
+    \let!\normalexclam
+    \def\L##1{\ignorespaces ##1\unskip\hssf\null}
+    \def\C##1{\hssf \ignorespaces ##1\unskip\hssf\null}
+    \def\R##1{\hssf \ignorespaces ##1\unskip\null}
+    \everycr{}
+    \halign{%
+      \istrut \ifnum\cellstate>0\hss\fi ##\ifnum\cellstate<2\hss\fi \cr
+      \ostrut height\curr_distender_height
+      \ignorespaces #1%
+      \ifhmode\ostrut depth\curr_distender_depth\fi
+      \crcr
+    }
+  }%
+  \ifv_squash\vbox to0mm{\vss\box\cell_box\vss}\else\box\cell_box\fi
+  \egroup
+}
+\def\cellbox_p#1{% paragraph cell box
+  \setbox\cell_box\v_box_or_top{\parindent0mm \parfillskip0pt
+    \def\\{\unskip\break\hskip0pt\relax\ignorespaces}
+    \let@\normalat
+    \let!\normalexclam
+    \let~\ori_tilde % restore the original meaning (natural in a ``par'' mode)
+    \let\-\ori_bsdash % ditto
+    \let\=\ori_bsequal % ditto
+    \def\L##1{\ignorespaces ##1\unskip\hfill\null}
+    \def\C##1{\hfill\ignorespaces ##1\unskip\hfill\null}
+    \def\R##1{\hfill\ignorespaces ##1\unskip\null}
+    \hsize\cellbox_parm
+    \normalbaselines \baselineskip\innerht \advance\baselineskip\innerdp
+    \ifnum\cellstate>0 \leftskip0ptplus1fil \fi
+    \ifnum\cellstate<2 \rightskip0ptplus1fil \fi
+    \ostrut height\curr_distender_height
+    \nobreak\hskip0pt\relax % enable implicitly breaking of the first word
+    \ignorespaces #1%
+    \ifhmode\ostrut depth\curr_distender_depth\fi
+  }%
+  \ifv_squash \vbox to0mm{\vss\box\cell_box\vss}\else\box\cell_box\fi
+  \egroup
+}
+
+\def\cellaction#1{\ifcase\align_state \def\cellaction_{#1}\or
+  \def\cellaction_{#1}\or
+  \def\cellaction_{\unskip&#1&}\else
+  \def\cellaction_{#1}\fi\cellaction_}
+
+\def\tablerulecmyk#1{\def\thetablerulecmyk{#1}}
+\def\beginrulecmyk{\ifx\thetablerulecmyk\empty\else
+  \tapspecial{gsave \thetablerulecmyk\space setcmykcolor}\fi}
+\def\endrulecmyk{\ifx\thetablerulecmyk\empty\else\tapspecial{grestore}\fi}
+\def\tablefullrule#1{\noalign{\beginrulecmyk \hrule height #1\endrulecmyk}}
+\def\tablevrule#1{\hss\beginrulecmyk\vrule width #1\endrulecmyk\hss}
+\def\tablehrule#1{\antileftcellside
+  \beginrulecmyk\leaders\hrule height #1\hfill\endrulecmyk
+  \antirightcellside}
+
+\def\preambleleft{\cellstate0\relax \leftcellside \currtfont
+  \begincell \ignorespaces ####\unskip\endcell \hfil \rightcellside}
+\def\preamblecenter{\cellstate1\relax \leftcellside \hfil \currtfont
+  \begincell \ignorespaces ####\unskip\endcell \hfil \rightcellside}
+\def\preambleright{\cellstate2\relax \leftcellside \hfil \currtfont
+  \begincell \ignorespaces ####\unskip\endcell \rightcellside}
+\def\tableleft#1{\omit\cellstate0\relax \leftcellside \currtfont
+  \begincell \ignorespaces #1\endcell \hfil \rightcellside}
+\def\tablecenter#1{\omit\cellstate1\relax \leftcellside \hfil \currtfont
+  \begincell \ignorespaces #1\endcell \hfil \rightcellside}
+\def\tableright#1{\omit\cellstate2\relax \leftcellside \hfil \currtfont
+  \begincell \ignorespaces #1\endcell \rightcellside}
+
+\def\span_{\span\omit \advance\mscount-1\relax}
+\def\usecells{\omit\relax\afterassignment\usecells_\mscount}
+\def\usecells_{%
+  \advance\mscount-1\multiply\mscount2\relax
+  \loop\ifnum\mscount>1 \span_ \repeat
+  \ifnum\mscount>0 \span \else \relax \fi}
+
+\def\short_fix_cellcorr{%
+% \setbox\table_box... is already performed
+% locally \cellcorr = 1/cellmax * (desired_wd-acual_wd)
+    \cellcorr\desiredwidth \advance\cellcorr-\wd\table_box
+    \def\corr_sign{}%
+    \ifdim\cellcorr<0mm\def\corr_sign{-}\cellcorr-\cellcorr\fi
+    \resize \cellcorr{1sp}\cellcorr{\the\maxcellnum sp}%
+    \cellcorr\corr_sign\cellcorr
+}
+
+\def\long_fix_cellcorr{%
+  \ifdim\widthaccuracy<\width_accuracy_limit\relax
+    \widthaccuracy\width_accuracy_limit\relax % moderate accuracy
+  \fi
+% initial settings (\setbox\table_box... is already performed):
+  \cellcorr0mm
+  \dim_tmp\desiredwidth \advance\dim_tmp-\wd\table_box
+% each cell is ``padded'' exactly by 2\cellcorr and at least
+% one cell must appear in any table, hence the coefficient 1/2:
+  \ifdim\dim_tmp<0mm \mincellcorr.5\dim_tmp
+  \else \maxcellcorr.5\dim_tmp \fi
+% binary search:
+  \loop
+    \ifdim\dim_tmp<0mm \maxcellcorr\cellcorr \dim_tmp-\dim_tmp
+    \else \mincellcorr\cellcorr \fi
+    \ifdim\dim_tmp>\widthaccuracy
+    \cellcorr\mincellcorr \advance\cellcorr\maxcellcorr
+    \cellcorr.5\cellcorr
+    \setbox\table_box\hbox{\nospecanchors\curr_table}%
+%   \immediate\write16{\the\wd\table_box, \the\cellcorr\space}%
+    \dim_tmp\desiredwidth \advance\dim_tmp-\wd\table_box
+  \repeat
+}
+
+\def\fix_cellcorr{%
+  \iflongcalculation \long_fix_cellcorr \else \short_fix_cellcorr \fi}
+
+\def\tap_warning{TAP warning (line \the\inputlineno)}
+\def\margin_warning{%
+  \ifdim\cellcorr<0mm
+    \ifdim\mincellmarg<\TRTH
+      \immediate\write16{%
+        \tap_warning: effective cell margin = \the\mincellmarg.}%
+    \fi
+  \fi}
+
+\def\width_info#1{%
+  \let\ \space % it's local
+  \immediate\write16{%
+    \tap_warning: Unsuccessful forcing of the desired width.}%
+  \immediate\write16{%
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ desired width - resulting width = \the#1}%
+  \immediate\write16{%
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ required accuracy = \the\widthaccuracy}}
+
+\def\width_warning{%
+  \ifdim\desiredwidth>0mm
+% \setbox\table_box\hbox{\curr_table} is performed immediately prior to
+% calling \width_warning, i.e., \table_box registers are defined
+    \begingroup
+      \advance\desiredwidth-\wd\table_box % temporary settings:
+      \ifdim\desiredwidth>\widthaccuracy \width_info\desiredwidth \fi
+      \ifdim\desiredwidth<-\widthaccuracy \width_info\desiredwidth \fi
+    \endgroup
+  \fi}
+
+\newif\iftapverbose
+\def\tapverboseon{\tapverbosetrue}
+\def\tapverboseoff{\tapverbosefalse}
+
+\newif\ifspec_distender \spec_distenderfalse
+% used in \D to distinguish between lone-standing \D and
+% \D invoked from macro \B
+
+\newdimen\tablerowheight
+
+\def\table_setup{%
+  \tableactive
+% protect the original meanings of important macros:
+  \let\ori_tilde~
+  \let\ori_bsdash\-
+  \let\ori_bsequal\=
+  \let\ori_bsgreater\> % in plain \def\>{\mskip\medmuskip}
+  \let\ori_bsexclam\!  %    "     \def\!{\mskip-\thinmuskip}
+  \let\ori_left\left
+  \let\ori_right\right
+  \let\Lslash\L % protect original Knuth's meaning
+  \let\lslash\l % ditto
+  \everymath\expandafter{\the\everymath
+    \let\>\ori_bsgreater \let\!\ori_bsexclam
+    \let\left\ori_left \let\right\ori_right
+    \let@\normalat \let!\normalexclam
+    \let"\normalquotes \let|\normalvbar
+  }
+  \everydisplay\expandafter{\the\everydisplay
+    \let\>\ori_bsgreater \let\!\ori_bsexclam
+    \let\left\ori_left \let\right\ori_right
+    \let@\normalat \let!\normalexclam
+    \let"\normalquotes \let|\normalvbar
+  }
+  \let\!\normalexclam
+  \let\>\rlap
+  \let\<\llap
+  \let\H\hbox % useful as a ``horizontal strut'': \H to5mm{}
+  \let\x\flatcellbox
+  \let\X\normcellbox
+  \let\y\flatcelltop
+  \let\Y\normcelltop
+  \def\P##1{{\phantom{##1}}}  % \phantom uses \box0, hence curly braces
+  \def\V##1{{\vphantom{##1}}} % ditto
+  \def\K{\noalign\bgroup\afterassignment\K_\dim_tmp}
+  \def\K_{\kern\dim_tmp\egroup}
+  \def\L{\endcell\hfill\begincell}
+  \def\F##1{\noalign{\global\let\currtfont##1}} % sets current table font
+  \def\-{\ifcase\align_state \tablefullrule{\trth}\else
+         \endcell\tablehrule{\trth}\begincell\fi}
+  \def\={\ifcase\align_state \tablefullrule{\TRTH}\else
+         \endcell\tablehrule{\TRTH}\begincell\fi}
+  \def|{\cellaction{\tablevrule\trth}}
+  \def!{\cellaction{\tablevrule\TRTH}}
+  \def\br##1{%
+    \global\cellnum0\relax
+    \global\align_state1\relax \ignorespaces ##1\unskip
+    \global\align_state2\relax &%
+  }
+  \def\B##1##2{%
+    \def\distender_kind{##2}%
+    \def\dimen_suffix{=}%
+    \def\B__{\B_##1##2}%
+    \ifx\distender_kind\dimen_suffix
+      \afterassignment\B__ \global\tablerowheight =
+    \else \global\tablerowheight=0pt\relax \expandafter \B__ \fi
+  }%
+  \def\B_##1##2{%
+% if ##2 equals to 0 - = + _ ^ or : it is interpreted in a special way;
+% otherwise ##2 is treated as if it were equal to 0 and the token list
+% swallowed as ##2 parameter is put after \br{...}; in the later case,
+% however, surrounding curly braces may disappear; in these, hopefully, rare
+% situations using either explicitly suffix 0 or double bracing may help
+    \br{##1\spec_distendertrue\D{##2}}}
+  \def\er##1{\global\align_state=3\unskip&##1\unskip \global\align_state=0
+             \iftapverbose \message{*}\fi \cr}
+  \def\E{\er}
+  \def\D##1{% ``distender''
+% if ##1 equals to 0 - = + _ ^ or : it is interpreted in a special way,
+% namely, a strut of an appropriate size is formed; otherwise ##1 is just
+% returned to \TeX (possibly without curly braces, however); see also
+% definition of \B above
+    \ifvmode\leavevmode\fi
+    \ifhmode\nobreak\hskip0pt\relax\fi % enable breaking of a preceding word
+    \gdef\next_tok{}%
+    \def\distender_kind{##1}%
+    \def\null_suffix{0}%
+    \def\flat_suffix{-}%
+    \def\dimen_suffix{=}%
+    \def\norm_suffix{+}%
+    \edef\dn_suffix{\normalundscore}% an exception
+    \def\up_suffix{^}%
+    \def\updn_suffix{:}%
+    \setbox\box_tmp\hbox{%
+      \ostrut
+      \ifx\distender_kind\null_suffix \else
+      \ifx\distender_kind\norm_suffix height\normht depth\normdp \else
+      \ifx\distender_kind\flat_suffix height0mm depth0mm
+        \ifspec_distender
+          \global\let\begincell\beginflatcell
+          \global\let\endcell\endflatcell
+        \fi
+      \else
+      \ifx\distender_kind\dimen_suffix height0mm depth0mm
+        \ifspec_distender
+          \global\let\begincell\begindimencell
+          \global\let\endcell\enddimencell
+        \else
+          \immediate\write16{%
+            \tap_warning: `=' following \string\D\space is equivalent to `0'}%
+        \fi
+      \else
+      \ifx\distender_kind\up_suffix height\extraht depth\normdp \else
+      \ifx\distender_kind\dn_suffix height\normht depth\extradp \else
+      \ifx\distender_kind\updn_suffix height\extraht depth\extradp
+      \else \gdef\next_tok{##1}% unrecognized token(s) will recirculate
+      \fi\fi\fi\fi\fi\fi\fi \relax
+    }%
+    \xdef\curr_distender_depth{\the\dp\box_tmp}%
+    \xdef\curr_distender_height{\the\ht\box_tmp}%
+    \unhbox\box_tmp
+    \ifspec_distender
+      \aftergroup\next_tok % put \next_tok in a next alignment cell
+    \else \expandafter \next_tok \fi
+  }
+  \let@\usecells
+  \def~{\leavevmode\phantom{0}}% invisible digit (usually, all digits have
+                               % the same width)
+%  \def\$##1{~\llap{$##1$}}% mathematical sign, with 
+%                          % width of digit
+%  \def\,{\leavevmode\phantom{,}}% space of coma
+  \defaultstrut
+  \longcalculationtrue
+  \cellmarg\defaultcellmarg % freeze a default value
+  \everycr{\noalign{%
+    \ifnum\cellnum>\maxcellnum \global\maxcellnum\cellnum\fi
+    \global\let\begincell\defaultbegincell
+    \global\let\endcell\defaultendcell
+    \global\align_state0
+  }}
+  \let\defaultbegincell\relax
+  \let\defaultendcell\relax
+  \tablerulecmyk{}% no color is specified
+  \tablebkgcmyk{0 0 0 0}% background is white by default
+  \global\deferredtrue % deferred anchor execution is default 
+  \the\everytable\relax \the\thistable\relax}
+
+\def\begintable_{\vbox\bgroup
+  \global\let\begincell\defaultbegincell %  \begincell and \endcell
+  \global\let\endcell\defaultendcell     %  are always set globally,
+  \global\let\currtfont\relax            %  \currtfont too
+% \currtfont was introduced in order to avoid global font assignments
+% as well as to avoid a premature expansion
+% of \currtfont in \begintableformat
+  \global\maxcellnum0 \global\cellnum0 \global\mincellmarg\maxdimen
+  \let\cellaction_\relax % protect against premature expansions
+  \let\ori_par\par
+  \let\par\empty % set to original meaning at the beginning of each vbox
+  \everyvbox\expandafter{\the\everyvbox \let\par\ori_par}
+}
+\def\endtable_{\crcr\egroup\egroup}
+
+\def\begintableformat #1\endtableformat{\offinterlineskip \tabskip = 0pt
+  \let\left\preambleleft \let\center\preamblecenter \let\right\preambleright
+  \def"{&########&}
+  \edef\tbl_form{####&#1&####\cr}
+  \let\left\tableleft \let\center\tablecenter \let\right\tableright
+  \def"{\cellaction\relax}
+  \xdef\currtfont{\the\font}
+  \edef\leftcellside{\leftcellside}
+  \edef\rightcellside{\rightcellside}
+  \halign\bgroup\span\tbl_form}
+
+\def\begintable{\vbox\bgroup \table_setup \midtable}
+\long\def\midtable #1\endtable{%
+  \def\curr_table{\begintable_#1\endtable_}\nospecanchors
+  \edef\currhbadness{\the\hbadness}\edef\currvbadness{\the\vbadness}%
+  \ifdim\desiredwidth>0mm \hbadness10000 \vbadness10000 \fi
+  \setbox\table_box\hbox{\curr_table}%
+  \ifdim\desiredwidth>0mm
+    \ifdim\wd\table_box>0mm
+      \fix_cellcorr
+% typesetset the table for the last time with the original badnesses
+      \hbadness\currhbadness \vbadness\currvbadness
+      \setbox\table_box\hbox{\curr_table}%
+      \iflongcalculation \else \width_warning\fi
+      \margin_warning
+    \else
+      \immediate\write16{%
+        \tap_warning: table width = \the\wd\table_box\space
+        (\desiredwidth ignored).}%
+    \fi
+  \fi
+  \xdef\tablewidth{\the\wd\table_box}%
+  \xdef\tablecellcorr{\the\cellcorr}%
+  \box\table_box
+  \egroup
+  \thistable{\relax}}
+
+\def\deftable#1\begintable{% #1 is expected to be a valid macro header,
+% preferably a csname; characters in the header have ``outer'' category
+% codes, i.e., not ``table'' category codes
+  \begingroup
+     \outer\def\begintable{}% protect against missing `\endtable'
+     \def\table_name{#1}\tableactive
+     \expandafter \expandafter \expandafter \gdef \expandafter \table_name
+     \deftablecont}
+\long\def\deftablecont#1\endtable{{#1}\endgroup}
+
+% ====================== PostScript (anchor) macros =======================
+\def\beginanchtable{\vbox\bgroup \psunits_setup \table_setup \midanchtable}
+\long\def\midanchtable #1\endanchtable{%
+  \def\curr_table{%
+    \gdef\useanchors{}% \useanchors is defined during typesetting a table
+    \begintable_#1\endtable_}%
+  \edef\currhbadness{\the\hbadness}\edef\currvbadness{\the\vbadness}%
+% at least two table settings are necessary with anchors, as \cornerfullanchor
+% likes to know the actual table width, hence the first setting is always
+% temporary; if a short calculation option holds, after fixing the
+% cell correction the table must be set once again, for the same reason
+  \hbadness10000 \vbadness10000
+  \setbox\table_box\hbox{\nospecanchors\curr_table}%
+  \edef\totalcellnum{\the\maxcellnum}% actually = 2 x ``visible'' cell number
+  \hbox{%
+    \ifdim\desiredwidth>0mm \fix_cellcorr
+      \iflongcalculation \else % see the previous comment
+        \setbox\table_box\hbox{\nospecanchors\curr_table}%
+      \fi
+    \fi
+% typesetset the table for the last time with the original badnesses
+% casting anchors
+    \hbadness\currhbadness \vbadness\currvbadness
+    \setbox\table_box\hbox{\curr_table}%
+    \ifdim\desiredwidth>0mm
+       \iflongcalculation \else \width_warning\fi
+       \margin_warning
+    \fi
+    \xdef\tablewidth{\the\wd\table_box}%
+    \xdef\tablecellcorr{\the\cellcorr}%
+    \tbkg_patch\table_box
+%   \useanchors is now defined, it will expand to commands that use anchors
+    \hbadness\currhbadness \vbadness\currvbadness
+    \useanchors \nospecanchors \llap{\curr_table}%
+  }%
+  \egroup
+  \thistable{\relax}}
+% ---
+\def\tbkg_patch#1{% \tbkg_patch puts a color patch (background) on the top
+% of a table given by #1; #1 is a csname of a table box; hmode is on.
+ \speccastat
+   {-\tablebkgcorr}{-\tablebkgcorr}
+   {\castspecial{ur}\tbkgsuffix{\wd#1}{\ht#1}}%
+ \speccastat
+   {\tablebkgcorr}{\tablebkgcorr}
+   {\castspecial{ll}\tbkgsuffix{0mm}{-\dp#1}}%
+ \box#1% cast anchors while typesetting table #1
+ \dotbkpatch % erase table; it seems better to use rather anchors than rules,
+             % as rules spoil ``classic'' previewing; patching was introduced
+             % in order to avoid the ``diffusion'' of a table contents
+             % (1 pixel?). If you don't care, or you use high resolution,
+             % you may wish to define \dotbkpatch as an empty command.
+}
+\def\tbkgsuffix{TbKg.SuF}% a suffix to be unlikely used by chance
+% \tbkgsuffix, \tablebkgcorr, and \dotbkpatch can be virtualy
+% exploited by a user, hence ``plain'' csnames were used; table background
+% colour is most likely to be used by a user, hence it is set in \table_setup
+\def\tablebkgcmyk#1{\def\thetablebkgcmyk{#1}}% set table background colour
+\def\tablebkgcorr{0mm}% tiny correction of the position of the corners
+                      % of the table background
+\def\dotbkpatch{\specrect\tbkgsuffix\thetablebkgcmyk}
+% ---
+\def\anchoffset{.5\trth}% by default depends on current rule thickness
+% ---
+\def\nospecanchors{%
+  \def\expa_expa_##1##2##3##4{\gdef\useanchors{}}%
+  \def\speccastat##1##2##3{}%
+  \def\totalcellnum{0}%
+%  \def\specrect##1##2{}%
+%  \def\specdiagboth##1##2##3{}%
+%  \def\specdiagdown##1##2##3{}%
+%  \def\specdiagup##1##2##3{}%
+%  \def\spectrianne##1##2{}%
+%  \def\spectriannw##1##2{}%
+%  \def\spectrianse##1##2{}%
+%  \def\spectriansw##1##2{}%
+}
+% ---
+\def\castat#1#2#3{% cast anything at a chosen position, never ignored
+% #1 -- xoffset, #2 -- yoffset, #3 -- contents, presumably a \special command
+ \vbox to0mm{\vss\hbox to0mm{\kern#1\relax#3\hss}\kern#2}}
+% ---
+\def\speccastat{\castat} % \speccastat becomes empty in \nospecanchors
+% ---
+\def\castspecial#1#2#3#4{% cast PostScript anchor (presumably at a cell corner)
+% #1 = prefix (ur, ll, lr, ul), #2 -- suffix, #3 -- xoffset, #4 -- yoffset
+  \speccastat{#3}{#4}
+    {\tapspecial{currentpoint /y#1.#2 exch def /x#1.#2 exch def
+    /xlast.#2 x#1.#2 def /ylast.#2 y#1.#2 def}}}
+% ---
+\def\expa_expa_#1#2#3#4{%
+% #1 -- \def or \gdef, #2, #3, #4 -- csnames
+% performs #1#2{#3#4}, #3 and #4 expanded once;
+% e.g., given \def\pp{ALA} \def\qq{BELA},
+% \expa_expa_\def\pp\pp\qq defines \pp as a macro {ALABELA}
+ \expandafter\expandafter\expandafter#1%
+ \expandafter\expandafter\expandafter#2%
+ \expandafter\expandafter\expandafter{%
+ \expandafter#3#4}}
+%
+{\catcode`\p12 \catcode`\t12 \gdef\gobblePT#1pt{#1}}
+\def\dimval#1{\expandafter\gobblePT\the#1} % obsolete?
+\def\gobblespace#1 #2\relax{#1}
+% ---
+\def\appendanchors#1{%
+  \ifdeferred
+  \edef\useanchors_{#1}\expa_expa_\gdef\useanchors\useanchors\useanchors_
+  \else \global\deferredtrue #1\fi
+}
+%
+\def\rectfill#1#2{\noalign{\appendanchors{\noexpand\specrect{#2}{#1}}}}
+%
+\def\trianfill#1#{\noalign\bgroup
+   \lowercase{\edef\trian_dir{\gobblespace #1 \relax}}\trianfill_}
+\def\trianfill_#1#2{\appendanchors{%
+   \expandafter\noexpand\csname spectrian\trian_dir \endcsname {#2}{#1}}%
+\egroup}
+%
+\newdimen\pen_wd
+\def\diagstroke{\noalign\bgroup\afterassignment\diagstroke_\pen_wd}
+\def\diagstroke_#1#{%
+  \lowercase{\edef\diag_dir{\gobblespace #1 \relax}}\diagstroke__}
+\def\diagstroke__#1#2{\appendanchors{%
+  \expandafter\noexpand\csname specdiag\diag_dir \endcsname
+    {#2}{#1}{\number\pen_wd}}%
+  \egroup}
+% ---
+\def\specdiagboth#1#2#3{%
+% #1 index (suffix) of lower left and upper right corners (anchors)
+% #2 cmyk coordinates
+% #3 pen width in points, only the number (in scaled points)
+  \edef\cmyk_{#2}%
+  \tapspecial{gsave newpath \ifx\cmyk_\empty\else #2 setcmykcolor \fi
+    #3 sp setlinewidth 1 setlinecap
+    xll.#1 yll.#1 moveto xur.#1 yur.#1 lineto stroke
+    xll.#1 yur.#1 moveto xur.#1 yll.#1 lineto stroke grestore}}
+\def\specdiagdown#1#2#3{%
+% #1 index (suffix) of lower left and upper right corners (anchors)
+% #2 cmyk coordinates
+% #3 pen width in points, only the number (in scaled points)
+  \edef\cmyk_{#2}%
+  \tapspecial{gsave newpath \ifx\cmyk_\empty\else #2 setcmykcolor \fi
+    #3 sp setlinewidth 1 setlinecap
+    xll.#1 yur.#1 moveto xur.#1 yll.#1 lineto stroke grestore}}
+\def\specdiagup#1#2#3{%
+% #1 index (suffix) of lower left and upper right corners (anchors)
+% #2 cmyk coordinates
+% #3 pen width in points, only the number (in scaled points)
+  \edef\cmyk_{#2}%
+  \tapspecial{gsave newpath \ifx\cmyk_\empty\else #2 setcmykcolor \fi
+    #3 sp setlinewidth 1 setlinecap
+    xll.#1 yll.#1 moveto xur.#1 yur.#1 lineto stroke grestore}}
+\def\specrect#1#2{%
+% #1 index (suffix) of lower left and upper right corners (anchors)
+% #2 cmyk coordinates
+  \edef\cmyk_{#2}%
+  \tapspecial{gsave newpath \ifx\cmyk_\empty\else #2 setcmykcolor \fi
+    xll.#1 yll.#1 moveto
+    xur.#1 yll.#1 lineto xur.#1 yur.#1 lineto xll.#1 yur.#1 lineto
+    closepath fill grestore}}
+\def\spectrianne#1#2{%
+% #1 index (suffix) of lower left and upper right corners (anchors)
+% #2 cmyk coordinates
+  \edef\cmyk_{#2}%
+  \tapspecial{gsave newpath \ifx\cmyk_\empty\else #2 setcmykcolor \fi
+    xll.#1 yur.#1 moveto xur.#1 yll.#1 lineto xur.#1 yur.#1 lineto
+    closepath fill grestore}}
+\def\spectriannw#1#2{%
+% #1 index (suffix) of lower left and upper right corners (anchors)
+% #2 cmyk coordinates
+  \edef\cmyk_{#2}%
+  \tapspecial{gsave newpath \ifx\cmyk_\empty\else #2 setcmykcolor \fi
+    xll.#1 yll.#1 moveto xur.#1 yur.#1 lineto xll.#1 yur.#1 lineto
+    closepath fill grestore}}
+\def\spectrianse#1#2{%
+% #1 index (suffix) of lower left and upper right corners (anchors)
+% #2 cmyk coordinates
+  \edef\cmyk_{#2}%
+  \tapspecial{gsave newpath \ifx\cmyk_\empty\else #2 setcmykcolor \fi
+    xll.#1 yll.#1 moveto xur.#1 yll.#1 lineto xur.#1 yur.#1 lineto
+    closepath fill grestore}}
+\def\spectriansw#1#2{%
+% #1 index (suffix) of lower left and upper right corners (anchors)
+% #2 cmyk coordinates
+  \edef\cmyk_{#2}%
+  \tapspecial{gsave newpath \ifx\cmyk_\empty\else #2 setcmykcolor \fi
+    xll.#1 yll.#1 moveto xur.#1 yll.#1 lineto xll.#1 yur.#1 lineto
+    closepath fill grestore}}
+
+\newcount\col_num
+\newtoks\col_tok
+
+\newif\ifdeferred
+
+\def\ontext{\noalign{\global\deferredfalse}}
+\def\clearafters{\noalign{\gdef\aftersuffix{}\gdef\afteranchor{}}}
+
+\def\uranchor{\clearafters\corneranchor{ur}} % obsolescent (upward compatibility)
+\def\llanchor{\clearafters\corneranchor{ll}} % ditto
+\def\genanchor#1#2#3#4{% to be cast only inside a cell
+  \noalign{\gdef\aftersuffix{#3}\gdef\afteranchor{#4}}%
+  \corneranchor{#1#2}%
+}
+
+\def\corneranchor#1{% #1 = ur, ll, ul, lr, nr, nl, 
+  \noalign\bgroup \def\next_{\corneranchor_#1}\afterassignment\next_
+  \global\col_num}
+\def\corneranchor_#1#2{% #1 = u, l, n, #2 = l, r
+     \if#1n%
+       \ifnum\col_num<1
+         \global\col_num\if#2r\totalcellnum \global\divide\col_num2
+       \else1\fi
+     \fi\fi
+     \global\advance\col_num-1\relax
+     \ifnum\col_num<0 \global\let\corneranchor__\cornerfullanchor
+     \else \global\let\corneranchor__\cornercellanchor \fi
+  \egroup \corneranchor__ #1#2}
+
+\def\cornerfullanchor#1#2#3{% #1 = u, l, n, #2 = l, r, #3 -- suffix,
+% \wd\table_box is set by \midanchtable
+  \br{\speccastat{\if#2r\wd\table_box\else0mm\fi}{0mm}
+        {\castspecial {#1#2}{#3\aftersuffix}
+          {\if#1n0mm\else\if#2r-\fi\anchoffset\fi}% cf. asymmetry below
+          {\if#1n0mm\else\if#1l-\fi\anchoffset\fi}}}%
+  \er{}\noalign{\xdef\lastsuffix{#3}\afteranchor}\clearafters}
+
+\def\cornercellanchor#1#2#3{% #1 = u, l, #2 = l, r, #3 -- suffix
+  \br{}
+  \col_tok{}%
+  \loop \ifnum\col_num>0
+    \global\advance\col_num-1 \col_tok\expandafter{\the\col_tok"}%
+  \repeat
+  \the\col_tok
+  \if#2r\hskip0ptplus1filll\fi
+  \speccastat
+    {\if#2l-\fi \ifignorecellstate 1\else
+     \ifcase\cellstate \if#2l0\else2\fi\or 1\or \if#2l2\else0\fi\fi\fi
+     \cellcorr}{0mm}
+       {\speccastat {\if#2l-\fi\cellmarg}{0mm}
+         {\castspecial {#1#2}{#3\aftersuffix}
+           {\if#1n0mm\else\if#2l-\fi\anchoffset\fi}% cf. asymmetry above
+           {\if#1n0mm\else\if#1l-\fi\anchoffset\fi}}%
+  }%
+  \if#2l\hskip0ptplus1filll\null\fi
+  \er{}\noalign{\xdef\lastsuffix{#3}\afteranchor}\clearafters}
+% ---
+% newer approach to anchors (introduced in ver. 0.74):
+\def\bpsinsertion#1#2#3{\genanchor #1#2{#3}{}}
+\def\epsinsertion#1#2#3#4{%
+  \genanchor#2#3{#4}{\appendanchors{\tapspecial{#1}}}%
+}
+
+\def\bgenstroke#1#2{\bpsinsertion #1#2{.bs}}
+\def\egenstroke#1#2#3{%
+  \epsinsertion {gsave newpath
+     xlast.\lastsuffix.bs ylast.\lastsuffix.bs moveto
+     xlast.\lastsuffix.es ylast.\lastsuffix.es lineto 
+     trth setlinewidth % default
+     #1 % extra settings 
+     stroke grestore
+  }#2#3{.es}%
+}
+
+\def\bgenrectangle#1#2{\bpsinsertion #1#2{.br}}
+\def\egenrectangle#1#2#3{%
+  \epsinsertion{gsave
+     xlast.\lastsuffix.br ylast.\lastsuffix.br
+     xlast.\lastsuffix.er xlast.\lastsuffix.br sub
+     ylast.\lastsuffix.er ylast.\lastsuffix.br sub
+     #1 % extra settings 
+     rectfill grestore
+  }#2#3{.er}%
+}
+
+\def\bstroke{\bgenstroke}
+\def\estroke{% waits for pen width; next: cmyk, dash, corner, column, suffix
+  \noalign\bgroup \afterassignment\estroke_ \global\pen_wd}
+\def\estroke_#1#2{\egroup \egenstroke{\number\pen_wd\space sp setlinewidth
+   mark #1 counttomark 4 eq {setcmykcolor} if cleartomark
+   [[#2] {pt} forall] 0 setdash}}
+
+\def\brectangle{\bgenrectangle}
+\def\erectangle#1{% waits for cmyk, corner, column, suffix
+  \egenrectangle{mark #1 counttomark 4 eq {setcmykcolor} if cleartomark}}
+
+% ====== ``floating point arithmetic'' (excerpted from T. Rokicki): =======
+%
+% ^  r  y
+% |
+% |
+% |
+% |
+% 0-----------> t   x
+%
+\def\resize
+  % dimen registers:
+  #1% y   make y such that y/r=x/t
+  #2% r
+  #3% x
+  #4% t
+%   We have a sticky problem here:  TeX doesn't do floating point arithmetic!
+%   Our goal is to compute y = rx/t. The following loop does this reasonably
+%   fast, with an error of at most about 16 sp (about 1/4000 pt).
+  {%
+  % save parameters to the internal variables:
+  \dim_r#2\relax \dim_x#3\relax \dim_t#4\relax
+  \dim_tmp=\dim_r \divide\dim_tmp\dim_t
+  \dim_y=\dim_x \multiply\dim_y\dim_tmp
+  \multiply\dim_tmp\dim_t \advance\dim_r-\dim_tmp
+  \dim_tmp=\dim_x
+  \loop \advance\dim_r\dim_r \divide\dim_tmp 2
+  \ifnum\dim_tmp>0
+    \ifnum\dim_r<\dim_t\else
+      \advance\dim_r-\dim_t \advance\dim_y\dim_tmp \fi
+  \repeat
+  % assign result:
+  #1\dim_y\relax}
+%
+\newdimen\dim_x    % horizontal size after scaling
+\newdimen\dim_y    % vertical size after scaling
+\newdimen\dim_t    % horizontal size before scaling
+\newdimen\dim_r    % vertical size before scaling
+\newdimen\dim_tmp % register for arithmetic manipulation
+
+% ============================== Postamble ================================
+\catcode`\"\dblquotecatcode
+\catcode`\|\brokenbarcatcode
+\catcode`\!\exclamcatcode
+\catcode`\_=\undscorecatcode
+\catcode`\@=\atcatcode
+
+\endinput

@@ -1,0 +1,244 @@
+% $Id: js-misc.tex,v 1.1 1995/03/13 23:18:12 schrod Exp $
+%--------------------------------------------------
+% Written by Joachim Schrod <schrod@iti.informatik.th-darmstadt.de>.
+
+% This is a german description for cassette.tex & schild.tex.
+
+
+% Manual fuer ``Kleine TeX-Makros, aufbauend auf PLAIN'':
+%     Tonbandkassetten-Schilder
+%     Buecherruecken-Schilder
+%
+% [Formate]
+
+
+\berichtformat
+
+\input idverb
+\def\.{$\bullet$}
+
+
+
+
+\titel{}{Kleine \TeX{}-Makros}{, aufbauend auf {\tt PLAIN}}
+\autor{Joachim Schrod}
+\datum{Rödermark, den 08.02.88}
+
+
+
+
+
+\kapitel{Beschriftung von Tonband-Kassetten}{}
+
+Die Beschriftung von Tonband-Kassetten wird durch
+|\input cassette| geladen.
+Durch diese Makros werden Schilder erzeugt, die
+in eine Kassettenhülle gelegt werden können.
+%Jedes Schild wird auf eine einzelne Seite gedruckt.
+Das Layout eines Schildes ist in Abb.~1.1 zu sehen.
+Das Schild wird an den äußeren Rändern ausgeschnitten
+und entlang der horizontalen Linien gefaltet.
+
+\abbvoll{
+{\input cassette
+\let\eject=\relax
+\begincassette{Kassettenname}
+\titelcass{Frontseite mit Titeln}
+\seitea{Musikstücke der Seite A}
+\seiteb{Musikstücke der Seite B}
+\endcassette
+}}{Layout eines Kassettenschildes}
+
+\noindent Folgende Befehle erzeugen das gewünschte Layout:
+
+\beginitemize
+
+\item{\.} |\begincassette|\quad (1 Parameter)\nl
+Mit diesem Befehl beginnt die Beschreibung eines Kassettenschilds.
+Der Parameter ist der Name der Kassette, der in |\cassfont|
+(Kapitälchen, 10pt) gesetzt wird.
+
+\item{\.} |\titelcass|\quad (1 Parameter)\nl
+Dieser Befehl gibt den Titel der Kassette an, der auf die
+Frontseite gesetzt wird.
+Der Titel wird in |\titfont| (Serifenlose, 10pt) gesetzt.
+Dieser Befehl ist optional, da Titel auch durch |\titel| (s.u.)\
+angegeben werden können.
+
+\item{\.} |\seitea|\quad (1 Parameter)\nl
+Durch den Parameter von |\seitea| wird die Seite~A der
+Kassette beschrieben.
+Diese Beschreibung umfaßt einen optionalen Titel und eine
+Folge von Musikstücken.
+Sie ist zeilenorientiert, d.h.\ jeweils ein Musikstück
+(mit eventuellem Interpret) steht auf einer Eingabezeile.
+Wenn der Text zu lang wird, kann durch die Angabe von |%|
+am Zeilenende die Folgezeile mitbenutzt werden.
+Innerhalb eines Musikstücks kann durch |\nl| gezielt
+umgebrochen werden, wenn man mit dem von \TeX{} gewähltem
+Umbruch nicht zufrieden ist.
+Die Musikstücke werden in |\norm| (Serifenlose, 8pt) gesetzt.
+Dieser Befehl ist optional.
+\itempar
+Folgende Hilfsbefehle stehen zur Beschreibung zur Verfügung:
+
+{\nextitemlevel\itemskip=0pt
+\item{--} |\cnt|\quad (1 Parameter, beendet durch |:|)\nl
+Mit |\cnt| kann die Zählerstellung des Beginns eines
+Musikstücks angegeben werden.
+Die angegebene Zahl wird in eckige Klammern gesetzt.
+
+\item{--} |\von|\quad (1 Parameter, beendet durch |:|)\nl
+Durch |\von| kann ein Interpret dem Musikstück vorgestellt werden.
+Ein Beispiel für eine vollständige Angabe eines Musikstücks
+kann also
+$$
+   \hbox{|\von Led Zeppelin: Stairway to heaven|}
+$$
+sein.
+Der Interpret wird in |\intfont| (Serifenlose Kursiv, 8pt) gesetzt.
+
+\item{--} |\titel|\quad (1 Parameter)\nl
+Mit diesem Befehl kann in die Seite eine Angabe eines Titels
+(z.B.~einer Schallplatte) übernommen werden.
+Dieser Titel wird gleichzeitig auf die Frontseite gesetzt.
+Innerhalb des Titels kann |\von| zur Angabe eines Interpreten
+benutzt werden.
+Dieser Befehl kann mehrmals vorkommen.
+Der Titel wird auf der Seite in |\titfont@page| (Kapitälchen, 8pt)
+gesetzt, wobei der Interpret in Versalien gesetzt wird.
+Auf der Frontseite wird der Titel in |\titfont| (Serifenlose, 10pt)
+gesetzt, wobei der Interpret in |\titintfont| (Serifenlose Kursiv, 10pt)
+gesetzt wird.
+\par}
+
+\item{\.} |\seiteb|\quad (1 Parameter)\nl
+Dieser Befehl beschreibt die Seite~B der Kassette.
+Die Beschreibungsmöglichkeiten sind mit denen von |\seitea|
+identisch.
+
+\item{\.} |\endcassette|\nl
+Durch diesen Befehl wird die Beschreibung des Kassettenschildes
+beendet und das Kassettenschild gesetzt.
+Gleichzeitig wird eine neue Seite begonnen.
+
+\enditemize
+
+
+
+
+
+\kapitel{Beschriftung von Bücherrücken}{}
+
+Die Beschriftung von Bücherrücken wird durch
+|\input schild| geladen.
+Durch diese Makrodatei ist es möglich Schilder für
+Bücherrücken zu erzeugen, die anschließend auf die Bücher
+geklebt werden können.
+Das Layout eines Schildes ist in der Abb.~2.1 gezeigt,
+es wird an den äußeren Rändern ausgeschnitten.
+
+\def\schild{%
+   \vbox{%
+      \hrule
+      \hbox{%
+         \vrule
+         \vbox to 10mm{%
+            \vfill
+            \hbox{\kern 25mm \svtnrm Name des Buches\kern 25mm}%
+            \vfill
+            }%
+         \vrule
+         }%
+      \hrule
+      }%
+   }
+
+\def\vertlen{%
+   \llap{%
+      \vbox to 10mm{%
+         \vfill
+         \hbox{{\tt \#1\/} mm }%
+         \vfill
+         }
+      }%
+   }
+\def\vertmass{%
+   \vbox{%
+      \hrule width 4mm
+      \hbox{%
+         \vertlen
+         \kern 2mm
+         \vrule height 10mm
+         }%
+      \hrule width 4mm
+      }%
+   }
+
+\def\horizmass{%
+   \hbox{%
+      \vrule height 2mm depth 2mm
+      \vtop{%
+         \hrule width 25mm
+         \kern 2mm
+         \hbox to 25mm{\ctr{\tt \char`\\rand}}%
+         }%
+      \vrule height 2mm depth 2mm
+      }%
+   }
+
+\abbvoll{
+   \offinterlineskip
+   \hbox{%
+      \llap{%
+         \vertmass
+         \hskip 2mm
+         }%
+      \schild
+      }%
+   \vskip 2mm
+   \hbox{%
+      \horizmass
+      \phantom{\svtnrm Name des Buches}%
+      \horizmass
+      }%
+}{Layout eines Buchrückenschildes}
+
+\noindent Um das Buchrückenschild zu erzeugen, existieren
+folgende Makros und Parameter:
+
+\beginitemize
+
+\item{\.} |\schild|\quad (2 Parameter)\nl
+Durch dieses Makro wird ein Schild erzeugt.
+Der erste Parameter ist die Höhe des Schildes, der zweite
+der Text, der auf das Buchrückenschild soll.
+
+\item{\.} |\rand|\nl
+|\rand| ist eine Dimensionsangabe, die beschreibt, wieviel
+Platz zwischen dem Buchnamen und dem Rand des Schildes
+horizontal verbleibt.
+
+\item{\.} |\namfont|\nl
+In |\namfont| wird der Buchname gesetzt.
+
+\enditemize
+
+
+
+
+
+\bye
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% $Log: js-misc.tex,v $
+% Revision 1.1  1995/03/13  23:18:12  schrod
+%     Started to manage this package with CVS. Made minor code cleanup.
+%
+
+%
+% Pre-CVS Log:
+%
+% 88-02-08 js  Initial revision

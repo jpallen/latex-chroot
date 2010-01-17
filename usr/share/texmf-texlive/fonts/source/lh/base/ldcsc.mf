@@ -1,0 +1,215 @@
+%
+% ldcsc.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Driver file for Caps and Small Caps font
+% - modified CSC.MF in Computer Modern fonts
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+LHver_check(3,5); % like |version_check| in ec
+
+font_coding_scheme:=if ligs=0: "TeX typewriter text/Cyr - "&enc_name
+ else: "TeX text without f-ligs/Cyr - "&enc_name fi;
+if altcoding:
+   spanish_shriek=oct"016"; spanish_query=oct"017";
+fi
+
+input lxpseudo;
+
+mode_setup; font_setup;
+pseudo_setup;    % |pseudo_setup| from ec
+
+if altcoding:
+ input romanu;      % upper case (majuscules)
+ input greeku;      % upper case greek letters
+ input romand;      % numerals
+ input romanp;      % ampersand, question marks, currency sign
+ input romspu;      % uppercase specials (\AE, \OE, \O)
+ input punct;       % punctuation symbols common to all roman and italic
+ input accent;	    % accents common to roman and italic text
+ input romsub;	    % substitutes for ligatures
+fi
+
+if not vfcoding:  % ligs for both altcoding and wncoding (dashes & quotes)
+   if ligs>0: input comlig; fi  % ligatures common with italic
+fi
+
+input lgcyru;	    % input uppercase shapes
+input lgcyrsym;	    % <<, >>, No
+input lgcyracc;	    % Cyrillic accents
+if old_cyr:
+   input lgocyrac; % Cyrillic Old Slav accents & signs
+fi
+
+if wncoding: %Part used in WNCYR
+   input romand;    % numerals
+   input lgpunct;   % excerpts from punct.mf
+   input lgromp;    % roman question mark
+fi
+
+font_slant slant; font_x_height x_height#;
+
+upper.u#:=u#; %save for Cyrillic kerning table
+
+if monospace: font_normal_space 9u#; % no stretching or shrinking
+   font_quad 18u#;
+   font_extra_space 9u#;
+   if altcoding: input llmligtb; fi % input ligs for quotes
+   if wncoding:  input lwnligs;  fi % input ligs for Cyrillic in WNCYR
+else: font_normal_space 6u#+2letter_fit#;
+   font_normal_stretch 3u#; font_normal_shrink 2u#;
+   font_quad 18u#+4letter_fit#;
+   font_extra_space 2u#;
+   k#:=-.5u#; kk#:=-1.5u#; kkk#:=-2u#; % three degrees of kerning
+   %
+   % Uppercase Latin ligs & kerns
+   %   There are just the same ligs and kerns as in CM
+   %   but they are built in more visible form
+   %
+   TITLEfont:=false; SmallCapsfont:=true; ROMANfont:=false;
+   if altcoding:
+      ligtable "P": "T": "Y":
+		    "a" kern kk#,
+		    "A" kern kk#;
+      ligtable "F": "V": "W":
+		    if serifs:  "a" kern kkk#,
+				"A" kern kkk#,
+			 else:  "a" kern kk#,
+				"A" kern kk#, fi
+	       "K": "X":
+		    "o" kern k#,
+		    "O" kern k#,
+		    "c" kern k#,
+		    "C" kern k#,
+		    "g" kern k#,
+		    "G" kern k#,
+		    "q" kern k#,
+		    "Q" kern k#;
+      ligtable "O": "D":
+		    "x" kern k#,
+		    "X" kern k#,
+		    "w" kern k#,
+		    "W" kern k#,
+		    "a" kern k#,
+		    "A" kern k#,
+		    "v" kern k#,
+		    "V" kern k#,
+		    "y" kern k#,
+		    "Y" kern k#;
+      ligtable "A": if serifs: "R": fi
+		    "c" kern k#,
+		    "C" kern k#,
+		    "o" kern k#,
+		    "O" kern k#,
+		    "g" kern k#,
+		    "G" kern k#,
+		    "u" kern k#,
+		    "U" kern k#,
+		    "q" kern k#,
+		    "Q" kern k#,
+	       "L": "T" kern kk#,
+		    "t" kern kk#,
+		    "Y" kern kk#,
+		    "y" kern kk#,
+		    "V" kern kkk#,
+		    "v" kern kkk#,
+		    "W" kern kkk#,
+		    "w" kern kkk#;
+      ligtable "I": "I" kern -k#; %fi % Richard III
+      %
+      %% ligature programs for |"-"|, |"`"|, and |"'"| are in the {\tt comlig} file
+      input llvligtb;    % input ligs for quotes
+   fi
+   % uppercase Cyrillic ligs & kerns moved down
+fi
+
+%%% fine lower
+forsuffixes $= u, width_adj, cap_serif_fit, letter_fit,
+   body_height, cap_height, x_height, bar_height, comma_depth,
+   flare, cap_hair, stem, cap_stem, cap_curve, cap_ess,
+   cap_jut, beak_jut, beak, slab, cap_bar, cap_band, cap_notch_cut,
+   o, apex_o:  $.#:=lower.$.#; endfor
+fudge:=lower.fudge;
+
+if is_small_cap:
+   cap_sbeak#  	:= 7/8 if serifs: max(beak#,desc_depth#) else: desc_depth# fi;
+   define_pixels(cap_sbeak);
+fi
+
+% now try again with |lower| settings
+font_setup; pseudo_setup; % |pseudo_setup| from ec
+
+if altcoding:
+   extra_endchar:=extra_endchar&"charcode:=charcode+code_offset";
+   code_offset:=ASCII"a" - ASCII"A";
+   input romanu;  % majuscules (in lowercase positions)
+   code_offset:=-3;
+   input romspu;  % \AE, \OE, \O\ (in positions of \ae, \oe, \o)
+   code_offset:=0;
+   input cscspu;  % substitutes for the remaining characters of romspl
+fi
+
+is_small_cap:=true;
+input lgcyru;  % Cyrillic majuscules (in lowercase positions)
+
+if wncoding: %Part used in WNCYR
+   input lgcspl;    % FF ligs
+fi
+
+if not monospace:
+   k#:=-.5u#; kk#:=-1.5u#; kkk#:=-2u#; % three degrees of kerning
+   %
+   % Lowercase Latin ligs & kerns
+   %   There are just the same ligs and kerns as in CM
+   %   but they are built in more visible form
+   %
+   if altcoding:
+      ligtable "p": "t": "y":
+		    "a" kern kk#;
+      ligtable "f": "v": "w":
+		    "a" kern if serifs: kkk# else: kk#\\fi,
+	       "k": "x":
+		    "o" kern k#,
+		    "c" kern k#,
+		    "g" kern k#,
+		    "q" kern k#;
+      ligtable "o": "d":
+		    "x" kern k#,
+		    "w" kern k#,
+		    "a" kern k#,
+	            "v" kern k#,
+		    "y" kern k#;
+      ligtable "a": if serifs: "r": fi
+		    "c" kern k#,
+		    "o" kern k#,
+	            "g" kern k#,
+		    "u" kern k#,
+		    "q" kern k#,
+	       "l": "'" kern kk#,
+		    "t" kern kk#,
+		    "y" kern kk#,
+		    "v" kern kkk#,
+		    "w" kern kkk#;
+      ligtable "i": "i" kern -k#;  % skiing
+   fi
+   %
+   u#:=upper.u#;     % restored start u parameter
+   k#:=-.5u#; kk#:=-1.5u#; kkk#:=-2u#; % repeat three degrees of kerning
+   scantokens("input "&(substring(fonteq-2,fonteq) of param_base)&"liker"); % Cyrillic ligs & kerns
+fi
+
+bye.
+%end of file

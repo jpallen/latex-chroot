@@ -1,0 +1,233 @@
+% FILE ROUNDBOX.TEX, version 1.1 (14.VIII.1990)
+% ------------------------------------------------------------------------
+% AUTHOR:
+%    Garry Glendown  (see in TUGboat Vol. 10 (1989) no.3 pp.386--387)
+% ------------------------------------------------------------------------
+% MODIFICATOR:
+%         B. Jackowski, Tatrza\'nska 6/1, 80-331 Gda\'nsk, POLAND
+%
+%   Modification includes shadow boxes, possibility of defining outer
+%   sizes (vertical and horizontal), and possibility of choosing various
+%   set of corners.
+%   ``Degenerated'' roundboxes (rectangles) are also available,
+%   although because of round-off errors (or BJ errors?) they don't
+%   look nice sometimes.
+% ------------------------------------------------------------------------
+% USAGE:
+%    1) thin frame (.4pt):
+%       \roundbox <outer size(s)> {<text>}
+%       \shadowbox <outer size(s)> {<text>}
+%    2) thick frame (.85pt) --- see remark 4:
+%       \Roundbox <outer size(s)> {<text>}
+%       \Shadowbox <outer size(s)> {<text>}
+% Outer size is optional and can have the form either `height <dimen>' or
+% `width <dimen>', or both---the order does not matter. This convention
+% is identical to that of `\hrule' and `\vrule'. You can even specify
+% depth; however, it is ignored. 
+%
+% Usage of these commands can be preceeded by fixing an appropriate set
+% of corners:
+%      \setcorners <number>
+% where
+% -1 <= <number> <= 7
+% and
+% size of corner = 2*(1+<number>)pt for <number> >= 0.
+% 
+%
+% REMARKS: 
+%   1. <outer size(s)> is/are optional and MUST NOT appear in braces.
+%   2. Errors in this parameter are not checked, hence odd results may occur.
+%   3. I made some names longer and add \@ as a letter, otherwise they
+%      might interfere.
+%   4. Thick corners are said to have line thickness 0.8pt, however the
+%      corrected value 0.85pt yields better results (for 300dpi fonts).
+%   5. Shadows do not change the size of the box (my shadow does not increase
+%      my weight).
+%   6. I'm not very happy about the elegancy of the code. I hope that some day
+%      I or somebody else will improve it.
+%   7. Is it reasonable to employ also scaled circle fonts?
+% ------------------------------------------------------------------------
+%
+\catcode`\@=11
+%
+% ------------------------------------------------------------------------
+% DECLARATIONS
+% ------------------------------------------------------------------------
+%
+\newbox\t@mpb@x
+\newdimen\t@mpwd
+\newdimen\t@mpht
+\newdimen\t@mpth
+%
+\newdimen\xt@mpwd % used for making
+\newdimen\xt@mpht % shadows instead
+\newdimen\xt@mpdp % of phantoms
+%
+\newdimen\c@rnwd % width of corner (first --- doubled, finally --- true)
+\newdimen\c@frwd % doubled width of corner + width of frame
+\newdimen\c@rnsh % corner shift
+\newdimen\sh@dsh % shadow shift
+%
+% ------------------------------------------------------------------------
+% QUARTER CIRCLES:
+% ------------------------------------------------------------------------
+%\font\circle=circle10 \font\circlew=circlew10
+\font\circle=lcircle1 \font\circlew=lcirclew
+% ------------------------------------------------------------------------
+\newcount\cornern@
+\def\@vailcorn{\immediate
+    \write16{! AVAILABLE CORNER SETS: -1,0,1,2,...,9 --- 4th set assumed}%
+    \cornern@=4}
+\def\s@tc@rn@rs{%
+     \ifnum\cornern@<-1\@vailcorn\fi
+     \ifnum\cornern@>9\@vailcorn\fi
+     \ifnum\cornern@=-1
+       % degenerated corner set;
+       % in fact, only the width of \luq@tr is important, the corners are
+       % not drawn, simply the rules are longer.
+       \def\Ph@ntc@rn{\vbox to 0.8pt{\vss\hbox to 1.6pt{}}}%
+       \def\ph@ntc@rn{\vbox to 0.4pt{\vss\hbox to 0.8pt{}}}%
+       \def\luq@tr{\ifx\cf\circlew \Ph@ntc@rn \else \ph@ntc@rn \fi}%
+     \else
+       \multiply\cornern@4
+       \edef\ruq@tr{{\noexpand\cf\char\the\cornern@}}% right upper qtr
+       \advance\cornern@ 1
+       \edef\rlq@tr{{\noexpand\cf\char\the\cornern@}}% left upper qtr
+       \advance\cornern@ 1
+       \edef\llq@tr{{\noexpand\cf\char\the\cornern@}}% left lower qtr
+       \advance\cornern@ 1
+       \edef\luq@tr{{\noexpand\cf\char\the\cornern@}}% left upper qtr
+     \fi}
+\def\setcorners{\afterassignment\s@tc@rn@rs \cornern@ = }
+\setcorners 4 % G. Glendown preferred set no 2
+% ------------------------------------------------------------------------
+% ROUND BOXES:
+% ------------------------------------------------------------------------
+%
+\def\RB@x#1#2{% #1 - rule thickness, #2 - text
+% known:
+% \t@mpwd \t@mpht
+  \t@mpth=#1\relax
+  \setbox\t@mpb@x=\hbox{\luq@tr}\c@rnwd=\wd\t@mpb@x 
+  \ifdim\c@rnwd=\z@ \c@rnwd=2\t@mpth\fi
+  \c@frwd=\t@mpth % \c@frwd is globally copied to \sh@dsh in
+                  % \s(S)hadowB@x
+  \advance \c@frwd \c@rnwd
+  \c@rnsh=-\t@mpth\advance \c@rnsh \c@rnwd
+  \setbox\t@mpb@x=\hbox{#2}% 
+  \xt@mpht=\ht\t@mpb@x % pha
+  \xt@mpwd=\wd\t@mpb@x % nt
+  \xt@mpdp=\dp\t@mpb@x % om...
+  \setbox\t@mpb@x=\hbox \ifdim\t@mpwd<\c@frwd
+                          spread \c@rnwd
+                        \else 
+                          to \t@mpwd
+                        \fi
+                        {\hss\box\t@mpb@x\hss}%
+  \advance\t@mpht-\c@frwd  \ifdim\t@mpht<\z@ \t@mpht=\z@\fi
+  \setbox\t@mpb@x=\hbox to \wd\t@mpb@x{\vrule width\t@mpth\hss
+                                       \vbox \ifdim\t@mpht>\z@ to \t@mpht\fi
+                                       {\vss\box\t@mpb@x\vss}%
+                                       \hss\vrule width\t@mpth}%
+  \c@rnwd=0.5\c@rnwd
+  \t@mpwd=\wd\t@mpb@x
+  \vbox spread -\c@rnsh{%
+        \offinterlineskip
+        \vss
+        \hbox to \t@mpwd{\ifnum\cornern@=-1 \else
+                           \hbox to \c@rnwd{\luq@tr\hss}%
+                         \fi
+                         \leaders\hrule height\t@mpth\hfil
+                         \ifnum\cornern@=-1 \else
+                           \hbox to \c@rnwd{\hss\ruq@tr\kern-\c@rnsh}%
+                         \fi}
+        \box\t@mpb@x
+        \hbox to \t@mpwd{\ifnum\cornern@=-1 \else
+                           \hbox to \c@rnwd{\llq@tr\hss}%
+                         \fi
+                         \leaders\hrule height\t@mpth\hfil
+                         \ifnum\cornern@=-1 \else
+                           \hbox to \c@rnwd{\hss\rlq@tr\kern-\c@rnsh}%
+                         \fi}
+        \vss
+        }%
+  }% end \def\RB@x
+%
+\def\roundbox#1#{\setbox\t@mpb@x=\hbox{\vrule #1}% Attention! trick!
+                 \t@mpwd=\wd\t@mpb@x \t@mpht=\ht\t@mpb@x
+                 \roundB@x}
+\def\roundB@x#1{\font\cf=lcircle1 \RB@x{.4pt}{#1}}
+%
+\def\Roundbox#1#{\setbox\t@mpb@x=\hbox{\vrule #1}% Attention! trick!
+                 \t@mpwd=\wd\t@mpb@x \t@mpht=\ht\t@mpb@x
+                 \RoundB@x}
+\def\RoundB@x#1{\font\cf=lcirclew \RB@x{.85pt}{#1}}
+%
+% ------------------------------------------------------------------------
+% SHADOW BOXES:
+% ------------------------------------------------------------------------
+%
+\def\RShB@x#1{% #1 - rule thickness
+% known:
+% \t@mpwd \t@mpht
+% \xt@mpwd \xt@mpht \xt@mpdp
+  \t@mpth=#1\relax
+  \setbox\t@mpb@x=\hbox{\luq@tr}\c@rnwd=\wd\t@mpb@x 
+  \ifdim\c@rnwd=\z@ \c@rnwd=2\t@mpth\fi
+  \c@frwd=\t@mpth % \c@frwd is globally copied to \sh@dsh in
+                  % \s(S)hadowB@x
+  \advance \c@frwd \c@rnwd
+  \c@rnsh=-\t@mpth\advance \c@rnsh \c@rnwd
+  \setbox\t@mpb@x=\hbox \ifdim\t@mpwd<\c@frwd
+                          spread \c@rnwd
+                        \else 
+                          to \t@mpwd
+                        \fi
+                        {\hss\vrule width \z@ height\xt@mpht depth\xt@mpdp
+                             \hskip\xt@mpwd\hss}%
+  \setbox\t@mpb@x=\vbox \ifdim\t@mpht>\z@ to \t@mpht\fi
+                                {\vss\box\t@mpb@x\vss}%
+  \c@rnwd=0.5\c@rnwd
+  \t@mpwd=\wd\t@mpb@x 
+  \setbox\t@mpb@x=\hbox to \t@mpwd{\vbox \ifnum\cornern@=-1 spread\c@rnwd \fi
+                                   {\vss\box\t@mpb@x}\hss\vrule width\t@mpth}%
+  \vbox spread -\c@rnsh{%
+        \offinterlineskip
+        \vss
+        \hbox to \t@mpwd{\hfil
+                         \ifnum\cornern@=-1 \else
+                           \hbox to \c@rnwd{\hss\ruq@tr\kern-\c@rnsh}%
+                         \fi}
+        \box\t@mpb@x
+        \hbox to \t@mpwd{\ifnum\cornern@=-1 \else
+                           \hbox to \c@rnwd{\llq@tr\hss}%
+                         \fi
+                         \leaders\hrule height\t@mpth\hfil
+                         \ifnum\cornern@=-1 \else
+                           \hbox to \c@rnwd{\hss\rlq@tr\kern-\c@rnsh}%
+                         \fi}
+        \vss
+       }%
+  }% end \def\RShB@x
+%
+\def\shadowbox#1#{\def\p@r@m{#1}\shadowB@x}
+\def\shadowB@x#1{\vbox{\hbox{\roundbox\p@r@m{#1}\global\sh@dsh\c@frwd
+                             \kern-\t@mpwd \kern0.5\sh@dsh \lower0.5\sh@dsh
+                             \hbox{\font\cf=lcircle1 \RShB@x{.4pt}}%
+                             \kern-0.5\sh@dsh} \kern-0.5\sh@dsh}}
+%
+\def\Shadowbox#1#{\def\p@r@m{#1}\ShadowB@x}
+\def\ShadowB@x#1{\vbox{\hbox{\Roundbox\p@r@m{#1}\global\sh@dsh\c@frwd
+                             \kern-\t@mpwd \kern0.5\sh@dsh \lower0.5\sh@dsh
+                             \hbox{\font\cf=lcirclew \RShB@x{.85pt}}%
+                             \kern-0.5\sh@dsh} \kern-0.5\sh@dsh}}
+%
+% ------------------------------------------------------------------------
+%
+\catcode`\@=12
+%
+% ------------------------------------------------------------------------
+\endinput
+% ------------------------------------------------------------------------
+%  END OF ROUNDBOX.TEX
+% ------------------------------------------------------------------------

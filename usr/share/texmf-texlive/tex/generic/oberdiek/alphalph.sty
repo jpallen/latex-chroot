@@ -1,0 +1,261 @@
+%%
+%% This is file `alphalph.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% alphalph.dtx  (with options: `package')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 1999, 2006 by Heiko Oberdiek <oberdiek@uni-freiburg.de>
+%% 
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either
+%% version 1.3 of this license or (at your option) any later
+%% version. The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of
+%% LaTeX version 2005/12/01 or later.
+%% 
+%% This work has the LPPL maintenance status "maintained".
+%% 
+%% This Current Maintainer of this work is Heiko Oberdiek.
+%% 
+%% This work consists of the main source file alphalph.dtx
+%% and the derived files
+%%    alphalph.sty, alphalph.pdf, alphalph.ins, alphalph.drv.
+%% 
+\begingroup
+  \expandafter\let\expandafter\x\csname ver@alphalph.sty\endcsname
+  \ifcase 0%
+    \ifx\x\relax % plain
+    \else
+      \ifx\x\empty % LaTeX
+      \else
+        1%
+      \fi
+    \fi
+  \else
+    \expandafter\ifx\csname PackageInfo\endcsname\relax
+      \def\x#1#2{%
+        \immediate\write-1{Package #1 Info: #2.}%
+      }%
+    \else
+      \def\x#1#2{\PackageInfo{#1}{#2, stopped}}%
+    \fi
+    \x{alphalph}{The package is already loaded}%
+    \endgroup
+    \expandafter\endinput
+  \fi
+\endgroup
+\begingroup
+  \expandafter\ifx\csname ProvidesPackage\endcsname\relax
+    \def\x#1#2#3[#4]{\endgroup
+      \immediate\write-1{Package: #3 #4}%
+      \xdef#1{#4}%
+    }%
+  \else
+    \def\x#1#2[#3]{\endgroup
+      #2[{#3}]%
+      \ifx#1\relax
+        \xdef#1{#3}%
+      \fi
+    }%
+  \fi
+\expandafter\x\csname ver@alphalph.sty\endcsname
+\ProvidesPackage{alphalph}%
+  [2006/05/30 v1.4 Converting numbers to letters (HO)]
+\expandafter\edef\csname aa@atcode\endcsname{\the\catcode`\@ }
+\catcode`\@=11
+\long\def\@ReturnAfterElseFi#1\else#2\fi{\fi#1}
+\long\def\@ReturnAfterFi#1\fi{\fi#1}
+\def\aa@alph#1{%
+  \ifcase#1%
+    @%
+  \or a\or b\or c\or d\or e\or f\or g\or h\or i\or j\or k\or l\or m%
+  \or n\or o\or p\or q\or r\or s\or t\or u\or v\or w\or x\or y\or z%
+  \else
+    @%
+  \fi
+}
+\def\aa@Alph#1{%
+  \ifcase#1%
+    @%
+  \or A\or B\or C\or D\or E\or F\or G\or H\or I\or J\or K\or L\or M%
+  \or N\or O\or P\or Q\or R\or S\or T\or U\or V\or W\or X\or Y\or Z%
+  \else
+    @%
+  \fi
+}
+\def\alphalph{\aa@callmake\aa@alph}
+\def\AlphAlph{\aa@callmake\aa@Alph}
+\def\aa@callmake#1#2{%
+  \expandafter\aa@make\expandafter{\number#2}#1%
+}
+\begingroup\expandafter\expandafter\expandafter\endgroup
+\expandafter\ifx\csname numexpr\endcsname\relax
+  \def\aa@make#1#2{%
+    \ifnum#1<1
+    \else
+      \@ReturnAfterFi{%
+        \aa@process1;#1;1..#2%
+      }%
+    \fi
+  }
+  \def\aa@process#1;#2;{%
+    \ifnum#1=#2
+      \expandafter\aa@getresult
+    \else
+      \@ReturnAfterFi{%
+        \expandafter\aa@process\number\aa@inc{#1}\aa@alphinc{;#2;}%
+      }%
+    \fi
+  }
+  \def\aa@getresult#1..#2{%
+    \aa@@getresult!#2#1..%
+  }
+  \def\aa@@getresult#1!#2#3.{%
+    \ifx\\#3\\%
+      \@ReturnAfterElseFi{#1}% ready
+    \else
+      \@ReturnAfterFi{%
+        \expandafter\expandafter\expandafter\expandafter
+        \expandafter\expandafter\expandafter
+        \aa@@getresult
+        \expandafter\expandafter\expandafter\expandafter
+        #2{#3}#1!#2%
+      }%
+    \fi
+  }
+  \def\aa@inc#1{%
+    \ifnum#1<9
+      \aa@nextdigit{#1}%
+    \else
+      \aa@reverse#1!!%
+    \fi
+  }
+  \def\aa@nextdigit#1{\ifcase#1 1\or2\or3\or4\or5\or6\or7\or8\or9\fi}
+  \def\aa@reverse#1#2!#3!{%
+    \ifx\\#2\\%
+      \aa@addone#1#3!!%
+    \else
+      \@ReturnAfterFi{%
+        \aa@reverse#2!#1#3!%
+      }%
+    \fi
+  }
+  \def\aa@addone#1#2!#3!{%
+    \ifnum#1<9
+      \expandafter\aa@lastreverse\number\aa@nextdigit#1 #2!#3!%
+    \else
+      \@ReturnAfterFi{%
+        \ifx\\#2\\%
+          10#3%
+        \else
+          \@ReturnAfterFi{%
+            \aa@addone#2!0#3!%
+          }%
+        \fi
+      }%
+    \fi
+  }
+  \def\aa@lastreverse#1#2!#3!{%
+    \ifx\\#2\\%
+      #1#3%
+    \else
+      \@ReturnAfterFi{%
+        \aa@lastreverse#2!#1#3!%
+      }%
+    \fi
+  }
+  \def\aa@alphinc#1#2.{%
+    \ifx\\#2\\%
+      \@ReturnAfterElseFi{%
+        #11..% ready
+      }%
+    \else
+      \@ReturnAfterFi{%
+        \ifnum#2<26
+          \@ReturnAfterElseFi{%
+            \expandafter\aa@alphinclast\expandafter
+              {\number\aa@inc{#2}}{#1}%
+          }%
+        \else
+          \@ReturnAfterFi{%
+            \aa@alphinc{#11.}%
+          }%
+        \fi
+      }%
+    \fi
+  }
+  \def\aa@alphinclast#1#2{#2#1.}
+  \newcommand*{\newalphalph}[3]{%
+    \PackageError{alphalph}{%
+      \string\newalphalph\space requires e-TeX%
+    }\@ehc
+\else
+  \def\aa@make#1#2{%
+    \ifnum#1<1 %
+    \else
+      \@ReturnAfterFi{%
+        \aa@eprocess#1;#2%
+      }%
+    \fi
+  }%
+  \def\aa@eprocess#1;#2{%
+    \ifnum#1<27
+      \@ReturnAfterElseFi{%
+        #2{#1}%
+      }%
+    \else
+      \@ReturnAfterFi{%
+        \expandafter\aa@eprocess\number\numexpr(#1-14)/26%
+          \expandafter\expandafter\expandafter;%
+          \expandafter\expandafter\expandafter#2%
+          #2{\numexpr#1-((#1-14)/26)*26}%
+      }%
+    \fi
+  }%
+  \def\aa@gen@callmake#1#2#3{%
+    \expandafter\aa@gen@make\expandafter{\number#3}#1{#2}%
+  }%
+  \def\aa@gen@make#1#2#3{%
+    \ifnum#1<1 %
+    \else
+      \@ReturnAfterFi{%
+        \aa@gen@eprocess{#3}#1;#2%
+      }%
+    \fi
+  }%
+  \def\aa@gen@eprocess#1#2;#3{%
+    \ifnum#2>#1 %
+      \@ReturnAfterElseFi{%
+        \expandafter\aa@gen@eprocess\expandafter{%
+          \number#1\expandafter
+        }%
+        \number\numexpr(#2-(\aa@half{#1}+1))/#1%
+        \expandafter\expandafter\expandafter;%
+        \expandafter\expandafter\expandafter#3%
+        #3{\numexpr#2-((#2-(\aa@half{#1}+1))/#1)*#1\relax}%
+      }%
+    \else
+      \@ReturnAfterFi{%
+        #3{#2}%
+      }%
+    \fi
+  }%
+  \def\aa@half#1{%
+    \number\dimexpr.5\dimexpr #1sp\relax\relax
+  }%
+  \newcommand*{\newalphalph}[3]{%
+    \newcommand*{#1}{}%
+    \edef#1{%
+      \noexpand\aa@gen@callmake\noexpand#2{\number\numexpr#3}%
+    }%
+  }%
+\fi
+\catcode`\@=\aa@atcode
+\endinput
+%%
+%% End of file `alphalph.sty'.

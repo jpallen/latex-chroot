@@ -1,0 +1,463 @@
+%%
+%% This is file `cjwmacro.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cjw-latex.dtx  (with options: `general')
+%% 
+%%     Copyright (C) 1997 by:  Colin J. Wynne <cwynne@mts.jhu.edu>
+%% 
+%% This file is part of cjw-latex, a collection of package files for
+%% LaTeX2e, written by Colin J. Wynne.  It may be freely distributed in
+%% any form---electronic, physical, or otherwise---so long as the
+%% distributor provides this file in its entirety (including this
+%% copyright announcement) and charges no fee (except for reasonable
+%% recompense for the duplication process).  Fair 'nough?
+%% 
+%% I would also prefer that the entire source file `cjw-latex.dtx',
+%% together with `cjw-latex.ins', be propagated instead of any one
+%% subfile.
+%% 
+%% Please feel free to improve on or alter any code herein as suits your
+%% needs, and by all means notify me of any suggestions, improvements, or
+%% requests.
+%% 
+%% This file is beer-ware.  If you use it and like it, then you should
+%% buy me a beer if you ever meet me. :-)
+%% 
+%% RCS: $Id: cjw-latex.ins,v 1.3 1998/04/10 14:30:18 cwynne Exp $
+%% 
+\def\RCSinfo{$Id: cjw-latex.dtx,v 0.13 1998/09/01 15:54:20 cwynne Exp $}
+
+\def\RCSsplit $#1: #2,v #3 #4 #5 #6 #7${
+  \gdef\filename   {#2}
+  \gdef\fileversion{#3}
+  \gdef\filedate   {#4}
+  \gdef\filetime   {#5}
+  \gdef\fileauthor {#6}
+  \gdef\filelocker {#7}}
+
+\expandafter\RCSsplit\RCSinfo
+%%
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{cjwmacro}
+    [\filedate\space v\fileversion\space
+     Personal macros for LaTeX2e---CJW]
+\newif\if@verbext       \@verbextfalse
+\DeclareOption{verbext}{\@verbexttrue}
+\DeclareOption{psfig}{%
+  \PackageWarning{cjwmacro}%
+    {Obsolete option \CurrentOption.  Use package `epsfig' instead.}}
+\DeclareOption{pstricks}{%
+  \InputIfFileExists{pstricks.sty}{%
+  \InputIfFileExists{pst-node.tex}{}{%
+    \PackageError{cjwmacro}{File `pst-node.sty' not found.}{}}}%
+   {\PackageError{cjwmacro}{File `pstricks.sty' not found.}{}}}
+
+\DeclareOption{psplot}{\InputIfFileExists{pst-plot.tex}{}{%
+  \PackageError{cjwmacro}{File `pst-plot.tex' not found.}{}}}
+\DeclareOption{draft}{%
+  \def\ssbreakbar{\hbox to 2in{\hrulefill}}}
+\DeclareOption{final}{%
+  \ExecuteOptions{pstricks}
+  \def\ssbreakbar{%
+    \psset{linewidth=0.4pt,unit=1in}%
+    \pspicture(-2.5,-0.15)(2.5,0.15)%
+      \qdisk(0,0){0.04}%
+      \qdisk(0.33,0){0.02}%
+      \qdisk(-0.33,0){0.02}%
+      \pspolygon*(0.33,-0.02)(0.33,0.02)(1.75,0)%
+      \pspolygon*(-0.33,-0.02)(-0.33,0.02)(-1.75,0)%
+    \endpspicture}}
+\DeclareOption*{%
+  \PackageWarning{cjwmacro}{Unknown option `\CurrentOption'}}
+\ExecuteOptions{draft}
+\ProcessOptions
+\newcommand{\alias}       [2]{\@ifdefinable #1{\let #1 #2}}
+\alias\realias\let
+\newcommand{\providealias}[2]{\@ifundefined #1{\let #1 #2}}
+\RequirePackage{amstext}
+\RequirePackage{xspace}
+\providecommand{\intertext}[1]{\noalign{%
+  \penalty\postdisplaypenalty\addvspace{ 0.5\belowdisplayskip}
+  \vbox{\normalbaselines\noindent#1}%
+  \penalty\predisplaypenalty\addvspace{0.5\abovedisplayskip}}}
+\alias\rem\intertext
+\providecommand{\pagenofont}    {\normalfont}
+\providecommand{\declarefont}   {\normalfont\bfseries\mathversion{bold}}
+\providecommand{\altdeclarefont}{\normalfont\itshape}
+\providecommand{\captionfont}   {\normalfont\itshape}
+\providecommand{\examplefont}   {\normalfont}
+\providecommand{\altexamplefont}{\normalfont\itshape}
+\providecommand{\labelfont}     {\normalfont\bfseries\mathversion{bold}}
+\providecommand{\timelinefont}  {\normalfont}
+\providecommand{\titlefont}     {\normalfont\bfseries\Large\mathversion{bold}}
+\providecommand{\verbatimfont}  {\normalfont\ttfamily}
+\newcommand{\swapdef}[2]{{%
+         \let \@tempa #1\relax
+  \global\let #1      #2\relax
+  \global\let #2      \@tempa}}
+\newcommand{\swapdim}[2]{{%
+         \@tempdima #1\relax
+  \global #1        #2\relax
+  \global #2        \@tempdima}}
+\newcommand{\expandthree}[2]{%
+  \expandafter\expandafter\expandafter #1\expandafter #2}
+\newcommand{\nth}[1]{{%
+  \@tempcnta = #1\relax
+  \ifnum \@tempcnta < 0\relax           % Make sure our number is
+    \@tempcnta = -\@tempcnta            %   non-negative.
+  \fi
+  \ifnum \@tempcnta < 14\relax          % Deal first with the
+    \ifnum \@tempcnta > 10\relax        %   exceptions for
+      \def\@tempa{th}                   %   11, 12, and 13.
+    \fi
+  \else
+    \loop \ifnum\@tempcnta > 9\relax    % Loop until the recursive
+      \@tempcntb = \@tempcnta           %   remainder (mod 10) is
+      \divide  \@tempcntb by  10\relax  %   a single digit in order
+      \multiply\@tempcntb by  10\relax  %   to successfully satisfy
+      \advance \@tempcnta by -\@tempcntb%   the ordinality test.
+    \repeat
+    \def\@tempa{\ifcase\@tempcnta       % Figure the proper label:
+              th%                       %   0th
+        \or   st%                       %   1st
+        \or   nd%                       %   2nd
+        \or   rd%                       %   3rd
+        \else th%                       %   nth
+      \fi}
+  \fi
+  #1\ensuremath{^{\text{\@tempa}}}}}    % Superscript the label in
+                                        %   math mode.
+\alias\sst\scriptscriptstyle
+\newcommand{\ssp}[1]{^{\sst#1}}
+\newcommand{\ssb}[1]{_{\sst#1}}
+\newcommand{\smiley}[1][\@smiley]{%
+  \edef\@sf{\spacefactor=\the\spacefactor}%
+  \unskip\spacefactor=1000\relax\space #1\@sf\xspace}
+\newcommand{\@smiley}{%
+  {\ttfamily\raise 0.078em\hbox{:}\kern-0.1em{-}\kern-0.1em{)}}}
+\newcommand{\emote}[1]{%
+  \smiley[\ensuremath{\langle}\emph{#1}\ensuremath{\rangle}]}
+\newenvironment{pledge}%
+  {\ifx\@empty\@date
+      \PackageWarning{cjwmacro}{Date is not set.}
+   \fi
+   \parskip=2pt \parindent=0pt\relax
+   \null\vfill\begin{flushright}
+     \itshape\small}
+  {\\[5ex]\normalfont\footnotesize
+     \makebox[2in]{\hrulefill}\quad\@date\\
+     \makebox[2in]{Colin J.~Wynne}\quad{\hphantom{\@date}}\\
+   \end{flushright}}
+\newcommand{\wnlpledge}[1][paper]{%
+  \ifx\@empty\@date
+    \PackageWarning{cjwmacro}{Date is not set.}
+  \fi
+  \parskip=2pt \parindent=0pt\relax
+  \null\vfill\begin{flushright}
+    \itshape\small
+    On my honour, I have neither given nor received\\
+    any unacknowledged aid on this #1.\\[5ex]
+    \normalfont\footnotesize
+    \makebox[2in]{\hrulefill}\quad\@date\\
+    \makebox[2in]{Colin J.~Wynne,~'94}\quad{\hphantom{\@date}}\\
+  \end{flushright}}
+\newcommand{\ssbreak}{\bigskip
+  \centerline{\ssbreakbar}\bigbreak}
+\providecommand{\ssbreakbar}{}
+\def\mathbox #1{\hbox{$\mathpalette\@mathbox{#1}$}}
+\def\Mathbox #1#2{\hbox{#1$\mathpalette\@mathbox{#2}$}}
+\def\@mathbox#1#2{#1#2}
+\newcommand{\smush}{\relax
+  \ifmmode
+    \def\next{\mathpalette\math@smush}
+  \else
+    \let\next\make@smush
+  \fi \next}
+\newcommand{\make@smush}[1]{\setbox0=\hbox{#1}\fin@smush}
+\newcommand{\math@smush}[2]{\setbox0=\hbox{$\m@th#1{#2}$}\fin@smush}
+\newcommand{\fin@smush}{\wd0=0pt \box0 }
+\newcommand{\bigmathstrut} {\vphantom{\big()}}
+\newcommand{\biggmathstrut}{\vphantom{\bigg()}}
+\newcommand{\Bigmathstrut} {\vphantom{\Big()}}
+\newcommand{\Biggmathstrut}{\vphantom{\Bigg()}}
+\newcommand{\ie}    {\emph{i.e.}\xspace}
+\newcommand{\eg}    {\emph{e.g.}\xspace}
+\newcommand{\heisst}{d.h\null.\xspace}          % \dh is taken.
+\newcommand{\initials}[2]{%
+  \break@init #2
+  \@ifdefinable #1{%
+    \global\edef#1{%
+      \noexpand\hbox{\@tempa.\noexpand\,\@tempb}%
+      \noexpand\@ifnextchar.{\noexpand\@}{.\noexpand\xspace}}}}
+\def\break@init #1.#2.{%
+  \def\@tempa{#1}\def\@tempb{#2}}
+\initials{\UN}{U.N.}
+\initials{\US}{U.S.}
+\initials{\AI}{A.I.}
+\providecommand{\theday}{\number\day\relax}
+\providecommand{\themonth}{%
+  \ifcase\month\or January\or February\or%
+  March\or April\or May\or June\or July\or August\or%
+  September\or October\or November\or December\fi}
+\providecommand{\themonat}{%
+  \ifcase\month\or Januar\or Februar\or%
+  M\"arz\or April\or Mai\or Juni\or Juli\or August\or%
+  September\or Oktober\or November\or Dezember\fi}
+\providecommand{\theyear}{\number\year\relax}
+\providecommand{\today}{}
+\renewcommand{\today}{\theday~\themonth, \theyear\xspace}
+\providecommand{\heute}{}
+\renewcommand{\heute}{den~\theday.\ \themonat\ \theyear\xspace}
+  \alias\gdate\heute
+\renewcommand{\ps@plain}{%
+  \let\@mkboth  \@gobbletwo
+  \let\@oddhead \@empty
+  \let\@evenhead\@empty
+  \def\@oddfoot{\pagenofont\hfil\thepage\hfil}
+  \let\@evenfoot\@oddfoot}
+\newcommand{\ps@topright}{%
+  \let\@mkboth  \@gobbletwo
+  \def\@oddhead{\pagenofont\hfil\thepage}
+  \let\@evenhead\@oddhead
+  \let\@oddfoot \@empty
+  \let\@evenfoot\@empty}
+\newlength{\timelineskip}
+\setlength{\timelineskip}{1.75in}
+\newcommand{\timeline}[2][l]{%
+  \noindent\hangindent=\timelineskip
+  \makebox[\timelineskip][#1]{\timelinefont{#2}}\ignorespaces}
+\let\endtimeline\relax
+\@ifundefined{c@section}
+  {\newcounter{declare}}
+  {\newcounter{declare}[section]
+   \renewcommand{\thedeclare}{\thesection.\arabic{declare}}}
+\newlength{\declareindent}
+  \setlength{\declareindent}{0pt}
+\newcommand{\@declare}   [1]{{\declarefont#1:}\quad}
+\newcommand{\@altdeclare}[1]{{\altdeclarefont#1:}\quad}
+\newenvironment{declaration*}[1]%
+  {\medbreak\noindent\ignorespaces
+     \@declare{#1}\ignorespaces}%
+  {\kern0pt\nobreak\smallskip}
+\newenvironment{altdeclaration*}[1]%
+  {\medbreak\noindent\ignorespaces
+     \@altdeclare{#1}\ignorespaces}%
+  {\kern0pt\nobreak\smallskip}
+\newenvironment{declaration}[1]%
+  {\medbreak\refstepcounter{declare}
+     \noindent\ignorespaces
+     \ifnum\declareindent = 0\relax%
+       \@declare{\thedeclare\quad #1}
+     \else
+       \makebox[\declareindent]{\@declare{\thedeclare\hss #1}}
+     \fi\ignorespaces}
+  {\kern0pt\nobreak\smallskip}
+\newenvironment{altdeclaration}[1]%
+  {\medbreak\noindent\ignorespaces
+     \refstepcounter{declare}
+     \ifnum\declareindent = 0\relax
+       \@altdeclare{\thedeclare\quad #1}
+     \else
+       \makebox[\declareindent]{\@altdeclare{\thedeclare\hss #1}}
+     \fi\ignorespaces}
+  {\kern0pt\nobreak\smallskip}
+\def\declare    #1#2\par{%
+  \begin{declaration*}{#1}#2\end{declaration*}\par}
+\def\altdeclare #1#2\par{%
+  \begin{altdeclaration*}{#1}#2\end{altdeclaration*}\par}
+\def\ndeclare   #1#2\par{%
+  \begin{declaration}{#1}#2\end{declaration}\par}
+\def\altndeclare#1#2\par{%
+  \begin{altdeclaration}{#1}#2\end{altdeclaration}\par}
+\providecommand{\corollary}   {\declare{Corollary}}
+\providecommand{\definition}  {\declare{Definition}}
+\providecommand{\lemma}       {\declare{Lemma}}
+\providecommand{\proposition} {\declare{Proposition}}
+\providecommand{\theorem}     {\declare{Theorem}}
+\providecommand{\note}        {\altdeclare{Note}}
+
+\providecommand{\ncorollary}  {\ndeclare{Corollary}}
+\providecommand{\ndefinition} {\ndeclare{Definition}}
+\providecommand{\nlemma}      {\ndeclare{Lemma}}
+\providecommand{\nproposition}{\ndeclare{Proposition}}
+\providecommand{\ntheorem}    {\ndeclare{Theorem}}
+\providecommand{\nnote}       {\altndeclare{Note}}
+\providecommand{\behaupt}   {\declare{Behauptung}}
+\providecommand{\nbehaupt}   {\ndeclare{Behauptung}}
+\newcommand{\allndeclares}{%
+  \let\declare     \ndeclare
+  \let\altdeclare  \altndeclare}
+\newenvironment{proof}[1][Proof]%
+  {\smallbreak\noindent{\altdeclarefont#1:}%
+     \quad\ignorespaces}%
+  {\qed}
+\newenvironment{beweis}[1][Beweis]%
+  {\smallbreak\noindent{\altdeclarefont#1:}%
+     \quad\ignorespaces}%
+  {\qed}
+\providecommand{\qed}{}
+  \renewcommand{\qed}{%
+    {\unskip\nobreak\hfil\penalty 50%
+     \hskip 2em\hbox{}\nobreak\hfil\qedsymbol%
+     \parfillskip=0pt \finalhyphendemerits=0 \par}}
+\providecommand{\qedsymbol}{}
+  \renewcommand{\qedsymbol}{\lower 0.35ex\hbox{$\diamondsuit$}}
+  \newcommand{\qedbox}{\vrule height4pt width3pt depth2pt}
+\newcommand{\Case}{\@ifstar{\@starCase}{\@Case}}
+\newcommand{\@starCase}[1]{\@@Case{#1}}
+\newcommand{\@Case}[1]{\@@Case{(#1)}}
+\newcommand{\@@Case}[1]{%
+  \noindent{\declarefont#1}\quad\ignorespaces}
+\alias\Fall\Case
+\newcommand{\contra}{\ensuremath{\Rightarrow\Leftarrow}}
+\newenvironment{example*}%
+  {\@nameuse{declaration*}{Example}\examplefont}
+  {\medbreak}
+\newenvironment{altexample*}%
+  {\@nameuse{declaration*}{Example}\examplefont}
+  {\medbreak}
+\newenvironment{example}%
+  {\declaration{Example}\examplefont}
+  {\medbreak}
+\newenvironment{altexample}%
+  {\declaration{Example}\examplefont}
+  {\medbreak}
+\newcounter{problem}
+  \setcounter{problem}{0}
+\renewcommand{\theproblem}{\arabic{problem}}
+\renewcommand{\p@problem}{}
+\DeclareRobustCommand{\Page}{%
+  \@ifstar{\@Page{}}{\@Page{\#}}}
+\def\@Page#1{%
+  \@ifnextchar [{\@@Page{#1}}{\@@Page{#1}[]}}
+\def\@@Page#1[#2]#3#4{%
+  \def\@tempa{#2}%
+  \ifx\@empty\@tempa%
+    \let\@tempb\@tempa%
+  \else%
+    \edef\@tempb{\@tempa,~}%
+  \fi%
+  (\@tempb p.\,#3, #1{#4})}
+\newenvironment{statement}[1][\null]%
+  {\def\@tempa{#1}\def\@tempb{\null}%
+    \ifx\@tempa\@tempb%
+      \def\@tempc{\null}%
+    \else%
+      \def\@tempc{\altdeclarefont\@tempa\quad}%
+    \fi%
+    \declarefont{\@tempc}\ignorespaces}
+  {\removelastskip\nopagebreak\smallskip}
+\newenvironment{problem}%
+  {\setcounter{equation}{0}%
+    \gdef\theequation{\theproblem.\arabic{equation}}%
+    \removelastskip\medbreak%
+    \refstepcounter{problem}%
+    \noindent\theoutlabel{\theproblem.}%
+    \statement}
+  {\endstatement}
+\newenvironment{problem*}%
+  {\removelastskip\medbreak%
+   \noindent\statement}
+  {\endstatement}
+\alias  \aufgabe   \problem
+\realias\endaufgabe\endproblem
+\newcounter{teil} [problem]
+\newcounter{steil}[teil]
+\renewcommand{\theteil}  {(\alph{teil})}
+  \renewcommand{\p@teil} {\theproblem}
+\renewcommand{\thesteil} {(\roman{steil})}
+  \renewcommand{\p@steil}{\p@teil\theteil}
+\newenvironment{teil}[1][2]%
+  {\@tempcnta=#1\advance\@tempcnta by -1\relax
+   \ifnum\@tempcnta < 1\relax
+     \leftskip=0pt\relax
+   \else
+     \leftskip=\@tempcnta\outlindent
+   \fi
+   \refstepcounter{teil}
+   \addvspace{\medskipamount}%
+   \noindent\theoutlabel{\theteil}%
+   \ignorespaces}
+  {\par\smallbreak}
+\newenvironment{steil}[1][3]%
+  {\@tempcnta=#1\advance\@tempcnta by -1\relax
+   \ifnum\@tempcnta < 1\relax
+     \leftskip=0pt\relax
+   \else
+     \leftskip=\@tempcnta\outlindent
+   \fi
+   \refstepcounter{steil}
+   \addvspace{\medskipamount}%
+   \noindent\theoutlabel{\thesteil}%
+   \ignorespaces}
+  {\par\smallbreak}
+\realias\part    \teil
+\realias\endpart \endteil
+\alias  \ppart   \steil
+\realias\endppart\endsteil
+\long\def\@makefntext#1{%
+  \parindent 1em\noindent\hangindent=\parindent%
+  \hb@xt@    1em{\hss \llap{\@makefnmark} }#1}
+\newlength{\textdisplayindent}
+\newenvironment{display}[2][]
+  {\vadjust{\penalty\predisplaypenalty}
+   \@newline[\abovedisplayskip]%
+   \begingroup%
+     #1%
+     \begin{tabular}{@{\null\hspace{\textdisplayindent}\null}#2}}
+  {\end{tabular}\endgroup
+   \vadjust{\penalty\postdisplaypenalty}
+   \@newline[\belowdisplayskip]\ignorespaces}
+\if@verbext
+\newcounter{vfline}
+\renewcommand{\thevfline}{\arabic{vfline}}
+\providecommand{\uncatcodespecials}{%
+  \def\do##1{\catcode`##1=12 }\dospecials}
+\providecommand{\verbfile}[2][1]{%
+  \par\begingroup\@vf@lines{#1}\input{#2}\relax\endgroup}
+\providecommand{\verbfilenolines}[1]{%
+  \par\begingroup\@vf@nolines\input{#1}\relax\endgroup}
+\newcommand{\@vf@lines}[1]{%
+  \verbatimfont
+  \setcounter{vfline}{#1}
+    \addtocounter{vfline}{-1}
+  \setlength{\parindent}{0pt}
+  \setlength{\parskip}{0pt}
+  \def\par{\leavevmode\endgraf}
+  \obeylines \uncatcodespecials \obeyspaces
+  \everypar{\null\stepcounter{vfline}%
+    \llap{\scriptsize\thevfline\quad}\null}}
+\newcommand{\@vf@nolines}{%
+  \verbatimfont
+  \setlength{\parindent}{0pt}
+  \setlength{\parskip}{0pt}
+  \def\par{\leavevmode\endgraf}
+  \obeylines \uncatcodespecials \obeyspaces
+  \everypar{\null}}
+\fi
+\AtBeginDocument{%
+  \setlength{\parindent}        {20pt}
+  \setlength{\parskip}          { 2pt plus 1pt}
+  \setlength{\textdisplayindent}{\parindent}}
+\endinput
+%%
+%% End of file `cjwmacro.sty'.

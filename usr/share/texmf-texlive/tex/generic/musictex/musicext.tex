@@ -1,0 +1,225 @@
+
+
+\edef\catcodeat{\the\catcode`\@}\catcode`\@=11
+\edef\catcode@gt{\the\catcode`\>}\catcode`\>=12
+\edef\catcode@lt{\the\catcode`\<}\catcode`\<=12
+
+% \dyn {pitch}{text} inserts a dynamic
+\def\dyn#1#2{\zcharnote{#1}{{\ppff #2}}}
+
+% \nobarnumbers prevents bar numbering
+\def\nobarnumbers{\def\wbarno{\relax}}
+
+% \barnumbers restores bar numbering
+\def\barnumbers{\def\wbarno{\w@barno}}
+
+% \tab is defined as a tab character, so that I can still use tabs.
+\catcode`\@=4
+\let\tab=@
+\catcode`\@=11
+
+% The next few sections define some extra macros to produce notes.
+
+% shifted dotted whole notes
+\def\rwp#1{\kern \wd@skip\zwp{#1}\kern -\wd@skip}
+\def\lwp#1{\kern -\wd@skip\zwp{#1}\kern \wd@skip}
+
+% Half-shifted notes. I sometimes use these for close intervals: for instance
+% \zlqu g\zrql f
+
+\def\zrwh{\zrw}
+\def\zlwh{\zlw}
+\def\zrw#1{\kern .52\wd@skip\zw{#1}\kern -.52\wd@skip}
+\def\zlw#1{\kern -.52\wd@skip\zw{#1}\kern .52\wd@skip}
+\def\zrhu#1{\kern .45\hn@width\zhu{#1}\kern -.45\hn@width}
+\def\zlhu#1{\kern -.45\hn@width\zhu{#1}\kern .45\hn@width}
+\def\zrhl#1{\kern .45\hn@width\zhl{#1}\kern -.45\hn@width}
+\def\zlhl#1{\kern -.45\hn@width\zhl{#1}\kern .45\hn@width}
+\def\zrhup#1{\kern .45\hn@width\zhup{#1}\kern -.45\hn@width}
+\def\zlhup#1{\kern -.45\hn@width\zhup{#1}\kern .45\hn@width}
+\def\zrhlp#1{\kern .45\hn@width\zhlp{#1}\kern -.45\hn@width}
+\def\zlhlp#1{\kern -.45\hn@width\zhlp{#1}\kern .45\hn@width}
+\def\zrqu#1{\kern .45\qd@skip\zqu{#1}\kern -.45\qd@skip}
+\def\zlqu#1{\kern -.45\qd@skip\zqu{#1}\kern .45\qd@skip}
+\def\zrql#1{\kern .45\qd@skip\zql{#1}\kern -.45\qd@skip}
+\def\zlql#1{\kern -.45\qd@skip\zql{#1}\kern .45\qd@skip}
+\def\zrqup#1{\kern .45\qd@skip\zqup{#1}\kern -.45\qd@skip}
+\def\zlqup#1{\kern -.45\qd@skip\zqup{#1}\kern .45\qd@skip}
+\def\zrqlp#1{\kern .45\qd@skip\zqlp{#1}\kern -.45\qd@skip}
+\def\zlqlp#1{\kern -.45\qd@skip\zqlp{#1}\kern .45\qd@skip}
+\def\zrcu#1{\kern .45\qd@skip\zcu{#1}\kern -.45\qd@skip}
+\def\zlcu#1{\kern -.45\qd@skip\zcu{#1}\kern .45\qd@skip}
+\def\zrcl#1{\kern .45\qd@skip\zcl{#1}\kern -.45\qd@skip}
+\def\zlcl#1{\kern -.45\qd@skip\zcl{#1}\kern .45\qd@skip}
+%
+% half left shifted accidentals - for putting before half shifted notes
+%
+\def\hlfl#1{\getn@i{#1}\global\n@raise=\fl@raise
+  \pl@llap{\f@lat\kern 0.45\qd@skip}%
+}%
+\def\hldfl#1{\getn@i{#1}\global\n@raise=\fl@raise
+  \pl@llap{\df@lat\hskip 0.45\qd@skip}%
+}%
+\def\hlsh#1{\getn@i{#1}\global\n@raise=\sh@raise
+  \pl@llap{\s@harp\hskip 0.45\qd@skip}%
+}%
+\def\hldsh#1{\getn@i{#1}\global\n@raise=\z@
+  \pl@llap{\ds@harp\hskip 0.45\qd@skip}}%
+\def\hlna#1{\getn@i{#1}\global\n@raise=\na@raise
+  \pl@llap{\n@at\hskip 0.45\qd@skip}}%
+
+%
+% The following macros can be used to surround a note by parentheses. They
+% are also used as ornaments by J.P. Rameau.
+% \lpar p  produces a left parenthesis, or "port de voix" at pitch p
+% \rpar p  produces a right parenthesis, or "pinc\'e"
+
+\def\lpar#1{\zcharnote{#1}{\raise -2.5pt\hbox{\tentt\kern -0.76\wd@skip (}}}
+\def\rpar#1{\zcharnote{#1}{\raise -2.5pt\hbox{\tentt\kern 0.76\wd@skip )}}}
+
+
+\newdimen\tmp@dimen
+\def\bracketshrink{0.17\Interligne}
+
+% \bracket pn draws a square bracket ( [ ) to bracket an interval of an n-th
+% whose lowest note is p.
+
+\def\bracket#1#2{\tmp@dimen #2\Interligne\advance\tmp@dimen by\Interligne
+   \divide\tmp@dimen by2\relax
+   \advance\tmp@dimen by-\bracketshrink\advance\tmp@dimen by-\bracketshrink
+   \advance\tmp@dimen by-\lthick
+   \zcharnote#1{\kern-.75\Interligne\raise-.5\Interligne
+   \hbox{\raise\bracketshrink\hbox{\rlap{\vrule height\tmp@dimen}\relax
+   \rlap{\vbox{\hrule width .5\Interligne}}\relax
+   \raise\tmp@dimen\vbox{\hrule width .5\Interligne}}}}}
+
+\newdimen\tmp@dimenc
+\newdimen\z@iii\newdimen\z@iv\newdimen\z@v
+
+% \oblique {l}{s}{h} draws an oblique line of length l, slope s percent, and
+% height h. This will cause an unrecorded space so it should be used within
+% \rlap. Note that this macro is a hack and probably gobbles up resources!
+% This macro is used by some of the others which follow.
+
+\def\oblique#1#2#3{\relax % length slope height
+\ifnum #2=0\relax\raise #3\vbox{\hrule width #1 height\lthick depth\z@}\relax
+\else\q@antum=25\lthick\divide\q@antum by #2\relax
+\ifdim\q@antum<0pt\relax\multiply\q@antum by -1\fi
+\global\z@iv=0pt\relax
+\loop\ifdim\z@iv<#1\relax
+ {\z@v=#1\relax\advance\z@v by -\z@iv\relax\advance\z@v by -\q@antum\relax
+ \tmp@dimenc\z@iv\multiply\tmp@dimenc by#2\relax
+ \z@iii=#3\relax\advance\z@iii by .01\tmp@dimenc\relax\advance\z@iii by
+ -0.5\internote
+ \ifnum #2<0\relax\advance\z@iii by \lthick\relax\fi
+ \tmp@dimenc\z@v\multiply\tmp@dimenc by#2\relax
+ \ifdim\z@v<0pt\relax\advance\z@iii by .01\tmp@dimenc\relax\hskip\z@v\fi
+ \advance\z@iii by 0.6\internote\relax
+ \raise\z@iii\hbox to \q@antum{\vrule width\q@antum height .5\lthick depth
+ .5\lthick}\relax
+ \global\advance\z@iv by \q@antum\relax
+}\repeat
+\fi
+}
+
+\newdimen\tmp@dimenb\newcount\tmp@ct
+\def\crescwidth{1.8\Interligne}
+
+% These macros produce variable size crescendo and diminuendo marks.
+% \varcresc{p}{l} produces a crescendo at pitch p, and of length l, causing
+% no space.
+\def\varcresc#1#2{\relax% height (note), length (dimen)
+   \tmp@dimenb \crescwidth\tmp@dimen #2\multiply
+   \tmp@dimenb by50\divide\tmp@dimenb by\tmp@dimen \tmp@ct\tmp@dimenb
+   \ifnum 0=\tmp@ct\relax
+   \tmp@ct 1\fi
+   \getn@i{#1}\tmp@dimen\n@i\internote
+   \rlap{\oblique{#2}{\tmp@ct}{\tmp@dimen}}\relax
+   \advance\tmp@dimen by-\lthick
+   \rlap{\oblique{#2}{-\tmp@ct}{\tmp@dimen}}}
+
+% \vardim{p}{l}  draws a diminuendo at pitch p, and of length l, causing
+% no space.
+\def\vardim#1#2{\tmp@dimenb 1.6\Interligne\tmp@dimen #2\multiply
+   \tmp@dimenb by50\divide\tmp@dimenb by\tmp@dimen \tmp@ct\tmp@dimenb
+   \ifnum 0=\tmp@ct\relax
+   \tmp@ct 1\fi
+   \getn@i{#1}\tmp@dimen\n@i\internote
+   \tmp@dimenb\crescwidth\divide\tmp@dimenb by2\relax
+   \advance\tmp@dimen by\tmp@dimenb
+   \rlap{\oblique{#2}{-\tmp@ct}{\tmp@dimen}}\relax
+   \advance\tmp@dimen by \lthick
+   \tmp@dimenb #2\multiply\tmp@dimenb by\tmp@ct\advance\tmp@dimen
+ by-.02\tmp@dimenb
+   \rlap{\oblique{#2}{\tmp@ct}{\tmp@dimen}}}
+
+% \overbracket{p}{l}{s}   draws a bracket over the music starting at the
+% current position at pitch p, width l and slope s percent, causing no space.
+\def\overbracket#1#2#3{\relax % height (note), length (dimen) slope (%)
+   \tmp@dimenb #2\multiply\tmp@dimenb by#3\divide\tmp@dimenb by100\relax
+   \getn@i{#1}\advance\tmp@dimenb by\n@i\internote\rlap{\relax
+   \raise\n@i\internote\rlap{\vrule width\lthick height \lthick
+   depth .8\Interligne}\oblique{#2}{#3}{\n@i\internote}\relax
+   \advance\tmp@dimenb by.5\lthick\relax
+   \raise\tmp@dimenb\hbox{\vrule width\lthick height \lthick
+ depth.8\Interligne}}}
+
+% \ovbkt{p}{n}{s} is the same as \overbracket, except that it draws the
+% bracket to cover n notes (note however that glue inserted by \temps
+% commands will expand the space between the notes but will not affect the
+% bracket).
+% I use this macro to indicate triplets, for instance.
+
+\def\ovbkt#1#2#3{\relax % height (note), length (number of notes) slope (%)
+   \tmp@dimen #2\noteskip\advance\tmp@dimen by\wd@skip\advance\tmp@dimen
+   by -\noteskip\advance\tmp@dimen by\lthick \overbracket{#1}{\tmp@dimen}{#3}}
+
+% \underbracket and \unbkt are similar to the above, but produce
+% brackets under the music.
+\def\underbracket#1#2#3{\relax % height (note), length (dimen) slope (%)
+   \tmp@dimenb #2\multiply\tmp@dimenb by#3\divide\tmp@dimenb by100\relax
+   \getn@i{#1}\advance\tmp@dimenb by\n@i\internote\rlap{\relax
+   \raise\n@i\internote\rlap{\vrule width\lthick depth -\lthick
+   height \Interligne}\oblique{#2}{#3}{\n@i\internote}\relax
+   \advance\tmp@dimenb by.5\lthick\relax
+   \raise\tmp@dimenb\hbox{\vrule width\lthick depth -\lthick
+ height\Interligne}}}
+\def\unbkt#1#2#3{\relax % height (note), length (number of notes) slope (%)
+   \tmp@dimen #2\noteskip\advance\tmp@dimen by\wd@skip\advance\tmp@dimen
+   by -\noteskip\advance\tmp@dimen by\lthick
+   \kern-2\lthick\underbracket{#1}{\tmp@dimen}{#3}\kern2\lthick}
+
+% Here are several macros to make use of the alternative note graphics found
+% in the font files. I copied the idea from the usual note macros in
+% MusicTeX.
+
+
+% \ttrill p    makes a terminated trill ...
+\def\ttrill#1{\zcharnote{#1}{\o@skp\musicnorfont\char"58\dimen@4.6pt%
+   \advance\dimen@-1.5\internote\tenrm\lower\dimen@\hbox{'}}}
+
+% J.P. Rameau indicated "arpegements" by drawing oblique strokes through the
+% note stems.
+% \downarpeg p  is written just before the note at pitch p with its stem
+%               pointing up in order to indicate a descending arpeggio
+% \uparpeg p    is written just before the note at pitch p with its stem
+%               pointing down in order to indicate an ascending arpeggio
+
+\font\linew=linew10 %would be nice to have slightly shorter lines...
+\def\downarpeg#1{\getn@i{#1}\advance\n@i by3\raise\n@i\internote
+ \rlap{\linew\char"61}}
+\def\uparpeg#1{\getn@i{#1}\advance\n@i by-3\raise\n@i\internote
+ \rlap{\linew\char"21}}
+
+% \qqs is a demi-semiquaver rest
+\def\qqs{\charnote0{{\musicnorfont\char"41}}}
+
+% These macros change context while forbidding line breaks
+\def\xchangecontext{{\def\updatecontext{\x@updatecon}\changecontext}}
+\def\xChangecontext{{\def\updatecontext{\x@updatecon}\Changecontext}}
+
+
+\catcode`\>=\catcode@gt
+\catcode`\<=\catcode@lt
+\catcode`\@=\catcodeat
+

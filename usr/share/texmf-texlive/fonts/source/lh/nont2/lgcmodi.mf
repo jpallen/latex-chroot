@@ -1,0 +1,104 @@
+%
+% lgcmodi.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Italic Cyrillic modified letters and variants
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% List of letternames
+%
+% Modified
+%
+% Vg_hcrs
+% lat_i_dsc
+% Vdzhe
+%
+
+LHver_check(3,5); % like |version_check| in ec
+
+lhchar "Italic Cyrillic letter Vg_hcrs - Variant ghe hcrossed"; % not italic shape
+cyrchar(Vg_hcrs,8u#-.5width_adj#,x_height#,0);
+italcorr x_height#*slant+.5stem#-u#;
+adjust_fit(serif_fit#,-.25u#);
+pickup tiny.nib; pos1(stem,0); pos2(stem,0);
+lft x1l=lft x2l=hround (2.5u-.5stem); top y1=h; y2-.5stem=0;
+filldraw circ_stroke z2e--z1e; % stem
+pickup crisp.nib; pos3(vair,90); pos4(vair,90);
+top y3r=top y4r=h; x3=x1; rt x4r=hround(w-.5u);
+filldraw stroke z3e--z4e; % upper bar
+% hstroke
+bar_stroke(x1,x1r+1.7u);
+penlabels(0,1,2,3,4,5,6,7,8,9); endchar;
+
+lhchar "Italic Cyrillic letter lat_i_dsc - Ukrainian i descender";
+cyrchar(lat_i_dsc,5u#,min(asc_height#,10/7x_height#+.5flare#),desc_depth#);
+italcorr max(1/3x_height#*slant+.5hair#+.5u#,h#*slant+.5flare#-2u#);
+adjust_fit(if monospace:u#,u# else: 0,0 fi); pickup fine.nib;
+x0=0; x2=.5w+.25u; x3=.5w-.25u;
+hook_in(0,1,2)(skewed); % hook
+pos3(stem,0); pos4(vair,90); pos5(vair,180);
+x5=w; y5=.4bar_height; x4=.5[x3,x5]; bot y4l=-oo; y3=1/3x_height;
+filldraw stroke z3e{-u,-x_height}...z4e{right}...{up}z5e; % hook (3,4,5)
+%hook_out(3,4,5)(skewed);  % hook
+filldraw stroke z2e--z3e;  % stem
+pos6(flare,0); pos7(flare,90);
+x6=.5w if not monospace:-.4(h-x_height)*slant fi; top y7r=h+1;
+if bot y7l-top y1<slab: y7l:=min(y7r-eps,y1+fine+slab); fi
+x6=x7; y6=.5[y7l,y7r]; dot(6,7);  % dot
+% italic descender/ogonek
+if is_ogonek:
+   def the_pen=
+       if known ogonek_pen: ogonek_pen else: fine fi
+   enddef;
+   p.l=z3l{-u,-x_height}...z4l{right}...{up}z5l;
+   ogonek_breadth:=xvair;
+   numeric tt; % the time...
+   tt=if hefty: 2.8 else: 2.6 fi;
+   ogonek_pos=point .9 of p.l;
+   easy_ogonek(the_pen,7,8,9); % ogonek
+else:
+   z8=z5; pos8(hair,180); i_serif(8,x);
+fi
+penlabels(0,1,2,3,4,5,6,7); endchar;
+
+lhchar "Italic Cyrillic letter Vdzhe - te tail";
+cyrchar(Vdzhe,17u#,x_height#,desc_depth#); %15m+2u
+italcorr (-.3x_height#+bar_height#)*slant; %o:.7h-(h-bar_height)
+adjust_fit(if monospace:-1.5u#,-1.5u# else: 0,0 fi);
+pickup fine.nib; numeric shaved_stem; shaved_stem=mfudged.stem;
+save stem; stem=shaved_stem; pos2(stem,0); x1=x2;
+if monospace: pos1(stem,0); lft x1l=hround(2.5u-.5stem); top y1=h;
+else: x0=0; lft x2l=hround(2.5u-.5stem); hook_in(0,a,1); fi  % opening hook
+y2-.5stem=-oo; filldraw circ_stroke z2e--z1e;  % left stem
+x4+.5stem=hround(7u+.5stem); ital_arch(2,3,4);  % left arch
+pos5(stem,0); y5=y2; x5=x4;
+filldraw circ_stroke z5e--z4e;  % middle stem
+x7+.5stem=hround(11.5u+.5stem); ital_arch(5,6,7);  % right arch
+pos8(stem,0); y8=y2; x8=x7;
+filldraw circ_stroke z8e--z7e;  % right stem
+% hook
+pos8'(vair,90); x8'=x7; y8'=bar_height;
+lft x9l=hround(w-1.5u-.5stem); y9=.45y8'; pos9(stem,0);
+pos10(vair,-90); pos11(hair,-180); pos12(flare,-180);
+pos13(stem,0); x13=x9;
+bot y13=-1/3d; bot y10r=-d-oo; y12-.5flare=-vround.9d;
+x10=w-11/3u; lft x11r=min(x9-4u,lft x11r+x10-x11l+4u-eps);
+filldraw stroke z8'e{right}...z9e{down}---z13e...{left}z10e;
+bulb(10,11,12);  % bulb
+penlabels(0,a,1,2,3,4,5,6,7,8,9); endchar;
+
+endinput;
+%end of file

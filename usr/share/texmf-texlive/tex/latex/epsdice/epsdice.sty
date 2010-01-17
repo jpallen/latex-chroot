@@ -1,0 +1,56 @@
+%
+%  EPSDICE.STY  by Thomas Heim 
+%
+%  LICENSE: LPPL
+%
+%  a small package to include dice faces in .eps format
+%
+%  provides the command \epsdice{#1}
+%  taking one argument, an integer from 1 to 6
+%
+%  See the file dicetest.tex for further info!
+%
+%  Version 1.1 now works with pdfLaTeX as well
+%
+%  2001/02/15 -- thomas.heim@unibas.ch
+%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{epsdice}[2001/02/15 Version 1.1 (TAH)]
+\RequirePackage{graphicx}
+\RequirePackage{ifthen}
+\InputIfFileExists{epsdice.cfg}{}{\def\dicefile{epsdice}}
+%
+\newcounter{face}
+\newcommand*\epsdice[1]{%
+\setcounter{face}{\number #1}%
+\ifthenelse{\value{face}>6}{\theface\setcounter{face}{0}}{}%
+\ifthenelse{\value{face}<0}{\theface\setcounter{face}{0}}{}%
+\ifcase\value{face}%
+  \PackageError{EPSDICE}{%
+Argument is not a number, or its value\MessageBreak
+lies outside the allowed range for dice}{%
+Make sure the argument is either 1, 2, 3, 4, 5, or 6.\MessageBreak
+-- Just go on and I'll write whatever you typed;\MessageBreak
+   the output may not make much sense, though}%
+\or
+  \includegraphics[height=1.75ex,viewport= 3 4 38 39,%
+  clip=true]{\dicefile}%
+\or 
+  \includegraphics[height=1.75ex,viewport= 46 4 81 39,%
+  clip=true]{\dicefile}%
+\or 
+  \includegraphics[height=1.75ex,viewport= 89 4 124 39,%
+  clip=true]{\dicefile}%
+\or 
+  \includegraphics[height=1.75ex,viewport= 132 4 167 39,%
+  clip=true]{\dicefile}%
+\or 
+  \includegraphics[height=1.75ex,viewport= 175 4 210 39,%
+  clip=true]{\dicefile}%
+\or 
+  \includegraphics[height=1.75ex,viewport= 218 4 253 39,%
+  clip=true]{\dicefile}%
+\fi}
+%
+\endinput
+

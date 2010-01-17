@@ -1,0 +1,664 @@
+%
+% \GetFileInfo{gmverb.sty}
+% \title{The \pk{gmverb} Package\thfileinfo}
+% \author{Grzegorz `Natror' Murzynowski}
+% \date{\today}
+% \maketitle
+%%
+%% This is (a~documentation of) file \pk{gmverb.sty},
+%% intended to be used with \LaTeXe\ as a~package for
+%% a~slight redefinition of the |\verb| macro and \env{verbatim}
+%% environment and for short verb marking such as \verb+|\mymacro|+.
+%% \medskip
+%%
+% \begin{copyrnote}
+%
+%%Written by Grzegorz `Natror' Murzynowski,
+%% natror at o2 dot pl
+%%
+%% \copyright\,2005, 2006 by Grzegorz `Natror' Murzynowski.
+%%
+%% This program is subject to the \LaTeX\ Project Public License.
+%% See \url{http://www.ctan.org/tex-archive/help/Catalogue/licenses.lppl.html} ^^A
+%% for the details of that license.
+%%
+%% LPPL status: "author-maintained".\par
+%%
+%% Many thanks to my \TeX\ Guru Marcin Woli\'nski for his \TeX nical ^^A
+%% support.\par
+%\end{copyrnote}
+%
+% \ChangesStart{}{1000/00/00}
+% 
+% \chschange{v0.70}{06/8/15}{523}
+% \chschange{v0.71}{06/9/04}{596}
+% \chschange{v0.72}{06/9/05}{660}
+% \chschange{v0.73}{06/9/06}{671}
+% \chschange{v0.74}{06/9/7}{678}
+% \chschange{v0.76}{06/9/24}{679}
+% \chschange{v0.77}{06/9/28}{639}
+% \chschange{v0.78}{06/12/1}{648}
+%
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{gmverb}
+    [2006/12/01 v0.78 After shortvrb (FM) but my way (GM)]
+
+%
+% \tableofcontents
+% 
+% \division{Intro, Usage}
+%
+% This package redefines the |\verb| command and the \env{verbatim}
+% environment so that the verbatim text can break into lines, with |%|
+% (or another character chosen to be the comment char) as
+% a~`hyphen'. Moreover, it allows the user to define \hisher\ own
+% \env{verbatim}-like environments provided their contents would be not
+% \emph{horribly} long (as long as a macro's argument may be at most).
+%
+% This package also allows the user to declare a chosen char(s) as 
+% a `short verb' e.g., to write \verb+|\a\verbatim\example|+ instead of
+% \verb+\verb|\a\verbatim\example|+.
+% \dekmedskip 
+%
+% The \pk{gmverb} package redefines the |\verb| command and the
+% \env{verbatim} environment in such a~way that | |, |{| and |\| are
+% breakable, the first with no `hyphen' and the other two with the
+% comment char as a~hyphen. I.e. |{|\<subsequent text>|}| breaks into
+% |{%|\par \<subsequent text>|}| ^^A]  bal. braces for Emacs
+% and \<text>|\mymacro| breaks into \<text>|%|\par
+% |\mymacro|.
+%
+% (If you don't like linebreaking at backslash, there's the
+% \TextUsage\fixbslash\ declaration (observing the common scoping
+% rules, hence OCSR) and an analogous
+% declaration for the left brace: \TextUsage\fixlbrace.)
+% \dekmedskip
+%
+% The default `hyphen' is |%| since it's the default comment char. If
+% you wish another char to appear at the linebreak, use the
+% \TextUsage\VerbHyphen\ declaration that takes |\|\<char> as the only
+% argument. This declaration is always global.
+%
+% \stanza
+% Another difference is the \TextUsage\verbeolOK\ declaration
+% (OCSR). Within its scope, |\verb| allows an
+% end of a~line in its argument and typesets it just as a~space. 
+%
+% As in the standard version(s), the plain |\verb| typesets the spaces
+% blank and |\verb*| makes them visible. 
+% 
+% Moreover, \pk{gmverb} provides the \TextUsage\MakeShortVerb\ macro
+% that takes a~one-char control sequence as the only argument and
+% turns the char used into a~short verbatim delimiter, e.g., after
+% \verb+\MakeShortVerb*\|+ (as you guess, the declaration has its
+% starred version, which is for visible spaces, and the non-starred for
+% the spaces blank) you may type \verb+|\mymacro|+ to achieve |\mymacro|
+% instead of typing |\verb+\mymacro+|. Because the char used in this
+% example is my favourite and used just this way by DEK in the
+% \TeXbook's format, \pk{gmverb} provides a~macro \TextUsage\dekclubs\
+% as a~shorthand for \verb+\MakeShortVerb*\|+.
+%
+% Be careful because such active chars may interfere with other
+% things, e.g., the \verb+|+ with the vertical marker in tables and
+% with the \pk{tikz} package. If this happens, you can declare e.g.,
+% \TextUsage\DeleteShortVerb\verb+\|+ and the previous meaning of the
+% char used shall be restored.
+%
+% One more difference between \pk{gmverb} and \pk{shortvrb} is that
+% the chars |\active|ated  by |\MakeShortVerb| in the math mode behave
+% as if they were `other', so you may type e.g., \verb+$|$+ to achieve
+% $|$ and |+| |\active|ated this way is in the math mode typeset properly
+% etc.
+%
+% There's one more declaration provided by \pk{gmverb}:
+% \TextUsage\dekclubs, which is a~shorthand for
+% \verb+\MakeShortVerb*\|+\,. 
+%
+% \stanza
+% As many good packages, this also does not support any options.
+%
+% \begin{gmlonely}
+%   \subdivision{Installation}
+%
+%   Just put the \pk{gmverb.sty} somewhere in the \file{texmf/\:tex/\:latex}
+%   branch. Creating a~\file{texmf/\:tex/\:latex/\:gm} directory may be advisable
+%   if you consider using other packages written by me.
+%
+%   Then you should refresh your \TeX\ distribution's files' database
+%   most probably.
+% \end{gmlonely}
+%
+% \subdivision{Contents of the \pk{gmverb.zip} Archive}
+%
+% The distribution of the \pk{gmverb} package consists of the
+% following four files.
+% \begin{verse}
+%   \pk{gmverb.sty}\\
+%   \pk{README}\\
+%   \pk{gmverbDoc.tex}\\
+%   \pk{gmverbDoc.pdf}
+% \end{verse}
+% 
+% \begin{gmlonely}
+%   \subdivision{Compiling the Documentation}
+%
+%   The last of the above files (the \pk{.pdf}, i.e., \emph{this
+%     file}) is a~documentation compiled from the \pk{.sty} file by
+%   running \LaTeX\ on the \pk{gmverbDoc.tex} file twice,
+%   then MakeIndex on the gmverb.idx file, and then \LaTeX\
+%   on gmverbDoc.tex once more.
+%
+%   MakeIndex shell command:
+%\begin{verbatim}
+%makeindex -r gmverbDoc
+%\end{verbatim}
+%   The |-r| switch is to forbid MakeIndex to make implicit ranges since
+%   the (code line) numbers will be hyperlinks.
+%
+%   Compiling the documentation requires the packages:
+%   \pk{gmdoc} (\pk{gmdoc.sty} and \pk{gmdocc.cls}), \pk{gmverb.sty},
+%   \pk{gmutils.sty} and also some standard packages:
+%   \pk{hyperref.sty}, \pk{color.sty}, \pk{geometry.sty},
+%   \pk{multicol.sty}, \pk{lmodern.sty} and \pk{fontenc.sty} that should
+%   be installed on your computer by default.
+%
+%   If you had not installed the \pk{mwcls} classes (available on
+%   CTAN and present in \TeX\ Live e.g.), the result of your
+%   compilation might differ a~bit from the \pk{.pdf} provided in this
+%   \pk{.zip} archive in formatting: If you had not installed
+%   \pk{mwcls}, the standard \pk{article.cls} class would be used.
+% \end{gmlonely}
+%
+%
+% \StopEventually{\NoEOF}
+%
+%
+% \division{The Code}
+%
+% \DoIndex{\verb \verb*}
+% \subdivision{Preliminaries}
+% \CodeDefine\firstofone \CodeDefine\afterfi
+\long\def\firstofone#1{#1}
+\long\def\afterfi#1\fi{\fi#1}
+
+% The standard |\obeyspaces| command is only re|\catcode|ing of the
+% space to be \catactive. Since we'll know a~bit of where these
+% macros are used, we know we have also to (re)define such an active
+% space to be some space.
+% \CodeDefine\gmobeyspaces
+\begin{catcode}`\ \active
+\gdef\gmobeyspaces{\catcode`\ \active\let \ }
+\end{catcode}
+% (The above three preliminary definitions are present also in
+% \pk{gmutils}.)
+
+% \CodeDefine\twelvepercent
+%    \begin{oldmc}
+\bgroup
+\@makeother\% 
+\firstofone{\egroup
+  \def\twelvepercent{%}}
+%    \end{oldmc}
+
+% Someone may want to use another char for comment, but we assume here
+% `orthodoxy'. Other assumptions in \pk{gmdoc} are made. The `knowledge'
+% what char is the comment char is used to put proper `hyphen' when
+% a~\env{verbatim} line is broken.
+% \CodeDefine\verbhyphen
+% \changes{v0.75}{06/9/8}{renamed from a~rather confusing
+% \cs{commentchar}} 
+\let\verbhyphen\twelvepercent
+
+% Provide a~declaration for easy changing it. Its argument should be
+% of |\|\<char> form (of course, a~\<char>\catother is also allowed).
+% \CodeDefine\VerbHyphen
+% \changes{v0.78}{06/12/1}{added}
+\def\VerbHyphen#1{%
+  {\escapechar\m@ne
+    \expandafter\gdef\expandafter\verbhyphen\expandafter{\string#1}}}
+% As you see, it's always global.
+
+
+% \subdivision{The Breakables}
+%
+% Let's define a~|\discretionary| left brace such that if it breaks,
+% it turns |{%| at the end of line. We'll use it in almost Knuthian
+% |\ttverbatim|---it's part of this `almost'.
+% \CodeDefine\breaklbrace \CodeDefine\twelvelbrace
+\bgroup \catcode`\<=1 \@makeother\{ \catcode`\>=2 %
+\firstofone<\egroup
+   \def\breaklbrace<\discretionary<{\verbhyphen><><{>>%
+   \def\twelvelbrace<{>%^^A]]
+>% of |\firstofone|
+
+% \CodeDefIndex\dobreaklbrace
+\bgroup \catcode`\<=1 \catcode`\{=\active \catcode`\>=2
+\firstofone<\egroup
+   \def\dobreaklbrace<\catcode`\{=\active \def{<\breaklbrace>>%
+>% end of |\firstofone|. \iffalse|}}}}|\fi
+
+% The |\bslash| macro defined below I~use also in more `normal' \TeX ing, e.g.,
+% to |\typeout| some |\outer| macro's name.
+%\CodeDefine\bslash \CodeDefine\breakbslash
+{\catcode`\!=0 \@makeother\\%\CodeEscapeChar\!
+!gdef!bslash{\}%^^A]
+!gdef!breakbslash{!discretionary{!verbhyphen}{\}{\}}%^^A]]
+}
+%\CodeEscapeChar\\
+%
+% Sometimes linebreaking at a~backslash may be unwelcome. The basic
+% case, when the first CS in a~verbatim breaks at the lineend leaving
+% there |%|, is covered by line \ref{special opening bslash}. For the
+% others let's give the user a~countercrank: \CodeDefine\fixbslash
+\newcommand*\fixbslash{\let\breakbslash=\bslash}% to use due to the
+% common scoping rules. But for the special case of a~backslash
+% opening a~verbatim scope, we deal specially in the line
+% \ref{special opening bslash}.
+%
+% Analogously, let's provide a~possibility of `fixing' the left brace:
+% \CodeDefine\fixlbrace
+\newcommand*\fixlbrace{\let\breaklbrace=\twelvelbrace}
+
+% \CodeDefIndex\dobreakbslash
+{\catcode`\!=0 %\CodeEscapeChar\!^^A[
+%^^A~One rbrace is turned off for Emacs  by |\{|.
+!catcode`!\=!active
+!gdef!dobreakbslash{!catcode`!\=!active !def\{!breakbslash}}%
+}
+%\CodeEscapeChar\\
+
+% The macros defined below, |\visiblebreakspaces| and |\twelveclub|
+% we'll use in the almost Knuthian macro making verbatim. This `almost'
+% makes a~difference.
+% \CodeDefine\twelvespace
+% \CodeDefIndex\breakabletwelvespace
+\bgroup\catcode`\ =12 %
+\firstofone{\egroup%
+\def\twelvespace{ }%
+\def\breakabletwelvespace{\discretionary{ }{}{ }}}
+
+\bgroup\obeyspaces% it's just re|\catcode|'ing.
+% \CodeDefine\activespace
+% \CodeDefIndex\dobreakvisiblespace
+% \CodeDefIndex\dobreakblankspace
+\firstofone{\egroup%
+\newcommand*\activespace{ }%
+\newcommand*\dobreakvisiblespace{\let =\breakabletwelvespace\obeyspaces}%^^A
+% |%\def|ing it caused a~stack overflow disaster with \pk{gmdoc}.
+\newcommand*\dobreakblankspace{\let =\space\obeyspaces}% 
+}
+
+% \CodeDefine\twelveclub
+\bgroup\@makeother\|
+\firstofone{\egroup\def\twelveclub{|}}
+
+% \subdivision{Almost-Knuthian \cs{ttverbatim}}
+%
+% |\ttverbatim| comes from \TeXbook\ too, but I~add into it a~\LaTeX\
+% macro changing the |\catcode|s and make spaces visible and breakable
+% and left braces too.
+% \CodeDefine\ttverbatim
+\newcommand*\ttverbatim{%
+  \let\do=\do@noligs \verbatim@nolig@list
+  \let\do=\@makeother \dospecials
+  \dobreaklbrace\dobreakbslash
+  \dobreakspace
+  \tt}
+
+% We wish the visible spaces to be the default.
+% \CodeDefIndex\dobreakspace
+\let\dobreakspace=\dobreakvisiblespace
+%
+%^^A~|\meta| and pals moved to \pk{gmutils}
+
+% \subdivision{The Core: From \pk{shortvrb}}
+%
+% The below is copied verbatim ;-) from
+% \file{doc.pdf} and then is added my slight changes.
+% \CodeDefine\MakeShortVerb \CodeDefine*\MakeShortVerb*
+
+\def\MakeShortVerb{%
+  \@ifstar
+  {\def\@shortvrbdef{\verb*}\@MakeShortVerb}%
+  {\def\@shortvrbdef{\verb}\@MakeShortVerb}}
+
+% \CodeDefine\@MakeShortVerb
+\def\@MakeShortVerb#1{%
+  \expandafter\ifx\csname cc\string#1\endcsname\relax
+  \@shortvrbinfo{Made }{#1}\@shortvrbdef
+  \add@special{#1}%
+  \AddtoPrivateOthers#1% a~macro to be \emph{really} defined in
+  % \pk{gmdoc}.
+  \expandafter
+  \xdef\csname cc\string#1\endcsname{\the\catcode`#1}%
+  \begingroup
+  \catcode`\~\active \lccode`\~`#1%
+  \lowercase{%
+    \global\expandafter\let
+    \csname ac\string#1\endcsname~%
+    \expandafter\gdef\expandafter~\expandafter{%
+      \expandafter\ifmmode\expandafter\string\expandafter~%
+      \expandafter\else\expandafter\afterfi\@shortvrbdef~\fi}}% This
+  % terrible number of |\expandafter|s is to make the shortverb char
+  % just other in the math mode (my addition).
+  \endgroup
+  \global\catcode`#1\active
+ \else
+ \@shortvrbinfo\@empty{#1 already}{\@empty\verb(*)}%
+ \fi}
+
+% \CodeDefine\DeleteShortVerb
+\def\DeleteShortVerb#1{%
+  \expandafter\ifx\csname cc\string#1\endcsname\relax
+  \@shortvrbinfo\@empty{#1 not}{\@empty\verb(*)}%
+  \else
+  \@shortvrbinfo{Deleted }{#1 as}{\@empty\verb(*)}%
+  \rem@special{#1}%
+  \global\catcode`#1\csname cc\string#1\endcsname
+  \global \expandafter\let \csname cc\string#1\endcsname \relax
+  \ifnum\catcode`#1=\active
+  \begingroup
+  \catcode`\~\active \lccode`\~`#1%
+  \lowercase{%
+    \global\expandafter\let\expandafter~%
+    \csname ac\string#1\endcsname}%
+  \endgroup \fi \fi}
+
+% My little addition
+% \CodeDefIndex\gmv@packname
+\@ifpackageloaded{gmdoc}{%
+  \def\gmv@packname{gmdoc}}{%
+  \def\gmv@packname{gmverb}}
+
+% \CodeDefine\@shortvrbinfo
+\def\@shortvrbinfo#1#2#3{%
+  \PackageInfo{\gmv@packname}{%
+   ^^J\@empty #1\expandafter\@gobble\string#2 a short reference
+    for \expandafter\string#3}}
+
+% \CodeDefine\add@special
+\def\add@special#1{%
+  \rem@special{#1}%
+  \expandafter\gdef\expandafter\dospecials\expandafter
+  {\dospecials \do #1}%
+  \expandafter\gdef\expandafter\@sanitize\expandafter
+  {\@sanitize \@makeother #1}}
+
+% For the commentary on the below macro see the \pk{doc} package's
+% documentation. Here let's only say it's just amazing: so tricky and
+% wicked use of |\do|. The internal macro |\rem@special| defines |\do|
+% to expand to nothing if the |\do|'s argument is the one to be
+% removed and to unexpandable CSs |\do| and \<\cs{do}'s argument>
+% otherwise. With |\do| defined this way the entire list is just
+% globally expanded itself. Analogous hack is done to the |\@sanitize|
+% list. 
+% \CodeDefine\rem@special
+\def\rem@special#1{%
+  \def\do##1{%
+    \ifnum`#1=`##1 \else \noexpand\do\noexpand##1\fi}%
+  \xdef\dospecials{\dospecials}%
+  \begingroup
+  \def\@makeother##1{%
+    \ifnum`#1=`##1 \else \noexpand\@makeother\noexpand##1\fi}%
+  \xdef\@sanitize{\@sanitize}%
+  \endgroup}
+
+% And now the definition of \env{verbatim} itself. As you'll see (I~hope),
+% the internal macros of it look for the name of the current
+% environment (i.e., |\@currenvir|'s meaning) to set
+% their expectation of the environment's |\end| properly. This is done
+% to allow the user to define his/her own environments with
+% |\verbatim| inside them. I.e., as with the \pk{verbatim} package,
+% you may write |\verbatim| in the begdef of your environment and then
+% necessarily |\endverbatim| in its enddef. Of course (or maybe
+% surprisingly), the commands written in the begdef after |\verbatim|
+% will also be executed at \cs{begin\marg{environment}}.
+% \CodeDefine\verbatim
+% \CodeDefine*{verbatim}
+\def\verbatim{\@beginparpenalty \predisplaypenalty \@verbatim
+  \frenchspacing \gmobeyspaces \@xverbatim}% in the \LaTeX\ version
+% there's |%\@vobeyspaces| instead of |\gmobeyspaces|.
+% \changes{v0.73}{06/09/06}{\cs{@vobeyspaces} changed to 
+%   \cs{obeyspaces} to make the blank \cs{verb/atim} spaces breakable}
+% \CodeDefine*{verbatim*}
+\@namedef{verbatim*}{\@beginparpenalty \predisplaypenalty \@verbatim
+  \@sxverbatim}
+
+% \CodeDefine\endverbatim
+\def\endverbatim{\@@par
+  \ifdim\lastskip >\z@
+    \@tempskipa\lastskip \vskip -\lastskip
+    \advance\@tempskipa\parskip \advance\@tempskipa -\@outerparskip
+    \vskip\@tempskipa
+  \fi
+  \addvspace\@topsepadd
+  \@endparenv}
+
+% \CodeDefine\endverbatim*
+\expandafter\let\csname endverbatim*\endcsname =\endverbatim
+
+% \CodeDefine\@xverbatim
+\begingroup \catcode `!=0 %
+\catcode `[= 1 \catcode`]=2 %
+\catcode`\{=\active
+\@makeother\}%
+\catcode`\\=\active%\CodeEscapeChar\!
+!gdef!@xverbatim[%
+  !edef!verbatim@edef[%
+    !def!noexpand!verbatim@end%
+      ####1!noexpand\end!noexpand{!@currenvir}[%
+      ####1!noexpand!end[!@currenvir]]]%
+  !verbatim@edef
+  !verbatim@end]%
+!endgroup
+% \CodeEscapeChar\\
+
+% \CodeDefine\@sxverbatim
+\let\@sxverbatim=\@xverbatim
+
+% \CodeDefine\@verbatim
+% F.\,Mittelbach says the below is copied almost verbatim from \LaTeX\
+% source, modulo |\check@percent|.\CodeDefine\@verbatim
+\def\@verbatim{%
+  % \changes{v0.71}{06/09/04}{trivlist substituted with
+  % chosen explicit macros. Analog. in endverbatim.}
+  % 
+  % Originally here was just |\trivlist \item[]|, but it worked
+  % badly in my document(s), so let's take just highlights of if.
+  \parsep\parskip
+  % From |\@trivlist|:
+  \if@noskipsec \leavevmode \fi
+  \@topsepadd \topsep
+  \ifvmode
+    \advance\@topsepadd \partopsep
+  \else
+    \unskip \par
+  \fi
+  \@topsep \@topsepadd
+  \advance\@topsep \parskip
+  \@outerparskip \parskip
+  % (End of |\trivlistlist| and |\@trivlist| highlights.)
+  \@@par\addvspace\@topsep
+  \if@minipage\else\vskip\parskip\fi
+  \leftmargin\parindent% please notify me if it's a~bad idea.
+  \advance\@totalleftmargin\leftmargin
+  \raggedright
+  \leftskip\@totalleftmargin% so many assignments to preserve the
+  % \env{list} thinking for possible future changes. However, we may
+  % be sure no internal \env{list} shall use |\@totalleftmargin| as
+  % far as no inner environments are possible in \env{verbatim(*)}.
+%^^A  \rightskip\z@
+%^^A  \parindent\z@\parfillskip\@flushglue\parskip\z@
+  \@@par% most probably redundant.
+  \@tempswafalse
+  \def\par{% but I~don't want the terribly ugly empty lines when
+    % a~blank line is met. Let's make them \pk{gmdoc}-like
+    % i.e., let a~vertical space be added as in between stanzas
+    % of poetry. Originally |\if@tempswa\hbox{}\fi|, in my version will
+    % be
+    \ifvmode\if@tempswa\addvspace\stanzaskip\@tempswafalse\fi\fi
+    \@@par
+    \penalty\interlinepenalty \check@percent}%
+  \everypar{\@tempswatrue\hangindent\verbatimhangindent\hangafter\@ne}%^^A
+  % since several chars are breakable, there's a~possibility of
+  % breaking some lines. We wish them to be hanging indented.
+  \obeylines
+  \ttverbatim}
+
+\@ifundefined{stanzaskip}{\newlength\stanzaskip}{}
+\stanzaskip=\medskipamount
+
+% \CodeDefine\verbatimhangindent
+% \changes{v0.71}{06/09/04}{added to verbatim parameters.}
+\newlength\verbatimhangindent
+\verbatimhangindent=3em
+
+\providecommand*\check@percent{}
+% In the \pk{gmdoc} package shall it be defined to check if the next
+% line begins with a~comment char.
+%
+% Similarly, the next macro shall in \pk{gmdoc} be defined to update
+% a~list useful to that package. For now let it just gobble its
+% argument.
+\providecommand*\AddtoPrivateOthers[1]{}
+% Both of the above are |\provide|d to allow the user to load
+% \pk{gmverb} after \pk{gmdoc} (which would be redundant since
+% \pk{gmdoc} loads this package on its own, but anyway should be
+% harmless).
+
+% Let's define the `short' verbatim command.
+%
+% \CodeDefine\verb \CodeDefine*\verb*
+\def\verb{\relax\ifmmode\hbox\else\leavevmode\null\fi
+  \bgroup
+  \ttverbatim
+  \gm@verb@eol
+  \@ifstar{\@sverb@chbsl}{\gmobeyspaces\frenchspacing\@sverb@chbsl}}%^^A
+% in the \LaTeX\ version there's |\@vobeyspaces| instead of
+% |\gmobeyspaces|.
+% \CodeDefIndex\@sverb@chbsl
+\def\@sverb@chbsl#1{\@sverb#1\check@bslash}
+
+% \CodeDefIndex\@def@breakbslash
+\def\@def@breakbslash{\breakbslash}% because |\| is |\def|ined
+% as \cs{break\-b\-slash} not |\let|.
+
+% For the special case of a~backslash opening a~(short) verbatim, in
+% which it shouldn't be breakable, we define the checking macro.
+% \CodeDefine\check@bslash
+\def\check@bslash{\@ifnextchar{\@def@breakbslash}{\bslash\@gobble}{}}
+% \label{special opening bslash}
+% \changes{v0.70}{06/09/02}{Opening backslash made unbreakable.}
+
+\let\verb@balance@group\@empty
+
+% \CodeDefine\verb@egroup
+\def\verb@egroup{\global\let\verb@balance@group\@empty\egroup}
+
+% \CodeDefine\gm@verb@eol
+%\changes[\verb]{v0.74}{06/09/07}{line end forbidden inside \*}
+\let\gm@verb@eol\verb@eol@error
+% The latter is a~\LaTeXe\ kernel macro that |\active|ates line end
+% and defines it to close the verb group and to issue an error
+% message. We use a~separate CS 'cause we are not quite positive to
+% the forbidden line ends idea. (Although the allowed line ends with
+% a~forgotten closing shortverb char caused funny disasters at my
+% work a~few times.) Another reason is that \pk{gmdoc} wishes to
+% redefine it for its own queer purpose.
+%
+% However, let's leave my former `permissive' definition under the
+% |\verb@eol| name.
+%
+% \CodeDefine\verb@eolOK
+\begingroup
+\obeylines\obeyspaces%
+\gdef\verb@eolOK{\obeylines%
+\def^^M{ \check@percent}%
+}%
+\endgroup
+% The |\check@percent| macro here is |\provide|d to be |\@empty| but in
+% \pk{gmdoc} employed shall it be.
+%
+% Let us leave (give?) a~user freedom of choice:
+% \CodeDefine\verbeolOK
+% \changes{v0.74}{06/09/07}{added}
+\def\verbeolOK{\let\gm@verb@eol\verb@eolOK}
+% And back to the main matter,
+% \CodeDefIndex\@sverb \CodeDefIndex\verb@balance@group
+\def\@sverb#1{%
+  \catcode`#1\active \lccode`\~`#1%
+  \gdef\verb@balance@group{\verb@egroup
+    \@latex@error{Illegal use of \bslash verb command}\@ehc}%
+  \aftergroup\verb@balance@group
+  \lowercase{\let~\verb@egroup}}
+
+% \CodeDefine\verbatim@nolig@list
+\def\verbatim@nolig@list{\do\`\do\<\do\>\do\,\do\'\do\-}
+
+% \CodeDefine\do@noligs
+\def\do@noligs#1{%
+  \catcode`#1\active
+  \begingroup
+  \lccode`\~=`#1\relax
+  \lowercase{\endgroup\def~{\leavevmode\kern\z@\char`#1}}}
+
+% And finally, what I~thought to be so smart and clever, now is just
+% one of many possible uses of a~general almost Rainer Sch\"opf's
+% macro:
+% \CodeDefine\dekclubs
+\def\dekclubs{\MakeShortVerb*\|}
+
+%\subdivision{\pk{doc}- And \pk{shortvrb}-Compatibility}
+%
+% One of minor errors while \TeX ing \pk{doc.dtx} was caused by my
+% understanding of a~`shortverb' char:  at my settings, in the math
+% mode an active `shortverb' char expands to itself's `other' version
+% thanks to |\string|. \pk{doc/shortvrb}'s concept is different, there
+% a~`shortverb' char should work as usual in the math mode. So let it
+% may be as they wish:
+% \CodeDefine\old@MakeShortVerb
+ 
+\def\old@MakeShortVerb#1{%
+  \expandafter\ifx\csname cc\string#1\endcsname\relax
+  \@shortvrbinfo{Made }{#1}\@shortvrbdef
+  \add@special{#1}%
+  \AddtoPrivateOthers#1% a~macro to be \emph{really} defined in
+  % \pk{gmdoc}. 
+  \expandafter
+  \xdef\csname cc\string#1\endcsname{\the\catcode`#1}%
+  \begingroup
+  \catcode`\~\active \lccode`\~`#1%
+  \lowercase{%
+    \global\expandafter\let
+    \csname ac\string#1\endcsname~%
+    \expandafter\gdef\expandafter~\expandafter{%
+      \@shortvrbdef~}}%
+  \endgroup
+  \global\catcode`#1\active
+ \else
+ \@shortvrbinfo\@empty{#1 already}{\@empty\verb(*)}%
+ \fi}
+
+% \CodeDefine\OldMakeShortVerb
+\def\OldMakeShortVerb{\begingroup
+  \let\@MakeShortVerb=\old@MakeShortVerb
+  \@ifstar{\eg@MakeShortVerbStar}{\eg@MakeShortVerb}}
+
+% \CodeDefine\eg@MakeShortVerbStar \CodeDefine\eg@MakeShortVerb
+\def\eg@MakeShortVerbStar#1{\MakeShortVerb*#1\endgroup}
+\def\eg@MakeShortVerb#1{\MakeShortVerb#1\endgroup}
+
+\endinput% for the Tradition.
+
+
+
+
+% \PrintChanges \PrintIndex
+% \Finale
+
+% (For my GNU Emacs:)
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "e:/LaTeX/TeXGuru/gmverb/gmverbDoc"
+%%% End: 

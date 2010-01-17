@@ -1,0 +1,163 @@
+%% This file is part of the ANTOMEGA project version 0.7
+%% -----------------------------------------------------
+%% 
+%% It may be distributed under the terms of the LaTeX Project Public
+%% License, as described in lppl.txt in the base LaTeX distribution.
+%% Either version 1.0 or, at your option, any later version.
+%% Copyright (C) 2003 by Alexej Kryukov <basileia@yandex.ru>
+%% Information provided by Pablo Rodríguez
+%%
+%% Please report errors to: A.M. Kryukov <basileia@yandex.ru>
+
+\makeatletter
+
+\LoadOCPByName{\SpanishBabelUni}{babel2es}
+
+\ocplist\SpanishBabelOCP=
+   \addbeforeocplist 1750 \SpanishBabelUni
+\nullocplist
+
+\ifx\l@spanish\@undefined
+   \ant@nopatterns{spanish}
+   \adddialect\l@spanish0
+\fi
+
+\ifx\westernrm\undefined\let\westernrm=\rmdefault\fi
+\ifx\westernsf\undefined\let\westernsf=\sfdefault\fi
+\ifx\westerntt\undefined\let\westerntt=\ttdefault\fi
+
+\ifx\westernencoding\undefined\let\westernencoding=\uniencoding\fi
+
+\def\spanish@font{\fontfamily{\westernrm}%
+   \fontencoding{\westernencoding}\selectfont%
+   \let\rmdefault=\westernrm%
+   \let\sfdefault=\westernsf%
+   \let\ttdefault=\westerntt%
+   \let\encodingdefault=\westernencoding}
+
+\def\tmp@uni{unicode}
+\def\tmp@omega{omega}
+\def\tmp@tex{tex}
+
+\def\tmp@ucs{ucs-2}
+\def\tmp@utf{utf-8}
+\def\tmp@iso{iso-8859-1}
+\def\tmp@win{cp1252}
+
+\def\eventualEsPunct{\protect\pushocplist\BasicTexOCP}
+\def\eventualEsShorthands{\protect\pushocplist\SpanishBabelOCP}
+\def\eventualEsInput{\protect\pushocplist\BasicInputOCP}
+\def\eventualEsAccents{\protect\pushocplist\BasicAccentsOCP}
+
+\ifx\eventualEuOutput\undefined
+   \def\eventualEuOutput{\protect\pushocplist\LatinUniOutOCP%
+   }
+\fi
+
+\def\spanish@OCP{\protect\clearocplists%
+   \eventualEsInput%
+   \eventualEsPunct%
+   \eventualEsShorthands%
+   \eventualEsAccents%
+   \eventualEuOutput}
+
+\define@key{spanish}{input}[ucs-2]{%
+   \def\@tmpa{#1}
+   \ifx\@tmpa\tmp@iso\def\eventualEsInput{%
+      \protect\pushocplist\BasicInputIsoOCP}
+      \typeout{Option: Spanish input encoding=iso-8859-1}
+   \else\ifx\@tmpa\tmp@win\def\eventualEsInput{%
+      \protect\pushocplist\BasicInputWinOCP}
+      \typeout{Option: Spanish input encoding=windows-1252}
+   \else\ifx\@tmpa\tmp@utf\def\eventualEsInput{%
+      \protect\pushocplist\BasicInputUtfOCP}
+      \typeout{Option: Spanish input encoding=utf-8}
+   \else\def\eventualEsInput{%
+      \protect\pushocplist\BasicInputUcsOCP}
+      \typeout{Option: Spanish input encoding=ucs-2}
+   \fi\fi\fi}
+
+\define@key{spanish}{shorthands}[on]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\opt@enabled\def\eventualEsShorthands{%
+      \protect\pushocplist\SpanishBabelOCP}%
+      \typeout{Option: Shorthands for Spanish text enabled}%
+   \else\def\eventualEsShorthands{}%
+      \typeout{Option: Shorthands for Spanish text disabled}%
+   \fi}
+
+\define@key{spanish}{output}[unicode]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@tex\def\eventualEuOutput{%
+      \protect\pushocplist\LatinTexOutOCP}%
+      \def\westernencoding{T1}%
+   \else\ifx\@tmpa\tmp@omega\def\eventualEuOutput{%
+      \protect\pushocplist\LatinOmegaOutOCP}%
+      \def\westernencoding{UT1}%
+   \else\def\eventualEuOutput{%
+      \protect\pushocplist\LatinUniOutOCP}%
+      \def\westernencoding{UT1}%
+   \fi\fi}
+
+\def\spanish@punctuation{%
+   \frenchspacing%
+}
+
+\def\nospanish@punctuation{%
+   \nonfrenchspacing%
+}
+
+\def\spanish@captions{%
+   \def\prefacename{\localspanish{Prefacio}}%
+   \def\refname{\localspanish{Referencias}}%
+   \def\abstractname{\localspanish{Resumen}}%
+   \def\bibname{\localgerman{Bibliograf^^^^00eda}}%
+   \def\chaptername{\localspanish{Cap^^^^00edtulo}}%
+   \def\appendixname{\localspanish{Ap^^^^00e9ndice}}%
+   \def\contentsname{\localspanish{^^^^00cdndice general}}%
+   \def\listfigurename{\localspanish{^^^^00cdndice de figuras}}%
+   \def\listtablename{\localspanish{^^^^00cdndice de cuadros}}%
+   \def\indexname{\localspanish{^^^^00cdndice alfab^^^^00e9tico}}%
+   \def\figurename{\localspanish{Figura}}%
+   \def\tablename{\localspanish{Cuadro}}%
+   \def\partname{\localspanish{Parte}}%
+   \def\enclname{\localspanish{Adjunto(s)}}%
+   \def\ccname{\localspanish{Copia a}}%
+   \def\headtoname{\localspanish{A}}%
+   \def\pagename{\localspanish{P^^^^00e1gina}}%
+   \def\seename{\localspanish{v^^^^00e9ase}}%
+   \def\alsoname{\localspanish{v^^^^00e9ase tambi^^^^00e9n}}%
+   \def\proofname{\localspanish{Prueba}}% for AMS-\LaTeX
+   \def\glossaryname{\localspanish{Glosario}}%
+   \def\today{\localspanish{\number\day\NonBreakingSpace de%
+      \space \ifcase\month%
+      \or enero\or febrero\or marzo\or abril\or mayo\or junio\or%
+      julio\or agosto\or septiembre\or octubre\or noviembre\or%
+      diciembre\fi%
+      \space de\NonBreakingSpace\number\year}}}
+
+\def\spanish@language{\protect\language=\l@spanish}
+
+\def\noextras@spanish{%
+   \nospanish@punctuation%
+}
+
+\def\blockextras@spanish{%
+   \spanish@language%
+   \local@hyphenmins{spanish}{2}{2}%
+   \spanish@punctuation%
+   \spanish@captions%
+   \local@marks{spanish}%
+   \spanish@OCP%
+   \spanish@font%
+}
+
+\def\inlineextras@spanish{%
+   \spanish@language%
+   \local@hyphenmins{spanish}{2}{2}%
+   \spanish@punctuation%
+   \spanish@OCP%
+   \spanish@font%
+}
+
+\endinput

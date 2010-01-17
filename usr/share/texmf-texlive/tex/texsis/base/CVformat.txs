@@ -1,0 +1,105 @@
+%% file: CVformat.txs - TeXsis version 2.18
+%% @(#) $Id: CVformat.txs,v 17.2 2001/04/06 22:27:24 myers Exp $
+%======================================================================*
+% CVformat.txs  --  macros for producing a Curriculum Vitae and
+% publication list.  Modify these as you like or add to it.
+% Since a CV is a personal thing, you may find this doesn't quite
+% do what you want it to do, but at least it's a start.
+%
+%  Eric Myers,  Brookhaven National Laboratory,  7 November, 1985
+%======================================================================*
+\ATunlock
+\emsg{\@comment CVformat: Curriculum Vitae macros}%
+
+\def\CVformat{%                 CVformat: Curriculum Vitae macros
+   \hsize=6.0 true in
+   \nopagenumbers
+   \auxswitchfalse
+   \quoteon                                % turn on easyquotes
+   \twelvepoint
+   \parindent=2.5cm
+   \raggedright\tolerance=800              % ragged right with looser tolerance
+   \def\NAME{}%
+   \def\endmode{\relax}%
+%
+% headline placement and spacing:
+%
+   \ifx\empty\NAME\else
+      \headline={\ifnum\pageno>1
+        {\twelvepoint\sl Curriculum Vitae of \NAME\hfil Page \folio}%
+        \else \hfil\fi}\fi
+   \headlineoffset=0.5cm
+   }
+
+% MACRO DEFINITIONS:
+% \item, \EXitem, \pubitem
+
+\def\ITEM#1{\endmode
+   \pagecheck{5\baselineskip}%
+   \begingroup
+     \def\endmode{\endgroup}%
+     \tolerance=2000
+     \bigskip\goodbreak
+     \item{\undertext{\bf #1}}\smallskip
+     \let\itm=\EXitem
+    }
+
+\def\Education{\ITEM{Education}}
+\def\Experience{\ITEM{Experience}}
+
+
+\def\hang{\hangindent=\parindent}
+\def\item{\medskip\par\hang\textindent}
+\def\textindent#1{\indent\llap{\hbox to \parindent{#1\hss}}\ignorespaces}
+
+% \EXitem{note} puts the note in the left margin in \tenpoint,
+% and you can break the line with \n
+
+\def\EXitem#1{%
+   \item{\def\n{\hss\egroup\hbox to \hangindent\bgroup}%
+     \hbox to 0pt{%
+       \vtop to 0pt{\tenpoint\rm
+          \hbox to \hangindent\bgroup#1\hss\egroup\vss}%
+    }}}
+
+
+% \Publications begins list of publications
+
+\def\Publications{\endmode
+   \pageno=1
+   \ifx\empty\NAME\else
+     \headline={{\twelvepoint\sl Publications of \NAME\hfil Page \folio}}\fi
+   \headlineoffset=0.5cm
+   \parindent=1.0cm
+   \raggedright \tolerance=2200
+   \item{\bf PUBLICATIONS:}
+   \smallskip
+   \let\itm=\pubitem
+   }
+
+% \pubitem is \itm for publications list
+% \pubitem is like \item, but it automatically gives the item a number
+
+\newcount\pubnum        \pubnum=0
+
+\def\pubitem{\medskip
+   \advance\pubnum by 1
+   \item{\the\pubnum.}}
+               
+%%\def\vol#1{\undertext{#1}}
+
+% \booktitle is used in the reference text to cause the title of a book
+%  to be printed in italics.
+\def\booktitle#1{{\sl #1}}
+
+\def\references{\parindent=1.0cm
+   \pageno=1
+   \ifx\empty\NAME\else
+     \headline={{\twelvepoint\sl References for \NAME\hfil}}\fi
+    \headlineoffset=0.5cm
+   \item{\bf REFERENCES:}
+   \smallskip}
+               
+\ATlock
+
+%>>> EOF CVformat.txs <<<

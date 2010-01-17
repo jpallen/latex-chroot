@@ -1,0 +1,158 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%               Quartered Journal of Economics
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Special fonts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\font\sctwelve=cmcsc10 scaled\magstep1
+\font\scten=cmcsc10
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Set pagesize
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\hsize=25pc
+\vsize=43pc
+\hoffset=1in
+\voffset=1in
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Headline and footline
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\nopagenumbers 
+\def\rightheadline{\hbox to\hsize{\hfil\tenpoint\uppercase{\runname}\hfil{\folio}}}
+\def\leftheadline{\hbox to \hsize{\folio \hfil {\tenpoint\sl QUARTERED JOURNAL OF ECONOMICS}\hfil}} 
+\headline={\ifodd\pageno\rightheadline\else\leftheadline\fi}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Define topmatter style
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\TitleFont{\sctwelve}
+\def\AuthorFont{\scten}
+
+\def\title#1{\DoCenteredTitle{#1{$^*$}}}
+
+\def\author#1{\DoCenteredAuthor{#1}}
+
+\def\affil#1{\global\setbox\affilbox\hbox{\tenit\noindent #1}}
+
+\def\thanks#1{\global\setbox\thanksbox\hbox{{\eightpoint #1\par}}}
+
+\def\date#1{\global\setbox\datebox\vbox{\tenrm #1 \hfil}}
+\def\version#1{}
+
+\def\abstract#1{\global\setbox\abstractbox\vbox{\hsize=23pc\ninepoint #1}}
+
+\def\keywords#1{}
+\def\address#1{}
+
+\def\topmatter{\relax}
+\def\endtopmatter{\DoTop}
+\def\document{\DoPaper\noindent}
+
+\let\SectionFont=\scten
+\RomanSectiontrue
+
+\def\section#1\par{\DoCenteredSection{#1}}
+
+\def\subsection#1\par{\BigBreak\noindent
+   {\it #1\hfil}\nobreak\medskip\noindent}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Math conventions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\outer\def\proclaim #1. #2\par{\medbreak
+  \noindent{\scten#1.\enspace}{\rm#2}\par
+  \ifdim\lastskip<\medskipamount \removelastskip\penalty55\medskip\fi}
+
+\def\proof{\goodbreak\noindent{\scten Proof.\enspace}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     Redefine figure macro
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\Figure#1#2#3{
+     \midinsert
+     \vbox to #2{\vfil}
+     \hbox to \hsize{\vbox{\parindent=0pt%
+     \centerline{{\scnine Figure \number#1}}}}
+     \endinsert}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\RefFont=\eightpoint
+
+\def\DoNotes{
+\ifvoid\endnoteins\relax\else
+\vskip2pc
+\noindent{\eightpoint\rm NOTES}
+\medskip
+\unvbox\endnoteins
+\fi}
+
+\def\DoRefs{\vskip 2pc
+\parindent=0pt
+\centerline{{\scten References}}
+\vskip 1pc
+\RefFont
+}
+
+\def\Refs{\vskip3pc
+\DoRefs}
+
+\def\by#1{\setbox\bybox\hbox{\ninepoint#1}}
+
+\def\SetRef{
+  \ifjour\jourfalse\vbox{\parshape=0\hangindent=3pc\hangafter=2
+     \unhbox\bybox, ``\unhbox\paperbox,'' 
+     \unhbox\jourbox, {\unhbox\volbox} (\unhbox\yrbox) \ifvoid\nobox\relax\else (\unhbox\nobox), \fi
+     \unhbox\pagesbox. \par}\fi
+
+ \ifbook\bookfalse\par\vbox{\parshape=0\hangindent=3pc\hangafter=2
+     \unhbox\bybox\space {\it \unhbox\bookbox} (\unhbox\publaddrbox : 
+         \unhbox\publbox , \unhbox\yrbox).\par}\fi
+
+ \ifinbook\inbookfalse\par\vbox{
+     \unhbox\bybox, ``\unhbox\paperbox,''
+     {\it \unhbox\bookbox}, {\rm \unhbox\editorbox}, eds.
+     (\unhbox\publaddrbox : \unhbox\publbox, \unhbox\yrbox).\par}\fi
+
+ \ifunpublished\unpublishedfalse\par\vbox{
+     \unhbox\bybox\space(\unhbox\yrbox) 
+    ``\unhbox\paperbox, '' \unhbox\paperinfobox .\par}\fi
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Set the paper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\titlehead{\hfil}
+\def\titlefoot{\vbox{\sixpoint
+ \line{$\copyright$ 1986 by the President and Fellows of Havahd College.  Published by John Wiley \& Sons, Inc.}
+ \line{{\it The\ Quartered\ Journal\ of\ Economics}, August 1986\hfil CCC 0033--5533/030455--16\$04.00}}}
+
+
+\def\DoTop{\Reset
+\vskip 2pc
+\line{\hfil\box\titlebox\hfil}
+\ifvoid\thanksbox\relax\else
+   \vfootnote{$^*$}{\eightpoint \unhbox\thanksbox \par}\fi
+\vskip 1pc
+\line{\hfil\box\authorbox\hfil}
+\vskip1pc
+\line{\hfil\box\abstractbox\hfil}
+\vskip2pc}
+
+\def\DoPaper{\relax}
+
+\tenpoint
+\parindent=15pt
+\def\footnoterule{}

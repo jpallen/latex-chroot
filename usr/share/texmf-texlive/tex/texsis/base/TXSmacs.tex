@@ -1,0 +1,669 @@
+%% file: TXSmacs.tex - Main Macros - TeXsis version 2.18
+%% @(#) $Id: TXSmacs.tex,v 18.0 1999/07/07 21:30:29 myers Exp $
+%========================================================================*
+% TeXsis -- Main Macros                
+%
+%       This file contains various macros used throughout TeXsis,
+% either by themselves or by other macros.  Some of the more useful
+% ones to know about are:
+%
+%       \draft          prints "draft" with the date and time at the 
+%                       bottom of the page
+%       \singlespaced   sets single spacing.
+%       \doublespaced   sets double (actually 1.5 times) spacing.
+%       \triplespaced   sets triple spacing for drafts.
+%       \widenspacing   increases spacing by 1.25.
+%       \quoteon        Automatic opening and closing " by making " an
+%                       active character.  Turn off with \quoteoff.
+%       \Footnote       Singlespaced analog of \footnote
+%       \Vfootnote      Singlespaced analog of \vfootnote
+%       \NFootnote      numbered footnotes (using \Footnote)
+%
+%======================================================================*
+% (C) Copyright 1989, 1992, 1997 by Eric Myers and Frank E. Paige
+% This file is a part of TeXsis.  Distribution and/or modifications
+% are allowed under the terms of the GNU General Public License (GPL).  
+% This software is made available WITHOUT ANY WARRANTY of any kind.
+% Give the command \LicenseInfo for further details.
+%======================================================================*
+\message{TeXsis main macros.}
+\catcode`@=11                           % @ is a letter here
+\let\XA=\expandafter                    % shorthand for \expandafter is \XA
+\let\NX=\noexpand                       % shorthand for \noexpand is \NX
+
+% We've added a few more active characters, so we have to modify \dospecials
+
+\def\dospecials{\do\ \do\\\do\{\do\}\do\$\do\&\do\"\do\(\do\)\do\[\do\]%%
+  \do\#\do\^\do\^^K\do\_\do\^^A\do\%\do\~}
+
+
+%--------------------------------------------------*
+% ERROR REPORTING and DRAFT marks:
+
+% \emsg writes the message "#1", ON A NEW LINE, on the terminal
+% and in the log.  Various \things are turned off.
+
+\def\emsg#1{\relax% write an error/information message to the screen
+   \begingroup                                  % disable special characters
+     \def\@quote{"}%                            % to output "
+     \def\TeX{TeX}\def\label##1{}\def\use{\string\use}%
+     \def\ { }\def~{ }% spaces are spaces
+     \def\tt{}\def\bf{}\def\Tbf{}\def\tbf{}%
+     \def\break{}\def\n{}\def\singlespaced{}\def\doublespaced{}%
+     \immediate\write16{#1}% 
+   \endgroup}
+
+% \cmsg writes a ``comment'' \emsg message with leading ``%''
+
+\def\cmsg#1{\emsg{\@comment #1}}
+
+%  \@comment is for writing % to a file such as the table of contents 
+% or list of figures.  It expands to '% '
+     
+{\catcode`\%=11 \gdef\@comment{% }}
+
+% \@errmark writes a short error message in the right margin
+
+\newif\ifmarkerrors     \markerrorsfalse        % default is off
+
+\def\@errmark#1{\ifmarkerrors           % only if \markerrorstrue
+   \vadjust{\vbox to 0pt{%              % vbox with no height
+   \kern-\baselineskip                  % insert text next to line
+   \line{\hfil\rlap{{\tt\ <-#1}}}%      %  in right margin
+   \vss}}\fi}                           % end \vbox and \vadjust
+
+
+% \draft marks the bottom of the page with "Preliminary Draft", 
+% date and time, and turns on error marking and equation tracing.
+
+\def\draft{%  puts DRAFT marks on footer lines of document
+   \def\draftline{{\tentt\DraftName\hfill % DRAFT stamp at
+       -~\folio~- \hfill \runtime}}\footline={\draftline}% bottom of page
+   \eqnotracetrue                       % equation tracing enabled
+   \markerrorstrue                      % DO mark errors in right margin
+   \overfullrule=1em}                   % marks overfull \hbox!
+
+\def\DraftName{Preliminary Draft}% Can be changed (Native Language Support)
+
+
+%--------------------------------------------------*
+% Interline Spacing and Footnotes.
+
+\def\setTableskip{\relax}                       % was used, but not now
+
+\def\singlespaced{% sets interline spacing to \normalbaselineskip
+   \baselineskip=\normalbaselineskip            % reset interline
+   \setRuledStrut                               % set ruled table spacing
+   \setTableskip}                               % set table spacing
+\def\singlespace{\singlespaced}                 % synonym for \singlespaced
+
+\def\doublespaced{% sets interline spacing to 1.5 the \normalbaselineskip
+   \baselineskip=\normalbaselineskip            % increase interline
+   \multiply\baselineskip by 150                %  spacing by 1.50
+   \divide\baselineskip by 100                  %  of normal
+   \setRuledStrut                               % set ruled table spacing
+   \setTableskip}                               % set table spacing
+\def\doublespace{\doublespaced}                 % synonym for \doublespaced
+
+\def\TrueDoubleSpacing{% sets interline spacing to twice \normalbaselineskip
+   \baselineskip=\normalbaselineskip            % increase interline
+   \multiply\baselineskip by 2                  %  spacing by 2.0
+   \setRuledStrut                               % set ruled table spacing
+   \setTableskip}                               % set table spacing
+\def\truedoublespacing{\TrueDoubleSpacing} % synonym for \TrueDoubleSpacing
+
+\def\triplespaced{% sets interline spacing to 3.0 the \normalbaselineskip
+   \baselineskip=\normalbaselineskip            % increases interline
+   \multiply\baselineskip by 3                  %   spacing by 3.0
+   \setRuledStrut                               % set ruled table spacing
+   \setTableskip}                               % set table spacing
+
+\def\widenspacing{% increases the interline spacing by 1.25
+   \multiply\baselineskip by 125                % increase the interline
+   \divide\baselineskip by 100                  %   spacing by a factor of 1.25
+   \setRuledStrut                               % set ruled table spacing
+   \setTableskip}                               % set ``nice'' table spacing
+\def\whitespaced{\widenspacing}                 % synonym for \widenspacing
+\def\whitespace{\widenspacing}                  % synonym for \widenspacing
+
+
+% \Footnote is like \footnote, but the text is \singlespaced in \FootFont
+% and the reference mark is automatically put in a superscript.  The 
+% superscript is \smash'ed so it does not change the interline spacing.  
+% \Vfootnote is like \vfootnote, but singlespaced in \Footfont also.
+% How this works:  to use the same tricks with \vfootnote as used by
+% \footnote (see \vfootnote in Appendix B of the TeXbook) we begin a
+% group in which \FootFont and single spacing are invoked, then change
+% the definition of \@foot (which ends the \vfootnote) so that it also  
+% closes the extra group we've opened.
+
+\def\Footnote#1{%  singlespaced \footnote 
+   \let\@sf\empty                               % assume no scale factor
+   \ifhmode\edef\@sf{\spacefactor\the\spacefactor}\/\fi % unless h-mode
+   ${}^{\scriptstyle\smash{#1}}$\@sf            % smashed superscript mark
+   \Vfootnote{#1}}                              % do it with \Vfootnote
+
+\def\Vfootnote#1{% singlespaced \vfootnote
+   \begingroup                                  % Following changes temporary
+     \def\@foot{\strut\egroup\endgroup}%        % change how to end \vfootnote
+     \tenpoint                                  % default to 10pt type
+     \baselineskip=\normalbaselineskip          % default single spaced
+     \parskip=0pt                               % no space between paragraphs
+     \FootFont                                  % change to ``footnote'' font
+     \vfootnote{${}^{\hbox{#1}}$}}              % superscript mark in footnote
+
+\def\FootFont{\rm}                              % default footnote typestyle
+
+
+% Numbered Footnotes:  \NFootnote{text} creates a footnote and gives it
+% a number, which is used as the reference mark (superscript). To reset
+% the numbering (as at the begining of a chapter) just say  \footnum=0.
+
+\newcount\footnum \footnum=0
+\let\footnotemark=\empty                % for # marks and such
+
+\def\NFootnote{% consecutively numbered footnotes
+  \advance\footnum by 1
+  \xdef\lab@l{\the\footnum}%    
+  \Footnote{\footnotemark\the\footnum}}
+
+
+%--------------------------------------------------*
+% SPACING, skips and breaks:
+
+% Alternate definition of ~ makes it the same as \0 in math mode.
+% You can use it as a space which is the width of a digit, and it
+% is a single character in the manuscript file. It behaves as usual
+% (a tie, or required space) in non-math mode.
+
+\def~{\ifmmode\phantom{0}\else\penalty10000\ \fi} % tie in math mode too
+\def\0{\phantom{0}}                             % \0 is phantom 0 in any font
+
+% thinskip (hmode).  This def allows \, to be used in both math 
+% and nonmath mode
+
+\def\,{\relax\ifmmode\mskip\the\thinmuskip\else\thinspace\fi}
+
+% Use \topspace in place of \vskip to add space at top of a page 
+% (a \vskip by itself is discarded at the top of an empty page).
+
+\def\topspace{\hrule width \z@ height \z@ \vskip}
+
+\def\n{\hfil\break}                     % \n  is newline
+\def\nl{\hfil\break}                    % \nl is newline (alternate)
+\def\newpage{\vfill\eject}              % skip to next page
+
+\def\Afour{\hsize=16.5cm \vsize=24.5cm\relax}   % A4 paper size
+
+
+%--------------------------------------------------*
+% \bye -- end of job processing
+%
+% A slightly modified version of \bye will \checktags at end of job
+% \checktags comes from TXStags.tex.  Also, \endmode can be used
+% to close any outstanding mode, as in a \letter or \memo.
+% This version is not \outer, so we can use \TwoPass if desired.
+
+\def\bye{% slightly revised version of \bye for TeXsis
+    \endmode                                    % ends any special modes
+    \par\vfill\supereject                       % as usual, from Plain TeX
+    \checktags                                  % any undefined tags?
+    \end}
+
+\def\endmode{\relax}                            % default does nothing
+
+%-%\ifx\checktags\undefined
+%-%     \def\checktags{\relax}\fi               % TXStags will define this...
+
+%--------------------------------------------------*
+% Un-TeX: how to turn off things that only get turned on in plain TeX
+
+\def\unobeylines{\catcode`\^^M=5}       % make ^^M just <return>
+{\obeyspaces\gdef\unobeyspaces{\catcode`\ =10}}
+\def\unraggedright{\rightskip=\z@\spaceskip=0pt\xspaceskip=0pt}
+
+% Also, \seeCR let's ^^M be turned into space after detection
+% in an \obeylines environment
+
+{\catcode`\^^M=\active\gdef\seeCR{\catcode`\^^M\active \let^^M\space}}
+
+
+%--------------------------------------------------*
+% EASY QUOTES.   Makes " an active character, which knows when to
+% be an open quote or a close quote
+
+\catcode`\"=\active
+\newcount\@quoteflag   \@quoteflag=\z@          % keep track of quotes
+
+\def"{\@quote}                                  % generic name for "
+
+\def\@quote{% gives `` for first quote, '' for second quote
+   \ifnum\@quoteflag=\z@                        %
+     \@quoteflag=\@ne {``}%                     %
+   \else                                        %
+     \@quoteflag=\z@ {''}%                      %
+   \fi}
+
+\def\quoteon{\catcode`\"=\active\def"{\@quote}} % turns on ``easy quotes''
+\def\quoteoff{\catcode`\"=12}                   % turns off ``easy quotes''
+\def\@checkquote#1{\ifnum\@quoteflag=\@ne\message{#1}\fi}
+
+
+% Default is \quoteoff. Turn quotes on only in \texsis
+% (so it won't interfer with any internal uses for ")
+
+\quoteoff               % Must turn quotes off while scanning the next def
+
+\def\checkquote{{\quoteoff\@checkquote{> Unbalanced "}}} % checks balanced "'s
+ 
+
+%--------------------------------------------------*
+% BOXES and RULES:
+
+% \tightbox draws a rule box around the box #1 without any added space
+
+\def\tightbox#1{\vbox{\hrule\hbox{\vrule\vbox{#1}\vrule}\hrule}}
+\let\tightboxit=\tightbox               % synonym
+
+
+% \loosebox put a loose box around a box (but no rules!).
+
+\def\loosebox#1{%
+    \vbox{\vskip\jot
+        \hbox{\hskip\jot #1\hskip\jot}%
+        \vskip\jot}}
+
+
+% \eqnbox{<equation>} puts a ruled box around an equation.  With the
+% \lower\jot it can be used in horizontal mode too, not just displayed
+% equations. Thanks to Bob Love <rlove@raptor.rmnug.org> for the suggestion.
+
+\def\eqnbox#1{\lower\jot\tightbox{\loosebox{\quad $#1$ \quad}}}
+
+
+%  \undertext underscores any text, uniformly
+
+\def\undertext#1{\setbox0=\hbox{#1}\dimen0=\dp0 %
+      \vtop{\box0 \vskip-\dimen0 \vskip 0.25ex \hrule}}
+ 
+% \theBlank creates a blank line to fill in ``the blank''
+
+\def\theBlank#1{\nobreak\hbox{\lower\jot\vbox{\hrule width #1\relax}}}
+
+
+% \setRuledStrut creates a vertical strut to hold the interline
+% spacing in ruled tables.  It is defined in ruled.tex, so we just
+% make an empty definition here until then.
+
+\ifx\setRuledStrut\undefined\def\setRuledStrut{\relax}\fi
+
+
+%--------------------------------------------------*
+% MISC. useful stuff:
+
+% \Romannumeral gives uppercase roman numerals, of course
+
+\def\Romannumeral#1{\uppercase\expandafter{\romannumeral #1}}
+
+% \monthname{n} gives the English name for month number n
+
+\def\monthname#1{\ifcase#1 \errmessage{0 is not a month}
+    \or January\or February\or March\or April\or May\or June\or 
+    July\or August\or September\or October\or November\or
+    December\else \errmessage{#1 is not a month}\fi}
+
+% \jtem is a generalized \item from Don Groom with an arbitrary
+% indentation. Usage: \jtem{dimen}{label}
+
+\def\jtem#1#2{\par\hangafter0\hangindent#1
+              \noindent\llap{#2\enspace}\ignorespaces}
+
+% \leftpar makes an argument into a raggedleft paragraph
+% uses the same technique as figure captions
+
+\def\leftpar#1{%
+    \setbox\@capbox=\vbox{\normalbaselines
+    \noindent #1\par
+        \global\@caplines=\prevgraf}%
+    \ifnum \@ne=\@caplines
+        \leftline{#1}\else
+        \hbox to\hsize{\hss\box\@capbox\hss}\fi}
+
+
+%--------------------------------------------------*
+% \obsolete marks old versions of macros as obsolete by printing
+% a warning message.  But it should still work.
+
+\def\obsolete#1#2{\def#1{\@obsolete#1#2}}
+
+\def\@obsolete#1#2{%
+   \emsg{>=========================================================}%
+   \emsg{> \string#1 is now obsolete! It may soon disappear!}%
+   \emsg{> Please use \string#2 instead.  But I'll try to do it anyway...}%
+   \emsg{>=========================================================}%
+   \let#1=#2\relax                              % but let them use it anyway
+   #2}                                          %  and do as asked
+
+
+%--------------------------------------------------*
+% \ATlock makes "@" a non-letter to protect internal control sequences
+% \ATunluck makes "@" a letter so you can get at them
+
+\def\ATlock{\catcode`@=12\relax}                % makes @ not a letter
+\def\ATunlock{\catcode`@=11\relax}              % makes @ a letter 
+
+% If someone tries to read a source or style file without having
+% said \ATunlock they will get all sorts of errors, most notably
+% that \@ is undefined.  So we make \@ produce an error message:
+
+\newhelp\AThelp{@: 
+You've apparantly tried to use a macro which begins with ``@''.^^M%
+These macros are usually for internal TeXsis functions and should^^M%
+not be used casually.  If you really want to use the macro try first^^M%
+saying \string\ATunlock.  If you got this message by pure accident^^M%
+then something else is wrong.} 
+
+\def\@{\begingroup
+    \errhelp=\AThelp            % longer help message
+    \newlinechar=`\^^M          % ^^M is line break
+    \errmessage{Are you tring to use an internal @-macro?}\relax
+   \endgroup}
+
+
+%--------------------------------------------------*
+% COMMENTS:  How to ignore large pieces of text.
+%
+% Use \comment to turn most anything into nothing (must have balanced {}!).
+% Usage:
+%   \comment/* <text to be ignored> */      % the /* and */ are required!
+
+\long\def\comment#1/*#2*/{\relax}               % just read args and do nothing
+
+
+% \Ignore and \endIgnore are almost the same, but an \endIgnore without
+% an \Ignore first is just ignored.  Got that?
+
+\long\def\Ignore#1\endIgnore{\relax}    % read arg to \endIgnore and do nothing
+\def\endIgnore{\relax}                  % if actually executed, just do nothing
+
+% \REV is used for keeping track of revisions.  Usually it is just a
+% speciallized comment, but by changing the definition we print out
+% the revision record in the Appendix.
+
+\def\REV{\begingroup                            % Revisions
+   \def\endcomment{\endgroup}%                  % to close the \begingroup
+   \catcode`\|=12                               % turn off "TeX quotes"
+   \catcode`(=12 \catcode`)=12                  % make ( and ) 
+   \catcode`[=12 \catcode`]=12                  %  and [ and ] "other"
+   \comment}                                    % treat text like a comment
+
+%-------------------------*
+% Simple \begin .. \end support (as in LaTeX, yuk):  
+%
+% There is a conspiracy to preserve job security for typists by making
+% sure one has to  type \begin{thing} and \end{thing} everywhere.  In
+% TeXsis it's just \thing and \endthing, but to make these people happy
+% we just make \begin{thing} become \thing and similarly for \end{thing}.  
+% The \begin starts a group, so that after the \end{thing} the command 
+% \end goes back to it's normal plain TeX definition.
+% Note: we don't check that you begin and end the same thing.  After all,
+% you might want to say \begin{midfigure} followed by \end{figure}.
+
+\def\begin#1{%          \begin{foo} just becomes \foo
+   \begingroup                  % changes to \end are temporary!
+     \let\end=\endbegin         % in this group \end will end the \begin
+     \expandafter\ifx\csname #1\endcsname\relax\relax % is \thing defined?
+        \def\next{\beginerror{#1}}% NO: flag an error
+     \else                      %
+        \def\next{\csname #1\endcsname}% YES: just invoke it
+     \fi\next}
+
+\def\endbegin#1{%  \end{foo} just becomes \endfoo
+   \endgroup                    % now \end goes back to normal
+   \expandafter\ifx\csname end#1\endcsname\relax\relax % is \endthing defined?
+      \def\next{\begingroup\beginerror{end#1}}% % NO: flag an error
+   \else                        %
+      \def\next{\csname end#1\endcsname}% YES: just invoke it
+   \fi\next}
+
+\newhelp\beginhelp{begin: 
+    The \string\begin\space or \string\end\space marked above is for a %
+    non-existant^^M%
+    environment.  Check for spelling errors and such.}
+
+\def\beginerror#1{% \begin{foo} or \end{foo} fail if no \foo or \endfoo
+   \endgroup                    % make sure \end is back to normal
+   \errhelp=\beginhelp          % longer help message
+   \newlinechar=`\^^M           % ^^M is line break
+   \errmessage{Undefined environment for \string\begin\space or \string\end}}
+
+
+%--------------------------------------------------*
+%  \unexpandedwrite<fileID>{<token-list>} will write the tokens
+% in the list #3 to the given output stream #1, but without expanding
+% them.  As of TeXsis 2.17 a completely new method is used for doing
+% this, because the old method from the TeXbook using \aftergroup
+% could only handle short lists of tokens.  (C) Copyright Eric Myers 1995
+% BE VERY CAREFUL IF YOU MODIFY THIS IN ANY WAY, IT IS RATHER SENSITIVE. -EAM
+
+% Lines below must have %% or not, as they are now, or this will not work
+
+\begingroup\seeCR                   %%
+\long\gdef\unexpandedwrite#1#2{\@CopyLine#1#2
+\endlist}%
+\long\gdef\@CopyLine#1#2
+#3\endlist{\@unexpandedwrite#1{#2}% write one line, unexpanded
+\def\@arg{#3}\ifx\@arg\par\let\@arg=\empty\fi %% ignore trailing ^^M
+\ifx\@arg\empty\relax\let\@@next=\relax %%
+\else\def\@@next{\@CopyLine#1#3\endlist}%
+\fi\@@next}%
+\long\gdef\writeNX#1#2{\@CopyLineNX#1#2
+\endlist}%
+\long\gdef\@CopyLineNX#1#2
+#3\endlist{\@writeNX#1{#2}% write one line, unexpanded
+\def\@arg{#3}\ifx\@arg\par\let\@arg=\empty\fi %% ignore trailing ^^M
+\ifx\@arg\empty\relax\let\@@next=\relax %%
+\else\def\@@next{\@CopyLineNX#1#3\endlist}%
+\fi\@@next}%
+\endgroup       % end definitions inside \seeCR
+
+\long\def\@unexpandedwrite#1#2{% write tokens #2 to #1 but do not expand them
+   \def\@finwrite{\immediate\write#1}%  % to write to the file
+   \begingroup                          % begin collecting tokens on stack
+    \aftergroup\@finwrite               %
+    \aftergroup{\relax                  % put \write{ on the stack
+    \@NXstack#2\endNXstack              % now process the argument list
+    \aftergroup}\relax                  % put closing } on the stack
+   \endgroup                            % now dump token list on stack!
+ }
+
+
+% \writeNX is the same as \unexpandedwrite but without the \immediate
+
+\long\def\@writeNX#1#2{% write tokens #2 to #1 but do not expand them
+   \def\@finwrite{\write#1}%            % to write to the file
+   \begingroup                          % begin collecting tokens on stack
+    \aftergroup\@finwrite               %
+    \aftergroup{\relax                  % put \write{ on the stack
+    \@NXstack#2\endNXstack              % puts \NX\token on stack from #2
+    \aftergroup}\relax                  % put closing } on the stack
+   \endgroup}                           % now dump token list from stack!
+ 
+
+% Saying \@NXstack <stuff> \endNXstack will take all the tokens
+% in <stuff> and put them on the stack, with control sequences
+% prefaced by \noexpand
+
+\def\@NXstack{\futurelet\next\@NXswitch} 
+
+\def\\{\global\let\@stoken= }\\ 
+
+\def\@NXswitch{%        decides what to do with various types of tokens
+    \ifx\next\endNXstack\relax           % if \endNXstack then we'll quit
+    \else\ifcat\noexpand\next\@stoken   % if token is a space,
+        \aftergroup\space\let\next=\@eat%   write \space and eat token
+    \else\ifcat\noexpand\next\bgroup    % if token is \bgroup
+        \aftergroup{\let\next=\@eat     %   write { and eat it
+    \else\ifcat\noexpand\next\egroup    % if token is \egroup
+        \aftergroup}\let\next=\@eat     %   write a } and eat it
+     \else                              % otherwize
+        \let\next=\@copytoken           %   just copy to the stack with \NX
+     \fi\fi\fi\fi 
+     \next}                             % do it to the token
+
+
+% \@eat ignores the \next token and goes on to the 
+% next one in the argument list
+
+\def\@eat{\afterassignment\@NXstack\let\next= } 
+
+
+% \@copytoken copies one token to the stack with \aftergroup,
+%  then calls \@NXstack to get the next one following.
+
+\long\def\@copytoken#1{% write token to stack, unexpanded    
+    \ifcat\noexpand#1\relax             % if token is a control sequence
+        \aftergroup\noexpand            %   preface with \noexpand
+    \else\ifcat\noexpand#1\noexpand~\relax % if token is an active character
+        \aftergroup\noexpand            %   preface with \noexpand
+    \fi\fi                              %
+    \aftergroup#1\relax                 % put the next token on the list
+    \@NXstack}                         % do next token from argument...
+
+\def\endNXstack\endNXstack{}              % just marks the end of token list
+
+
+%======================================================================*
+% CHECKPOINT / RESTART -                (C) copyright 1986 by Eric Myers
+% 
+% The \checkpoint and \restart macros allow you to save important information
+% like the page number, chapter number, equation number, etc...  and then
+% begin with those values on a new run.
+% Dependencies: TXSmacs.tex
+% ----------------------------
+\message{Checkpoint/Restart.}
+
+% I/O initialization:
+\newwrite\checkpointout                 % output for checkpoint/restart
+
+% ----------------------------
+% \checkpoint writes all restart info to the file #1.chk
+
+\def\checkpoint#1{\emsg{\@comment\NX\checkpoint --> #1.chk}%
+    \immediate\openout\checkpointout= #1.chk
+    \@checkwrite{\pageno}   \@checkwrite{\chapternum}%
+    \@checkwrite{\eqnum}    \@checkwrite{\corollarynum}%
+    \@checkwrite{\fignum}   \@checkwrite{\definitionnum}%
+    \@checkwrite{\lemmanum} \@checkwrite{\sectionnum}%
+    \@checkwrite{\refnum}   \@checkwrite{\subsectionnum}%
+    \@checkwrite{\tabnum}   \@checkwrite{\theoremnum}%
+    \@checkwrite{\footnum}%
+    \immediate\closeout\checkpointout}%
+
+% \@checkwrite writes the value of #1 to the file, such that the value
+%  is restored when the file is read with \Input
+
+\def\@checkwrite#1{\edef\tnum{\the #1}%
+     \immediate\write\checkpointout{\NX #1 = \tnum}}%
+
+
+% \restart{filename} reloads the checkpoint from the file #1.chk
+
+\def\restart#1{\relax
+    \immediate\closeout\checkpointout           % close file, just in case
+    \ATunlock                                   % make sure @ sign is a letter
+    \Input #1.chk \relax                        % read .CHK file in
+    \@firstrefnum=\refnum                       % get reference number and
+    \advance\@firstrefnum by \@ne               % set first ref counter
+    \ATlock}                                    % @ is protected again
+
+\let\restore=\restart                           % alternate name for \restart
+
+
+% \endstat prints out pertinent restart info on the terminal and
+% in the .log file.  Useful at the end of a run.
+
+\def\endstat{%
+   \emsg{\@comment Last PAGE      number is \the\pageno.}%
+   \emsg{\@comment Last CHAPTER   number is \the\chapternum.}%
+   \emsg{\@comment Last EQUATION  number is \the\eqnum.}%
+   \emsg{\@comment Last FIGURE    number is \the\fignum.}%
+   \emsg{\@comment Last REFERENCE number is \the\refnum.}%
+   \emsg{\@comment Last SECTION   number is \the\sectionnum.}%
+   \emsg{\@comment Last TABLE     number is \the\tabnum.}%
+   \tracingstats=1}%
+
+
+%======================================================================*
+% RANDOM USEFUL MACROS.  Most of these are useful only to hackers and are
+% used by macros in this package.  Some of them are just general little
+% goodies that don't seem to fit anywhere else.
+
+\def\gloop#1\repeat{\gdef\body{#1}\iterate}  % GLOBAL LOOP:
+
+
+% \apply a macro to a list of arguments
+% Usage:
+%   \apply\macro{list of arguments, separated by commas}
+% It is possible to determine whether your at the last argument with
+%   \iflastarg true text \else false text \fi
+% Since \apply uses global definitions, \apply's can't be nested
+% \empty is defined as {} in PLAIN
+
+\newif\iflastarg\lastargfalse
+\def\car#1,#2;{\gdef\@arg{#1}\gdef\@args{#2}}
+\def\@apply{%
+    \iflastarg
+    \else
+        \XA\car\@args;%                   get first argument
+        \islastarg
+        \XA\@fcn\XA{\@arg}%
+        \@apply
+    \fi}
+\def\apply#1#2{%
+    \gdef\@args{#2,}\let\@fcn#1%
+    \islastarg
+    \@apply
+    }
+\def\islastarg{\ifx \@args\empty\lastargtrue\else\lastargfalse\fi}%
+
+
+% \setcnt\counter{value} sets the counter \counter
+% to the given value, but only temporarily in this group.
+% After you leave the group the counter is set back to it's
+% value before you call \setcnt.  Useful for figure captions
+% in the ``wrong'' group and other such wierd things.
+
+\def\setcnt#1#2{% set a counter to a value in a group
+  \edef\th@value{\the#1}%                       % evaluate counter
+  \aftergroup\global\aftergroup#1               % \global\counter=<old>
+  \aftergroup=\relax                            %
+  \XA\@ftergroup\th@value\endafter              % all tokens the in counter
+  \global#1=#2\relax}                           % set the value in this group
+
+%  \@ftergroup assigns \next the next token and 
+%  then calls \@ftertoken to put that token on the \aftergroup list
+
+\def\@ftergroup{\futurelet\next\@ftertoken} 
+
+\long\def\@ftertoken#1{
+   \ifx\next\endafter\relax                     % \endafter ends
+     \let\next=\relax                           % so just do nothing
+   \else\aftergroup#1\relax                     % put the token on the list
+     \let\next=\@ftergroup                      % and get next token
+   \fi\next}                                    % do what's \next
+
+
+% \DUMP  - \dump for VMS
+% VMS translates command line arguments to uppercase, so 
+% ``initex texsis \dump'' won't work unless \DUMP is defined. 
+
+\let\DUMP=\dump
+
+
+% The following is mainly kept for historical reasons.  Don't ask.
+
+\def\@seppuku{\errmessage{Interwoven alignment preambles are not allowed.}\end}
+
+
+%>>> EOF TXSmacs.tex <<<

@@ -1,0 +1,254 @@
+%%
+%% This is file `nag.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% nag.dtx  (with options: `nag')
+%% This is a generated file.
+%% 
+%% This file is part of the `nag' package.
+%% The `nag' package has the LPPL maintenance status: maintained.
+%% Current Maintainer is Ulrich M. Schwarz, ulmi@users.sarovar.org
+%% 
+%% Copyright (C) 2005, 2006 by Ulrich M. Schwarz.
+%% 
+%% This file may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either
+%% version 1.3a of this license or (at your option) any later
+%% version. The latest version of this license is in:
+%% http://www.latex-project.org/lppl.txt
+%% 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{nag}[2006/07/08 0.5 warning about old commands (ulmi)]
+\let\@xa\expandafter
+\let\@nx\noexpand
+\newcounter{nag@c}
+\newcounter{nag@sins}
+ \newcommand\nag@prepend[2]{%
+  \@xa\let
+    \csname nag@@#1@\thenag@c\@xa\endcsname
+    \csname #1\endcsname
+  \@xa\nag@pr@p@nd\csname #1\@xa\endcsname
+    \csname nag@@#1@\thenag@c\endcsname{#2}%
+    \stepcounter{nag@c}%
+}
+\newcommand\nag@pr@p@nd[3]{%
+  \def#1{#3#2}%
+}
+\newcommand\nag@warn{%
+  \addtocounter{nag@sins}{1}%
+  \PackageWarning{nag}%
+}
+\newcommand\nag@warnNoLine{%
+  \addtocounter{nag@sins}{1}%
+  \PackageWarningNoLine{nag}%
+}
+\newcommand\ObsoleteCS[3][obsolete]{%
+  \AtBeginDocument{%
+    \nag@prepend{#2}{%
+      \nag@warn{%
+Command \@backslashchar#2 is #1.
+\MessageBreak
+Use #3 instead}%
+    }%
+  }%
+}
+\newcommand\nag@ifcsname[3]{%
+  \begingroup\@ifundefined{#1}{#3}{#2}\endgroup
+}
+\nag@ifcsname{ifcsname}{%
+  \renewcommand*\nag@ifcsname[3]{%
+    \begingroup
+    \ifcsname #1\endcsname
+    % It still might be relax from some other test. Thanks to J\"org
+    % Sommer for finding this bug.
+      \@ifundefined{#1}{#3}{#2}%
+    \else #3\fi
+    \endgroup
+  }%
+  \global\let\nag@ifcsname\nag@ifcsname
+}{}
+\newcommand\ObsoletePackage[3][obsolete]{%
+  \AtEndDocument{%
+    \nag@ifcsname{ver@#2.sty}{%
+    \nag@warnNoLine{%
+      Package #2 is #1.\MessageBreak
+      Use #3 instead}%
+    }{}%
+  }%
+}
+\newcommand\ObsoleteClass[3][obsolete]{%
+  \AtEndDocument{%
+    \nag@ifcsname{ver@#2.cls}{%
+    \nag@warnNoLine{%
+      Class #2 is #1.\MessageBreak
+      Use #3 instead}%
+    }{}%
+  }%
+}
+\newif\ifnag@haslabel
+\newif\ifnag@hascaption
+\newcommand\nag@hackfloat[1]{%
+  \nag@prepend{#1}{%
+    \nag@prepend{endcenter}{%
+      \nag@warn%
+  {\lq center\rq\space environment in #1.\MessageBreak
+    Maybe you want \protect\centering\space instead}
+    }%
+  }
+  \nag@prepend{#1}{%
+    \@for\labelprovider:=\nag@labels\do{%
+      \nag@prepend{\labelprovider}%
+       {\nag@captioncheck\nag@haslabeltrue}
+    }%
+    \@for\captionprovider:=\nag@captions\do{%
+      \nag@prepend{\captionprovider}{\global\nag@hascaptiontrue}%
+    }%
+    \global\nag@haslabelfalse\global\nag@hascaptionfalse
+  }%
+  \nag@prepend{end#1}{%
+    \ifnag@hascaption\relax\else
+    \nag@warn%
+{#1 with no \protect\caption}%
+    \fi
+  }%
+}
+\newcommand\nag@captioncheck{%
+  \ifnag@hascaption\else
+  \nag@warn{\protect\label\space in float, but not after
+    \protect\caption}%
+  \fi
+}
+\def\nag@floats{nag@dummy}
+\def\nag@labels{label}
+%% The latter two are used by KOMA-Script.
+\def\nag@captions{caption,captionabove,captionbelow}
+\newcommand\nag@floatsetup{%
+  \@for\flo:=\nag@floats\do{%
+    \@xa\nag@hackfloat\@xa{\flo}%
+  }%
+}
+\AtBeginDocument{%
+  \nag@floatsetup
+}
+\AtBeginDocument{%
+  \AtEndDocument{%
+    \ifnum\value{nag@sins}>0%
+    \PackageWarningNoLine{nag}{\arabic{nag@sins} complaints
+      in total}%
+    \else
+    \typeout{No complaints by nag.}%
+    \fi
+  }%
+}
+\newcommand\nag@ifCurrentEnvironment[3]{%
+  \bgroup
+  \def\tmp@a{#1}%
+  \ifx\@currenvir\tmp@a
+    #2%
+  \else
+    #3%
+  \fi
+  \egroup
+}
+\newcommand\NotAnEnvironment[1]{%
+  \AtBeginDocument{%
+    \nag@prepend{#1}{%
+      \nag@ifCurrentEnvironment{#1}{%
+        \nag@warn{%
+          There is no environment ``#1''.\MessageBreak
+          Maybe you want a grouped \@backslashchar#1
+        }%
+      }{% OK case.
+      }%
+    }%
+  }%
+}
+\newcommand\nag@envstack{\relax}
+
+\newcommand\nag@beginenv[1]{%
+  % push a begin-entry onto the stack. Form is
+  % |{\foo{lineno}}| for environment foo.
+  \xdef\nag@envstack{%
+    \@nx{%
+    \@xa\@nx\csname #1\endcsname
+      \@nx{\the\inputlineno\@nx}%
+    \@nx}%
+    \@xa\@nx\nag@envstack
+  }%
+}
+\newcommand\nag@endenv[1]{%
+  % extract the first entry.
+  \@xa\nag@end@nv\nag@envstack\@nil #1\@nil
+}
+
+\def\nag@end@nv#1#2\@nil #3\@nil{%
+  \def\tmp@a{#1}%
+  \def\tmp@b{\relax}%
+  \ifx\tmp@a\tmp@b
+  % This was the end-of-stack flag.
+  \nag@warn{``\@backslashchar end#3'' without matching
+    ``\@backslashchar #3''}
+  \else
+    % We may assume this is a proper entry. See if the begin-token on
+    % the stack matches what |\nag@endenv| was passed.
+    \@xa\ifx\csname #3\@xa\endcsname\@firstoftwo #1%
+      %OK case, just pop the entry.
+      \gdef\nag@envstack{#2}%
+    \else
+    % error case
+    \nag@warn{%
+      You cannot close ``\@xa\string\@firstoftwo #1'' on line
+      \@secondoftwo #1 with ``\@backslashchar end#3''%
+    }%
+    % leave it on the stack. Some case of misnesting will always cause
+    % horrible amounts of follow-up errors. Also, scare them!
+    \fi
+  \fi
+}
+\AtEndDocument{%
+  \@xa\@tfor\@xa\looseends\@xa:\@xa=\nag@envstack\do{%
+    \@xa\ifx\looseends\relax\else
+      \nag@warnNoLine{Unmatched
+        ``\@xa\@xa\@xa\string\@xa\@firstoftwo\looseends''
+        command on line
+        \@xa\@xa\@xa\string\@xa\@secondoftwo\looseends%
+      }%
+    \fi
+  }%
+}
+\newcommand\NotASwitch[1]{%
+  \AtBeginDocument{%
+    \nag@prepend{#1}{%
+      \nag@beginenv{#1}%
+    }%
+    \nag@prepend{end#1}{%
+      \nag@endenv{#1}%
+    }%
+  }%
+}
+\DeclareOption*{%
+  \InputIfFileExists{nag-\CurrentOption.cfg}{%
+    \PackageInfo{nag}{%
+      Loaded nag-\CurrentOption.cfg
+    }
+  }{%
+    \InputIfFileExists{\CurrentOption.nag}{%
+      \PackageWarningNoLine{nag}{%
+        Loaded old-style config file \CurrentOption.nag.\MessageBreak
+        Consider renaming the file to nag-\CurrentOption.cfg
+      }%
+    }{%
+      \PackageWarningNoLine{nag}{Required ruleset
+        \CurrentOption, and it wasn't there}
+    }%
+  }
+}
+\ProcessOptions*
+%%X Local Variables:
+%%X mode: latex
+%%X End:
+\endinput
+%%
+%% End of file `nag.sty'.

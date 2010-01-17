@@ -1,0 +1,74 @@
+% MEMO PSIZZL  - memo macros
+%
+% \memodate{<date>}          The default date is today's date,
+%                            but here's how you can change it.
+%
+% \memohead{<header for the memo>}  This will be the header for the memo
+%                            the default is `\bf MEMO'
+%
+% \memoto{<people>}          To whom the memo is addressed
+%
+% \memofrom{<someone>}       Who it's from
+%
+% \memosubject{<subject>}    The subject of the memo
+%
+% \memostyle{\largetype}     Your choices about:
+%                            \singlesided\doublesided
+%                            \singlespace\doublespace
+%
+% \memo                      This specifies that the document is a memo
+% \begindocument             Following this you put the text.
+%
+% <text>                     Enter your text here
+%
+% \enddocument               This will end the memo
+%
+\def\memohead#1{%
+   \def\m@mohead{{#1}}%
+   }\memohead{\bf MEMO}%
+\def\memodate#1{%
+   \def\m@modate{#1}%
+   }\memodate{\d@te}%
+\def\memoto#1{%
+   \def\m@moto{#1}%
+   }\memoto{}%
+\def\memofrom#1{%
+   \def\m@mofrom{#1}%
+   }\memofrom{}%
+\def\memosubject#1{%
+   \def\m@mosubject{#1}%
+   }\memosubject{}%
+\def\memostyle#1{%
+   \adddef\stylem@m{#1}%
+   }%
+\def\stylem@m{%
+   \singlesided\largetype\singlespace
+   }%
+\newif\ifm@mo
+\def\memo{%
+   \let\pred@c\prem@m\let\styled@c\stylem@m\let\titd@c\titm@m
+   \let\frontd@c\frontm@m\let\endd@c\endm@m\m@motrue
+   }%
+\def\p@genumbermemo{%
+   \p@gebanner{\m@modate}{\m@mohead}{\p@genumber}%
+   }%
+\def\prem@m{\beginbody}%
+\def\frontm@m{}%
+\def\endm@m{}%
+\def\beginmemo{\memo\begindocument}%
+\def\endmemo{\enddocument}%
+\def\titm@m{%
+   \fr@nttrue
+   \line{\m@mohead\hfill Date: \m@modate}%
+   \vskip\@nenhalf\normalbaselineskip
+   \vbox{\halign{\parindent\z@
+      \cp##\hfil\quad&\vtop{\hsize.8\hsize\noindent##}\hfil\cr
+      To:&\m@moto\cr
+      From:&\m@mofrom\cr
+      Subject:&\m@mosubject\cr
+      }   }%
+   \par \vskip 3.0ex \hrule height .8pt\vskip 3.0ex
+   }%
+\def\endm@m{%
+   \par\vfil\@ncl\c@pies\vfil\eject\gdef\c@pies{}\gdef\@ncl{}%
+   }%

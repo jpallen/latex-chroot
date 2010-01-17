@@ -1,0 +1,125 @@
+%%
+%% This is file `l3expan.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% l3expan.dtx  (with options: `package,trace')
+%% 
+%% 
+%% EXPERIMENTAL CODE
+%% 
+%% Do not distribute this file without also distributing the
+%% source files specified above.
+%% 
+%% Do not distribute a modified version of this file.
+%% 
+%% 
+%% File: l3expan.dtx Copyright (C) 1990-1998 LaTeX3 project
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{l3expan}
+          [1998/04/20 v1.0e L3 Experimental Argument Expansion module]
+\RequirePackage{l3basics}
+\RequirePackage{l3tlp}
+\tlp_new:Nn\l_exp_tlp{}
+\def_new:Npn\exp_arg_next:nnn#1#2#3{%
+      #2\:::{#3#1}}
+\def_new:Npn\::n#1\:::#2#3{%
+                  #1\:::{#2{#3}}}
+\def_new:Npn\::N#1\:::#2#3{%
+                  #1\:::{#2#3}}
+\def_new:Npn\::c#1\:::#2#3{%
+  \exp_after:NN\exp_arg_next:nnn\cs:w #3\cs_end:{#1}{#2}}
+\def_new:Npn\::o#1\:::#2#3{%
+  \exp_after:NN\exp_arg_next:nnn\exp_after:NN{\exp_after:NN{#3}}{#1}{#2}}
+\def_new:Npn\::x#1\:::#2#3{%
+  \tlp_set:Nx\l_exp_tlp{{{#3}}}%
+  \exp_after:NN\exp_arg_next:nnn\l_exp_tlp{#1}{#2}}
+\def_new:Npn\:::#1{#1}
+\def_new:Npn\::C#1\:::#2#3{%
+  \exp_after:NN\exp_C_aux:nnn\cs:w #3\cs_end:{#1}{#2}}
+\def_new:Npn\exp_C_aux:nnn #1
+ {
+  \exp_after:NN
+  \exp_arg_next:nnn
+  \exp_after:NN
+     {
+  \exp_after:NN
+      {#1}
+     }
+ }
+\def:Npn \exp_args:NC {\::C\:::}
+\def:Npn \exp_args:Nccx {\::c\::c\::x\:::}
+\def:Npn \exp_args:Ncnx {\::c\::n\::x\:::}
+\def:Npn \exp_args:NNno {\::N\::n\::o\:::}
+\def:Npn \exp_args:Nnno {\::n\::n\::o\:::}
+\def:Npn \exp_args:Nnnx {\::n\::n\::x\:::}
+\def:Npn \exp_args:Nno {\::n\::o\:::}
+\def:Npn \exp_args:Nnox {\::n\::o\::x\:::}
+\def:Npn \exp_args:NNx {\::N\::x\:::}
+\def:Npn \exp_args:Nnx {\::n\::x\:::}
+\def:Npn \exp_args:Noo {\::o\::o\:::}
+\def:Npn \exp_args:Noox {\::o\::o\::x\:::}
+\def:Npn \exp_args:Nox {\::o\::x\:::}
+\def:Npn \exp_args:Nx {\::x\:::}
+\def:Npn \exp_args:Nxo {\::x\::o\:::}
+\def:Npn \exp_args:Nxx {\::x\::x\:::}
+\def_new:Npn\exp_not:o{\exp_after:NN\exp_not:N}
+\def_new:Npn\exp_not:c#1{\exp_after:NN\exp_not:N\cs:w#1\cs_end:}
+\def_new:Npn \exp_args:No #1#2{\exp_after:NN#1\exp_after:NN{#2}}
+\def_new:Npn \exp_args:NOo #1#2#3{\exp_after:NN\exp_args:No \exp_after:NN#1
+  \exp_after:NN#2\exp_after:NN{#3}}
+\def_new:Npn \exp_args:NOOo #1#2#3#4{\exp_after:NN\exp_args:NOo
+  \exp_after:NN#1\exp_after:NN#2\exp_after:NN#3\exp_after:NN{#4}}
+\def_new:Npn \exp_args:NNo #1#2#3{\exp_after:NN#1\exp_after:NN#2
+  \exp_after:NN{#3}}
+\def_new:Npn \exp_args:NNOo #1#2#3#4{\exp_after:NN\exp_args:NNo
+  \exp_after:NN#1\exp_after:NN#2\exp_after:NN#3\exp_after:NN{#4}}
+\def_new:Npn \exp_args:NNNo #1#2#3#4{\exp_after:NN#1\exp_after:NN#2
+  \exp_after:NN#3\exp_after:NN{#4}}
+\def_new:Npn \exp_args:Nc #1#2{\exp_after:NN#1\cs:w#2\cs_end:}
+\def_new:Npn \exp_args:NNc #1#2#3{\exp_after:NN#1\exp_after:NN#2
+    \cs:w#3\cs_end:}
+\def_new:Npn \exp_args:NOc#1#2#3{\exp_after:NN\exp_args:No\exp_after:NN
+    #1\exp_after:NN#2\cs:w#3\cs_end:}
+\def_new:Npn \exp_args:Ncc #1#2#3{\exp_after:NN#1
+    \cs:w#2\exp_after:NN\cs_end:\cs:w#3\cs_end:}
+\def_new:Npn \exp_args:Nccc #1#2#3#4{\exp_after:NN#1
+    \cs:w#2\exp_after:NN\cs_end:\cs:w#3\exp_after:NN
+      \cs_end:\cs:w #4\cs_end:}
+\def_new:Npn \exp_args:Nco #1#2#3{\exp_after:NN#1\cs:w#2\exp_after:NN
+     \cs_end:\exp_after:NN{#3}}
+\def:Npn\exp_def_form:nnn#1#2#3{
+   \exp_after:NN
+   \def:Npn
+     \cs:w
+        #1:#3
+       \exp_after:NN
+     \cs_end:
+     \exp_after:NN
+       {
+        \cs:w
+           exp_args:N#3
+          \exp_after:NN
+        \cs_end:
+        \cs:w
+           #1:#2
+        \cs_end:
+       }
+    \cs_free:cT
+          {exp_args:N#3}
+          {\def:cpx {exp_args:N#3}
+                    {\exp_args_form_x:w #3 :}
+          }
+}
+\def_new:Npn\exp_args_form_x:w #1 {
+  \exp_after:NN \exp_not:N \cs:w ::#1 \cs_end:
+  \if_meaning:NN #1 :
+  \else:
+    \exp_after:NN\exp_args_form_x:w
+  \fi:}
+
+
+%% 
+%%
+%% End of file `l3expan.sty'.

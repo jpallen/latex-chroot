@@ -1,0 +1,130 @@
+% homer.mf by Raymond Chen (rjc@math.princeton.edu) 
+ 
+% Homer Simpson. 
+ 
+pictureof(Homer, 24u#, 24u#, 0); 
+    pickup thinpen; 
+ 
+    localpath eye_left, eye_right; 
+    eye_right = superellipse( (14.2u, 14.5u), (12.2u, 16.3u), 
+                              (10u, 14u), (12u, 12u), .7); 
+    draw eye_right; 
+ 
+    localpath nose;              % extends down and around to chin 
+    nose = preclip((12u, 13u).. 
+                   (16u, 13.2u).. 
+                   (17.7u, 12.5u){down} .. 
+                   (16u, 11.5u).. 
+                   (10u, 7u){down}.. 
+                   (12.5u, 4u){right}..tension 1 and 6.. 
+                   (14.7u, 6.5u).. 
+                   (15.7u, 6.8u).. 
+                   {up}(15.7u, 8u), eye_right); 
+    localpath dimple; 
+        z1d = (11.3u, 8.1u); 
+        z2d = (10.9u, 6.8u); 
+    dimple = z1d{(z2d-z1d) rotated  dimple_depth}.. 
+                {(z2d-z1d) rotated -dimple_depth}z2d; 
+    draw dimple; 
+ 
+    localpath mouth; 
+    mouth = prepostclip( 
+           (16u, 12u).. tension infinity and 3.. 
+           (17.7u, 8u){down} .. tension 2 and 1 .. 
+           (15.7u, 7.2u){left}.. 
+           (12.2u, 7.7u){left}.. 
+           (0u, 7u), nose, dimple); 
+    draw mouth; 
+ 
+    nose := postclip(nose, mouth); 
+    draw nose; 
+ 
+    eye_left = prepostclip( 
+                (15u, 12.6u){right}.. 
+                (17.2u, 14.5u){up}.. 
+                (15.5u, 16.4u){left}.. 
+                {down}(13.1u, 14.2u), nose, eye_right); 
+    draw eye_left; 
+ 
+    localpath scalp; 
+    scalp = preclip( 
+           (16u, 15.3u) .. tension 1.5 .. 
+           (12u, 20u) .. 
+           (9.5u, 20.8u){left}.. tension 1 .. 
+           (4u, 16.4u){down} .. tension 1 .. 
+           (7.4u, 7u) .. 
+           (5.4u, 0u), eye_left); 
+ 
+    % scalp and collar interact 
+    localpath collar; 
+    collar = (11.4u, 2.3u) .. tension infinity and 1 .. 
+             (7u, 4.2u) .. (6.7u, 4.7u) .. 
+             (9u, 6u) .. tension 1 and infinity .. (15.2u, 2.5u); 
+    z0c = point 0 of collar; 
+    draw postclip(scalp, collar); 
+    draw postclip(collar, scalp); 
+ 
+    % the rest of the collar is also tricky 
+    numeric t; 
+    t = directiontime dir (90-starch) of collar; 
+    z1c = point t of collar; 
+    x2c = 5u; z1c - z2c = whatever * dir (90-starch); 
+    draw z1c -- z2c & reverse subpath (0,t) of collar shifted (z2c-z1c) -- z0c; 
+    y.bottom = ypart (z0c + (z2c-z1c)); 
+    numeric t; 
+ 
+    % while I'm here, I may as well finish the right collar 
+    draw postclip (z0c .. (z0c + 100u * dir -machismo), 
+                   (0u,y.bottom)..(100u,y.bottom)); 
+ 
+    localpath ear; 
+    ear = (7.5u, 11.5u) .. % (6.8u, 11.6u) .. 
+          (6u, 11.3u) .. 
+          (5.7u, 10u) .. (6.6u, 8.5u) .. (7.5u, 9u); 
+    erase fill ear .. cycle; 
+    draw ear; 
+ 
+    drawtau( (6.2u, 10.5u), (7.4u, 11u), (6.8u, 9.3u), (6.8u, 11.1u) ); 
+ 
+    % tufts on top 
+    draw postclip ( 
+      (5.2u, 17.7u){dir 100} ... (6u, 22u) ... {dir -60}(9.3u, 19.5u), scalp); 
+    localpath tuft; 
+    tuft = (6.2u, 18.7u){dir 100} ... (8u, 22.3u) ... {dir -70}(10.8u, 19.5u); 
+    draw subpath (0,1) of tuft & 
+        postclip(subpath (1,2) of tuft, scalp); 
+    numeric tuft; 
+ 
+    % the tuft by the ear 
+    draw (4.5u, 11.5u) --- (4.6u, 14u) --- (6.1u, 12.2u) 
+            --- (6.4u, 14.4u) --- (7.7u, 12.5u); 
+ 
+    % The interaction between the left collar and the front of the neck 
+    % is also messy. 
+ 
+    % shift part of left collar 
+    localpath lcollar; 
+    z2cr = point infinity of collar; 
+    y1cr = y.bottom; z2cr - z1cr = whatever * dir machismo; 
+    lcollar = z2cr .. z1cr; 
+    draw lcollar; 
+ 
+    % now the front of the neck 
+    localpath neck; 
+    neck = prepostclip( 
+            (13u, 7u){down} .. (14.7u, 0u), nose, lcollar); 
+    draw neck; 
+ 
+    % now the top of the left collar 
+    draw preclip(collar, neck); 
+ 
+    % and the other side of the left collar. 
+    z2cr - z3cr = 1.5u * dir machismo; 
+    z4cr - z3cr = whatever * dir (270+starch+30); 
+    z4cr - z2cr = whatever * dir (270+starch); 
+    draw z2cr -- z4cr -- z3cr; 
+    labels(1cr, 2cr, 3cr, 4cr); 
+ 
+    eyepos(Homer, 11.5u#, 14u#, 15.2u#, 14.5u#); 
+ 
+endpicture; 

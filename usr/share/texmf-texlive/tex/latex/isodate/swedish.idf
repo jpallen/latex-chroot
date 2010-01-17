@@ -1,0 +1,94 @@
+%%
+%% This is file `swedish.idf',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% isodate.dtx  (with options: `language,swedish')
+%% 
+%%   isodate package
+%% 
+%%   Copyright  2000--2005 Harald Harders
+%% 
+%%   This program can be redistributed and/or modified under the terms
+%%   of the LaTeX Project Public License Distributed from CTAN
+%%   archives in directory macros/latex/base/lppl.txt; either
+%%   version 1 of the License, or any later version.
+%% 
+%%   h.harders@tu-bs.de
+%% 
+\ProvidesFile{swedish.idf}
+  [2005/03/11  v2.27  Language definitions for isodate package (HH)]
+\let\iso@languageloaded\active
+\typeout{Define commands for Swedish date format}
+\def\month@swedish{\ifcase\month\or
+    januari\or februari\or mars\or april\or maj\or juni\or
+    juli\or augusti\or september\or oktober\or november\or december\fi}
+  \def\iso@printmonthday@swedish#1#2{%
+    \ifthenelse{\equal{\iso@dateformat}{numeric}\or%
+      \equal{\iso@dateformat}{short}}{%
+      \iso@printday{#2}/\iso@printmonth{#1}\ifiso@printyear/\fi}{%
+      \ifthenelse{\equal{\iso@dateformat}{iso}}{%
+        \ifiso@printyear\iso@isodash\fi\iso@printmonth{#1}%
+        \iso@isodash\iso@printday{#2}}{%
+        \ifthenelse{\equal{\iso@dateformat}{TeX}}{%
+          \ifiso@printyear/\fi\iso@printmonth{#1}/\iso@printday{#2}}{%
+          \ifthenelse{\equal{\iso@dateformat}{orig}\or
+                      \equal{\iso@dateformat}{shortorig}}{%
+            \iso@printday{#2}.~\begingroup
+            \edef\lmonth{#1}\def\month{\lmonth}%
+            \month@swedish%
+            \endgroup
+            }{}}}}%
+    }
+  \def\iso@printdate@swedish#1#2#3{%
+    \ifthenelse{\equal{\iso@dateformat}{iso}\or%
+      \equal{\iso@dateformat}{TeX}}{%
+      \ifiso@printyear\iso@yearfour{\number#1}\fi}{}%
+    \iso@printmonthday@swedish{\number#2}{\number#3}%
+    \ifiso@printyear
+      \ifthenelse{\equal{\iso@dateformat}{numeric}}{\iso@yearfour{\number#1}}{%
+        \ifthenelse{\equal{\iso@dateformat}{orig}}{~\iso@yearfour{\number#1}}{%
+          \ifthenelse{\equal{\iso@dateformat}{shortorig}}{%
+            ~\iso@twodigitsign\iso@yeartwo{\number#1}}{%
+            \ifthenelse{\equal{\iso@dateformat}{short}}{%
+              \iso@yeartwo{\number#1}}{%
+              }}}}%
+    \fi
+  }
+  \def\iso@dateswedish{%
+    \def\today{\iso@printdate@swedish{\year}{\month}{\day}}}%
+  \expandafter\def\csname iso@daterange@\CurrentOption\endcsname{%
+    \iso@daterange@swedish}%
+\def\iso@daterange@swedish#1#2#3#4#5#6{%
+  \ifthenelse{\equal{\iso@dateformat}{iso}\or%
+              \equal{\iso@dateformat}{TeX}}{%
+    \csname iso@printdate@\iso@languagename\endcsname{%
+      #1}{#2}{#3}\iso@rangesign%
+    \ifthenelse{\equal{\number#1}{\number#4}}{%
+      \ifthenelse{\equal{\number#2}{\number#5}}{\iso@printday{#6}%
+        }{\iso@printmonthday@swedish{#5}{#6}}}{%
+      \csname iso@printdate@\iso@languagename\endcsname{#4}{#5}{#6}}}{%
+    \ifthenelse{\equal{\number#1}{\number#4}}{%
+      \ifthenelse{\equal{\number#2}{\number#5}}{%
+        \ifthenelse{\equal{\iso@dateformat}{orig}\or
+                    \equal{\iso@dateformat}{shortorig}}{%
+          \iso@printday{#3}.}{\iso@printday{#3}}%
+        }{\iso@printmonthday@swedish{#2}{#3}}}{%
+      \csname iso@printdate@\iso@languagename\endcsname{%
+        #1}{#2}{#3}}%
+    \iso@rangesign\csname iso@printdate@\iso@languagename\endcsname{%
+      #4}{#5}{#6}%
+}{%
+    }%
+}
+\expandafter\def\csname iso@rangesign@\CurrentOption\endcsname{~till~}
+\def\iso@languagename{swedish}%
+\AtBeginDocument{%
+  \ifx\undefined\iso@dateswedish\else
+    \def\dateswedish{\iso@dateswedish}%
+  \fi
+}
+\endinput
+%%
+%% End of file `swedish.idf'.

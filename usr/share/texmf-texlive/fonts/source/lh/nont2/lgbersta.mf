@@ -1,0 +1,869 @@
+%
+% lgbersta.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Lowercase letters used in files beresta(r/e): file #1
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% List of letternames
+%
+% Lb_bar
+% Lc_lcom
+% Ld_moc
+% Ld_dsc
+% Ld_bar
+% Ld_mtl
+% Lf_rev
+% LVg_hcrs
+% LVg_beak
+% Lh_voic
+% Lh_moc
+% Lh_tl
+% Lh_lftl
+% Lh_dsc
+% Lhflip_hcrs
+% Li_dsc
+% Lj_bar
+% Lj_arm
+% Lj_dotbar
+% Lj_armhcrs
+% Lj_crs
+% Lk_lcom
+%
+
+LHver_check(3,5); % like |version_check| in ec
+
+lhchar "Lowercase Special letter Lb_bar";
+cyrchar(Lb_bar,10u#+serif_fit#,asc_height#,0);
+italcorr .5x_height#*slant+min(.5curve#-u#,-.25u#);
+adjust_fit(serif_fit#,0);
+pickup tiny.nib; pos1(stem',0); pos2(stem,0);
+pos0'(stem',0); pos0(stem,0); z0l=z0'l; x0'=x1; x0=x2;
+lft x1l=hround(2.5u-.5stem'); top y1=h;
+numeric edge; edge=rt x2r;
+pickup fine.nib; pos3(if hefty:thin_join else: hair fi,180);
+pos4(vair,90); pos5(curve,0); pos6(vair,-90); penpos7(x3l-x3r,-180);
+rt x3l=max(rt x3l-(lft x3r-tiny.lft x2l),1/3[rt x2,edge]);
+y3=1/8[bar_height,x_height];
+x4l=w-.5(w-serif_fit)+.5u; top y4r=x_height+oo;
+rt x5r=hround min(w-1.35u+.5curve,w-.6u); y5=.5x_height;
+x6l=x4l-.2u; bot y6r=-oo;
+x7=x3; y7=min(y3,y6+y4-y3+.6vair);
+(x,y4r)=whatever[z3l,z4l]; x4r:=min(x,.5[x4,x5r]);
+(x',y6r)=whatever[z7l,z6l]; x6r:=min(x',.5[x6,x5r]);
+filldraw stroke z3e{up}...pulled_arc.e(4,5)&pulled_arc.e(5,6)...{up}z7e; % bowl
+y0=ypart(((edge,h)--(edge,0))intersectionpoint(z3l{up}...{right}z4l));
+y2=ypart(((edge,h)--(edge,0))intersectionpoint(z6l{left}...{up}z7l));
+pickup tiny.nib; filldraw stroke z1e--z0'e--z0e--z2e;  % stem
+pickup crisp.nib; pos8(hair,0); pos7'(stem,0);
+z7'=z2; x8l=x7'l; bot y8=0;
+filldraw stroke z7'e--z8e;  % point
+if serifs: sloped_serif.l(1,0',a,1/3,jut,serif_drop); fi  % upper serif
+%
+pos80(bar,90); pos90(bar,90); x80=.5[x4,x5];
+if serifs: x90=x2l-jut; else: x90=w; fi
+if serifs: y80=y90=.5[y.a2-.5slab,y4+.5vair];
+else: y80=y90=.5[x_height,asc_height-serif_drop]; fi
+filldraw stroke z80e--z90e;
+penlabels(0,1,2,3,4,5,6,7,8); endchar;
+
+lhchar "Lowercase Special letter Lc_lcom";
+cyrchar(Lc_lcom,8u#,x_height#,1.25desc_depth#); % eng
+italcorr x_height#*slant-.2u#;
+adjust_fit(if monospace: .5u#,.5u# else: -.1u#,0 fi);
+pickup fine.nib; pos2(vair',90); pos4(vair',270);
+x2=x4=.5(w+u); top y2r=vround(h+1.5oo); bot y4r=-oo;
+pos3(curve,180); lft x3r=hround max(.6u,1.35u-.5curve); y3=.5h; % eng
+if serifs: pos1(hair,0); pos0(flare,0);
+ y1=min(bar_height+.5flare+2vair'+2,.9[bar_height,h]-.5flare);
+ rt x1r=hround(w-.7u); bulb(2,1,0);  % bulb
+ pos5(hair,0); rt x5r=hround(w-.5u);
+ y5=max(good.y(.5bar_height-.9),y4l+vair');
+ (x,y4l)=whatever[z4r,z5l]; x4l:=min(x,x4l+.5u);
+ filldraw stroke pulled_super_arc.e(2,3)(.7superpull)
+  & pulled_super_arc.e(3,4)(.5superpull)
+  ..tension .9 and 1..{x5-x4,5(y5-y4)}z5e;  % arc and lower terminal
+else: pos1(4/7[vair',flare],80);
+ rt x1r=hround(w-.6u); top y1r=vround .82[bar_height,top y2r];
+ filldraw stroke term.e(2,1,right,.8,4);  % upper terminal
+ pos5(.6[vair',flare],275); rt x5r=hround(w-.5u);
+ y5r=good.y(y5r+1/3bar_height-y5); y5l:=good.y y5l; x5l:=good.x x5l;
+ forsuffixes e=l,r: path p.e; p.e=z4e{right}..tension .9 and 1..z5e;
+  if angle direction 1 of p.e>75:
+   p.e:=z4e{right}..tension atleast.9 and 1..{dir 75}z5e; fi endfor
+ filldraw stroke pulled_super_arc.e(2,3)(.7superpull)
+  & pulled_super_arc.e(3,4)(.5superpull) & p.e; fi  % arc and lower terminal
+% the accent
+%ac_comma(x4-.5w,0,1.25desc_depth, 6,7,8,9,10);
+ x_move:=x4-.5w; y_move:=0; depth:=1.25desc_depth;
+  _zero:=6; _one:=7; _two:=8; _three:=9; _four:=10;
+ numeric height,bulb_diam;
+ height=if serifs: depth+.5fine-max(.27depth,o+hair) else:.68depth fi;
+ bulb_diam=max(fine.breadth,min(dot_size,floor(.56height)));
+ if square_dots: pickup fine.nib; pos[_one](vair,0);
+  pos[_two](.5[vair,stem],0);
+  % comma below letter as sans serif cedilla
+   top y[_one]=-o-2; bot y[_two]=-d-o;
+   x[_two]=x[_one]-1.25u=.5w+x_move;
+  filldraw stroke z[_one]e--z[_two]e;   % diagonal
+ else: pickup fine.nib;
+  x[_four]-.5bulb_diam=hround(.5w+x_move-.5bulb_diam);
+  y[_four]+.5bulb_diam=-d+y_move+height;
+  pos[_four](bulb_diam,90);
+  pos[_one](vair,90); pos[_two](vair,0); pos[_three](vair,-45);
+  z[_one]r=z[_four]r; rt x[_two]r=hround(x[_four]+.5bulb_diam
+   +if monospace:.28u / expansion_factor else:.25u fi)+2eps;
+  x[_three]=x[_four]-.5u if monospace: /expansion_factor fi;
+  y[_two]=1/3[y[_one],y[_three]];
+  bot y[_three]r=vround(y[_four]-(height-.5bulb_diam));
+  y_:=ypart((z[_one]{right}...z[_two]{down}...z[_three])
+   intersectiontimes (z[_four]l{right}..{left}z[_four]r));
+  if y_<0: y_:=1; fi
+  filldraw z[_four]r{left}..subpath (0,y_)
+   of (z[_four]l{right}..{left}z[_four]r)--cycle; % dot
+  filldraw stroke z[_one]e{right}...z[_two]e{down}...z[_three]e; fi  % tail
+ penlabels([_zero],[_one],[_two],[_three],[_four]);
+penlabels(0,1,2,3,4,5); endchar;
+
+lhchar "Lowercase Special letter Ld_moc";
+cyrchar(Ld_moc,10u#+serif_fit#,asc_height#,desc_depth#);
+italcorr asc_height#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(0,serif_fit#);
+pickup tiny.nib; pos1(stem',0); pos2(stem,0);
+pos0'(stem',0); pos0(stem,0); z0r=z0'r; x0'=x1; x0=x2;
+rt x1r=hround(w-2.5u+.5stem'); top y1=h;
+numeric edge; edge=lft x2l;
+pickup fine.nib; pos3(if hefty:thin_join else: hair fi,0);
+pos4(vair,90); pos5(curve,180); pos6(vair,270); penpos7(x3r-x3l,360);
+lft x3l=min(lft x3l-(rt x3r-tiny.rt x2r),1/3[lft x2,edge]);
+y3=1/8[bar_height,x_height];
+x4l=.5(w-serif_fit)-.3u; top y4r=x_height+oo;
+lft x5r=hround max(1.35u-.5curve,.6u); y5=.5x_height;
+x6l=x4l-.2u; bot y6r=-oo;
+x7=x3; y7=min(y3,y6+y4-y3+.6vair);
+(x,y4r)=whatever[z3l,z4l]; x4r:=max(x,.5[x5r,x4]);
+(x',y6r)=whatever[z7l,z6l]; x6r:=max(x',.5[x5r,x6]);
+filldraw stroke z3e{up}...pulled_arc.e(4,5)
+ & pulled_arc.e(5,6)...{up}z7e; % bowl
+y0=ypart(((edge,h)--(edge,0))intersectionpoint(z3l{up}...{left}z4l));
+pickup tiny.nib; bot y2=if serifs:-min(oo,serif_drop) else: 0 fi;
+filldraw stroke z1e--z0'e--z0e--z2e;  % stem
+if serifs: sloped_serif.l(1,0',a,1/3,jut,serif_drop);  % upper serif
+ sloped_serif.r(2,0,b,1/3,jut,min(oo,serif_drop)); fi  % lower serif
+% the accent
+% ac_ammoc(x2,0, 8,9,10,11,12);
+x_move:=x2; y_move:=0; _zero:=8; _one:=9; _two:=10; _three:=11; _four:=12;
+%
+numeric bulb_diam;
+bulb_diam=max(fine.breadth,min(dot_size,floor(.56d)));
+if square_dots:
+   % sans serif cedilla;edited
+   pickup fine.nib;
+   pos[_one](vair,0); pos[_two](.5[vair,stem],0);
+   top y[_one]=y_move-o-1-eps;
+   bot y[_two]=-d-o; x[_two]=x[_one]-1.25u=x_move-.5u; %%%!!!
+   filldraw stroke z[_one]e--z[_two]e;  % diagonal
+else:
+   pickup crisp.nib;
+   pos[_one](vair,90); pos[_two](vair,0);
+   pos[_three](vair,-45); pos[_four](bulb_diam,90);
+   x[_four]-.5bulb_diam=hround(x_move-.5bulb_diam);
+   y[_four]+.5bulb_diam=vround(-d-o+bulb_diam);
+   z[_one]l=z[_four]l;
+   lft x[_two]l=
+       hround(x[_four]-.5bulb_diam-.28u
+       if monospace: /expansion_factor fi)-2eps;
+   x[_three]=x[_four]+.5u if monospace: /expansion_factor fi;
+   y[_two]=1/3[y[_one],y[_three]];
+   bot y[_three]r=y_move;
+   y_:=ypart((z[_one]{left}...z[_two]{up}...z[_three])
+     intersectiontimes (z[_four]r{left}..{right}z[_four]l));
+   if y_<0: y_:=1; fi
+   filldraw z[_four]l{right}..subpath (0,y_) of (z[_four]r{left}
+       ..{right}z[_four]l)--cycle; % dot
+   filldraw stroke z[_one]e{left}...z[_two]e{up}...z[_three]e;  % tail
+fi
+%%%
+penlabels(0,1,2,3,4,5,6,7); endchar;
+
+lhchar "Lowercase Special letter Ld_dsc";
+cyrchar(Ld_dsc,10u#+serif_fit#,asc_height#,sbeak#);
+italcorr asc_height#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(0,
+ if serifs: serif_fit# else: 0 fi); % lr_serif_adj
+pickup tiny.nib; pos1(stem',0); pos2(stem,0);
+pos0'(stem',0); pos0(stem,0); z0r=z0'r; x0'=x1; x0=x2;
+rt x1r=hround(w-2.5u+.5stem'); top y1=h;
+numeric edge; edge=lft x2l;
+pickup fine.nib; pos3(if hefty:thin_join else: hair fi,0);
+pos4(vair,90); pos5(curve,180); pos6(vair,270); penpos7(x3r-x3l,360);
+lft x3l=min(lft x3l-(rt x3r-tiny.rt x2r),1/3[lft x2,edge]);
+y3=1/8[bar_height,x_height];
+x4l=.5(w-serif_fit)-.3u; top y4r=x_height+oo;
+lft x5r=hround max(1.35u-.5curve,.6u); y5=.5x_height;
+x6l=x4l-.2u; bot y6r=-oo;
+x7=x3; y7=min(y3,y6+y4-y3+.6vair);
+(x,y4r)=whatever[z3l,z4l]; x4r:=max(x,.5[x5r,x4]);
+(x',y6r)=whatever[z7l,z6l]; x6r:=max(x',.5[x5r,x6]);
+filldraw stroke z3e{up}...pulled_arc.e(4,5)
+ & pulled_arc.e(5,6)...{up}z7e; % bowl
+y0=ypart(((edge,h)--(edge,0))intersectionpoint(z3l{up}...{left}z4l));
+pickup tiny.nib; bot y2=if serifs:-min(oo,serif_drop) else: 0 fi;
+filldraw stroke z1e--z0'e--z0e--z2e;  % stem
+if serifs: sloped_serif.l(1,0',a,1/3,jut,serif_drop); fi % upper serif
+% sloped_serif.r(2,0,b,1/3,jut,min(oo,serif_drop)); fi  % lower serif
+% lower lat descender
+numeric right_jut;
+right_jut=if serifs: 1.414jut else: hround (r-rt x2r-.5u) fi;
+r_serif(2,1,o,1/3,0,p,1/3,beak_darkness,right_jut,.6beak_jut); % lower left serif
+penlabels(0,1,2,3,4,5,6,7); endchar;
+
+lhchar "Lowercase Special letter Ld_bar";
+cyrchar(Ld_bar,10u#+serif_fit#,asc_height#,0);
+italcorr asc_height#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(0,serif_fit#);
+pickup tiny.nib; pos1(stem',0); pos2(stem,0);
+pos0'(stem',0); pos0(stem,0); z0r=z0'r; x0'=x1; x0=x2;
+rt x1r=hround(w-2.5u+.5stem'); top y1=h;
+numeric edge; edge=lft x2l;
+pickup fine.nib; pos3(if hefty:thin_join else: hair fi,0);
+pos4(vair,90); pos5(curve,180); pos6(vair,270); penpos7(x3r-x3l,360);
+lft x3l=min(lft x3l-(rt x3r-tiny.rt x2r),1/3[lft x2,edge]);
+y3=1/8[bar_height,x_height];
+x4l=.5(w-serif_fit)-.3u; top y4r=x_height+oo if monospace: -hair fi;
+lft x5r=hround max(1.35u-.5curve,.6u); y5=.5x_height if monospace: -.5hair fi ;
+x6l=x4l-.2u; bot y6r=-oo;
+x7=x3; y7=min(y3,y6+y4-y3+.6vair);
+(x,y4r)=whatever[z3l,z4l]; x4r:=max(x,.5[x5r,x4]);
+(x',y6r)=whatever[z7l,z6l]; x6r:=max(x',.5[x5r,x6]);
+filldraw stroke z3e{up}...pulled_arc.e(4,5)
+ & pulled_arc.e(5,6)...{up}z7e; % bowl
+y0=ypart(((edge,h)--(edge,0))intersectionpoint(z3l{up}...{left}z4l));
+pickup tiny.nib; bot y2=if serifs:-min(oo,serif_drop) else: 0 fi;
+filldraw stroke z1e--z0'e--z0e--z2e;  % stem
+if serifs: sloped_serif.l(1,0',a,1/3,jut,serif_drop);  % upper serif
+ sloped_serif.r(2,0,b,1/3,jut,min(oo,serif_drop)); fi  % lower serif
+%
+pos8(bar,90); pos9(bar,90); x8=.5[x4,x5];
+if serifs: x9=x2r+jut; else: x9=w; fi
+if serifs: y8=y9=.5[y.a2-.5slab,y4+.5vair];
+else: y8=y9=.5[x_height,asc_height-serif_drop]; fi
+filldraw stroke z8e--z9e;
+penlabels(0,1,2,3,4,5,6,7,8,9); endchar;
+
+lhchar "Lowercase Special letter Ld_mtl - miscelaneous tail";
+cyrchar(Ld_mtl,10u#+serif_fit#,asc_height#,0);
+italcorr asc_height#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(0,max(u#,.5u#+.5stem#));
+pickup tiny.nib; pos1(stem',0); pos2(stem,0);
+pos0'(stem',0); pos0(stem,0); z0r=z0'r; x0'=x1; x0=x2;
+rt x1r=hround(w-2.5u+.5stem'); top y1=h;
+numeric edge; edge=lft x2l;
+pickup fine.nib; pos3(if hefty:thin_join else: hair fi,0);
+pos4(vair,90); pos5(curve,180); pos6(vair,270); penpos7(x3r-x3l,360);
+lft x3l=min(lft x3l-(rt x3r-tiny.rt x2r),1/3[lft x2,edge]);
+y3=1/8[bar_height,x_height];
+x4l=.5(w-serif_fit)-.3u; top y4r=x_height+oo;
+lft x5r=hround max(1.35u-.5curve,.6u); y5=.5x_height;
+x6l=x4l-.2u; bot y6r=-oo;
+x7=x3; y7=min(y3,y6+y4-y3+.6vair);
+(x,y4r)=whatever[z3l,z4l]; x4r:=max(x,.5[x5r,x4]);
+(x',y6r)=whatever[z7l,z6l]; x6r:=max(x',.5[x5r,x6]);
+filldraw stroke z3e{up}...pulled_arc.e(4,5)
+ & pulled_arc.e(5,6)...{up}z7e; % bowl
+y0=ypart(((edge,h)--(edge,0))intersectionpoint(z3l{up}...{left}z4l));
+pickup tiny.nib; bot y2=if serifs:-min(oo,serif_drop) else: 0 fi;
+filldraw stroke z1e--z0'e--z0e--z2e;  % stem
+if serifs: sloped_serif.l(1,0',a,1/3,jut,serif_drop); fi % upper serif
+% sloped_serif.r(2,0,b,1/3,jut,min(oo,serif_drop)); fi  % lower serif
+% misc_tail
+bar_stroke(x2r,hround (r-1/3u));
+penpos10(vair',90); penpos11(hair,180);
+x10=x2r; y10l=0; z11=.5[z10l,z9r];
+fill stroke z10e{right}...z11e{up}...{right}z9e;
+penlabels(0,1,2,3,4,5,6,7); endchar;
+
+lhchar "Lowercase Special letter Lf_rev";
+cyrchar(Lf_rev,8u#,asc_height#,0);
+italcorr .5[bar_height#,x_height#]*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(serif_fit#+stem_shift#,serif_fit#-stem_shift#);
+pickup tiny.nib; pos1(stem,0); pos2(stem,0);
+rt x1r=rt x2r=w-hround(2.5u-.5stem); top y1=.25[x_height,h]; bot y2=0;
+if serifs: pos1'(stem',0); pos2'(stem',0); pos3(stem,0);
+ x1l=x1'l=x2'l; x3=w-x1; y1=y1'; y2=y2';
+ filldraw stroke z1'e--z2'e;  % left stem
+ pos9(vair,-270); pos9'(vair,90); z9=z9'; x9=.5[x1,x10]; top y9r=h;
+ pos10(hair,180); rt x10r=hround u; y10=.75[x_height,h]-.5flare;
+ pos11(flare,180); bulb(9',10,11); % bulb
+ filldraw stroke super_arc.e(1,9');  % tail
+else: pickup fine.nib; pos1'(stem,0); z1'=z1;
+ z1''r=z1'r; z1''=z1'; z1''l=(x1'l,0);
+ pos9(vair,-270); x9=4.5u; top y9r=h;
+ pos10(.5[vair,flare],90); rt x10=hround 1.25u;
+ y10r=good.y 5/6[x_height,h]; y10l:=good.y y10l;
+ filldraw stroke z1'e..z1''e&super_arc.e(1'',9)
+  & term.e(9,10,left,.9,4); fi  % tail
+if serifs: dish_serif(2,1,c,1/3,jut,d,1/3,jut); fi % lower left serif
+% bar
+pickup fine.nib; numeric middle_weight;
+middle_weight=max(fine.breadth,.6[thin_join,vair]);
+pos21(middle_weight,90); pos20(middle_weight,90);
+y20=y21=x_height; x21=lft x2l-jut; x20=rt x2r+jut;
+filldraw stroke z20e--z21e;
+penlabels(1,2,3,4,9,10,11); endchar;
+
+lhchar "Lowercase Special letter LVg_hcrs";
+cyrchar(LVg_hcrs,10u#+serif_fit#,x_height#,desc_depth#);
+h:=vround(x_height#*hppp); d:=vround(desc_depth#*hppp); % vertical adj.
+italcorr x_height#*slant-serif_fit#+.5stem#-2u# if serifs:+.5u# fi;
+adjust_fit(0,serif_fit# if serifs: -.5u# fi);
+pickup tiny.nib; pos1(stem',0); pos2(stem,0);
+pos0'(stem',0); pos0(stem,0); z0r=z0'r; x0'=x1; x0=x2;
+rt x1r=hround(w-2.5u+.5stem');
+numeric edge; edge=lft x2l;
+path edge_path; edge_path=(edge,h)--(edge,0);
+pickup fine.nib; pos3(if hefty:thin_join else: hair fi,0);
+pos4(vair,90); pos5(curve,180);
+pos6(vair,270); penpos7(x3r-x3l,360);
+lft x3l=2/3[lft x2,edge]; y3=bar_height;
+x4l=.5(w-serif_fit)-.3u; top y4r=x_height+oo;
+lft x5r=hround max(1.35u-.5curve,.6u); y5=.5x_height;
+x6l=x4l-.2u; bot y6r=vround 1/3vair;
+lft x7l=edge; y7=min(y3,y6+y4-y3+.6vair);
+(x,y4r)=whatever[z3l,z4l]; x4r:=max(x,.5[x5r,x4]);
+(x',y6r)=whatever[z7l,z6l]; x6r:=max(x',.5[x5r,x6]);
+filldraw stroke z3e{up}...{left}z4e&super_arc.e(4,5)
+ &super_arc.e(5,6)&z6e{right}...{up}z7e;  % bowl
+y1=ypart(edge_path intersectionpoint(z3l{up}...{left}z4l));
+y0=ypart(edge_path intersectionpoint(z7l{down}...{left}z6l));
+pickup tiny.nib; bot y2=if serifs: -.25d else: 0 fi;
+filldraw stroke z1e--z0'e--z0e--z2e;  % stem
+pickup crisp.nib;
+pos8(hround(hair-stem_corr),0); pos7'(stem',0);
+z7'=z1; x8r=x7'r; top y8=h+oo;
+filldraw stroke z7'e--z8e;  % point
+if serifs: pickup tiny.nib;
+ pos9(vair,-90); x9=.5[x2,x10]; bot y9r=-d-o-1;
+ pos10(hair,-180); lft x10r=hround u; y10=-.75d+.5flare;
+ pos11(flare,-180); z11r=z10r;
+ bulb(9,10,11); filldraw stroke super_arc.e(2,9);  % tail
+else: pickup fine.nib; pos2'(stem,0); z2'=z2;
+ z2''r=z2'r; z2''=z2'; z2''l=(x2'l,0);
+ pos9(vair,-90); x9=4.5u; bot y9r=-d-o-1;
+ pos10(.5[vair,flare],-90); lft x10=hround 1.25u;
+ y10r=good.y -5/6d; y10l:=good.y y10l;
+ filldraw stroke z2'e..z2''e&super_arc.e(2'',9)
+  & term.e(9,10,left,.9,4); fi  % tail
+% bar
+pickup fine.nib; numeric middle_weight;
+middle_weight=max(fine.breadth,.6[thin_join,vair]);
+pos21(middle_weight,90); pos20(middle_weight,90);
+y20=y21=hround min(-oo-1,.25[-oo,-d+vair'])-.5middle_weight;
+x21=lft x2l-jut; x20=rt x2r+.75jut;
+filldraw stroke z20e--z21e;
+penlabels(0,1,2,3,4,5,6,7,8,9,10,11); endchar;
+
+lhchar "Lowercase Special letter Vg_beak";
+cyrchar(LVg_beak,10u#+serif_fit#,asc_height#,desc_depth#);
+full_h:=h;
+h:=vround(x_height#*hppp); d:=vround(desc_depth#*hppp); % vertical adj.
+italcorr x_height#*slant-serif_fit#+.5stem#-2u# if serifs:+.5u# fi;
+adjust_fit(0,serif_fit# if serifs: -.5u# fi);
+pickup tiny.nib; pos1(stem',0); pos2(stem,0);
+pos0'(stem',0); pos0(stem,0); z0r=z0'r; x0'=x1; x0=x2;
+rt x1r=hround(w-2.5u+.5stem');
+numeric edge; edge=lft x2l;
+path edge_path; edge_path=(edge,h)--(edge,0);
+pickup fine.nib; pos3(if hefty:thin_join else: hair fi,0);
+pos4(vair,90); pos5(curve,180);
+pos6(vair,270); penpos7(x3r-x3l,360);
+lft x3l=2/3[lft x2,edge]; y3=bar_height;
+x4l=.5(w-serif_fit)-.3u; top y4r=x_height+oo;
+lft x5r=hround max(1.35u-.5curve,.6u); y5=.5x_height;
+x6l=x4l-.2u; bot y6r=vround 1/3vair;
+lft x7l=edge; y7=min(y3,y6+y4-y3+.6vair);
+(x,y4r)=whatever[z3l,z4l]; x4r:=max(x,.5[x5r,x4]);
+(x',y6r)=whatever[z7l,z6l]; x6r:=max(x',.5[x5r,x6]);
+filldraw stroke z3e{up}...{left}z4e&super_arc.e(4,5)
+ &super_arc.e(5,6)&z6e{right}...{up}z7e;  % bowl
+%y1=ypart(edge_path intersectionpoint(z3l{up}...{left}z4l));
+y1=full_h;
+y0=ypart(edge_path intersectionpoint(z7l{down}...{left}z6l));
+pickup tiny.nib; bot y2=if serifs: -.25d else: 0 fi;
+filldraw stroke z1e--z0'e--z0e--z2e;  % stem
+pickup crisp.nib;
+%pos8(hround(hair-stem_corr),0); pos7'(stem',0);
+pos8(vair,90); pos7'(vair,90);
+%z7'=z1; x8r=x7'r; top y8=h+oo;
+top y8r=top y7'r=tiny.top y1; x7'=x1; x8=hround u;
+filldraw stroke z7'e--z8e;  % point
+if serifs: pickup tiny.nib;
+ pos9(vair,-90); x9=.5[x2,x10]; bot y9r=-d-o-1;
+ pos10(hair,-180); lft x10r=hround u; y10=-.75d+.5flare;
+ pos11(flare,-180); z11r=z10r;
+ bulb(9,10,11); filldraw stroke super_arc.e(2,9);  % tail
+else: pickup fine.nib; pos2'(stem,0); z2'=z2;
+ z2''r=z2'r; z2''=z2'; z2''l=(x2'l,0);
+ pos9(vair,-90); x9=4.5u; bot y9r=-d-o-1;
+ pos10(.5[vair,flare],-90); lft x10=hround 1.25u;
+ y10r=good.y -5/6d; y10l:=good.y y10l;
+ filldraw stroke z2'e..z2''e&super_arc.e(2'',9)
+  & term.e(9,10,left,.9,4); fi  % tail
+penlabels(0,1,2,3,4,5,6,7,8,9,10,11); endchar;
+
+lhchar "Lowercase Special letter Lh_voic";
+cyrchar(Lh_voic,10u#,asc_height#,0);
+italcorr .5[bar_height#,x_height#]*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(serif_fit#+stem_shift#,serif_fit#-stem_shift#);
+pickup tiny.nib; pos1(stem,0); pos2(stem,0); pos3(stem,0);
+lft x1l=lft x2l=hround(2.5u-.5stem); x3=w-x1;
+top y1=.25[x_height,h]; bot y2=0;
+h_stroke(2,a,3,4);  % arch and right stem
+if serifs: pickup tiny.nib; pos1'(stem',0); pos2'(stem',0);
+ x1l=x1'l=x2'l;  y1=y1'; y2=y2';
+ filldraw stroke z1'e--z2'e;  % left stem
+ pos9(vair,-270); pos9'(vair,-90);z9=z9';x9=.5[x1,x10]; top y9r=h;
+ pos10(hair,-360);
+ rt x10r=min(w- hround u,rt x3r);
+ y10=.75[x_height,h]-.5flare;
+ pos11(flare,-360);
+ bulb(9,10,11); filldraw stroke super_arc.e(1,9');  % tail
+else: pickup fine.nib; pos1'(stem,0); z1'=z1;
+ z1''r=z1'r; z1''=z1'; z1''l=(x1'l,0);
+ pos9(vair,-270); x9=4.5u; top y9r=h;
+ pos10(.5[vair,flare],90); rt x10=hround 1.25u;
+ y10r=good.y 5/6[x_height,h]; y10l:=good.y y10l;
+ filldraw stroke z1'e..z1''e&super_arc.e(1'',9)
+  & term.e(9,10,left,.9,4); fi  % tail
+if serifs: numeric inner_jut; pickup tiny.nib;
+ if rt x2r+jut+.5u+1<=lft x4l-jut: inner_jut=jut;
+ else: rt x2r+jut+.5u+1=lft x4l-inner_jut; fi
+ dish_serif(2,1,c,1/3,jut,d,1/3,jut); % lower left serif
+ dish_serif(4,3,e,1/3,inner_jut,f,1/3,jut); fi % lower right serif
+penlabels(1,2,3,4,9,10,11); endchar;
+
+lhchar "Lowercase Special letter Lh_moc";
+cyrchar(Lh_moc,10u#,asc_height#,desc_depth#);
+italcorr .5[bar_height#,x_height#]*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(serif_fit#+stem_shift#,serif_fit#-stem_shift#);
+pickup tiny.nib; pos1(stem,0); pos2(stem,0);
+pos1'(stem',0); pos2'(stem',0); pos3(stem,0);
+lft x1l=hround(2.5u-.5stem); x1l=x1'l=x2l=x2'l; x3=w-x1;
+top y1=h; bot y2=0; y1=y1'; y2=y2';
+filldraw stroke z1'e--z2'e;  % left stem
+h_stroke(2,a,3,4);  % arch and right stem
+if serifs: sloped_serif.l(1',2',b,1/3,jut,serif_drop); % upper left serif
+ numeric inner_jut; pickup tiny.nib;
+ if rt x2r+jut+.5u+1<=lft x4l-jut: inner_jut=jut;
+ else: rt x2r+jut+.5u+1=lft x4l-inner_jut; fi
+ dish_serif(2,1,c,1/3,jut,d,1/3,jut); % lower left serif
+ dish_serif(4,3,e,1/3,inner_jut,f,1/3,jut); fi % lower right serif
+% the accent
+% ac_ammoc(x4,0, 5,6,7,8,9);
+x_move:=x4; y_move:=0; _zero:=5; _one:=6; _two:=7; _three:=8; _four:=9;
+%
+numeric bulb_diam;
+bulb_diam=max(fine.breadth,min(dot_size,floor(.56d)));
+if square_dots:
+   % sans serif cedilla;edited
+   pickup fine.nib;
+   pos[_one](vair,0); pos[_two](.5[vair,stem],0);
+   top y[_one]=y_move-o-1-eps;
+   bot y[_two]=-d-o; x[_two]=x[_one]-1.25u=x_move-.5u; %%%!!!
+   filldraw stroke z[_one]e--z[_two]e;  % diagonal
+else:
+   pickup crisp.nib;
+   pos[_one](vair,90); pos[_two](vair,0);
+   pos[_three](vair,-45); pos[_four](bulb_diam,90);
+   x[_four]-.5bulb_diam=hround(x_move-.5bulb_diam);
+   y[_four]+.5bulb_diam=vround(-d-o+bulb_diam);
+   z[_one]l=z[_four]l;
+   lft x[_two]l=
+       hround(x[_four]-.5bulb_diam-.28u
+       if monospace: /expansion_factor fi)-2eps;
+   x[_three]=x[_four]+.5u if monospace: /expansion_factor fi;
+   y[_two]=1/3[y[_one],y[_three]];
+   bot y[_three]r=y_move;
+   y_:=ypart((z[_one]{left}...z[_two]{up}...z[_three])
+     intersectiontimes (z[_four]r{left}..{right}z[_four]l));
+   if y_<0: y_:=1; fi
+   filldraw z[_four]l{right}..subpath (0,y_) of (z[_four]r{left}
+       ..{right}z[_four]l)--cycle; % dot
+   filldraw stroke z[_one]e{left}...z[_two]e{up}...z[_three]e;  % tail
+fi
+%%%
+penlabels(1,2,3,4); endchar;
+
+lhchar "Lowercase Special letter Lh_tl";
+cyrchar(Lh_tl,10u#,asc_height#,desc_depth#);
+italcorr .5[bar_height#,x_height#]*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(serif_fit#+stem_shift#,serif_fit#-stem_shift#); h:=x_height;
+pickup tiny.nib; pos1(stem,0); pos2(stem,0);
+numeric shaved_stem; shaved_stem=hround(stem-2stem_corr);
+pos1'(shaved_stem,0); pos2'(shaved_stem,0); pos3(stem,0);
+lft x1l=hround(2.5u-.5stem); x1l=x1'l=x2l=x2'l; x3=w-x1;
+top y1=asc_height+min(oo,serif_drop); bot y2=0; y1=y1'; y2=y2';
+filldraw stroke z1'e--z2'e;  % left stem
+h_stroke(2,a,3,4);  % arch and right stem
+if serifs: sloped_serif.l(1',2',b,1/3,jut,serif_drop); % upper left serif
+ numeric inner_jut; pickup tiny.nib;
+ if rt x2r+jut+.5u+1<=lft x4l-jut: inner_jut=jut;
+ else: rt x2r+jut+.5u+1=lft x4l-inner_jut; fi
+ dish_serif(2,1,c,1/3,jut,d,1/3,jut); % lower left serif
+% dish_serif(4,3,e,1/3,inner_jut,f,1/3,jut); fi % lower right serif
+x8=x4; bot y8=-1/3d; penpos8(x3r-x3l,0);   % stuff added
+pickup tiny.nib; filldraw stroke z4e--z8e;  % right stem continuation
+pickup tiny.nib; pos5(vair,-90); pos6(hair,-180); pos7(flare,-180);
+ x5=.5[x8,x6r]; bot y5r=-d-oo; y6-.5flare=-.88d;
+ if monospace: lft x6r=0; else: z6r=z7r; lft x7r= rt x2r; fi
+ (x,y5r)=whatever[z5l,z8l]; x5r:=max(x,.5[x6r,x5]);
+ filldraw stroke z8e{down}...z5e{left};  bulb(5,6,7); fi  % arc and bulb
+penlabels(1,2,3,4,5,6,7,8); endchar;
+
+lhchar "Lowercase Special letter Lh_lftl";
+cyrchar(Lh_lftl,10u#,asc_height#,0);
+italcorr .5[bar_height#,x_height#]*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(serif_fit#+stem_shift#,serif_fit#-stem_shift#);
+pickup tiny.nib; pos1(stem,0); pos2(stem,0); pos3(stem,0);
+lft x1l=lft x2l=hround(2.5u-.5stem); x3=w-x1;
+top y1=.25[x_height,h]; bot y2=0;
+h_stroke(2,a,3,4);  % arch and right stem
+if serifs: pickup tiny.nib; pos1'(stem',0); pos2'(stem',0);
+ x1l=x1'l=x2'l; y1=y1'; y2=y2';
+ filldraw stroke z1'e--z2'e;  % left stem
+ pos9(vair,-270); pos9'(vair,90); pos10(hair,180);
+ z9=z9'; x9=.5[x1,x10]; top y9r=h;
+ lft x10r=2x1-min(w-hround u,rt x3r);
+ y10=.75[x_height,h]-.5flare;
+ pos11(flare,180); %z11l=z10l;
+ bulb(9',10,11); filldraw stroke super_arc.e(1,9');  % tail
+else: pickup fine.nib; pos1'(stem,0); z1'=z1;
+ z1''r=z1'r; z1''=z1'; z1''l=(x1'l,0);
+ pos9(vair,-270); x9=4.5u; top y9r=h;
+ pos10(.5[vair,flare],90); rt x10=hround 1.25u;
+ y10r=good.y 5/6[x_height,h]; y10l:=good.y y10l;
+ filldraw stroke z1'e..z1''e&super_arc.e(1'',9)
+  & term.e(9,10,left,.9,4); fi  % tail
+if serifs: numeric inner_jut; pickup tiny.nib;
+ if rt x2r+jut+.5u+1<=lft x4l-jut: inner_jut=jut;
+ else: rt x2r+jut+.5u+1=lft x4l-inner_jut; fi
+ dish_serif(2,1,c,1/3,jut,d,1/3,jut); % lower left serif
+ dish_serif(4,3,e,1/3,inner_jut,f,1/3,jut); fi % lower right serif
+penlabels(1,2,3,4,9,10,11); endchar;
+
+lhchar "Lowercase Special letter Lh_dsc";
+cyrchar(Lh_dsc,10u#,asc_height#,sbeak#);
+italcorr .5[bar_height#,x_height#]*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(serif_fit#+stem_shift#,
+ if serifs: serif_fit# else: 0 fi % lr_serif_adj
+	-stem_shift#);
+pickup tiny.nib; pos1(stem,0); pos2(stem,0);
+pos1'(stem',0); pos2'(stem',0); pos3(stem,0);
+lft x1l=hround(2.5u-.5stem); x1l=x1'l=x2l=x2'l; x3=w-x1;
+top y1=h; bot y2=0; y1=y1'; y2=y2';
+filldraw stroke z1'e--z2'e;  % left stem
+h_stroke(2,a,3,4);  % arch and right stem
+if serifs: sloped_serif.l(1',2',b,1/3,jut,serif_drop); % upper left serif
+ numeric inner_jut; pickup tiny.nib;
+ if rt x2r+jut+.5u+1<=lft x4l-jut: inner_jut=jut;
+ else: rt x2r+jut+.5u+1=lft x4l-inner_jut; fi
+ dish_serif(2,1,c,1/3,jut,d,1/3,jut); % lower left serif
+ dish_serif(4,3,e,1/3,inner_jut,f,1/3,jut); fi % lower right serif
+% lower lat descender
+numeric right_jut;
+right_jut=if serifs: 1.414jut else: hround (r-rt x4r-.5u) fi;
+r_serif(4,3,g,1/3,jut,h,1/3,beak_darkness,right_jut,.6beak_jut); % lower right descender
+penlabels(1,2,3,4); endchar;
+
+lhchar "Lowercase Special letter Lhflip_hcrs";
+cyrchar(Lhflip_hcrs,10u#,x_height#,desc_depth#);
+italcorr x_height#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(serif_fit#+stem_shift#,serif_fit#-stem_shift#);
+numeric light_vair; light_vair=vair if hefty: -vround 2vair_corr fi;
+if light_vair<fine.breadth: light_vair:=fine.breadth; fi
+pickup tiny.nib; pos1(stem,0); pos2(stem,0);
+pos3(stem,0); pos4(stem',0);
+lft x1l=hround(2.5u-.5stem); x1=x2; x3=w-x1; x3r=x4r;
+if serifs: top y1=h+min(oo,serif_drop); bot y4=-d;
+else: top y1=h; bot y4=-d; fi
+pos0(stem,0); pos0'(stem',0); x0=x3; x0'=x4; y0=y0';
+penpos2'(stem-fine,-180); z2'=z2; y3=y1; y2=.5bar_height;
+penpos5(light_vair-fine,-90); penpos6(thin_join-fine,0);
+y6=y0=2/3bar_height;
+filldraw stroke z1e--z2e;  % left stem
+filldraw stroke z3e..z0e--z0'e..z4e;  % right stem
+pickup fine.nib; bot y5r=-oo; x5l=.5w-.25u; lft x6l=tiny.lft x0l;
+(x,y5r)=whatever[z5l,z6l]; x5r:=max(x,.5[x5,x2'r]);
+filldraw stroke {{interim superness:=hein_super;
+  pulled_arc.e(2',5)}} & z5e{right}...{up}z6e;  % arc
+if serifs: sloped_serif.l(1,2,a,1/3,jut,serif_drop); % upper left serif
+ sloped_serif.l(3,0,b,1/3,jut,serif_drop); % upper right serif
+ dish_serif(4,0',c,1/3,jut,d,1/3,jut); fi % lower right serif
+% bar
+pickup fine.nib; numeric middle_weight;
+middle_weight=max(fine.breadth,.6[thin_join,vair]);
+pos11(middle_weight,90); pos10(middle_weight,90);
+y10=y11=hround min(-oo-1,.25[-oo,-d+vair'])-.5middle_weight;
+x11=lft x4l-jut; x10=rt x4r+.75jut;
+filldraw stroke z10e--z11e;
+penlabels(1,2,3,4,5); labels(6); endchar;
+
+lhchar "Lowercase  Special letter Li_dsc";
+cyrchar(Li_dsc,5u#,x_height#,sbeak#);
+italcorr x_height#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(serif_fit#+stem_shift# if monospace:+.25u# fi,
+ if serifs: serif_fit# else: 0 fi % lr_serif_adj
+	-stem_shift#);
+pickup tiny.nib; pos1(stem',0); pos2(stem',0);
+if odd(w-stem'): change_width; fi
+lft x1l=hround(.5w-.5stem'); x1=x2;
+top y1=x_height if serifs: +min(oo,serif_drop) fi; bot y2=0;
+filldraw stroke z1e--z2e;  % stem
+if serifs: sloped_serif.l(1,2,a,1/3,.95jut,serif_drop); fi % upper serif
+% lower lat descender
+numeric right_jut;
+right_jut=if serifs: 1.414jut else: hround (r-rt x2r-.5u) fi;
+r_serif(2,1,o,1/3,jut,p,1/3,beak_darkness,right_jut,.6beak_jut); % lower right descender
+penlabels(1,2); endchar;
+
+lhchar "Lowercase Special letter j_bar";
+cyrchar(Lj_bar,5.5u#,x_height#,desc_depth#);
+italcorr x_height#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(serif_fit#+2stem_shift# if monospace:+.5u# fi,
+ serif_fit#-2stem_shift# if monospace:-.5u# fi);
+pickup tiny.nib; pos1(stem',0); pos2(stem',0);
+rt x1r=hround(.5w+.25u+.5stem'); x1=x2;
+top y1=x_height if serifs: +min(oo,serif_drop) fi; bot y2=-1/3d;
+filldraw stroke z1e--z2e;  % stem
+if serifs: sloped_serif.l(1,2,a,1/3,1.1jut,serif_drop);  % upper serif
+ pickup tiny.nib; pos5(vair,-90); pos6(hair,-180); pos7(flare,-180);
+ x5=.5[x2,x6r]; bot y5r=-d-oo; y6-.5flare=-.88d;
+ if monospace: lft x6r=0 else: z6r=z7r; rt x7l=floor .75u fi;
+ (x,y5r)=whatever[z5l,z2l]; x5r:=max(x,.5[x6r,x5]);
+ filldraw stroke z2e{down}...z5e{left};  bulb(5,6,7); % arc and bulb
+else: pickup fine.nib; pos2'(stem',0); z2'=z2;
+ pos6(.2[vair,stem'],-90); pos7(vair,-90);
+ lft x7r=hround -.75u; bot y7r=vround 5/6(-d-oo);
+ x3r=x1r; top y4r=min(2x_height,h+1);
+ (x,y7l)=whatever[z7r,(x1,min(h,asc_height))]; x7l:=x;
+ z5r=z2'r; (x2'l,y5l)=whatever[z7l,z5r]; x5l=x2'l; y5=y5r;
+ x6r=.5[x7r,x5r]; x6l:=.5[x7l,x5l]; bot y6r=-d-oo;
+ filldraw stroke z2'e..{down}z5e & super_arc.e(5,6)
+  & term.e(6,7,left,1,4); fi  % arc and terminal
+% bar
+pickup fine.nib; numeric middle_weight;
+middle_weight=max(fine.breadth,.6[thin_join,vair]);
+pos8(middle_weight,90); pos9(middle_weight,90);
+bot y8r=bot y9r=0; lft x8=hround .5u-1;
+rt x9=hround(w-if monospace:.75u+1 else:1/3u fi);
+filldraw stroke z8e--z9e;
+penlabels(1,2,3,4,5,6,7); endchar;
+
+lhchar "Lowercase Special letter Lj_arm";
+cyrchar(Lj_arm,5.5u#,x_height#,desc_depth#);
+italcorr h#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(2u#+serif_fit#+2stem_shift# if monospace:+\\.5u# fi,
+ serif_fit#-2stem_shift# if monospace:-.5u# fi);
+pickup tiny.nib; pos1(stem',0); pos2(stem',0);
+rt x1r=hround(.5w+.25u+.5stem'); x1=x2;
+top y1=x_height; bot y2=-1/3d;
+filldraw stroke z1e--z2e;  % stem
+if serifs:
+ save slab; slab:=Vround(vair-vair_corr); %lower.slab
+ nodish_serif(1,2,a,1/3,.5jut,d,1/3,jut);	% upper serif
+ %sloped_serif.l(1,2,a,1/3,1.1jut,serif_drop);  % upper serif
+ pickup tiny.nib; pos5(vair,-90); pos6(hair,-180); pos7(flare,-180);
+ x5=.5[x2,x6r]; bot y5r=-d-oo; y6-.5flare=-.88d;
+ if monospace: lft x6r=0 else: z6r=z7r; rt x7l=floor .75u fi;
+ (x,y5r)=whatever[z5l,z2l]; x5r:=max(x,.5[x6r,x5]);
+ filldraw stroke z2e{down}...z5e{left};  bulb(5,6,7); % arc and bulb
+else:
+ pickup fine.nib; pos2'(stem',0); z2'=z2;
+ pos6(.2[vair,stem'],-90); pos7(vair,-90);
+ lft x7r=hround -.75u; bot y7r=vround 5/6(-d-oo);
+ (x,y7l)=whatever[z7r,(x1,min(h,asc_height))]; x7l:=x;
+ z5r=z2'r; (x2'l,y5l)=whatever[z7l,z5r]; x5l=x2'l; y5=y5r;
+ x6r=.5[x7r,x5r]; x6l:=.5[x7l,x5l]; bot y6r=-d-oo;
+ filldraw stroke z2'e..{down}z5e & super_arc.e(5,6)
+  & z6e{left}..z7e; fi  % arc and terminal
+% lower left beak
+pickup crisp.nib; pos8(slab,90); top y8r=tiny.top y1; x8=x1;
+pos9(hair,180); x9=hround(l+.65u); y9=good.y(y8l-beak/1.4)-eps;
+arm(8,9,f,beak_darkness,-.4beak_jut);  % left arm and beak
+penlabels(1,2,3,4,5,6,7); endchar;
+
+lhchar "Lowercase Special letter Lj_dotbar";
+cyrchar(Lj_dotbar,5.5u#,min(asc_height#,10/7x_height#+.5idot_diam#),desc_depth#);
+italcorr x_height#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(serif_fit#+2stem_shift# if monospace:+.5u# fi,
+ serif_fit#-2stem_shift# if monospace:-.5u# fi);
+pickup tiny.nib; pos1(stem',0); pos2(stem',0);
+rt x1r=hround(.5w+.25u+.5stem'); x1=x2;
+top y1=x_height if serifs: +min(oo,serif_drop) fi; bot y2=-1/3d;
+filldraw stroke z1e--z2e;  % stem
+pos3(idot_diam,0); pos4(idot_diam,90);
+x3r=x1r; top y4r=h+1;
+if bot y4l-top y1<slab: y4l:=min(y4r-eps,y1+tiny+slab); fi
+x3=x4; y3=.5[y4l,y4r]; dot(3,4);  % dot
+if serifs: sloped_serif.l(1,2,a,1/3,1.1jut,serif_drop);  % upper serif
+ pickup tiny.nib; pos5(vair,-90); pos6(hair,-180); pos7(flare,-180);
+ x5=.5[x2,x6r]; bot y5r=-d-oo; y6-.5flare=-.88d;
+ if monospace: lft x6r=0 else: z6r=z7r; rt x7l=floor .75u fi;
+ (x,y5r)=whatever[z5l,z2l]; x5r:=max(x,.5[x6r,x5]);
+ filldraw stroke z2e{down}...z5e{left};  bulb(5,6,7); % arc and bulb
+else: pickup fine.nib; pos2'(stem',0); z2'=z2;
+ pos6(.2[vair,stem'],-90); pos7(vair,-90);
+ lft x7r=hround -.75u; bot y7r=vround 5/6(-d-oo);
+ (x,y7l)=whatever[z7r,(x1,min(h,asc_height))]; x7l:=x;
+ z5r=z2'r; (x2'l,y5l)=whatever[z7l,z5r]; x5l=x2'l; y5=y5r;
+ x6r=.5[x7r,x5r]; x6l:=.5[x7l,x5l]; bot y6r=-d-oo;
+ filldraw stroke z2'e..{down}z5e & super_arc.e(5,6)
+  & term.e(6,7,left,1,4); fi  % arc and terminal
+% hcross
+pickup crisp.nib; pos8(bar,90); pos9(bar,90);
+top y8r=top y9r=vround bar+eps;
+lft x8=tiny.lft x2l-1.414jut; rt x9=hround(w-1/3u)+serif_fit;
+filldraw stroke z8e--z9e;  % bar
+penlabels(1,2,3,4,5,6,7); endchar;
+
+lhchar "Lowercase Special letter Lj_armhcrs";
+cyrchar(Lj_armhcrs,5.5u#,x_height#,desc_depth#);
+italcorr h#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(2u#+serif_fit#+2stem_shift# if monospace:+\\.5u# fi,
+ serif_fit#-2stem_shift# if monospace:-.5u# fi);
+pickup tiny.nib; pos1(stem',0); pos2(stem',0);
+rt x1r=hround(.5w+.25u+.5stem'); x1=x2;
+top y1=x_height; bot y2=-1/3d;
+filldraw stroke z1e--z2e;  % stem
+if serifs:
+ save slab; slab:=Vround(vair-vair_corr); % lower.slab
+ nodish_serif(1,2,c,1/3,.5jut,d,1/3,jut); % upper serif
+ pickup tiny.nib; pos5(vair,-90); pos6(hair,-180); pos7(flare,-180);
+ x5=.5[x2,x6r]; bot y5r=-d-oo; y6-.5flare=-.88d;
+ if monospace: lft x6r=0 else: z6r=z7r; rt x7l=floor .75u fi;
+ (x,y5r)=whatever[z5l,z2l]; x5r:=max(x,.5[x6r,x5]);
+ filldraw stroke z2e{down}...z5e{left}; bulb(5,6,7); % arc and bulb
+else:
+ pickup fine.nib; pos2'(stem',0); z2'=z2;
+ pos6(.2[vair,stem'],-90); pos7(vair,-90);
+ lft x7r=hround -.75u; bot y7r=vround 5/6(-d-oo);
+ (x,y7l)=whatever[z7r,(x1,min(h,asc_height))]; x7l:=x;
+ z5r=z2'r; (x2'l,y5l)=whatever[z7l,z5r]; x5l=x2'l; y5=y5r;
+ x6r=.5[x7r,x5r]; x6l:=.5[x7l,x5l]; bot y6r=-d-oo;
+ filldraw stroke z2'e..{down}z5e & super_arc.e(5,6)
+  & z6e{left}..z7e; fi  % arc and terminal
+% lower left beak
+pickup crisp.nib; pos8(Vround(vair-vair_corr),90); pos9(hair,180);
+top y8r=tiny.top y1; x8=x1; x9=hround(l+.65u); y9=good.y(y8l-beak/1.4)-eps;
+arm(8,9,f,beak_darkness,-.4beak_jut);  % left arm and beak
+% hcross
+pos11(bar,90); pos10(bar,90); top y10r=top y11r=vround bar+eps;
+x11=tiny.lft x2l-1.414jut; x10=hround(w-1/3u)+serif_fit;
+filldraw stroke z10e--z11e; % cross bar
+penlabels(1,2,3,4,5,6,7); endchar;
+
+lhchar "Lowercase Special letter Lj_crs";
+cyrchar(Lj_crs,9u#,x_height#,desc_depth#);
+italcorr x_height#*slant-cap_serif_fit#
+ +.75cap_jut#-2.5u#+min(.5cap_stem#,u#);
+adjust_fit(u#,cap_serif_fit#);
+pickup tiny.nib; pos1(cap_stem',0); pos2(cap_stem',0);
+top y1=h; rt x1r=hround(w-2u); x2=x1; y2=-d;
+ filldraw stroke z1e--z2e;  % stem and arc
+% lower left beak
+pickup crisp.nib; pos30(slab,90); top y30r=h; x30=x1;
+pos50(hair,180); x50=hround(l+.65u); y50=good.y(y30l-beak/1.4)-eps;
+arm(30,50,f,beak_darkness,-.4beak_jut);  % left arm and beak
+if serifs: dish_serif(2,1,c,1/3,1.414cap_jut,d,1/3,1.414cap_jut);  % lower serif
+ nodish_serif(1,2,a,1/3,.5cap_jut,b,1/3,.5cap_jut); fi  % upper bracketing
+% bar
+pickup fine.nib; numeric middle_weight;
+middle_weight=max(fine.breadth,.6[thin_join,vair]);
+pos21(middle_weight,90); pos20(middle_weight,90);
+y20=y21=0; x21=lft x2l-1.414cap_jut; x20=rt x2r+1.414cap_jut;
+filldraw stroke z20e--z21e;
+penlabels(1,2,3,4,5); endchar;
+
+lhchar "Lowercase Special letter Lk_lcom";
+cyrchar(Lk_lcom,9.5u#,asc_height#,1.25desc_depth#);
+italcorr x_height#*slant-.2u#;
+adjust_fit(serif_fit#,serif_fit#); pickup tiny.nib;
+numeric right_jut,stem[],alpha[];
+stem1=max(tiny.breadth,hround(fudged.stem-stem_corr));
+stem2=max(tiny.breadth,hround(fudged.stem-2stem_corr));
+stem3=max(tiny.breadth,hround(fudged.hair if hefty:-\\4stem_corr fi));
+stem4=max(tiny.breadth,hround(fudged.stem-3stem_corr));
+if serifs: right_jut=.6jut; else: right_jut=.4tiny; fi
+pos1(stem1,0); pos2(stem2,0); top y1=h; bot y2=0;
+lft x1l=lft x2l=hround(2.5u-.5stem1);
+top y3=x_height; rt x3r=hround(r-letter_fit-.7u-right_jut)+eps;
+bot y6=0; rt x6r=hround(r-letter_fit-.3u-right_jut)+eps;
+x4=x11=x1; y4=.7bar_height; y11=y3;
+alpha1=diag_ratio(1,.5(stem3-tiny),y3-y4,x3r-x4);
+alpha2=diag_ratio(1,.5(stem4-tiny),y11-y6,x6r-x1);
+penpos3(alpha1*(stem3-tiny),0); penpos4(whatever,-90);
+z5=.5[z5l,z5r]; penpos6(alpha2*(stem4-tiny),0);
+forsuffixes $=l,r: y3'$=x_height; y6'$=0; z4$=z3'$+whatever*(z3-z4);
+ z5$=z6'$+whatever*(z11-z6)=whatever[z3,z4]; endfor
+z3'r=z3r+penoffset z3-z4 of currentpen+whatever*(z3-z4);
+% we have also |z3'l=z3l+penoffset z4-z3 of currentpen+whatever*(z3-z4)|;\]
+z6'r=z6r+penoffset z11-z6 of currentpen+whatever*(z11-z6);
+z6'l=z6l+penoffset z6-z11 of currentpen+whatever*(z11-z6);
+fill z4r--diag_end(4r,3'r,1,.5,3'l,4l)--z4l--cycle;  % upper diagonal
+fill z5l--diag_end(5l,6'l,.5,1,6'r,5r)--z5r--cycle;  % lower diagonal
+pos0(stem1,0); pos0'(stem2,0); y0=y0'; x0=x1; x0'=x2;
+rt z0r=whatever[z3,z4]; filldraw stroke z1e..z0e--z0'e..z2e; % stem
+if serifs: numeric inner_jut;
+ if rt x2r+jut+.5u+1<=lft x6l-jut: inner_jut=jut;
+ else: rt x2r+inner_jut+.5u+1=lft x6l-inner_jut; fi
+ sloped_serif.l(1,0,a,1/3,jut,serif_drop); % upper stem serif
+ dish_serif(2,0',b,1/3,jut,c,1/3,inner_jut);  % lower stem serif
+ dish_serif(3,4,d,2/3,1.4jut,e,1/2,right_jut)(dark); % upper diagonal serif
+ dish_serif(6,5,f,1/2,inner_jut,g,1/3,right_jut)(dark);fi % lower diagonal serif
+% the accent
+%ac_comma(0,0,1.25desc_depth, 7,8,9,10,12);
+ x_move:=0; y_move:=0; depth:=1.25desc_depth;
+  _zero:=7; _one:=8; _two:=9; _three:=10; _four:=12;
+ numeric height,bulb_diam;
+ height=if serifs: depth+.5fine-max(.27depth,o+hair) else:.68depth fi;
+ bulb_diam=max(fine.breadth,min(dot_size,floor(.56height)));
+ if square_dots: pickup fine.nib; pos[_one](vair,0);
+  pos[_two](.5[vair,stem],0);
+  % comma below letter as sans serif cedilla
+   top y[_one]=-o-2; bot y[_two]=-d-o;
+   x[_two]=x[_one]-1.25u=.5w+x_move;
+  filldraw stroke z[_one]e--z[_two]e;   % diagonal
+ else: pickup fine.nib;
+  x[_four]-.5bulb_diam=hround(.5w+x_move-.5bulb_diam);
+  y[_four]+.5bulb_diam=-d+y_move+height;
+  pos[_four](bulb_diam,90);
+  pos[_one](vair,90); pos[_two](vair,0); pos[_three](vair,-45);
+  z[_one]r=z[_four]r; rt x[_two]r=hround(x[_four]+.5bulb_diam
+   +if monospace:.28u / expansion_factor else:.25u fi)+2eps;
+  x[_three]=x[_four]-.5u if monospace: /expansion_factor fi;
+  y[_two]=1/3[y[_one],y[_three]];
+  bot y[_three]r=vround(y[_four]-(height-.5bulb_diam));
+  y_:=ypart((z[_one]{right}...z[_two]{down}...z[_three])
+   intersectiontimes (z[_four]l{right}..{left}z[_four]r));
+  if y_<0: y_:=1; fi
+  filldraw z[_four]r{left}..subpath (0,y_)
+   of (z[_four]l{right}..{left}z[_four]r)--cycle; % dot
+  filldraw stroke z[_one]e{right}...z[_two]e{down}...z[_three]e; fi  % tail
+ penlabels([_zero],[_one],[_two],[_three],[_four]);
+penlabels(0,1,2,3,4,5,6,11); endchar;
+
+endinput;
+%end of file

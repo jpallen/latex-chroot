@@ -1,0 +1,82 @@
+%%
+%% This is file `cjwpltab.clo',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% cjwplain.dtx  (with options: `tabbing')
+%% 
+%% Copyright (C) 1995 by Colin J. Wynne
+%% 
+%% This file is part of cjwplain, a style providing
+%% Plain TeX functionality under LaTeX2e.
+%% 
+ \NeedsTeXFormat{LaTeX2e}
+ \ProvidesFile{cjwpltab.clo}
+ [1995/05/01 v0.5
+                 Plain TeX Tabbing Macros for LaTeX2e---CJW]
+\def\RCSinfo{$Id: cjwplain.dtx,v 1.2 1998/08/31 22:57:40 cwynne Exp $}
+
+\def\RCSsplit $#1: #2,v #3 #4 #5 #6 #7${
+  \gdef\filename   {#2}
+  \gdef\fileversion{#3}
+  \gdef\filedate   {#4}
+  \gdef\filetime   {#5}
+  \gdef\fileauthor {#6}
+  \gdef\filelocker {#7}}
+
+\expandafter\RCSsplit\RCSinfo
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%%
+\newif\ifus@ \newif\if@cr
+\newbox\tabs \newbox\tabsyet \newbox\tabsdone
+
+\def\cleartabs{\global\setbox\tabsyet\null \setbox\tabs\null}
+\def\settabs{\setbox\tabs\null \futurelet\next\sett@b}
+\let\+=\relax % in case this file is being read in twice
+\def\sett@b{\ifx\next\+\let\next\relax
+\def\next{\afterassignment\s@tt@b\let\next}%
+  \else\let\next\s@tcols\fi\next}
+\def\s@tt@b{\let\next\relax\us@false\m@ketabbox}
+\def\tabalign{\us@true\m@ketabbox} % non-\outer version of \+
+\outer\def\+{\tabalign}
+\def\s@tcols#1\columns{\count@#1 \dimen@\hsize
+  \loop\ifnum\count@>\z@ \@nother \repeat}
+\def\@nother{\dimen@ii\dimen@ \divide\dimen@ii\count@
+  \setbox\tabs\hbox{\hbox to\dimen@ii{}\unhbox\tabs}%
+  \advance\dimen@-\dimen@ii \advance\count@\m@ne}
+
+\def\m@ketabbox{\begingroup
+  \global\setbox\tabsyet\copy\tabs
+  \global\setbox\tabsdone\null
+  \def\cr{\@crtrue\crcr\egroup\egroup
+\ifus@\unvbox\z@\lastbox\fi\endgroup
+\setbox\tabs\hbox{\unhbox\tabsyet\unhbox\tabsdone}}%
+  \setbox\z@\vbox\bgroup\@crfalse
+\ialign\bgroup&\t@bbox##\t@bb@x\crcr}
+
+\def\t@bbox{\setbox\z@\hbox\bgroup}
+\def\t@bb@x{\if@cr\egroup % now \box\z@ holds the column
+  \else\hss\egroup \global\setbox\tabsyet\hbox{\unhbox\tabsyet
+      \global\setbox\@ne\lastbox}% now \box\@ne holds its size
+\ifvoid\@ne\global\setbox\@ne\hbox to\wd\z@{}%
+\else\setbox\z@\hbox to\wd\@ne{\unhbox\z@}\fi
+\global\setbox\tabsdone\hbox{\box\@ne\unhbox\tabsdone}\fi
+  \box\z@}
+\endinput
+%%
+%% End of file `cjwpltab.clo'.

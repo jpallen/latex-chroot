@@ -1,0 +1,281 @@
+%% file: TXSinit.tex - Initialization - TeXsis version 2.18
+%% @(#) $Id: TXSinit.tex,v 18.2 2000/05/16 22:44:04 myers Exp $
+%======================================================================*
+% Initialization for TeXsis:
+%
+% Initial settings, run-time initialization, date macros, counters,
+% read site file and/or patch file, autoloading style files.
+%
+%======================================================================*
+% (C) copyright 1991, 1993, 1999 by Eric Myers and Frank E. Paige.
+% This file is a part of TeXsis.  Distribution and/or modifications
+% are allowed under the terms of the LaTeX Project Public License (LPPL).
+% See the file COPYING or ftp://ftp.texsis.org/texsis/LPPL
+%======================================================================*
+\message{Initialization.}
+
+% Make @ signs act like letters, temporarily, to avoid conflict
+% between user names and internal control sequences of plain format.
+% \texsis changes this back at run time
+
+\catcode`@=11
+
+%==================================================*
+% RUN TIME INITIALIZATION for opening files and such is now
+% performed by the macros that use those files.  \texsis just
+% sets up the TeXsis defaults, instead of the Plain TeX defaults.
+
+\long\def\texsis{% initialization to TeXsis defaults
+    \quoteon                            % automatic quote balancing is ON
+    \Contentsfalse                      % table of contents is OFF by default
+    \autoparens                         % automatic paren balancing is ON
+    \ATlock                             % now @ is no longer a letter
+    \resetcounters                      % reset all \global counters
+    \pageno=1                           % be sure to start on page one
+    \colwidth=\hsize                    % column width assumed \hsize
+    \headline={\HeadLine}\headlineoffset=0.5cm % TeXsis running headlines
+    \footline={\FootLine}\footlineoffset=0.5cm %    and footlines
+    \twelvepoint                        % start in 12 pt type
+    \doublespaced                       % and doublespaced
+    \newlinechar=`\^^M                  % <CR> breaks lines in file output
+% set some integer parameters:
+    \uchyph=\@ne                        % allow capitalized words to be split
+    \brokenpenalty=\@M                  % don't break hyphens across pages
+    \widowpenalty=\@M                   % ``widow'' line penalty at end of par
+    \clubpenalty=\@M                    % ``club'' line penalty at start of par
+    \dimen\footins=0.5\vsize            % footnotes up at most half the page
+}
+
+% Older synonyms for \texsis, now obsolete (with variations)
+
+\obsolete\inittexsis\texsis     \obsolete\texsisinit\texsis    
+\obsolete\initexsis\texsis      \obsolete\initTeXsis\texsis    
+
+% Detect and warn about LaTeX
+
+\def\LaTeXwarning{\emsg{> }%
+   \emsg{> Whoops! This seems to be a LaTeX file.}%
+   \emsg{> Try saying `latex \jobname` instead.}%
+   \emsg{> }\end}
+\def\documentstyle{\LaTeXwarning}
+\def\@writefile{\LaTeXwarning}
+
+%-----------------------------------------------------------------------
+% \today gives today's date (unless \dated is called to override)
+ 
+\def\today{\number\day\ \ifcase\month\or 
+    January\or February\or March\or April\or May\or June\or
+    July\or August\or September\or October\or November\or December\fi
+    \ \number\year}
+
+\let\@today=\today              % save a version of \today in any case
+
+% \dated{date} redefines \today to be whatever date you want.
+
+\def\dated#1{\xdef\today{#1}}
+
+
+% \SetDate sets \adate (American) and \edate (European) to today's date.
+% Also, \hour is the current hour, \minutes is the current minutes, 
+% and \runtime is the current date and time as yyyy/mm/dd hh:mm
+
+\def\SetDate{% define current date and time stamps
+  \xdef\adate{\monthname{\the\month}~\number\day, \number\year}%
+  \xdef\edate{\number\day~\monthname{\the\month}~\number\year}%
+  \count255=\time\divide\count255 by 60         %
+  \edef\hour{\the\count255}%                    % current \hour
+  \multiply\count255 by -60 \advance\count255 by\time % get minutes
+  \edef\minutes{\ifnum 10>\count255 {0}\fi\the\count255}% minutes, w/ leading 0
+  \edef\runtime{\the\year/\the\month/\the\day\space\hour:\minutes}}
+
+
+% Counters are defined in the files where they are used, but we can
+% reset them here.  We will be careful about not assuming that something
+% has already been defined.  The general rule is that the counter should
+% hold the value for the most recent usage, so we can refer to it later
+% without having to subtract one from it.  This also allows us a way to
+% determine if a given counter has been used; for example, if any
+% \subsections have appeared in the current section then the count will
+% be non-zero. 
+
+\def\gzero#1{\ifx#1\undefined\relax\else\global#1=\z@\fi}
+
+\def\resetcounters{% reset all \global TeXsis counters
+  \gzero\chapternum     \gzero\sectionnum       \gzero\subsectionnum  
+  \gzero\theoremnum     \gzero\lemmanum         \gzero\subsubsectionnum 
+  \gzero\tabnum         \gzero\fignum           \gzero\definitionnum    
+  \gzero\@BadRefs       \gzero\@BadTags         \gzero\@quoteflag  
+  \gzero\@envDepth      \gzero\enumDepth        \gzero\enumcnt        
+  \gzero\refnum         \gzero\eqnum            \gzero\corollarynum   
+  \global\@firstrefnum=1\global\@lastrefnum=1                   
+}
+
+
+% Generic working file/aux file initialization:
+% \@FileInit\writename=filename[Description] opens a file w/ a header
+
+\def\@FileInit#1=#2[#3]{% generic auxiliary file initialization
+   \immediate\openout#1=#2 \relax               %
+   \immediate\write#1{\@comment #3 for job \jobname\space - created: \runtime}%
+   \immediate\write#1{\@comment ====================================}}
+
+
+%==================================================*
+% \LoadSiteFile looks for the file TXSsite.tex and reads it in.
+% This is only done once when INITEX is run to create the format
+% file, not everytime texsis is invoked.  We first try to see if the
+% file exists, and if so just load it silently.  If we can't see it we
+% say something before the \input to help out in case it's not found.
+% See Note 3 below in ``Autoloaded Styles'' for further explaination.
+
+\newread\txsfile        % input for style files and run-time patches 
+\let\patchfile=\txsfile
+
+\def\LoadSiteFile{%  load the site info file TXSsite.tex
+  \immediate\openin\patchfile=TXSsite.tex % try to open patch file
+  \ifeof\patchfile                      % if EOF then it is not there
+     \emsg{> No TXSsite.tex file found.}%
+     \immediate\closein\patchfile       % close it to be sure
+  \else
+     \emsg{> Trying to read in TXSsite.tex...}%
+     \immediate\closein\patchfile        % close it to read with \input
+     \input TXSsite.tex \relax           % \input the site info
+  \fi}
+
+
+%==================================================*
+% \ReadPatches looks to see if there is a patch file out there called 
+% \TXSpatches.  If so, it is read in.  These should be run-time updates
+% and small patches and such.  You can change the name (or put a path
+% in the name!) by re-defining \TXSpatches in TXSsite.tex when building
+% the format file. \ReadPatches is inclued in \everyjob so it's done
+% whenever you run texsis.  This will not work on OZTeX or others
+% which do not treat \openin and \ifeof properly.  Tough luck.
+% See Note 3 below in ``Autoloaded Styles'' for further explaination.
+
+\def\ReadPatches{%  read in a patch/mod files, if they exist 
+    \immediate\openin\patchfile=\TXSpatches.tex % try to open patch file
+    \ifeof\patchfile                            % if EOF then it isn't there
+         \closein\patchfile                     % so just close it.
+    \else\immediate\closein\patchfile           % close so to \input
+       \input\TXSpatches.tex \relax             % \input the patches
+    \fi
+%
+% ALso look to see if there is a modifications file out there called
+% TXSmods.tex (or change the name in \TXSmods).  If so, read this
+% in too.  This should contain personal modifications to macros and
+% such, not system patches. 
+%
+    \immediate\openin\patchfile=\TXSmods.tex \relax% try to open mod file
+    \ifeof\patchfile                            % if EOF then it isn't there
+       \closein\patchfile                       % so just close it.
+    \else\immediate\closein\patchfile           % close it to \input
+       \input\TXSmods.tex \relax                % \input the mod file
+    \fi}
+
+%======================================================================*
+% LOADED and AUTOLOADED styles:
+%
+% Special document layouts can be loaded from a ``style'' file as needed.
+% To load a particluar layout called \foo from the file foobar.txs use:
+%
+%       \loadstyle\foo{foobar.txs}
+%
+% (This is similar to \documentstyle in LaTeX, but we consider that
+% to be a reserved word for LaTeX.)  By convention TeXsis style files
+% end with ``.txs'' to distinguish them from LaTeX style files.
+%
+% Note 1:  The style file foobar.txs must be readable at run time, 
+% either from the current directory, in one of the directories 
+% where your particular version of TeX looks for the \input command.
+%
+% Note 2:  The control sequence \foo must be redefined in the style 
+% file, since the new version of \foo is invoked after the file is 
+% loaded.  If it is not redefined we avoid the potential infinite loop 
+% and instead print an error message.
+%
+% Note 3:  We have used \openin to try to determine if the file to load 
+% exists, but some implementations of TeX do not look through the whole
+% TEXINPUTS path for \openin (as they do for \input), and some do not
+% treat \ifeof correctly in any case, so this is not a reliable test.
+% We consider this a bug, but we have to live with it until those guys
+% get their TeX fixed!  So meanwhile if we think that the \input might
+% fail we print a message to say what we are trying to do before doing it.
+
+\def\loadstyle#1#2{%            % load a definition for #1 from file #2
+   \def#1{\@loaderr{#1}}%       % disable #1 (just in case...)
+   \ATunlock                    % make @ a letter, in case it's in the file
+   \immediate\openin\txsfile=#2 % try to open the file to see if it exists
+   \ifeof\txsfile               % if end of file, then print a message
+      \emsg{> Trying to load the style file #2...}% before trying to \input
+   \fi                          %
+   \closein\txsfile             % just close the file in any case
+   \input #2 \relax             % load (or try to) the file with the new \def
+   \ATlock                      % @ now no longer a letter
+   #1}                          % now use the new definition
+
+
+% It's an error if the macro #1 above was not redefined in the style
+% file: [And if we didn't change the definition of #1 to something else
+% we would just keep reading the (non-existent) file over and over!]
+
+\newhelp\@utohelp{%
+loadstyle: The macro named above was supposed to be defined^^M%
+In the style file that was just read, but I couldn't find^^M%
+the definition in that file.  Maybe you can learn something^^M%
+from the comments in that style file, or find someone who knows^^M%
+something about it.}
+
+\def\@loaderr#1{% error message for \loadstyle 
+   \newlinechar=`\^^M                   % ^^M is line break
+   \errhelp=\@utohelp                   % longer help message
+   \errmessage{No definition of \string#1 in the style file.}}
+
+
+% AUTOLOAD:
+%    Many of the most basic special document layouts are kept in
+% style files, but we don't want the user to have to know which
+% file is which.  Hence we use \autoload to tell it to automatically
+% load the true definition from the style file if the layout
+% (or something from inside it) is called for.
+% \autoload\foo{file} defines \foo so that it's full definition 
+% is read from the named file when \foo is invoked.
+%
+% [Note one problem: if called inside a group then the definitions
+% will go away when the group ends!]
+
+\def\autoload#1#2{%     automatically load a definition from a file
+   \def#1{\loadstyle#1{#2}}}
+
+
+% List of autoloaded document styles:
+
+\autoload\PhysRev{PhysRev.txs}          % Physical Review 2-column
+\autoload\PhysRevLett{PhysRev.txs}      % Physical Review Letters
+\autoload\PhysRevManuscript{PhysRev.txs}% Physical Review manuscript
+\autoload\nuclproc{nuclproc.txs}        % Nuclear Physics proceedings 
+\autoload\NorthHolland{Elsevier.txs}    % North-Holland single column
+\autoload\NorthHollandTwo{Elsevier.txs} % North-Holland double column
+\autoload\WorldScientific{WorldSci.txs} % World-Scientific proceedings
+\autoload\IEEEproceedings{IEEE.txs}     % IEEE conference proceedings
+\autoload\IEEEreduced{IEEE.txs}         % 75% reduced IEEE proceedings
+\autoload\AIPproceedings{AIP.txs}       % American Institute of Physics
+\autoload\CVformat{CVformat.txs}        % sample macros for Curriculum Vitae
+
+%  Indexing macros using MakeIndex:
+
+\autoload\idx{index.tex}\autoload\index{index.tex}\autoload\theindex{index.tex}
+\autoload\markindexfalse{index.tex}\autoload\markindextrue{index.tex}
+\autoload\makeindexfalse{index.tex}\autoload\makeindextrue{index.tex}
+
+%  Assorted tools
+
+\autoload\spine{spine.txs}
+
+% Other styles which you want to be automatically loaded can 
+% defined in the local customization file TXSsite.tex.
+
+% For the other basic document styles which are not loaded from style
+% files see TXSfmts.tex.
+
+%>>> EOF TXSinit.tex <<<

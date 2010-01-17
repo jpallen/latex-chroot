@@ -1,0 +1,225 @@
+%%
+%% This is file `probsoln.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% probsoln.dtx  (with options: `probsoln.sty,package')
+%% Copyright (C) 2006 Nicola Talbot, all rights reserved.
+%% If you modify this file, you must change its name first.
+%% You are NOT ALLOWED to distribute this file alone. You are NOT
+%% ALLOWED to take money for the distribution or use of either this
+%% file or a changed version, except for a nominal charge for copying
+%% etc.
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{probsoln}[2006/03/02 v2.02 Problems and their Solutions Package (NLCT)]
+\RequirePackage{ifthen}
+\provideboolean{showanswers}
+\newcommand{\showanswers}{\showanswerstrue}
+\newcommand{\hideanswers}{\showanswersfalse}
+\DeclareOption{answers}{\showanswerstrue}
+\DeclareOption{noanswers}{\showanswersfalse}
+\ExecuteOptions{noanswers}
+\ProcessOptions
+\newif\ifselectrandom \selectrandomfalse
+\newif\iffirstpass
+\newif\ifselected
+\newcommand{\solutionname}{Solution}
+\newcommand{\newproblem}[4][0]{%
+\ifselectrandom
+\iffirstpass
+\global\advance\@probN by 1
+\expandafter\gdef\csname @problabel\romannumeral\@probN\endcsname{#2}%
+\else
+\checkselected{#2}%
+\ifselected
+\@ifundefined{@prob@#2}{%
+\ifnum#1=0
+\expandafter\gdef\csname @prob@#2\endcsname{%
+#3 \ifshowanswers\begin{solution}#4\end{solution}\fi}%
+\expandafter\gdef\csname @prob@#2@arg\endcsname{\relax}%
+\else
+\message{Problem #2 requires #1 argument(s), please specify (e.g. {5}{3}):}%
+\read-1to\@tmp
+\expandafter\xdef\csname @prob@#2@arg\endcsname{\@tmp}%
+\expandafter\global\expandafter\newcommand\csname @prob@#2\endcsname[#1]{%
+#3 \ifshowanswers\solution #4\fi}%
+\fi
+}{%
+\PackageError{probsoln}{Label #2 already used}%
+{Each problem must have a unique label identifier}%
+}%
+\fi
+\fi
+\else
+\@ifundefined{@prob@#2}{%
+\expandafter\global\expandafter\newcommand\csname @prob@#2\endcsname[#1]{%
+#3 \ifshowanswers\begin{solution}#4\end{solution}\fi}%
+}{%
+\PackageError{probsoln}{Label #2 already used}%
+{Each problem must have a unique label identifier}%
+}
+\fi
+}
+\newcommand{\useproblem}[1]{%
+\@ifundefined{@prob@#1}{%
+\PackageError{probsoln}{Label #1 undefined}%
+{Can't find problem defined with label identifier '#1'}%
+}{\csname @prob@#1\endcsname}%
+}
+\newcount\@probN \newcount\@probselN \newcount\@rndselctr
+\newcount\r@ndcur
+\newcount\@ps@randtmp
+\r@ndcur=1\relax
+\newcommand{\PSNrandseed}[1]{%
+\ifnum#1=0\relax
+\PackageWarning{probsoln}{Can't have 0 as random seed, changing to 1}%
+\r@ndcur=1\relax
+\else
+\r@ndcur=#1\relax
+\fi
+\PackageInfo{probsoln}{Random Seed = \the\r@ndcur}%
+}
+\newcommand{\PSNrand}{%
+\@ps@randtmp=\r@ndcur
+\multiply\@ps@randtmp by 16807\relax
+\r@ndcur=\@ps@randtmp
+\divide\r@ndcur by 120001\relax
+\multiply\r@ndcur by 120001\relax
+\advance\@ps@randtmp by -\r@ndcur
+\r@ndcur = \@ps@randtmp
+\ifnum\r@ndcur=0\relax\r@ndcur=1\fi
+}
+\newcommand{\PSNrandom}[2]{%
+\PSNrand
+#1=\r@ndcur
+\@ps@randtmp=\r@ndcur
+\divide\@ps@randtmp by #2\relax
+\multiply\@ps@randtmp by #2\relax
+\advance#1 by -\@ps@randtmp
+\advance#1 by 1\relax
+}
+\newcommand{\random}[3]{%
+\ifnum#2=1\relax
+\PSNrandom{\value{#1}}{#3}%
+\else
+\@rndselctr=#3%
+\advance\@rndselctr by -#2\relax
+\advance\@rndselctr by 1\relax
+\PSNrandom{\value{#1}}{\@rndselctr}%
+\addtocounter{#1}{#2}%
+\addtocounter{#1}{-1}%
+\fi
+}
+\newcommand*{\selectallproblems}[1]{%
+\global\@probN=0\relax
+\selectrandomtrue
+\firstpasstrue
+\input{#1}%
+\firstpassfalse
+\selectrandomfalse
+\input{#1}%
+\global\@rndselctr=1\relax
+\whiledo{\@rndselctr < \@probN \TE@or \@rndselctr = \@probN}{%
+\edef\@tmp{\csname @problabel\romannumeral\@rndselctr\endcsname}%
+\edef\@probargs{{\@tmp}\csname @prob@\@tmp @arg\endcsname}%
+\PSNitem \expandafter\useproblem\@probargs \endPSNitem
+\global\advance\@rndselctr by 1\relax
+}}
+\newcommand{\selectrandomly}[2]{%
+\global\@probselN=#2\relax
+\global\@probN=0\relax
+\selectrandomtrue
+\firstpasstrue
+\input{#1}%
+\ifnum\@probselN>\@probN
+\PackageError{probsoln}{Requested number too large}%
+{You have asked for \the\@probselN \space problems, but there are only
+\the\@probN \space problems defined in the file #1.  I will only select \the\@probN \space
+problems.}%
+\global\@probselN=\@probN
+\fi
+\shuffle{@problabel}{\@probN}%
+\firstpassfalse
+\input{#1}%
+\selectrandomfalse
+\global\@rndselctr=1\relax
+\whiledo{\@rndselctr < \@probselN \TE@or \@rndselctr = \@probselN}{%
+\edef\@tmp{\csname @problabel\romannumeral\@rndselctr\endcsname}%
+\edef\@probargs{{\@tmp}\csname @prob@\@tmp @arg\endcsname}%
+\PSNitem \expandafter\useproblem\@probargs \endPSNitem
+\global\advance\@rndselctr by 1\relax
+}%
+}
+\newcommand{\PSNitem}{\item}
+\@ifundefined{endPSNitem}{\def\endPSNitem{}}{%
+\PackageError{probsoln}{\string\endPSitem\ already defined}{}}
+\newenvironment{solution}{\paragraph{\solutionname:}}{}
+\newcount\@ckselctr
+\newcommand{\checkselected}[1]{%
+\selectedfalse
+\@ckselctr=1\relax
+\whiledo{\@ckselctr < \@probselN \TE@or \@ckselctr = \@probselN}{%
+\ifthenelse{\equal{#1}{\csname @problabel\romannumeral\@ckselctr\endcsname}}%
+{\global\selectedtrue \global\@ckselctr=\@probselN}{}%
+\advance\@ckselctr by 1\relax
+}%
+}
+\newcount\@shfctr \newcount\@shfA \newcount\@shfB
+\newcommand{\shuffle}[2]{%
+\@shfctr=1\relax
+\whiledo{\@shfctr < 101}{%
+\PSNrandom{\@shfA}{#2}\PSNrandom{\@shfB}{#2}%
+\ifnum\@shfA=\@shfB
+\else
+\edef\@@tmpA{\csname#1\romannumeral\@shfA\endcsname}%
+\let\@tmpA=\@@tmpA
+\edef\@@tmpB{\csname#1\romannumeral\@shfB\endcsname}%
+\let\@tmpB=\@@tmpB
+\expandafter\xdef\csname#1\romannumeral\@shfA\endcsname{\@tmpB}%
+\expandafter\xdef\csname#1\romannumeral\@shfB\endcsname{\@tmpA}%
+\fi
+\advance\@shfctr by 1\relax
+}%
+}
+\newcount\@ps@forrand
+\newcommand{\doforrandN}[4]{%
+{\@ps@forrand=0\relax
+\@for#2:=#3\do{%
+\advance\@ps@forrand by 1\relax
+\expandafter\edef\csname @doforrandN@\romannumeral\@ps@forrand\endcsname{#2}}%
+\ifnum\@ps@forrand<#1\relax
+\PackageError{probsoln}{Can't randomly select \number#1 item(s)}{You
+have requested \number#1 item(s), but there
+are only \number\@ps@forrand item(s) in the list}%
+\else
+\shuffle{@doforrandN@}{\@ps@forrand}%
+\ifnum#1>0\relax
+\@ps@forrand=0\relax
+\loop
+\advance\@ps@forrand by 1\relax
+\edef#2{\csname @doforrandN@\romannumeral\@ps@forrand\endcsname}%
+#4%
+\ifnum\@ps@forrand<#1\relax
+\repeat
+\fi
+\fi
+}}
+\endinput
+%%
+%% End of file `probsoln.sty'.

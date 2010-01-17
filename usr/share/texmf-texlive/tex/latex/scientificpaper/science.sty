@@ -1,0 +1,131 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%   The Scientific Paper Package for LaTeX
+%   By Ryan Aycock March 26, 2004
+%   
+%    For use with LaTeX pdflatex.
+%
+% YOU MUST HAVE THE MULTICOL PACKAGE
+%
+% This package will allow you to write generic scientific papers with two column text
+% and a single column, centered abstract.  this format is not based on any published
+% style guide and should modified as needed.
+%
+% To use, simply build your document with this template:
+%
+% \documentclass[letterpaper,11pt]{article}
+% \usepackage{science}
+% \title{Ultra Cool Title}
+% \author{Your Name}
+% \date{the date}  % Can use \today
+% \begin{document}
+% \maketitle
+% \begin{abstract}
+% Type your abstract here.
+% \end{abstract}
+% \begin{body}
+% Type your paper as normal.  Use \cite{} for your citations.
+% \begin{bib}
+% Put your bibliography here.  Use \bibitem{} for
+% each of the citations used in your paper.
+% \end{bib}
+% \end{body}
+% \end{document}
+%
+%
+% If you have more than one author or wish to list your school and contact 
+% information, use the following:
+%
+% \author{First author's name$^{1}$\thanks{Contact information}, 
+% Second author$^{2}$\\
+% $^{1}$\textit{First university}\\
+% $^{2}$\textit{Second university}}
+%
+%
+%
+% Floating environments such as figures or tables are
+% forbidden in the multicol environment.  To get around
+% this limitation, you have two options when including
+% a figure or table:
+%
+% use \begin{figurehere}... \end{figurehere}
+% and \begin{tablehere}... \end{tablehere}
+% to place a float in the two column format (right here).
+% Or you can use \begin{figure*} \begin{table*}.  These
+% commands will span your float body across the page, usually
+% at the top --- best for large images and tables.
+%
+%
+% If you have any questions about how \cite and \bibitem work, consult
+% the "Not So Short Introduction to LaTeX."
+%
+% Note: The bibliography assumes that you are using LaTeX's build-in
+% bibliography and not BibTeX or another package.  Also, this package
+% assumes that you will have less than 99 sources.  If you should use more,
+% you will have to edit the bib environment.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\ProvidesPackage{science}
+\typeout{Scientific Paper Package - by Ryan Aycock}
+
+\ifx\pdfoutput\undefined % We're not running pdftex
+\usepackage[dvips]{graphicx}
+\else
+\usepackage[pdftex]{color,graphicx}
+\pdfpagewidth=\paperwidth
+\pdfpageheight=\paperheight
+\usepackage{thumbpdf}
+%\pdfcompresslevel=9
+\fi
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%   Fixing the document's size
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setlength{\paperheight}{11in}
+\setlength{\paperwidth}{8.5in}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{9in}
+\setlength{\footskip}{40pt}
+\setlength{\hoffset}{0in}
+\setlength{\voffset}{-1in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\marginparwidth}{0in}
+\setlength{\marginparpush}{0in}
+\setlength{\marginparsep}{0in}
+\setlength{\topmargin}{.5in}        
+\setlength{\headsep}{18pt}
+\setlength{\columnsep}{0.4in}
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{.3in}
+
+\usepackage{multicol}
+
+
+% These commands allow you to use figures
+% and tables in the multicol environment.
+\makeatletter
+\newenvironment{tablehere}
+  {\def\@captype{table}}
+  {}
+
+\newenvironment{figurehere}
+  {\def\@captype{figure}}
+  {}
+\makeatother
+
+
+\newenvironment{body}{\vspace{1pc}\begin{multicols}{2}}{\end{multicols}}
+
+%
+% If you use more than 99 sources, change the appropriate number:
+%
+\newenvironment{bib}{\begin{thebibliography}{99}\setlength{\itemsep}{-1mm}}{\end{thebibliography}}
+

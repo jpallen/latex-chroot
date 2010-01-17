@@ -1,0 +1,92 @@
+%
+% This style option is identical to the section/sebsection/partagraph definitions
+% of LaTeX2e dates january 1997. The only difference is that font
+% families/shapes/series vhave been parametrised in order to facilitate
+% changing the fonts of section, chapter, subsection titles.
+%
+% If nothing is redefined, behaviour is the standard LaTeX2e behaviour,
+% and the names of redefinition commands is... obvious (see below)
+%
+
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesPackage{varsects}
+          [1998/11/28  variable section fonts/sizes]
+
+% fonts for various section titles
+\def\SubParagraphFont{\normalfont\bfseries}
+\def\ParagraphFont{\normalfont\bfseries}
+\def\SubSubSectionFont{\normalfont\bfseries}
+\def\SubSectionFont{\normalfont\bfseries}
+\def\SectionFont{\normalfont\bfseries}
+
+% font sizes for various titles
+\def\SubParagraphSize{\normalsize}
+\def\ParagraphSize{\normalsize}
+\def\SubSubSectionSize{\normalsize}
+\def\SubSectionSize{\large}
+\def\SectionSize{\Large}
+\def\ChapterSize{\Huge} % the size of the chapter titles
+\def\ChapterNameSize{\huge} % the size of the "Chapter" word, and its number
+\def\ChapterFont{\normalfont\bfseries} % the size of the chapter title
+\def\ChapterTopSpace{50pt} % spacings before, in the middle and after the
+\def\ChapterMidSpace{20pt} % chapter name
+\def\ChapterBotSpace{40pt}
+
+% title spacings, in "ex" units
+\def\SectionSpaceBefore{3.5}
+\def\SectionSpaceAfter{2.3}
+\def\SubSectionSpaceBefore{3.25}
+\def\SubSectionSpaceAfter{1.5}
+\def\SubSubSectionSpaceBefore{3.25}
+\def\SubSubSectionSpaceAfter{1.5}
+\def\ParagraphSpaceBefore{3.25}
+\def\SubParagraphSpaceBefore{3.25}
+
+% you do not need to redefine the code below, unless you know what you do...
+
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+                                   {-\SectionSpaceBefore ex \@plus -1ex \@minus -.2ex}%
+                                   {\SectionSpaceAfter ex \@plus.2ex}%
+                                   {\SectionFont\SectionSize}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+                                     {-\SubSectionSpaceBefore ex\@plus -1ex \@minus -.2ex}%
+                                     {\SubSectionSpaceAfter ex \@plus .2ex}%
+                                     {\SubSectionFont\SubSectionSize}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+                                     {-\SubSubSectionSpaceBefore ex\@plus -1ex \@minus -.2ex}%
+                                     {\SubSubSectionSpaceAfter ex \@plus .2ex}%
+                                     {\SubSubSectionFont\SubSubSectionSize}}
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+                                    {\ParagraphSpaceBefore ex \@plus1ex \@minus.2ex}%
+                                    {-1em}%
+                                    {\ParagraphFont\ParagraphSize}}
+\renewcommand\subparagraph{\@startsection{subparagraph}{5}{\parindent}%
+                                    {\SubParagraphSpaceBefore ex \@plus1ex \@minus .2ex}%
+                                    {-1em}%
+                                    {\SubParagraphFont\SubParagraphSize}}
+
+\ifx\@makechapterhead\undefined
+\else
+\def\@makechapterhead#1{% the title of \chapter{something}
+  \vspace*{\ChapterTopSpace}%
+  {\parindent \z@ \raggedright
+    \ifnum \c@secnumdepth >\m@ne
+        \ChapterNameSize\ChapterFont \@chapapp\space \thechapter
+        \par\nobreak
+        \vskip \ChapterMidSpace
+    \fi
+    \interlinepenalty\@M
+    \ChapterSize \ChapterFont #1\par\nobreak
+    \vskip \ChapterBotSpace
+  }}
+
+\def\@makeschapterhead#1{% the title of \chapter*{something}
+  \vspace*{\ChapterTopSpace}%
+  {\parindent \z@ \raggedright
+    \normalfont
+    \interlinepenalty\@M
+    \ChapterSize \ChapterFont #1\par\nobreak
+    \vskip \ChapterBotSpace
+  }}
+\fi
+\endinput

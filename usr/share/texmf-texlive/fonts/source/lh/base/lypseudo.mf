@@ -1,0 +1,84 @@
+%
+% lypseudo.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=0
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% txpseudo.mf (ec fonts) with another beginning :-)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+LHver_check(3,5); % like |version_check| in ec
+
+% This file contains pseudoparameters which are not entered in the
+% parameter files, but are computed from the initial parameter set.
+% There are also ad hoc parameters needed only once, and scratch
+% parameters with different values at each occuerence (like |theta|).
+
+%
+% Diameters of dots
+%
+numeric idot_diam#,udot_diam#,pdot_diam#;
+if ebbase<>1: %(CMBRIGHT)
+   idot_diam#=max(dot_size#,cap_curve#);  % dot of letters `i' and `j'
+   udot_diam#=max(dot_size#,cap_curve#);  % umlaut dots
+fi
+pdot_diam#=if monospace: 5/4 fi\\ dot_size#; % punctuation dots
+
+% |limit_dist| is used in |put_cross|
+% (the value of |u| is changed by |mono_adjust|, hence the global setting)
+
+vardef limit_dist=5/4u enddef;
+
+% More parametrisations for accents from csaccent.mf (csfonts):
+
+numeric uc_acc_height, uc_acc_height#,
+        lc_acute_height, lc_acute_height#,
+        lc_hachek_height, lc_hachek_height#,
+        accent_u, accent_u#,
+        accent_thin,
+        uc_acc_shift, asc_acc_shift;
+if unknown circ_weight: circ_weight:=1; fi
+
+uc_acc_height# = cap_height#+asc_height#-hi.x_height#;
+lc_acute_height# = asc_height#;
+lc_hachek_height# = hi.x_height#+acc_height#;
+accent_u# = u#;   % unexpanded dimension unit
+
+vardef accent_thin = if thin_join > crisp: thin_join else: crisp+eps fi enddef;
+
+vardef uc_acc_shift = cap_height - hi.x_height enddef;
+vardef asc_acc_shift = asc_height - hi.x_height enddef;
+
+% Height of floating accents for capitals (note, that TeX raises them
+% by |uc_acc_shift|)
+
+numeric cap_accent_height, cap_accent_height#;
+cap_accent_height# = acc_height# + hi.x_height#;
+
+def pseudo_setup=
+  if ebbase=1:%(CMBRIGHT)
+     idot_diam:=stem';
+     idot_diam#:=stem'/hppp;
+     udot_diam:=min(stem', hround(.85dot_size));
+     udot_diam#:=udot_diam/hppp;
+  fi
+  define_whole_blacker_pixels(idot_diam,udot_diam,pdot_diam);
+  define_whole_vertical_pixels(uc_acc_height,lc_acute_height,
+    lc_hachek_height);
+  define_pixels(accent_u);
+  define_whole_vertical_pixels(cap_accent_height);
+enddef;
+
+endinput;
+%end of file

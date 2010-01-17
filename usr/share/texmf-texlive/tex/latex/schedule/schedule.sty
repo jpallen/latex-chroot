@@ -1,0 +1,419 @@
+%%
+%% This is file `schedule.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% schedule.dtx  (with options: `header,package')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% You are *not* allowed to modify this file.
+%% 
+%% You are *not* allowed to distribute this file.
+%% For distribution of the original source see the terms
+%% for copying and modification in the file schedule.dtx.
+%% 
+\ProvidesFile{schedule.dtx}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{schedule}
+\RequirePackage{calc}
+\RequirePackage{color}
+\definecolor{dark}{gray}{.75}
+\def\@sunday{Su}
+ \def\@Sunday{Sunday}
+\def\@monday{M}
+ \def\@Monday{Monday}
+\def\@tuesday{T}
+ \def\@Tuesday{Tuesday}
+\def\@wednesday{W}
+ \def\@Wednesday{Wednesday}
+\def\@thursday{Th}
+ \def\@Thursday{Thursday}
+\def\@friday{F}
+ \def\@Friday{Friday}
+\def\@saturday{Sa}
+ \def\@Saturday{Saturday}
+\newlength{\cell@height}
+ \setlength{\cell@height}{1in}
+\newlength{\cell@width}
+ \setlength{\cell@width}{1in}
+\newlength{\box@depth}
+\newcounter{sch@col@width} \setcounter{sch@col@width}{60}
+\newlength{\box@width}
+ \setlength{\box@width}{1in*(\value{sch@col@width}/60)}
+\newlength{\col@width}
+ \setlength{\col@width}{1in*(\value{sch@col@width}/60)}
+\newlength{\sch@depth} \setlength{\sch@depth}{9in}
+\newlength{\fill@length}
+\newlength{\@temp@length}
+\newlength{\@@temp@length}
+\newlength{\line@thickness} % The thickness of the lines in the drawing
+ \setlength{\line@thickness}{.4pt}
+\newlength{\adjusted@cell@width}
+\newlength{\adjusted@cell@height}
+
+\newcounter{picture@units@wide}
+\newcounter{xcoords}
+\newcounter{ycoords}
+\newcounter{timea}
+\newcounter{timeb}
+\newcounter{grid@width}
+\newcounter{grid@height}
+\newcounter{number@of@cells} % The number of VERTICAL cells
+\newcounter{number@of@subcells}
+\newcounter{number@of@days} % The number of days in the grid
+\newcounter{dp@vlines} % The number of vertical lines actually needed is
+                       % \value{number@of@days} + 1 ...
+\newcounter{dp@hlines} % The number of horizontal lines actually needed is
+                       % \value{number@of@cells} + 1 ...
+\newcounter{dp@hcell@lines} % The number of horizontal lines that are
+                       % either (1) associated with an hour, or
+                       %        (2) on the top or bottom of the grid.
+\newcounter{pu@cell@width}
+\newcounter{pu@cell@height}
+ \setcounter{pu@cell@height}{60}
+\newcounter{pu@grid@top}
+\newcounter{pu@grid@width}
+\newcounter{pu@subticks}
+\newcounter{start@time}
+\newcounter{end@time}
+\newcounter{x@coord} % Temporary x-coordinate
+\newcounter{y@coord} % Temporary y-coordinate
+\newcounter{@tempc}
+\newcounter{@tempd}
+\newcounter{label@sep}  % distance from label to gride
+ \setcounter{label@sep}{5} %initialized to 5 picture units
+
+\newcounter{x@Sunday}
+\newcounter{x@Monday}
+\newcounter{x@Tuesday}
+\newcounter{x@Wednesday}
+\newcounter{x@Thursday}
+\newcounter{x@Friday}
+\newcounter{x@Saturday}
+
+\newsavebox{\temp@box}
+\newif\ifweekends
+\newcount\@i
+\newcount\@j
+
+\def\TimeRange#1{\compute@number@of@cells #1\end@compute}
+\def\compute@number@of@cells#1:#2-#3:#4\end@compute{%
+  \setcounter{number@of@cells}{#3-#1}%
+  \setcounter{start@time}{#1}%
+  \setcounter{end@time}{#3}}
+
+\def\TextSize#1{\def\appt@textsize{#1}}
+\TextSize{\scriptsize}
+
+\def\IncludeWeekends{\weekendstrue}
+\def\NoWeekends{\weekendsfalse}
+
+\def\SevenDay{\weekendstrue}
+\def\FiveDay{\weekendsfalse}
+
+\def\CellHeight#1{\setlength{\cell@height}{#1}%
+                  \setlength{\unitlength}{\cell@height*\ratio{1pt}{60pt}}}
+\def\CellWidth#1{\setlength{\cell@width}{#1}%
+                 \setcounter{pu@cell@width}{1*\ratio{\cell@width}{\unitlength}}}
+\def\SubUnits#1{\setcounter{pu@subticks}{#1}%
+                \setcounter{number@of@subcells}{60/\value{pu@subticks}}}
+
+\def\calculate@grid@dimensions{%
+  \ifweekends \setcounter{number@of@days}{7}
+   \else \setcounter{number@of@days}{5}%
+    \fi%
+  \setcounter{dp@hcell@lines}{\value{number@of@cells}+1}
+  \setcounter{grid@width}{\value{number@of@days}*\value{pu@cell@width}}%
+  \setcounter{grid@height}{\value{number@of@cells}*60}
+  \setcounter{dp@vlines}{\value{number@of@days}+1}
+  \setcounter{dp@hlines}{\value{number@of@cells}*(60/\value{pu@subticks}) + 1}}
+
+\def\draw@grid{%\calculate@grid@dimensions
+  \linethickness{.2pt}%
+  \multiput(0,0)(0,\value{pu@subticks}){\value{dp@hlines}}{\line(1,0){\value{grid@width}}}%
+  \thicklines
+  \multiput(0,0)(0,60){\value{dp@hcell@lines}}{\line(1,0){\value{grid@width}}}
+  \thinlines}
+
+\def\LineThickness#1{\setlength{\line@thickness}{#1}%
+                     \linethickness{\line@thickness}%
+                     \setlength{\adjusted@cell@width}{\cell@width - 1\line@thickness}
+                     \setlength{\adjusted@cell@height}{\cell@height - 1\line@thickness}}
+
+\def\@Su@week{{Sunday} {Monday} {Tuesday} {Wednesday} {Thursday} {Friday} {Saturday}}
+\def\@M@week{{Monday} {Tuesday} {Wednesday} {Thursday} {Friday} {Saturday} {Sunday}}
+\def\@T@week{{Tuesday} {Wednesday} {Thursday} {Friday} {Saturday} {Sunday} {Monday}}
+\def\@W@week{{Wednesday} {Thursday} {Friday} {Saturday} {Sunday} {Monday} {Tuesday}}
+\def\@Th@week{{Thursday} {Friday} {Saturday} {Sunday} {Monday} {Tuesday} {Wednesday}}
+\def\@F@week{{Friday} {Saturday} {Sunday} {Monday} {Tuesday} {Wednesday} {Thursday}}
+\def\@Sa@week{{Saturday} {Sunday} {Monday} {Tuesday} {Wednesday} {Thursday} {Friday}}
+
+\def\BeginOn#1{\def\start@day{#1}}
+
+\def\add@labels{%
+ \ifx\start@day\@Sunday \expandafter\do@days\@Su@week \relax
+  \else\ifx\start@day\@Monday \expandafter\do@days\@M@week \relax
+   \else\ifx\start@day\@Tuesday \expandafter\do@days\@T@week \relax
+    \else\ifx\start@day\@Wednesday \expandafter\do@days\@W@week \relax
+     \else\ifx\start@day\@Thursday \expandafter\do@days\@Th@week \relax
+      \else\ifx\start@day\@Friday \expandafter\do@days\@F@week \relax
+       \else\expandafter\do@days\@Sa@week \relax
+    \fi\fi\fi\fi\fi\fi}
+
+\def\@sfor #1:=#2 \upto #3 \step #4 \do #5{%
+  #1=#2\relax%
+  \@whilenum #1<#3 \do {#5 \advance#1 by #4}#5}
+
+\def\add@times{%
+  \setcounter{@tempc}{\value{start@time}}%
+  \@sfor \@i :=0 \upto \value{number@of@cells} \step 1 \do%
+    {\setcounter{x@coord}{0}%                               Set the x-coord right
+     \setcounter{y@coord}{\value{grid@height}-60*\@i}%      adjust for the right hour cell
+     \ifnum\value{@tempc}>12%
+        \setcounter{@tempd}{\value{@tempc}-12}%
+        \put(\value{x@coord},\value{y@coord}){\makebox(0,0)[r]{\the@tempd:00 pm\ }}%
+     \else\put(\value{x@coord},\value{y@coord}){\makebox(0,0)[r]{\the@tempc:00 am\ }}%
+     \fi\relax%
+     \@sfor \@j := \value{pu@subticks} \upto 59 \step \value{pu@subticks} \do%
+       {\ifnum\@i=\value{number@of@cells}%  Test to see if this should be the last label
+           \relax%
+        \else%
+           \ifnum\@j=60%
+             \relax%
+           \else%
+             \ifnum\@j<10%
+               \def\the@minutes{0\the\@j}%
+             \else\def\the@minutes{\the\@j}%
+             \fi%
+             \setcounter{y@coord}{\value{y@coord}-\@j}%
+             \ifnum\value{@tempc}>12%
+                \setcounter{@tempd}{\value{@tempc}-12}%
+                \put(\value{x@coord},\value{y@coord}){\makebox(0,0)[r]{\tiny\the@tempd:\the@minutes\ pm\ }}% ...write the time (using pm)...
+             \else\put(\value{x@coord},\value{y@coord}){\makebox(0,0)[r]{\tiny\the@tempc:\the@minutes\ am\ }}% ...write the time (using am).
+             \fi%
+           \fi%
+        \fi%
+        \setcounter{y@coord}{\value{y@coord}+\@j}}
+     \addtocounter{@tempc}{1}}}%
+
+\def\do@days#1#2#3#4#5#6#7{%
+  \setcounter{x@coord}{1*\ratio{\value{pu@cell@width} pt}{2 pt}}%
+  \setcounter{y@coord}{\value{grid@height}+\value{label@sep}}%
+  \put(\value{x@coord},\value{y@coord}){\makebox(0,0)[b]{\large #1}}%
+  \setcounter{x@coord}{\value{x@coord}+\value{pu@cell@width}}%
+  \put(\value{x@coord},\value{y@coord}){\makebox(0,0)[b]{\large #2}}%
+  \setcounter{x@coord}{\value{x@coord}+\value{pu@cell@width}}%
+  \put(\value{x@coord},\value{y@coord}){\makebox(0,0)[b]{\large #3}}%
+  \setcounter{x@coord}{\value{x@coord}+\value{pu@cell@width}}%
+  \put(\value{x@coord},\value{y@coord}){\makebox(0,0)[b]{\large #4}}%
+  \setcounter{x@coord}{\value{x@coord}+\value{pu@cell@width}}%
+  \put(\value{x@coord},\value{y@coord}){\makebox(0,0)[b]{\large #5}}%
+  \setcounter{x@coord}{\value{x@coord}+\value{pu@cell@width}}%
+  \ifweekends
+  \put(\value{x@coord},\value{y@coord}){\makebox(0,0)[b]{\large #6}}%
+  \setcounter{x@coord}{\value{x@coord}+\value{pu@cell@width}}%
+  \put(\value{x@coord},\value{y@coord}){\makebox(0,0)[b]{\large #7}}\fi}
+
+\def\set@x@coords@for@days{%
+  \ifx\start@day\@Sunday%
+    \@i=0\relax%
+    \@tfor \@temp := {Sunday} {Monday} {Tuesday} {Wednesday} {Thursday} {Friday} {Saturday} \do%
+      {\setcounter{x@\@temp}{\@i*\value{pu@cell@width}}%
+       \advance\@i by 1}
+    \def\skipday@i{F}
+    \def\skipday@ii{Sa}\fi
+  \ifx\start@day\@Monday
+    \@i=0\relax%
+    \@tfor \@temp := {Monday} {Tuesday} {Wednesday} {Thursday} {Friday} {Saturday} {Sunday} \do%
+      {\setcounter{x@\@temp}{\@i*\value{pu@cell@width}}%
+       \advance\@i by 1}
+    \def\skipday@i{Sa}
+    \def\skipday@ii{Su}\fi
+  \ifx\start@day\@Tuesday
+    \@i=0\relax%
+    \@tfor \@temp := {Tuesday} {Wednesday} {Thursday} {Friday} {Saturday} {Sunday} {Monday} \do%
+      {\setcounter{x@\@temp}{\@i*\value{pu@cell@width}}%
+       \advance\@i by 1}
+    \def\skipday@i{Su}
+    \def\skipday@ii{M}\fi
+  \ifx\start@day\@Wednesday
+    \@i=0\relax%
+    \@tfor \@temp := {Wednesday} {Thursday} {Friday} {Saturday} {Sunday} {Monday} {Tuesday} \do%
+      {\setcounter{x@\@temp}{\@i*\value{pu@cell@width}}%
+       \advance\@i by 1}
+    \def\skipday@i{M}
+    \def\skipday@ii{T}\fi
+  \ifx\start@day\@Thursday
+    \@i=0\relax%
+    \@tfor \@temp := {Thursday} {Friday} {Saturday} {Sunday} {Monday} {Tuesday} {Wednesday} \do%
+      {\setcounter{x@\@temp}{\@i*\value{pu@cell@width}}%
+       \advance\@i by 1}
+    \def\skipday@i{T}
+    \def\skipday@ii{W}\fi
+  \ifx\start@day\@Friday
+    \@i=0\relax%
+    \@tfor \@temp := {Friday} {Saturday} {Sunday} {Monday} {Tuesday} {Wednesday} {Thursday} \do%
+      {\setcounter{x@\@temp}{\@i*\value{pu@cell@width}}%
+       \advance\@i by 1}
+    \def\skipday@i{W}
+    \def\skipday@ii{Th}\fi
+  \ifx\start@day\@Saturday
+    \@i=0\relax%
+    \@tfor \@temp := {Saturday} {Sunday} {Monday} {Tuesday} {Wednesday} {Thursday} {Friday} \do%
+      {\setcounter{x@\@temp}{\@i*\value{pu@cell@width}}%
+       \advance\@i by 1}
+    \def\skipday@i{Th}
+    \def\skipday@ii{F}\fi
+  }
+
+\newif\ifset@start@time
+\newif\ifset@end@time
+\newif\ifsetboxdepth
+\newif\ifinrange
+
+\def\NewAppointment#1#2#3{% #1 = name, #2 = background color, #3 = textcolor
+  \expandafter\def\csname #1\endcsname##1##2##3##4{%
+     \setboxdepthtrue% assume we want to calculate the box depth
+     \inrangetrue% assume the appt is in range
+     \set@start@timetrue% assume we want to calculate the start time
+     \set@end@timetrue% assume we want to calculate the end time
+     \@includetrue% assume we will include it
+     \edef\appt@name{#1}% save the appt name
+     \edef\appt@color{#2}% save the background color
+     \edef\appt@textcolor{#3}% save the save color
+     \expandafter\def\csname #1@name\endcsname{##1}% save the name
+     \expandafter\def\csname #1@location\endcsname{##2}% save the loc.
+     \expandafter\def\csname #1@days\endcsname{##3}% save the days
+     \expandafter\def\csname #1@time\endcsname{##4}% save the time
+     \place@appt@box##3,\stop}}
+
+\NewAppointment{class}{dark}{black}
+
+\def\place@appt@box#1{%
+  \ifx#1\stop \let\@next=\@gobble%
+   \else \let\@next=\set@x@coords\fi\@next#1}
+
+\def\set@x@coords#1,{\def\the@day{#1}%
+ \ifx\the@day\@sunday\setcounter{xcoords}{\value{x@Sunday}}%
+  \else\ifx\the@day\@monday\setcounter{xcoords}{\value{x@Monday}}%
+   \else\ifx\the@day\@tuesday\setcounter{xcoords}{\value{x@Tuesday}}%
+    \else\ifx\the@day\@wednesday\setcounter{xcoords}{\value{x@Wednesday}}%
+     \else\ifx\the@day\@thursday\setcounter{xcoords}{\value{x@Thursday}}%
+      \else\ifx\the@day\@friday\setcounter{xcoords}{\value{x@Friday}}%
+       \else\setcounter{xcoords}{\value{x@Saturday}}%
+        \fi\fi\fi\fi\fi\fi%
+         \edef\@@temp{\csname \appt@name @time\endcsname}%
+          \expandafter\set@y@coords\@@temp\stop}
+
+\def\set@y@coords#1:#2-#3:#4\stop{%
+  \def\@starthour{#1}%
+  \def\@startminutes{#2}
+  \def\@endhour{#3}%
+  \def\@endminutes{#4}%
+  \ifnum#1<\value{start@time} \setcounter{ycoords}{\value{grid@height}}%
+                              \edef\@starthour{\value{start@time}}
+                              \def\@startminutes{0}
+                              \set@start@timefalse%
+                              \fi%
+  \ifnum#3<\value{end@time} \relax%
+    \else \edef\@endhour{\value{end@time}}
+          \def\@endminutes{0}%
+          \setcounter{ycoords@bot}{0}
+          \set@end@timefalse
+  \fi %
+  \ifset@start@time%
+   \setcounter{ycoords}{\value{grid@height}-(60*(#1-\value{start@time})+#2)}\fi%
+  \ifset@end@time%
+    \setcounter{ycoords@bot}{\value{grid@height}-(60*(#3-\value{start@time})+#4)}\fi%
+  \setlength{\box@depth}{\@endhour\cell@height + (\cell@height*\ratio{\@endminutes pt}{60pt}) %
+         - \@starthour\cell@height - (\cell@height*\ratio{\@startminutes pt}{60pt})}%
+  \ifnum#1<\value{end@time} \relax\else \inrangefalse \fi%
+  \draw@appt@box\place@appt@box}
+
+\newif\if@include
+
+\def\draw@appt@box{%
+   \ifweekends \relax % if we use 7-days, this won't change
+   \else \ifx \the@day\skipday@i \@includefalse \fi % first condition for change
+         \ifx \the@day\skipday@ii \@includefalse \fi\fi % second condition for change
+  \ifinrange \relax\else \@includefalse \fi %
+  \if@include %
+  \put(\value{xcoords},\value{ycoords}){\colorbox{\appt@color}{\parbox[t]{\cell@width}{\ %
+        \vspace{\box@depth}}}}
+  \thinlines
+  \put(\value{xcoords},\value{ycoords}){\line(1,0){\value{pu@cell@width}}}
+  \put(\value{xcoords},\value{ycoords@bot}){\line(1,0){\value{pu@cell@width}}}
+  \put(\value{xcoords},\value{ycoords}){%
+        \  \parbox[t]{\cell@width-8pt}{\mbox{}\\ \appt@textsize %
+        \ifdim\box@depth>\baselineskip
+        \textcolor{\appt@textcolor}{\csname \appt@name @name\endcsname} \\ %
+        \ifdim\box@depth>2\baselineskip
+        \textcolor{\appt@textcolor}{\csname \appt@name
+        @location\endcsname}\fi\fi }}\fi}
+
+\def\convert@class@time#1:#2-#3:#4\end@time{%
+  {\count1=#1\relax%
+   \count3=#3\relax%
+   \ifnum#1>12 \advance\count1 by -12\fi\relax%
+   \ifnum#3>12 \advance\count3 by -12\fi\relax%
+   \ifnum#1<12\relax%
+    \ifnum#3<12\relax \mbox{\the\count1:#2am--\the\count3:#4am}\relax%
+     \else \mbox{\the\count1:#2am--\the\count3:#4pm}\fi\relax%
+      \else \mbox{\the\count1:#2pm--\the\count3:#4pm}\fi\relax}}
+
+\def\compute@box@depth#1:#2-#3:#4\end@bx{%
+  \setlength{\box@depth}{#3\cell@height + (\cell@height*\ratio{#4pt}{60pt}) %
+         - #1\cell@height - (\cell@height*\ratio{#2pt}{60pt})}}
+
+\newcounter{ycoords@bot}
+
+\newcounter{x@tempa}
+\newcounter{x@tempb}
+\newcounter{y@tempa}
+\newcounter{y@tempb}
+\newcounter{temp@cnt@a}
+
+\newlength{\title@height}
+\newlength{\label@height}
+ \settoheight{\label@height}{Wednesday}
+
+\newcounter{pu@label@width}
+\newlength{\center@hack}
+
+\newenvironment{schedule}[1][:]%
+{\bigskip
+ \calculate@grid@dimensions%
+ \setcounter{pu@grid@width}{\value{pu@cell@width}*\value{number@of@days}}%
+ \settowidth{\@temp@length}{\normalsize 12:00\ pm\ }%
+ \setcounter{pu@label@width}{1*\ratio{\@temp@length}{\unitlength}}%
+ \setcounter{pu@grid@top}{\value{grid@height}+(1*\ratio{\label@height}{\unitlength}) + %
+    (1*\ratio{.25in}{\unitlength})}%
+ \if#1:\relax \else%
+  \settoheight{\title@height}{\large #1}%
+  \addtocounter{pu@grid@top}{1*\ratio{\title@height}{\unitlength}}%
+ \fi%
+ \setlength{\center@hack}{(.5\linewidth-.5\unitlength*\value{pu@grid@width}+%
+   .5\unitlength*\value{pu@label@width})}%
+ \noindent\hspace*{\center@hack}%
+ \begin{picture}(\value{pu@grid@width},\value{pu@grid@top})%
+ \draw@grid
+ \add@labels
+ \if#1:\relax \else
+  \setcounter{ycoords}{\value{grid@height}+(1*\ratio{\label@height}{\unitlength}) + %
+     (1*\ratio{.25in}{\unitlength})}
+  \setcounter{xcoords}{1*\ratio{\value{pu@grid@width} pt}{2 pt}}
+ \put(\value{xcoords},\value{ycoords}){\makebox(0,0)[b]{\Large #1}}
+ \fi
+ \add@times
+ \set@x@coords@for@days}
+{\multiput(0,0)(\value{pu@cell@width},0){\value{dp@vlines}}{\line(0,1){\value{grid@height}}}
+ \end{picture}\bigskip}
+
+\setlength{\fboxsep}{0in}
+\endinput
+%%
+%% End of file `schedule.sty'.

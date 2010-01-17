@@ -1,0 +1,748 @@
+%%%%
+%%%% This file belongs to the MFTOEPS package.
+%%%%
+%%% mod div
+%%% length cycle pos_turn neg_turn
+%%% endchar ori_endchar
+%%% draw eofill killtext
+%%% draw find_BB set_BB reset_BB
+%%% draw draw_C normal_draw_C no_export_draw_C
+%%% draw fill_C normal_fill_C no_export_fill_C
+%%% draw clip_C normal_clip_C
+%%% draw write_preamble normal_write_preamble no_export_write_preamble
+%%% endchar write_postamble normal_write_postamble no_export_write_postamble
+%%% endchar g_save g_restore
+%%% message write_PS normal_write_PS
+%%% draw write_def
+%%% draw fix_line_width set_line_width
+%%% draw fix_line_join set_line_join fix_line_cap set_line_cap
+%%% draw fix_miter_limit set_miter_limit fix_dash set_dash
+%%% draw fix_fill_cmyk set_fill_cmyk fix_draw_cmyk set_draw_cmyk
+%%% draw fix_fill_rgb set_fill_rgb fix_draw_rgb set_draw_rgb
+%%% xpart norm_color
+%%% mode_setup ori_mode_setup eps_mode_setup EPS_mode_setup
+%%% draw mftoeps_default
+%%\vsize245mm
+%%\font\titfnt cmtt10 at 48 pt
+%%{\let\makefootline\empty \let\makeheadline\empty
+%%\vglue0ptplus1fill
+%%\centerline{\titfnt MFTOEPS.MF}
+%%\bigskip
+%%\centerline{ver. 0.68 (Tuesday, March 4th, 1997)}
+%%\vfill\vfill\eject}
+% ---
+% \MF format for exporting to EPS via LOG-file + AWK-like utility
+% ---
+% NAME: MFTOEPS.MF
+% AUTHORS: B. Jackowski, P. Pianowski, M. Ry\'cko
+% HISTORY:
+%  Version 0.5 (Friday, May 5th, 1995): first public domain release
+%  Version 0.6 (Thursday, July 27th, 1995): major revision
+%    * macro |reset_BB| added (it was silly not to have it)
+%    * |pickup pencircle scaled 0.4pt| performed by |no_export_write_preamble|
+%    * `mftoeps_bhook' and `mftoeps_ehook' introduced
+%    * `setlinecap', `setlinejoin', `setmiterlimit', and `setdash' included
+%    * switching between no export and compatibility modes made more tidy
+%    * colours are forced to fall into the interval [0..1]
+%    * formatting, comments and internal naming altered
+%  Version 0.65 (Friday, September 1st, 1995):
+%    A lot of small changes introduced introduced during the work over
+%    PSTOEPS and EPSTOMF converters, and over ROEX macros:
+%    * defaults for line joins and caps changed (WARNING: incompatibility
+%      with the version 0.6 described in proceedings of 9th European \TeX
+%      Conference, Arnhem, Holland); now they are compatible with PostScript,
+%      not with our predilections
+%    * `gsave'/`grestore' grouping added (macros |g_save| and |g_restore|);
+%      the graphic object is embedded into a `gsave'/`grestore' pair
+%    * |set_BB| and |find_BB| available also in no-export mode
+%    * string variable |extra_eps_setup| added
+%    * a general purpose macro |make_list| added
+%    * version number appears in the header of EPS file
+%    * |reset_BB| performed by newly introduced |no_export_write_postamble|
+%    * definitions of EPS header more robust
+%    * macros |pos_turn|, |neg_turn|, and |is_line| more robust
+%    * global defaults defined as in ROEX (macro |mftoeps_default|)
+%    * code optimized, formatting slightly altered (e.g., the underscore
+%      character ending a name appears as a superscript asterisk)
+%    This version was released during the 9th EuroTeX meeting in Arnhem
+%  Version 0.66 (Tuesday, September 19th, 1995):
+%    * |find_BB| a bit more robust
+%    * |is_line| is exactly the same as in ROEX.MF (it should have been
+%      in version 0.65...)
+%    This version was released during the CyrTUG-95 meeting in Moscow
+%  Version 0.67 (Friday, October 27th, 1995):
+%    * |miter_limit| used to be a dimen; it was my mistake (BJ),
+%      in PostScript it is a dimensionless quantity
+%  Version 0.68 (Tuesday, March 4th, 1997):
+%    * |extra_preamble| and |extra_postamble| added
+% ---
+if known mftoeps: expandafter endinput fi % no double loading
+mftoeps:=1;
+vardef mftoeps_ver ="0.68" enddef;
+% ---
+% DECLARATIONS (only explicitly needed):
+no_export_level=0; compatibility_level=1; % constants
+let ori_mode_setup=mode_setup;
+let ori_endchar=endchar;
+boolean closed_path; % set by |normal_fill_C|, |normal_draw_C|,
+       % |close_op|, and just before writing definitions
+       % of |mid_draw_op|; checked by |mid_draw_op|;
+boolean dash_array_empty; % used locally by |set_dash|
+boolean known_yes_eps; % used by |eps_mode_setup|
+string extra_eps_setup; % used by |eps_mode| for last-minute adjustments
+extra_eps_setup=""; % usually there's nothing special to do
+string extra_preamble, extra_postamble; % for special comments and/or defs 
+extra_preamble=extra_postamble=""; % usually there's nothing special to add
+% We follow the naming convention of The \MF{}book:
+% ``Private tokens always end with the underscore character.''
+% Since the underscore is a rather illegible character, in a ``neat''
+% printing (using MFT utility) it will appear as an superscript asterisk.
+%% % an innocent formatting trick: the underscore character ending a name
+%% % will be typeset as an superscript asterisk
+%% \let\oriunderscore\_
+%% \newif\ifbgroupopen \bgroupopenfalse
+%% \def\altdblbackslash#1{\bgroup\bgroupopentrue\it#1}
+%% \def\optegroup{\ifbgroupopen\egroup\fi}
+%% \def\underscoreasasterisk#1{%
+%%   \ifx#1\relax\optegroup^*\else\oriunderscore#1\fi}
+%% \def\\#1{%
+%%   \let\_\underscoreasasterisk
+%%   \altdblbackslash{#1\relax}\optegroup
+%%   \let\_\oriunderscore}
+% ---
+def make_list(expr k,l) suffix s =
+ for i_:=k upto l: if i_>k: , fi \\ s[i_] endfor
+enddef;
+% ---
+vardef distance(expr za,zb) = length(za-zb) enddef; % in fact, an alias
+% ---
+vardef pos_turn primary p =
+ interim autorounding:=0;
+ if check_turn(p)=0: show p;
+  errhelp "I will leave the path intact, continue with crossed fingers.";
+  errmessage "Cannot make positive turn (check_turn=0)";
+ elseif check_turn(p)<0: reverse fi \\ p
+enddef;
+% ---
+vardef neg_turn primary p =
+ interim autorounding:=0;
+ if check_turn(p)=0: show p;
+  errhelp "I will leave the path intact, continue with crossed fingers.";
+  errmessage "Cannot make negative turn (check_turn=0)";
+ elseif check_turn(p)>0: reverse fi \\ p
+enddef;
+% ---
+vardef check_turn primary p = % seems more adequate than |turningnumber|
+% |epsilon|=|totalweight currentpicture| after |fill unitsquare|,
+% |eps/epsilon=32|, i.e., we admit accuracy of 32 pixels (isn't it too many?)
+ save r_,currentpicture; picture currentpicture;
+ interim turningcheck:=0; interim autorounding:=0;
+ currentpicture:=nullpicture; fill p; r_:=totalweight(currentpicture);
+ if r_>eps: 1 elseif r_<-eps: -1 else: turningnumber(p) fi
+enddef;
+% ---
+vardef is_line(expr B) =
+% checks if a B\'ezier segment |B| is an almost straight line;
+% recall that |z reflectedabout (origin,right)=1/z| for a complex
+% number |z| such that |length(z)=1|; recall also that the multiplication
+% of complex numbers (|zscale| operation) implies the addition of
+% their angle arguments
+ save pa_,pb_,pc_,pd_,ba_,da_,dc_; pair pa_,pb_,pc_,pd_,ba_,da_,dc_;
+ pa_:=point 0 of B; pd_:=point 1 of B;
+ if distance(pa_,pd_)<epsil.dist:
+  false % either really not a line or an uncertain situation (rounding errors)
+ else:
+  da_=unitvector(pd_-pa_) reflectedabout (origin,right);
+  pb_:=postcontrol 0 of B; if distance(pa_,pb_)<epsil.dist: pb_:=pa_; fi
+  pc_:=precontrol 1 of B; if distance(pd_,pc_)<epsil.dist: pc_:=pd_; fi
+  if (pa_=pb_) and (pc_=pd_): true
+  elseif (pa_=pb_):
+   dc_=unitvector(pd_-pc_); abs(angle(dc_ zscaled da_))<epsil.ang
+  elseif (pc_=pd_):
+   ba_=unitvector(pb_-pa_); abs(angle(ba_ zscaled da_))<epsil.ang
+  else:
+   ba_=unitvector(pb_-pa_); dc_=unitvector(pd_-pc_);
+   (abs(angle(ba_ zscaled da_))<epsil.ang)
+    and (abs(angle(dc_ zscaled da_))<epsil.ang)
+  fi
+ fi
+enddef;
+% ---
+def eofill expr P =
+ begingroup save pp_; picture pp_;
+  interim turningcheck:=0;
+% the following |addto|s are supposed to fill disjoint areas:
+  pp_:=nullpicture; addto pp_ contour P.t_;
+  cull pp_ keeping (1,infinity); addto currentpicture also pp_;
+  pp_:=nullpicture; addto pp_ contour reverse P.t_;
+  cull pp_ keeping (1,infinity); addto currentpicture also pp_;
+  cull currentpicture keeping(1,1);
+ endgroup
+enddef;
+% ---
+def normal_write_PS expr s = if s<>"": message ":PS: " & s; fi enddef;
+% ---
+def write_P (expr op,P) =
+% writes a point |P| in PostScript, followed by the operation |op|
+ write_PS bp_pair(P) & op;
+enddef;
+% ---
+def write_B (expr op,B) =
+% writes a B\'ezier segment |B| in PostScript, followed by the operation |op|
+ write_PS bp_pair(postcontrol 0 of B) & bp_pair(precontrol 1 of B) &
+  bp_pair(point 1 of B) & op;
+enddef;
+% ---
+def write_L (expr op,L) =
+% writes a line |L| in PostScript, followed by the operation |op|
+ write_PS bp_pair(point 1 of L) & op;
+enddef;
+% ---
+vardef write_C (expr C) =
+% writes a B\'ezier curve |C| in PostScript followed by an operation
+% which depends on whether |C| is cyclic or not
+ save ll_;
+ ll_:= % |(length(C)-ll_,length(C)-ll_+1)| is the last segment processed
+ if (cycle C) and ((point length(C) of C) = (point length(C)-1 of C)):
+  2 % artificial situation related to an old EPS2MF converter
+ else: 1 fi;
+ write_P(move_op,point 0 of C);
+ for tt_:=0 upto length(C)-ll_:
+  if is_line(subpath (tt_,tt_+1) of C):
+   write_L(line_op,subpath (tt_,tt_+1) of C);
+  else:
+   write_B(bezi_op,subpath (tt_,tt_+1) of C);
+  fi
+ endfor
+ if cycle C: write_PS close_op; fi
+enddef;
+% ---
+def no_export_fill_C text t =
+ begingroup
+  save rr_; picture rr_; % must not be |pp_| (see |eofill|)
+  begingroup
+   save currentpicture; def currentpicture = rr_ enddef; % danger!
+   currentpicture:=nullpicture; for qq_:=t: eofill qq_; endfor
+  endgroup;
+  addto currentpicture also rr_; cullit;
+ endgroup
+enddef;
+% ---
+def normal_fill_C text t =
+ write_PS beg_path_op;
+ set_fill_cmyk;
+ for pp_:=t:
+  write_C(pp_); write_PS mid_fill_op; closed_path:=false;
+ endfor
+ write_PS end_path_op;
+enddef;
+% ---
+def no_export_draw_C text t = for pp_:=t: draw pp_; endfor enddef;
+% ---
+def normal_draw_C text t =
+ write_PS beg_path_op;
+ set_draw_cmyk; set_line_width;
+ set_line_join; set_line_cap;
+ set_miter_limit; set_dash;
+ for pp_:=t:
+  write_C(pp_); write_PS mid_draw_op; closed_path:=false;
+ endfor
+ write_PS end_path_op;
+enddef;
+% ---
+def normal_clip_C text t =
+ clipping_count:=0; % local
+ for pp_:=t: clipping_count:=clipping_count+1; endfor
+ if clipping_count=0:
+  if clipping_level>0: g_restore; clipping_level:=clipping_level-1; fi
+ else:
+  clipping_level:=clipping_level+1; g_save;
+  write_PS beg_path_op;
+  for pp_:=t: write_C(pp_); write_PS mid_clip_op; endfor
+  write_PS end_path_op;
+ fi
+enddef;
+% ---
+vardef update_BC(expr C)(suffix xl,yl,xh,yh) =
+% updates variables |xl|, |yl|, |xh|, |yh| by finding extremal points
+% of a B\'ezier curve |C|
+ if xl>xpart(point 0 of C): xl:=xpart(point 0 of C); fi
+ if xh<xpart(point 0 of C): xh:=xpart(point 0 of C); fi
+ if yl>ypart(point 0 of C): yl:=ypart(point 0 of C); fi
+ if yh<ypart(point 0 of C): yh:=ypart(point 0 of C); fi
+ for tt_:=0 upto length(C)-1:
+  update_BB(subpath (tt_,tt_+1) of C,xl,yl,xh,yh);
+ endfor
+enddef;
+% ---
+vardef update_BB(expr B) (suffix xl,yl,xh,yh) =
+% updates variables |xl|, |yl|, |xh|, |yh| by finding extremal points
+% of a B\'ezier segment |B|; the |point 0 of B| is not taken into account
+ save Bx_,By_,ta_,tb_,vv_; path Bx_, By_; numeric ta_,tb_,vv_;
+%
+ Bx_=(0,xpart(point 0 of B))
+  ..controls
+   (0,xpart(postcontrol 0 of B)) and (1000,xpart(precontrol 1 of B))
+  ..(1000,xpart(point 1 of B));
+ By_=(0,ypart(point 0 of B))
+  ..controls
+   (0,ypart(postcontrol 0 of B)) and (1000,ypart(precontrol 1 of B))
+  ..(1000,ypart(point 1 of B));
+%
+ ta_:=directiontime right of Bx_;
+ if ta_>0:
+  vv_:=ypart (point ta_ of Bx_);
+  if vv_<xl: xl:=vv_; fi\\ if vv_>xh: xh:=vv_; fi
+  tb_:=directiontime right of subpath (ta_+eps,1) of Bx_;
+  if tb_>=0:
+   vv_:=ypart (point tb_ of (subpath (ta_+eps,1) of Bx_));
+   if vv_<xl: xl:=vv_; fi\\ if vv_>xh: xh:=vv_; fi
+  fi
+ fi
+ vv_:=ypart (point 1 of Bx_); if vv_<xl: xl:=vv_; fi\\ if vv_>xh: xh:=vv_; fi
+%
+ ta_:=directiontime right of By_;
+ if ta_>0:
+  vv_:=ypart (point ta_ of By_);
+  if vv_<yl: yl:=vv_; fi\\ if vv_>yh: yh:=vv_; fi
+  tb_:=directiontime right of subpath (ta_+eps,1) of By_;
+  if tb_>=0:
+   vv_:=ypart (point tb_ of (subpath (ta_+eps,1) of By_));
+   if vv_<yl: yl:=vv_; fi\\ if vv_>yh: yh:=vv_; fi
+  fi
+ fi
+ vv_:=ypart (point 1 of By_); if vv_<yl: yl:=vv_; fi\\ if vv_>yh: yh:=vv_; fi
+enddef;
+% ---
+% |xl|, |yl|, |xh|, and |yh| can likely be used in a program, hence
+% longer names: |xl_crd|, |yl_crd|, |xh_crd|, and |yh_crd|, respectively
+def reset_BB =
+ xl_crd:=whatever; yl_crd:=whatever; xh_crd:=whatever; yh_crd:=whatever;
+enddef;
+% ---
+def find_BB text t =
+ for CC_:=t: % |t| may be empty
+  if unknown xl_crd: xl_crd=yl_crd=-xh_crd=-yh_crd=infinity; fi
+  update_BC(CC_)(xl_crd,yl_crd,xh_crd,yh_crd);
+ endfor
+enddef;
+% ---
+vardef llxy = (xl_crd,yl_crd) enddef;
+vardef urxy = (xh_crd,yh_crd) enddef;
+% ---
+def set_BB text t =
+% it may happen that |t| refers to the previously fixed coordinates of the
+% bounding box, therefore the coordinates should not be changed too early
+ numeric xl_crd_, yl_crd_, xh_crd_, yh_crd_;
+ for rr_:=t: % syntax trick
+  if pair rr_:
+   for ss_:=xpart rr_, ypart rr_:
+    if unknown xl_crd_: xl_crd_:=ss_;
+    elseif unknown yl_crd_: yl_crd_:=ss_;
+    elseif unknown xh_crd_: xh_crd_:=ss_;
+    elseif unknown yh_crd_: yh_crd_:=ss_;
+    fi
+   endfor
+  else:
+   if unknown xl_crd_: xl_crd_:=rr_;
+   elseif unknown yl_crd_: yl_crd_:=rr_;
+   elseif unknown xh_crd_: xh_crd_:=rr_;
+   elseif unknown yh_crd_: yh_crd_:=rr_;
+   fi
+  fi
+ endfor
+ numeric xl_crd, yl_crd, xh_crd, yh_crd;
+ xl_crd:=xl_crd_; yl_crd:=yl_crd_; xh_crd:=xh_crd_; yh_crd:=yh_crd_;
+enddef;
+% ---
+% somewhat unusual formula was employed in the definition of |bp_num|
+% because |(72/300)*x| is not equivalent to |72/300x|: the latter yields
+% better accuracy
+vardef bp_num primary x =
+ decimal(scantokens("72/" & decimal(pixels_per_inch))x)
+enddef;
+vardef bp_pair primary z =
+ bp_num(xpart(z)) & " " & bp_num(ypart(z)) & " "
+enddef;
+% ---
+mode_def eps_mode =
+ proofing:=0;          % no, we're not making proofs
+ fontmaking:=0;        % no, we're not making a TFM file
+ tracingtitles:=1;     % yes, show titles online
+ pixels_per_inch:=300; % standard laser printer resolution
+ blacker:=0;           % no additional blackness
+ fillin:=0;            % no compensation for fillin
+ o_correction:=1;      % no reduction in overshoot
+ mag:=1;               % standard magnification
+ autorounding:=0;      % removing pimples is unimportant
+ scantokens extra_eps_setup; % the user's special last-minute adjustments
+enddef;
+% ---
+mode_def vicar_mode =
+ proofing:=0;          % no, we're not making proofs
+ fontmaking:=0;        % no, we're not making a TFM file
+ tracingtitles:=1;     % yes, show titles online
+ pixels_per_inch:=300; % standard laser printer resolution
+ blacker:=0;           % no additional blackness
+ fillin:=0;            % no compensation for fillin
+ o_correction:=1;      % no reduction in overshoot
+ mag:=1;               % standard magnification
+enddef;
+% ---
+def EPS_mode_setup = eps_mode_setup enddef; % an alias (upward compatibility)
+def eps_mode_setup suffix e_l =
+% fixing |export_level|:
+ known_yes_eps:=(known yesEPS) or (known YESEPS) or (known yeseps);
+ if not known_yes_eps: export_level:=no_export_level;
+ elseif str e_l="": export_level:=compatibility_level;
+ else:
+  if
+   (if known e_l:
+     (e_l=no_export_level) or (e_l=compatibility_level)
+    else:
+     false
+   fi):
+   export_level:=e_l;
+  else:
+   message "Default export level assumed.";
+   export_level:=compatibility_level;
+  fi
+ fi
+% |mode_setup| hackery (last chance to abandon exporting):
+ if export_level<>no_export_level:
+  if not (string mode): mode:=vicar_mode; fi % for hackers only
+  mode_setup; % trial setup
+  if proofing>0: export_level:=no_export_level; fi % proofing has priority
+ fi
+% now either |export_level=no_export_level|
+% or |export_level=compatibility_level):
+ if export_level=no_export_level:
+  let mode_setup=ori_mode_setup; mode_setup;
+  let endchar=ori_endchar;
+  let write_PS=killtext;
+  let write_preamble=no_export_write_preamble;
+  let write_postamble=no_export_write_postamble;
+  let fill_C=no_export_fill_C;
+  let draw_C=no_export_draw_C;
+  let clip_C=killtext;
+ else: % |error_level=compatibility_level|
+  if not (string mode): mode:=eps_mode; fi % for hackers only
+  mode_setup; % set private mode
+  let mode_setup=relax; % no more |mode_setup|s
+  def endchar = % no shipping characters out
+   scantokens extra_endchar; endgroup
+  enddef;
+  let write_PS=normal_write_PS;
+  let write_preamble=normal_write_preamble;
+  let write_postamble=normal_write_postamble;
+  let fill_C=normal_fill_C;
+  let draw_C=normal_draw_C;
+  let clip_C=normal_clip_C;
+ fi
+enddef;
+% ---
+def plain_new_path_op = "newpath" enddef;
+def plain_close_op = "closepath" enddef;
+def plain_move_op = "moveto" enddef;
+def plain_line_op = "lineto" enddef;
+def plain_bezi_op = "curveto" enddef;
+def plain_fill_op = "eofill" enddef;
+def plain_draw_op = "stroke" enddef;
+def plain_clip_op = "eoclip" enddef;
+def plain_set_line_width_op = "setlinewidth" enddef;
+def plain_set_fill_cmyk_op = "setcmykcolor" enddef;
+def plain_set_draw_cmyk_op = "setcmykcolor" enddef;
+def plain_set_line_join_op = "setlinejoin" enddef;
+def plain_set_line_cap_op = "setlinecap" enddef;
+def plain_set_miter_limit_op = "setmiterlimit" enddef;
+def plain_set_dash_op = "setdash" enddef;
+def plain_g_save_op = "gsave" enddef;
+def plain_g_restore_op = "grestore" enddef;
+% ---
+% there is some inconsistency between Corel and AI (it could be said that
+% even between Corel and Corel, and between AI and AI), therefore the code
+% for filling, drawing and clipping operations is somewhat messy...
+% ---
+def close_op = begingroup closed_path:=true; "" endgroup enddef;
+def close_path_op = "h" enddef;
+def move_op = "m" enddef;
+def line_op = "l" enddef;
+def bezi_op = "c" enddef;
+def beg_path_op = "*u" enddef;
+def end_path_op = "*U" enddef;
+let beg_fill_op=beg_path_op;
+def mid_fill_op = "f" enddef;
+def end_fill_op = "*U*f" enddef;
+let beg_draw_op=beg_path_op;
+def mid_draw_op = if closed_path: "s" else: "S" fi enddef;
+def end_draw_op = "*U*d" enddef;
+let beg_clip_op=beg_path_op;
+def prep_clip_op = "W" enddef; % AI-oriented, here just empty
+def do_clip_op = "n" enddef;
+def mid_clip_op =
+ close_path_op & " " & prep_clip_op & " " & do_clip_op
+enddef;
+def end_clip_op = "*U*c" enddef;
+def set_line_width_op = "w" enddef;
+def set_fill_cmyk_op = "k" enddef;
+def set_draw_cmyk_op = "K" enddef;
+def set_line_join_op = "j" enddef;
+def set_line_cap_op = "J" enddef;
+def set_miter_limit_op = "M" enddef;
+def set_dash_op = "d" enddef;
+def g_save_op = "q" enddef;
+def g_restore_op = "Q" enddef;
+% ---
+def mark_null = "/oper_kind -1 def" enddef;
+def mark_fill = "/oper_kind 0 def" enddef;
+def mark_draw = "/oper_kind 1 def" enddef;
+def mark_clip = "/oper_kind 2 def" enddef;
+def check_fill = "0 oper_kind eq" enddef;
+def check_draw = "1 oper_kind eq" enddef;
+def check_clip = "2 oper_kind eq" enddef;
+% ---
+def write_def(expr p,q) =
+ if p<>"": write_PS "/" & p & " {" & q & "} def"; fi
+enddef;
+% ---
+def no_export_write_preamble expr s = pickup pencircle scaled 0.4pt; enddef;
+def normal_write_preamble expr s =
+ message "generating " & s & ".eps";
+ if unknown testing:
+  batchmode; % don't write mess to the terminal
+ fi
+ message ":EPS FILE NAME: " & s;
+ write_PS "%!PS-Adobe-2.0 EPSF-2.0";
+ write_PS "%%Creator: MFTOEPS ver. " & mftoeps_ver;
+ if (known xl_crd) and (known yl_crd) and (known xh_crd) and (known yh_crd):
+  write_PS "%%BoundingBox: " & bp_num(xl_crd) & " " & bp_num(yl_crd)
+   & " " & bp_num(xh_crd) & " " & bp_num(yh_crd);
+ else:
+  xl_crd:=0; xh_crd:=72bp; yl_crd:=0; yh_crd:=72bp;
+   if unknown testing:
+    errorstopmode; % switch temporarily to the usual mode
+   fi
+   message "Unknown bounding box (0 0 72 72 assumed)";
+   if unknown testing:
+    batchmode; % again don't write mess to the terminal
+   fi
+   write_PS "%%BoundingBox: 0 0 72 72";
+ fi
+ write_PS "%%Title: " & s & ".eps";
+ write_PS "%%CreationDate: " & decimal(day) & "." if month<10: & "0" fi
+  & decimal(month) & "." & decimal(year) & " " & decimal(time div 60)
+  & ":" if (time mod 60)<10: & "0" fi & decimal(time mod 60);
+ write_PS "%%DocumentStyle: compatibility "
+  & "(CorelDRAW! & Adobe Illustrator oriented)";
+ write_PS "%%DocumentFonts:";
+ write_PS "%%EndComments";
+ write_PS "%%BeginProlog";
+ write_PS "/mftoeps_export 100 dict def % you may wish to add some entries";
+ write_PS "mftoeps_export begin";
+ write_def (close_op,plain_close_op);
+ write_def (close_path_op,plain_close_op);
+ write_def (move_op,plain_move_op);
+ write_def (bezi_op,plain_bezi_op);
+ write_def (line_op,plain_line_op);
+ write_def (set_fill_cmyk_op,plain_set_fill_cmyk_op);
+ write_def (set_draw_cmyk_op,plain_set_draw_cmyk_op);
+ write_def (beg_path_op,mark_null);
+ write_def (end_path_op,
+  end_fill_op & " " & end_draw_op & " " & end_clip_op);
+ write_def (mid_fill_op,mark_fill);
+ write_def (end_fill_op,check_fill & " {" & plain_fill_op & "} if")
+ closed_path:=true;
+  write_def (mid_draw_op, plain_close_op & " " & mark_draw);
+ closed_path:=false;
+  write_def (mid_draw_op, mark_draw);
+ write_def (end_draw_op,check_draw & " {" & plain_draw_op & "} if")
+ write_def (prep_clip_op,"");
+ write_def (do_clip_op, mark_clip);
+ write_def (end_clip_op,check_clip &
+            " {" & plain_clip_op & " " & plain_new_path_op & "} if");
+ write_def (set_line_width_op,plain_set_line_width_op);
+ write_def (set_line_join_op,plain_set_line_join_op);
+ write_def (set_line_cap_op,plain_set_line_cap_op);
+ write_def (set_miter_limit_op,plain_set_miter_limit_op);
+ write_def (set_dash_op,plain_set_dash_op);
+ write_PS "/setcmykcolor where {pop}";
+ write_PS " {/setcmykcolor {1 sub /mf exch def";
+ write_PS " 3 {mf add neg dup 0 lt {pop 0} if 3 1 roll} repeat";
+ write_PS " setrgbcolor} def} ifelse";
+ write_def (g_save_op,plain_g_save_op);
+ write_def (g_restore_op,plain_g_restore_op);
+ write_PS "/mftoeps_bhook where {pop mftoeps_bhook} {} ifelse";
+ scantokens extra_preamble;
+ write_PS "%%EndProlog";
+ write_PS "%%BeginSetup"; % important structural comment
+ write_PS "%%EndSetup"; % ditto
+ g_save;
+ fix_line_width 0.4pt;
+ fix_fill_cmyk 0,0,0,1;
+ fix_draw_cmyk 0,0,0,1;
+ fix_line_join default_line_join;
+ fix_line_cap default_line_cap;
+ fix_miter_limit default_miter_limit;
+ clipping_level:=0;
+ fix_dash () 0;
+enddef;
+% ---
+def no_export_write_postamble = reset_BB; enddef;
+def normal_write_postamble =
+ forever: exitif clipping_level=0; clip_C; endfor
+ g_restore;
+ write_PS "%%Trailer";
+ write_PS "/mftoeps_ehook where {pop mftoeps_ehook} {} ifelse";
+ scantokens extra_postamble;
+ write_PS "end showpage";
+ if unknown testing:
+  errorstopmode; % switch to the usual mode
+ fi
+ message "";
+ reset_BB;
+enddef;
+% ---
+def g_save = write_PS g_save_op enddef;
+def g_restore = write_PS g_restore_op enddef;
+% ---
+def fix_dash (text t) expr x =
+ def current_dash_array = t enddef; current_dash_offset:=x;
+enddef;
+def set_dash =
+ dash_array_empty:=true;
+ write_PS "["
+  for dash_array:=current_dash_array: if not dash_array_empty: & " " fi
+   & hide(dash_array_empty:=false) bp_num(dash_array)
+  endfor
+  & "] " & bp_num(current_dash_offset) & " " & set_dash_op;
+enddef;
+% ---
+def fix_line_width expr p =
+ current_line_width:=max(p,0); pickup pencircle scaled current_line_width;
+enddef;
+def set_line_width =
+ write_PS bp_num(if known current_line_width: current_line_width
+  else: .5[pen_rt-pen_lft,pen_top-pen_bot] fi) & " " & set_line_width_op;
+enddef;
+% ---
+def fix_line_join expr p =
+ current_line_join:=
+  if (round(p)<0) or (round(p)>2): default_line_join else: round(p) fi;
+enddef;
+def set_line_join =
+ write_PS decimal(if known current_line_join: current_line_join
+   else: default_line_join fi) & " " & set_line_join_op;
+enddef;
+% ---
+def fix_line_cap expr p =
+ current_line_cap:=
+  if (round(p)<0) or (round(p)>2): default_line_cap else: round(p) fi;
+enddef;
+def set_line_cap =
+ write_PS decimal(if known current_line_cap: current_line_cap
+   else: default_line_cap fi) & " " & set_line_cap_op;
+enddef;
+% ---
+def fix_miter_limit expr p =
+ current_miter_limit:=if p<1: default_miter_limit else: p fi;
+enddef;
+def set_miter_limit =
+ write_PS decimal(if known current_miter_limit: current_miter_limit
+   else: default_miter_limit fi) & " " & set_miter_limit_op;
+enddef;
+% ---
+def set_fill_cmyk =
+ write_PS decimal(fill_cyan) & " " & decimal(fill_magenta) &
+  " " & decimal(fill_yellow) & " " & decimal(fill_black) & " " &
+  set_fill_cmyk_op;
+enddef;
+def set_draw_cmyk =
+ write_PS decimal(draw_cyan) & " " & decimal(draw_magenta) &
+  " " & decimal(draw_yellow) & " " & decimal(draw_black) & " " &
+  set_draw_cmyk_op;
+enddef;
+% ---
+vardef norm_color expr c = min(1,max(0,c)) enddef;
+def fix_fill_cmyk text t = % syntax trick
+ fill_cyan:=whatever; fill_magenta:=whatever;
+ fill_yellow:=whatever; fill_black:=whatever;
+ for vv_:=t:
+  if unknown fill_cyan: fill_cyan:=norm_color vv_;
+  elseif unknown fill_magenta: fill_magenta:=norm_color vv_;
+  elseif unknown fill_yellow: fill_yellow:=norm_color vv_;
+  elseif unknown fill_black: fill_black:=norm_color vv_;
+  fi
+ endfor
+enddef;
+def fix_draw_cmyk text t = % syntax trick
+ draw_cyan:=whatever; draw_magenta:=whatever;
+ draw_yellow:=whatever; draw_black:=whatever;
+ for vv_:=t:
+  if unknown draw_cyan: draw_cyan:=norm_color vv_;
+  elseif unknown draw_magenta: draw_magenta:=norm_color vv_;
+  elseif unknown draw_yellow: draw_yellow:=norm_color vv_;
+  elseif unknown draw_black: draw_black:=norm_color vv_;
+  fi
+ endfor
+enddef;
+% ---
+def fix_fill_rgb text t = % syntax trick
+ begingroup
+  save R_,G_,B_;
+  for vv_:=t:
+   if unknown R_: R_:=norm_color vv_;
+   elseif unknown G_: G_:=norm_color vv_;
+   elseif unknown B_: B_:=norm_color vv_;
+   fi
+  endfor
+  convert_rgb_to_cmyk(R_,G_,B_)
+   (fill_cyan, fill_magenta, fill_yellow, fill_black);
+ endgroup
+enddef;
+def fix_draw_rgb text t = % syntax trick
+ begingroup
+  save R_,G_,B_;
+  for vv_:=t:
+   if unknown R_: R_:=norm_color vv_;
+   elseif unknown G_: G_:=norm_color vv_;
+   elseif unknown B_: B_:=norm_color vv_;
+   fi
+  endfor
+  convert_rgb_to_cmyk(R_,G_,B_)
+   (draw_cyan, draw_magenta, draw_yellow, draw_black);
+ endgroup
+enddef;
+% ---
+def convert_rgb_to_cmyk (expr R,G,B)(suffix C,M,Y,K) =
+ begingroup
+  save C_,M_,Y_,K_; C_:=1-R; M_:=1-G; Y_:=1-B; K_:=min(C_,M_,Y_);
+  C:=min(1, max(0,C_-under_color_removal(K_)));
+  M:=min(1, max(0,M_-under_color_removal(K_)));
+  Y:=min(1, max(0,Y_-under_color_removal(K_)));
+  K:=min(1, max(0,black_generation(K_)));
+ endgroup
+enddef;
+% ---
+% DEFAULTS:
+def mftoeps_default text t = % main global defaults
+ forsuffixes S_:=t:
+  if str S_ = "under_color_removal":
+   vardef under_color_removal(expr k) = 0 enddef; % modify if you know better
+  elseif str S_ = "black_generation":
+   vardef black_generation(expr k) = 0 enddef; % ditto
+  elseif str S_ = "default_miter_limit":
+   default_miter_limit:=10; % as in PostScript
+% incidentally, |10bp| would convert to |10.00002| during export at |300dpi|
+  elseif str S_ = "default_line_join": default_line_join:=0; % as in PostScript
+  elseif str S_ = "default_line_cap": default_line_cap:=0; % ditto
+  elseif str S_ = "epsil.ang": epsil.ang:=.1; % in degrees
+  elseif str S_ = "epsil.dist": epsil.dist:=1/10pt; % ca |2/5|pxl at |300dpi|
+  fi
+ endfor
+enddef;
+%
+mftoeps_default under_color_removal, black_generation, default_miter_limit,
+ default_line_join, default_line_cap, epsil.ang, epsil.dist;
+% ---
+endinput;
+%%\end

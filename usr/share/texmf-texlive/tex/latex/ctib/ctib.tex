@@ -1,0 +1,116 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%        File: ctib.tex
+%      Author: Sam Sirlin
+% Modified by: Oliver Corff
+%        Date: October 10th, 1999
+%     Version: \CtibVersionRelease
+%
+% Description: The ctib.tex file provides access to all
+%		commands necessary for writing Tibetan
+%		in TeX documents, making use of a modified
+%		version of Sirlin's Tibetan fonts.
+%
+%		Many definitions were actually taken from
+%		Sirlin's tibdef.tex (and occasionally modified).
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------------       main code        -------------------
+%
+% \TibTeX creates the TibTeX logo
+%
+\def\TibTeX{{cTib\TeX}}
+%
+%
+% s.w. sirlin  11/24/94, modified by o. corff, 1999-10-10
+% definitions for tibetan fonts
+
+\font\tibetanzero=ctib scaled\magstep0
+\font\tenrmzero=cmr10 scaled\magstep0
+
+\font\tibetanone=ctib scaled\magstep1
+\font\tenrmone=cmr10 scaled\magstep1
+
+\def\tsize{%
+\def\tibetan{\tibetanzero}%
+\def\tenrm{\tenrmzero}}
+
+\def\tsizei{%
+\def\tibetan{\tibetanone}%
+\def\tenrm{\tenrmone}}
+
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Now Tibetan paragraph properties
+%
+%\hyphenpenalty=10000\parindent=0pt
+
+\def\tspace{{\hskip\fontdimen7\font}}	% inter-sentence space
+\def\notsheg{\noboundary}		% elimininates tsheg
+\def\K{\noboundary\tspace}		% Space after k, g
+
+%
+% Helps build additional stacks
+%
+\def\V#1#2{\noboundary%
+        \ooalign{\noboundary#1\noboundary\cr
+	\lower1.15\fontdimen5\font\hbox{#2\noboundary}}%
+        x} % `x' which has no value in ctib generates automatic tsheg
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Now typical Tibetan identities
+%
+% Bad: would not cooperate with MonTeX!
+\ifx\om\undefined
+	\def\om{{\tib\char254}}		% `<'
+\fi
+\def\visarga{{\tib\char58}}	% `:' 
+\def\swasti{{\tib\char64}}	% `@'
+%
+% special characters
+%
+\def\dme{\V{de}{ma}x}
+%%  
+\def\ai{\V{a}{\raise0.85\fontdimen5\font\hbox{\hskip0.25em`}}x}
+%%  
+\def\hung{\ooalign{{\raise0.7\fontdimen5\font\hbox{\hskip0.15em0}}
+		\cr\V{h}{'u}}x}
+%%  
+\def\hrih{\V{hri}{\raise0.50\fontdimen5\font\hbox{`}}x}
+%%  
+\def\achung#1{\vtop{%
+	\baselineskip0pt\hbox{#1\noboundary}%
+	\hbox{\lower0.15\fontdimen5\font\hbox{`}}}
+}
+%%  
+%%  
+%%  % operators - new vowels
+%%  
+%%  % m as o above next letter
+%%  %\def \altm{{\tibsp\accent0}}
+%%  %\def \altm{ \tibsp\accent0\tibetan}
+%%  % expect that tfilt will add junk which we need to junk
+%%  \def \altm#1{ \tibsp\accent0\tibetan #1}
+%%  
+%%  % m as o above, u below
+%%  \def\altmu#1{\vtop{\baselineskip0pt\hbox
+%%  {\tibsp\accent0\tibetan #1}\hbox{\tibsp\char123}}}
+%%  
+%%  % m as o below - emphasis
+%%  % \def\subm#1{\vtop{\baselineskip0pt\hbox{#1}\hbox{\tibsp\char0}}}
+%%  \def\subm#1{
+%%  \vtop{\ialign{\hfil##\hfil\cr
+%%  \hbox{#1}\cr
+%%  \noalign{\kern1pt\nointerlineskip}
+%%  \hbox{\tibsp\char0}\cr}}
+%%  }
+%%  
+%%  % below
+%%  
+%ready to start, default size is 0
+
+\tsize
+
+% end of ctib.tex

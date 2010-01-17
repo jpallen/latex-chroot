@@ -1,0 +1,50 @@
+%        File: mcyccsc.mf
+%    Based on: cyccsc.mf
+% Modified by: Oliver Corff
+%        Date: October 1997, Ulaanbaatar
+%
+% Caps and Small Caps in Computer Modern Cyrillic
+
+let cmchar=message; % `|cmchar|' should precede each character
+
+font_coding_scheme:=if ligs=0: "TeX typewriter text"
+ else: "TeX text without f-ligatures" fi;
+
+input mccoding;
+
+input mcyrligs;	% ligatures defined for entering Cyrillic
+
+mode_setup; font_setup;
+input punct;	% Computer Modern punctuation symbols
+input romanp;	% more punctuation symbols
+input romand;	% digits
+input mcyru;	% upper case (majuscules)
+input cyrmoreu;
+input sym;	% minus, etc.
+input mcyrsymb;	% seven additional chars: < << > >> No. t== T==
+if ligs>0: input comlig; fi  % ligatures common with italic
+
+font_slant slant; font_x_height x_height#;
+if monospace: font_normal_space 9u#; % no stretching or shrinking
+ font_quad 18u#;
+ font_extra_space 9u#;
+else: font_normal_space 6u#+2letter_fit#;
+ font_normal_stretch 3u#; font_normal_shrink 2u#;
+ font_quad 18u#+4letter_fit#;
+ font_extra_space 2u#;
+fi;
+
+%%% fine lower
+forsuffixes $= u, width_adj, cap_serif_fit, letter_fit,
+ body_height, cap_height, x_height, bar_height, comma_depth,
+ flare, cap_hair, stem, cap_stem, cap_curve, cap_ess,
+ cap_jut, beak_jut, beak, slab, cap_bar, cap_band, cap_notch_cut,
+ o, apex_o:  $.#:=lower.$.#; endfor
+fudge:=lower.fudge;
+input mcccscco;
+font_setup;	% now try again with |lower| settings
+input mcyru;	% majuscules (in lowercase positions)
+input cyrmoreu;
+
+bye.
+

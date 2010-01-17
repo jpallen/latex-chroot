@@ -1,0 +1,78 @@
+% morehelpdyn.tex version 0.1       1997 by Olaf Kummer
+%
+% see morehelp.README for explanations
+%
+% The dynamically loaded macros for special errors.
+\begingroup
+  \makeatletter
+  \gdef\morehelp@atcommand{%
+    \ifnum\the\catcode`\@=11
+      % At least it cannot be the ordinary error.
+      \morehelp@afterelse\morehelp@modefor@err
+    \else
+      % No, the user probably meant \@somecommand.
+      \expandafter\morehelp@caterr
+    \fi
+  }%
+  \gdef\morehelp@modefor@err{%
+    \PackageError{morehelp}{%
+      You must be in horizontal mode to use \protect\@.^^J^^J%
+      You issued the command \protect\@, but you were in
+      \ifmmode math \fi\ifvmode vertical \fi mode.^^J%
+      You are required to start a pragraph before you may^^J%
+      use \protect\@}{I am ignoring that command.}
+  }%
+  \gdef\morehelp@caterr{%
+    \def\morehelp@e{}%
+    % Does a character or a another at-sign follow?
+    \futurelet\morehelp@a\morehelp@caterr@
+  }%
+  \gdef\morehelp@caterr@{%
+    \ifcat\noexpand\morehelp@a a%
+      \let\morehelp@a=\morehelp@caterr@@
+    \else\if\noexpand\morehelp@a\morehelp@atsign
+      \let\morehelp@a=\morehelp@caterr@@
+    \else
+      \let\morehelp@a=\morehelp@caterr@@@
+    \fi\fi
+    \morehelp@a
+  }%
+  \gdef\morehelp@caterr@@#1{%
+    \edef\morehelp@e{\morehelp@e#1}%
+    \futurelet\morehelp@a\morehelp@caterr@
+  }%
+  \gdef\morehelp@caterr@@@{%
+    \ifx\morehelp@e\@empty
+      % I am not really sure what went wrong.
+      \morehelp@afterelse\morehelp@modefor@err
+    \else
+      \morehelp@afterfi
+      \PackageError{morehelp}{You forgot to call \protect\makeatletter.^^J^^J%
+        TeX detected the command \protect\@. If you really wanted to^^J%
+        use that command, you should only use it in the middle of a^^J%
+        paragraph.^^J^^J%
+        But almost certainly you typed the command \protect\@\morehelp@e^^J%
+        (maybe hidden in a previous macro definition).^^J%
+        TeX did not recognize the remaining characters^^J%
+        as a part of the command name, because @ is not^^J%
+        a letter and usually cannot go in a control sequence.^^J%
+        \expandafter\ifx\csname @\morehelp@e\endcsname\relax
+          On the other hand \protect\@\morehelp@e\space is not even^^J%
+          a valid command name, so maybe I'm wrong here.^^J%
+        \fi
+        ^^J%
+        Enclose your code in \protect\makeatletter\protect\makeatother^^J%
+        pairs and TeX will be happy. But are you sure you should touch^^J%
+        LaTeX's internals? This is slippery ground%
+      }{%
+        I have reinserted the probable command sequence to be read again.
+      }
+      \csname @\morehelp@e\endcsname
+    \fi
+  }%
+\endgroup
+\endinput
+
+
+
+

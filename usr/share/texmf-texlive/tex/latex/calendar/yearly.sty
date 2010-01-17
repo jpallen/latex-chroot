@@ -1,0 +1,133 @@
+%%
+%% This is file `yearly.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% yearly.dtx  (with options: `style')
+%% This file is part of the Calendar package,
+%% Copyright (C) 1996, 1997 Frank Bennett, Jr.
+%% All rights reserved.
+%% ------------------------------------------
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% You are not allowed to change this file.  You may however copy
+%% this file to a file with a different name and then change the
+%% copy if (a) you do not charge for the modified code, (b) you
+%% acknowledge the author of this file in the new file, if it
+%% is distributed to others, and (c) you attach these same
+%% conditions to the new file.
+%% 
+%% You are not allowed to distribute this file alone.  You are not
+%% allowed to take money for the distribution or use of this file
+%% (or a changed version) except for a nominal charge for copying
+%% etc.
+%% 
+%% You are allowed to distribute this file under the condition that
+%% it is distributed with all of its contents, intact.
+%% 
+%% For error reports, or offers to help make this a more powerful,
+%% friendlier, and altogether more thrilling package, please contact me on
+%% fb@soas.ac.uk.  Better yet, make a contribution to
+%% my pension.  Account details available on request.
+%% ------------------------------------------
+%% 
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{yearly}
+          [1997/11/06 07:33:21 2.1.1.6 Trivial yearly calendar (Frank Bennett)]
+\input calopts.cfg
+\InputIfFileExists{dates.cfg}{}{}
+\ProcessOptions
+\RequirePackage{calendar}
+\define@key{opt}{title}{%
+  \def\yrly@title{#1}}
+\define@key{opt}{labels}{%
+  \@storelabels#1,,{}}
+\define@key{opt}{firstday}{%
+  \yrly@firstday=#1}
+\def\yrly@title{\theyear}
+\newcount\yrly@firstday
+\yrly@firstday=0\relax
+\newtoks\yrly@tempreg@a
+\newcount\yrly@tempcount
+\def\@storelabels{%
+  \def\yrly@labeltext{}%
+  \@@storelabels}
+\def\@@storelabels#1,#2#{%
+  \ifcat$#1$%
+    \yrly@tempreg@a=\expandafter\expandafter\expandafter{%
+      \expandafter\@gobble\yrly@labeltext}%
+    \edef\yrly@labeltext{\the\yrly@tempreg@a}%
+    \let\next\@gobble%
+  \else%
+    \let\next\@@storelabels%
+    \yrly@tempreg@a=\expandafter{\yrly@labeltext}%
+    \protected@edef\yrly@labeltext{\the\yrly@tempreg@a&#1}%
+  \fi%
+    \next#2{}}
+\newcalendar%
+ {yearly}
+ {\cal@insert}
+ {\yrly@firstday}
+ {\dates@days}
+ {7}
+ {&}
+ {I}
+ {\begin{tabular}[t]{ccccccc}%
+    \multicolumn{7}{c}{\textbf{\themonth}}\\\hline%
+    \yrly@labeltext\\\hline}%
+ {\end{tabular}}
+ {\cal@footer%
+  \ifodd\thumbnails%
+    \\%
+  \else%
+    \rule{0.25in}{0pt}%
+  \fi%
+  \advance\thumbnails by 1%
+  \cal@header}
+ {\\}
+ {}
+ {\global\dates@month=1%
+  \global\dates@day=1%
+  \dates@fix%
+  \cal@range@start\dates@date%
+  \message{^^JStart: \theshortweekday\space%
+    \theday\space\theshortmonth\space\theyear}%
+  \global\dates@month=12%
+  \global\dates@day=31%
+  \dates@fix%
+  \caldate%
+  \cal@range@end\dates@date%
+  \message{^^JEnd: \theshortweekday\space%
+    \theday\space\theshortmonth\space\theyear}%
+  \global\dates@date=\cal@range@start%
+  \caldate%
+  \addtolength{\tabcolsep}{-0.5\tabcolsep}%
+  \newcount\thumbnails%
+  \@ifundefined{yrly@labeltext}{%
+    \def\yrly@defaultlabels{}%
+    \yrly@tempcount=1%
+    \global\advance\dates@date by-\dates@weekd%
+    \global\advance\dates@date by\yrly@firstday%
+    \caldate%
+    \loop%
+      \yrly@tempreg@a=\expandafter{\yrly@defaultlabels}%
+      \edef\yrly@defaultlabels{\the\yrly@tempreg@a\theshortweekday,}%
+    \ifnum\yrly@tempcount<7%
+     \global\advance\dates@date by1%
+     \caldate%
+     \advance\yrly@tempcount by 1\relax%
+    \repeat%
+    \expandafter\@storelabels\yrly@defaultlabels,,{}%
+    \dates@date\cal@range@start%
+    \caldate}%
+    {}%
+  \yrly@title\par\bigskip}%
+ {}%
+  {\getanycolor}%
+  {}%
+ {\cal@textcolor{\calcolor}{\theday}}
+\endinput
+%%
+%% End of file `yearly.sty'.

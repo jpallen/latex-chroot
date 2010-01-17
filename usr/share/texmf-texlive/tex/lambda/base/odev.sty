@@ -1,0 +1,102 @@
+\def\externalfont{\fontfamily{\rmdefault}\selectfont}
+     \ocp\HindiA=velthuis2unicode
+     \ocp\HindiB=hindi-uni2cuni
+     \ocp\HindiBS=sanskrit-uni2cuni
+     \ocp\HindiC=hindi-uni2cuni2
+     \ocp\HindiD=hindi-cuni2font
+     \ocp\HindiDS=sanskrit-cuni2font
+     \ocp\HindiE=hindi-cuni2font2
+     \ocp\HindiF=hindi-cuni2font3
+
+     \ocplist\HindiCTP=
+     \addbeforeocplist 1 \HindiA
+     \addbeforeocplist 2 \HindiB
+     \addbeforeocplist 3 \HindiC
+     \addbeforeocplist 4 \HindiD
+     \addbeforeocplist 5 \HindiE
+     \addbeforeocplist 6 \HindiF
+     \nullocplist
+     \ocplist\SanskritCTP=
+     \addbeforeocplist 1 \HindiA
+     \addbeforeocplist 2 \HindiBS
+     \addbeforeocplist 3 \HindiC
+     \addbeforeocplist 4 \HindiDS
+     \addbeforeocplist 5 \HindiE
+     \addbeforeocplist 6 \HindiF
+     \nullocplist
+\newcount\dev@chnum
+%
+\newcommand*\do@dev@catcodes{%
+  \dev@chnum=0
+  \loop\catcode\dev@chnum=11
+    \ifnum\dev@chnum<12 \advance\dev@chnum by1
+    \repeat
+  \dev@chnum=14
+  \loop\catcode\dev@chnum=11
+    \ifnum\dev@chnum<31 \advance\dev@chnum by1
+    \repeat
+  \catcode127=11 }
+%
+% We execute the macro straight away, which means these catcodes are in
+% force throughout the whole document, not just in the Devanagari part
+% of the text.  This can sometimes cause spurious "Omega" characters if,
+% in some special conditions, TeX reads a line feed outside the \dn environment,
+% and so forth.
+% The alternative, i.e., calling the catcodes locally within Devanagari text, leads
+% to even worse "illegal character" problems with \chapter and \section headings, etc.
+% This dilemma may be soluble in the longer run, but is not being addressed in
+% the current release (1999).
+%
+%
+% Here are the macros that set the particular characters in the font:
+%
+\newdimen\itdim
+%
+\DeclareRobustCommand*\subscr[1]{{\clearocplists\/\itdim=\lastkern
+  \unkern\kern-\itdim \lower\dp0 \hbox to\itdim{#1\hfil}}}
+%
+\DeclareRobustCommand*\5{\llap{\char125}}
+\DeclareRobustCommand*\qqq[1]{\setbox0=\hbox{#1}#1\subscr{\char126}}
+\DeclareRobustCommand*\qqqa[1]{\setbox0=\hbox{#1}#1\subscr{\char0}}
+\DeclareRobustCommand*\qqqb[1]{\setbox0=\hbox{#1}#1\subscr{\char1}}
+\DeclareRobustCommand*\qqqc[1]{\setbox0=\hbox{#1}#1\subscr{\char2}}
+\DeclareRobustCommand*\qa[2]{\setbox0=\hbox{#1}#1\subscr{\char253\kern1.5ex\lower1.25ex
+  \hbox{\char#2}\kern-1.5ex}}
+\DeclareRobustCommand*\qb[1]{\setbox0=\hbox{#1}#1\subscr{\char253}}
+% New \qc ligature command introduced by devnag version 2:
+\DeclareRobustCommand*\qc[2]{\setbox0=\hbox{#1}#1\subscr{\char126\kern1.5ex\lower1.25ex
+  \hbox{\char#2}\kern-1.5ex}}
+\DeclareRobustCommand*\qq[1]{\setbox0=\hbox{#1}#1\subscr{\char94}}
+\DeclareRobustCommand*\qx[1]{\setbox0=\hbox{#1}#1\subscr{\char14}}
+\DeclareRobustCommand*\qy[1]{\setbox0=\hbox{#1}#1\subscr{\char31}}
+\DeclareRobustCommand*\qz[1]{\setbox0=\hbox{#1}#1\subscr{\char124}}
+\DeclareRobustCommand*\qzz[1]{{\clearocplists#1A\llap{\char4}}}
+\DeclareRobustCommand*\qva{\kern0.5ex\2\kern-0.5ex}
+\DeclareRobustCommand*\qvb{\kern1ex\0\kern-1ex}
+\DeclareRobustCommand*\qvc{\kern1ex\rdt\kern-1ex}
+\DeclareRobustCommand*\rs{\rm\thinspace}
+\let\re=\thinspace
+\DeclareRobustCommand*\rdt{\llap{\char19}}
+\DeclareRobustCommand*\dnnum{\let\nstyle=d}
+\DeclareRobustCommand*\cmnum{\let\nstyle=r}
+\cmnum
+\DeclareRobustCommand*\rn[1]{\if\nstyle r{\rm #1}\else#1\fi}
+\def\qqqx{\llap{{\clearocplists\char32}}}
+\def\qqqy{\llap{{\clearocplists\char"5C}}}
+\def\qqqz{\llap{{\clearocplists\char"7B}}}
+\def\qqqs{\llap{{\clearocplists\char4}}}
+\def\qqqr{\llap{{\clearocplists\char3}}}
+%
+%
+%
+
+
+%{\pushocplist\HindiCTP katarama k kt ktr ktrm ktrm}
+
+
+\long\def\hindi{\do@dev@catcodes
+\fontencoding{U}\fontfamily{dn}\selectfont\catcode`\~=11
+\pushocplist\HindiCTP}
+\long\def\sanskrit{\do@dev@catcodes
+\fontencoding{U}\fontfamily{dn}\selectfont\catcode`\~=11
+\pushocplist\SanskritCTP}

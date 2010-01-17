@@ -1,0 +1,39 @@
+\newwrite\verbatim@out
+
+\def\bspname{b}
+
+\def\verbatimwrite#1{%
+  \@bsphack
+  \immediate\openout \verbatim@out #1
+  \let\do\@makeother\dospecials
+  \catcode`\^^M\active
+  \verbatim@startline
+  \verbatim@addtoline
+  \verbatim@finish
+  \def\verbatim@processline{%
+    \immediate\write\verbatim@out
+      {\the\verbatim@line}}%
+  \verbatim@start}
+
+\def\endverbatimwrite{%
+  \immediate\closeout\verbatim@out
+  \@esphack}
+
+\def\bsp{\verbatimwrite{\bspname}}
+
+\let\endbsp\endverbatimwrite
+
+\def\make{%
+	\begin{flushleft}
+		\begin{minipage}[c]{0.48\linewidth}
+			\verbatiminput{\bspname}
+		\end{minipage}
+		\hfill\vrule\hfill
+		\begin{minipage}[c]{0.48\linewidth}
+			\input{\bspname}
+		\end{minipage}
+	\end{flushleft}}
+
+\endinput
+
+

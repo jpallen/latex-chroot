@@ -1,0 +1,1351 @@
+% Copyright (c) 1985, 1986 Daniel C. Brotsky.  All rights reserved.
+% User interface for yTeX.  See the file YTEX.MAC for details.
+
+% CONTENTS
+
+% ^L-page       contents
+% ----------------------------------------------------------------------
+% 1             %% User interface to YTEX macros
+% 2             %% combinators
+% 3             %% runners
+% 4             %% glosses
+% 5             %% paragraphs
+% 6             %% textual displays
+% 7             %% lisp programs
+% 8             %% footnotes
+% 9             %% figures
+% 10            %% tables
+% 11            %% equations
+% 12            %% chapters and sections
+% 13            %% special pages
+% 14            %% 2 columns
+% 15            %% indexes
+% 16            %% citations
+% 17            %% labels
+% 18            %% initialization
+
+\message{combinators,}
+
+% verbatim word
+\def\verb {% <token>#1<token>
+  \begingroup\tt\specials@ther\activespaces\ \v@rb}
+\def\v@rb #1{%
+  \def\next##1#1{##1\endgroup}\next}
+
+% spread to the current hsize
+\newspread\spread
+  \setup
+  \endnew
+\let\@@spreadwidth=\spreadwidth \let\spreadwidth=\hsize
+
+% left-adjusted, center-adjusted, and right-adjusted titles
+\newtitle\tleft
+  \box \vopen
+  \shape \titleleft{\z@}{\z@}%
+  \font
+  \setup
+  \begin
+  \end
+  \endnew
+\newtitle\tcenter
+  \box \vopen
+  \shape \titlecenter{\z@}{\z@}%
+  \font
+  \setup
+  \begin
+  \end
+  \endnew
+\newtitle\tright
+  \box \vopen
+  \shape \titleright{\z@}{\z@}%
+  \font
+  \setup
+  \begin
+  \end
+  \endnew
+
+% symbols
+\newtextwrap\sy
+  \box \hopen
+  \setup \smltt
+  \before
+  \after
+  \begin
+  \end
+  \endnew
+\newtextwrap\sybox
+  \box \hbox
+  \setup \smltt
+  \before
+  \after
+  \begin
+  \end
+  \endnew
+\newtextwrap\ucsy
+  \box \hopen
+  \setup \smltt
+  \before
+  \after
+  \begin \uppercase\bgroup
+  \end \egroup
+  \endnew
+\newtextwrap\ucsybox
+  \box \hbox
+  \setup \smltt
+  \before
+  \after
+  \begin \uppercase\bgroup
+  \end \egroup
+  \endnew
+
+\def\ignore #{%
+  \begingroup
+    \def\do ##1{\catcode`##1=12\relax}%
+    \dospecials                 % turn off all special chars
+    \catcode`\\=0\relax         % need to see commands as single tokens
+    \catcode`\{=1\catcode`\}=2\relax    % need to recognize balanced braces
+    \catcode`\%=14\relax        % need to ignore comments
+    \let\par=\relax
+    \ignorereader}
+\long
+\def\ignorereader #1{%
+    \endgroup}
+
+\message{runners,}
+
+% contents of headers and footers
+\newtoks\versoleftheader
+\newtoks\versocenterheader
+\newtoks\versorightheader
+\newtoks\rectoleftheader
+\newtoks\rectocenterheader
+\newtoks\rectorightheader
+
+\newtoks\versoleftfooter
+\newtoks\versocenterfooter
+\newtoks\versorightfooter
+\newtoks\rectoleftfooter
+\newtoks\rectocenterfooter
+\newtoks\rectorightfooter
+
+\newtoks\runnerfont
+
+\rectoheader={\the\runnerfont
+  \line{\hbox to\z@{\the\rectoleftheader\hss}\hfil
+        \hbox to\z@{\hss\the\rectocenterheader\hss}\hfil
+        \hbox to\z@{\hss\the\rectorightheader}}}
+\versoheader={\the\runnerfont
+  \line{\hbox to\z@{\the\versoleftheader\hss}\hfil
+        \hbox to\z@{\hss\the\versocenterheader\hss}\hfil
+        \hbox to\z@{\hss\the\versorightheader}}}
+\rectofooter={\the\runnerfont
+  \line{\hbox to\z@{\the\rectoleftfooter\hss}\hfil
+        \hbox to\z@{\hss\the\rectocenterfooter\hss}\hfil
+        \hbox to\z@{\hss\the\rectorightfooter}}}
+\versofooter={\the\runnerfont
+  \line{\hbox to\z@{\the\versoleftfooter\hss}\hfil
+        \hbox to\z@{\hss\the\versocenterfooter\hss}\hfil
+        \hbox to\z@{\hss\the\versorightfooter}}}
+
+\versoleftheader={\bf\folio}
+\rectoleftheader={\firstm@rk}
+\rectorightheader={\bf\folio}
+
+\versocenterfooter={\bf\folio}
+\rectocenterfooter={\bf\folio}
+
+% convenient runner settings: args are toklists
+\let\fixedhead=\versorightheader
+\let\runninghead=\rectoleftheader
+
+\message{glosses,}
+
+% top gloss: copyright
+\newif\ifshowcopyright
+\newtoks\copyrightholder
+\def\copyrightpage {\ifshowcopyright\yestopgloss\fi}
+\copyrightholder={by the author}
+\topgloss={\regsize\bf
+  Copyright $\m@th\copyright$ \number\year~\the\copyrightholder\hfil
+  \shortdate \enspace[\daytime]}
+
+% drafts
+\def\draft {%
+  \ymessage{{Draft}}
+  \overfullrule=5\p@
+  \bottomgloss={\regsize\bf
+    DRAFT $\bullet$ DRAFT $\bullet$ DRAFT\hfil
+    \date \enspace [\daytime]}
+  \bottomglosstrue}
+
+\message{paragraphs,}
+
+% disciplined \rem@veindent
+\newif\ifvpar
+\def\vpar {%
+  \ifvpar \edef\next{\the\everypar}\ifx\next\empty \rem@veindent \fi\fi}
+\def\unvpar {\everypar={}}
+
+% various paragraph shapes
+\newpar\ivpar
+  \argtext
+  \setup
+  \vestindent \parindent
+  \starter \noindent
+  \endnew
+\newpar\ipar
+  \argtext
+  \setup
+  \vestindent \parindent
+  \starter \indent
+  \endnew
+\newdimen\partagsep
+\newbox\partagbox
+\newpar\ftpar
+  \argtext #1%
+  \setup \setbox\partagbox=\hbox{#1}%
+         \ifdim \wd\partagbox<\parindent
+           \setbox\partagbox=\hbox to\parindent{\unhbox\partagbox \hfil}%
+         \else
+           \setbox\partagbox=\hbox{\unhbox\partagbox \hskip\partagsep}\fi
+  \vestindent \parindent
+  \starter \noindent \box\partagbox \ignorespaces
+  \endnew
+\newpar\atpar
+  \argtext #1%
+  \setup
+  \vestindent \parindent
+  \starter \noindent \hbox to\parindent {\hss #1\hskip\partagsep}\ignorespaces
+  \endnew
+\newpar\vtpar
+  \argtext #1%
+  \setup \setbox\partagbox=\hbox{#1\hskip\partagsep}%
+  \vestindent 1\wd\partagbox
+  \starter \noindent \box\partagbox \ignorespaces
+  \endnew
+
+% bullet paragraphs and lists thereof
+\newpar\bpar
+  \argtext
+  \setup
+  \vestindent \parindent
+  \starter \noindent \hbox to\parindent {$\m@th\bullet$\hfil}\ignorespaces
+  \endnew
+
+\newelement\bullets
+  \setup \unvpar
+  \above \minbreak \prebulletspenalty \abovebulletsskip
+  \below \dobreak \postbulletspenalty \belowbulletsskip \vpar
+  \begin
+  \end \endgraf
+  \endnew
+\setskip\abovebulletsskip \dimen 2pt \glue \parskip \factor 500
+\setskip\belowbulletsskip \dimen 2pt \glue \parskip \factor 500
+\prebulletspenalty=-200
+\postbulletspenalty=-200
+
+% quotes
+\newtoks\quotefont
+\newelement\quote
+  \setup \advance\leftskip\parindent \advance\rightskip\parindent
+         \unvpar \the\quotefont \offindent
+  \above \vskip\baselineskip \nobreak   % compensate for smaller baseline
+         \begingroup \the\quotefont \vskip-\baselineskip \endgroup
+  \below \vpar
+  \begin
+  \end \endgraf
+  \endnew
+
+% ragged center (mostly from the TeXbook)
+\def\raggedcenter {%
+  \leftskip=\z@ plus2em \rightskip=\leftskip
+  \spaceskip=.3333em \xspaceskip=.5em \parfillskip=\z@
+  \pretolerance=9999 \tolerance=9999 \hbadness=9999
+  \hyphenpenalty=9999 \exhyphenpenalty=9999
+  \offindent}
+
+% ragged left
+\def\raggedleft {%
+  \leftskip=\z@ plus2em \rightskip=\z@skip
+  \spaceskip=.3333em \xspaceskip=.5em \parfillskip=\z@
+  \pretolerance=9999 \tolerance=9999 \hbadness=9999
+  \hyphenpenalty=9999 \exhyphenpenalty=9999
+  \offindent}
+
+\message{textual displays,}
+
+% nofill
+\newelement\nofill
+  \setup \offindent \setupnofill
+  \above \vskip\parskip                 % compensate for loss of \parskip
+  \below \vpar
+  \begin
+  \end \endgraf
+  \endnew
+
+\newtext\text
+  \display
+  \setup \hsize=\displaywidth \advance\leftskip\displayindent \setupnofill
+  \begin
+  \end
+  \endnew
+\newtext\textlines
+  \display \displaywidth=\hsize \displayindent=\z@
+  \setup \setupnofill
+  \begin
+  \end
+  \endnew
+\newtext\code
+  \display
+  \setup \hsize=\displaywidth \advance\leftskip\displayindent \tt \setupnofill
+  \begin
+  \end
+  \endnew
+\newtext\codelines
+  \display \displaywidth=\hsize \displayindent=\z@
+  \setup \tt \setupnofill
+  \begin
+  \end
+  \endnew
+
+% verbatim material
+\def\beginverbatim {%
+  \par
+  \beginpgroup
+  \vskip\parskip
+  \setupverbatim
+  \re@dverbatim}
+{\obeylines \catcode`\|=\@scape \catcode`\\=\@ther %
+ |gdef|re@dverbatim#1^^M#2\endverbatim{#1#2|endgroup}}
+
+\newverbatim\verb
+  \begincs \beginverb
+  \readcs \readv@rb
+  \endcsname endverb%
+  \display
+  \setup \hsize=\displaywidth \advance\leftskip\displayindent \tt
+  \begin
+  \end
+  \endnew
+\newverbatim\verblines
+  \begincs \beginverblines
+  \readcs \readv@rblines
+  \endcsname endverblines%
+  \display \displaywidth=\hsize \displayindent=\z@
+  \setup \tt
+  \begin
+  \end
+  \endnew
+
+\message{lisp programs,}
+
+% make semis active a la \obeylines
+{\catcode`\;=\@ctive
+ \gdef\obeysemis {\catcode`\;=\@ctive\relax \let;=\lispsemi}}
+
+% \beginl@sp <body> \endl@sp
+\def\beginl@sp {%
+  \beginpgroup
+  % semis start comments unless immediately followed by \pbrk
+  \def\lispsemi{\futurelet\next\l@spsemi}%
+  \def\l@spsemi{\ifx\next\pbrk \let\next=\relax
+                  \else        \let\next=\l@spcomment\fi
+                  \next}%
+  \obeysemis
+  % spaces made active so they start paragraphs
+  %   and so multiple spaces aren't collapsed to one.
+  \activespaces\ %
+  % nofill via every line a par, if spaces start next line
+  %   we do a \noindent to make sure a par gets started.
+  % in addition, turn off interline skip and use struts
+  %   to insure baseline spacing
+  \offinterlineskip
+  \parskip=\z@skip
+  \def\par{\ifhmode \nobreak\strut \fi \endgraf}
+  \obeylines
+  % compensate for loss of baseline spacing
+  \skip@=\dp\strutbox \advance\skip@ -\prevdepth
+  \ifdim \skip@>\z@ \vskip\skip@ \nobreak \fi
+  % make ',` do the right thing; make &, #, <> harmless
+  \makebqspecial
+  \makeandother
+  \makesharpother
+  \makelgtother
+  \vbox\bgroup}
+
+\def\endl@sp {%
+  \egroup
+  \endpgroup}
+
+{\obeylines                     % for defs that happen where ^^M is active
+% each program is a box, preventing page splits, but we
+%   make the \pbrk macro work a la \noalign whose arg is
+%   the entire rest of the line.
+\gdef\pbrk #1^^M{%
+    \egroup%
+  \def\next{#1}%
+  \ifx\empty\next%
+    \smallskip
+    \else \begingroup \activespaces\space \next\endgroup\fi%
+  \vbox\bgroup%
+    ^^M}                        % end with a CR since arg did
+% semicolons start program comments which end with the end
+% of the line.  These comments are in roman, in an \hbox to
+% avoid line breaking, <> become angle brackets,
+% and ; becomes harmless
+\gdef\l@spcomment {%
+  \begingroup%
+  \def\lispsemi{;\kern\p@}\obeysemis    % this works even if ; already read
+  \def^^M{\egroup\endgroup^^M}% end with ^^M since line does
+  \leavevmode\hbox\bgroup \rm \strut;\kern\p@}%
+} % end of def group
+
+\newtoks\lispfont
+\newtext\lisp
+  \display
+  \setup \hsize=\displaywidth \advance\leftskip\displayindent
+         \the\lispfont
+  \begin \beginl@sp
+  \end \endl@sp
+  \endnew
+\newtext\lisplines
+  \display \displaywidth=\hsize \displayindent=\z@
+  \setup \the\lispfont
+  \begin \beginl@sp
+  \end \endl@sp
+  \endnew
+
+\message{footnotes,}
+
+\let\footdef=\relax
+\let\footref=\relax
+
+\newfloat\footn@te
+  \type \botfloat
+  \floatsetup \setupfootnotefloat
+  \setup \setupfootnote
+  \floatabove
+  \floatbelow
+  \begin \startfootnote
+  \end \strut\endgraf
+  \endnew
+
+\def\setupfootnotefloat {%
+  \splittopskip=\ht\strutbox % top baseline for broken footnotes
+  \splitmaxdepth=\dp\strutbox
+  \floatingpenalty=\@M
+  \setupfootnotefloathook}
+\def\setupfootnotefloathook {}
+
+\newtoks\footnotefont
+\def\setupfootnote {%
+  \interlinepenalty=\interfootnotelinepenalty
+  \leftskip=\footnotemarkerwidth
+  \parfillskip=\filskip
+  \rightskip=\z@skip
+  \spaceskip=\z@skip
+  \xspaceskip=\z@skip
+  \the\footnotefont
+  \setupfootnotehook}
+\def\setupfootnotehook {}
+
+% footnote markers
+\newdimen\footnotemarkerwidth
+\def\footstrut {\vbox to\splittopskip{}}
+\def\startfootnote #1{%
+  \noindent \llap{#1}\footstrut}
+
+% hmode footnote invocation
+\def\footnote #1{\let\@sf\empty
+  \ifhmode\edef\@sf{\spacefactor\the\spacefactor}\/\fi
+  #1\@sf\beginfootn@te{#1}\futurelet\next\fo@t}
+\def\@foot {\endfootn@te}
+
+% numbered hmode footnote
+\def\nfootnote #1{\footnote{$\m@th^{#1}$}}
+
+% vmode footnote invocation
+\def\vfootnote #1{\beginfootn@te{#1}\futurelet\next\fo@t}
+
+% general footnote invocation
+\newfloat\footmatter
+  \type \botfloat
+  \floatsetup \setupfootnotefloat \leftskip=\z@skip
+  \setup \setupfootnote
+  \floatabove
+  \floatbelow
+  \begin \noindent \footstrut
+  \end \strut\endgraf
+  \endnew
+
+\message{figures,}
+
+\let\figdef=\relax
+\let\figref=\relax
+
+% lines above and below figures
+\newif\iffigureline
+\newdimen\figurelinedrop
+\def\figl@nabove {%
+  \iffigureline \hrule \vskip\figurelinedrop\relax \fi}
+\def\figl@nbelow {%
+  \iffigureline \nobreak \vskip\figurelinedrop \hrule\relax \fi}
+
+% figure environment definitions
+\newdimen\captionindent
+\newtoks\captionfont
+\def\setupcaption {%
+  \leftskip=\captionindent
+  \rightskip=\captionindent
+  \the\captionfont
+  \parskip=\z@skip
+  \everypar={}%
+  \vpar
+  \setupcaptionhook}
+\def\setupcaptionhook {}
+
+\newelement\c@ption
+  \setup \setupcaption
+  \above \dobreak \prec@ptionpenalty \abovec@ptionskip
+  \below  \dobreak \postc@ptionpenalty \belowc@ptionskip
+  \begin
+  \end \ifhmode \vrule width\z@ height\z@ depth\dp\strutbox \fi \endgraf
+  \endnew
+\let\abovecaptionskip=\abovec@ptionskip
+\let\belowcaptionskip=\belowc@ptionskip
+\let\precaptionpenalty=\prec@ptionpenalty
+\let\postcaptionpenalty=\postc@ptionpenalty
+  
+\def\setupfigure {%
+  \let\begincaption=\beginc@ption
+  \let\endcaption=\endc@ption
+  \let\caption=\c@ption
+  \leftskip=\z@skip
+  \rightskip=\z@skip
+  \spaceskip=\z@skip
+  \xspaceskip=\z@skip
+  \parfillskip=\filskip
+  \everypar={}%
+  \setupfigurehook}
+\def\setupfigurehook {}
+
+% figure type indicators
+\newif\ifstationaryfigur@
+\newif\ifsectionfigur@
+\newif\iftopfigur@
+\newif\iffloatingfigur@
+
+% stationary figures
+\newelement\stationaryfigure
+  \setup \stationaryfigur@true \setupfigure
+  \above \minbreak \prestationaryfigurepenalty \abovestationaryfigureskip
+         \nointerlineskip
+  \below \dobreak \poststationaryfigurepenalty \belowstationaryfigureskip
+         \nointerlineskip
+  \begin \vbox\bgroup \figl@nabove
+  \end \figl@nbelow \egroup
+  \endnew
+\abovestationaryfigureskip=\bigskipamount
+\belowstationaryfigureskip=\bigskipamount
+\prestationaryfigurepenalty=\z@
+\poststationaryfigurepenalty=-200
+\newpage\pagestationaryfigure
+  \setup \stationaryfigur@true \setupfigure
+  \glue
+  \begin \vbox to\vsize\bgroup \figl@nabove
+  \end \figl@nbelow \vskip \z@ plus\@M\p@ \egroup
+  \endnew
+\def\stationaryfigures {%
+  \let\figure=\stationaryfigure
+  \let\pagefigure=\stationarypagefigure
+  \let\beginfigure=\beginstationaryfigure
+  \let\endfigure=\endstationaryfigure
+  \let\beginpagefigure=\beginstationarypagefigure
+  \let\endpagefigure=\endstationarypagefigure
+  \let\abovefigureskip=\abovestationaryfigureskip
+  \let\belowfigureskip=\belowstationaryfigureskip
+  \let\prefigurepenalty=\prestationaryfigurepenalty
+  \let\postfigurepenalty=\poststationaryfigurepenalty}
+
+% section figures
+\newelement\sectionfigure
+  \setup \sectionfigur@true \setupfigure
+  \above \dobreak \presectionfigurepenalty \abovesectionfigureskip
+         \nointerlineskip
+  \below \dobreak \postsectionfigurepenalty \belowsectionfigureskip
+         \nointerlineskip
+  \begin \vbox\bgroup \figl@nabove
+  \end \figl@nbelow \egroup
+  \endnew
+\abovesectionfigureskip=\z@skip
+\belowsectionfigureskip=\fillskip
+\presectionfigurepenalty=\@M
+\postsectionfigurepenalty=-200
+\newpage\sectionpagefigure
+  \setup \sectionfigur@true \setupfigure
+  \glue
+  \begin \vbox to\vsize\bgroup \figl@nabove
+  \end \figl@nbelow \vskip \z@ plus\@M\p@ \egroup
+  \endnew
+\def\sectionfigures {%
+  \let\figure=\sectionfigure
+  \let\pagefigure=\sectionpagefigure
+  \let\beginfigure=\beginsectionfigure
+  \let\endfigure=\endsectionfigure
+  \let\beginpagefigure=\beginsectionpagefigure
+  \let\endpagefigure=\endsectionpagefigure
+  \let\abovefigureskip=\abovesectionfigureskip
+  \let\belowfigureskip=\belowsectionfigureskip
+  \let\prefigurepenalty=\presectionfigurepenalty
+  \let\postfigurepenalty=\postsectionfigurepenalty}
+
+% floating top figures
+\newskip\abovetopfigureskip \abovetopfigureskip=\z@skip
+\newskip\belowtopfigureskip \belowtopfigureskip=\bigskipamount
+\newcount\pretopfigurepenalty \pretopfigurepenalty=100
+\newcount\posttopfigurepenalty \posttopfigurepenalty=\z@
+\newfloat\topfigure
+  \type \topfloat
+  \floatsetup \floatingpenalty\posttopfigurepenalty
+              \splitmaxdepth\maxdimen \splittopskip\z@skip
+  \setup \topfigur@true \setupfigure
+  \floatabove \penalty\pretopfigurepenalty \vskip\abovetopfigureskip
+              \nointerlineskip
+  \floatbelow \nobreak \vskip\belowtopfigureskip
+  \begin \vbox\bgroup \figl@nabove
+  \end \figl@nbelow \egroup
+  \endnew
+\newpagefloat\toppagefigure
+  \type \topfloat
+  \floatsetup \penalty\pretopfigurepenalty
+              \floatingpenalty\posttopfigurepenalty
+              \splitmaxdepth\maxdimen \splittopskip\z@skip
+  \setup \topfigur@true \setupfigure
+  \above
+  \below
+  \begin \vbox to\vsize\bgroup \figl@nabove
+  \end \figl@nbelow \vskip \z@ plus\@M\p@ \egroup
+  \endnew
+\gdef\topfigures {%
+  \let\figure=\topfigure
+  \let\pagefigure=\toppagefigure
+  \let\beginfigure=\begintopfigure
+  \let\endfigure=\endtopfigure
+  \let\beginpagefigure=\begintoppagefigure
+  \let\endpagefigure=\endtoppagefigure
+  \let\abovefigureskip=\abovetopfigureskip
+  \let\belowfigureskip=\belowtopfigureskip
+  \let\prefigurepenalty=\pretopfigurepenalty
+  \let\postfigurepenalty=\posttopfigurepenalty}
+
+% inline/floating figures
+\newskip\floatabovefloatingfigureskip
+\newskip\floatbelowfloatingfigureskip
+\newcount\floatprefloatingfigurepenalty
+\newcount\floatpostfloatingfigurepenalty
+\floatabovefloatingfigureskip=\z@skip
+\floatbelowfloatingfigureskip=\bigskipamount
+\floatprefloatingfigurepenalty=100
+\floatpostfloatingfigurepenalty=\z@
+\newskip\abovefloatingfigureskip \abovefloatingfigureskip=\bigskipamount
+\newskip\belowfloatingfigureskip \belowfloatingfigureskip=\bigskipamount
+\newcount\prefloatingfigurepenalty \prefloatingfigurepenalty=\z@
+\newcount\postfloatingfigurepenalty \postfloatingfigurepenalty=-200
+\newfitfloat\floatingfigure
+  \type \topfloat
+  \floatsetup \floatingpenalty\floatpostfloatingfigurepenalty
+              \splitmaxdepth\maxdimen \splittopskip\z@skip
+  \setup \floatingfigur@true \setupfigure
+  \floatabove \penalty\floatprefloatingfigurepenalty
+              \vskip\floatabovefloatingfigureskip
+              \nointerlineskip
+  \floatbelow \nobreak \vskip\floatbelowfloatingfigureskip
+  \above \penalty\prefloatingfigurepenalty
+         \vskip\abovefloatingfigureskip
+         \nointerlineskip
+  \below \penalty\postfloatingfigurepenalty
+         \vskip\belowfloatingfigureskip
+         \nointerlineskip \vpar
+  \begin \vbox\bgroup \figl@nabove
+  \end \figl@nbelow \egroup
+  \endnew
+\newpagefloat\floatingpagefigure
+  \type \topfloat
+  \floatsetup \penalty\floatprefloatingfigurepenalty
+              \floatingpenalty\floatpostfloatingfigurepenalty
+              \splitmaxdepth\maxdimen \splittopskip\z@skip
+  \setup \floatingfigur@true \setupfigure
+  \above
+  \below
+  \begin \vbox to\vsize\bgroup \figl@nabove
+  \end \figl@nbelow \vskip \z@ plus\@M\p@ \egroup
+  \endnew
+\gdef\floatingfigures {%
+  \let\figure=\floatingfigure
+  \let\pagefigure=\floatingpagefigure
+  \let\beginfigure=\beginfloatingfigure
+  \let\endfigure=\endfloatingfigure
+  \let\beginpagefigure=\beginfloatingpagefigure
+  \let\endpagefigure=\endfloatingpagefigure
+  \let\abovefigureskip=\abovefloatingfigureskip
+  \let\belowfigureskip=\belowfloatingfigureskip
+  \let\prefigurepenalty=\prefloatingfigurepenalty
+  \let\postfigurepenalty=\postfloatingfigurepenalty}
+
+\message{tables,}
+
+\let\tabdef=\relax
+\let\tabref=\relax
+
+\newtable\table
+  \leftdelim [%
+  \rightdelim ]%
+  \before \vbox\bgroup
+  \after \egroup
+  \begin
+  \end
+  \endnew
+\newtable\toptable
+  \leftdelim [%
+  \rightdelim ]%
+  \before \vtop\bgroup
+  \after \egroup
+  \begin
+  \end
+  \endnew
+\newtable\centertable
+  \leftdelim [%
+  \rightdelim ]%
+  \before \vcenter\bgroup
+  \after \egroup
+  \begin
+  \end
+  \endnew
+\newtable\opentable
+  \leftdelim [%
+  \rightdelim ]%
+  \before
+  \after
+  \begin
+  \end
+  \endnew
+\newtable\displaytable
+  \leftdelim [%
+  \rightdelim ]%
+  \before \tablewidth=\hsize$$
+  \after $$
+  \begin
+  \end
+  \endnew
+
+\message{equations,}
+
+% equation numbering
+\let\eqdef=\relax
+\let\eqref=\relax
+
+% synonyms for $$
+\def\beginmath {$$}
+\def\endmath {$$}
+\def\math #1{$$#1$$}
+
+\message{chapters and sections,}
+
+\let\secref=\relax
+\let\secdef=\relax
+
+% are section, etc. headings centered or left-flush
+\newif\ifcenterheadings
+
+% chapters
+\newtoks\chapterfont
+\newtitle\chaptertitle
+  \box \vopen
+  \shape \ifcenterheadings \titlecenter{\z@}{\z@}\else
+                           \titleleft{\z@}{\z@}\fi
+  \font \the\chapterfont
+  \setup \interlinepenalty=\@M
+  \begin
+  \end
+  \endnew
+
+\def\chaptersetup {%
+  \chaptersetuphook}
+\def\chaptersetuphook {}
+
+\newelement\chapter
+  \setup \get@rg\endchapter \chaptersetup
+  \above \minbreak \prechapterpenalty \abovechapterskip
+  \below \dobreak \postchapterpenalty \belowchapterskip \vpar
+  \begin \get@rg
+  \end \ymessage{{Chapter: \the\toks@}}\chaptertitle{\the\toks@}%
+  \endnew
+\setskip\abovechapterskip \dimen 36pt \glue \parskip \factor 3000
+\setskip\belowchapterskip \dimen 18pt \glue \parskip \factor 2000
+\prechapterpenalty=-500
+\postchapterpenalty=10000
+
+\newelement\pchapter
+  \setup \get@rg\endpchapter \chaptersetup
+  \above \rectosupereject
+  \below \dobreak \postchapterpenalty \belowchapterskip \vpar
+  \begin \get@rg
+  \end \ymessage{{Chapter: \the\toks@}}\chaptertitle{\the\toks@}%
+  \endnew
+
+% starts sections.
+\newtoks\sectionfont
+\newtitle\sectiontitle
+  \box \vbottom
+  \shape \ifcenterheadings \titlecenter{\z@}{\z@}\else
+                           \titleleft{\z@}{\z@}\fi
+  \font \the\sectionfont
+  \setup
+  \begin
+  \end
+  \endnew
+
+\def\sectionsetup {%
+  \sectionsetuphook}
+\def\sectionsetuphook {}
+
+\newelement\section
+  \setup \get@rg\endsection \sectionsetup
+  \above \minbreak \presectionpenalty \abovesectionskip
+  \below \dobreak \postsectionpenalty \belowsectionskip \vpar
+  \begin \get@rg
+  \end \ymessage{{Section: \the\toks@}}\sectiontitle{\the\toks@}%
+  \endnew
+\setskip\abovesectionskip \dimen 18pt \glue \parskip \factor 3000
+\setskip\belowsectionskip \dimen  9pt \glue \parskip \factor 2000
+\presectionpenalty=-200
+\postsectionpenalty=10000
+
+\let\beginsubsection=\beginsection
+\let\endsubsection=\endsection
+\let\subsection=\section
+
+\let\beginsubsubsection=\beginsubsection
+\let\endsubsubsection=\endsubsection
+\let\subsubsection=\subsection
+
+% simple heading
+\newtoks\headingfont
+\newtitle\headingtitle
+  \box \vbottom
+  \shape \ifcenterheadings \titlecenter{\z@}{\z@}\else
+                           \titleleft{\z@}{\z@}\fi
+  \font \the\headingfont
+  \setup
+  \begin
+  \end
+  \endnew
+
+\def\headingsetup {%
+  \headingsetuphook}
+\def\headingsetuphook {}
+
+\newelement\heading
+  \setup \get@rg\endheading \headingsetup
+  \above \minbreak \preheadingpenalty \aboveheadingskip
+  \below \dobreak \postheadingpenalty \belowheadingskip \vpar
+  \begin \get@rg
+  \end \ymessage{{Heading: \the\toks@}}\headingtitle{\the\toks@}%
+  \endnew
+\setskip\aboveheadingskip \dimen 9pt \glue \parskip \factor 1000
+\setskip\belowheadingskip \dimen 4pt \glue \parskip \factor 1000
+\preheadingpenalty=-200
+\postheadingpenalty=10000
+
+\message{special pages,}
+
+% titling pages
+\newsuperpage\titlingpage
+  \setup \norunners \copyrightpage
+  \glue \vfil
+  \begin
+  \end
+  \endnew
+
+% main title pages
+\newelement\titlepage
+  \setup \titlepagedefs
+  \above
+  \below
+  \begin \begintitlingpage \global\pageno=\z@ \ymessage{{Main title}}
+  \end \endgraf \endtitlingpage \global\pageno=\@ne
+  \endnew
+
+% title pages for sub-parts of a book, etc.
+\newelement\partpage
+  \setup \titlepagedefs
+  \above
+  \below
+  \begin \begintitlingpage \ymessage{{Part title}}
+  \end \endgraf \endtitlingpage
+  \endnew
+
+% titles and abstracts
+\newtoks\titlefont
+\newtoks\authorfont
+\newtitle\title
+  \box \vbottom
+  \shape \titleleft{\z@}{\z@}%
+  \font \the\titlefont
+  \setup
+  \begin
+  \end
+  \endnew
+\newtitle\ctitle
+  \box \vbottom
+  \shape \titlecenter{\z@}{\z@}%
+  \font \the\titlefont
+  \setup
+  \begin
+  \end
+  \endnew
+\newtitle\author
+  \box \vbottom
+  \shape \titleleft{\z@}{\z@}%
+  \font \the\authorfont
+  \setup
+  \begin
+  \end
+  \endnew
+\newtitle\cauthor
+  \box \vbottom
+  \shape \titlecenter{\z@}{\z@}%
+  \font \the\authorfont
+  \setup
+  \begin
+  \end
+  \endnew
+
+\newtoks\abstractfont
+\newdimen\abstractindent
+\newelement\abstract
+  \setup \the\abstractfont \parindent=2em%
+         \leftskip=\abstractindent \rightskip=\abstractindent
+  \above \minbreak \preabstractpenalty \aboveabstractskip
+  \below \dobreak \postabstractpenalty \belowabstractskip
+  \begin
+  \end \endgraf
+  \endnew
+
+\newtoks\bottomtextfont
+\def\titlepagedefs {%
+  \newelement\bottomtext
+    \setup \the\bottomtextfont \offindent
+    \above \bigskip \vfill
+    \below
+    \begin
+    \end \endgraf
+    \endnew}
+
+\message{2 columns,}
+
+% N.B. this stuff mostly adapted from the TeXbook
+
+% parameters
+\newdimen\columnskip
+
+\newbox\partialp@ge
+\newdimen\onec@lhsize
+\newdimen\onec@lvsize
+\newtoks\onec@loutput
+\newdimen\twoc@lvsize
+
+\def\setuptwocolumn {%
+  \trimpagesfalse
+  \onec@lfigfoot
+  \def\columneject{\vfil\penalty200}%
+  \baselinefactor={1.2}\setnormalbaselines
+  \spaceskip=.3333em plus .3333em minus .1666em
+  \xspaceskip=.3333em plus .6666em minus .0833em
+  \advance\parskip by 0pt plus 2pt
+  \setuptwocolumnhook}
+\def\setuptwocolumnhook {}
+
+% make figures and footnotes be one column
+\def\onec@lfigfoot {%
+  \topmag=2000%
+  \botmag=2000%
+  \addtodef\setupfigurehook{%
+    \iffloatingfigur@
+      \errhelp={I will assume it doesn't float.}%
+      \errmessage{You can't use a floating figure in two-column text.}%
+    \fi
+    \iftopfigur@ \hsize=\onec@lhsize \fi
+    \vsize=\onec@lvsize}%
+  \addtodef\setupfootnotehook{\hsize=\onec@lhsize}}
+
+\def\begintwocolumntext {%
+  \begingroup
+  \onec@lhsize=\hsize
+  \onec@lvsize=\vsize
+  \onec@loutput=\output
+  \output={\global\setbox\partialp@ge=\vbox{\unvbox\@cclv}}%
+  \let\dosupereject=\twoc@lsupereject
+  \eject
+  \output={\twoc@lout}%
+  \hsize=.5\hsize \advance\hsize by-.5\columnskip
+  \vsize=2\vsize  \advance\vsize by2pc\relax
+  \twoc@lvsize=\vsize
+  \advance\vsize by-2\ht\partialp@ge
+  \setuptwocolumn}
+
+\def\endtwocolumntext {%
+  \output={\balancec@ls}%
+  \eject
+  \global\output=\onec@loutput
+  \global\vsize=\onec@lvsize
+  \endgroup
+  \pagegoal=\vsize}
+
+\def\twocolumntext #1{\begintwocolumntext #1\endtwocolumntext}
+
+\def\twoc@lout {%
+  \dimen@=\onec@lvsize \advance\dimen@ by-\ht\partialp@ge
+  \advance\dimen@ by-\ht\topfloat \advance\dimen@ by-\dp\topfloat
+  \advance\dimen@ by-\ht\botfloat \advance\dimen@ by-\dp\botfloat
+  \ifdim \dimen@>\baselineskip
+    \dimen@i=\ht\@cclv \advance\dimen@i\dp\@cclv
+    \ifdim \dimen@i>\z@
+      \splittopskip=\topskip \splitmaxdepth=\maxdimen
+      \setbox\z@=\vsplit\@cclv to\dimen@
+      \setbox\@ne=\vsplit\@cclv to\dimen@
+    \else
+      \setbox\z@=\box\voidb@x
+      \setbox\@ne=\box\voidb@x
+    \fi
+  \else
+    \setbox\z@=\box\voidb@x
+    \setbox\@ne=\box\voidb@x
+  \fi
+  \def\line{\hbox to\onec@lhsize}%
+  \let\pagebody=\twoc@lpagebody
+  \ytexoutput
+  \global\vsize=\twoc@lvsize
+  \unvbox\@cclv
+  \penalty\outputpenalty}
+
+\def\twoc@lsupereject {%
+  \ifnum\insertpenalties>\z@ % something is being held over
+    \hbox{}\kern-\topskip\nobreak\vskip 0pt plus.5\vsize\penalty-200%
+    \hbox{}\kern-\topskip\nobreak\vskip 0pt plus.5\vsize\supereject\fi}
+
+\def\twoc@lpagebody {%
+  \vbox{\twoc@lpagecontents}}
+
+\def\twoc@lpagecontents {%
+  \dimen@i=\ht\partialp@ge \advance\dimen@i\ht\z@
+  \ifvoid\topfloat\else
+    \dimen@=\ht\topfloat \advance\dimen@\dp\topfloat
+    \unvbox\topfloat
+    \ifdim \dimen@>\z@ \ifdim\dimen@i>\z@ \the\topsep\fi\fi
+  \fi
+  \unvbox\partialp@ge
+  \wd\z@=\hsize \wd\@ne=\hsize
+  \hbox to\onec@lhsize{\box\z@\hfil\box\@ne}
+  \ifvoid\botfloat\else
+    \dimen@=\ht\botfloat \advance\dimen@\dp\botfloat
+    \ifdim \dimen@>\z@ \ifdim\dimen@i>\z@ \the\botsep\fi\fi
+    \unvbox\botfloat
+  \fi}
+
+\def\balancec@ls {%
+  \setbox\z@=\vbox{\unvbox\@cclv}%
+  \dimen@=\ht\z@ \advance\dimen@ by\topskip \advance\dimen@ by-\baselineskip
+  \divide\dimen@ by2 \splittopskip=\topskip \splitmaxdepth=\maxdimen
+  {\vbadness=10000
+    \loop \global\setbox\tw@=\copy\z@ \global\setbox\@ne=\vsplit\tw@ to\dimen@
+    \ifdim\ht\tw@>\dimen@ \global\advance\dimen@ by\p@ \repeat}
+  \setbox\z@=\vbox to\dimen@{\unvbox\@ne}%
+  \setbox\@ne=\vbox to\dimen@{\unvbox\tw@}%
+  \global\output={\balancing@rror}
+  \unvbox\partialp@ge
+  \wd\z@=\hsize \wd\@ne=\hsize
+  \hbox to\onec@lhsize{\box\z@\hfil\box\@ne}}
+
+\def\balancing@rror {%
+  \errhelp={Please change the page into one that works.}%
+  \errmessage{Page can't be balanced.}%
+  \def\line{\hbox to\onec@lhsize}%
+  \def\pagebody{\vbox{\unvbox\@cclv}}%
+  \ytexoutput}
+
+% complete double columns
+\newif\iffirstc@l
+\newbox\firstc@l
+\newbox\secondc@l
+
+\def\setupdoublecolumn {%
+  \trimpagesfalse
+  \def\pageeject{%
+    \filpage\iffirstc@l \else \line{}\filpage \fi}%
+  \baselinefactor={1.2}\setnormalbaselines
+  \spaceskip=.3333em plus .3333em minus .1666em
+  \xspaceskip=.3333em plus .6666em minus .0833em
+  \advance\parskip by 0pt plus 2pt
+  \setupdoublecolumnhook}
+\def\setupdoublecolumnhook {}
+
+\def\begindoublecolumn {%
+  \begingroup
+  \onec@lhsize=\hsize
+  \output={\box\@cclv=\voidb@x}%
+  \eject
+  \output={\doublec@lout}%
+  \global\firstc@ltrue
+  \hsize=.5\hsize \advance\hsize by-.5\columnskip
+  \setupdoublecolumn}
+
+\def\enddoublecolumn {%
+  \pageeject
+  \endgroup
+  \pagegoal=\vsize}
+
+\def\doublecolumn #1{\begindoublecolumn #1\enddoublecolumn}
+
+\def\doublec@lout {%
+  \iffirstc@l
+    \def\line{\hbox to\onec@lhsize}%
+    \global\setbox\firstc@l=\pagebody
+    \def\next{\global\firstc@lfalse}
+  \else
+    \def\line{\hbox to\onec@lhsize}%
+    \global\setbox\secondc@l=\pagebody
+    \wd\firstc@l=\hsize
+    \wd\secondc@l=\hsize
+    \def\pagecontents{\vbox{\line{\box\firstc@l\hfil\box\secondc@l}}}%
+    \def\next{\ytexoutput\global\firstc@ltrue}%
+  \fi
+  \next}
+
+\message{indexes,}
+
+\gdef\beginindex {%
+  \beginpgroup
+  \def\entry##1{%
+    \hangindent=2\parindent
+    \hangafter=\@ne
+    \noindent ##1\par}
+  \def\subentry##1{%
+    \hangindent=2\parindent
+    \hangafter=\@ne
+    \indent ##1\par}
+  \raggedright
+  \exhyphenpenalty=\@M
+  \tolerance=\@M
+  \interlinepenalty=\@M
+  \begintwocolumntext}
+
+\gdef\endindex {%
+  \endtwocolumntext
+  \endpgroup}
+
+\message {citations,}
+
+\def\writec@te {\write\m@ne}
+
+\def\setciteaux #1{%
+  \stripn@me{}#1%
+  \edef\writec@te{\expandafter\noexpand\csname write\next \endcsname}}
+
+\def\c@te #1{%
+  \expandafter\ifx \csname @cd-#1\endcsname \relax
+    \expandafter\let\csname @cd-#1\endcsname=\cite%
+    \writec@te{\string\citation{#1}}%
+  \fi
+  \expandafter\ifx \csname @cr-#1\endcsname \relax
+    \expandafter\def\csname @cr-#1\endcsname{??}%
+    \ywarning{{Citation #1 undefined}}%
+  \fi}
+
+\def\cite #1{%
+  \c@te{#1}%
+  \csname @cr-#1\endcsname}
+
+\def\explicitcite #1#2{%
+  \c@te{#1}%
+  #2}
+\let\ecite=\explicitcite
+
+\def\citation #1{\relax}
+
+\def\bibcite #1#2{%
+  \expandafter\def\csname @cr-#1\endcsname{#2}}
+
+\def\setbibstyle #1{%
+  \toks@={#1}%
+  \immediate\writec@te{\string\bibstyle{\the\toks@}}}
+
+\def\bibstyle #1{\relax}
+
+\newcount\bibcount
+\newskip\bibparskip
+\newtoks\biblabelfont
+\newtoks\bibsetup
+\newif\ifbibopenform
+  
+\def\setupbibliography #1{
+  \bibcount=\z@
+  \setbox\z@=\hbox{\the\biblabelfont [#1]\enspace}\parindent=\wd\z@
+  \ifbibopenform \let\newblock=\linebreak \else \let\newblock=\relax \fi
+  \setupbibliographyhook}%
+
+\def\setupbibliographyhook {}
+
+\def\bibpar #1{\ftpar{\the\biblabelfont [#1]}}
+
+\def\bibitem {\futurelet\next\bib@tem}
+\def\bib@tem {%
+  \if[\noexpand\next
+    \let\next=\bibit@m
+  \else
+    \let\next\b@bitem
+  \fi
+  \next}
+\def\bibit@m [#1]#2{%
+  \toks@={#1}%
+  \immediate\writec@te{\string\bibcite{#2}{\the\toks@}}%
+  \bibpar{#1}}
+\def\b@bitem #1{%
+  \advance\bibcount\@ne
+  \edef\next{\number\bibcount}
+  \immediate\writec@te{\string\bibcite{#1}{\next}}%
+  \bibpar{\number\bibcount}}
+
+\def\bibliography #1{%
+  \toks@={#1}%
+  \immediate\writec@te{\string\bibdata{\the\toks@}}%
+  \begingroup                           % for latex-like defs
+    \def\begin##1##2{\begingroup \setupbibliography{##2}}%
+    \def\end##1{\par\endgroup}%
+    \@input{\jobname.bbl}{\ywarning{{No file \jobname.bbl}}}%
+  \endgroup}
+
+\def\explicitbibliography #1#2{%
+  \toks@={#1}%
+  \writec@te{\string\bibdata{\the\toks@}}
+  \@input{#2.bbl}{\ywarning{{No file #2.bbl}}}}
+\let\ebibligraphy=\explicitbibliography
+
+\def\bibdata #1{\relax}
+
+\message {labels,}
+
+\def\writel@bel {\write\m@ne}
+
+\def\setlabelaux #1{%
+  \stripn@me{}#1%
+  \edef\writel@bel{\expandafter\noexpand\csname write\next \endcsname}}
+
+\def\reference #1{%
+  \expandafter\ifx \csname @lr-#1\endcsname \relax
+    \expandafter\def\csname @lr-#1\endcsname{??}%
+    \ywarning{{Reference #1 undefined}}%
+  \else
+    \csname @lr-#1\endcsname
+  \fi}
+
+\def\pagereference #1{%
+  \expandafter\ifx \csname @lrp-#1\endcsname \relax
+    \expandafter\def\csname @lrp-#1\endcsname{??}%
+    \ywarning{{Page reference #1 undefined}}%
+  \else
+    \csname @lrp-#1\endcsname
+  \fi}
+
+\def\label #1#2{%
+  \edef\next{#2}%
+  \expandafter\ifx \csname @lr-#1\endcsname \relax
+    \ywarning{{Label #1 defined as \next}}%
+  \fi
+  \expandafter\let\csname @lr-#1\endcsname=\next
+  \writel@bel{\string\deflabel{#1}{\csname @lr-#1\endcsname}{\the\pageno}}}
+
+\def\deflabel #1#2#3{%
+  \expandafter\def\csname @lr-#1\endcsname{#2}%
+  \expandafter\def\csname @lrp-#1\endcsname{#3}}
+
+\message{initialization,}
+
+% output routine
+\output={\fixsiz@ \ytexoutput}
+
+% page layout
+\hsize=28pc \vsize=44pc
+\onheaders
+\offfooters
+\twosidedfalse
+\showcopyrightfalse
+\columnskip=2pc
+
+% displays
+\abovedisplayskip=3pt plus1pt minus2pt
+\belowdisplayskip=3pt plus1pt minus2pt
+\abovedisplayshortskip=0pt plus1pt
+\belowdisplayshortskip=2pt plus1pt minus1pt
+
+% footnotes
+\footnotemarkerwidth=10pt
+\botsep={\vskip\bigskipamount \footnoterule}
+
+% figures
+\figurelinefalse
+\figurelinedrop=4pt
+\topsep={}
+\floatingfigures
+\abovecaptionskip=\medskipamount
+\captionindent=2em
+
+% tables
+\tablewidth=0pt
+\intabskip=\emskip
+\pretabskip=\filskip
+\posttabskip=\filskip
+
+% miscellany
+\abstractindent=0pt
+\centerheadingsfalse
+
+% citations and labels
+\newaux\aux
+  \filename \perjob
+  \extension aux%
+  \endnew
+\setciteaux\aux
+\setlabelaux\aux
+\bibsetup={}
+\biblabelfont={}
+\bibopenformfalse
+
+% fonts
+\runnerfont={\smlsize\rm}
+\footnotefont={\smlsize\rm}
+\captionfont={\smlsize\rm}
+\quotefont={\smlsize\rm}
+\titlefont={\bigsize\bf}
+\authorfont={\regsize\rm}
+\abstractfont={\smlsize\rm}
+\bottomtextfont={\smllsize\rm}
+\chapterfont={\bigsize\bf}
+\sectionfont={\regsize\bf}
+\headingfont={\regsize\bf}
+\lispfont={\regsize\tt}
+
+% running text
+\vpartrue
+\overfullrule=0pt
+\parindent=2em
+\partagsep=.5em
+\parskip=1pt plus2pt minus1pt
+\normallineskip=2pt
+\normallineskiplimit=0pt
+\def\singlespace {\baselinefactor={1.3}\setnormalbaselines}
+\def\doublespace {\baselinefactor={2.6}\setnormalbaselines}
+\singlespace
+\clubpenalty=900
+\widowpenalty=900
+

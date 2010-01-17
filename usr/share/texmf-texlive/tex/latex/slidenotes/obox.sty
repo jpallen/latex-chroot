@@ -1,0 +1,64 @@
+%%
+%% This is file `obox.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% slidenotes.dtx  (with options: `obox')
+%% Copyright (C) 1993-1996 Hans van der Meer. All rights reserved.
+%% File: slidenotes.dtx Copyright (C) 1993-1996 Hans van der Meer
+%%
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesClass{obox}[1995/09/04 vs 1.2  Oval box change]
+\def\@pickonedim#1{\@ifnextchar(%)
+    {\@@pickonedim{#1}}{#1}}
+\def\@@pickonedim#1(#2){#1{#2\unitlength}}
+\gdef\oval{\@ifnextchar[%]
+    {\@oval}{\@oval[o]}}
+\gdef\@oval[#1](#2,#3){\@ifnextchar[%]
+    {\@@oval[#1](#2,#3)}{\@@oval[#1](#2,#3)[]}}
+\gdef\@@oval[#1](#2,#3)[#4]{\begingroup\boxmaxdepth \maxdimen
+  \@ovttrue \@ovbtrue \@ovltrue \@ovrtrue
+  \@tfor\reserved@a :=#4\do{\csname @ov\reserved@a false\endcsname}%
+  \@ovxx #2\unitlength \@ovyy #3\unitlength
+  \@tempdimb \ifdim\the@ovalradius=\z@
+    \ifdim \@ovyy >\@ovxx \@ovxx \else \@ovyy \fi
+    \else \the@ovalradius \fi
+  \advance \@tempdimb -\tw@\p@
+  \@getcirc \@tempdimb
+  \@ovro \ht\@tempboxa \@ovri \dp\@tempboxa
+  \@ovdx\@ovxx \advance\@ovdx -\@tempdima \divide\@ovdx \tw@
+  \@ovdy\@ovyy \advance\@ovdy -\@tempdima \divide\@ovdy \tw@
+  \@circlefnt \setbox\@tempboxa
+  \hbox{\if@ovr \@ovvert32\kern -\@tempdima \fi
+  \if@ovl \kern \@ovxx \@ovvert01\kern -\@tempdima \kern -\@ovxx \fi
+  \if@ovt \@ovhorz \kern -\@ovxx \fi
+  \if@ovb \raise \@ovyy \@ovhorz \fi}%
+  \advance\@ovdx\@ovro \advance\@ovdy\@ovro
+  \if#1t\@ovdx\z@\@ovdy\tw@\@ovdy\fi
+  \if#1b\@ovdx\z@\@ovdy\z@\fi
+  \if#1c\@ovdx\z@\fi
+  \if#1n\@ovdx\z@\@ovdy\dp\@tempboxa\fi
+  \ht\@tempboxa\z@ \dp\@tempboxa\z@
+  \@put{-\@ovdx}{-\@ovdy}{\box\@tempboxa}%
+  \endgroup}
+\def\obox{\@ifnextchar[%]
+    {\@obox}{\@@obox[][]}}
+\def\@obox[#1]{\@ifnextchar[%]
+    {\@@obox[#1]}{\@@obox[#1][]}}
+\def\@@obox[#1][#2]#3{%
+  \begingroup
+    \@ifemptyarg{#1}{}{\ovalradius{#1}}%
+    \setbox\z@\hbox{\advance\fboxsep\@wholewidth \fboxrule\z@ \fbox{#3}}%
+    \dimen@\ht\z@ \advance\dimen@\dp\z@ #2\let\unitlength\@empty
+    \leavevmode\oval[n](\wd\z@,\dimen@)\box\z@
+  \endgroup}
+\def\ovalradius{\@pickonedim\@ovalradius}
+\def\@ovalradius#1{\@tempdima#1\relax
+    \edef\the@ovalradius{\number\@tempdima sp}\ignorespaces}
+\def\ovalfraction#1{%
+    \edef\the@ovalradius{#1\noexpand\@tempdimb}\ignorespaces}
+\ovalradius{0pt}                % initialisation
+\endinput
+%%
+%% End of file `obox.sty'.

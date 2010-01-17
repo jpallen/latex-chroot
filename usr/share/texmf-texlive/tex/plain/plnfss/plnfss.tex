@@ -1,0 +1,403 @@
+% plnfss-1.1
+
+% Copyright 2000-2005 Han The Thanh <HanTheThanh@gmx.net> 
+%                 and Michal Konecny <mik@konecny.aow.cz>
+% This file is part of plnfss.  License: LPPL, version 1.3 or newer,
+% according to http://www.latex-project.org/lppl.txt
+
+% plnfss.tex - simple NFSS macros for plain TeX
+
+
+\catcode`\@=11 \endlinechar=-1 %
+
+% general purpose accumulators and shortcuts
+\newdimen\dimenA
+\newcount\countA
+\let\ex=\expandafter
+
+% how to set \baselineskip (and \strutbox) when switching to another font
+\newif\ifupdatebaselineskip % update \baselineskip (and \strutbox) at all?
+\updatebaselineskiptrue     % do so by default
+\def\baselineskipscale{1.2} % the factor \baselineskip : \@fontsize
+\def\setbaselineskip{
+    \baselineskip=\@fontsize
+    \baselineskip=\baselineskipscale\baselineskip
+    \setbox\strutbox=\hbox{\vrule 
+        height .7\baselineskip depth .3\baselineskip width \z@}
+}
+
+\newdimen\@fontsize
+\def\setfontencoding#1{\if^^A#1^^A\else\edef\@fontencoding{#1}\fi}
+\def\setfontfamily#1{\if^^A#1^^A\else\edef\@fontfamily{#1}\fi}
+\def\setfontseries#1{\if^^A#1^^A\else\edef\@fontseries{#1}\fi}
+\def\setfontshape#1{\if^^A#1^^A\else\edef\@fontshape{#1}\fi}
+\def\setfontsize#1{\if^^A#1^^A\else\@fontsize=#1\fi}
+
+
+\def\addfontsize#1{
+    \add\@fontsize #1
+    \selectfont
+}
+
+\def\mulfontsize#1{
+    \@fontsize=#1\@fontsize
+    \selectfont
+}
+
+\def\setfont#1/#2/#3/#4/#5/{
+    \setfontencoding{#1}
+    \setfontfamily{#2}
+    \setfontseries{#3}
+    \setfontshape{#4}
+    \setfontsize{#5}
+    \selectfont
+}
+
+\def\usefont#1#2#3#4{
+    \setfontencoding{#1}
+    \setfontfamily{#2}
+    \setfontseries{#3}
+    \setfontshape{#4}
+    \selectfont
+}
+
+\def\excs#1#2{
+    \ex#1\csname#2\endcsname
+}
+
+\def\getsizelist #1(#2){
+    \def\fontname{#1}
+    \def\sizelist{#2,END,}
+}
+
+\def\endsizelist{END}
+\def\finish#1END,{}
+
+\def\selectfontsize#1,{
+    \def\cursize{#1}
+    \ifx\cursize\empty
+        \def\selectedsize{}
+        \let\next \finish
+    \else\ifx\cursize\endsizelist
+        \edef\selectedsize{\lastsize}
+        \let\next \relax
+    \else\ifdim\@fontsize > \cursize\p@
+        \edef\lastsize{\cursize}
+        \let\next \selectfontsize
+    \else\ifx\lastsize\empty
+        \edef\selectedsize{\cursize}
+        \let\next \finish
+    \else
+        \dimenA=\@fontsize
+        \advance \dimenA \dimenA
+        \advance \dimenA -\cursize\p@
+        \advance \dimenA -\lastsize\p@
+        \relax
+        \ifdim\dimenA < \z@
+            \edef\selectedsize{\lastsize}
+        \else
+            \edef\selectedsize{\cursize}
+        \fi
+        \let\next \finish
+    \fi\fi\fi\fi
+    \next
+}
+
+\def\loadfontdecl{
+    \excs\ifx\fontdecl\relax
+        \testprefix{cm}{\@fontfamily}
+        \ifisprefix \loadfd{cm}{pfd}\fi
+    \fi
+    \excs\ifx\fontdecl\relax
+        \testprefix{lm}{\@fontfamily}
+        \ifisprefix \loadfd{lm}{pfd}\fi
+    \fi
+    \excs\ifx\fontdecl\relax
+        \loadfd{\@fontfamily}{fd}
+    \fi
+}
+
+\let\plaininput=\input
+\let\plainlowercase=\lowercase
+
+\newread\testfd
+\def\loadfd#1#2{
+    \let\next=\relax
+    \edef\inputfd{\plainlowercase{\noexpand\openin\testfd=\@fontencoding#1.#2 }}\inputfd
+    \ifeof\testfd
+        \log{PLNFSS: cannot find font definition file for %
+                        family \@fontencoding/#1}
+    \else
+        \closein\testfd
+        \edef\next{\plainlowercase{\noexpand\plaininput \@fontencoding#1.#2 }}
+    \fi
+%% Temporarily set \endlinechar=-1 to prevent spurious spaces.
+%% Fix provided by Hartmut Henkel.
+    \endlinechar=-1
+    \next
+    \endlinechar=13
+}
+
+\def\selectfont{
+    \edef\fontdecl{
+        \@fontencoding/\@fontfamily/\@fontseries/\@fontshape
+    }
+    \edef\selectedfont{
+        \fontdecl/\the\@fontsize/
+    }
+    \excs\ifx\selectedfont\relax
+        \loadfontdecl
+        \excs\ifx\fontdecl\relax
+            \errmessage{Font \fontdecl\space not defined, restore the last font \lastfont}
+            \ex\setfont\lastfont\relax
+        \else
+            \edef\fontdef{\csname\fontdecl\endcsname}
+            \ex\getsizelist\fontdef
+            \def\lastsize{}
+            \ex\selectfontsize\sizelist
+            \global\ex\font\csname\selectedfont\endcsname
+                \fontname\selectedsize\space at \@fontsize
+            \edef\lastfont{\selectedfont}
+            \csname\selectedfont\endcsname
+            \ifupdatebaselineskip \setbaselineskip \fi
+            \relax
+        \fi
+    \else
+        \csname\selectedfont\endcsname
+        \ifupdatebaselineskip \setbaselineskip \fi
+        \relax
+    \fi
+}
+
+\def\getcurfont{\csname\selectedfont\endcsname}
+
+\newcount\tracingplnfss
+
+\def\DeclareFont#1#2{
+    \ex\gdef\csname#1\endcsname{#2}
+    \ifnum\tracingplnfss>0
+        \log{PLNFSS: font #1 has been defined as #2}
+    \fi
+}
+
+\def\SubstFont#1#2{
+    \ex\ifx\csname#1\endcsname\relax
+        \global\ex\let\csname#1\ex\endcsname \csname#2\endcsname
+        \ifnum\tracingplnfss>0
+            \log{PLNFSS: font #1 has been substituted by #2}
+        \fi
+    \else
+        \ifnum\tracingplnfss>0
+            \log{PLNFSS: font #1 has been already defined, substitution ignored}
+        \fi
+    \fi
+}
+
+\def\setrmdefault#1{\edef\rmdefault{#1}}
+\def\setsfdefault#1{\edef\sfdefault{#1}}
+\def\setttdefault#1{\edef\ttdefault{#1}}
+
+%% LaTeX PSNFSS support
+\def\typeout{\immediate\write17}
+\def\@makeother#1{\catcode`#1=12\relax}
+\long\def\ProvidesFile#1{
+  \begingroup
+    \endlinechar=-1 %
+    \catcode`\ 10 %
+    \@makeother\/%
+    \@makeother\&%
+    \checkoptarg
+}
+\def\checkoptarg#1{
+    \global\let\curarg=#1
+    \ifx [\curarg
+        \let\next=\ignoreoptarg
+    \else
+        \let\next=\nooptarg
+    \fi
+    \next
+}
+\def\ignoreoptarg#1]{\endgroup}
+\def\nooptarg{\endgroup\curarg}
+\def\DeclareFontFamily#1#2#3{}
+\def\@ifundefined#1#2#3{#2}
+
+\ex\newcount\csname c:0\endcsname
+\ex\newcount\csname c:1\endcsname
+\ex\newcount\csname c:2\endcsname
+\ex\newcount\csname c:3\endcsname
+\ex\newcount\csname c:4\endcsname
+\ex\newcount\csname c:5\endcsname
+\ex\newcount\csname c:6\endcsname
+\ex\newcount\csname c:7\endcsname
+\ex\newcount\csname c:8\endcsname
+\ex\newcount\csname c:9\endcsname
+\chardef\maxprefixlength=10
+
+\newif\ifisprefix
+\newcount\charindex
+\newcount\prefixlength
+
+\def\stripspaces #1{
+    \if #1^^A
+        \let\next=\relax
+    \else
+        \let\next=\stripspaces
+        \edef\curparam{\curparam#1}
+    \fi 
+    \next
+}
+
+\def\readprefix#1{
+    \if #1^^A
+        \let\next=\relax
+        \prefixlength=\charindex
+    \else
+        \let\next=\readprefix
+        \ex\csname c:\the\charindex \endcsname=`#1\relax
+        \advance\charindex 1\relax
+        \ifnum \charindex>\maxprefixlength
+            \errmessage{Prefix too long, try to increase `maxprefixlength'}
+            \let\next=\skipremain
+        \fi
+    \fi
+    \next
+}
+
+\def\skipremain#1^^A{}
+\def\storeremain#1^^A{\def\remain{#1}}
+
+\def\cmpprefix#1{
+    \if #1^^A
+        \let\next=\relax
+    \else
+        \countA=`#1\relax
+        \ifnum \countA=\csname c:\the\charindex \endcsname
+            \advance\charindex 1\relax
+            \ifnum \charindex=\prefixlength
+                \isprefixtrue
+                \let\next=\storeremain
+            \else
+                \let\next=\cmpprefix
+            \fi
+        \else
+            \let\next=\skipremain
+            \isprefixfalse
+        \fi
+    \fi
+    \next
+}
+
+\def\testprefix#1#2{
+    \charindex=0 \ex\readprefix#1^^A
+    \charindex=0 \isprefixfalse \ex\cmpprefix#2^^A
+}
+
+\newcount\fontresult    % 0. cannot handle; 1. substituted; 2. TFM available 
+
+\def\DeclareFontShape#1#2#3#4#5#6{
+    \let\curparam=\empty
+    \let\next=\relax
+    \stripspaces #5^^A
+    \fontresult=-1\relax
+    \testprefix{<->sub*}{\curparam}
+    \ifisprefix \fontresult=1 \fi
+    \ifnum \fontresult<0
+        \testprefix{<->ssub*}{\curparam}
+        \ifisprefix \fontresult=1 \fi
+    \fi
+    \ifnum \fontresult<0
+        \testprefix{<->subf*}{\curparam}
+        \ifisprefix \fontresult=1 \fi
+    \fi
+    \ifnum \fontresult<0
+        \testprefix{<->ssubf*}{\curparam}
+        \ifisprefix \fontresult=1 \fi
+    \fi
+    \ifnum \fontresult<0
+        \testprefix{<->fixed*}{\curparam}
+        \ifisprefix \fontresult=0 \fi
+    \fi
+    \ifnum \fontresult<0
+        \testprefix{<->sfixed*}{\curparam}
+        \ifisprefix \fontresult=0 \fi
+    \fi
+    \ifnum \fontresult<0
+        \testprefix{<->s*}{\curparam}
+        \ifisprefix \fontresult=0 \fi
+    \fi
+    \ifnum \fontresult<0
+        \testprefix{<->}{\curparam}
+        \ifisprefix \fontresult=2 \fi
+    \fi
+    \ifnum \fontresult=2        % TFM available
+        \def\fontshape{#1/#2/#3/#4^^A}
+        \edef\fontdef{\remain()^^A}
+        \ex\ex\ex\LaTeXDeclareFont \ex\fontshape \fontdef
+    \else \ifnum \fontresult=1  % substituted
+        \def\fontshape{#1/#2/#3/#4^^A}
+        \edef\fontdef{#1/\remain^^A}
+        \ex\ex\ex\LaTeXSubstFont \ex\fontshape \fontdef
+    \else % \fontresult <= 0 
+        \errmessage{PLNFSS cannot handle form `\curparam' of font declaration}
+    \fi \fi
+}
+
+\def\LaTeXDeclareFont#1^^A#2^^A{\DeclareFont{#1}{#2}}
+\def\LaTeXSubstFont#1^^A#2^^A{\SubstFont{#1}{#2}}
+
+\newlinechar`^^J
+\def\log#1{\immediate \write 16 {^^J#1}}
+
+%% NFSS high-level commands
+
+\def\rmfamily{\setfontfamily{\rmdefault}\selectfont}
+\def\sffamily{\setfontfamily{\sfdefault}\selectfont}
+\def\ttfamily{\setfontfamily{\ttdefault}\selectfont}
+\def\mdseries{\setfontseries{m}\selectfont}
+\def\bfseries{\setfontseries{b}\selectfont}
+\def\upshape{\setfontshape{ui}\selectfont}
+\def\itshape{\setfontshape{it}\selectfont}
+\def\slshape{\setfontshape{sl}\selectfont}
+\def\scshape{\setfontshape{sc}\selectfont}
+\def\normalfont{\setfontseries{m}\setfontshape{n}\selectfont}
+
+\def\textrm#1{{\rmfamily #1}}
+\def\textsf#1{{\sffamily #1}}
+\def\texttt#1{{\ttfamily #1}}
+\def\textmd#1{{\mdseries #1}}
+\def\textbf#1{{\bfseries #1}}
+\def\textup#1{{\upshape #1}}
+\def\textit#1{{\itshape #1\/}}
+\def\textsl#1{{\slshape #1\/}}
+\def\textsc#1{{\scshape #1}}
+
+\let\rm=\rmfamily
+\let\sf=\sffamily
+\let\tt=\ttfamily
+\let\md=\mdseries
+\let\bf=\bfseries
+\let\up=\upshape
+\let\it=\itshape
+\let\sl=\slshape
+\let\sc=\scshape
+
+%% Default settings
+
+\setfontencoding{OT1}
+\setfontfamily{cmr}
+\setfontseries{m}
+\setfontshape{n}
+\setfontsize{10pt}
+\setrmdefault{cmr}
+\setttdefault{cmtt}
+\setsfdefault{cmss}
+\edef\lastfont{
+    \@fontencoding/
+    \@fontfamily/
+    \@fontseries/
+    \@fontshape/
+    \the\@fontsize/
+}
+
+\catcode`\@=12 \endlinechar=13 %

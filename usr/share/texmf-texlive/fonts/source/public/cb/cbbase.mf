@@ -1,0 +1,318 @@
+% Copyright (C) 1997---2001, 2002 Claudio Beccari
+% version 2.2b 2002/02/23
+% The greatest part of this file was written by Silvio Levy; CB aknowledges
+% Silvio's work.
+% CB added some  material at the end and "corrected" some definitions,
+% in particular those that produced overflows at high resolutions and
+% magnifications.
+% The file was renamed in order to distinguish it from Silvio's one.
+numeric cbbase; cbbase:=1;      %don't read this file twice
+% make reference to file in subdirectories less painful
+def readfrom(expr filename) = scantokens ("input " & filename); enddef;
+% we start by defining a few more font parameters:
+boolean monowidth;              %are the widths of all strokes roughly the same?
+boolean straight;               %are certain strokes straight?
+let old_font_setup = font_setup;
+def font_setup =
+ define_whole_vertical_pixels(acc_ht,circ_ht,Circ_ht,iota_dp);  %accent heights
+ old_font_setup;
+enddef;
+%Since many of our characters are composite (for instance, accent+vowel),
+%we avoid recomputing many pictures by saving them.
+%But if we're using various definitions for the same letter (as when
+%running 6test.mf) we can't use this trick, so we set working_hard:=true.
+boolean working_hard;            %are we to recompute letters every time?
+working_hard:=false;
+def this_letter =
+  italcorr ital; adjust_fit(fit_params);
+  if known savedpicture: currentpicture:=savedpicture; else: gen_letter; fi
+  if not working_hard: picture savedpicture; savedpicture:=currentpicture; fi
+enddef;
+%The following routines are for use with double characters.
+boolean is_double; is_double:=false;
+let oldendchar=endchar;
+def begindoublechar(expr c,w_sharp,h_sharp,d_sharp) =
+  is_double:=true; beginchar(c,w_sharp,h_sharp,d_sharp);
+enddef;
+def doublecharkern(expr k_sharp) =
+  if not monospace: k:=hround(k_sharp*hppp); r:=r+k; charwd:=charwd+k_sharp; fi
+enddef;
+def middoublechar(expr w_sharp,h_sharp,d_sharp) =
+  scantokens extra_endchar;
+  forsuffixes e=r,l,w,charwd: numeric first.e; first.e:=e; endfor
+  w:=hround(w_sharp*hppp); h:=vround(h_sharp*hppp); d:=vround(d_sharp*hppp);
+  charwd:=w_sharp; charht:=max(charht,h_sharp); chardp:=max(chardp,d_sharp);
+  picture first.glyph; first.glyph=currentpicture;
+  clearxy;
+  clearit;
+  clearpen;
+enddef;
+def endchar =
+  if is_double :
+    charwd:=first.charwd+charwd;
+    picture second_glyph; second_glyph=currentpicture shifted (first.r-l,0);
+    currentpicture:= first.glyph; addto currentpicture also second_glyph;
+    scantokens extra_endchar;
+    w:=first.w+w; r:=first.r-l+r; l:=first.l;
+    chardx:=first.w+w; interim xoffset:= -l;
+    if proofing>0: makebox(proofrule); fi
+    shipit;
+    if displaying>0: makebox(screenrule); showit; fi
+    endgroup;
+    is_double:=false
+  else : oldendchar
+  fi
+enddef;
+% The new definition of endchar must be memorized so that
+% the macro `iff' keeps working
+let endchar_=endchar;
+%By convention, we reserve the name z1' for the direction at z1, and so on.
+%The direction at z1r is z1'r, or zdir1r.
+vardef zdir[]@#= z@'@# enddef;
+vardef assign_z@#(expr zz)= x@#:=xpart(zz); y@#:=ypart(zz) enddef;
+vardef sgn(expr x)= if (x>0): 1 elseif (x<0): -1 else: 0 fi enddef;
+vardef double_circ_stroke text t =
+ forsuffixes e = l,r: path_.e:=t; endfor
+ if cycle path_.l: errmessage "Beware: `stroke' isn't intended for cycles"; fi
+ path_.l .. reverse path_.r .. cycle enddef;
+vardef drawloop(suffix $,$$,@@,@)=
+  numeric temp[], sup;
+  sup=superness;
+  forsuffixes e=r,l:
+    path curv[]e; numeric S[]e;
+    curv1e=pulled_super_arc.e($,$$)(.5superpull);
+    curv2e=pulled_super_arc.e(@,@@)(.5superpull); endfor
+  (S1r,S2r)=curv1r intersectiontimes curv2r;
+  (temp1,S2l)=curv1r intersectiontimes curv2l;
+  (S1l,temp2)=curv1l intersectiontimes curv2r;
+  for i=1 upto 9:
+    exitif (temp1>=S1r) and (temp2>=S2r);
+    begingroup
+      numeric S[]r, S[]l, temp[]; pair p;
+      interim superness:=(i/10)[sup,1];
+      message"change in superness required; increased to "; show superness;
+      curv1r:=pulled_super_arc.r($,$$)(0);
+      curv2r:=pulled_super_arc.r(@,@@)(0);
+      (S1r,S2r)=curv1r intersectiontimes curv2r;
+      (temp1,S2l)=curv1r intersectiontimes curv2l;
+      (S1l,temp2)=curv1l intersectiontimes curv2r;
+    endgroup;
+  endfor;
+  if S1l=-1 : S1l:=2; fi
+  if S2l=-1 : S2l:=2; fi
+  filldraw stroke subpath(0,S1e+eps) of curv1e;
+  filldraw stroke subpath(0,S2e+eps) of curv2e;
+  filldraw subpath (S1r+eps,2) of curv1r...subpath(2,S2r+eps) of curv2r..cycle;
+enddef ;
+% helpful macro for deciding the quadrant in gr_arc.$ ($=r,l)
+vardef signum(expr x)=if x<0: -1 else: 1 fi enddef;
+vardef gr_arc.r(suffix $,$$,$$$)(expr min,max,tilt)=
+  pair center, corner;
+  if signum(y$$$r-y$r)*signum(x$$$r-x$r) < 0 :      %first or third quadrant
+    center=(x$$$r,y$r); corner=(x$r,y$$$r);
+  else :
+    center=(x$r,y$$$r); corner=(x$$$r,y$r);
+  fi
+  z$r{corner-z$r}...superness[center,corner]{z$$$r-z$r}...
+    {z$$$r-corner}z$$$r
+enddef;
+vardef gr_arc.l(suffix $,$$,$$$)(expr min,max,tilt)=
+  save p,q,wdth;
+  pair center, corner, temp;
+  numeric wdth, t, s;
+  path p,q;
+  if signum(y$$$r-y$r)*signum(x$$$r-x$r) < 0 :      %first or third quadrant
+    center=(x$$$r,y$r); corner=(x$r,y$$$r);
+    if tilt>=0 : wdth:=min; other_wdth:=max; t:=2(1-tilt);
+    else : wdth:=max; other_wdth:=min; t:=-2tilt; fi
+  else :
+    center=(x$r,y$$$r); corner=(x$$$r,y$r);
+    if tilt>=0 : wdth:=max; other_wdth:=min; t:=2(1-tilt);
+    else : wdth:=min; other_wdth:=max; t:=-2tilt; fi
+  fi
+  p:=z$r{corner-z$r}...superness[center,corner]{z$$$r-z$r}...
+    {z$$$r-corner}z$$$r;
+  pos$$(wdth,angle direction t of p - 90);
+  z$$r=point t of p;
+  assign_z$$'l(direction t of p);
+  assign_z$$'r(z$$'l);
+  if other_wdth<=currentbreadth: errmessage "bad pos"; fi
+  temp:=point (2-t) of p-
+    (other_wdth-currentbreadth,0) rotated (angle direction (2-t) of p - 90);
+  boolean k[]; k1:=false; k2:=false;
+  if unknown x$l:
+    k1:=true;
+    assign_z$l(temp);
+    assign_z$'l(direction(2-t) of p);
+    if signum(y$$$r-y$r)*signum(x$$$r-x$r) < 0 :    %first or third quadrant
+      y$l:=2ypart center-y$l;
+      x$'l:=-x$'l;
+    else:
+      x$l:=2xpart center-x$l;
+      y$'l:=-y$'l;
+    fi
+  fi
+  if unknown x$$$l:
+    k2:=true;
+    assign_z$$$l(temp);
+    assign_z$$$'l(direction(2-t) of p);
+    if signum(y$$$r-y$r)*signum(x$$$r-x$r) < 0 :    %first or third quadrant
+      x$$$l:=2xpart center-x$$$l;
+      y$$$'l:=-y$$$'l;
+    else:
+      y$$$l:=2ypart center-y$$$l;
+      x$$$'l:=-x$$$'l;
+    fi
+  fi
+  q:=z$l{z$'l}...z$$l{z$$'l}...z$$$l{z$$$'l};
+  if k1 :
+    t := xpart(q intersectiontimes (center---z$r));
+    if t=-1 : t:=0; fi
+    assign_z$l(point t of q);
+    assign_z$'l(direction t of q);
+    assign_z$'r(corner-z$r);
+    z$l+z$r=2z$;
+  else: t:=0;
+  fi
+  if k2 :
+    s := xpart(q intersectiontimes (center---z$$$r));
+    if s=-1 : s:=2; fi
+    assign_z$$$l(point s of q);
+    assign_z$$$'l(direction s of q);
+    assign_z$$$'r(z$$$r-corner);
+    z$$$l+z$$$r=2z$$$;
+  else: s:=2;
+  fi
+  subpath (t,s) of q
+enddef;
+vardef doodah(suffix $,$$,$$$)=
+ if known x$$:
+  vardef ward(expr gr)=
+   sgn(xpart direction 1 of (z${zdir$}..(x$$,gr)..{zdir$$$}z$$$)) <> sgn(x$-x$$)
+  enddef;
+  y$$=solve ward(y$,y$$$);
+ else:
+  vardef ward(expr gr)=
+   sgn(ypart direction 1 of (z${zdir$}..(gr,y$$)..{zdir$$$}z$$$)) <> sgn(y$-y$$)
+  enddef;
+  x$$=solve ward(x$,x$$$);
+ fi
+ (z${zdir$}..z$$..{zdir$$$}z$$$)
+enddef;
+forsuffixes e=r,l:
+  vardef club.e(suffix $,$$,$$$)= doodah($e,$$e,$$$e) enddef; endfor
+screen_rows:=600; screen_cols:=1000;
+vardef alpha_tail(suffix $,$$) =
+  pos$$(hair,180); top y$$=vround 4/3[bot y$l,top y$r];         %tip of hook
+  rt x$$l=hround(x$+(y$$-y$)+.5hair);                   %central arc is round
+enddef;
+vardef pi_bar =
+  pos3(vstem,-90); rt x3=hround(w-.75u); top y3l=x_height;      %top right
+  pos2(vstem,-90); y2=y3; x2=.25w;                              %top left
+  x1 if SansSerif: +.25hair else:-.5hair fi =hround.75u; y1-.5hair=4/3[top y2l,bot y2r];         %tip of bar
+  numeric slope; slope=angle((z2-z1)yscaled 2); pos1(hair,slope-90);
+  forsuffixes e=l,r: z1'e=(z2e-z1e)yscaled 2; endfor
+  if SansSerif:                                                 %bar
+  filldraw stroke z1e{z1'e}...z2e---z3e;
+  else: 
+  filldraw circ_stroke z1e{z1'e}...z2e---z3e;                    
+  fi 
+enddef;
+vardef cblpi_bar =
+  pos2(vstem,-90); top y2l=x_height; x2=.3w;                   %top left
+  x1-.5hair=hround.75u; y1=y2r-u;         %tip of bar
+  numeric slope; slope=angle((z2-z1)yscaled 2); pos1(hair,slope-90);
+  forsuffixes e=l,r: z1'e=(z2e-z1e)yscaled 2; endfor
+  pos3(vstem,-90); x2+x3=w+.8u; z3=z2+whatever*dir(-4);  % Tilt adjusted after Dimitri Fillippou
+  pos11(hair,slope-90); x11=w-u; y11l=h; %right tip
+  forsuffixes e=l,r: z11'e=(z11e-z3e)yscaled 2; endfor
+  filldraw double_circ_stroke z1e{z1'e}...z2e---z3e...{z11'e}z11e;                   %bar
+enddef;
+%
+vardef cbltau_bar =
+  numeric cbtilt; cbtilt=angle(-slant,1)+180;
+  pos2(vstem,cbtilt); top y2l=x_height; x2=.25w;                   %top left
+  x1-.5hair=hround.75u; y1=bot y2r-.5u;         %tip of bar
+  numeric slope; slope=angle((z2-z1)yscaled 2); pos1(hair,slope-90);
+  forsuffixes e=l,r: z1'e=(z2e-z1e)yscaled 2; endfor
+  pos3(vstem,cbtilt); x2+x3=w; z3=z2+whatever*dir(-4);  % Tilt adjusted after Dimitri Fillippou
+  pos11(hair,slope-90); z11+z1=z2+z3;                           %right tip
+  forsuffixes e=l,r: z11'e=(z11e-z3e)yscaled 2; endfor
+  filldraw double_circ_stroke z1e{z1'e}...z2e---z3e...{z11'e}z11e;                   %bar
+enddef;
+%% Extension for font paramemeter calculations with splines
+% ---------------------------------------------------------------------------
+%
+%
+%
+% some extra font parameters
+%
+def font_cap_height expr x = fontdimen 8: x enddef;
+def font_asc_height expr x = fontdimen 9: x enddef;
+def font_acc_cap_height expr x = fontdimen 10: x enddef;
+def font_desc_depth expr x = fontdimen 11: x enddef;
+def font_max_height expr x = fontdimen 12: x enddef;
+def font_max_depth  expr x = fontdimen 13: x enddef;
+def font_digit_width expr x = fontdimen 14: x enddef;
+def font_cap_stem expr x = fontdimen 15: x enddef;
+def font_baselineskip  expr x = fontdimen 16: x enddef;
+% Some booleans
+boolean slitex, straight, monowidth, barebones, cursive,cbleipzig,cbroman;
+barebones:=false; cursive:=false; cbleipzig:=false; cbroman:=false;
+if unknown invisibile: boolean invisibile; invisibile:=false; fi
+extra_endchar:=extra_endchar&"if invisibile: clearit;fi";
+% For modern monotoniko spelling we need another boolean that might
+% have been already defined in another driver file
+if unknown monotoniko: boolean monotoniko; monotoniko:=false; fi
+boolean small_caps; small_caps:=false;
+numeric sclc; sclc:=1;
+boolean metrics; metrics:=false;
+boolean SansSerif; SansSerif:=false;
+% For ouline fonts
+% The body is the solution of exercise 13.23 of MFbook
+% Thanks to Don Hosek who added "minor" enhancements for writewhite
+% printers and high resolution printers
+if unknown outlining: boolean outlining; outlining:=false; fi
+% do outline only when explicitly told to do so by means of the declaration
+% outlining:=true;
+% in the font driver file
+  def outline =
+   cull currentpicture keeping (1,infinity);%    start of solution of ex.13.23
+   picture v; v:=currentpicture;
+   cull currentpicture keeping (1,1) withweight 3;
+   addto currentpicture also v - v shifted right
+    -v shifted left - v shifted up - v shifted down;
+   cull currentpicture keeping (1,4);%         end of solution of ex.13.23
+  % next code for high resolution typesetters
+  % replacing each pixel x with the following pattern of
+  % pixels in the currentpicture:
+  %            X
+  %           XxX
+  %            X
+  % to create darker lines for outlines.
+  % Adjacent x pixels superimpose their X companions
+   if (pixels_per_inch >= 1200) :
+    v:=currentpicture;
+    addto currentpicture also v shifted right +
+     v shifted left + v shifted up + v shifted down;
+    cullit;
+  % and the next code is for medium resolution printers such
+  % as the Varityper(600dpi) and the APSu5(723dpi) or
+  % write-white laser printers such as the Xerox 8790
+  % replacing pixel x with:
+  %            X
+  %           Xx
+  % to create slightly darker lines for outlines.
+  % Adjacent x pixels (again) superimpose their X companions
+   elseif (pixels_per_inch >= 600)
+     or (write_white=1): % See below
+    addto currentpicture also currentpicture shifted left;
+    addto currentpicture also currentpicture shifted up;
+   fi
+  enddef;
+% Specify write_white:=1 in MF command line or define new modes that
+% include write_white:=1 among their parameters
+% otherwise the default holds true:
+if unknown write_white: write_white:=0; fi
+readfrom("cbspline");
+

@@ -1,0 +1,70 @@
+% Copyright 2003-2005 Han The Thanh <hanthethanh@gmx.net>.
+% This file is part of vntex.  License: LPPL, version 1.3 or newer,
+% according to http://www.latex-project.org/lppl.txt
+
+% Computer Modern Roman "d-bar" precomposed glyph:
+% Inclusion:
+%               dd
+
+vnchar casename "d with bar";
+beginchar(vn_code(d.bar_), 10u# + serif_fit#, max(asc_height#, 1.45x_height#), 0);
+    italcorr asc_height#*slant - serif_fit# + .5stem# - 2u#;
+    adjust_fit(0, serif_fit#);
+    pickup tiny.nib;
+    pos1(stem', 0);
+    pos2(stem, 0);
+    pos0'(stem', 0);
+    pos0(stem, 0);
+    z0r = z0'r;
+    x0' = x1;
+    x0 = x2;
+    rt x1r = hround(w - 2.5u + .5stem');
+    top y1 = h;
+    numeric edge;
+    edge = lft x2l;
+    pickup fine.nib;
+    pos3(if hefty: thin_join else: hair fi, 0);
+    pos4(vair, 90);
+    pos5(curve, 180);
+    pos6(vair, 270);
+    penpos7(x3r - x3l, 360);
+    lft x3l = min(lft x3l - (rt x3r - tiny.rt x2r), 1/3[lft x2, edge]);
+    y3 = 1/8[bar_height, x_height];
+    x4l = .5(w - serif_fit) - .3u;
+    top y4r = x_height + oo;
+    lft x5r = hround max(1.35u - .5curve, .6u);
+    y5 = .5x_height;
+    x6l = x4l - .2u;
+    bot y6r=-oo;
+    x7 = x3;
+    y7 = min(y3, y6 + y4 - y3 + .6vair);
+    (x, y4r) = whatever[z3l, z4l];
+    x4r := max(x, .5[x5r, x4]);
+    (x', y6r) = whatever[z7l, z6l];
+    x6r := max(x', .5[x5r, x6]);
+    filldraw stroke z3e{up} ... pulled_arc.e(4, 5)
+    & pulled_arc.e(5, 6) ... {up}z7e; % bowl
+    y0 = ypart(((edge, h) -- (edge, 0))intersectionpoint(z3l{up} ... {left}z4l));
+    pickup tiny.nib;
+    bot y2 = if serifs: -min(oo, serif_drop) else: 0 fi;
+    filldraw stroke z1e -- z0'e -- z0e -- z2e;  % stem
+    if serifs: sloped_serif.l(1, 0', a, 1/3, jut, serif_drop);  % upper serif
+        sloped_serif.r(2, 0, b, 1/3, jut, min(oo, serif_drop));
+    fi  % lower serif
+    bar_thickness := .3[vair, stem];
+    pos8(bar_thickness, 90);
+    pos9(bar_thickness, 90);
+    if serifs:
+        top y8r = top y9r = .6[y4, h - (serif_drop + slab)] + .5bar_thickness;
+        lft x8 = hround(tiny.lft x0l - 1.5max(jut, u)) - eps;
+        rt x9 = hround(tiny.rt x0r + max(jut, u)) + eps;
+    else:
+        top y8r = top y9r = .6[y4, y1]  + .5bar_thickness;
+        lft x8 = hround(tiny.lft x0l - 1.5vair) - eps;
+        rt x9 = hround(tiny.rt x0r + vair) + eps;
+    fi
+    filldraw stroke z8e -- z9e;                               % bar
+    penlabels(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+endchar;
+
+endinput;

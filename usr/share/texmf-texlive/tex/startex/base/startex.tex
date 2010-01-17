@@ -1,0 +1,790 @@
+%%
+%% This is file `startex.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% startex.dtx  (with options: `code')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from startex.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file startex.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+\def \CodeVersion {1.04}
+\def \CodeDate    {11th March 1999}
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+\let \State = x
+\def \Command #1>{\ifDefining
+    \def \Next {\lowercase{\DefineCmd{#1}}}%
+  \else
+    \lowercase{\expandafter\ifx \csname >#1\endcsname}\relax
+      \Error{Unknown command <#1> ignored.}{}%
+      \let \Next = \relax
+    \else
+      \def \Next {\lowercase{\csname >#1\endcsname}}%
+    \fi
+  \fi \Next }
+{\catcode `\< = \active  \global\let < = \Command }
+\def \Cdef #1#2{\expandafter\gdef \csname >#1\endcsname{#2}}
+\def \Ccall #1{\csname >#1\endcsname}
+\newif \ifDefining
+\Cdef {define}{\Definingtrue}
+\def \DefineCmd #1{\Definingfalse
+  \ifnum \CallLevel>0
+    \Error{Nested definitions are not allowed;}%
+      {the definition of <#1> is ignored.}\let \Next = \relax
+  \else
+    \expandafter\ifx \csname>#1\endcsname\relax
+      \def \Next {\begingroup \catcode`\^^M = 12 \FetchDef{#1}}%
+    \else
+      \Error{Command <#1> already defined;}{this definition ignored.}%
+      \def \Next {\begingroup \catcode`\^^M = 12 \IgnoreDef{#1}}%
+    \fi
+  \fi \Next }
+\begingroup \catcode`\^^M = 12
+  \gdef \FetchDef #1#2^^M{\expandafter%
+    \gdef\csname>#1\endcsname {\Call #2\Return }\endgroup }%
+  \gdef \IgnoreDef #1#2^^M{\endgroup }%
+\endgroup
+\newcount \CallLevel
+\def \Call   {\global\advance \CallLevel by  1 }
+\def \Return {\global\advance \CallLevel by -1 }
+\def \SpecialCatCodes {%
+  \catcode `\\ = 12  \catcode `\{ = 12  \catcode `\} = 12
+  \catcode `\$ = 12  \catcode `\& = 12  \catcode `\# = 12
+  \catcode `\^ = 12  \catcode `\_ = 12  \catcode `\~ = 12
+  \catcode `\% = 12  \catcode `\< = \active }
+\def \StandardCatCodes {%
+  \catcode `\\ = 0  \catcode `\{ = 1  \catcode `\} = 2
+  \catcode `\$ = 3  \catcode `\& = 4  \catcode `\# = 6
+  \catcode `\^ = 7  \catcode `\_ = 8  \catcode `\~ = \active
+  \catcode `\% = 14 \catcode `\< = 12 }
+\def \NewEnvir #1#2#3{#2\relax
+  \let \PrevEnv = \CurEnv  \PrevEnvLine = \CurEnvLine
+  \def \CurEnv {#1}\def \CurEnvExit {#3}\CurEnvLine = \inputlineno }
+\def \CurEnv {}\def \CurEnvExit {\relax}
+\newcount \CurEnvLine  \newcount \PrevEnvLine
+\def \EndEnvir #1{%
+  \ifTextEqual{#1}{\CurEnv}\let \Next = \CurEnvExit
+  \else \EnvirError{#1}\fi
+  \Next }
+\def \EnvirError #1{\ifTextEqual{#1}{\PrevEnv}%
+    \Error{<\CurEnv> on line \the\CurEnvLine\space terminated by
+      </#1>.}{An extra </\CurEnv> has been inserted.}%
+    \def \Next {\CurEnvExit \CurEnvExit }%
+  \else
+    \Error{<\CurEnv> on line \the\CurEnvLine\space terminated by
+      </#1>.}{The </#1> will be ignored.}%
+    \let \Next = \relax
+  \fi }
+\Cdef {style}{\IfNextChar{[}{\ReadStyle}%
+  {\Error{No style name given;}{the syntax is: <style>[style name].}}}
+\def \ReadStyle [#1]{\IfFileExists{#1.stx}%
+    {\edef \StyleLine {\the\inputlineno}%
+     \Cdef {style}{\Error{Command <style> already used on line
+                     \StyleLine;}{this use of <style> is ignored.}}%
+     \StandardCatCodes \input #1.stx
+     \SpecialCatCodes }%
+    {\Error{Style file `#1.stx' could not be found;}%
+           {style definition ignored.}}}
+\def \FontDef #1#2#3#4#5#6{%
+  \expandafter\def \csname F-#1S#2#3#4\endcsname {#5}%
+  \expandafter\def \csname F-#1A#2#3#4\endcsname {#6}}
+\def \MathFontDef #1#2#3#4#5{%
+  \expandafter\def \csname M-#1N#2\endcsname {#3}%
+  \expandafter\def \csname M-#1S#2\endcsname {#4}%
+  \expandafter\def \csname M-#1X#2\endcsname {#5}}
+\def \XIpt { at 10.95pt}
+\FontDef{R}{M}{U}{N}{ecrm1095}{tcrm1095}
+\FontDef{R}{M}{I}{N}{ecti1095}{tcti1095}
+\FontDef{R}{B}{U}{N}{ecbx1095}{tcbx1095}
+\FontDef{R}{B}{I}{N}{ecbi1095}{tcbi1095}
+\FontDef{T}{M}{U}{N}{ectt1095}{tctt1095}
+\FontDef{T}{M}{I}{N}{ecit1095}{tcit1095}
+\FontDef{T}{B}{U}{N}{ectt1095}{tctt1095}
+\FontDef{T}{B}{I}{N}{ecit1095}{tcit1095}
+\MathFontDef{N}{0}{cmr10\XIpt}{cmr8}{cmr6}
+\MathFontDef{N}{1}{cmmi10\XIpt}{cmmi8}{cmmi6}
+\MathFontDef{N}{2}{cmsy10\XIpt}{cmsy8}{cmsy6}
+\MathFontDef{N}{3}{cmex10\XIpt}{cmex10\XIpt}{cmex10\XIpt}
+\MathFontDef{N}{4}{cmbx10\XIpt}{cmbx8}{cmbx6}
+\MathFontDef{N}{5}{ecti1095}{ecti0800}{ecti0600}
+\MathFontDef{N}{6}{msbm10\XIpt}{msbm8}{msbm6}
+\def \LineSkipN {12pt}  \def \CodeSkipN {11pt plus 0.0pt minus 0.1pt}
+\def \XIVpt { at 14.4pt}
+\FontDef{R}{M}{U}{L}{ecrm1440}{tcrm1440}
+\FontDef{R}{M}{I}{L}{ecti1440}{tcti1440}
+\FontDef{R}{B}{U}{L}{ecbx1440}{tcbx1440}
+\FontDef{R}{B}{I}{L}{ecbi1440}{tcbi1440}
+\FontDef{T}{M}{U}{L}{ectt1440}{tctt1440}
+\FontDef{T}{M}{I}{L}{ecit1440}{tcit1440}
+\FontDef{T}{B}{U}{L}{ectt1440}{tctt1440}
+\FontDef{T}{B}{I}{L}{ecit1440}{tcit1440}
+\MathFontDef{L}{0}{cmr12\XIVpt}{cmr10}{cmr8}
+\MathFontDef{L}{1}{cmmi12\XIVpt}{cmmi10}{cmmi8}
+\MathFontDef{L}{2}{cmsy10\XIVpt}{cmsy10}{cmsy8}
+\MathFontDef{L}{3}{cmex10\XIVpt}{cmex10\XIVpt}{cmex10\XIVpt}
+\MathFontDef{L}{4}{cmbx12\XIVpt}{cmbx10}{cmbx8}
+\MathFontDef{L}{5}{ecti1440}{ecti1000}{ecti0800}
+\MathFontDef{L}{6}{msbm10\XIVpt}{msbm10}{msbm8}
+\def \LineSkipL {15pt}
+\def \XVIIpt { at 17.28pt}
+\FontDef{R}{M}{U}{X}{ecrm1728}{tcrm1728}
+\FontDef{R}{M}{I}{X}{ecti1728}{tcti1728}
+\FontDef{R}{B}{U}{X}{ecbx1728}{tcbx1728}
+\FontDef{R}{B}{I}{X}{ecbi1728}{tcbi1728}
+\FontDef{T}{M}{U}{X}{ectt1728}{tctt1728}
+\FontDef{T}{M}{I}{X}{ecit1728}{tcit1728}
+\FontDef{T}{B}{U}{X}{ectt1728}{tctt1728}
+\FontDef{T}{B}{I}{X}{ecit1728}{tcit1728}
+\MathFontDef{X}{0}{cmr17}{cmr12\XIVpt}{cmr9}
+\MathFontDef{X}{1}{cmmi12\XVIIpt}{cmmi12}{cmmi9}
+\MathFontDef{X}{2}{cmsy10\XVIIpt}{cmsy10 at 12pt}{cmsy9}
+\MathFontDef{X}{3}{cmex10\XVIIpt}{cmex10\XVIIpt}{cmex10\XVIIpt}
+\MathFontDef{X}{4}{cmbx12\XVIIpt}{cmbx12}{cmbx9}
+\MathFontDef{X}{5}{ecti1728}{ecti1200}{ecti0900}
+\MathFontDef{X}{6}{msbm10\XVIIpt}{msbm10 at 12pt}{msbm9}
+\def \LineSkipX {17pt}
+\FontDef{R}{M}{U}{S}{ecrm1000}{tcrm1000}
+\FontDef{R}{M}{I}{S}{ecti1000}{tcti1000}
+\FontDef{R}{B}{U}{S}{ecbx1000}{tcbx1000}
+\FontDef{R}{B}{I}{S}{ecbi1000}{tcbi1000}
+\FontDef{T}{M}{U}{S}{ectt1000}{tctt1000}
+\FontDef{T}{M}{I}{S}{ecit1000}{tcit1000}
+\FontDef{T}{B}{U}{S}{ectt1000}{tctt1000}
+\FontDef{T}{B}{I}{S}{ecit1000}{tcit1000}
+\MathFontDef{S}{0}{cmr10}{cmr7}{cmr5}
+\MathFontDef{S}{1}{cmmi10}{cmmi7}{cmmi5}
+\MathFontDef{S}{2}{cmsy10}{cmsy7}{cmsy5}
+\MathFontDef{S}{3}{cmex10}{cmex10}{cmex10}
+\MathFontDef{S}{4}{cmbx10}{cmbx7}{cmbx5}
+\MathFontDef{S}{5}{ecti1000}{ecti0700}{ecti0500}
+\MathFontDef{S}{6}{msbm10}{msbm7}{msbm5}
+\def \LineSkipS {11pt}
+\def \SelectFont {%
+  \edef \ThisFont {F-\FontKind\FontAlt\FontBold\FontItal\FontSize}%
+  \font \CurFont = \csname\ThisFont\endcsname \CurFont }
+\def \ResetFont {%
+  \def \FontKind{R}\def \FontAlt{S}\def \FontBold{M}%
+  \def \FontItal{U}\def \FontSize{N}}
+\def \CheckItCorr {%
+  \IfNextCharTwo{.}{,}{}{\/}}
+\def \SetSize #1{\def \FontSize{#1}\SelectFont
+  \baselineskip = \csname LineSkip#1\endcsname
+  \ParIndent = \StdParIndent }
+\Cdef {b}{\NewEnvir{b}{\begingroup}{\endgroup}%
+  \def\FontBold{B}\SelectFont}
+\Cdef {/b}{\EndEnvir{b}}
+\Cdef {i}{\NewEnvir{i}{\begingroup}{\endgroup\CheckItCorr}%
+  \def\FontItal{I}\SelectFont}
+\Cdef {/i}{\EndEnvir{i}}
+\Cdef {tt}{\NewEnvir{tt}{\begingroup}{\endgroup}%
+  \def\FontKind{T}\SelectFont}
+\Cdef {/tt}{\EndEnvir{tt}}
+
+\Cdef {body}{\NewEnvir{body}{\begingroup}{\endgroup}%
+  \message{^^JThis is StarTeX, version \CodeVersion^^J}%
+  \global\everypar = {\NewPar }%
+  \xdef \BodyLine {\the\inputlineno}%
+  \Cdef {body}{\Error{Command <body> already used on line \BodyLine;}%
+    {this use of <body> was ignored.}}}
+\def \BodyError {\message{^^JThis is StarTeX, version \CodeVersion^^J}%
+  \Error{A <body>...</body> environment should surround
+    the whole document.}{A missing <body> was inserted.}%
+  \global\everypar = {\NewPar }}
+\Cdef {/body}{\EndEnvir{body}\endgraf\vfill\supereject
+  \let \Next = \CheckAux
+  \ifRerun \let \Next = \relax \fi
+  \ifAuxRead \else \let \Next = \relax \fi
+  \ifAuxOpen \else \let \Next = \relax \fi
+  \Next
+  \ifRerun \Warning{Cross-references are not correct;}%
+    {please run StarTeX again.}\fi
+  \end}
+\Cdef {p}{\endgraf}
+\def \par {}
+\pretolerance = 2500 \tolerance = 9999  \hbadness = 10000
+\emergencystretch = 3cm
+\parindent = 0pt \everypar = {\BodyError }
+\def \NewPar {\ifIndent \kern \ParIndent \fi  \Indenttrue
+  \global\parskip = \CurParSkip }
+\newskip \ParIndent  \def \StdParIndent {1em}
+\newif \ifIndent
+\newskip \CurParSkip
+\def \AddVspace #1{\ifvmode \else \endgraf \fi
+  \skip1 = #1\relax
+  \ifdim \lastskip < \skip1 \relax
+    \ifdim \lastskip > 0pt \vskip -\lastskip \fi
+    \vskip \skip1
+  \fi \parskip = 0pt \relax }
+\Cdef {title}{\AddVspace{30pt plus 10pt}
+  \NewEnvir{title}{\begingroup}{\endgraf\endgroup}
+  \leftskip = 2cm plus 1fill  \rightskip = \leftskip
+  \ParIndent = 0pt  \CurParSkip = 0pt
+  \ResetFont \SetSize{X}}
+\Cdef {/title}{\EndEnvir{title}%
+  \AddVspace{20pt plus 4pt}}
+\Cdef {author}{\AddVspace{10pt plus 3pt}
+  \NewEnvir{author}{\begingroup}{\endgraf\endgroup}
+  \leftskip = 2cm plus 1fill  \rightskip = \leftskip
+  \ParIndent = 0pt  \CurParSkip = 0pt
+  \ResetFont \SetSize{L}}
+\Cdef {/author}{\EndEnvir{author}%
+  \AddVspace{20pt plus 4pt}}
+\Cdef {info}{\AddVspace{10pt plus 3pt}
+  \NewEnvir{info}{\begingroup}{\endgraf\endgroup}
+  \leftskip = 2cm plus 1fill  \rightskip = \leftskip
+  \ParIndent = 0pt  \CurParSkip = 0pt
+  \ResetFont \SetSize{N}}
+\Cdef {/info}{\EndEnvir{info}%
+  \AddVspace{20pt plus 4pt}}
+\Cdef {abstract}{\AddVspace{10pt plus 3pt}
+  \NewEnvir{abstract}{\begingroup}{\endgraf\endgroup}
+  \ResetFont \def \FontBold{B} \SetSize{S}  \CurParSkip = 0pt
+  \leftskip = 2cm  \rightskip = \leftskip  \Indentfalse
+  \centerline{\AbstractName}
+  \ResetFont \SetSize{S}\Indentfalse }
+\Cdef {/abstract}{\EndEnvir{abstract}%
+  \AddVspace{10pt plus 2pt}}
+\newcount \SectI    \newcount \SectII
+\newcount \SectIII  \newcount \SectIV
+\def \Heading #1#2#3#4{\AddVspace{#1}
+  \def \FontBold {#3} \SetSize{#2}
+  \setbox0 = \hbox{#4\kern 0.5\baselineskip}
+  \hangindent = \wd0  \hangafter = 1  \raggedright
+  \ParIndent = 0pt  \CurParSkip = 0pt  \leavevmode  \box0 }
+\Cdef {h1}{\endgraf
+  \global\advance \SectI by 1
+  \global\SectII = 0  \global\SectIII = 0  \global\SectIV = 0
+  \edef \CurDef {\SectIim}
+  \NewEnvir{h1}{\begingroup}{\endgroup}
+  \Heading{24pt plus 12pt minus 3pt}{X}{B}{\SectIim}}
+\Cdef {/h1}{\endgraf
+  \nobreak\vskip 6pt plus 1.5pt
+  \EndEnvir{h1}  \Indentfalse }
+\Cdef {h2}{\endgraf
+  \global\advance \SectII by 1
+  \global\SectIII = 0  \global\SectIV = 0
+  \edef \CurDef {\SectIIim}
+  \NewEnvir{h2}{\begingroup}{\endgroup}
+  \Heading{14pt plus 7pt minus 2pt}{L}{B}{\SectIIim}}
+\Cdef {/h2}{\endgraf
+  \nobreak\vskip 4pt plus 1pt
+  \EndEnvir{h2}\Indentfalse }
+\Cdef {h3}{\endgraf
+  \global\advance \SectIII by 1  \global\SectIV = 0
+  \edef \CurDef {\SectIIIim}
+  \NewEnvir{h3}{\begingroup}{\endgroup}
+  \Heading{10pt plus 5pt minus 1pt}{N}{B}{\SectIIIim}}
+\Cdef {/h3}{\endgraf
+  \nobreak\vskip 2pt plus 1pt
+  \EndEnvir{h3}\Indentfalse }
+\Cdef {h4}{\AddVspace{8pt plus 4pt minus 1pt}
+  \global\advance \SectIV by 1
+  \edef \CurDef {\SectIVim}
+  \NewEnvir{h4}{\begingroup}{\endgroup}
+  \def \FontBold{B}\SelectFont \Indentfalse \SectIVim }
+\Cdef {/h4}{\kern 0.5\baselineskip
+  \EndEnvir{h4}}
+\Cdef {list}{\AddVspace{\ListSkip}
+  \NewEnvir{list}{\begingroup}{\endgroup}
+  \advance \leftskip by \ListIndent
+  \Indentfalse  \CurParSkip = \ListSkip  \ParIndent = 0pt
+  \ItemCount = 0 }
+\Cdef {/list}{\endgraf
+  \EndEnvir{list}  \Indentfalse }
+\Cdef {item}{\endgraf  \Indentfalse
+  \leavevmode\llap{\BulletItemFormat}\ignorespaces }
+\Cdef {numitem}{\endgraf
+  \advance \ItemCount by 1  \edef \CurDef {\the\ItemCount}
+  \Indentfalse
+  \leavevmode\llap{\NumItemFormat{\ItemCount}}\ignorespaces }
+\newcount \ItemCount
+\Cdef {textitem}{\endgraf
+  \NewEnvir{textitem}{\begingroup}{\endgroup}
+  \def \FontBold {B}\SelectFont \leavevmode \kern -\ListIndent
+  \ignorespaces }
+\Cdef {/textitem}{\unskip
+  \EndEnvir{textitem}%
+  \hskip 1em  \ignorespaces }
+\Cdef {display}{\AddVspace{\DisplayPreSkip}
+  \NewEnvir{display}{\begingroup}{\endgroup}%
+  \advance \leftskip  by \DisplayIndent
+  \advance \rightskip by \DisplayIndent
+  \CurParSkip = \DisplayParSkip \ParIndent = 0pt \relax }
+\Cdef {/display}{\AddVspace{\DisplayPostSkip}
+  \EndEnvir{display}}
+\newif \ifCodePar
+\def \CodeSetup {\ifvmode \CodePartrue \AddVspace{\DisplayPreSkip}
+    \else \CodeParfalse \fi
+  \def\FontKind{T}\SelectFont
+  \baselineskip = \CodeSkipN  \CurParSkip = 0pt  \ParIndent = 0pt
+  \catcode`\< = 12  \frenchspacing   \obeylines  \obeyspaces }
+\begingroup
+  \catcode`\^^M = \active %
+  \gdef\obeylines{\catcode`\^^M=\active \def^^M{\endgraf\leavevmode}}%
+\endgroup
+\begingroup
+  \obeyspaces\gdef {\leavevmode\space}%
+\endgroup
+\def \CodeFinish {\ifCodePar
+    \def \Next {\endgraf  \vskip -\baselineskip  \vskip \DisplayPostSkip
+      \global\Indentfalse }%
+  \else
+    \let \Next = \relax
+  \fi \Next }
+\Cdef {code}{\NewEnvir{code}{\begingroup}{\endgroup}%
+  \CodeSetup \ReadCode }
+\begingroup
+  \catcode `\< = 12
+  \gdef \ReadCode #1</code>{#1\CodeFinish\EndEnvir{code}}%
+\endgroup
+\Cdef {codefile}{\IfNextChar{[}%
+    {\ReadCodeFile}%
+    {\Error{No code file name given;}%
+      {the syntax is <codefile>[file name].}}}
+\def \ReadCodeFile [#1]{\endgraf \begingroup
+  \CodeSetup
+  \IfFileExists{#1}{\input #1}%
+    {\Error{Code file `#1' cound not be found.}{}}
+  \CodeFinish \endgroup }
+\Cdef {footnote}{\NewEnvir{footnote}%
+    {\global\advance \FootnoteCnt by 1
+    \footnote{\FootnoteIm{\FootnoteCnt}}\bgroup
+      \edef \CurDef {\the\FootnoteCnt}}%
+    {\egroup}%
+  \ResetFont \SetSize{S}}
+\Cdef {/footnote}{\EndEnvir{footnote}}
+\newcount \FootnoteCnt
+\footline = {\ResetFont\SelectFont \hfil \folio \hfil}
+\def \DisplayIndent    {\ListIndent}
+\def \DisplayParSkip   {\ListParSkip}
+\def \DisplayPostSkip  {5pt plus 2pt minus 1pt\relax}
+\def \DisplayPreSkip   {5pt plus 2pt minus 1pt\relax}
+\def \ListIndent       {25pt\relax}
+\def \ListParSkip      {\ListSkip}
+\def \ListSkip         {10pt plus 2pt minus 1pt\relax}
+\def \SectIim {\the\SectI}
+\def \SectIIim {\SectIim.\the\SectII}
+\def \SectIIIim {\SectIIim.\the\SectIII}
+\def \SectIVim {\SectIIIim.\the\SectIV}
+\def \FootnoteIm #1{$^{\the #1}$}
+\def \FigIm {\the\FigCnt}
+\def \TabIm {\the\TabCnt}
+\def \BulletItemFormat {$\bullet$\kern 6pt\relax}
+\def \NumItemFormat  #1{\the#1.\kern 4pt\relax}
+\def \E #1#2{\catcode#1 = \active
+  \begingroup \uccode`\~ = #1\uppercase{\endgroup \def ~{#2}}}
+\E{161}{\char189 } \E{163}{\char191 } \E{167}{\char159 }
+\E{171}{\char19 }  \E{184}{\char11 }  \E{187}{\char20 }
+\E{191}{\char190 } \E{223}{\char255 } \E{255}{\char184 }
+\def \CC #1{{\def\FontAlt{A}\SelectFont \char#1}}
+\E{162}{\CC{162}} \E{164}{\CC{164}} \E{165}{\CC{165}}
+\E{166}{\CC{166}} \E{168}{\CC{168}} \E{169}{\CC{169}}
+\E{170}{\CC{170}} \E{172}{\CC{172}} \E{174}{\CC{174}}
+\E{175}{\CC{175}} \E{176}{\CC{176}} \E{180}{\CC{180}}
+\E{182}{\CC{182}} \E{186}{\CC{186}}
+\def \MC #1#2{\ifmmode #2 \else \CC{#1}\fi }
+\E{177}{\MC{177}{\pm}}       \E{178}{\MC{178}{^2{}}}
+\E{179}{\MC{179}{^3{}}}      \E{181}{\MC{181}{\mu}}
+\E{183}{\MC{183}{\cdot}}     \E{185}{\MC{185}{^1{}}}
+\E{188}{\MC{188}{{1\over4}}} \E{189}{\MC{189}{{1\over2}}}
+\E{190}{\MC{190}{{3\over4}}} \E{215}{\MC{214}{\times}}
+\E{247}{\MC{246}{\div}}
+\E{160}{\nobreak\ }
+\E{173}{\-}
+\def \AbstractName {Abstract}
+\def \FigureName   {Figure}
+\def \TableName    {Table}
+\def \TimeSep      {:}
+\Cdef {today}{\the\day\Th{\day} \Month\space\the\year}
+\def \Month {\ifcase \month \or January\or February\or March\or
+  April\or May\or June\or July\or August\or September\or
+  October\or November\or December\fi }
+\def \Th #1{%
+  \ifnum #1=1 st\else\ifnum #1=21 st\else\ifnum #1=31 st\else
+  \ifnum #1=2 nd\else\ifnum #1=22 nd\else
+  \ifnum #1=3 rd\else\ifnum #1=23 rd\else th\fi\fi\fi\fi\fi\fi\fi }
+\Cdef {now}{\Minutes = \time  \Hours = \Minutes
+  \divide \Hours by 60  \Htemp = \Hours  \multiply \Htemp by -60
+  \advance \Minutes by \Htemp
+  \the\Hours \TimeSep \ifnum \Minutes > 9 \else 0\fi \the\Minutes }
+\newcount \Minutes  \newcount \Hours  \newcount \Htemp
+\mathcode`< = "8000
+\Cdef {math}{\MathFonts \NewEnvir{math}{$}{$}}
+\Cdef {/math}{\EndEnvir{math}}
+\Cdef {displaymath}{\endgraf \MathFonts \NewEnvir{displaymath}{$$}{$$}}
+\Cdef {/displaymath}{\EndEnvir{displaymath}}
+\def \MSetFont #1#2{\font \NewMFont = \csname #2\endcsname
+  #1 = \NewMFont }
+\def \MathFonts {\if \FontSize \LastMathSize \else
+    \MSetFont{\textfont0}{M-\FontSize N0}%
+    \MSetFont{\scriptfont0}{M-\FontSize S0}%
+    \MSetFont{\scriptscriptfont0}{M-\FontSize X0}%
+    \MSetFont{\textfont1}{M-\FontSize N1}%
+    \MSetFont{\scriptfont1}{M-\FontSize S1}%
+    \MSetFont{\scriptscriptfont1}{M-\FontSize X1}%
+    \MSetFont{\textfont2}{M-\FontSize N2}%
+    \MSetFont{\scriptfont2}{M-\FontSize S2}%
+    \MSetFont{\scriptscriptfont2}{M-\FontSize X2}%
+    \MSetFont{\textfont3}{M-\FontSize N3}%
+    \MSetFont{\scriptfont3}{M-\FontSize S3}%
+    \MSetFont{\scriptscriptfont3}{M-\FontSize X3}%
+    \MSetFont{\textfont4}{M-\FontSize N4}%
+    \MSetFont{\scriptfont4}{M-\FontSize S4}%
+    \MSetFont{\scriptscriptfont4}{M-\FontSize X4}%
+    \MSetFont{\textfont5}{M-\FontSize N5}%
+    \MSetFont{\scriptfont5}{M-\FontSize S5}%
+    \MSetFont{\scriptscriptfont5}{M-\FontSize X5}%
+    \MSetFont{\textfont6}{M-\FontSize N6}%
+    \MSetFont{\scriptfont6}{M-\FontSize S6}%
+    \MSetFont{\scriptscriptfont6}{M-\FontSize X6}%
+    \let \LastMathSize = \FontSize
+  \fi }
+\def \LastMathSize {?}
+\def \Df #1{\mathcode"#1 = "05#1 \relax }
+\Df{C0}\Df{C1}\Df{C2}\Df{C3}\Df{C4}\Df{C5}\Df{C6}\Df{C7}
+\Df{C8}\Df{C9}\Df{CA}\Df{CB}\Df{CC}\Df{CD}\Df{CE}\Df{CF}
+\Df{D0}\Df{D1}\Df{D2}\Df{D3}\Df{D4}\Df{D5}\Df{D6}
+\Df{D8}\Df{D9}\Df{DA}\Df{DB}\Df{DC}\Df{DD}\Df{DE}\Df{DF}
+\Df{E0}\Df{E1}\Df{E2}\Df{E3}\Df{E4}\Df{E5}\Df{E6}\Df{E7}
+\Df{E8}\Df{E9}\Df{EA}\Df{EB}\Df{EC}\Df{ED}\Df{EE}\Df{EF}
+\Df{F0}\Df{F1}\Df{F2}\Df{F3}\Df{F4}\Df{F5}\Df{F6}
+\Df{F8}\Df{F9}\Df{FA}\Df{FB}\Df{FC}\Df{FD}\Df{FE}\Df{FF}
+\def \Df #1#2#3{\Cdef{bold#1}{\MSy{\mathchar"04#2}}%
+  \Cdef{bolduc#1}{\MSy{\mathchar"04#3}}}
+\Df{a}{61}{41}\Df{b}{62}{42}\Df{c}{63}{43}\Df{d}{64}{44}
+\Df{e}{65}{45}\Df{f}{66}{46}\Df{g}{67}{47}\Df{h}{68}{48}
+\Df{i}{69}{49}\Df{j}{6A}{4A}\Df{k}{6B}{4B}\Df{l}{6C}{4C}
+\Df{m}{6D}{4D}\Df{n}{6E}{4E}\Df{o}{6F}{4F}\Df{p}{70}{50}
+\Df{q}{71}{51}\Df{r}{72}{52}\Df{s}{73}{53}\Df{t}{74}{54}
+\Df{u}{75}{55}\Df{v}{76}{56}\Df{w}{77}{57}\Df{x}{78}{58}
+\Df{y}{79}{59}\Df{z}{7A}{5A}
+\def \MSy #1{\ifmmode #1\else $#1$\fi }
+\def \MOp #1#2{\ifmmode \def \MNext {#2}\else
+  \Error{Command <#1> is only allowed in math mode;}%
+    {command ignored.}\let \MNext = \relax \fi
+  \MNext }
+\def \Mdef #1{\Cdef{#1}{\MSy{\csname #1\endcsname}}}
+\def \Odef #1{\Cdef{#1}{\MOp{#1}{\csname #1\endcsname}}}
+\Mdef{amalg} \Mdef{bigcirc} \Mdef{bigtriangleup}
+\Mdef{bigtriangledown} \Mdef{bullet} \Mdef{cap} \Mdef{circ}
+\Mdef{cup} \Mdef{dagger} \Mdef{ddagger} \Mdef{diamond} \Mdef{mp}
+\Mdef{odot} \Mdef{ominus} \Mdef{oplus} \Mdef{oslash} \Mdef{otimes}
+\Mdef{setminus} \Mdef{sqcap} \Mdef{sqcup} \Mdef{star}
+\Mdef{triangleleft} \Mdef{triangleright} \Mdef{uplus} \Mdef{vee}
+\Mdef{wedge} \Mdef{wr}
+\Mdef{approx} \Mdef{asymp} \Mdef{bowtie} \Mdef{cong} \Mdef{doteq}
+\Mdef{dashv} \Mdef{equiv} \Mdef{frown} \Mdef{geq} \Mdef{gg} \Mdef{in}
+\Mdef{leq} \Mdef{ll} \Mdef{mid} \Mdef{models} \Mdef{neq} \Mdef{ni}
+\Mdef{notin} \Mdef{parallel} \Mdef{perp} \Mdef{prec} \Mdef{preceq}
+\Mdef{propto} \Mdef{sim} \Mdef{simeq} \Mdef{smile} \Mdef{sqsubseteq}
+\Mdef{sqsupseteq} \Mdef{subset} \Mdef{subseteq} \Mdef{supset}
+\Mdef{supseteq} \Mdef{succ} \Mdef{succeq} \Mdef{vdash}
+ \Cdef{gt}{>}
+ \Cdef{lt}{\ifmmode \mathchar"313C \else <\fi}
+\Mdef{langle} \Mdef{lceil} \Mdef{lfloor} \Mdef{rangle}
+\Mdef{rceil} \Mdef{rfloor}
+\Mdef{leftarrow} \Mdef{rightarrow} \Mdef{leftrightarrow}
+\Mdef{longleftarrow} \Mdef{longrightarrow} \Mdef{longleftrightarrow}
+\Mdef{uparrow} \Mdef{downarrow}
+\Mdef{updownarrow} \Mdef{nearrow} \Mdef{nwarrow} \Mdef{searrow}
+\Mdef{swarrow} \Mdef{mapsto} \Mdef{longmapsto} \Mdef{hookleftarrow}
+\Mdef{hookrightarrow} \Mdef{leftharpoonup} \Mdef{rightharpoonup}
+\Mdef{leftharpoondown} \Mdef{rightharpoondown} \Mdef{rightleftharpoons}
+\Cdef{doubleleftarrow}{\MSy{\Leftarrow}}
+\Cdef{doublerightarrow}{\MSy{\Rightarrow}}
+\Cdef{doubleleftrightarrow}{\MSy{\Leftrightarrow}}
+\Cdef{doublelongleftarrow}{\MSy{\Longleftarrow}}
+\Cdef{doublelongrightarrow}{\MSy{\Longrightarrow}}
+\Cdef{doublelongleftrightarrow}{\MSy{\Longleftrightarrow}}
+\Cdef{doubleuparrow}{\MSy{\Uparrow}}
+\Cdef{doubledownarrow}{\MSy{\Downarrow}}
+\Cdef{doubleupdownarrow}{\MSy{\Updownarrow}}
+\Odef{bigcap} \Odef{bigcup} \Odef{bigodot} \Odef{bigoplus}
+\Odef{bigotimes} \Odef{bigsqcup} \Odef{biguplus} \Odef{bigvee}
+\Odef{bigwedge} \Odef{int} \Odef{oint} \Odef{prod} \Odef{sum}
+\Mdef{arccos} \Mdef{arcsin} \Mdef{arctan} \Mdef{arg} \Mdef{cos}
+\Mdef{cosh} \Mdef{cot} \Mdef{coth} \Mdef{csc} \Mdef{deg} \Mdef{det}
+\Mdef{dim} \Mdef{exp} \Mdef{gcd} \Mdef{hom} \Mdef{inf} \Mdef{ker}
+\Mdef{lg} \Mdef{lim} \Mdef{liminf} \Mdef{limsup} \Mdef{ln}
+\Mdef{log} \Mdef{max} \Mdef{min} \Mdef{sec} \Mdef{sin} \Mdef{sinh}
+\Cdef{sup-op}{\MSy{\sup}} \Mdef{tan} \Mdef{tanh}
+\Cdef{pr}{\MSy{\Pr}}
+\Mdef{alpha} \Mdef{beta} \Mdef{gamma} \Mdef{delta} \Mdef{epsilon}
+\Mdef{varepsilon} \Mdef{zeta} \Mdef{eta} \Mdef{theta} \Mdef{vartheta}
+\Mdef{iota} \Mdef{kappa} \Mdef{lambda} \Mdef{mu} \Mdef{nu} \Mdef{xi}
+\Cdef {omicron}{\MSy{o}} \Mdef{pi} \Mdef{varpi} \Mdef{rho} \Mdef{varrho}
+\Mdef{sigma} \Mdef{varsigma} \Mdef{tau} \Mdef{upsilon} \Mdef{phi}
+\Mdef{varphi} \Mdef{chi} \Mdef{psi} \Mdef{omega}
+\def \Df #1#2{\Cdef{#1}{\MSy{\mathchar"#2}}}
+\Df{ucalpha}{0041} \Df{ucbeta}{0042}    \Df{ucgamma}{0000}
+\Df{ucdelta}{0001} \Df{ucepsilon}{0045} \Df{uczeta}{005A}
+\Df{uceta}{0048}   \Df{uctheta}{0002}   \Df{uciota}{0049}
+\Df{uckappa}{004B} \Df{uclambda}{0003}  \Df{ucmu}{004D}
+\Df{ucnu}{004E}    \Df{ucxi}{0004}      \Df{ucomicron}{004F}
+\Df{ucpi}{0005}    \Df{ucrho}{0050}     \Df{ucsigma}{0006}
+\Df{uctau}{0054}   \Df{ucupsilon}{0007} \Df{ucphi}{0008}
+\Df{ucchi}{0058}   \Df{ucpsi}{0009}     \Df{ucomega}{000a}
+\def \Df #1#2{\Cdef{#1}{\MSy{\mathchar"06#2}}}
+\Df{cset}{43} \Df{nset}{4E} \Df{rset}{52} \Df{zset}{5A}
+\def \Df #1#2{\Cdef{cal#1}{\MSy{\mathchar"02#2}}}
+\Df{a}{41} \Df{b}{42} \Df{c}{43} \Df{d}{44} \Df{e}{45}
+\Df{f}{46} \Df{g}{47} \Df{h}{48} \Df{i}{49} \Df{j}{4A}
+\Df{k}{4B} \Df{l}{4C} \Df{m}{4D} \Df{n}{4E} \Df{o}{4F}
+\Df{p}{50} \Df{q}{51} \Df{r}{52} \Df{s}{53} \Df{t}{54}
+\Df{u}{55} \Df{v}{56} \Df{w}{57} \Df{x}{58} \Df{y}{59}
+\Df{z}{5A}
+\Mdef{aleph} \Mdef{angle} \Mdef{bot} \Mdef{ell} \Mdef{emptyset}
+\Mdef{exists} \Mdef{forall} \Mdef{hbar} \Mdef{nabla} \Mdef{neg}
+\Odef{not} \Mdef{partial} \Mdef{surd} \Mdef{top} \Mdef{wp}
+\Cdef{infinity}{\MSy{\infty}} \Cdef{im}{\MSy{\Im}} \Cdef{re}{\MSy{\Re}}
+\Cdef{,}{{,}}
+\Cdef{:}{\MSy{\vdots}}
+\Cdef{:::}{\MSy{\cdots}}
+\Cdef{...}{\MSy{\ldots}\hskip 0.001pt \relax }
+\Cdef {sub}{\MOp{sub}{\NewEnvir{sub}{_\bgroup}{\egroup}}}
+\Cdef {/sub}{\MOp{/sub}{\EndEnvir{sub}}}
+\Cdef {sup}{\MOp{sup}{\NewEnvir{sup}{^\bgroup}{\egroup}}}
+\Cdef {/sup}{\MOp{/sup}{\EndEnvir{sup}}}
+\Cdef {frac}{\MOp{frac}{\NewEnvir{frac}{\bgroup}{\egroup}%
+    \NOver = 0\relax}}
+\Cdef {over}{\MOp{over}{\FracOver}}
+\Cdef {/frac}{\MOp{/frac}{\ifnum \NOver = 0
+    \Error{No <over> in the <frac>...<over>...</frac> environment.}{}\fi
+    \EndEnvir{frac}}}
+\def \FracOver {\ifTextEqual{\CurEnv}{frac}%
+    \ifnum \NOver = 0 \over
+    \else \Error{Only one <over> may occur in each <frac>...</frac>
+        environment.}{}%
+    \fi  \advance \NOver by 1
+  \else \Error{<over> only allowed in a
+    <frac>...<over>...</frac> environment.}{}%
+  \fi }
+\newcount \NOver
+\Cdef {sqrt}{\MOp{sqrt}{\NewEnvir{sqrt}{\sqrt\bgroup}{\egroup}}}
+\Cdef {/sqrt}{\MOp{/sqrt}{\EndEnvir{sqrt}}}
+\Cdef {psfig}{\if \State x \let \Next = \PSfig \else
+  \let \Next = \PSfigError \fi
+  \Next }
+\Cdef {/psfig}{\AddVspace{6pt plus 1pt}
+  \ifx \PSfile \relax \else
+    \centerline{\epsfbox{\PSfile}}%
+    \AddVspace{10pt plus 2pt minus 1pt}
+  \fi
+  \EndEnvir{psfig}}
+\input epsf.tex
+\def \PSfig{\NewEnvir{psfig}{\topinsert}{\endinsert}
+  \let \PSfile = \relax \let \State = p
+  \IfNextChar{[}%
+    {\PSfetch}%
+    {\Error{No file name for PostScript figure;}%
+      {the syntax is: <psfig>[file name]caption text</psfig>.}%
+     \PScaption}}
+\def \PSfigError {\endgraf
+  \Error{Calls on <psfig> not allowed inside <psfig> or <table>;}%
+     {the command was ignored.}%
+  \NewEnvir{psfig}{\begingroup}{\endgroup}}
+\def \PSfetch [#1]{\IfFileExists{#1}%
+    {\gdef \PSfile {#1}}%
+    {\Error{PostScript file `#1' could not be found.}{}}%
+    \PScaption }
+\def \epsfsize #1#2{0pt \dimen1 = 0.8\hsize  \dimen2 = 0.4\vsize
+  \floatdiv{\dimen2}{#1}{#2}%
+  \ifdim \dimen1 < \divres \epsfxsize = 0.8\hsize
+  \else \epsfysize = 0.4\vsize \fi }
+\def \PScaption {\global\advance \FigCnt by 1
+  \edef \CurDef {\the\FigCnt}
+  \leftskip = 0.1\hsize  \rightskip = \leftskip
+  \ResetFont \SetSize{S}\Indentfalse
+  \FigureName~\FigIm: \ignorespaces }
+\newcount \FigCnt
+\Cdef {table}{\if \State x\let \Next = \Table \else
+  \let \Next = \TableError \fi
+  \Next }
+\Cdef {/table}{\EndEnvir{table}}
+\newbox \TableBox
+\def \Table{\topinsert
+  \NewEnvir{table}{\TableCaption}{\LastRow\endinsert}%
+  \let \State = t}
+\def \TableCaption {\global\advance \TabCnt by 1
+  \edef \CurDef {\the\TabCnt}
+  \leftskip = 0.1\hsize  \rightskip = \leftskip
+  \ResetFont \SetSize{S}\Indentfalse
+  \TableName~\TabIm: \ignorespaces }
+\newcount \TabCnt
+\def \TableError {\endgraf
+  \Error{Calls on <table> not allowed inside <psfig>
+    or <table>;}{the command was ignored.}%
+  \NewEnvir{table}{\begingroup}{\endgroup}}
+\Cdef {row}{\Row}
+\def \Row {\if \State t\FirstRow\NewRow \else
+   \if \State r\EndRow\NewRow   \else
+   \Error{The <row> command is only allowed inside a
+     <table>.}{The command was ignored.}\fi\fi }
+\def \FirstRow {\endgraf \ResetFont \SelectFont \let \State = r%
+  \setbox\TableBox = \hbox\bgroup \vbox\bgroup \offinterlineskip
+    \halign\bgroup \vrule ##\strut&&
+      \kern 6pt \hfil ##\unskip \hfil \kern 6pt \vrule \cr
+      \noalign{\hrule}}
+\def \NewRow {&}
+\def \EndRow {\cr \noalign{\hrule}}
+\def \LastRow {\if \State r\EndRow\PrintTable\fi}
+\def \PrintTable {\egroup\egroup\egroup
+  \AddVspace{6pt plus 2pt minus 1pt}
+  \centerline{\box\TableBox}%
+  \AddVspace{10pt plus 4pt minus 2pt}}
+\Cdef {col}{\if \State r&\else
+  \Error{The <col> command is only allowed after a <row>
+    inside a <table>.}{The command was ignored.}\fi}
+\newif \ifAuxOpen
+\Cdef {label}{\IfNextChar{[}%
+    {\begingroup \catcode`\< = 12 \NewLabel}%
+    {\Error{No label given;}%
+      {the syntax is <label>[your label].}}}
+\def \NewLabel [#1]{\endgroup
+  \ifAuxRead \else \ReadAuxFile \fi
+  \ifAuxOpen \else
+    \immediate\openout \NewAuxFile = \jobname.aux
+    \global\AuxOpentrue \fi
+  \expandafter\ifx \csname L]#1\endcsname \relax
+    \expandafter\edef \csname L]#1\endcsname{\the\inputlineno}%
+    {\let \the = 0\relax
+      \edef \WriteCurDef {\write \NewAuxFile
+        {\string\LabelDef
+          ]#1]\the\pageno]\CurDef E-o-LabelDef\string\relax}}%
+      \WriteCurDef }%
+  \else
+    \Error{Label `#1' already defined on line \csname L]#1\endcsname;}%
+      {this definition is ignored.}%
+  \fi }
+\newwrite \NewAuxFile
+\edef \CurDef {0}
+\def \ReadAuxFile {\IfFileExists{\jobname.aux}%
+    {\begingroup
+       \def \LabelDef {\begingroup
+          \catcode `\\ = 12\relax \FetchLabel }%
+       \catcode `\< = 12 \catcode `\\ = 0\relax
+       \input \jobname.aux
+       \global\AuxReadtrue
+     \endgroup }%
+    {\global\Reruntrue}}
+\def \FetchLabel ]#1]#2]#3E-o-LabelDef{%
+    \expandafter\gdef \csname R]#1\endcsname {#3}%
+    \expandafter\gdef \csname P]#1\endcsname {#2}%
+  \endgroup }
+\newif \ifAuxRead
+\newif \ifRerun
+\def \CheckAux {\immediate\closeout \NewAuxFile
+  \begingroup
+    \def \LabelDef {\begingroup
+        \catcode `\\ = 12 \relax  \CheckLabel }%
+    \catcode `\< = 12  \catcode `\\ = 0\relax
+    \input \jobname.aux
+  \endgroup }
+\def \CheckLabel ]#1]#2]#3E-o-LabelDef{%
+  \ifTextEqual{#2++#3}%
+    {\csname P]#1\endcsname++\csname R]#1\endcsname}%
+  \else
+    \global\Reruntrue
+  \fi \endgroup }
+\Cdef {ref}{\IfNextChar{[}%
+  {\begingroup \catcode `\< = 12 \relax \GiveRef }%
+  {\Error{No label referenced;}{the syntax is <ref>[your label].}}}
+\def \GiveRef [#1]{\ifAuxRead \else \ReadAuxFile \fi
+  \expandafter\ifx \csname R]#1\endcsname \relax
+    [label #1]%
+    \Error{Label `#1' not defined.}{}\global\Reruntrue
+  \else
+    \RefFormat{\csname R]#1\endcsname}{\csname P]#1\endcsname}%
+  \fi \endgroup }
+\def \RefFormat #1#2{#1\ifTextEqual{#2}{\the\pageno}\else
+    \space on page~#2\fi }
+{\catcode`\~ = 12 \Cdef {~}{\nobreak\ }}
+\Cdef {}{\null}
+\Cdef {-}{\-} \Cdef {--}{--} \Cdef {---}{---}
+\Cdef {``}{``} \Cdef {''}{''}
+\Cdef {tex}{\TeX} \Cdef {latex}{La\TeX} \Cdef {startex}{Star\TeX}
+\def \Error #1#2{%
+  \message{^^J** StarTeX error detected on line \the\inputlineno:^^J}%
+  \message{\space\space\space #1^^J}%
+  \ifTextEqual{#2}{}\else \message{\space\space\space #2^^J}\fi}
+\def \Warning #1#2{%
+  \message{^^J** StarTeX warning:^^J}%
+  \message{\space\space\space #1^^J}%
+  \ifTextEqual{#2}{}\else \message{\space\space\space #2^^J}\fi}
+\newlinechar = `^^J
+\Cdef {comment}{\NewEnvir{comment}{\begingroup}{\endgroup}%
+  \catcode `\< = 12 \SkipComment }
+{\catcode `\< = 12
+  \gdef \SkipComment #1</comment>{\EndEnvir{comment}}}
+\def \ifTextEqual #1#2{\edef \TmpA {#1}\edef \TmpB {#2}%
+  \ifx \TmpA\TmpB }
+\def \IfNextChar #1#2#3{\def \TestChar {#1}%
+  \def \AltA {#2}\def \AltB {#3}%
+  \futurelet \NextChar \TestNextChar }
+\def \TestNextChar {%
+  \if \NextChar \TestChar \let\Next=\AltA \else \let\Next=\AltB \fi
+  \Next }
+\def \IfNextCharTwo #1#2#3#4{\def \TestChar {#1}\def \TestCharX {#2}%
+  \def \AltA {#3}\def \AltB {#4}%
+  \futurelet \NextChar \TestNextCharTwo }
+\def \TestNextCharTwo {%
+  \if \NextChar \TestChar  \let \Next = \AltA \else
+  \if \NextChar \TestCharX \let \Next = \AltA \else
+    \let \Next = \AltB
+  \fi \fi
+  \Next }
+\def \floatdiv #1#2#3{\divtemp = #1\divide \divtemp by #3%
+  \divres = #2\multiply \divres by \divtemp
+  \multiply \divtemp by #3%
+  \divrem = #1\advance \divrem by -\divtemp
+  \divtemp = #2%
+  \loop
+    \multiply \divrem by 2  \divide \divtemp by 2
+  \ifnum \divtemp > 0
+    \ifnum \divrem < #3\else
+      \advance \divrem by -#3\advance \divres by \divtemp
+    \fi
+  \repeat }
+\newdimen \divrem   \newdimen \divres   \newdimen \divtemp
+\def \IfFileExists #1#2#3{\openin\TestFile = #1
+  \ifeof\TestFile \def \Next {#3}\else
+  \closein\TestFile \def \Next {#2}\fi
+  \Next }
+\newread \TestFile
+\Cdef {make-new-format}{\dump}
+\Cdef {trace-on}{\tracingcommands = 1 \tracingmacros = 1
+  \tracingrestores = 1 \tracingoutput = 1 \relax }
+\Cdef {trace-off}{\tracingcommands = 0 \tracingmacros = 0
+  \tracingrestores = 0 \tracingoutput = 0 \relax }
+\input startex.lan
+\ResetFont \SetSize{N}
+\endinput \SpecialCatCodes
+\endinput
+%%
+%% End of file `startex.tex'.

@@ -1,0 +1,180 @@
+%%
+%% This is file `hmonth.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% htmlstuf.dtx  (with options: `htmlmonth')
+%% This file is part of the Calendar package,
+%% Copyright (C) 1996, 1997 Frank Bennett, Jr.
+%% All rights reserved.
+%% ------------------------------------------
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% You are not allowed to change this file.  You may however copy
+%% this file to a file with a different name and then change the
+%% copy if (a) you do not charge for the modified code, (b) you
+%% acknowledge the author of this file in the new file, if it
+%% is distributed to others, and (c) you attach these same
+%% conditions to the new file.
+%% 
+%% You are not allowed to distribute this file alone.  You are not
+%% allowed to take money for the distribution or use of this file
+%% (or a changed version) except for a nominal charge for copying
+%% etc.
+%% 
+%% You are allowed to distribute this file under the condition that
+%% it is distributed with all of its contents, intact.
+%% 
+%% For error reports, or offers to help make this a more powerful,
+%% friendlier, and altogether more thrilling package, please contact me on
+%% fb@soas.ac.uk.  Better yet, make a contribution to
+%% my pension.  Account details available on request.
+%% ------------------------------------------
+%% 
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{hmonth}
+          [1998/01/17 18:15:02 3.1.1.1 HTML calendar (Frank Bennett)]
+\RequirePackage{calendar}
+\input calopts.cfg
+\InputIfFileExists{dates.cfg}{}{}
+\ProcessOptions
+\define@key{opt}{title}{%
+  \def\yrly@title{#1}}
+\define@key{opt}{labels}{%
+  \@storelabels#1,,{}}
+\define@key{opt}{firstday}{%
+  \yrly@firstday=#1}
+\define@key{opt}{outputfile}{%
+  \@ifundefined{html@outputfile}
+    {\newwrite\html@output
+     \gdef\html@outputfile{#1}%
+     \immediate\openout\html@output=\html@outputfile}
+    {\gdef\hm@temp{#1}%
+     \ifx\html@outputfile\hm@temp%
+       \relax%
+     \else%
+       \immediate\closeout\html@output%
+       \gdef\html@outputfile{#1}%
+       \immediate\openout\html@output=\html@outputfile\relax
+     \fi}}
+\def\yrly@title{\themonth}
+\newcount\yrly@firstday
+\yrly@firstday=3\relax
+\newtoks\yrly@tempreg@a
+\newcount\yrly@tempcount
+\def\@storelabels{%
+  \def\yrly@labeltext{}%
+  \@@storelabels}
+\def\@@storelabels#1,#2#{%
+  \ifcat$#1$%
+    \yrly@tempreg@a=\expandafter{\yrly@labeltext}%
+    \edef\yrly@labeltext{\the\yrly@tempreg@a}%
+    \let\next\@gobble%
+  \else%
+    \let\next\@@storelabels%
+    \yrly@tempreg@a=\expandafter{\yrly@labeltext}%
+    \protected@edef\yrly@labeltext{\the\yrly@tempreg@a\space#1}%
+  \fi%
+    \next#2{}}
+\newcount\thumbnails%
+\newtoks\hm@line@a%
+\def\hm@line{}
+\def\hm@writeout#1{%
+    \edef\hm@temp{#1}%
+    \immediate\write\html@output{\hm@line\hm@temp}%
+    \def\hm@line{}}
+\def\hm@spaces{\ifcase\hm@spacenum\or\space\or\space\space\or\space\space\space%
+  \or\space\space\space\space\fi}
+\newcount\hm@spacenum
+\newcalendar%
+ {htmlmonth}
+ {\el@output}
+ {\yrly@firstday}
+ {\dates@days}
+ {7}
+ {\hm@spaces}
+ {I}
+ {<pre><B>\themonth</B>^^J\yrly@labeltext^^J}%
+ {^^J^^J</pre>}
+ {\cal@footer%
+  \cal@header}
+ {^^J}
+ {}
+ {\global\dates@day=1%
+  \dates@fix%
+  \cal@range@start\dates@date%
+  \message{^^JStart: \theshortweekday\space%
+    \theday\space\theshortmonth\space\theyear}%
+  \global\dates@date\cal@range@end%
+  \caldate%
+  \global\dates@day\dates@days%
+  \dates@fix%
+  \cal@range@end\dates@date%
+  \message{^^JEnd: \theshortweekday\space%
+    \theday\space\theshortmonth\space\theyear}%
+  \global\dates@date=\cal@range@start%
+  \caldate%
+  \@ifundefined{yrly@labeltext}{%
+    \def\yrly@defaultlabels{}%
+    \yrly@tempcount=1%
+    \global\advance\dates@date by-\dates@weekd%
+    \global\advance\dates@date by\yrly@firstday%
+    \caldate%
+    \loop%
+      \yrly@tempreg@a=\expandafter{\yrly@defaultlabels}%
+      \edef\yrly@defaultlabels{\the\yrly@tempreg@a\theshortweekday,}%
+    \ifnum\yrly@tempcount<7%
+     \global\advance\dates@date by1%
+     \caldate%
+     \advance\yrly@tempcount by 1\relax%
+    \repeat%
+    \expandafter\@storelabels\yrly@defaultlabels,,{}%
+    \dates@date\cal@range@start%
+    \caldate}%
+    {}%
+  \def\el@output##1{%
+    \def\hm@temp{##1}%
+    \def\hm@temptwo{\cal@groupbreak}%
+    \ifx\hm@temp\hm@temptwo%
+      \hm@spacenum=4\relax%
+    \fi%
+    \ifnum\cal@subgroup@count>6\relax%
+      \hm@writeout{##1}%
+    \else%
+      \def\hm@temptwo{\cal@footer}%
+      \ifx\hm@temp\hm@temptwo%
+        \hm@writeout{##1}%
+      \else%
+        \hm@line@a=\expandafter{\hm@line}%
+        \edef\hm@line{\the\hm@line@a\hm@temp}%
+      \fi%
+    \fi}%
+  \hm@spacenum=4\relax}%
+  {}%
+  {\ifnum\dates@day<9\hm@spacenum=3\else\hm@spacenum=2\fi%
+   \cal@get@appointments\cal@get@events}%
+  {\protected@edef\cal@entry@text{X}}%
+  {\ifnum\dates@weekd=\yrly@firstday%
+     \hm@spaces%
+     \ifnum\theday=9%
+       \space\space%
+     \fi%
+   \else%
+     \ifnum\dates@day=1%
+       \space\hm@spaces%
+     \fi%
+   \fi%
+   \ifcat$\theappointments\theevents$%
+   \else%
+     <A HREF="\expandafter\@gobble\string\#\the\dates@date">%
+   \fi%
+   \theday%
+   \ifcat$\theappointments\theevents$%
+   \else%
+     </A>%
+   \fi}
+\endinput
+%%
+%% End of file `hmonth.sty'.

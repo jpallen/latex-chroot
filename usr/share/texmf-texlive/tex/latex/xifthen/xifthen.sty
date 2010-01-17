@@ -1,0 +1,118 @@
+\def \@tempa $#1 #2 #3 #4 #5 #6 #7 ${%
+  \def \filedate    {#4}%
+  \def \fileversion {v#3}%
+}
+\@tempa $Id: xifthen.sty,v 1.1.1.1 2006/03/25 01:24:34 noirel Exp $
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{xifthen}%
+  [\filedate \space \fileversion \space Extended ifthen features]
+
+\RequirePackage{etex}
+\RequirePackage{calc}
+\RequirePackage{ifthen}
+\RequirePackage{ifmtarg}
+
+\newcommand*{\TE@cnttest}[4]{%
+  \TE@throw
+  \noexpand \calc@assign@count{\@tempcnta}{\unexpanded{#1}}%
+  \noexpand \calc@assign@count{\@tempcntb}{\unexpanded{#3}}%
+  \noexpand \ifnum \@tempcnta#2\@tempcntb
+  #4%
+}
+
+\newcommand*{\TE@dimtest}[4]{%
+  \TE@throw
+  \noexpand \calc@assign@skip{\@tempskipa}{\unexpanded{#1}}%
+  \noexpand \calc@assign@skip{\@tempskipb}{\unexpanded{#3}}%
+  \noexpand \ifdim \@tempskipa#2\@tempskipb
+  #4%
+}
+
+\newcommand*{\TE@isnamedefined}[2]{%
+  \TE@throw
+  \noexpand \ifcsname #1\endcsname
+  #2%
+}
+
+\newcommand*{\TE@isempty}[2]{%
+  \TE@throw
+  \noexpand \if FF\noexpand \@nameuse{fi}%
+  \noexpand \@ifmtarg{\unexpanded{#1}}{%
+    \noexpand \@nameuse{iftrue}%
+  }{%
+    \noexpand \@nameuse{iffalse}%
+  }%
+  #2%
+}
+
+\newcommand*{\TE@isequivalentto}[3]{%
+  \TE@throw
+  \noexpand \ifx \noexpand #1\noexpand#2%
+  #3%
+}
+
+\newcommand*{\newtest}[1]{%
+  \@ifnextchar[{%
+    \@newtest{#1}%
+  }{%
+    \@newtest{#1}[0]%
+  }%
+}%
+
+\newcommand*{\@newtest}{}
+\def \@newtest #1[#2]#3{%
+  \toks@ = {\(#3\)}%
+  \TE@repl \or  \TE@or
+  \TE@repl \and \TE@and
+  \TE@repl \not \TE@neg
+  \TE@repl \OR  \TE@or
+  \TE@repl \AND \TE@and
+  \TE@repl \NOT \TE@neg
+  \edef \@tempa {%
+    \unexpanded{\newcommand*{#1}[{#2}]}{\the \toks@}%
+  }%
+  \@tempa
+}%
+
+\newcommand*{\TE@hook}{%
+  \let \isequivalentto = \TE@isequivalentto
+  \let \isnamedefined = \TE@isnamedefined
+  \let \isempty = \TE@isempty
+  \let \cnttest = \TE@cnttest
+  \let \dimtest = \TE@dimtest
+}
+
+\renewcommand{\ifthenelse}[1]{%
+  \toks@{#1}%
+  \TE@repl \or  \TE@or
+  \TE@repl \and \TE@and
+  \TE@repl \not \TE@neg
+  \TE@repl \OR  \TE@or
+  \TE@repl \AND \TE@and
+  \TE@repl \NOT \TE@neg
+  \begingroup
+    \let \protect = \@unexpandable@protect
+    \def \@setref ##1##2##3{\ifx ##1\relax \z@ \else \expandafter ##2##1\fi}%
+    \def \value ##1{\the \csname c@##1\endcsname}%
+    \let \equal = \TE@equal
+    \let \( = \TE@lparen
+    \let \) = \TE@rparen
+    \let \isodd = \TE@odd
+    \let \lengthtest = \TE@length
+    \let \isundefined = \TE@undef
+    \TE@hook
+    \begingroup
+      \let \@tempa = \relax
+      \let \@tempb = \relax
+      \xdef \@gtempa {\expandafter \TE@eval \the \toks@ \TE@endeval}%
+    \endgroup
+    \@gtempa
+    \expandafter \endgroup
+  \ifTE@val
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+  \fi
+}
+
+\endinput

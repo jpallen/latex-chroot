@@ -1,0 +1,309 @@
+% timing.sty:   Ludwig May/Jens Leilich  10.12.91 
+% 
+% Dieses Style-File erleichtert den Umgang mit dem Timing-Font. 
+% 
+% Es stellt Kommandos zur Positionierung von einzelnen Elementen 
+% eines Timing-Diagramms in einer picture-Umgebung zur Verfuegung. 
+% 
+% 
+% Folgende Kommandos sind verfuegbar: 
+% 
+% Erweiterte picture-Umgebung 
+%   \begin{timing}[Zeichensatz]{Randgroesse}         
+%   \end{timing} 
+%   Zeichensatz ist 1,2,1s,2s. Die Zahl gibt die Breite an,
+%   s bedeutet schr„ge Flanken. 2 ist default.
+%
+% Zeile mit Timingdiagramm 
+%	\til{y-pos}{Zeichenkette}
+% 
+% Label fuer Zeile 
+%	\tin{y-pos}{Zeichenkette} 
+% 
+% Bemerkung     
+%	\tnote{y-pos}{x-pos}{Zeichenkette}
+% 
+% Pfeil nach rechts zeigend 
+%	\rarw{y-pos}{x-pos}{laenge}{Zeichenkette} 
+% 
+% Pfeil nach links zeigend 
+%	\larw{y-pos}{x-pos}{laenge}{Zeichenkette} 
+% 
+% Senkrechte Linie 
+%	\sline{y1-pos}{x-pos}{y2-pos} 
+% 
+% Zeitmarken als Argument fuer \til 
+%	\timingcounter{Markenabstand}{Startwert}{Endwert}{Intervall}
+% Zeitmarken als Argument fuer \til nach Unterbrechung 
+%	\conttimingcounter{Markenabstand}{Startwert}{Endwert}{Intervall}
+%
+%
+% Abstandsfaktor fuer einzelne Zeilen
+%	\timescalefactor
+%
+% Evtl. n”tige Anpassung fuer Ausrichtung senkrechter Linien
+%	\timadjust
+%
+%
+% Dieses Style-File und der dazugehoerige Zeichensatz wurde erstellt,
+% um moeglichst einfach ein paar Timingdiagramme in meine Studienarbeit
+% integrieren zu koennen. Da es in der vorliegenden Form meine 
+% Erwartungen vollstaendig erfuellt hat, haben ich aus Zeitgruenden keine 
+% grosse Ueberarbeitung durchgefuehrt. Vielleicht kann das jemand uebernehmen,
+% der von der ganzen Materie mehr Ahnung hat. Ein Problem ist z.B. die 
+% ungenaue horizontale Ausrichtung der senkrechten Linien (ist irgendwie
+% Druckertreiber abhaengig, evtl. MAX_DRIFT des Treibers auf 0 setzen).
+% Da aber grosses Interesse an dem Style besteht, haben ich ihn mal in 
+% Umlauf gegeben. Wenn jemand Verbesserungen durchfuehrt, waeren ich an 
+% einer Rueckmeldung an folgende Adresse dankbar:
+%
+%            Ludwig May
+%            Friedrichstrasse 23b
+%            6100 Darmstadt
+%
+% Bitte keine Fragen stellen, ich habe fuer eine weitere Unterstuetzung 
+% weder Zeit noch ausreichend Gelegenheit.
+%
+% Ludwig May
+%
+% Ich habe Font und Style weiterentwickelt zu Lehrzwecken, da ich
+% Elektrotechnik an BBS unterrichte.
+% Verbesserungsvorschl„ge und Lob ;-) k”nnen auch an mich gerichtet
+% werden.
+% Jens Leilich, C/O BBS Technik I, Franz-Zang-Str. 3--7, 67059 Ludwigshafen
+% Jens_Leilich @ lu.maus.de
+%
+\typeout{Timing Style, Ludwig May <Dec 1991> Jens Leilich <May 1994>.}
+%
+%
+% Alle benoetigten Counter, Dimensionen und Boxen definieren 
+%
+%
+\newfont{\timon}{timing1 scaled 1000}
+\newfont{\timtw}{timing2 scaled 1000}
+\newfont{\timons}{timing1s scaled 1000}
+\newfont{\timtws}{timing2s scaled 1000}
+\newfont{\timbs}{cmr5 scaled 1000}
+\newcount\counttime
+\newdimen\timetmpdim
+\newdimen\timehdrdim
+\newcount\timetmpcnt
+\newcount\timearwcnt
+\newdimen\timeskipdim
+\newdimen\timewidthdim
+\newbox\timebox
+\def\timescalefactor{2}
+\def\timadjust{0.0pt}
+%
+%
+% Neue Umgebung definieren
+%
+%
+\def\timing{\@ifnextchar [{\@@timing}{\@@timing[2]}}
+
+\def\@@timing[#1]#2%
+{
+\expandafter\def\csname tim@@1\endcsname{\let\tim\timon}
+\expandafter\def\csname tim@@2\endcsname{\let\tim\timtw}
+\expandafter\def\csname tim@@1s\endcsname{\let\tim\timons}
+\expandafter\def\csname tim@@2s\endcsname{\let\tim\timtws}
+\def\tim{%
+  \typeout{Timing font `#1' not defined, assumed 2. Use 1,2,1s,2s only!}
+  \timtw \let\tim\timtw}
+\csname tim@@#1\endcsname
+\tim
+\timehdrdim=#2
+\advance\timehdrdim by 1em
+%
+%
+% Lokale Befehle definieren
+%
+%
+%
+% Hilfroutine zum Zeichen von Pfeilen variabler Laenge 
+%
+%
+\newcommand{\timatail}[1]{ \mbox{ \tim 
+  \counttime=2
+  \ifnum##1>1
+    \loop
+      a%
+      \ifnum\counttime<##1 \advance\counttime by 1
+    \repeat
+  \fi
+}}
+%
+%
+% Hilfroutine zum Zeichen der Zeitmarkierung
+%
+%
+\newcommand{\lb}[2]{{\tim\makebox[##1em][c]{\timbs##2}}}
+%
+%
+% \timingcounter 
+%
+%
+\newcommand{\timingcounter}[4]{ \mbox{ \tim 
+  \counttime=##1\divide\counttime by -2
+  \hskip\counttime em 
+  \hskip -1em
+  \counttime=##2
+  \loop
+    \lb{##1}{\number\counttime}
+    \ifnum\counttime<##3 \advance\counttime by ##4
+  \repeat
+}}
+%
+%
+% \conttimingcounter
+% 
+%
+\newcommand{\conttimingcounter}[4]{ \mbox{ \tim 
+  \hskip 0.5em 
+  \counttime=##2
+  \loop
+    \lb{##1}{\number\counttime}
+    \ifnum\counttime<##3 \advance\counttime by ##4
+  \repeat
+}}
+%
+%
+% \til
+% 
+%
+\newcommand{\til}[2]{
+\tim
+\timetmpdim=##1ex
+\timetmpdim=\timescalefactor\timetmpdim
+%
+% Maximale y-Groesse festhalten
+%
+\ifdim\timetmpdim>\timeskipdim
+  \global\timeskipdim=\timetmpdim
+\fi
+\timetmpcnt=\timetmpdim
+\timetmpdim=\timehdrdim
+\advance\timetmpdim by -\timadjust
+\timearwcnt=\timetmpdim
+\setbox\timebox=\hbox{##2}
+%
+% Maximale x-Groesse festhalten
+%
+\ifdim\wd\timebox>\timewidthdim
+  \global\timewidthdim=\wd\timebox
+\fi
+\put(\timearwcnt,-\timetmpcnt){\tim\makebox(0,0)[l]{\box\timebox}}
+%\put(\timearwcnt,-\timetmpcnt){\tim\makebox(0,0)[l]{##2}}
+}
+%
+%
+% \tin
+% 
+%
+\newcommand{\tin}[2]{
+\tim
+\timetmpdim=##1ex
+\timetmpdim=\timescalefactor\timetmpdim
+\timetmpcnt=\timetmpdim
+\put(0,-\timetmpcnt){\makebox(0,0)[lb]{\rm##2}}
+}
+%
+%
+% \tnote
+% 
+%
+\newcommand{\tnote}[3]{
+\tim
+\timetmpdim=##1ex
+\advance\timetmpdim by -0.3pt
+\timetmpdim=\timescalefactor\timetmpdim
+\timetmpcnt=\timetmpdim
+\timetmpdim=##2em
+\advance\timetmpdim by \timehdrdim
+\advance\timetmpdim by -1em
+\timearwcnt=\timetmpdim
+\put(\timearwcnt,-\timetmpcnt){\tim\makebox(0,0)[l]{\scriptsize\sf##3}}
+}
+%
+%
+% \larw
+% 
+%
+\newcommand{\larw}[4]{
+\tim
+\timetmpdim=##1ex
+\timetmpdim=\timescalefactor\timetmpdim
+\timetmpcnt=\timetmpdim
+\timetmpdim=##2em
+\advance\timetmpdim by \timehdrdim
+\timearwcnt=\timetmpdim
+\put(\timearwcnt,-\timetmpcnt)%
+   {\makebox(0,0)[l]{\tiny\vbox{\tim\hbox{\hskip-1em\hbox to ##3em{\hss\timbs\strut##4\hfil}}\nointerlineskip\vskip-4pt\hbox{A\timatail{##3}}}}}
+}
+%
+%
+% \rarw
+% 
+%
+\newcommand{\rarw}[4]{
+\tim
+\timetmpdim=##1ex
+\timetmpdim=\timescalefactor\timetmpdim
+\timetmpcnt=\timetmpdim
+\timetmpdim=##2em
+\advance\timetmpdim by \timehdrdim
+\timearwcnt=\timetmpdim
+\put(\timearwcnt,-\timetmpcnt)%
+   {\makebox(0,0)[l]{\tiny\vbox{\tim\hbox{\hskip-1em\hbox to ##3em{\hfil\timbs\strut##4\hss}}\nointerlineskip\vskip-4pt\hbox{\timatail{##3}P}}}}
+}
+%
+%
+% \sline
+% 
+%
+\newcommand{\sline}[3]{
+\tim
+\timetmpdim=##1ex
+\timetmpdim=\timescalefactor\timetmpdim
+\timetmpcnt=\timetmpdim
+\timetmpdim=##2em
+\advance\timetmpdim by \timehdrdim
+\advance\timetmpdim by -1em
+\timearwcnt=\timetmpdim
+\timetmpdim=##3ex
+\advance \timetmpdim by -##1ex
+\advance \timetmpdim by 0.09ex
+\timetmpdim=\timescalefactor\timetmpdim
+\counttime=\timetmpdim
+\put(\timearwcnt,-\timetmpcnt)%
+    {\line(0,-1){\counttime}}
+}
+%
+%
+% Weitere Initialisierung
+% 
+%
+\timeskipdim=0pt
+\timewidthdim=0pt
+\unitlength 1sp
+\begin{picture}(0,0)
+\linethickness{0.4pt}
+}%
+%
+%
+% Ende der Umgebung definieren
+%
+%
+\def\endtiming{
+\global\advance\timeskipdim by 15pt
+\end{picture}
+%
+% Da picture(0,0) definiert wurde, wird jetzt die wirkliche Groesse durch
+% ein \rule freigehalten.
+%
+\timeskipdim=1.0\timeskipdim
+\timewidthdim=1.0\timewidthdim
+\advance\timewidthdim by \timehdrdim
+\rule{\timewidthdim}{0pt}
+\rule[-\timeskipdim]{0pt}{\timeskipdim}
+}

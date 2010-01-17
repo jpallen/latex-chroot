@@ -1,0 +1,532 @@
+% dialogl.sty 2-Nov-1994
+% Customizations for the articles codialog.tex, dia-driv.tex,
+% lis-driv.tex.
+%
+%    Here is the main problem. I want to allow users to print out this
+%    document on US letter-size paper (8.5x11 inches) or on A4 paper
+%    (210x297 mm). And in order to fit maximum text on minimum paper
+%    (save the trees) I want to print with small margins and
+%    two-column layout (or even three-column, in the case of landscape
+%    printing, if that were feasible; but I don't want to assume that
+%    the user has Frank's multicol package). But the verbatim examples
+%    in the document consist in many cases of lines from TeX screen
+%    output, which can be up to 79 characters in length. It is
+%    difficult to give two columns wide enough to accommodate
+%    80-character lines printed in cmtt unless the size is cut down
+%    very small. Then we encounter the difficulty that the
+%    lowest-common-denominator set of TeX fonts includes cmtt10,
+%    cmtt9, cmtt8, but not cmtt7 or any smaller sizes of cmtt. Well,
+%    perhaps that's just as well since things start to get a little
+%    hard to read anyway once you get down that small.
+%
+%    But anyway there it is: How to fit two columns of text, each of
+%    minimum width approximately 80 cmtt characters, into the
+%    rectangles provided by US letter paper and A4 paper, while trying
+%    to keep a decent line length for readability in the neighborhood
+%    of two or three alphabets.
+%
+%    It seems that one part of the answer is to print the 80-character
+%    verbatim lines in a smaller point size than the main text.
+
+% 8.5in = 614.295pt.
+% 11in = 794.96999pt.
+% 210mm = 597.50787pt.
+% 297mm = 845.04684pt.
+
+% 80 characters, cmtt10: 419.99634pt.
+% 80 characters, cmtt8: 340.00488pt.
+% 76 characters, cmtt8: 323.00464pt.
+% 70 characters, cmtt8: 297.50427pt.
+
+%    Assume that minimum margins all around are 22pt, approx 8mm /
+%    0.3in. And that desired gutter margin between columns is 6pt.
+%    Then subtract 50pt from paper width and divide by 2 to get
+%    available column width: 210mm 274pt, 8.5in 282pt, 11in 372pt,
+%    297mm 397pt.
+%
+%    Standard \headheight, \headsep are 12pt, 25pt. So next we look for
+%    minimum bounding rectangle for landscape, two-column printing:
+%    textheight limited by A4 short dimension = 210mm = 598pt.
+%    Subtract 44pt for margins, then another 37pt for running head,
+%    that leaves textheight of 517pt.
+%
+%    Similarly for textwidth: Limited by the 11in long dimension of US
+%    letter size paper; subtract 50pt for margins and gutter, that
+%    leaves 745pt, or 372pt per column.
+
+\newcommand{\notthatsloppy}{\tolerance9999 \pretolerance3333
+  \hbadness\tolerance
+%    The tolerance settings will eliminate most hyphenation unless we
+%    ameliorate the hyphen penalties.
+  \hyphenpenalty-100 \exhyphenpenalty-150
+  \emergencystretch 3pc }
+
+%    But then we'd better patch \raggedright up a litt.e
+\toks@\expandafter{\raggedright \hyphenpenalty100 \exhyphenpenalty150 }
+\edef\raggedright{\the\toks@}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{headings}
+\let\sectionmark\@gobble
+\def\@oddhead{\hfil{\small\rhtitle}\hfil\thepage}
+\let\@evenhead\@oddhead
+\def\title#1{\gdef\@title{#1}\uppercase{\gdef\rhtitle{#1}}}
+
+%    Default layout is twocolumn, landscape, squeeze inside A4/US
+%    constraints
+\def\defaultlayout{%
+%    \hoffset and \voffset are assumed to be -1in (see below)
+%    210mm is A4 width, 11in is US-letter paper height
+  \textwidth11in \textheight210mm
+  \oddsidemargin30pt \evensidemargin\oddsidemargin
+  \advance\textwidth -2\oddsidemargin
+  \topmargin25pt
+  \advance\textheight-2\topmargin
+  \advance\textheight-\headheight \advance\textheight -\headsep
+  \let\Huge\large \let\huge\large \let\LARGE\large \let\Large\large
+%  \scaleup \normalsize
+  \@twocolumntrue
+}
+
+%    Twocolumn, portrait, squeeze inside A4/US
+%    constraints
+\def\portraitlayout{%
+%    \hoffset and \voffset are assumed to be -1in (see below)
+%    210mm is A4 width, 11in is US-letter paper height
+  \textheight11in \textwidth210mm
+  \oddsidemargin30pt \evensidemargin\oddsidemargin
+  \advance\textwidth -2\oddsidemargin
+  \topmargin25pt
+  \advance\textheight-2\topmargin
+  \advance\textheight-\headheight \advance\textheight -\headsep
+  \let\Huge\large \let\huge\large \let\LARGE\large \let\Large\large
+%  \scaleup \normalsize
+  \@twocolumntrue
+  \def\vffont{\footnotesize\tt}%
+  \def\verbatimfont{\small\tt}%
+}
+
+%    If the multicol package is loaded (via the doc package) we want to
+%    use that instead of the standard twocolumn option.
+\def\multicoldefaultlayout{\defaultlayout\@twocolumnfalse}
+\def\multicolportraitlayout{\portraitlayout\@twocolumnfalse}
+
+%    Cancel the margins normally supplied by DVI drivers:
+\hoffset-1in \voffset-1in
+
+%    Set \hfuzz higher than normal in preference to dealing with
+%    insoluble hyphenation/line-breaking problems.
+\hfuzz20pt
+
+%    Set sloppiness of paragraphs very high because of the narrow
+%    column width and the frequency of difficult to break terms, but
+%    not so carelessly high as LaTeX's \sloppy command would give.
+\notthatsloppy
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\scaleup{%
+  \let\tiny\scriptsize \let\scriptsize\footnotesize
+  \let\footnotesize\small \let\small\normalsize
+  \let\normalsize\large \let\large\Large
+}
+
+\def\scaledown{%
+  \let\Huge\large \let\huge\large
+  \let\LARGE\large \let\Large\normalsize
+  \let\large\normalsize \let\normalsize\small
+  \let\small\footnotesize \let\footnotesize\scriptsize
+  \let\scriptsize\tiny
+}
+%
+%    Add protection built-in for \TeX and others
+\newcommand{\ams}{{\the\textfont2 A\kern-.1667em%
+   \lower.5ex\hbox{M}\kern-.125emS\kern.05em}}
+\def\tex/{\protect\TeX\@}
+\def\amstex/{\protect\ams-\tex/}
+\def\latex/{\protect\LaTeX\@}
+\def\plaintex/{{\sc plain}\thinspace\tex/}
+\def\eplain/{{\sc Eplain}}
+\def\texbook/{{\it The \tex/book}}
+\def\tugboat/{{\it TUGboat}}
+\def\return/{{\sc return}}
+\def\mf/{{\sf METAFONT\@}}
+\def\mfbook/{{\it The \mf/book}}
+\def\ascii/{{\sc ascii}}
+
+\newcommand{\ndash}{--}
+\newcommand{\mdash}{---}
+\newcommand{\btext}{\mbox}
+
+\newcommand{\5}{\penalty500 }
+\newcommand{\underscore}{{\ntt\string _}}
+
+%    Define some ltugboat.sty commands
+\let\Dash\mdash
+\let\dash\ndash
+\def\TB{\texbook/}
+\def\TUB{{\sl TUGboat\/}}
+\def\TeXhax{{\ntt TeXhax}}
+
+\@ifundefined{selectfont}{%
+  \def\normalfont{}%
+}{%
+  \@ifundefined{default@family}{%
+    \@ifundefined{normalfont}{%
+      \def\normalfont{}% ?? don't think this case can ever happen.
+    }{}%
+  }{%
+    \def\normalfont{\fontfamily\default@family
+      \fontseries\default@series \fontshape\default@shape \selectfont}%
+  }%
+}
+
+%    Maybe I should now change instances of \normalshape to \upshape.
+%    But this is what was used before.
+\@ifundefined{normalshape}{%
+  \@ifundefined{upshape}{%
+    \newcommand{\normalshape}{\rm}%
+  }{%
+    \newcommand{\normalshape}{\upshape}%
+  }%
+}{}
+
+\def\ntt{\protect\normalfont\protect\tt}
+
+%    Function called at the beginning of \cw etc. to allow line
+%    breaks if several such objects occur contiguously.
+\newcommand{\prebreak}{\leavevmode\ifmmode\hbox\else
+  \ifdim\lastskip=\z@\penalty9999 \fi\fi}
+
+%    The \ifhmode test here is primarily to guard against math mode,
+%    where an attempt to set \spacefactor would cause a TeX error.
+\newcommand{\postx}{\ifhmode\@\fi}
+
+%    Control word
+\newcommand{\cw}[1]{\protect\prebreak{\ntt\bslash#1\protect\postx}}
+%    Control symbol
+\newcommand{\cs}[1]{\protect\prebreak{\ntt\string#1}\protect\postx}
+\chardef\bslash=`\\
+
+%    Quoted character
+\newcommand{\qc}[1]{%
+  \protect\prebreak{\ntt\escapechar-1 \string#1}\protect\postx}
+%    Control character
+\newcommand{\ctrl}[1]{%
+  \protect\prebreak{\ntt\string ^\string ^#1}\protect\postx}
+%    Argument marker. Apply \string to #1 just in case it might be #
+%    instead of a number 1--9.
+\renewcommand{\arg}[1]{%
+  \protect\prebreak{\ntt\string ##\string#1}\protect\postx}
+\let\qarg\arg
+%    File name.
+\newcommand{\fn}[1]{\leavevmode{\ntt#1}\protect\postx}
+\let\pkg\fn
+%    Verbatim version of \ldots.
+\newcommand\verbdots{\leavevmode{\ntt...}\protect\postx}
+
+\newcommand{\units}[1]{\thinspace#1}
+
+% For `meta' angle bracket notation.
+\newcommand\m[1]{{\protect\the\textfont2 h{\it#1}i}}
+% For definitions of terminology.
+\newcommand{\term}[1]{\leavevmode{\it#1}}
+
+\def\eg.{e.g.\@}
+\def\ie.{i.e.\@}
+
+%\def\mjd#1{\errhelp{#1}\errmessage{\the\errhelp}}
+\def\mjd#1{}
+
+%    ^^V at the beginning of a line serves as a substitute for
+%    \begin{verbatim} ... \end{verbatim} in this documentation. Partly
+%    done as an exercise to see if it was feasible; originally
+%    motivated by the way I had converted comments in non-doc form to
+%    doc form.
+\catcode`\^^V\active % for verbatim
+\def ^^V{\Vbtm}
+
+\def\activedef#1{\catcode`#1\active
+  \begingroup\lccode`\~=`#1\lowercase{\endgroup \def ~}}
+
+\def\Vbtmsetup{\let\do\@makeother
+%    Abandon \dospecials since it's too hard to make sure that it
+%    includes things like @, |, +.
+  \do\`\do\~\do\!\do\@\do\#\do\$\do\%\do\^\do\&\do\*\do\(\do\)\do\-%
+  \do\_\do\=\do +\do\\\do\|\do\[\do\{\do\]\do\}\do\;\do\:\do\'\do\"%
+  \do\,\do\<\do\.\do\>\do\/\do\?\do\ \do\^^M\do\^^I\do\^^J\do\^^L%
+  \activedef\ {\kern.5em}%
+  \activedef\'{\char`\'\kern\z@}%
+  \Vbtmfont \frenchspacing
+}
+%
+\def\Vbtm{\par
+  \begingroup \Vbtmsetup
+  \activedef\^^M{\catcode`\%9 \catcode`\^7
+    \futurelet\next\moreVbtm}%
+  \def\VbtmVbtm{\Vbtm}% for comparison with active ^^V.
+  \def\moreVbtm{%
+    \ifx\next \VbtmVbtm
+      \def\next{\egroup\penalty9999 }%
+    \else
+      \def\next{\egroup\endgroup \futurelet\next\endVbtm}%
+    \fi \next}%
+%    Locally change \Vbtm to omit the above setup and just process a
+%    single line.
+  \def\Vbtm{\hbox\bgroup}%
+  \Vbtmspace \Vbtmextra \Vbtm}
+%
+\def\endVbtm{%
+  \begingroup
+%    If the next token is a \par token, gobble it with \let.
+  \ifx\next\par \aftergroup\let \aftergroup\next \fi
+  \Vbtmspace \everypar{}\parskip0pt \noindent\endgroup
+}%
+
+\def\Vbtmfont{\verbatimfont}
+%
+\def\Vbtmspace{\medskip}
+\def\Vbtmextra{}
+%
+%    Define a `usage' environment to draw a box around its contents,
+%    for examples illustrating the usage of salient functions.
+\def\usage{\par \begingroup \Vbtmsetup \normalsize\tt
+%    Requires definition of \meta from doc.sty:
+  \activedef\<##1>{\meta{##1}}%
+  \activedef\^^M{\catcode`\%9\catcode`\\\z@ \catcode`\{11 \catcode`\}11
+    \futurelet\next\moreusage}%
+  \if@inlabel\leavevmode\fi \ifhmode\unskip \par\fi
+  \addvspace\medskipamount
+  \global\setbox\@ne\vbox\bgroup \everypar{}%
+    \bgroup}
+%
+\expandafter\def\expandafter\moreusage\expandafter{%
+  \expandafter\ifx\csname end{usage}\endcsname\next
+    \egroup\egroup
+    \fboxsep1.7pt \noindent\fbox{\box\@ne}%
+    \endgroup
+  \else
+    \egroup
+    \hbox\bgroup\expandafter\string
+  \fi}%
+%
+\expandafter\def\csname end{usage}\endcsname{\end{usage}}
+\def\endusage{\par\nobreak\vskip\medskipamount
+%    Since \endusage is called via \end, which adds an \endgroup, we
+%    need to throw these two items beyond the \endgroup in order for
+%    their local assignments not to be lost (\if@afterindent,
+%    \everypar):
+  \aftergroup\@afterindentfalse
+  \aftergroup\@afterheading}
+
+\def\verbatimfont{\tt}
+\def\vffont{\small\tt}
+
+%    Change verbatim environment to use \verbatimfont.
+
+\def\@verbatim{\trivlist \item[]\if@minipage\else\vskip\parskip\fi
+  \leftskip\@totalleftmargin\rightskip\z@
+  \parindent\z@\parfillskip\z@ plus\columnwidth minus\columnwidth
+  \parskip\z@skip
+  \@@par
+  \@tempswafalse \def\par{\if@tempswa\hbox{}\fi\@tempswatrue\@@par
+  \penalty\interlinepenalty}%
+  \obeylines
+  \linepenalty\@M
+  \verbatimfont \normalbaselineskip1.1em\relax \normalbaselines
+  \catcode``=13 \@noligs \let\do\@makeother \dospecials}
+
+%    Define a verbatim input command for printing example files.
+\def\verbatiminput#1{\begingroup
+  \@verbatim \frenchspacing\@vobeyspaces
+  \exhyphenpenalty\@M \hyphenpenalty\@M
+%    Turn \hfuzz up high; if some lines in the file are a little long,
+%    we don't want to hear about it.
+  \hfuzz 5em\relax \vffont
+  \input{#1}%
+  \endverbatim
+ \endgroup}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    Misc.
+\setcounter{secnumdepth}{2}
+\newcommand{\secref}[1]{\S\ref{#1}}
+\renewcommand{\thetable}{\Alph{table}}
+
+%    Change \l@section so we can allow wider room for `Appendix A' in
+%    the appendix section of the table of contents.
+\renewcommand{\l@section}[2]{%
+  \ifnum\c@tocdepth>\z@
+    \addpenalty{\@secpenalty}\addvspace{1.0emplus\p@}%
+    \setlength\@tempdima{\tocsecwd}\begingroup \parindent\z@
+    \rightskip\@pnumwidth \parfillskip-\@pnumwidth \leavevmode \bf
+    \advance\leftskip\@tempdima \hskip-\leftskip #1\nobreak \hfil\nobreak
+    \hbox to\@pnumwidth{\hss#2}\par \endgroup
+  \fi}
+\def\tocsecwd{1.5em}
+
+\toks@\expandafter{\appendix
+  \addtocontents{toc}{\protect\changesecwd{6.5em}}}
+\edef\appendix{\the\toks@}
+\def\changesecwd{\gdef\tocsecwd}
+
+\def\resetleftmargin#1{\dimen@\@totalleftmargin
+  \linewidth\columnwidth \advance\linewidth-\@totalleftmargin
+  \edef\@tempa{\parshape2 \the\dimen@\space \the\linewidth\space}%
+  \@totalleftmargin#1\relax
+  \linewidth\columnwidth \advance\linewidth-\@totalleftmargin
+  \@tempa \@totalleftmargin\linewidth \relax}
+
+%    For raggedright parbox in tabular.
+\newcommand{\rp}{\let\PBS\\\raggedright\let\\\PBS}
+
+%    \readnumber reads a number into #1, default #2.
+\def\readnumber#1#2{\begingroup
+  \def\do##1##2{\catcode\fam=##2 \ifnum\fam<##1 \advance\fam 1
+    \expandafter\do \else\expandafter\@gobbletwo\fi{##1}{##2}}%
+  \fam=0 \do{255}{9}\fam=`\0\relax \do{`\9}{12}%
+  \global\read-1 to#1\endgroup
+  \ifx#1\@empty\gdef#1{#2}\fi
+}
+
+\def\thebibliography#1{%
+  \section*{References}%
+  \small
+  \list{\@biblabel{\arabic{enumiv}}}{%
+    \settowidth\labelwidth{\@biblabel{#1}}
+    \leftmargin2em
+    \usecounter{enumiv}\let\p@enumiv\@empty
+    \renewcommand\theenumiv{\arabic{enumiv}}}%
+  \sloppy
+  \clubpenalty4000\widowpenalty4000\sfcode`\.=\@m} 
+
+%    \writepage{Example} or \writepage{Table}
+\newcommand{\writepage}[1]{%
+  \edef\temp{\write16{#1 \@currentlabel: Page \noexpand\thepage}}%
+  \temp
+}
+
+%    \reqspace{2in} means start a new page if the current page does not
+%    have at least 2in of space available
+\newcommand{\reqspace}[1]{\vskip#1plus.2\textheight
+  \penalty0\vskip-#1plus-.2\textheight\penalty0 }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Use {example}'s instead of {figure}'s.
+\let\example\figure
+\let\endexample\endfigure
+\expandafter\let\csname example*\expandafter\endcsname
+                \csname figure*\endcsname
+\expandafter\let\csname endexample*\expandafter\endcsname
+                \csname endfigure*\endcsname
+\@namedef{fnum@figure}{Example \thefigure}
+
+\def\theexample{\thefigure}
+
+\newenvironment{examplebox}%
+{% Can't use LaTeX \framebox because of embedded verbatim; can't
+%% embed this inside definition of \example without too much work.
+  \vbox\bgroup\hrule
+    \hbox to\hsize\bgroup\vrule \hfil
+      \vbox\bgroup\advance\hsize-2em
+}{%
+  \endgraf
+  \kern3pt\egroup\hfil\vrule\egroup\hrule\egroup % finish off the frame
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    Ordinary \DocInput doesn't handle standardized file headers
+%    unless you enclose them in \iffalse ... \fi which I don't care to
+%    do. So instead here's an alternate version of \DocInput, called
+%    \hDocInput.
+
+\def\hDocInput#1{\MakePercentIgnore
+  \begingroup \begingroup \lccode`\~=`\@
+  \lowercase{\endgroup\long\def ~}##1##{%
+    \catcode`\==12 \skipfileheader{##1}}%
+  \catcode`\@=\active \catcode`\==14 % comment
+  \@@input#1 \MakePercentComment}
+
+\def\skipfileheader#1#2 {\endgroup
+  \begingroup\catcode`\==9 \catcode`\ =9 \futurelet\0\endgroup
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    Loosen up the float placement restrictions.
+\def\textfraction{0.02}
+\def\bottomfraction{0.98}
+\def\topfraction{0.98}
+\let\dbltopfraction=\topfraction
+\def\floatpagefraction{0.8}
+\let\dblfloatpagefraction=\floatpagefraction
+\setcounter{bottomnumber}{3}
+\setcounter{topnumber}{3}
+\setcounter{dbltopnumber}{3}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\allowtthyphens{%
+  {\small\tt\hyphenchar\font=45 \normalsize\tt\hyphenchar\font=45
+  \footnotesize\tt\hyphenchar\font=45 }}
+
+%%\renewcommand{\cw}[1]{\protect\prebreak{\ntt\bslash#1}\protect\postx
+%%  \sh{#1}}
+%%%    Control symbol
+%%\renewcommand{\cs}[1]{\protect\prebreak{\ntt\string#1}\protect\postx
+%%  \sh{#1}}
+%%\renewcommand{\fn}[1]{\leavevmode{\ntt#1}\protect\postx\sh{#1}}
+%%\def\sh{\protect\showhyphens}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    Fix up catcodes of the upper 128 characters just in case someone
+%    has an early release of LaTeX2e. (pre June 1994 patch-level 2)
+\def\do{\catcode\count@\@tempa \advance\count@\@ne
+  \ifnum\count@>\@cclv \expandafter\@gobble\fi \do}
+
+\count@=128 \chardef\@tempa=12 \do
+
+\def\mstrip#1->{}
+\def\jobswitch{%
+  \def\@tempa{dia-driv}%
+  \edef\@tempa{\expandafter\mstrip\meaning\@tempa}%
+  \edef\@tempb{\jobname}%
+  \ifx\@tempa\@tempb
+    \dialogtrue \menustrue \grabhedrtrue
+    \alltrue
+  \else
+    \csname\jobname true\endcsname
+    \title{The {\tt\jobname} package}%
+  \fi
+}
+
+\newif\ifdialog \newif\ifall \newif\ifmenus \newif\ifgrabhedr
+
+\endinput
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    Some old stuff from codialog.tex
+\typeout{%
+This document offers three printing options:^^J%
+(1) A4 (297 x 210 mm), two columns, landscape orientation,^^J%
+(2) US letter (11 x 8.5 inches), two columns, landscape orientation.^^J%
+(3) US letter (8.5 x 11 inches), one column, portrait orientation.^^J%
+}
+
+%    \readnumber is defined in dialogm.sty
+\message{Enter the number for your choice (default 2): }
+\readnumber{\answer}{2}
+
+%    \adjustlayout is defined in dialogm.sty
+\ifcase \answer\relax
+    \typeout{Defaulting to US letter, landscape ...}% 0
+    \adjustlayout{11in}{8.5in}%
+  \or \typeout{OK, using A4 layout ...}%              1
+    \adjustlayout{297mm}{210mm}%
+  \or \typeout{OK, using 11x8.5 layout ...}%          2
+    \adjustlayout{11in}{8.5in}%
+  \or \typeout{OK, using 8.5x11 layout ...}%          3
+    \adjustlayout{8.5in}{11in}%
+  \else %                                             4,5,...
+    \typeout{Defaulting to US letter, landscape ...}%
+    \adjustlayout{11in}{8.5in}%
+\fi
+
+%    Maybe better to offer the choices USL, USP, A4L, A4P?

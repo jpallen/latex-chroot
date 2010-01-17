@@ -1,0 +1,64 @@
+if unknown gen_acc : readfrom("gen_acc") fi
+if unknown gen_sigma : readfrom("gen_sigma") fi
+     
+def width = 9.5u enddef;
+def dims = width#,x_height#,0 enddef;
+def ital = 0 enddef;
+def fit_params = 0,0 enddef;
+     
+def gen_letter =
+  pickup fine.nib;
+  lft x4r=hround .75u; x8r=w-x4r; y4r=y8r=.5x_height;   %top and bottom
+  top y2r=x_height+oo; bot y6r=-oo; x2r=x6r=.5w;        %right and left
+  filldraw stroke
+    gr_arc.e(8,1,2)(vair,curve,otilt) & gr_arc.e(2,3,4)(vair,curve,otilt) &
+    gr_arc.e(4,5,6)(vair,curve,otilt) & gr_arc.e(6,7,8)(vair,curve,otilt) ;
+  numeric x_baryctr; x_baryctr=x2;                      %accent reference
+enddef;
+     
+     
+cmchar "Lowercase omicron";
+beginchar("o",dims);
+this_letter; penlabels(1,2,3,4,5,6,7,8); endchar;
+     
+if boolean barebones: picture savedpicture; endinput; fi
+     
+cmchar "Lowercase omicron with grave";
+beginchar(oct"344",width#,acc_ht#,0);
+this_letter; grave(x_baryctr); endchar;
+     
+cmchar "Lowercase omicron with rough breathing";
+beginchar(oct"345",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)<; endchar;
+     
+cmchar "Lowercase omicron with smooth breathing";
+beginchar(oct"346",width#,acc_ht#,0);
+this_letter; spirit(x_baryctr)>; endchar;
+     
+cmchar "Lowercase sigma followed by omicron with grave";
+begindoublechar(oct"347",dim_sigma);
+mid_sigma; middoublechar(width#,acc_ht#,0);
+this_letter; grave(x_baryctr); endchar;
+     
+cmchar "Lowercase omicron with acute";
+beginchar(oct"354",width#,acc_ht#,0);
+this_letter; acute(x_baryctr); endchar;
+     
+cmchar "Lowercase omicron with rough breathing and acute";
+beginchar(oct"355",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)<; endchar;
+     
+cmchar "Lowercase omicron with smooth breathing and acute";
+beginchar(oct"356",width#,acc_ht#,0);
+this_letter; spirit_acute(x_baryctr)>; endchar;
+     
+cmchar "Lowercase sigma followed by omicron with acute";
+begindoublechar(oct"357",dim_sigma);
+mid_sigma; middoublechar(width#,acc_ht#,0);
+this_letter; acute(x_baryctr); endchar;
+     
+cmchar "Lowercase sigma followed by omicron";
+begindoublechar(oct"017",dim_sigma);
+mid_sigma; middoublechar(dims); this_letter; endchar;
+     
+picture savedpicture;

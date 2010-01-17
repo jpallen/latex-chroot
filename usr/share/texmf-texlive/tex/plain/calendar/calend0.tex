@@ -1,0 +1,156 @@
+%%
+%%    FILE calend0.tex
+%%    Modificat 9/12/92
+\catcode`\@=11
+\newif\ifleapyear
+\def\loadadvanced{%
+ \input calend1.tex\relax}
+\newcount\date
+\newcount\weekd
+\newcount\Year
+\newcount\yearbase
+\newcount\Month
+\newcount\Day
+\newcount\@catch
+\newcount\timezone\timezone=0
+\def\setyear#1{\Year=#1
+ \advance\Year by-1900\calculateyearbase}
+\def\nextyear{\advance\Year by1
+ \calculateyearbase}
+\def\settimezone#1{\timezone=#1
+ \multiply\timezone by 1000
+ \divide\timezone by24}
+% \ifleapyear is set;
+% \yearbase is  the number of
+% days passed from 1900, Jan 0
+% to New year's date;
+\def\calculateyearbase{%
+ \yearbase=-1
+ {\count0=\Year\divide\count0 by4
+ \multiply\count0 by4
+ \ifnum\Year=\count0
+ \global\@catch=0\else\global\@catch=1\fi}%
+ \ifcase\@catch \leapyeartrue\or
+  \leapyearfalse\fi
+ {\count0=\Year\multiply\count0
+ by1461\advance\count0 by3
+ \divide\count0 by4
+ \global\@catch=\count0}%
+ \advance\yearbase by\@catch
+ \ifnum\Year=0\yearbase=0\leapyearfalse\fi}
+%  Gives the number of days passed
+%  at the end of each month.
+%  Value returned in \Day
+\def\monthdays{\global
+ \@catch=\ifcase\Month 0\or31\or
+  59\or90\or120\or151\or181\or212\or
+  243\or273\or304\or334\or365\fi
+ {\ifleapyear\ifnum\Month>1
+  \global\advance\@catch by1\fi\fi}%
+ \Day=\@catch}
+% Long date of \Month, \Day
+% in the year \Year.
+% Value returned in \date
+\def\dayno{\date=\Day{\advance
+ \Month by-1\monthdays
+ \advance\date by\Day
+ \global\advance\date by\yearbase}}
+% Long date MOD 7 gives the week day.
+% Sunday is 0 and Saturday is 6.
+\def\weekday{{\count0=\date\relax
+ \count1=\count0\divide\count0 by 7
+ \multiply\count0 by 7
+\advance\count1 by -\count0
+ \global\weekd=\count1}}
+% Name of week day (Local).
+\def\theweekday{\weekday
+ \ifcase\weekd
+ Sunday\or Monday\or Tuesday\or
+ Wednesday\or Thursday\or Friday\or
+ Saturday\fi}
+% (Local)
+\def\theshortweekday{\weekday
+ \ifcase\weekd Sun\or Mon\or Tue\or
+  Wed\or Thu\or Fri\or Sat\fi}
+% Gives the usual calendar date for
+% a long date in counter \date.
+% Returned in \Day, \Month and \Year
+\def\caldate{\Year=\date
+ \multiply\Year by4\divide\Year by1461
+ \calculateyearbase
+ {\advance\date by-\yearbase\Month=0
+ \loop\monthdays\ifnum\Day<\date
+ \global\advance\Month by1\repeat
+ {\advance\Month by-1\monthdays
+ \advance\date by-\Day
+ \global\Day=\date}}}
+% Name of month \Month. (Local)
+\def\themonth{\ifcase\Month
+ \or January\or February\or March\or
+ April\or May\or June\or July\or
+ August\or September\or October\or
+ November\or December\fi}
+% Find the next (previous) day after
+% (before) \date with \weekday=#1.
+\def\nextday#1{{\count0=#1\weekday
+ \advance\count0 by-\weekd
+ \ifnum\count0<0\advance\count0 by7\fi
+ \global\advance\date by\count0}}
+\def\prevday#1{\snextday#1
+ \advance\date by-7}
+\def\snextday#1{\advance\date by1
+ \nextday#1}
+\def\sprevday#1{\advance\date by-1
+ \prevday#1}
+% \beginevents...\endevents
+% contains control sequences like
+% \event or \evday or sequences
+% generating these commands.
+\newwrite\evefile
+\def\beginevents{%
+ \immediate\openout
+ \evefile=\jobname.eve\relax}
+\def\endevents{\immediate\closeout
+ \evefile\end}
+\newtoks\evetext
+\def\event#1/#2[#3]{\evetext={#3}%
+ \Day=#1\Month=#2\dayno
+ \evday[\the\evetext]}
+\def\evday[#1]{\immediate\write\evefile{%
+ \string\evententry{\the\date}{#1}}}
+\def\thecaldate{\the\Day/\the\Month}
+\def\mute{\def\thecaldate{}}
+%
+% 2nd run commands
+%
+\newcount\currentdate
+\newcount\lastdate
+\newcount\nextdate
+\newif\ifdoing@day
+\newif\ifholy
+\def\holy{\global\holytrue}
+\def\upto#1{\nextdate=#1
+ \loop\advance\currentdate by1\relax
+  \ifnum\currentdate<\nextdate
+  \begin@day\end@day\repeat}
+\def\evententry#1#2{\unskip
+ \ifnum#1>\lastdate\else
+  \ifnum\currentdate<#1
+   \ifdoing@day\end@day\fi
+  \upto{#1}\fi
+ \ifnum\currentdate=#1
+  \ifdoing@day\else\begin@day\fi
+  #2\par\fi\fi}
+\def\begin@day{\doing@daytrue
+ \date=\currentdate\caldate
+ \message{<\thecaldate}\beginday}
+\def\end@day{\endday\doing@dayfalse
+ \global\holyfalse\message{>}}
+\def\makeagenda#1{\input #1.sty\relax
+ \begin@day\input\jobname.eve\relax
+ \evententry{\the\lastdate}{}\end@day
+ \epilog\end}
+% Do not read events
+\def\makeempty{\begin@day
+ \evententry{\the\lastdate}{}\end@day}
+\catcode`\@=12

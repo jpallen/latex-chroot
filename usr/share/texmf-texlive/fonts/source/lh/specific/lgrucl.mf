@@ -1,0 +1,340 @@
+%
+% lgrucl.mf
+%
+%% Cyrillic font container with T2 encoding beta-support
+%
+% This file is future part of lxfonts package
+% Version 3.5 // Patchlevel=1
+% (c) O.Lapko
+%
+% This package is freeware product under conditions similar to
+% those of D. E. Knuth specified for the Computer Modern family of fonts.
+% In particular, only the authors are entitled to modify this file
+% (and all this package as well) and to save it under the same name.
+%
+% Content:
+%
+% Lowercase Russian letters with shape for Concrete Mathematic
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% List of letternames
+%
+% d
+% zh
+% k
+% l
+% ya
+%
+
+LHver_check(3,5); % like |version_check| in ec
+
+begingroup
+
+def is_egyptian =
+% |false| for most of the CM fonts, except funny fonts;
+% |true| for the CC fonts
+ (serifs and (1.4max(fine#,crisp#, tiny#)<slab#) and (1.6slab#>stem#))
+%added
+ or (vair#>.52cap_stem#)
+enddef;
+
+lhchar "Lowercase Russian letter d (`concrete' form)";
+cyrchar(d,10u#-.5width_adj# %en_width#
+ ,x_height#,sbeak#);
+adjust_fit(serif_fit#
+ if not serifs:+\\.5(stem#-u#),.5(stem#-u#)+ else:,fi\\ serif_fit#); %dl_adj
+numeric left_stem,right_stem,outer_jut,alpha;
+right_stem=stem-stem_corr;
+left_stem=min(hair if hefty: -3stem_corr fi,right_stem);
+outer_jut=.75jut; x4r=r-letter_fit-outer_jut- if serifs:.25 else:.5 fi u;
+x1l=w-x4r; y1=y4=0; x2-x1=x4-x3;
+if serifs: x3l=x2r+((x1r-x4l)*(vair/(h-vair)))
+       if not is_egyptian:-.25left_stem fi
+ else: x3r=x2r+apex_corr fi;
+y2=y3=h if not serifs:+apex_o+apex_oo fi;
+alpha=diag_ratio(2,left_stem,y2-y1,x4r-x1l-apex_corr);
+penpos1(alpha*left_stem,0); penpos2(alpha*left_stem,0);
+penpos3(alpha*right_stem,0); penpos4(alpha*right_stem,0);
+if serifs: numeric left_jut; left_jut=jut+left_stem;
+ pickup tiny.nib; x5r=x3r; top y5=h;
+ pos5(max(currentbreadth+eps,alpha*right_stem),0);
+  fill stroke if is_egyptian: z1e--z2e
+       else: z1e{(x2+2(stem-hair),y2)-z1}...{z2-(x1+.5(stem-hair),y1)}z2e fi;
+ fill stroke z3e--z4e; x4:=x4r;
+ if is_egyptian: else: x2:=x2+1.5(stem-hair); fi
+ save slab; slab:=Vround(vair-vair_corr);
+ serif(5,4,a,0,-left_jut);  % upper  serif
+else: z0=whatever[z1r,z2r]=whatever[z3l,z4l];
+ if y0<h-notch_cut: y0:=h-notch_cut;
+  fill z0+.5right{down}...{z4-z3}diag_end(3l,4l,1,1,4r,3r)
+   --diag_end(4r,3r,1,1,2l,1l)--diag_end(2l,1l,1,1,1r,2r){z2-z1}
+   ...{up}z0+.5left--cycle; % left and right diagonals
+ else: fill z0--diag_end(0,4l,1,1,4r,3r)--diag_end(4r,3r,1,1,2l,1l)
+  --diag_end(2l,1l,1,1,1r,0)--cycle; fi fi % left and right diagonals
+% lower descenders
+pickup tiny.nib;
+save slab; slab:=vair; % lower.slab
+prime_points_inside(1,2); prime_points_inside(4,3);
+numeric inner_jut;
+inner_jut:=min(.5(lft x4l-rt x1r)-eps,.5jut);
+if not serifs: outer_jut:=hround (r-rt x4'r-.5u) ; fi
+l_serif(1',2,c,1/3,beak_darkness,outer_jut,.6beak_jut,d,1/3,inner_jut); % lower left descender
+r_serif(4',3,e,1/3,inner_jut,f,1/3,beak_darkness,outer_jut,.6beak_jut); % lower right descender
+filldraw z.d0--z.d1--z.e1--z.e0--cycle; % lower inter_serif bar
+penlabels(1,2,3,4); endchar;
+
+lhchar "Lowercase Russian letter zh (`concrete' form)";
+cyrchar(zh,10u#,x_height#, 0); %en_width#
+italcorr x_height#*slant+.25u#;
+adjust_fit(w#-5u#+serif_fit#,serif_fit#);
+% lowerc_zh;
+pickup tiny.nib; numeric stem[];
+stem0=max(tiny.breadth,hround(fudged.stem-stem_corr));
+if odd((r-l)-stem0): change_width; fi % symmetric & all three equal
+pos1(stem0,0); pos2(stem0,0);
+lft x1l=lft x2l=hround (.5[l,r]-.5fudged.stem)-eps; % middle stem point
+top y1=h; bot y2=0;
+filldraw stroke z1e--z2e; % stem
+% k_cbowl;
+numeric right_jut,stem[],alpha[]; pickup tiny.nib;
+right_jut=if serifs:.6jut else:.4tiny fi;
+stem1=max(tiny.breadth,hround(fudged.hair if hefty:-\\4stem_corr fi));
+stem2=max(tiny.breadth,fudged.stem-3stem_corr);
+x3r=hround(r-letter_fit-.7u-right_jut)-.5tiny+eps;
+x6r=hround(r-letter_fit-.3u-right_jut)-.5tiny+eps;
+y4=.7bar_height; top y3=h; bot y6=0; x4=x1;
+penpos3(alpha1*(stem1-tiny),0); penpos4(whatever,-90);
+alpha1=diag_ratio(1,.5(stem1-tiny),y3-y4,x3r-x4);
+penpos6(alpha2*(stem2-tiny),0);
+alpha2=diag_ratio(1,.5(stem2-tiny),y1-y6,x6r-x1);
+forsuffixes $=l,r: y3'$=h; z4.$=z3'$+whatever*(z3-z4);
+ z5.$=z6'$+whatever*(z1-z6)=whatever[z3,z4]; endfor
+if serifs: y6'l=max(cap_hair,.5stem);
+ z6'r=z6'l+whatever*dir(angle(y1-y6,x6r-x1));
+else: y6'l=y6'r=0; fi
+z5=.5[z5l,z5r];
+z3'r=z3r+penoffset z3-z4 of currentpen+whatever*(z3-z4);
+% we have also |z3'l=z3l+penoffset z4-z3 of currentpen+whatever*(z3-z4)|;\]
+z6'r=z6r+penoffset z1-z6 of currentpen+whatever*(z1-z6);
+z6'l=z6l+penoffset z6-z1 of currentpen+whatever*(z1-z6);
+fill z4r--diag_end(4r,3'r,1,.5,3'l,4l)--z4l--cycle;  % upper diagonal
+if serifs: pickup if is_egyptian: crisp else: fine fi nib;
+ rt x7=rt x6r+right_jut;
+ if is_egyptian: y7l=0; penpos7(vair',90);
+  else: y7=-o; penpos7(max(fine.breadth+eps,cap_hair-fine),90); fi
+ fill z5l
+  if is_egyptian: ---z6'l...{z6r-z6l}(.35[x6l,x7l],y7l)--
+     else:{z6'l-.5[z5,z5l]}...{z6r-z6l} fi
+   z7l..(rt x7l,top y7l)--(rt x7r,bot y7r)..z7r
+  if is_egyptian: --(.5[x6r,x7r],y7r){z6l-z6r}...z6'r---
+     else: {z6l-z6r}...{.5[z5,z5l]-z6'l} fi
+   z5r--cycle; % lower diagonal
+%%%
+else: fill z5l--diag_end(5l,6'l,.5,1,6'r,5r)--z5r--cycle; fi % lower diagonal
+%%%
+% mirror
+ pickup tiny.nib;
+forsuffixes $ = 3l,3,3r,3'l,3'r,4l,4,4r,5l,5,5r,6l,6,6r,6'l,6'r,7l,7r:
+ x.m$=l+(r-x$); y.m$=y$; endfor;
+fill z.m4r--diag_end(.m4r,.m3'r,1,.5,.m3'l,.m4l)--z.m4l--cycle;  % upper diagonal
+if serifs: pickup if is_egyptian: crisp else: fine fi nib;
+ fill  z.m5l
+  if is_egyptian: ---z.m6'l...{z.m6r-z.m6l}(.35[x.m6l,x.m7l],y.m7l)--
+     else:{z.m6'l-.5[z.m5,z.m5l]}...{z.m6r-z.m6l} fi
+   z.m7l..(lft x.m7l,top y.m7l)--(lft x.m7r,bot y.m7r)..z.m7r
+  if is_egyptian: --(.5[x.m6r,x.m7r],y.m7r){z.m6l-z.m6r}...z.m6'r---
+     else: {z.m6l-z.m6r}...{.5[z.m5,z.m5l]-z.m6'l} fi
+   z.m5r--cycle; % lower diagonal
+ z8l=z.m3r; z8r=z.m3l; z9l=z.m4r; z9r=z.m4l; z8=.5[z8l,z8r]; z9=.5[z9l,z9r];
+else: fill z.m5'l--diag_end(.m5'l,.m6'l,.5,1,.m6'r,.m5'r)--z.m5'r--cycle; % lower diagonal
+fi
+if serifs: save slab; slab:=Vround(vair-vair_corr);
+ dish_serif(1,2,a,1/3,jut,b,1/3,jut); % upper stem serif
+ slab:=vair;
+ dish_serif(2,1,c,1/3,jut,d,1/3,jut); % lower stem serif
+ numeric up_inner_jut;
+ if rt x1r+jut+.5u+1<=lft x3l-1.2jut: up_inner_jut=1.2jut;
+  else: rt x1r+jut+.5u+1=lft x3l-up_inner_jut; fi
+ slab:=Vround(vair-vair_corr);
+ dish_serif(3,4,e,2/3,up_inner_jut,f,1/2,right_jut)(dark); % upper diagonal serif
+ dish_serif(8,9,g,1/2,right_jut,h,2/3,up_inner_jut)(dark); % upper diagonal serif
+fi
+%%%%%
+endchar;
+
+lhchar "Lowercase Russian letter k (`concrete' form)";
+cyrchar(k,10u#,x_height#,0); %en_width#
+italcorr x_height#*slant-.5u#;
+adjust_fit(serif_fit#,serif_fit#);
+% lowerc_k;
+pickup tiny.nib; numeric stem[];
+stem0=max(tiny.breadth,hround(fudged.stem-stem_corr));
+pos1(stem0,0); pos2(stem0,0);
+lft x1l=lft x2l=hround (2.5u-.5fudged.stem); top y1=h; bot y2=0;
+filldraw stroke z1e--z2e; % stem
+% k_cbowl;
+numeric right_jut,stem[],alpha[]; pickup tiny.nib;
+right_jut=if serifs:.6jut else:.4tiny fi;
+stem1=max(tiny.breadth,hround(fudged.hair if hefty:-\\4stem_corr fi));
+stem2=max(tiny.breadth,fudged.stem-3stem_corr);
+x3r=hround(r-letter_fit-.7u-right_jut)-.5tiny+eps;
+x6r=hround(r-letter_fit-.3u-right_jut)-.5tiny+eps;
+y4=.7bar_height; top y3=h; bot y6=0; x4=x1;
+penpos3(alpha1*(stem1-tiny),0); penpos4(whatever,-90);
+alpha1=diag_ratio(1,.5(stem1-tiny),y3-y4,x3r-x4);
+penpos6(alpha2*(stem2-tiny),0);
+alpha2=diag_ratio(1,.5(stem2-tiny),y1-y6,x6r-x1);
+forsuffixes $=l,r: y3'$=h; z4.$=z3'$+whatever*(z3-z4);
+ z5.$=z6'$+whatever*(z1-z6)=whatever[z3,z4]; endfor
+if serifs: y6'l=max(cap_hair,.5stem);
+ z6'r=z6'l+whatever*dir(angle(y1-y6,x6r-x1));
+else: y6'l=y6'r=0; fi
+z5=.5[z5l,z5r];
+z3'r=z3r+penoffset z3-z4 of currentpen+whatever*(z3-z4);
+% we have also |z3'l=z3l+penoffset z4-z3 of currentpen+whatever*(z3-z4)|;\]
+z6'r=z6r+penoffset z1-z6 of currentpen+whatever*(z1-z6);
+z6'l=z6l+penoffset z6-z1 of currentpen+whatever*(z1-z6);
+fill z4r--diag_end(4r,3'r,1,.5,3'l,4l)--z4l--cycle;  % upper diagonal
+if serifs: pickup if is_egyptian: crisp else: fine fi nib;
+ rt x7=rt x6r+right_jut;
+ if is_egyptian: y7l=0; penpos7(vair',90);
+  else: y7=-o; penpos7(max(fine.breadth+eps,cap_hair-fine),90); fi
+ fill z5l
+  if is_egyptian: ---z6'l...{z6r-z6l}(.35[x6l,x7l],y7l)--
+     else:{z6'l-.5[z5,z5l]}...{z6r-z6l} fi
+   z7l..(rt x7l,top y7l)--(rt x7r,bot y7r)..z7r
+  if is_egyptian: --(.5[x6r,x7r],y7r){z6l-z6r}...z6'r---
+     else: {z6l-z6r}...{.5[z5,z5l]-z6'l} fi
+   z5r--cycle; % lower diagonal
+%%%
+else: fill z5l--diag_end(5l,6'l,.5,1,6'r,5r)--z5r--cycle; fi % lower diagonal
+%%%
+if serifs: save slab; slab:=Vround(vair-vair_corr);
+ dish_serif(1,2,a,1/3,jut,b,1/3,jut); % upper stem serif
+ slab:=vair;
+ dish_serif(2,1,c,1/3,jut,d,1/3,jut); % lower stem serif
+ numeric up_inner_jut;
+ if rt x1r+jut+.5u+1<=lft x3l-1.2jut: up_inner_jut=1.2jut;
+  else: rt x1r+jut+.5u+1=lft x3l-up_inner_jut; fi
+ slab:=Vround(vair-vair_corr);
+ dish_serif(3,4,e,2/3,up_inner_jut,f,1/2,right_jut)(dark); % upper diagonal serif
+fi
+%%%%%
+penlabels(1,2,3,4,5,6); endchar;
+
+lhchar "Lowercase Russian letter l (`concrete' form)";
+cyrchar(l,10u#-.5width_adj#,x_height#,0); %en_width#
+adjust_fit(if serifs:
+%              max(.25u#,.25(7/8[hair#,flare#])+.5hair#) %l
+%              if not is_egyptian: -.5hair# fi
+              %if is_egyptian: max(.25u#,.25(7/8[hair#,flare#])+.5hair#) %l
+              %else:
+ .25(7/8[hair#,flare#])-.25u# if is_egyptian:+.5hair# fi
+%fi
+        else: serif_fit# fi,serif_fit#);
+%lower_spec_l;
+numeric bulb_diam; bulb_diam=hround 7/8[hair,flare];
+numeric left_stem,right_stem,outer_jut,alpha;
+right_stem=stem-stem_corr;
+left_stem=max(tiny.breadth+eps,min(hair if hefty:-3stem_corr fi,right_stem));
+outer_jut=.75jut; x4r=r-letter_fit-outer_jut- if serifs:.25 else:.5 fi u;
+x1l-.5u-.065jut=w-x4r; y1=y4=0; x2-x1=x4-x3;
+if serifs: x3l=x2r+((x1r-x4l)*(vair/(h-vair)))if not is_egyptian:-.25left_stem fi;
+ else: x3r=x2r+apex_corr; fi
+y2=y3=h if not serifs:+apex_o+apex_oo fi;
+alpha=diag_ratio(2,left_stem,y2-y1,x4r-x1l-apex_corr);
+penpos1(alpha*left_stem,0); penpos2(alpha*left_stem,0);
+penpos3(alpha*right_stem,0); penpos4(alpha*right_stem,0);
+if serifs:
+ fill stroke z3e--z4e; % right stem
+ pickup tiny.nib;
+ penpos5(left_stem,-90); pos5'(left_stem,-90); z5'=z5;
+ pos8(hair,-180); pos9(bulb_diam,-180);
+ y9-.5bulb_diam=.12desc_depth-eps; lft x9r=l+letter_fit+hround(.35u-.5);
+ y5r=-oo-eps; x5=max(min(.45[x9r,x1r],rt x9l-eps),lft x9r+.5bulb_diam);
+ z7r=(max(.5[x1,x1r],x9+if is_egyptian:1.25bulb_diam +.5slant*hair
+                        else: 1.5bulb_diam-hair fi),
+        y7l-7/8left_stem);
+ z7l=(x7r-2/3(x1r-x1l),if is_egyptian:  .35[y5l,y5] else: y5 fi);
+ y6l=y9+.5bulb_diam; z6r=(x7r,y1)+whatever*(z1-z2);%
+ y6r-y6l=y5r-y5l; x6r-x6l=2/3(x1r-x1l);
+ fill stroke z2e.. controls z6e and z7e ..z5e; % left stem
+ {{less_tense; cyrbulb(5',8,9)}}; % arc and bulb
+ numeric inner_jut,left_jut,fit;
+ pickup tiny.nib; left_jut=jut+left_stem;
+ prime_points_inside(4,3);
+ x10r=x3r; top y10=h; pos10(max(currentbreadth+eps,alpha*right_stem),0); x4:=x4r;
+ if rt x1r+jut+.5u+1<=lft x4'l-jut: inner_jut=jut;
+  else: rt x1r+inner_jut+.5u+1=lft x4'l-inner_jut; fi
+ save slab; slab:=Vround(vair-vair_corr);
+ serif(10,4,c,0,-left_jut); % upper  serif
+ slab:=vair;
+ dish_serif(4',3,d,1/2,inner_jut,e,1/3,outer_jut); % right serif
+else: z0=whatever[z1r,z2r]=whatever[z3l,z4l];
+ if y0<h-notch_cut: y0:=h-notch_cut;
+  fill z0+.5right{down}...{z4-z3}diag_end(3l,4l,1,1,4r,3r)
+   --diag_end(4r,3r,1,1,2l,1l)--diag_end(2l,1l,1,1,1r,2r){z2-z1}
+   ...{up}z0+.5left--cycle; % left and right diagonals
+ else: fill z0--diag_end(0,4l,1,1,4r,3r)--diag_end(4r,3r,1,1,2l,1l)
+  --diag_end(2l,1l,1,1,1r,0)--cycle; fi fi % left and right diagonals
+%%%%%
+penlabels(0,1,2,6,3,4,5,7,8,9,10); endchar;
+
+lhchar "Lowercase Russian letter ya (`concrete' form) (looks like backward R)";
+cyrchar(ya,if serifs: 9.75u# else: 10u# fi-.5width_adj#,x_height#,0); %ya (~n_width:10u)
+italcorr x_height#*slant-serif_fit#+jut#-2u#+.5stem#; %d->x_height+jut
+adjust_fit(if serifs:serif_fit# else:0 fi,serif_fit#);
+% lowerc_ya;
+pickup tiny.nib; pos1(stem',0); pos2(stem',0);
+rt x1r=rt x2r=hround(w-2.5u+.5stem'); top y1=h; bot y2=0;
+filldraw stroke z1e--z2e; % stem
+penpos3(vair,90); penpos4(vair,90); penpos5(curve if hefty:-3stem_corr fi,180);
+y6r=y7r=hround (if serifs:.52h else:.5h fi-.6[thin_join,vair]/2);
+y6l=y7l=y6r+.6[thin_join,vair]; y6=y7=.5[y6l,y6r];%
+z3r=top z1; y4=y3; y5=.52[y6r,y4r]+eps;
+x7l=x7r=x2; x4+.25u=x6l=x6r; x4=.5w if serifs:+.25u else:-.25u fi;
+x5r=hround min(1.25u,2u-.5curve)+eps;
+x4l:=x4+.125curve; x6l:=x6l+.125curve;
+fill stroke
+{{interim superness:=more_super; z7e..pulled_arc.e(6,5) &
+   pulled_arc.e(5,4)..z3e}};  % lobe
+numeric stem[],alpha,right_jut;
+right_jut=if serifs:.7jut else:.4tiny fi;
+stem1=max(tiny.breadth,hround(fudged.stem-3stem_corr));
+lft x9l=hround(l+letter_fit+.3u+right_jut)-eps; bot y9=0;
+alpha=diag_ratio(1,.5(stem1-tiny),y1-y9,x9l-x1);
+penpos9(alpha*(stem1-tiny),0);
+x8=x6l-if serifs:.75u else:.25u fi; y8=y6;
+if serifs: numeric theta; theta=angle(y1-y9,x9l-x1);
+ y9'r=max(hair,.5stem); z9'l=z9'r+whatever*dir theta;
+else: y9'l=y9'r=0; fi
+z9'r=z9r+penoffset z1-z9 of currentpen+whatever*(z1-z9);
+z9'l=z9l+penoffset z9-z1 of currentpen+whatever*(z1-z9);
+z8=z9'+whatever*(z1-z9);
+penpos8(if serifs: alpha*stem1 else: stem fi-2stem_corr,0);
+if serifs: pickup if is_egyptian: crisp else: fine fi nib;
+ lft x10=tiny.lft x9l-right_jut;
+ if is_egyptian: y10r=0; penpos10(vair',-90); else: y10=-o;
+ penpos10(max(fine.breadth+eps,hair-fine),-90); fi
+ fill z8l
+  if is_egyptian: ---z9'l...{z9l-z9r}(.35[x9l,x10l],y10l)--
+     else: {.5[z9l,z9]-z8l}...{z8l-z8r} fi
+   z10l..(lft x10l,bot y10l)--(lft x10r,top y10r)..z10r
+  if is_egyptian: --(.35[x9r,x10r],y10r){z9r-z9l}...z9'r---
+     else: {z8r-z8l}...{z8l-.5[z9l,z9]} fi
+   z8r--cycle; % lower diagonal
+ numeric inner_jut;
+ if lft x2l-jut-.5u+1>=rt x9r+jut: inner_jut=jut;
+  else: lft x2l-jut-.5u+1=rt x9r+inner_jut; fi
+ save slab; slab:=Vround(vair-vair_corr);
+ nodish_serif(1,2,a,1/3,.5jut,b,1/3,jut); % upper serif
+ slab:=vair;
+ dish_serif(2,1,c,1/3,jut,d,1/3,jut); % lower serif
+else: fill z8l--diag_end(8l,9'l,1,.5,9'r,8r)--z8r--cycle; fi % diagonal
+penlabels(0,1,2,3,4,5,6,7,8,9,9',10); endchar;
+
+endgroup;
+
+endinput;
+%end of file

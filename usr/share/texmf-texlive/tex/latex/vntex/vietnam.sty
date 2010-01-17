@@ -1,0 +1,103 @@
+%% Copyright 2000-2005 Werner Lemberg <wl@gnu.org> and
+%%                     Han The Thanh <hanthethanh@gmx.net>.
+%% This file is part of vntex.  License: LPPL, version 1.3 or newer,
+%% according to http://www.latex-project.org/lppl.txt
+%%
+%
+%   1.0  2000/01/27
+%
+%     Initial release.
+%
+%   post 1.0  ?
+%
+%     . Require `ifthen' package.
+%     . Don't require `t5' package.
+%     . New options `mviscii', `noinputenc', `nocaptions', `utf8', and
+%       `utf8x'.
+%     . Don't define \prefacename and friends but include vncaps.tex (if
+%       `nocaptions' isn't set).
+%
+%   1.1  2005/05/22
+%
+%     . Simplify logic for `utf8' and `utf8x' options.
+%     . Add copyright message and history.
+%     . Use \endlinechar to avoid `%' at end of line.
+%     . Fix package message.
+%     . Some other minor clean-up.
+%
+%   1.2  2006/10/18
+%
+%     . Add option varioref.
+%
+
+\ProvidesPackage{vietnam}[2006/10/18 v1.2 support for Vietnamese]
+
+\RequirePackage{ifthen}
+
+\newboolean{optenc}
+\newboolean{noinputenc}
+\newboolean{nocaptions}
+\newboolean{vnutf8}
+\newboolean{varioref}
+
+\DeclareOption{viscii}
+  {\PassOptionsToPackage{viscii}{inputenc}
+   \setboolean{optenc}{true}}
+\DeclareOption{tcvn}
+  {\PassOptionsToPackage{tcvn}{inputenc}
+   \setboolean{optenc}{true}}
+\DeclareOption{vps}
+  {\PassOptionsToPackage{vps}{inputenc}
+   \setboolean{optenc}{true}}
+\DeclareOption{mviscii}
+  {\PassOptionsToPackage{mviscii}{inputenc}
+   \setboolean{optenc}{true}}
+\DeclareOption{noinputenc}
+  {\setboolean{noinputenc}{true}}
+\DeclareOption{nocaptions}
+  {\setboolean{nocaptions}{true}}
+\DeclareOption{utf8}
+  {\PassOptionsToPackage{utf8}{inputenc}
+   \setboolean{optenc}{true}}
+\DeclareOption{utf8x}
+  {\PassOptionsToPackage{utf8x}{inputenc}
+   \setboolean{optenc}{true}
+   \setboolean{vnutf8}{true}}
+\DeclareOption{varioref}{\setboolean{varioref}{true}}
+
+
+\ProcessOptions
+
+\ifthenelse{\boolean{vnutf8}}
+  {\RequirePackage{ucs}}
+  {}
+
+\RequirePackage[T5]{fontenc}
+
+\ifthenelse{\boolean{varioref}}
+  {\RequirePackage{varioref-vi}}
+  {}
+
+\ifthenelse{\boolean{noinputenc}}
+  {\ifthenelse{\boolean{optenc}}
+     {\PackageWarning{vietnam}
+        {Selected input encoding is ignored if `noinputenc' is used}}
+     {}}
+  {\ifthenelse{\boolean{optenc}}
+     {}
+     {\PackageWarning{vietnam}
+        {No input encoding specified, using VISCII as default}
+      \PassOptionsToPackage{viscii}{inputenc}}
+   \RequirePackage{inputenc}}
+
+\ifthenelse{\boolean{nocaptions}}
+  {}
+  {\input{vncaps.tex}
+   \AtBeginDocument{\captionsvietnam
+                    \datevietnam}}
+
+\frenchspacing
+
+\endinput
+%%
+%% End of file `vietnam.sty'.

@@ -1,0 +1,1284 @@
+\relax
+
+\documentclass[twocolumn]{article}
+\usepackage[T2A]{fontenc}
+\usepackage{fontdoc}
+
+\title{The \TeX\ Cyrillic T2A text encoding vector}
+\author{Werner Lemberg, Vladimir Volovich}
+\date{17 July 1998\\
+Version 0.1}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This document describes the Cyrillic T2A text encoding.
+The latin part of this file is based on `t1.etx' by
+Alan Jeffrey, Sebastian Rahtz, Ulrik Vieth.
+
+To use this encoding, you should define the following macros:
+\begin{itemize}
+\item \verb|\lc{A}{a}| should return the name of a lower-case
+   glyph, for example `{\tt a}' or `{\tt Asmall}'.
+
+\item \verb|\uc{A}{a}| should return the name of an upper-case
+   glyph, for example `{\tt A}' or `{\tt Amedium}'.
+
+\item \verb|\lctop{Aacute}{aacute}| should return the name of a
+   lower-case composite glyph formed from putting a diacritical above
+   a letter, for example `{\tt aacute}' or `{\tt Aacutesmall}'.
+
+\item \verb|\uctop{Aacute}{aacute}| should return the name of an
+   upper-case composite glyph formed from putting a diacritical above
+   a letter, for example `{\tt Aacute}' or `{\tt Aacutemedium}'.
+
+\item \verb|\lclig{FI}{fi}| should return the name of a lower-case
+   ligature, for example `{\tt fi}' or `{\tt FIsmall}'.
+
+\item \verb|\uclig{FI}{fi}| should return the name of an upper-case
+   ligature, for example `{\tt FI}' or `{\tt FImedium}'.
+
+\item \verb|\digit{zero}| should return the name of a digit, for
+   example `{\tt zero}' or `{\tt zerooldstyle}'.
+\end{itemize}
+These should all expand in the mouth, otherwise you may get error
+messages!
+
+For example, to get the standard upper and lower case font, you should
+define:
+\begin{verbatim}
+   \setcommand\lc#1#2{#2}
+   \setcommand\uc#1#2{#1}
+   \setcommand\lctop#1#2{#2}
+   \setcommand\uctop#1#2{#1}
+   \setcommand\lclig#1#2{#2}
+   \setcommand\uclig#1#2{#1}
+   \setcommand\digit#1{#1}
+\end{verbatim}
+To get a caps and small caps font with old style digits and letter
+spacing, you should define:
+\begin{verbatim}
+   \setcommand\lc#1#2{#1small}
+   \setcommand\uc#1#2{#1}
+   \setcommand\lctop#1#2{#1small}
+   \setcommand\uctop#1#2{#1}
+   \setcommand\lclig#1#2{#2small}
+   \setcommand\uclig#1#2{#1spaced}
+   \setcommand\digit#1{#1oldstyle}
+\end{verbatim}
+To get an all-caps font with medium-cap composite letters and letter
+spacing, you should define:
+\begin{verbatim}
+   \setcommand\lc#1#2{#1}
+   \setcommand\uc#1#2{#1}
+   \setcommand\lctop#1#2{#1medium}
+   \setcommand\uctop#1#2{#1medium}
+   \setcommand\lclig#1#2{#1spaced}
+   \setcommand\uclig#1#2{#1spaced}
+   \setcommand\digit#1{#1}
+\end{verbatim}
+This document describes the upper and lower case encoding.
+
+\encoding
+
+\needsfontinstversion{1.800}
+
+\comment{\section{Default values}}
+
+\setstr{codingscheme}{TEX CYRILLIC FONT ENCODING - T2A}
+
+\setcommand\lc#1#2{#2}
+\setcommand\uc#1#2{#1}
+\setcommand\lctop#1#2{#2}
+\setcommand\uctop#1#2{#1}
+\setcommand\lclig#1#2{#2}
+\setcommand\uclig#1#2{#1}
+\setcommand\digit#1{#1}
+
+\setint{italicslant}{0}
+
+\ifisglyph{x}\then
+   \setint{xheight}{\height{x}}
+\else
+   \setint{xheight}{500}
+\fi
+
+\ifisglyph{space}\then
+   \setint{interword}{\width{space}}
+\else\ifisglyph{i}\then
+   \setint{interword}{\width{i}}
+\else
+   \setint{interword}{333}
+\fi\fi
+
+% added by Thierry Bouche <Thierry.Bouche@ujf-grenoble.fr>
+% 1997/02/07 to calculate values for extra EC fontdimens
+% Amended by SPQR 1997/02/09
+\ifisglyph{X}\then
+   \setint{capheight}{\height{X}}
+\else
+   \setint{capheight}{750}
+\fi
+
+\ifisglyph{d}\then
+   \setint{ascender}{\height{d}}
+\else
+   \ifisint{capheight}\then
+        \setint{ascender}{\int{capheight}}
+   \else
+        \setint{ascender}{750}
+\fi\fi
+
+\ifisglyph{Aring}\then
+   \setint{acccapheight}{\height{Aring}}
+\else
+   \setint{acccapheight}{999}
+\fi
+
+\ifisint{descender_neg}\then
+  \setint{descender}{\neg{\int{descender_neg}}}
+ \else
+    \ifisglyph{p}\then
+      \setint{descender}{\depth{p}}
+   \else
+      \setint{descender}{250}
+   \fi
+\fi
+
+\ifisglyph{Aring}\then
+   \setint{maxheight}{\height{Aring}}
+\else
+   \setint{maxheight}{1000}
+\fi
+
+\ifisint{maxdepth_neg}\then
+  \setint{maxdepth}{\neg{\int{maxdepth_neg}}}
+\else
+   \ifisglyph{j}\then
+    \setint{maxdepth}{\depth{j}}
+  \else
+    \setint{maxdepth}{250}
+  \fi
+\fi
+
+\ifisglyph{six}\then
+   \setint{digitwidth}{\width{six}}
+\else
+   \setint{digitwidth}{500}
+\fi
+
+\setint{capstem}{0} % not in AFM files
+\setint{baselineskip}{1200}
+% end changes by Thierry
+
+
+\comment{\section{Default font dimensions}}
+
+\setint{fontdimen(1)}{\int{italicslant}}              % italic slant
+\setint{fontdimen(2)}{\int{interword}}                % interword space
+\ifisint{monowidth}\then
+   \setint{fontdimen(3)}{0}                           % interword stretch
+   \setint{fontdimen(4)}{0}                           % interword shrink
+\else
+   \setint{fontdimen(3)}{\scale{\int{interword}}{600}}% interword stretch
+   \setint{fontdimen(4)}{\scale{\int{interword}}{240}}% interword shrink
+\fi
+\setint{fontdimen(5)}{\int{xheight}}                  % x-height
+\setint{fontdimen(6)}{1000}                           % quad
+\ifisint{monowidth}\then
+   \setint{fontdimen(7)}{\int{interword}}             % extra space after .
+\else
+   \setint{fontdimen(7)}{\scale{\int{interword}}{240}}% extra space after .
+\fi
+% added by Thierry Bouche <Thierry.Bouche@ujf-grenoble.fr> 1997/02/07
+\setint{fontdimen(8)}{\int{capheight}}   % cap height
+\setint{fontdimen(9)}{\int{ascender}}  % ascender
+\setint{fontdimen(10)}{\int{acccapheight}} % accented cap height
+\setint{fontdimen(11)}{\int{descender}} % descender's depth
+\setint{fontdimen(12)}{\int{maxheight}} % max height
+\setint{fontdimen(13)}{\int{maxdepth}} % max depth
+\setint{fontdimen(14)}{\int{digitwidth}} % digit width
+\setint{fontdimen(15)}{\int{capstem}} % cap_stem
+\setint{fontdimen(16)}{\int{baselineskip}} % baselineskip
+
+
+\comment{\section{The encoding}
+   There are 256 glyphs in this encoding.}
+
+\setslot{\lc{Grave}{grave}}
+   \comment{The grave accent `\`{}'.}
+\endsetslot
+
+\setslot{\lc{Acute}{acute}}
+   \comment{The acute accent `\'{}'.}
+\endsetslot
+
+\setslot{\lc{Circumflex}{circumflex}}
+   \comment{The circumflex accent `\^{}'.}
+\endsetslot
+
+\setslot{\lc{Tilde}{tilde}}
+   \comment{The tilde accent `\~{}'.}
+\endsetslot
+
+\setslot{\lc{Dieresis}{dieresis}}
+   \comment{The umlaut or dieresis accent `\"{}'.}
+\endsetslot
+
+\setslot{\lc{Hungarumlaut}{hungarumlaut}}
+   \comment{The long Hungarian umlaut `\H{}'.}
+\endsetslot
+
+\setslot{\lc{Ring}{ring}}
+   \comment{The ring accent `\r{}'.}
+\endsetslot
+
+\setslot{\lc{Caron}{caron}}
+   \comment{The caron or h\'a\v cek accent `\v{}'.}
+\endsetslot
+
+\setslot{\lc{Breve}{breve}}
+   \comment{The breve accent `\u{}'.}
+\endsetslot
+
+\setslot{\lc{Macron}{macron}}
+   \comment{The macron accent `\={}'.}
+\endsetslot
+
+\setslot{\lc{Dotaccent}{dotaccent}}
+   \comment{The dot accent `\.{}'.}
+\endsetslot
+
+\setslot{\lc{Cedilla}{cedilla}}
+   \comment{The cedilla accent `\c{}'.}
+\endsetslot
+
+\setslot{\lc{Ogonek}{ogonek}}
+   \comment{The ogonek accent `\k{}'.}
+\endsetslot
+
+\setslot{CYRpalochka}
+  \comment{Cyrillic letter palochka `\CYRpalochka'.}
+\endsetslot
+
+\setslot{angleleft}
+  \comment{Left-pointing (cyrillic) angle bracket `\cyrlangle'.}
+\endsetslot
+
+\setslot{angleright}
+  \comment{Right-pointing (cyrillic) angle bracket `\cyrrangle'.}
+\endsetslot
+
+\setslot{quotedblleft}
+  \comment{The English opening quote mark `\,\textquotedblleft\,'.}
+\endsetslot
+
+\setslot{quotedblright}
+  \comment{The English closing quote mark `\,\textquotedblright\,'.}
+\endsetslot
+
+\setslot{\lc{cyrFlex}{cyrflex}}
+  \comment{Cyrillic circumflex `\f{}'.}
+\endsetslot
+
+\setslot{\lc{dblGrave}{dblgrave}}
+  \comment{Double grave accent `\C{}'.}
+\endsetslot
+
+\setslot{\lc{cyrBreve}{cyrbreve}}
+  \comment{Cyrillic breve `\U{}'.}
+\endsetslot
+
+\setslot{rangedash}
+   \ligature{LIG}{hyphen}{cyrdash}
+   \comment{The number range dash `1--9'.  In a monowidth font, this
+      might be set as `{\tt 1{-}9}'.}
+\endsetslot
+
+\setslot{cyrdash}
+   \comment{Cyrillic em dash---longer than endash, but shorter
+     than english emdash: `\cyrdash'.}
+\endsetslot
+
+\setslot{compwordmark}
+   \comment{An invisible glyph, with zero width and depth, but the
+      height of lowercase letters without ascenders.
+      It is used to stop ligaturing in words like `shelf{}ful'.}
+\endsetslot
+
+\setslot{perthousandzero}
+   \comment{A glyph which is placed after `\%' to produce a
+      `per-thousand', or twice to produce `per-ten-thousand'.
+      Your guess is as good as mine as to what this glyph should look
+      like in a monowidth font.}
+\endsetslot
+
+\setslot{\lc{dotlessI}{dotlessi}}
+   \comment{A dotless i `\i', used to produce accented letters such as
+      `\=\i'.}
+\endsetslot
+
+\setslot{\lc{dotlessJ}{dotlessj}}
+   \comment{A dotless j `\j', used to produce accented letters such as
+      `\=\j'.  Most non-\TeX\ fonts do not have this glyph.}
+\endsetslot
+
+\setslot{\lclig{FF}{ff}}
+   \ligature{LIG}{\lc{I}{i}}{\lclig{FFI}{ffi}}
+   \ligature{LIG}{\lc{L}{l}}{\lclig{FFL}{ffl}}
+   \comment{The `ff' ligature.  It should be two characters wide in a
+      monowidth font.}
+\endsetslot
+
+\setslot{\lclig{FI}{fi}}
+   \comment{The `fi' ligature.  It should be two characters wide in a
+      monowidth font.}
+\endsetslot
+
+\setslot{\lclig{FL}{fl}}
+   \comment{The `fl' ligature.  It should be two characters wide in a
+      monowidth font.}
+\endsetslot
+
+\setslot{\lclig{FFI}{ffi}}
+   \comment{The `ffi' ligature.  It should be three characters wide in a
+      monowidth font.}
+\endsetslot
+
+\setslot{\lclig{FFL}{ffl}}
+   \comment{The `ffl' ligature.  It should be three characters wide in a
+      monowidth font.}
+\endsetslot
+
+\setslot{visiblespace}
+   \comment{A visible space glyph `\textvisiblespace'.}
+\endsetslot
+
+\setslot{exclam}
+   \comment{The exclamation mark `!'.}
+\endsetslot
+
+\setslot{quotedbl}
+  \comment{The `neutral' double quotation mark `\,\textquotedbl\,',
+      included for use in monowidth fonts, or for setting computer
+      programs.  Note that the inclusion of this glyph in this slot
+      means that \TeX\ documents which used `{\tt"}' as an
+      input character will no longer work.}
+\endsetslot
+
+\setslot{numbersign}
+   \comment{The hash sign `\#'.}
+\endsetslot
+
+\setslot{dollar}
+   \comment{The dollar sign `\$'.}
+\endsetslot
+
+\setslot{percent}
+   \comment{The percent sign `\%'.}
+\endsetslot
+
+\setslot{ampersand}
+   \comment{The ampersand sign `\&'.}
+\endsetslot
+
+\setslot{quoteright}
+   \ligature{LIG}{quoteright}{quotedblright}
+   \comment{The English closing single quote mark `\,\textquoteright\,'.}
+\endsetslot
+
+\setslot{parenleft}
+   \comment{The opening parenthesis `('.}
+\endsetslot
+
+\setslot{parenright}
+   \comment{The closing parenthesis `)'.}
+\endsetslot
+
+\setslot{asterisk}
+   \comment{The raised asterisk `*'.}
+\endsetslot
+
+\setslot{plus}
+   \comment{The addition sign `+'.}
+\endsetslot
+
+\setslot{comma}
+   \ligature{LIG}{comma}{quotedblbase}
+   \comment{The comma `,'.}
+\endsetslot
+
+\setslot{hyphen}
+   \ligature{LIG}{hyphen}{rangedash}
+   \ligature{LIG}{hyphenchar}{hyphenchar}
+   \comment{The hyphen `-'.}
+\endsetslot
+
+\setslot{period}
+   \comment{The period `.'.}
+\endsetslot
+
+\setslot{slash}
+   \comment{The forward oblique `/'.}
+\endsetslot
+
+\setslot{\digit{zero}}
+   \comment{The number `0'.  This (and all the other numerals) may be
+      old style or ranging digits.}
+\endsetslot
+
+\setslot{\digit{one}}
+   \comment{The number `1'.}
+\endsetslot
+
+\setslot{\digit{two}}
+   \comment{The number `2'.}
+\endsetslot
+
+\setslot{\digit{three}}
+   \comment{The number `3'.}
+\endsetslot
+
+\setslot{\digit{four}}
+   \comment{The number `4'.}
+\endsetslot
+
+\setslot{\digit{five}}
+   \comment{The number `5'.}
+\endsetslot
+
+\setslot{\digit{six}}
+   \comment{The number `6'.}
+\endsetslot
+
+\setslot{\digit{seven}}
+   \comment{The number `7'.}
+\endsetslot
+
+\setslot{\digit{eight}}
+   \comment{The number `8'.}
+\endsetslot
+
+\setslot{\digit{nine}}
+   \comment{The number `9'.}
+\endsetslot
+
+\setslot{colon}
+   \comment{The colon punctuation mark `:'.}
+\endsetslot
+
+\setslot{semicolon}
+   \comment{The semi-colon punctuation mark `;'.}
+\endsetslot
+
+\setslot{less}
+   \ligature{LIG}{less}{guillemotleft}
+   \comment{The less-than sign `\textless'.}
+\endsetslot
+
+\setslot{equal}
+   \comment{The equals sign `='.}
+\endsetslot
+
+\setslot{greater}
+   \ligature{LIG}{greater}{guillemotright}
+   \comment{The greater-than sign `\textgreater'.}
+\endsetslot
+
+\setslot{question}
+   \comment{The question mark `?'.}
+\endsetslot
+
+\setslot{at}
+   \comment{The at sign `@'.}
+\endsetslot
+
+\setslot{\uc{A}{a}}
+   \comment{The letter `A'.}
+\endsetslot
+
+\setslot{\uc{B}{b}}
+   \comment{The letter `B'.}
+\endsetslot
+
+\setslot{\uc{C}{c}}
+   \comment{The letter `C'.}
+\endsetslot
+
+\setslot{\uc{D}{d}}
+   \comment{The letter `D'.}
+\endsetslot
+
+\setslot{\uc{E}{e}}
+   \comment{The letter `E'.}
+\endsetslot
+
+\setslot{\uc{F}{f}}
+   \comment{The letter `F'.}
+\endsetslot
+
+\setslot{\uc{G}{g}}
+   \comment{The letter `G'.}
+\endsetslot
+
+\setslot{\uc{H}{h}}
+   \comment{The letter `H'.}
+\endsetslot
+
+\setslot{\uc{I}{i}}
+   \comment{The letter `I'.}
+\endsetslot
+
+\setslot{\uc{J}{j}}
+   \comment{The letter `J'.}
+\endsetslot
+
+\setslot{\uc{K}{k}}
+   \comment{The letter `K'.}
+\endsetslot
+
+\setslot{\uc{L}{l}}
+   \comment{The letter `L'.}
+\endsetslot
+
+\setslot{\uc{M}{m}}
+   \comment{The letter `M'.}
+\endsetslot
+
+\setslot{\uc{N}{n}}
+   \comment{The letter `N'.}
+\endsetslot
+
+\setslot{\uc{O}{o}}
+   \comment{The letter `O'.}
+\endsetslot
+
+\setslot{\uc{P}{p}}
+   \comment{The letter `P'.}
+\endsetslot
+
+\setslot{\uc{Q}{q}}
+   \comment{The letter `Q'.}
+\endsetslot
+
+\setslot{\uc{R}{r}}
+   \comment{The letter `R'.}
+\endsetslot
+
+\setslot{\uc{S}{s}}
+   \comment{The letter `S'.}
+\endsetslot
+
+\setslot{\uc{T}{t}}
+   \comment{The letter `T'.}
+\endsetslot
+
+\setslot{\uc{U}{u}}
+   \comment{The letter `U'.}
+\endsetslot
+
+\setslot{\uc{V}{v}}
+   \comment{The letter `V'.}
+\endsetslot
+
+\setslot{\uc{W}{w}}
+   \comment{The letter `W'.}
+\endsetslot
+
+\setslot{\uc{X}{x}}
+   \comment{The letter `X'.}
+\endsetslot
+
+\setslot{\uc{Y}{y}}
+   \comment{The letter `Y'.}
+\endsetslot
+
+\setslot{\uc{Z}{z}}
+   \comment{The letter `Z'.}
+\endsetslot
+
+\setslot{bracketleft}
+   \comment{The opening square bracket `['.}
+\endsetslot
+
+\setslot{backslash}
+   \comment{The backwards oblique `\textbackslash'.}
+\endsetslot
+
+\setslot{bracketright}
+   \comment{The closing square bracket `]'.}
+\endsetslot
+
+\setslot{asciicircum}
+   \comment{The ASCII upward-pointing arrow head `\textasciicircum'.
+      This is included for compatibility with typewriter fonts used
+      for computer listings.}
+\endsetslot
+
+\setslot{underscore}
+   \comment{The ASCII underline character `\textunderscore', usually
+      set on the baseline.
+      This is included for compatibility with typewriter fonts used
+      for computer listings.}
+\endsetslot
+
+\setslot{quoteleft}
+   \ligature{LIG}{quoteleft}{quotedblleft}
+   \comment{The English opening single quote mark `\,\textquoteleft\,'.}
+\endsetslot
+
+\setslot{\lc{A}{a}}
+   \comment{The letter `a'.}
+\endsetslot
+
+\setslot{\lc{B}{b}}
+   \comment{The letter `b'.}
+\endsetslot
+
+\setslot{\lc{C}{c}}
+   \comment{The letter `c'.}
+\endsetslot
+
+\setslot{\lc{D}{d}}
+   \comment{The letter `d'.}
+\endsetslot
+
+\setslot{\lc{E}{e}}
+   \comment{The letter `e'.}
+\endsetslot
+
+\setslot{\lc{F}{f}}
+\ifisint{monowidth}\then\else
+   \ligature{LIG}{\lc{I}{i}}{\lclig{FI}{fi}}
+   \ligature{LIG}{\lc{F}{f}}{\lclig{FF}{ff}}
+   \ligature{LIG}{\lc{L}{l}}{\lclig{FL}{fl}}
+\fi
+   \comment{The letter `f'.}
+\endsetslot
+
+\setslot{\lc{G}{g}}
+   \comment{The letter `g'.}
+\endsetslot
+
+\setslot{\lc{H}{h}}
+   \comment{The letter `h'.}
+\endsetslot
+
+\setslot{\lc{I}{i}}
+   \comment{The letter `i'.}
+\endsetslot
+
+\setslot{\lc{J}{j}}
+   \comment{The letter `j'.}
+\endsetslot
+
+\setslot{\lc{K}{k}}
+   \comment{The letter `k'.}
+\endsetslot
+
+\setslot{\lc{L}{l}}
+   \comment{The letter `l'.}
+\endsetslot
+
+\setslot{\lc{M}{m}}
+   \comment{The letter `m'.}
+\endsetslot
+
+\setslot{\lc{N}{n}}
+   \comment{The letter `n'.}
+\endsetslot
+
+\setslot{\lc{O}{o}}
+   \comment{The letter `o'.}
+\endsetslot
+
+\setslot{\lc{P}{p}}
+   \comment{The letter `p'.}
+\endsetslot
+
+\setslot{\lc{Q}{q}}
+   \comment{The letter `q'.}
+\endsetslot
+
+\setslot{\lc{R}{r}}
+   \comment{The letter `r'.}
+\endsetslot
+
+\setslot{\lc{S}{s}}
+   \comment{The letter `s'.}
+\endsetslot
+
+\setslot{\lc{T}{t}}
+   \comment{The letter `t'.}
+\endsetslot
+
+\setslot{\lc{U}{u}}
+   \comment{The letter `u'.}
+\endsetslot
+
+\setslot{\lc{V}{v}}
+   \comment{The letter `v'.}
+\endsetslot
+
+\setslot{\lc{W}{w}}
+   \comment{The letter `w'.}
+\endsetslot
+
+\setslot{\lc{X}{x}}
+   \comment{The letter `x'.}
+\endsetslot
+
+\setslot{\lc{Y}{y}}
+   \comment{The letter `y'.}
+\endsetslot
+
+\setslot{\lc{Z}{z}}
+   \comment{The letter `z'.}
+\endsetslot
+
+\setslot{braceleft}
+   \comment{The opening curly brace `\textbraceleft'.}
+\endsetslot
+
+\setslot{bar}
+   \comment{The ASCII vertical bar `\textbar'.
+      This is included for compatibility with typewriter fonts used
+      for computer listings.}
+\endsetslot
+
+\setslot{braceright}
+   \comment{The closing curly brace `\textbraceright'.}
+\endsetslot
+
+\setslot{asciitilde}
+   \comment{The ASCII tilde `\textasciitilde'.
+      This is included for compatibility with typewriter fonts used
+      for computer listings.}
+\endsetslot
+
+\setslot{hyphenchar}
+   \comment{The glyph used for hyphenation in this font, which will
+      almost always be the same as `hyphen'.}
+\endsetslot
+
+\setslot{\uc{CYRGUP}{cyrgup}}
+  \comment{Cyrillic capital letter ghe with upturn `\CYRGUP'.}
+\endsetslot
+
+\setslot{\uc{CYRGHCRS}{cyrghcrs}}
+  \comment{Cyrillic capital letter ghe with stroke `\CYRGHCRS'.}
+\endsetslot
+
+\setslot{\uc{CYRDJE}{cyrdje}}
+  \comment{Cyrillic capital letter dje `\CYRDJE'.}
+\endsetslot
+
+\setslot{\uc{CYRTSHE}{cyrtshe}}
+  \comment{Cyrillic capital letter tshe `\CYRTSHE'.}
+\endsetslot
+
+\setslot{\uc{CYRSHHA}{cyrshha}}
+  \comment{Cyrillic capital letter shha `\CYRSHHA'.}
+\endsetslot
+
+\setslot{\uc{CYRZHDSC}{cyrzhdsc}}
+  \comment{Cyrillic capital letter zhe with descender `\CYRZHDSC'.}
+\endsetslot
+
+\setslot{\uc{CYRZDSC}{cyrzdsc}}
+  \comment{Cyrillic capital letter ze with descender `\CYRZDSC'.}
+\endsetslot
+
+\setslot{\uc{CYRLJE}{cyrlje}}
+  \comment{Cyrillic capital letter lje `\CYRLJE'.}
+\endsetslot
+
+\setslot{\uc{CYRYI}{cyryi}}
+  \comment{Cyrillic capital letter yi `\CYRYI'.}
+\endsetslot
+
+\setslot{\uc{CYRKDSC}{cyrkdsc}}
+  \comment{Cyrillic capital letter ka with descender `\CYRKDSC'.}
+\endsetslot
+
+\setslot{\uc{CYRKBEAK}{cyrkbeak}}
+  \comment{Cyrillic capital letter bashkir ka `\CYRKBEAK'.}
+\endsetslot
+
+\setslot{\uc{CYRKVCRS}{cyrkvcrs}}
+  \comment{Cyrillic capital letter ka with vertical stroke `\CYRKVCRS'.}
+\endsetslot
+
+\setslot{\uc{CYRAE}{cyrae}}
+  \comment{Cyrillic capital ligature a ie `\CYRAE'.}
+\endsetslot
+
+\setslot{\uc{CYRNDSC}{cyrndsc}}
+  \comment{Cyrillic capital letter en with descender `\CYRNDSC'.}
+\endsetslot
+
+\setslot{\uc{CYRNG}{cyrng}}
+  \comment{Cyrillic capital ligature en ghe `\CYRNG'.}
+\endsetslot
+
+\setslot{\uc{CYRDZE}{cyrdze}}
+  \comment{Cyrillic capital letter dze `\CYRDZE'.}
+\endsetslot
+
+\setslot{\uc{CYROTLD}{cyrotld}}
+  \comment{Cyrillic capital letter barred o `\CYROTLD'.}
+\endsetslot
+
+\setslot{\uc{CYRSDSC}{cyrsdsc}}
+  \comment{Cyrillic capital letter es with descender `\CYRSDSC'.}
+\endsetslot
+
+\setslot{\uc{CYRUSHRT}{cyrushrt}}
+  \comment{Cyrillic capital letter short u `\CYRUSHRT'.}
+\endsetslot
+
+\setslot{\uc{CYRY}{cyry}}
+  \comment{Cyrillic capital letter straight u `\CYRY'.}
+\endsetslot
+
+\setslot{\uc{CYRYHCRS}{cyryhcrs}}
+  \comment{Cyrillic capital letter straight u with stroke `\CYRYHCRS'.}
+\endsetslot
+
+\setslot{\uc{CYRHDSC}{cyrhdsc}}
+  \comment{Cyrillic capital letter ha with descender `\CYRHDSC'.}
+\endsetslot
+
+\setslot{\uc{CYRDZHE}{cyrdzhe}}
+  \comment{Cyrillic capital letter dzhe `\CYRDZHE'.}
+\endsetslot
+
+\setslot{\uc{CYRCHVCRS}{cyrchvcrs}}
+  \comment{Cyrillic capital letter che with vertical stroke `\CYRCHVCRS'.}
+\endsetslot
+
+\setslot{\uc{CYRCHRDSC}{cyrchrdsc}}
+  \comment{Cyrillic capital letter che with descender `\CYRCHRDSC'.}
+\endsetslot
+
+\setslot{\uc{CYRIE}{cyrie}}
+  \comment{Cyrillic capital letter ukrainian ie `\CYRIE'.}
+\endsetslot
+
+\setslot{\uc{CYRSCHWA}{cyrschwa}}
+  \comment{Cyrillic capital letter schwa `\CYRSCHWA'.}
+\endsetslot
+
+\setslot{\uc{CYRNJE}{cyrnje}}
+  \comment{Cyrillic capital letter nje `\CYRNJE'.}
+\endsetslot
+
+\setslot{\uc{CYRYO}{cyryo}}
+  \comment{Cyrillic capital letter io `\CYRYO'.}
+\endsetslot
+
+\setslot{numero}
+   \comment{The numero sign `\textnumero', similar to the letter `N'
+      with a raised `o', unavailable in most PostScript fonts.}
+\endsetslot
+
+\setslot{currency}
+   \comment{The international currency sign, `\textcurrency'.}
+\endsetslot
+
+\setslot{section}
+   \comment{The section mark `\textsection'.}
+\endsetslot
+
+\setslot{\lc{CYRGUP}{cyrgup}}
+  \comment{Cyrillic small letter ghe with upturn `\cyrgup'.}
+\endsetslot
+
+\setslot{\lc{CYRGHCRS}{cyrghcrs}}
+  \comment{Cyrillic small letter ghe with stroke `\cyrghcrs'.}
+\endsetslot
+
+\setslot{\lc{CYRDJE}{cyrdje}}
+  \comment{Cyrillic small letter dje `\cyrdje'.}
+\endsetslot
+
+\setslot{\lc{CYRTSHE}{cyrtshe}}
+  \comment{Cyrillic small letter tshe `\cyrtshe'.}
+\endsetslot
+
+\setslot{\lc{CYRSHHA}{cyrshha}}
+  \comment{Cyrillic small letter shha `\cyrshha'.}
+\endsetslot
+
+\setslot{\lc{CYRZHDSC}{cyrzhdsc}}
+  \comment{Cyrillic small letter zhe with descender `\cyrzhdsc'.}
+\endsetslot
+
+\setslot{\lc{CYRZDSC}{cyrzdsc}}
+  \comment{Cyrillic small letter ze with descender `\cyrzdsc'.}
+\endsetslot
+
+\setslot{\lc{CYRLJE}{cyrlje}}
+  \comment{Cyrillic small letter lje `\cyrlje'.}
+\endsetslot
+
+\setslot{\lc{CYRYI}{cyryi}}
+  \comment{Cyrillic small letter yi `\cyryi'.}
+\endsetslot
+
+\setslot{\lc{CYRKDSC}{cyrkdsc}}
+  \comment{Cyrillic small letter ka with descender `\cyrkdsc'.}
+\endsetslot
+
+\setslot{\lc{CYRKBEAK}{cyrkbeak}}
+  \comment{Cyrillic small letter bashkir ka `\cyrkbeak'.}
+\endsetslot
+
+\setslot{\lc{CYRKVCRS}{cyrkvcrs}}
+  \comment{Cyrillic small letter ka with vertical stroke `\cyrkvcrs'.}
+\endsetslot
+
+\setslot{\lc{CYRAE}{cyrae}}
+  \comment{Cyrillic small ligature a ie `\cyrae'.}
+\endsetslot
+
+\setslot{\lc{CYRNDSC}{cyrndsc}}
+  \comment{Cyrillic small letter en with descender `\cyrndsc'.}
+\endsetslot
+
+\setslot{\lc{CYRNG}{cyrng}}
+  \comment{Cyrillic small ligature en ghe `\cyrng'.}
+\endsetslot
+
+\setslot{\lc{CYRDZE}{cyrdze}}
+  \comment{Cyrillic small letter dze `\cyrdze'.}
+\endsetslot
+
+\setslot{\lc{CYROTLD}{cyrotld}}
+  \comment{Cyrillic small letter barred o `\cyrotld'.}
+\endsetslot
+
+\setslot{\lc{CYRSDSC}{cyrsdsc}}
+  \comment{Cyrillic small letter es with descender `\cyrsdsc'.}
+\endsetslot
+
+\setslot{\lc{CYRUSHRT}{cyrushrt}}
+  \comment{Cyrillic small letter short u `\cyrushrt'.}
+\endsetslot
+
+\setslot{\lc{CYRY}{cyry}}
+  \comment{Cyrillic small letter straight u `\cyry'.}
+\endsetslot
+
+\setslot{\lc{CYRYHCRS}{cyryhcrs}}
+  \comment{Cyrillic small letter straight u with stroke `\cyryhcrs'.}
+\endsetslot
+
+\setslot{\lc{CYRHDSC}{cyrhdsc}}
+  \comment{Cyrillic small letter ha with descender `\cyrhdsc'.}
+\endsetslot
+
+\setslot{\lc{CYRDZHE}{cyrdzhe}}
+  \comment{Cyrillic small letter dzhe `\cyrdzhe'.}
+\endsetslot
+
+\setslot{\lc{CYRCHVCRS}{cyrchvcrs}}
+  \comment{Cyrillic small letter che with vertical stroke `\cyrchvcrs'.}
+\endsetslot
+
+\setslot{\lc{CYRCHRDSC}{cyrchrdsc}}
+  \comment{Cyrillic small letter che with descender `\cyrchrdsc'.}
+\endsetslot
+
+\setslot{\lc{CYRIE}{cyrie}}
+  \comment{Cyrillic small letter ukrainian ie `\cyrie'.}
+\endsetslot
+
+\setslot{\lc{CYRSCHWA}{cyrschwa}}
+  \comment{Cyrillic small letter schwa `\cyrschwa'.}
+\endsetslot
+
+\setslot{\lc{CYRNJE}{cyrnje}}
+  \comment{Cyrillic small letter nje `\cyrnje'.}
+\endsetslot
+
+\setslot{\lc{CYRYO}{cyryo}}
+  \comment{Cyrillic small letter io `\cyryo'.}
+\endsetslot
+
+\setslot{quotedblbase}
+  \comment{A German double quote mark `\quotedblbase' similar to two commas,
+      but with tighter letterspacing and different sidebearings.}
+\endsetslot
+
+\setslot{guillemotleft}
+  \comment{A Cyrillic double opening quote mark `\guillemotleft',
+      unavailable in \plain\ \TeX.}
+\endsetslot
+
+\setslot{guillemotright}
+  \comment{A Cyrillic double closing quote mark `\guillemotright',
+      unavailable in \plain\ \TeX.}
+\endsetslot
+
+\setslot{\uc{CYRA}{cyra}}
+  \comment{Cyrillic capital letter a `\CYRA'.}
+\endsetslot
+
+\setslot{\uc{CYRB}{cyrb}}
+  \comment{Cyrillic capital letter be `\CYRB'.}
+\endsetslot
+
+\setslot{\uc{CYRV}{cyrv}}
+  \comment{Cyrillic capital letter ve `\CYRV'.}
+\endsetslot
+
+\setslot{\uc{CYRG}{cyrg}}
+  \comment{Cyrillic capital letter ghe `\CYRG'.}
+\endsetslot
+
+\setslot{\uc{CYRD}{cyrd}}
+  \comment{Cyrillic capital letter de `\CYRD'.}
+\endsetslot
+
+\setslot{\uc{CYRE}{cyre}}
+  \comment{Cyrillic capital letter ie `\CYRE'.}
+\endsetslot
+
+\setslot{\uc{CYRZH}{cyrzh}}
+  \comment{Cyrillic capital letter zhe `\CYRZH'.}
+\endsetslot
+
+\setslot{\uc{CYRZ}{cyrz}}
+  \comment{Cyrillic capital letter ze `\CYRZ'.}
+\endsetslot
+
+\setslot{\uc{CYRI}{cyri}}
+  \comment{Cyrillic capital letter i `\CYRI'.}
+\endsetslot
+
+\setslot{\uc{CYRISHRT}{cyrishrt}}
+  \comment{Cyrillic capital letter short i `\CYRISHRT'.}
+\endsetslot
+
+\setslot{\uc{CYRK}{cyrk}}
+  \comment{Cyrillic capital letter ka `\CYRK'.}
+\endsetslot
+
+\setslot{\uc{CYRL}{cyrl}}
+  \comment{Cyrillic capital letter el `\CYRL'.}
+\endsetslot
+
+\setslot{\uc{CYRM}{cyrm}}
+  \comment{Cyrillic capital letter em `\CYRM'.}
+\endsetslot
+
+\setslot{\uc{CYRN}{cyrn}}
+  \comment{Cyrillic capital letter en `\CYRN'.}
+\endsetslot
+
+\setslot{\uc{CYRO}{cyro}}
+  \comment{Cyrillic capital letter o `\CYRO'.}
+\endsetslot
+
+\setslot{\uc{CYRP}{cyrp}}
+  \comment{Cyrillic capital letter pe `\CYRP'.}
+\endsetslot
+
+\setslot{\uc{CYRR}{cyrr}}
+  \comment{Cyrillic capital letter er `\CYRR'.}
+\endsetslot
+
+\setslot{\uc{CYRS}{cyrs}}
+  \comment{Cyrillic capital letter es `\CYRS'.}
+\endsetslot
+
+\setslot{\uc{CYRT}{cyrt}}
+  \comment{Cyrillic capital letter te `\CYRT'.}
+\endsetslot
+
+\setslot{\uc{CYRU}{cyru}}
+  \comment{Cyrillic capital letter u `\CYRU'.}
+\endsetslot
+
+\setslot{\uc{CYRF}{cyrf}}
+  \comment{Cyrillic capital letter ef `\CYRF'.}
+\endsetslot
+
+\setslot{\uc{CYRH}{cyrh}}
+  \comment{Cyrillic capital letter ha `\CYRH'.}
+\endsetslot
+
+\setslot{\uc{CYRC}{cyrc}}
+  \comment{Cyrillic capital letter tse `\CYRC'.}
+\endsetslot
+
+\setslot{\uc{CYRCH}{cyrch}}
+  \comment{Cyrillic capital letter che `\CYRCH'.}
+\endsetslot
+
+\setslot{\uc{CYRSH}{cyrsh}}
+  \comment{Cyrillic capital letter sha `\CYRSH'.}
+\endsetslot
+
+\setslot{\uc{CYRSHCH}{cyrshch}}
+  \comment{Cyrillic capital letter shcha `\CYRSHCH'.}
+\endsetslot
+
+\setslot{\uc{CYRHRDSN}{cyrhrdsn}}
+  \comment{Cyrillic capital letter hard sign `\CYRHRDSN'.}
+\endsetslot
+
+\setslot{\uc{CYRERY}{cyrery}}
+  \comment{Cyrillic capital letter yeru `\CYRERY'.}
+\endsetslot
+
+\setslot{\uc{CYRSFTSN}{cyrsftsn}}
+  \comment{Cyrillic capital letter soft sign `\CYRSFTSN'.}
+\endsetslot
+
+\setslot{\uc{CYREREV}{cyrerev}}
+  \comment{Cyrillic capital letter e `\CYREREV'.}
+\endsetslot
+
+\setslot{\uc{CYRYU}{cyryu}}
+  \comment{Cyrillic capital letter yu `\CYRYU'.}
+\endsetslot
+
+\setslot{\uc{CYRYA}{cyrya}}
+  \comment{Cyrillic capital letter ya `\CYRYA'.}
+\endsetslot
+
+\setslot{\lc{CYRA}{cyra}}
+  \comment{Cyrillic small letter a `\cyra'.}
+\endsetslot
+
+\setslot{\lc{CYRB}{cyrb}}
+  \comment{Cyrillic small letter be `\cyrb'.}
+\endsetslot
+
+\setslot{\lc{CYRV}{cyrv}}
+  \comment{Cyrillic small letter ve `\cyrv'.}
+\endsetslot
+
+\setslot{\lc{CYRG}{cyrg}}
+  \comment{Cyrillic small letter ghe `\cyrg'.}
+\endsetslot
+
+\setslot{\lc{CYRD}{cyrd}}
+  \comment{Cyrillic small letter de `\cyrd'.}
+\endsetslot
+
+\setslot{\lc{CYRE}{cyre}}
+  \comment{Cyrillic small letter ie `\cyre'.}
+\endsetslot
+
+\setslot{\lc{CYRZH}{cyrzh}}
+  \comment{Cyrillic small letter zhe `\cyrzh'.}
+\endsetslot
+
+\setslot{\lc{CYRZ}{cyrz}}
+  \comment{Cyrillic small letter ze `\cyrz'.}
+\endsetslot
+
+\setslot{\lc{CYRI}{cyri}}
+  \comment{Cyrillic small letter i `\cyri'.}
+\endsetslot
+
+\setslot{\lc{CYRISHRT}{cyrishrt}}
+  \comment{Cyrillic small letter short i `\cyrishrt'.}
+\endsetslot
+
+\setslot{\lc{CYRK}{cyrk}}
+  \comment{Cyrillic small letter ka `\cyrk'.}
+\endsetslot
+
+\setslot{\lc{CYRL}{cyrl}}
+  \comment{Cyrillic small letter el `\cyrl'.}
+\endsetslot
+
+\setslot{\lc{CYRM}{cyrm}}
+  \comment{Cyrillic small letter em `\cyrm'.}
+\endsetslot
+
+\setslot{\lc{CYRN}{cyrn}}
+  \comment{Cyrillic small letter en `\cyrn'.}
+\endsetslot
+
+\setslot{\lc{CYRO}{cyro}}
+  \comment{Cyrillic small letter o `\cyro'.}
+\endsetslot
+
+\setslot{\lc{CYRP}{cyrp}}
+  \comment{Cyrillic small letter pe `\cyrp'.}
+\endsetslot
+
+\setslot{\lc{CYRR}{cyrr}}
+  \comment{Cyrillic small letter er `\cyrr'.}
+\endsetslot
+
+\setslot{\lc{CYRS}{cyrs}}
+  \comment{Cyrillic small letter es `\cyrs'.}
+\endsetslot
+
+\setslot{\lc{CYRT}{cyrt}}
+  \comment{Cyrillic small letter te `\cyrt'.}
+\endsetslot
+
+\setslot{\lc{CYRU}{cyru}}
+  \comment{Cyrillic small letter u `\cyru'.}
+\endsetslot
+
+\setslot{\lc{CYRF}{cyrf}}
+  \comment{Cyrillic small letter ef `\cyrf'.}
+\endsetslot
+
+\setslot{\lc{CYRH}{cyrh}}
+  \comment{Cyrillic small letter ha `\cyrh'.}
+\endsetslot
+
+\setslot{\lc{CYRC}{cyrc}}
+  \comment{Cyrillic small letter tse `\cyrc'.}
+\endsetslot
+
+\setslot{\lc{CYRCH}{cyrch}}
+  \comment{Cyrillic small letter che `\cyrch'.}
+\endsetslot
+
+\setslot{\lc{CYRSH}{cyrsh}}
+  \comment{Cyrillic small letter sha `\cyrsh'.}
+\endsetslot
+
+\setslot{\lc{CYRSHCH}{cyrshch}}
+  \comment{Cyrillic small letter shcha `\cyrshch'.}
+\endsetslot
+
+\setslot{\lc{CYRHRDSN}{cyrhrdsn}}
+  \comment{Cyrillic small letter hard sign `\cyrhrdsn'.}
+\endsetslot
+
+\setslot{\lc{CYRERY}{cyrery}}
+  \comment{Cyrillic small letter yeru `\cyrery'.}
+\endsetslot
+
+\setslot{\lc{CYRSFTSN}{cyrsftsn}}
+  \comment{Cyrillic small letter soft sign `\cyrsftsn'.}
+\endsetslot
+
+\setslot{\lc{CYREREV}{cyrerev}}
+  \comment{Cyrillic small letter e `\cyrerev'.}
+\endsetslot
+
+\setslot{\lc{CYRYU}{cyryu}}
+  \comment{Cyrillic small letter yu `\cyryu'.}
+\endsetslot
+
+\setslot{\lc{CYRYA}{cyrya}}
+  \comment{Cyrillic small letter ya `\cyrya'.}
+\endsetslot
+
+\endencoding
+\end{document}

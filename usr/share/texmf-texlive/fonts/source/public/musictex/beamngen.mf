@@ -1,0 +1,83 @@
+% Length has been changed to longueur for BCPL_string
+% Nicolas Brouard 25/10/91
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                             %
+%                   BALKEN                                    %
+%                                                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+font_x_height beamht#;
+
+def drawbeams (expr st, jj, nn) =
+    save i, j, longueur, height;
+    numeric i, j, longueur, height;
+    longueur:= 60.0/32;
+    for i=0 upto 5:
+        height := longueur*st ;
+        beginchar(jj*6+i, longueur, height, 0);
+           clear;
+           z2 = (w,h);
+           z1 = origin;
+           penpos1(beamht,90);
+           penpos2(beamht,90);
+           for j=0 upto nn-1:
+             penstroke (z1e---z2e) shifted (0,beamstep*j);
+           endfor;
+         endchar;
+         longueur :=  2*longueur;
+    endfor;
+enddef;
+
+def drawbeamsneg (expr st, jj, nn) =
+    save i, longueur, depth;
+    numeric i, longueur, depth;
+    longueur:= 60.0/32;
+    for i=0 upto 5:
+        depth := longueur*st;
+        beginchar(64+jj*6+i, longueur, 0, depth);
+           clear;
+           z2 = (w,d);
+           z1 = origin;
+           penpos1(beamht,90);
+           penpos2(beamht,90);
+           for j=0 upto nn-1:
+             penstroke (z1e---z2e) shifted (0,beamstep*j);
+           endfor;
+         endchar;
+         longueur :=  2*longueur;
+    endfor;
+enddef;
+numeric beamstep;
+numeric ss[];
+
+beamstep:=0.75nhh;
+ss[0]:=0.05;
+ss[1]:=0.10;
+ss[2]:=0.15;
+ss[3]:=0.20;
+ss[4]:=0.25;
+ss[5]:=0.30;
+ss[6]:=0.35;
+ss[7]:=0.4;
+ss[8]:=0.45;
+ss[9]:=0.50;
+ss[10]:=0.55;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Balken mit positiver Steigung %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+for j=0 upto 9 :
+drawbeams(ss[j],j,beammult);
+endfor;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Balken mit negativer Steigung %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+for j=0 upto 9 :
+drawbeamsneg(-ss[j],j,beammult);
+endfor;
+
+end;

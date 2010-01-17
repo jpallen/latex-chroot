@@ -1,0 +1,183 @@
+% This is  ITALIJ.MF
+% Version 1.0b 
+% Date 8-MAY-1993
+% 
+% (c) 1991, 1993 by J"org Knappen. See fc.rme for copying conditions
+% This file is part of the fc-package 
+% See fc.rme for more information
+%
+% J"org Knappen
+% Institut f"ur Kernphysik
+% Postfach 39 80
+% D-W 6500 Mainz
+% knappen@vkpmzd.kph.uni-mainz.de
+
+% Contents:
+%
+% The following characters are generated without condition:
+%
+% \i, i, \j, j
+%
+% And the following on demand, i. e. if their code is known:
+%
+% i_umlaut, i_tilde, latin_iota, dotless_i_dotu
+%
+% Higher versions of this file might include more characters.
+
+cmchar "Dotless italic letter i";
+beginchar(oct"031",5u#,x_height#,0);
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(if monospace:u#,u# else: 0,0 fi); pickup fine.nib;
+x0=0; x5=w; x2=.5w+.25u; x3=.5w-.25u;
+hook_in(0,1,2)(skewed); hook_out(3,4,5)(skewed);  % hooks
+filldraw stroke z2e--z3e;  % stem
+pos8(flare,0);
+x8=.5w if not monospace:-.4(h-x_height)*slant fi; 
+savedpoint:=x8;
+picture savedpicture;
+savedpicture:=currentpicture;
+penlabels(0,1,2,3,4,5); endchar;
+
+iff known dotless_i_dotu:
+cmchar "The letter dotless i with dot below";
+beginchar(dotless_i_dotu,5u#,min(asc_height#,10/7x_height#+.5flare#),
+  0.875desc_depth#);
+italcorr h#*slant-serif_fit# + .5flare# -2u#;
+adjust_fit(serif_fit#+stem_shift# if monospace:+.25u#fi,serif_fit#-stem_shift#);
+pickup tiny.nib; pos1(stem',0); pos2(stem',0);
+if odd(w-stem'): change_width; fi
+currentpicture:=savedpicture;
+pos88(flare,0); pos99(flare,90);
+x88=x99=savedpoint; bot y99l=-d-1; 
+if top y99r+oo>-slab: y99r:=max(y99l+eps,-oo-tiny-slab); fi
+y88=.5[y99r,y99l];
+dot(88,99); 
+penlabels(88,99); endchar;
+
+numeric savedpoint;
+
+iff known i_tilde:
+cmchar "The letter i with tilde";
+beginchar(i_tilde,5u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr x_height#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(if monospace:u#,u# else: 0,0 fi); pickup fine.nib;
+pickup tiny.nib; pos11(stem',0); pos22(stem',0);
+if odd(w-stem'): change_width; fi
+currentpicture:=savedpicture;
+if serifs: numeric theta; theta=angle(1/6(6u-vair),1/4(h-x_height));
+ pickup crisp.nib; numeric mid_width; mid_width=.4[vair,stem];
+ pos1(vair,theta+90); pos2(vair,theta+90);
+ pos3(vair,theta+90); pos4(vair,theta+90);
+ z2-z1=z4-z3=(mid_width-crisp)*dir theta;
+ lft x1r=hround 0;rt x4l=hround w; top y4r=h;
+ bot y1l=vround(bot y1l+min(2/3[x_height,h],y3l-.25vair)-top y1r);
+ pair delta; ypart delta=3(y3l-y1l); delta=whatever*dir theta;
+ filldraw z1l..controls(z1l+delta)and(z3l-delta)..z3l..z4l
+  --z4r..controls(z4r-delta)and(z2r+delta)..z2r..z1r--cycle;  % stroke
+else: pickup fine.nib; pos1(vair,180); pos2(vair,90);
+ pos3(.5[vair,slab],90); pos4(vair,90); pos5(vair,180);
+ lft x1r=hround 0;rt x5l=hround w; x2-x1=x3-x2=x4-x3=x5-x4;
+ bot y1=bot y4l=vround(.75[x_height,h]-vair);
+ top y2r=top y5=h; y3=.5[y2,y4];
+ filldraw stroke z1e{up}...z2e{right}..z3e..{right}z4e...{up}z5e; fi % stroke
+penlabels(1,2,3,4,5); endchar;
+
+iff known i_umlaut:
+cmchar "The letter i with trema";
+beginchar(i_umlaut,5u#,.75[x_height#,min(asc_height#,2x_height#)],0);
+italcorr x_height#*slant-serif_fit#+.5stem#-2u#;
+adjust_fit(if monospace:u#,u# else: 0,0 fi); pickup fine.nib;
+pickup tiny.nib; pos11(stem',0); pos22(stem',0);
+if odd(w-stem'): change_width; fi
+currentpicture:=savedpicture;
+pickup tiny.nib; pos1(flare,0); pos2(flare,90);
+pos3(flare,0); penpos4(y2r-y2l,90); y3=y4=y1; 
+if not monospace: x1=x2=w-x3=w-x4=good.x(.5w-2u);
+else: x1=x2=w-x3=w-x4=good.x(.5w-u); fi 
+top y2r=h+1;
+if bot y2l<x_height+o+slab: y2l:=min(y2r-eps,x_height+o+slab+.5tiny); fi
+y1=.5[y2l,y2r]; dot(1,2);  % left dot
+dot(3,4);  % right dot
+penlabels(1,2,3,4); endchar;
+
+savedpicture:=nullpicture;
+
+cmchar "Italic letter i";
+beginchar("i",5u#,min(asc_height#,10/7x_height#+.5flare#),0);
+italcorr max(1/3x_height#*slant+.5hair#+.5u#,h#*slant+.5flare#-2u#);
+adjust_fit(if monospace:u#,u# else: 0,0 fi); pickup fine.nib;
+x0=0; x5=w; x2=.5w+.25u; x3=.5w-.25u;
+hook_in(0,1,2)(skewed); hook_out(3,4,5)(skewed);  % hooks
+filldraw stroke z2e--z3e;  % stem
+pos8(flare,0); pos9(flare,90);
+x8=.5w if not monospace:-.4(h-x_height)*slant fi; top y9r=h+1;
+if bot y9l-top y1<slab: y9l:=min(y9r-eps,y1+fine+slab); fi
+x8=x9; y8=.5[y9l,y9r]; dot(8,9);  % dot
+picture savedpicture;
+savedpicture:=currentpicture;
+savedpoint:=x8;
+math_fit(-2/3x_height#*slant+.5hair#+.5u#,ic#);
+penlabels(0,1,2,3,4,5,8,9); endchar;
+
+iff known i_dotu:
+cmchar "The letter i with dot below";
+beginchar(i_dotu,5u#,min(asc_height#,10/7x_height#+.5flare#),
+  0.875desc_depth#);
+italcorr h#*slant-serif_fit# + .5flare# -2u#;
+adjust_fit(serif_fit#+stem_shift# if monospace:+.25u#fi,serif_fit#-stem_shift#);
+pickup tiny.nib; pos1(stem',0); pos2(stem',0);
+if odd(w-stem'): change_width; fi
+currentpicture:=savedpicture;
+pos88(flare,0); pos99(flare,90);
+x88=x99=savedpoint; bot y99l=-d-1; 
+if top y99r+oo>-slab: y99r:=max(y99l+eps,-oo-tiny-slab); fi
+y88=.5[y99r,y99l];
+dot(88,99); 
+penlabels(88,99); endchar;
+
+numeric savedpoint;
+savedpicture:=nullpicture;
+
+iff known latin_iota:
+cmchar "Italic letter latin iota";   % jk, free invention since I hadn't
+beginchar(latin_iota,5u#,x_height#,desc_depth#);    % a sample available
+italcorr 1/3x_height#*slant+.5hair#+.5u#;
+adjust_fit(if monospace:u#,u# else: 0,0 fi); pickup fine.nib;
+x0=0; x5=w; x2=.5w+.25u; x3=.5w-.25u; y3=-1/3d;
+hook_in(0,1,2)(skewed); d_hook_out(3,4,5);  % hooks
+filldraw stroke z2e--z3e;  % stem
+penlabels(0,1,2,3,4,5); endchar;
+
+
+cmchar "Dotless italic letter j";
+beginchar(oct"032",5.5u#,x_height#,desc_depth#);
+italcorr x_height#*slant+.5stem#-2u#;
+adjust_fit(if monospace:2u# else: 0 fi, 0); pickup fine.nib;
+x0=0; x2=x3; pos3(stem,0); lft x3l=hround(w-2u-.5stem);
+hook_in(0,1,2);  % opening hook
+pos4(vair,-90); pos5(hair,-180); pos6(flare,-180);
+bot y3=-1/3d; bot y4r=-d-oo; y6-.5flare=-vround.9d;
+x4=1/3(w-u); lft x5r=min(hround-.5u,lft x5r+x4-x5l-eps);
+filldraw stroke z2e---z3e...{left}z4e;  % stem and arc
+bulb(4,5,6);  % bulb
+penlabels(0,1,2,3,4,5,6); endchar;
+
+cmchar "Italic letter j";
+beginchar("j",5u#,min(asc_height#,10/7x_height#+.5flare#),desc_depth#);
+italcorr h#*slant+.5stem#-u#;
+adjust_fit(if monospace:2u#,.5u# else: 0,0 fi); pickup fine.nib;
+x0=0; x2=x3; pos3(stem,0); lft x3l=hround(w-1.5u-.5stem);
+hook_in(0,1,2);  % opening hook
+pos4(vair,-90); pos5(hair,-180); pos6(flare,-180);
+bot y3=-1/3d; bot y4r=-d-oo; y6-.5flare=-vround.9d;
+x4=1/3(w-u); lft x5r=min(hround-.5u,lft x5r+x4-x5l-eps);
+filldraw stroke z2e---z3e...{left}z4e;  % stem and arc
+bulb(4,5,6);  % bulb
+pos8(flare,0); pos9(flare,90);
+rt x8r=rt x2r if not monospace:-.6(h-x_height)*slant fi; top y9r=h+1;
+if bot y9l-top y1<slab: y9l:=min(y9r-eps,y1+fine+slab); fi
+x8=x9; y8=.5[y9l,y9r]; dot(8,9);  % dot
+math_fit(desc_depth#*slant,x_height#*slant+.5stem#-u#);
+penlabels(0,1,2,3,4,5,6,8,9); endchar;
+
+endinput;

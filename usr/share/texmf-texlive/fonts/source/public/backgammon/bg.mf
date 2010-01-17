@@ -1,0 +1,1098 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   bg.mf : A character set to draw backgammon matches in LaTeX       %
+%								      %
+% 		Copyright by J. Richter 1994                          %
+%								      %
+% Distribution and use is free, as long as you don't change this file %
+%								      %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+mode_setup;
+
+size# := 30pt#; % Length of the edge of one square
+number_shadepoints := 15; % Numbers of pixels for black point per row
+
+pensize# := size#/100;
+
+define_pixels(size, pensize);
+
+whitecheckersize := size-3*pensize;
+blackcheckersize := size;
+digitpensize := 5*pensize;
+
+erasediameter := size/2;
+
+font_x_height size#;
+font_quad size#;
+
+%%%%%%%%%%%%%%%%
+% upwhitepoint %
+%%%%%%%%%%%%%%%%
+
+def upwhitepoint(expr i) =
+
+pickup pencircle scaled pensize;
+
+draw (0.1*i*size,0pt)--(0.1*(i+1)*size,size);
+draw ((0.9-i*0.1)*size,size)--((1-i*.1)*size,0pt);
+
+enddef; % upwhitepoint
+
+%%%%%%%%%%%%%%%%%%
+% downwhitepoint %
+%%%%%%%%%%%%%%%%%%
+
+def downwhitepoint(expr i) =
+
+pickup pencircle scaled pensize;
+
+draw (0.1*i*size,size)--(0.1*(i+1)*size,0pt);
+draw ((0.9-i*0.1)*size,0pt)--((1-i*.1)*size,size);
+
+enddef; % downwhitepoint
+
+%%%%%%%%%%%%%%%%
+% upblackpoint %
+%%%%%%%%%%%%%%%%
+
+def upblackpoint(expr i) =
+
+boolean first_time;
+
+x := 0;
+y := 0;
+
+if 2*round(i/2)=i:
+	offset := 0;
+else :
+	offset := size/(2number_shadepoints);
+fi;
+
+pickup pencircle scaled 2pensize;
+
+for y = 1 upto number_shadepoints :
+	if offset = 0 :
+		offset := size/(2number_shadepoints)
+	else :
+		offset := 0;
+	fi;
+	for x = 0 upto number_shadepoints - 1:
+		if (0.1*(i+y/number_shadepoints)*size< x*(size/number_shadepoints)+offset) and 
+				((1-(i+y/number_shadepoints)*0.1)*size > x*(size/number_shadepoints)+offset):
+			drawdot (x*(size/number_shadepoints)+offset,y*(size/number_shadepoints));
+		fi;
+	endfor;
+endfor;
+
+pickup pencircle scaled pensize;
+
+draw (0.1*i*size,0pt)--(0.1*(i+1)*size,size);
+draw ((0.9-i*0.1)*size,size)--((1-i*.1)*size,0pt);
+
+enddef; % upblackpoint
+
+%%%%%%%%%%%%%%%%%%
+% downblackpoint %
+%%%%%%%%%%%%%%%%%%
+
+def downblackpoint(expr i) =
+
+boolean first_time;
+
+x := 0;
+y := 0;
+if 2*round(i/2)=i:
+	offset := size/(2number_shadepoints);
+else :
+	offset := 0;
+fi;
+
+pickup pencircle scaled 2pensize;
+
+for y = 1 upto number_shadepoints :
+	if offset = 0 :
+		offset := size/(2number_shadepoints)
+	else :
+		offset := 0;
+	fi;
+	for x = 0 upto number_shadepoints - 1:
+		if (0.1*(i+(1-y/number_shadepoints))*size< x*(size/number_shadepoints)+offset) and 
+				((1-(i+(1-y/number_shadepoints))*0.1)*size > x*(size/number_shadepoints)+offset):
+			drawdot (x*(size/number_shadepoints)+offset,y*(size/number_shadepoints));
+		fi;
+	endfor;
+endfor;
+
+pickup pencircle scaled pensize;
+
+draw (0.1*i*size,size)--(0.1*(i+1)*size,0pt);
+draw ((0.9-i*0.1)*size,0pt)--((1-i*.1)*size,size);
+
+enddef; % upblackpoint
+
+%%%%%%%%%%%%%%%%
+% whitechecker %
+%%%%%%%%%%%%%%%%
+
+def whitechecker =
+
+pickup pencircle scaled 3pensize;
+
+erase fill fullcircle scaled whitecheckersize shifted (size/2, size/2);
+draw fullcircle scaled whitecheckersize shifted (size/2, size/2);
+
+enddef; % whitechecker
+
+%%%%%%%%%%%%%%%%
+% blackchecker %
+%%%%%%%%%%%%%%%%
+
+def blackchecker =
+
+pickup pencircle scaled 3pensize;
+
+fill fullcircle scaled blackcheckersize shifted (size/2, size/2);
+
+enddef; % blackchecker
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macros to draw the digits from 0 to 9 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+def drawdigit_zero(expr xstart,ystart,scale) =
+
+pickup pencircle xscaled digitpensize yscaled pensize;
+draw (xstart+scale*size/4,ystart+scale*size){right}..(xstart+scale*size/2,ystart+scale*size/2){down}..(xstart+scale*size/4,ystart+scale*0){left}..(xstart+scale*0,ystart+scale*size/2){up}..cycle;
+
+enddef; %drawdigit_zero
+
+def drawdigit_one(expr xstart,ystart,scale) =
+
+pickup pencircle xscaled digitpensize yscaled pensize;
+draw (xstart+scale*0,ystart+scale*3size/4)--(xstart+scale*size/4,ystart+scale*size)--(xstart+scale*size/4,ystart+scale*0);
+draw (xstart+scale*0,ystart+scale*0)--(xstart+scale*size/2,ystart+scale*0);
+
+enddef; %drawdigit_one
+
+def drawdigit_two(expr xstart,ystart,scale) =
+
+pickup pencircle xscaled digitpensize yscaled pensize;
+draw (xstart+scale*0,ystart+scale*3size/4){up}..(xstart+scale*size/4,ystart+scale*size){right}..(xstart+scale*size/2,ystart+scale*3size/4){down}..(xstart+scale*0,ystart+scale*0){dir 270};
+draw(xstart+scale*0,ystart+scale*0)--(xstart+scale*size/2,ystart+scale*0);
+
+enddef; %drawdigit_two
+
+def drawdigit_three(expr xstart,ystart,scale) =
+
+pickup pencircle xscaled digitpensize yscaled pensize;
+draw (xstart+scale*0,ystart+scale*7size/8){dir 45}..(xstart+scale*size/4,ystart+scale*size){right}..(xstart+scale*size/2,ystart+scale*13size/16){down}..(xstart+scale*size/8,ystart+scale*55size/100){left};
+draw (xstart+scale*size/8,ystart+scale*55size/100){right}..(xstart+scale*size/2,ystart+scale*5size/16){down}..(xstart+scale*size/4,ystart+scale*0){left}..(xstart+scale*0,ystart+scale*size/8){up};
+
+enddef; %drawdigit_three
+
+def drawdigit_four(expr xstart,ystart,scale) =
+
+pickup pencircle xscaled digitpensize yscaled pensize;
+
+draw (xstart+scale*size/2,ystart+scale*size/4)--(xstart+scale*0,ystart+scale*size/4)--(xstart+scale*3size/8,ystart+scale*size)--(xstart+scale*3size/8,ystart+scale*0)
+
+enddef; %drawdigit_four
+
+def drawdigit_five(expr xstart,ystart,scale) =
+
+pickup pencircle xscaled digitpensize yscaled pensize;
+
+draw (xstart+scale*size/2,ystart+scale*size)--(xstart+scale*0,ystart+scale*size)--(xstart+scale*0,ystart+scale*55size/100){dir 13}..(xstart+scale*size/2,ystart+scale*size/4){down}..(xstart+scale*size/4,ystart+scale*0){left}..(xstart+scale*0,ystart+scale*size/4){up}
+
+enddef; %drawdigit_five
+
+def drawdigit_six(expr xstart,ystart,scale) =
+
+pickup pencircle xscaled digitpensize yscaled pensize;
+
+draw (xstart+scale*size/2,ystart+scale*size){left}..(xstart+scale*0,ystart+scale*3size/10){down}..(xstart+scale*size/4,ystart+scale*0){right}..(xstart+scale*size/2,ystart+scale*3size/10){up}..(xstart+scale*size/4,ystart+scale*6size/10){left}..(xstart+scale*0,ystart+scale*3size/10){down}
+
+enddef; %drawdigit_six
+
+def drawdigit_seven(expr xstart,ystart,scale) =
+
+pickup pencircle xscaled digitpensize yscaled pensize;
+
+draw (xstart+scale*0,ystart+scale*size)--(xstart+scale*size/2,ystart+scale*size)--(xstart+scale*0,ystart+scale*0)
+
+enddef; %drawdigit_seven
+
+def drawdigit_eight(expr xstart,ystart,scale) =
+
+pickup pencircle xscaled digitpensize yscaled pensize;
+
+diameter1 := scale*0.9size/2;
+diameter2 := scale*1.1size/2;
+draw fullcircle scaled diameter1 shifted (xstart+scale*size/4,ystart+scale*1.55size/2);
+draw fullcircle scaled diameter2 shifted (xstart+scale*size/4,ystart+scale*0.55size/2);
+
+enddef; %drawdigit_eight
+
+def drawdigit_nine(expr xstart,ystart,scale) =
+
+pickup pencircle xscaled digitpensize yscaled pensize;
+
+draw (xstart+scale*0,ystart+scale*0){right}..(xstart+scale*size/2,ystart+scale*7size/10){up}..(xstart+scale*size/4,ystart+scale*size){left}..(xstart+scale*0,ystart+scale*7size/10){down}..(xstart+scale*size/4,ystart+scale*4size/10){right}..(xstart+scale*size/2,ystart+scale*7size/10){up}
+
+enddef; %drawdigit_nine
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The numbers from 1 to 24 to number the boardpoints %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar(128, size#, size#, 0);
+
+drawdigit_one(0.425size,0.35size,0.3)
+
+endchar;
+
+beginchar(129, size#, size#, 0);
+
+drawdigit_two(0.425size,0.35size,0.3)
+
+endchar;
+
+beginchar(130, size#, size#, 0);
+
+drawdigit_three(0.425size,0.35size,0.3)
+
+endchar;
+
+beginchar(131, size#, size#, 0);
+
+drawdigit_four(0.425size,0.35size,0.3)
+
+endchar;
+
+beginchar(132, size#, size#, 0);
+
+drawdigit_five(0.425size,0.35size,0.3)
+
+endchar;
+
+beginchar(133, size#, size#, 0);
+
+drawdigit_six(0.425size,0.35size,0.3)
+
+endchar;
+
+beginchar(134, size#, size#, 0);
+
+drawdigit_seven(0.44size,0.35size,0.3)
+
+endchar;
+
+beginchar(135, size#, size#, 0);
+
+drawdigit_eight(0.425size,0.35size,0.3)
+
+endchar;
+
+beginchar(136, size#, size#, 0);
+
+drawdigit_nine(0.425size,0.35size,0.3)
+
+endchar;
+
+beginchar(137, size#, size#, 0);
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_zero(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(138, size#, size#, 0);
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_one(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(139, size#, size#, 0);
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_two(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(140, size#, size#, 0);
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_three(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(141, size#, size#, 0);
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_four(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(142, size#, size#, 0);
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_five(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(143, size#, size#, 0);
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_six(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(144, size#, size#, 0);
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_seven(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(145, size#, size#, 0);
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_eight(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(146, size#, size#, 0);
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_nine(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(147, size#, size#, 0);
+
+drawdigit_two(0.32size,0.35size,0.3)
+drawdigit_zero(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(148, size#, size#, 0);
+
+drawdigit_two(0.32size,0.35size,0.3)
+drawdigit_one(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(149, size#, size#, 0);
+
+drawdigit_two(0.32size,0.35size,0.3)
+drawdigit_two(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(150, size#, size#, 0);
+
+drawdigit_two(0.32size,0.35size,0.3)
+drawdigit_three(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(151, size#, size#, 0);
+
+drawdigit_two(0.32size,0.35size,0.3)
+drawdigit_four(0.55size,0.35size,0.3)
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% checkers with numbers on it %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+code := 142;
+
+for background = 1 upto 5:
+
+for colour = 1 upto 2:
+
+code := code + 10;
+
+beginchar(code, size#, size#, 0);
+
+if background = 2: downwhitepoint(4) fi
+if background = 3: downblackpoint(4) fi
+if background = 4: upwhitepoint(4) fi
+if background = 5: upblackpoint(4) fi
+
+if colour = 1: whitechecker
+else: blackchecker
+fi
+
+erase fill (size/4,size/4)--(size/4,3size/4)--(3size/4,3size/4)--(3size/4,size/4)--cycle;
+
+drawdigit_six(0.425size,0.35size,0.3)
+
+endchar;
+
+beginchar(code+1, size#, size#, 0);
+
+if background = 2: downwhitepoint(4) fi
+if background = 3: downblackpoint(4) fi
+if background = 4: upwhitepoint(4) fi
+if background = 5: upblackpoint(4) fi
+
+if colour = 1: whitechecker
+else: blackchecker
+fi
+
+erase fill (size/4,size/4)--(size/4,3size/4)--(3size/4,3size/4)--(3size/4,size/4)--cycle;
+
+
+drawdigit_seven(0.44size,0.35size,0.3)
+
+endchar;
+
+beginchar(code+2, size#, size#, 0);
+
+if background = 2: downwhitepoint(4) fi
+if background = 3: downblackpoint(4) fi
+if background = 4: upwhitepoint(4) fi
+if background = 5: upblackpoint(4) fi
+
+if colour = 1: whitechecker
+else: blackchecker
+fi
+
+erase fill (size/4,size/4)--(size/4,3size/4)--(3size/4,3size/4)--(3size/4,size/4)--cycle;
+
+
+drawdigit_eight(0.425size,0.35size,0.3)
+
+endchar;
+
+beginchar(code+3, size#, size#, 0);
+
+if background = 2: downwhitepoint(4) fi
+if background = 3: downblackpoint(4) fi
+if background = 4: upwhitepoint(4) fi
+if background = 5: upblackpoint(4) fi
+
+if colour = 1: whitechecker
+else: blackchecker
+fi
+
+erase fill (size/4,size/4)--(size/4,3size/4)--(3size/4,3size/4)--(3size/4,size/4)--cycle;
+
+
+drawdigit_nine(0.425size,0.35size,0.3)
+
+endchar;
+
+beginchar(code+4, size#, size#, 0);
+
+if background = 2: downwhitepoint(4) fi
+if background = 3: downblackpoint(4) fi
+if background = 4: upwhitepoint(4) fi
+if background = 5: upblackpoint(4) fi
+
+if colour = 1: whitechecker
+else: blackchecker
+fi
+
+erase fill (size/4,size/4)--(size/4,3size/4)--(3size/4,3size/4)--(3size/4,size/4)--cycle;
+
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_zero(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(code+5, size#, size#, 0);
+
+if background = 2: downwhitepoint(4) fi
+if background = 3: downblackpoint(4) fi
+if background = 4: upwhitepoint(4) fi
+if background = 5: upblackpoint(4) fi
+
+if colour = 1: whitechecker
+else: blackchecker
+fi
+
+erase fill (size/4,size/4)--(size/4,3size/4)--(3size/4,3size/4)--(3size/4,size/4)--cycle;
+
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_one(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(code+6, size#, size#, 0);
+
+if background = 2: downwhitepoint(4) fi
+if background = 3: downblackpoint(4) fi
+if background = 4: upwhitepoint(4) fi
+if background = 5: upblackpoint(4) fi
+
+if colour = 1: whitechecker
+else: blackchecker
+fi
+
+erase fill (size/4,size/4)--(size/4,3size/4)--(3size/4,3size/4)--(3size/4,size/4)--cycle;
+
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_two(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(code+7, size#, size#, 0);
+
+if background = 2: downwhitepoint(4) fi
+if background = 3: downblackpoint(4) fi
+if background = 4: upwhitepoint(4) fi
+if background = 5: upblackpoint(4) fi
+
+if colour = 1: whitechecker
+else: blackchecker
+fi
+
+erase fill (size/4,size/4)--(size/4,3size/4)--(3size/4,3size/4)--(3size/4,size/4)--cycle;
+
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_three(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(code+8, size#, size#, 0);
+
+if background = 2: downwhitepoint(4) fi
+if background = 3: downblackpoint(4) fi
+if background = 4: upwhitepoint(4) fi
+if background = 5: upblackpoint(4) fi
+
+if colour = 1: whitechecker
+else: blackchecker
+fi
+
+erase fill (size/4,size/4)--(size/4,3size/4)--(3size/4,3size/4)--(3size/4,size/4)--cycle;
+
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_four(0.55size,0.35size,0.3)
+
+endchar;
+
+beginchar(code+9, size#, size#, 0);
+
+if background = 2: downwhitepoint(4) fi
+if background = 3: downblackpoint(4) fi
+if background = 4: upwhitepoint(4) fi
+if background = 5: upblackpoint(4) fi
+
+if colour = 1: whitechecker
+else: blackchecker
+fi
+
+erase fill (size/4,size/4)--(size/4,3size/4)--(3size/4,3size/4)--(3size/4,size/4)--cycle;
+
+
+drawdigit_one(0.32size,0.35size,0.3)
+drawdigit_five(0.55size,0.35size,0.3)
+
+endchar;
+
+endfor;
+
+endfor;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% white points without checkers %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar("a", size#, size#, 0);
+
+upwhitepoint(0)
+
+endchar;
+
+beginchar("b", size#, size#, 0);
+
+upwhitepoint(1)
+
+endchar;
+
+beginchar("c", size#, size#, 0);
+
+upwhitepoint(2)
+
+endchar;
+
+beginchar("d", size#, size#, 0);
+
+upwhitepoint(3)
+
+endchar;
+
+beginchar("e", size#, size#, 0);
+
+upwhitepoint(4)
+
+endchar;
+
+beginchar("k", size#, size#, 0);
+
+downwhitepoint(0)
+
+endchar;
+
+beginchar("l", size#, size#, 0);
+
+downwhitepoint(1)
+
+endchar;
+
+beginchar("m", size#, size#, 0);
+
+downwhitepoint(2)
+
+endchar;
+
+beginchar("n", size#, size#, 0);
+
+downwhitepoint(3)
+
+endchar;
+
+beginchar("o", size#, size#, 0);
+
+downwhitepoint(4)
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% black points without checkers %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar("f", size#, size#, 0);
+
+upblackpoint(0)
+
+endchar;
+
+beginchar("g", size#, size#, 0);
+
+upblackpoint(1)
+
+endchar;
+
+beginchar("h", size#, size#, 0);
+
+upblackpoint(2)
+
+endchar;
+
+beginchar("i", size#, size#, 0);
+
+upblackpoint(3)
+
+endchar;
+
+beginchar("j", size#, size#, 0);
+
+upblackpoint(4)
+
+endchar;
+
+beginchar("p", size#, size#, 0);
+
+downblackpoint(0)
+
+endchar;
+
+beginchar("q", size#, size#, 0);
+
+downblackpoint(1)
+
+endchar;
+
+beginchar("r", size#, size#, 0);
+
+downblackpoint(2)
+
+endchar;
+
+beginchar("s", size#, size#, 0);
+
+downblackpoint(3)
+
+endchar;
+
+beginchar("t", size#, size#, 0);
+
+downblackpoint(4)
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% white points with white checkers %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar("A", size#, size#, 0);
+
+upwhitepoint(0)
+whitechecker
+
+endchar;
+
+beginchar("B", size#, size#, 0);
+
+upwhitepoint(1)
+whitechecker
+
+endchar;
+
+
+beginchar("C", size#, size#, 0);
+
+upwhitepoint(2)
+whitechecker
+
+endchar;
+
+beginchar("D", size#, size#, 0);
+
+upwhitepoint(3)
+
+whitechecker
+endchar;
+
+beginchar("E", size#, size#, 0);
+
+upwhitepoint(4)
+whitechecker
+
+endchar;
+
+beginchar("K", size#, size#, 0);
+
+downwhitepoint(0)
+whitechecker
+
+endchar;
+
+beginchar("L", size#, size#, 0);
+
+downwhitepoint(1)
+whitechecker
+
+endchar;
+
+beginchar("M", size#, size#, 0);
+
+downwhitepoint(2)
+whitechecker
+
+endchar;
+
+beginchar("N", size#, size#, 0);
+
+downwhitepoint(3)
+
+whitechecker
+endchar;
+
+beginchar("O", size#, size#, 0);
+
+downwhitepoint(4)
+whitechecker
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% white points with black checkers %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar("0", size#, size#, 0);
+
+upwhitepoint(0)
+blackchecker
+
+endchar;
+
+beginchar("1", size#, size#, 0);
+
+upwhitepoint(1)
+blackchecker
+
+endchar;
+
+
+beginchar("2", size#, size#, 0);
+
+upwhitepoint(2)
+blackchecker
+
+endchar;
+
+beginchar("3", size#, size#, 0);
+
+upwhitepoint(3)
+
+blackchecker
+endchar;
+
+beginchar("4", size#, size#, 0);
+
+upwhitepoint(4)
+blackchecker
+
+endchar;
+
+beginchar("P", size#, size#, 0);
+
+downwhitepoint(0)
+blackchecker
+
+endchar;
+
+beginchar("Q", size#, size#, 0);
+
+downwhitepoint(1)
+blackchecker
+
+endchar;
+
+beginchar("R", size#, size#, 0);
+
+downwhitepoint(2)
+blackchecker
+
+endchar;
+
+beginchar("S", size#, size#, 0);
+
+downwhitepoint(3)
+
+blackchecker
+endchar;
+
+beginchar("T", size#, size#, 0);
+
+downwhitepoint(4)
+blackchecker
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% black points with white checkers %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar("F", size#, size#, 0);
+
+upblackpoint(0);
+whitechecker;
+
+endchar;
+
+beginchar("G", size#, size#, 0);
+
+upblackpoint(1);
+whitechecker;
+
+endchar;
+
+beginchar("H", size#, size#, 0);
+
+upblackpoint(2);
+whitechecker;
+
+endchar;
+
+beginchar("I", size#, size#, 0);
+
+upblackpoint(3);
+
+whitechecker;
+endchar;
+
+beginchar("J", size#, size#, 0);
+
+upblackpoint(4);
+whitechecker;
+
+endchar;
+
+beginchar("U", size#, size#, 0);
+
+downblackpoint(0);
+whitechecker;
+
+endchar;
+
+beginchar("V", size#, size#, 0);
+
+downblackpoint(1);
+whitechecker;
+
+endchar;
+
+
+beginchar("W", size#, size#, 0);
+
+downblackpoint(2);
+whitechecker;
+
+endchar;
+
+beginchar("X", size#, size#, 0);
+
+downblackpoint(3);
+
+whitechecker;
+endchar;
+
+beginchar("Y", size#, size#, 0);
+
+downblackpoint(4);
+whitechecker;
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% black points with black checkers %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar("5", size#, size#, 0);
+
+upblackpoint(0)
+blackchecker
+
+endchar;
+beginchar("6", size#, size#, 0);
+
+upblackpoint(1)
+blackchecker
+
+endchar;
+
+
+beginchar("7", size#, size#, 0);
+
+upblackpoint(2)
+blackchecker
+
+endchar;
+
+beginchar("8", size#, size#, 0);
+
+upblackpoint(3)
+
+blackchecker
+endchar;
+
+beginchar("9", size#, size#, 0);
+
+upblackpoint(4)
+blackchecker
+
+endchar;
+
+beginchar("u", size#, size#, 0);
+
+downblackpoint(0)
+blackchecker
+
+endchar;
+
+beginchar("v", size#, size#, 0);
+
+downblackpoint(1)
+blackchecker
+
+endchar;
+
+beginchar("w", size#, size#, 0);
+
+downblackpoint(2)
+blackchecker
+
+endchar;
+
+beginchar("x", size#, size#, 0);
+
+downblackpoint(3)
+
+blackchecker
+endchar;
+
+beginchar("y", size#, size#, 0);
+
+downblackpoint(4)
+blackchecker
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%
+% An empty square %
+%%%%%%%%%%%%%%%%%%%
+
+beginchar("z", size#, size#, 0);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A (left or right) border %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar("Z", pensize#, size#, 0);
+
+pickup pencircle scaled pensize;
+
+draw (0pt,0pt)--(0pt,size);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% An (upper or lower) border %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar("-", size#, pensize#, 0);
+
+pickup pencircle scaled pensize;
+
+draw (0pt,0pt)--(size,0pt);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A "boarderthick" filler %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+beginchar(0, pensize#, pensize#, 0);
+
+endchar;
+
+%%%%%%%%%%%%%%%%%%%
+% A black Checker %
+%%%%%%%%%%%%%%%%%%%
+
+beginchar("@", size#, size#, 0);
+
+blackchecker
+
+endchar;
+
+
+%%%%%%%%%%%%%%%%%%%
+% A white Checker %
+%%%%%%%%%%%%%%%%%%%
+
+beginchar("*", size#, size#, 0);
+
+whitechecker
+
+endchar;
+
+end
+

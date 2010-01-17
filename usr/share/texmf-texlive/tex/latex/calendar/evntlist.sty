@@ -1,0 +1,109 @@
+%%
+%% This is file `evntlist.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% evntlist.dtx  (with options: `style')
+%% This file is part of the Calendar package,
+%% Copyright (C) 1996, 1997 Frank Bennett, Jr.
+%% All rights reserved.
+%% ------------------------------------------
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% You are not allowed to change this file.  You may however copy
+%% this file to a file with a different name and then change the
+%% copy if (a) you do not charge for the modified code, (b) you
+%% acknowledge the author of this file in the new file, if it
+%% is distributed to others, and (c) you attach these same
+%% conditions to the new file.
+%% 
+%% You are not allowed to distribute this file alone.  You are not
+%% allowed to take money for the distribution or use of this file
+%% (or a changed version) except for a nominal charge for copying
+%% etc.
+%% 
+%% You are allowed to distribute this file under the condition that
+%% it is distributed with all of its contents, intact.
+%% 
+%% For error reports, or offers to help make this a more powerful,
+%% friendlier, and altogether more thrilling package, please contact me on
+%% fb@soas.ac.uk.  Better yet, make a contribution to
+%% my pension.  Account details available on request.
+%% ------------------------------------------
+%% 
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{evntlist}
+          [1997/11/07 10:44:05 2.2 Event List (Frank Bennett)]
+\input calopts.cfg
+\InputIfFileExists{dates.cfg}{}{}
+\ProcessOptions
+\RequirePackage{calendar}
+ \newif\if@el@noheadyet
+ \@el@noheadyettrue
+ \def\el@output#1{\protected@write\@el@outputfile{}{#1}}
+ \def\el@maybeheader{\if@el@noheadyet%
+   \begin{itemize}\item\theday\space\themonth\space\theyear\@el@noheadyetfalse\fi}
+ \def\el@maybeitem{\if@el@noheadyet\else\item\theday\space\themonth\space\theyear%
+ \fi}
+\newcalendar%
+{eventlist}
+{\cal@insert}
+{8}
+{1}
+{1}
+{\relax}
+{I}
+{\relax}
+{\end{itemize}}
+{\relax}
+{\relax}
+{\dates@requiremonthtrue\dates@requiredaytrue}
+{\global\dates@date\cal@range@start%
+ \caldate%
+  \message{^^JStart: \theshortweekday\space%
+    \theday\space\theshortmonth\space\theyear}%
+  \global\dates@date\cal@range@end%
+  \caldate%
+  \message{^^JEnd: \theshortweekday\space%
+    \theday\space\theshortmonth\space\theyear}%
+  \global\dates@date\cal@range@start%
+  \caldate}%
+{\item}%
+{\cal@get@appointments\cal@get@events}%
+{\relax%
+   \ifnum\dates@time@start>0\relax%
+    \ifnum\dates@time@start=\dates@time@end%
+      \protected@edef\cal@entry@text{%
+        \thetimestart\space%
+        \cal@textcolor{\calcolor}{\thelongtext}}%
+    \else%
+      \protected@edef\cal@entry@text{%
+        \thetimestart--\thetimeend\space%
+        \cal@textcolor{\calcolor}{\thelongtext}}%
+    \fi%
+  \else%
+      \protected@edef\cal@entry@text{%
+        \cal@textcolor{\calcolor}{\thelongtext}}%
+  \fi}%
+{\ifcat$\theevents\theappointments$\else%
+\el@maybeitem%
+\el@maybeheader%
+\fi%
+\bgroup%
+\let\item\par%
+\ifcat$\theevents$\else%
+  \par%
+  \theevents%
+\fi%
+\egroup%
+\ifcat$\theappointments$\else%
+\begin{itemize}%
+\item%
+\theappointments%
+\end{itemize}%
+\fi}
+\endinput
+%%
+%% End of file `evntlist.sty'.

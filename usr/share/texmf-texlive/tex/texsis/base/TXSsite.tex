@@ -1,0 +1,164 @@
+%% file: TXSsite.tex  (TeXsis version 2.17)
+%  $Revision: 18.0 $  :  $Date: 2000/05/17 00:45:04 $  :  $Author: myers $
+%======================================================================*
+% This is the site dependent info file for TeXsis.  Edit the things
+% below to match your installation.  Take out what you don't need or
+% want and add any local macros or other stuff you want.  Anything
+% between \Ignore and \endIgnore is ignored, but will become active if
+% you remove the \Ignore. Remember, this file is only read in once when
+% texsis.fmt is made! 
+
+% Change name to your own institution or site here:
+
+\message{Site dependent info.... Generic version.}
+
+\ATunlock				% make @ a letter
+
+%===================================*
+% \ORGANIZATION is the name of the issuing organization, which 
+% appears at the top of the title page, or on a \Memo.
+% You can also change it before you call \titlepage.
+
+\Ignore		% an example using mixed caps
+  \def\ORGANIZATION{{\eightrm {\tenrm B}ANSAI {\tenrm I}NSTITUTE}}
+\endIgnore
+
+\def\ORGANIZATION{}
+
+%===================================*
+% \LandscapeSpecial turns on landscape mode on the laser printer.
+% How this is done is very site dependent. Uncomment the version
+% that works for you, or insert your own if these don't work.
+
+% 1) This is how dv2ips does it, and you need to have landscape.ps
+% accesable to the filter program
+
+\Ignore
+  \def\LandscapeSpecial{\special{psfile=landscape.ps}}
+\endIgnore
+
+% 2) This is how dvips (Rokicki's version 5.484 and later) does it:
+
+\def\LandscapeSpecial{\special{papersize=11in,8.5in}}
+ 
+
+%===================================*
+% \manualfeed tries to put the printer in Manual Feed mode, for
+% printing on letterhead stationary or envelopes.
+% How you do this is really installation specific.
+
+% If you use 'dvi2ps' then use \special to read the file manfeed.ps.
+% You can get it from ftp://feynman.physics.lsa.umich.edu/texsis/etc/manfeed.ps
+
+\Ignore
+  \def\manualfeed{\emsg{\@comment MANUAL FEED MODE SELECTED!}%
+        \special{psfile=manfeed.ps}}
+\endIgnore
+
+% Rokicki's dvips will do manual feed if you use 'dvips -m'
+% but this tries to do the same thing (and doesn't work!  -EAM 98/03/06)
+
+\Ignore
+  \def\manualfeed{\emsg{\@comment MANUAL FEED MODE SELECTED!}%
+	\special{! @manualfeed}}
+\endIgnore
+
+
+%===================================*
+% \@DOCcode is the document code that appears in the upper right
+% part of the title page of a \preprint.  It starts out at its default
+% value, and is changed by calling \pubcode{<code>} before you call
+% \titlepage.  If you don't use anything you'll get \TeXsis.
+
+\Ignore
+  \def\@DOCcode{UTREL\hbox to 1.5cm{\hss}}   
+\endIgnore
+
+%===================================*
+% \banner produces a banner across the top of the title page for
+% a \preprint.  Customize this however you like.
+
+\def\banner{\vskip 0pt
+  \line{{\ninepoint\@PUBdate \hfil 
+    \hbox{\vbox{\hrule\vskip 4pt \hbox{\ORGANIZATION}\vskip 4pt\hrule}}%                       % 
+                               \hfil \@DOCcode}}%  
+  \vskip 1.0cm 
+} 
+
+\def\@PUBdate{\uppercase{\today}}         % default is today
+
+
+%===================================*
+% \letterhead{phone} is for copying onto letterhead stationary.  
+% It just puts on the date and a phone number (if given).
+
+% THIS IS JUST AN EXAMPLE - MODIFY FOR YOUR OWN INSTITUTION.
+
+\Ignore
+\def\letterhead#1{% letterhead for copying onto Univ. Michigan stationary
+  \def\PhoneNumber{#1}%
+  \emsg{Positioning date/phone for University of Michigan letterhead.}%
+  \begingroup                           % this header stuff is local
+    \parskip=0pt \parindent=0pt         %
+    \null\vskip 0.6in                   % skip down to date line
+    \line{\hfill \hbox to 5in{\tensl \today\hfill}}% Today's Date
+    \line{\tenss \hfill (734) 
+          \ifx\PhoneNumber\empty 764-4437\else \PhoneNumber\fi}%
+    \ifx\Email\undefined\else\line{\hfill \tt \Email}\fi
+    \vskip 10pt plus 1fil       
+  \endgroup}
+\endIgnore
+
+%===================================*
+% \UMletterhead{phone} is a facsimile of the University of Michigan
+% stationary.  If \Email is defined it is included under the phone number.
+
+% THIS IS JUST AN EXAMPLE - MODIFY FOR YOUR OWN INSTITUTION.
+% It uses a PostScript image of the Univ. Michigan seal, umseal.ps
+
+\Ignore
+\def\UMletterhead#1{%  Facsimile of UM letterhead
+  \def\PhoneNumber{#1}%
+  \begingroup                   % make these these things local
+    \null\vskip -27pt           % masthead up a bit to match real thing
+    \UMmasthead                 % UM seal and name
+    \line{\hfill \hbox to 5in{\tensl \today\hfill}}% Today's Date
+    \line{\tenss \hfill (734) 
+          \ifx\PhoneNumber\empty 764-4437\else \PhoneNumber\fi}%
+    \ifx\Email\undefined\else\line{\hfill \tt \Email}\fi
+    \vskip 10pt plus 1fil       
+  \endgroup}
+
+\def\UMseal{{\hbox{\epsfbox{umseal.eps}}}}%
+
+\def\UMmasthead{\line{\llap{\UMseal\hskip -35pt}\hfill
+      \hbox{\vbox{\hsize=13.99cm   \def\LC##1{{\twentyfourpoint\bf ##1}}%
+      \line{\hfill \twentypoint\bf \LC{T}HE \LC{U}NIVERSITY OF \LC{M}ICHIGAN}%
+         \vskip 0.85cm
+         \line{\tenss DEPARTMENT OF PHYSICS \hfill 2071 Randall Laboratory}%
+         \line{\tenss \hfill Ann Arbor, MI 48109-1120}%
+     }}}}%
+\endIgnore
+
+%===================================*
+% Mailing Labels:  you may have to change these depending on your
+% printer and the kind of labels you use.  
+
+\Ignore
+
+% This is for the "standard" inch high, 3 across the page labels
+
+\lblHsize=7.32cm        % width of standard label
+\lblVsize=2.54cm        % height of standard label
+\fullHsize=8.5in        % hsize for page
+\fullVsize=11.0in       % vsize for page
+
+\lblVoffset=0pt         % shift down this much
+\lblHoffset=-1.8cm      % shift over this much
+
+\endIgnore
+
+%>>> EOF TXSsite.tex <<<
+
+
+

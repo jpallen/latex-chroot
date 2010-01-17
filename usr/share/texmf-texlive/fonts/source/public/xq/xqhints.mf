@@ -1,0 +1,625 @@
+%this is xqhints.mf - the original name of that file was hints.mf, it was 
+%renamed for the reason of significance.
+
+
+
+
+% hints.mf --- an attempt at PostScript Type-1 Hints in METAFONT for use
+%              with PS2MF.
+%
+% Copyright (c) 1992 I. Lee Hetherington, all rights reserved.  I have
+% not yet decided on what copyright restrictions I will place here.
+% Probably something like TeX's copyright.  I think the GNU copyleft
+% is far too extreme.
+%
+% The general scheme for hint implementation is apply vertical (hstem)
+% and horizontal (vstem) hints separately.  For each direction, we
+% first collect the stems in a sorted list.  At this point we reject
+% overlapping or duplicate stems.  When we first need to use the
+% hints, we make sure that piecewise linear transformations are
+% computed.  These METAFONT transformations depend on the stem or
+% inter-stem region a particular x- or y-coordinate falls in.  These
+% transformations are easily computed once the stems specified in
+% character space are placed in pixel space.  This stem placement is
+% more complicated in the vertical direction because of the BlueValues
+% font-level hints.
+%
+% Currently the implemented hints are BlueValues, OtherBlues,
+% BlueScale, BlueShift, BlueFuzz, hstem, hstem3, vstem, vstem3, `Hint
+% Replacement', and `Flex'.  The hints FamilyBlues, FamilyOtherBlues
+% are not implemented as we only apply hints at the font and character
+% level, not across an entire font family.  The hints StdHW, StdVW,
+% StemSnapH, and StemSnapV are not implemented.  It would probably not
+% be very difficult to add these.  The ForceBold, LanguageGroup,
+% RndStemUp, and ExpansionFactor are also not implemented.
+%
+% Hint replacement ignores previous stem hints unless the same stem
+% was used previously.  In this case, the stem is placed the same as
+% it was before.  If after replacement a single stem is respecified
+% without the other original stems, we can place it as it was placed
+% before.  However, *both* edges of the stem must be identical.  This
+% may now be irrelevant since stems are placed independently now
+% (except in the case of hstem3 and vstem3, of course).
+%
+% I make no claim to that these hints have exactly the same effect as
+% Adobe PostScript font rasterizer.  The hints and their interactions
+% can be quite complicated.  The hint implementation in this file is
+% based solely on my interpretation of their effects given their
+% description in the book "Adobe Type 1 Font Format, Version 1.1".
+%
+% There is certainly room for improvement: both with respect to hint
+% effects and implementation efficiency.  Running METAFONT can take
+% quite a while.  I've made some attempt at caching placement results
+% using METAFONT vector to reduce redundant computation.  One
+% improvement I can think of is replacing the stem gathering and
+% sorting (h_insert and v_insert) with C code in PS2MF.  Another is
+% predetermining which stems are effected by the blue values.  Most of
+% the other placement/transformation opertions need to be done in
+% METAFONT because these operations are dependent on device resolution
+% and magnification.
+%
+% I welcome comments, suggestions, fixes, and improvements.  I plan on
+% commenting this code more when I get a chance.  The comments are
+% pretty sparse at the moment.
+%
+% If you want to disable the hint mechanism, specify `hinting:=0'
+% before this file is included.  METAFONT will run much faster but
+% will produce inconsistent stem widths at low resolutions.  At higher
+% resolutions these hints are much less important.
+%
+% 1.0 beta     3/30/92   I. Lee Hetherington (ilh@lcs.mit.edu)
+
+if unknown hinting: hinting := 1; fi
+
+% expansion and slanting (same as `xscaled expansion slanted slanting')
+if unknown expansion: expansion := 1; fi
+if unknown slanting: slanting := 0; fi
+
+% make sure character space units are defined
+if unknown FX#: FX# := 0.001pt#; fi
+if unknown FY#: FY# := 0.001pt#; fi
+FX# := FX# * expansion; % incorporate expansion here so hints know about it
+u# := FX#;
+v# := FY#;
+define_pixels(u,v,FX,FY);
+
+boolean debug; debug := false;
+
+% like round but rounds to the nearest half
+def roundhalf(expr x) = (round(x+0.5)-0.5) enddef;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% horizontal (vstem) hints
+
+extra_beginchar := extra_beginchar & "h_init;numeric h[][]sc;";
+
+% initialize structures
+def h_init =
+  numeric h.r,h[]s,h[]p,h[]pc;
+  boolean h.triple;
+  transform h[]t;
+  h.r := 1;
+  h.triple := false;
+enddef;
+
+% insert new stem into sorted list
+% requires that stems don't overlap
+% toss duplicates
+def h_insert(expr a, b) =
+  boolean flag; flag:=false; % temporary flag to exit loop
+  if h.r = 1: % no stems thus far
+    h[1]s := a;
+    h[2]s := b;
+    h.r := 3;
+  elseif a > h[h.r-1]s: % at end
+    h[h.r]s := a;
+    h[h.r+1]s := b;
+    h.r := h.r + 2;
+  else: % we need to search for location and shift elements
+    for i = 1 step 2 until h.r-2:
+      exitif ((h[i]s >= a) and (h[i]s <= b)) or
+             ((h[i+1]s >= a) and (h[i+1]s <= b));
+      if a < h[i]s:
+        % insert here, so shift remaining elements up by two
+        for j = h.r-1 downto i:
+          h[j+2]s := h[j]s;
+        endfor
+        h[i]s := a;
+        h[i+1]s := b;
+        h.r := h.r + 2;
+	flag := true;
+      fi
+      exitif flag;
+    endfor
+  fi
+enddef;
+
+% horizontal stem width (for vstem's)
+def hsw(expr a,b) = max(1, round(abs(a-b)*u)) enddef;
+
+% place stems in pixel space
+def h_place =
+  if h.triple:
+    h2p - h1p = vsw(h1s, h2s) - 1;
+    h4p - h3p = vsw(h3s, h4s) - 1;
+    h6p - h5p = vsw(h5s, h6s) - 1;
+    if unknown h[h1s][h2s]sc: % cached?
+      h3p - h2p = h5p - h4p;
+      h1p = roundhalf(h1p - (0.5[h1p,h2p] - 0.5[h1s,h2s]*u));
+      h3p = roundhalf(h3p - (0.5[h3p,h4p] - 0.5[h3s,h4s]*u));
+      h[h1s][h2s]sc := h1p;
+      h[h3s][h4s]sc := h3p;
+      h[h5s][h6s]sc := h5p;
+    else:
+      h1p = h[h1s][h2s]sc;
+      h3p = h[h3s][h4s]sc;
+      h5p = h[h5s][h6s]sc;
+    fi
+  elseif h.r > 1:
+    for i = 1 step 2 until h.r-2:
+      h[i+1]p - h[i]p = hsw(h[i]s,h[i+1]s) - 1;
+      if unknown h[h[i]s][h[i+1]s]sc: % cached?
+        h[i]p = roundhalf(h[i]p - (0.5[h[i]p,h[i+1]p] - 0.5[h[i]s,h[i+1]s]*u));
+        h[h[i]s][h[i+1]s]sc := h[i]p;
+      else:
+        h[i]p = h[h[i]s][h[i+1]s]sc;
+      fi
+    endfor
+  fi
+  if debug:
+    for i = 1 upto h.r-1:
+      message "h" & decimal(i) & ": " & decimal(h[i]s) &
+              " (" & decimal(h[i]p) & ")";
+    endfor
+  fi
+enddef;
+
+% build separate transformations for each region
+def h_transforms =
+  if unknown h1p: h_place; fi
+  if h.r = 1: h[0]t := identity xscaled u;
+  else:
+    % first region (not stem)
+    h[0]t := identity shifted (-h[1]s,0)
+                      xscaled u
+                      shifted (h[1]p,0);
+    % last region (not stem)
+    h[h.r-1]t := identity shifted (-h[h.r-1]s,0)
+                          xscaled u
+                          shifted (h[h.r-1]p,0);
+    % other regions
+    for i = 1 upto h.r - 2:
+      h[i]t := identity shifted (-h[i]s,0)
+                        xscaled
+                        (if h[i+1]p = h[i]p: 0
+                         else: ((h[i+1]p - h[i]p) / (h[i+1]s - h[i]s)) fi)
+                        shifted (h[i]p,0);
+    endfor
+  fi
+  if debug:
+    for i = 0 upto h.r-1:
+      show xxpart h[i]t;
+    endfor
+  fi
+enddef;
+
+% find region according to x-coordinate
+def h_region(expr x) =
+  if h.r = 1: 0
+  elseif x < h[1]s: 0
+  elseif x >= h[h.r-1]s: (h.r - 1)
+  else:
+    for i = 2 upto h.r-1:
+      if x < h[i]s: (i - 1) fi
+      exitif (x < h[i]s);
+    endfor
+  fi
+enddef;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% vertical (hstem) hints with support for BlueValues, OtherBlueValues,
+% BlueScale, BlueShift, and BlueFuzz
+
+extra_beginchar := extra_beginchar & "v_init;numeric v[][]sc;";
+
+% initialize structures
+def v_init =
+  numeric v.r,v[]s,v[]p,v[]pc;
+  boolean v.triple;
+  transform v[]t;
+  v.r := 1;
+  v.triple := false;
+enddef;
+
+% insert new stem into sorted list
+% requires that stems don't overlap
+def v_insert(expr a, b) =
+  boolean flag; flag:=false; % temporary flag to exit loop
+  if v.r = 1: % no stems thus far
+    v[1]s := a;
+    v[2]s := b;
+    v.r := 3;
+  elseif a > v[v.r-1]s: % at end
+    v[v.r]s := a;
+    v[v.r+1]s := b;
+    v.r := v.r + 2;
+  else: % we need to search for location and shift elements
+    for i = 1 step 2 until v.r-2:
+      exitif ((v[i]s >= a) and (v[i]s <= b)) or
+             ((v[i+1]s >= a) and (v[i+1]s <= b));
+      if a < v[i]s:
+        % insert here, so shift remaining elements up by two
+        for j = v.r-1 downto i:
+          v[j+2]s := v[j]s;
+        endfor
+        v[i]s := a;
+        v[i+1]s := b;
+        v.r := v.r + 2;
+	flag := true;
+      fi
+      exitif flag;
+    endfor
+  fi
+enddef;
+
+% Blue stuff
+boolean suppress; % suppress overshoot
+suppress := v < blue_scale;
+
+def find_bot_blue(expr y) =
+  numeric blue.pos, blue.over;
+  for i = 1 upto bot_blues.n:
+    exitif known blue.pos;
+    if (y >= bot_blues[i]o - blue_fuzz) and (y <= bot_blues[i]p):
+      blue.pos := bot_blues[i]p;
+      blue.over := bot_blues[i]o;
+    fi
+  endfor
+enddef;
+
+def find_top_blue(expr y) =
+  numeric blue.pos, blue.over;
+  for i = 1 upto top_blues.n:
+    exitif known blue.pos;
+    if (y >= top_blues[i]p) and (y <= top_blues[i]o + blue_fuzz):
+      blue.pos := top_blues[i]p;
+      blue.over := top_blues[i]o;
+    fi
+  endfor
+enddef;
+
+% vertical stem width (for hstem's)
+def vsw(expr a,b) = max(1, round(abs(a-b)*v)) enddef;
+
+% place stems in pixel space paying attention to blue stuff
+% (currently ignore v.triple)
+% CHECK CACHING IN HERE.  MIGHT NOT NEED TO DO BLUE STUFF SO OFTEN
+def v_place =
+  if v.triple: % ignore blue stuff for hstem3
+    v2p - v1p = vsw(v1s, v2s) - 1;
+    v4p - v3p = vsw(v3s, v4s) - 1;
+    v6p - v5p = vsw(v5s, v6s) - 1;
+    if unknown v[v1s][v2s]sc: % cached?
+      v3p - v2p = v5p - v4p;
+      v1p = roundhalf(v1p - (0.5[v1p,v2p] - 0.5[v1s,v2s]*v));
+      v3p = roundhalf(v3p - (0.5[v3p,v4p] - 0.5[v3s,v4s]*v));
+      v[v1s][v2s]sc := v1p;
+      v[v3s][v4s]sc := v3p;
+      v[v5s][v6s]sc := v5p;
+    else:
+      v1p = v[v1s][v2s]sc;
+      v3p = v[v3s][v4s]sc;
+      v5p = v[v5s][v6s]sc;
+    fi
+  elseif v.r > 1:
+    for i = 1 step 2 until v.r-2:
+      find_bot_blue(v[i]s);
+      if known blue.pos:
+        % position according to blue values
+        if suppress:
+          v[i]p = roundhalf(blue.pos * v);
+        else:
+          v[i]p = roundhalf(blue.pos * v) -
+                  max(if v[i]s <= blue.pos-blue_shift: 1 else: 0 fi,
+                      round((blue.pos - if v[i]s < blue.over: blue.over
+                                        else: v[i]s fi)*v));
+        fi
+        v[i+1]p = v[i]p + vsw(v[i]s,v[i+1]s) - 1;
+      fi
+      find_top_blue(v[i+1]s);
+      if known blue.pos:
+        % position according to blue values
+        if suppress:
+          v[i+1]p := roundhalf(blue.pos * v);
+        else:
+          v[i+1]p := roundhalf(blue.pos * v) +
+                     max(if v[i+1]s >= blue.pos+blue_shift: 1 else: 0 fi,
+                         round((if v[i+1]s > blue.over: blue.over
+                                else: v[i+1]s fi - blue.pos)*v));
+        fi
+        % Note that it is possible for the top of a stem to be fall in a
+        % top zone and the bottom to fall in a bottom zone.  Therefore, only
+        % set v[i]p (bottom) if it wasn't set previously.
+        if unknown v[i]p: v[i]p := v[i+1]p - (vsw(v[i]s,v[i+1]s) - 1); fi
+      fi
+    endfor
+    % place remaining stems if not under blue control
+    for i = 1 step 2 until v.r-2:
+      if unknown v[i]p:
+        v[i+1]p = v[i]p + vsw(v[i]s,v[i+1]s) - 1;
+        if unknown v[v[i]s][v[i+1]s]sc: % cached?
+          v[i]p = roundhalf(v[i]p - (0.5[v[i]p,v[i+1]p] - 0.5[v[i]s,v[i+1]s]*v));
+          v[v[i]s][v[i+1]s]sc := v[i]p;
+        else:
+          v[i]p = v[v[i]s][v[i+1]s]sc;
+        fi
+      fi
+    endfor
+  fi
+  if debug:
+    for i = 1 upto v.r-1:
+      message "v" & decimal(i) & ": " & decimal(v[i]s) &
+              " (" & decimal(v[i]p) & ")";
+    endfor
+  fi
+enddef;
+
+% build separate transformations for each region
+def v_transforms =
+  if unknown v1p: v_place; fi
+  if v.r = 1: v[0]t := identity yscaled v;
+  else:
+    % first region (not stem)
+    v[0]t := identity shifted (0,-v[1]s)
+                      yscaled v
+                      shifted (0,v[1]p);
+    % last region (not stem)
+    v[v.r-1]t := identity shifted (0,-v[v.r-1]s)
+                          yscaled v
+                          shifted (0,v[v.r-1]p);
+    % other regions
+    for i = 1 upto v.r - 2:
+      v[i]t := identity shifted (0,-v[i]s)
+                        yscaled
+                        (if v[i+1]p = v[i]p: 0
+                         else: ((v[i+1]p - v[i]p) / (v[i+1]s - v[i]s)) fi)
+                        shifted (0,v[i]p);
+    endfor
+  fi
+  if debug:
+    for i = 0 upto v.r-1:
+      show yypart v[i]t;
+    endfor
+  fi
+enddef;
+
+% find region according to y-coordinate
+def v_region(expr y) =
+  if v.r = 1: 0
+  elseif y < v[1]s: 0
+  elseif y >= v[v.r-1]s: (v.r - 1)
+  else:
+    for i = 2 upto v.r-1:
+      if y < v[i]s:
+        (i - 1)
+      fi
+      exitif (y < v[i]s);
+    endfor
+  fi
+enddef;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% actual pair (point) and path transformations
+
+% transform a pair (point) to pixel space, caching x and y coordinates
+% separately for future use
+def hv_pixel(expr p) =
+  if unknown h[xpart p]pc:
+    hide(h[xpart p]pc := xpart(p transformed h[h_region(xpart p)]t))
+  fi
+  if unknown v[ypart p]pc:
+    hide(v[ypart p]pc := ypart(p transformed v[v_region(ypart p)]t))
+  fi
+  (h[xpart p]pc, v[ypart p]pc)
+enddef;    
+
+% do the region-dependent tranformation on a point or path
+def hv_transform(expr p) =
+  if unknown v0t: hide(v_transforms) fi
+  if unknown h0t: hide(h_transforms) fi
+  if pair p: hv_pixel(p)
+  else: % path
+    for i = 0 upto length p - 1:
+       hv_pixel(point i of p) .. controls
+       hv_pixel(postcontrol i of p) and hv_pixel(precontrol i+1 of p) .. 
+    endfor
+    hv_pixel(point (length p) of p)
+  fi
+enddef;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% proofing stuff -- display stem hints on proof sheets
+
+% Mark a vstem specified in character space.  Note that the hints aren't known
+% at this time so they can't be applied to the stem.
+def mark_vstem(expr a,b) =
+  one := h + 20;
+  two := -d - 20;
+  aa := round(a*u);
+  bb := round(b*u);
+  proofrule((aa,two),(aa,one)); proofrule((bb,two),(bb,one));
+  if proofing>3:
+    screenrule((aa,two),(aa,one)); screenrule((bb,two),(bb,one)); fi
+enddef;
+
+% Mark a hstem specified in character space.  Note that the hints aren't known
+% at this time so they can't be applied to the stem.
+def mark_hstem(expr a,b) =
+  one := -20;
+  two := w + 20;
+  aa := round(a*v);
+  bb := round(b*v);
+  proofrule((one,aa),(two,aa)); proofrule((one,bb),(two,bb));
+  if proofing>3:
+    screenrule((one,aa),(two,aa)); screenrule((one,bb),(two,bb)); fi
+enddef;
+
+% Mark blue value ranges.
+def mark_blues =
+  for i = 1 upto top_blues.n:
+    one := -30;
+    two := w + 30;
+    aa := round(top_blues[i]o*v);
+    bb := round(top_blues[i]p*v);
+    proofrule((one,aa),(two,aa)); proofrule((one-10,bb),(two+10,bb));
+    if proofing>3:
+      screenrule((one,aa),(two,aa)); screenrule((one,bb),(two,bb)); fi
+  endfor
+  for i = 1 upto bot_blues.n:
+    one := -30;
+    two := w + 30;
+    aa := round(bot_blues[i]o*v);
+    bb := round(bot_blues[i]p*v);
+    proofrule((one,aa),(two,aa)); proofrule((one-10,bb),(two+10,bb));
+    if proofing>3:
+      screenrule((one,aa),(two,aa)); screenrule((one,bb),(two,bb)); fi
+  endfor
+enddef;
+extra_beginchar := extra_beginchar & "mark_blues;";
+
+
+numeric subpath_label; subpath_label := ASCII "a";
+extra_beginchar := extra_beginchar &
+                   "subpath_label:=ASCII " & ditto & "a" & ditto & ";";
+
+% Mark path points.  If p is a pair (point) then it is a control point.
+% Control points are only plotted if proofing > 2, but they are left
+% unlabelled.
+def mark_points(expr p) =
+  if path p:
+    for i = 0 upto length p:
+      makelabel(char(subpath_label) & decimal(i), point i of p);
+    endfor
+    if proofing > 2: % plot control points too
+      for i = 1 upto length p - 1:
+        makelabel("", postcontrol i of p);
+        makelabel("", precontrol i of p);
+      endfor
+      makelabel("", postcontrol 0 of p);
+      makelabel("", precontrol (length p - 1) of p);
+    fi
+    subpath_label:=subpath_label+1;
+  elseif (pair p) and (proofing>2): makelabel("", p)
+  fi
+enddef;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% macros used in character descriptions
+
+% store hint commands in this string for future incorporation
+string delayed_hints; delayed_hints:="";
+
+% specify delayed hints
+def dh(expr s) =
+  if hinting>0: hide(delayed_hints := delayed_hints & s & ";") fi
+enddef;
+
+% incorporate delayed hints
+def ih =
+  if hinting>0: hide(h_init; v_init; scantokens delayed_hints;
+                     delayed_hints:="") fi
+enddef;
+
+% vertical stem hint
+def vs(expr a,b) =
+  if hinting>0: hide(h_insert(a,b); if proofing>0: mark_vstem(a,b); fi) fi
+enddef;
+
+% vstem3 indicator
+def vst = if hinting>0: hide(h.triple:=true) fi enddef;
+
+% horizontal stem hint
+def hs(expr a,b) =
+  if hinting>0: hide(v_insert(a,b); if proofing>0: mark_hstem(a,b); fi) fi
+enddef;
+
+% hstem3 indicator
+def hst = if hinting>0: hide(v.triple:=true) fi enddef;
+
+% apply hints
+def ah(expr p) =
+  hide(if proofing>0:
+         if hinting>0: mark_points(hv_transform(p));
+         else: mark_points(p xscaled u yscaled v); fi
+       fi)
+  if hinting>0: hv_transform(p)
+  else: (p xscaled u yscaled v) fi
+enddef;
+
+% line to
+def lt(expr a,b) =
+  -- (a,b)
+enddef;
+
+% line to (after hint replacement)
+def lth(expr a,b) =
+  -- ih ah((a,b)
+enddef;
+
+% curve to
+def ct(expr a,b,c,d,e,f) =
+  .. controls (a,b) and (c,d) .. (e,f)
+enddef;
+
+% curve to (after hint replacement)
+def cth(expr a,b,c,d,e,f) =
+  .. controls ah((a,b)) and ih ah((c,d)) .. ah((e,f)
+enddef;
+
+% flex
+def fl(expr rx,ry,ax,ay,bx,by,cx,cy,dx,dy,ex,ey,fx,fy,height) =
+  if (abs((rx,ry) - (cx,cy))*u >= 0.01*height): % use curves
+    ct(ax,ay,bx,by,cx,cy)
+    ct(dx,dy,ex,ey,fx,fy)
+  else:
+    lt(fx,fy) % replace curves with line
+  fi
+enddef;
+
+% flex (after hint replacement)
+def flh(expr rx,ry,ax,ay,bx,by,cx,cy,dx,dy,ex,ey,fx,fy,height) =
+  if (abs((rx,ry) - (cx,cy))*u >= 0.01*height): % use curves
+    cth(ax,ay,bx,by,cx,cy)
+    ct(dx,dy,ex,ey,fx,fy)
+  else:
+    lth(fx,fy) % replace curves with line
+  fi
+enddef;
+
+% close path
+def cp = -- cycle enddef;
+
+% Draw by filling and stroking the path (helps greatly with small sizes).
+% We specify slanting here but not expansion because that's already been
+% incorporated.
+def dr expr c =
+  addto currentpicture contour (c slanted slanting) withpen pencircle;
+enddef;
+
+picture chp[];
+
+% seac (standard encoding accented character) use previously created
+% pictures.  When specifying accent shift, use slanting to correctly
+% position accent.
+def seac(expr achar,bchar,adx,ady) =
+  currentpicture := chp[bchar] +
+      chp[achar] shifted ((adx*u, ady*v) slanted slanting);
+enddef;
+
+% non-zero winding rule for filling instead of default positive rule
+def nonzerowinding = cull currentpicture dropping (0,0); enddef;
+extra_endchar := extra_endchar & "nonzerowinding;";
+
+turningcheck := 0; % no checking because directions are known
+
+autorounding := smoothing := 0; % we're doing hints ourselves

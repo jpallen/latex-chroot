@@ -1,0 +1,1180 @@
+%%
+%% This is file `floatrow.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% floatrow.dtx  (with options: `floatrow,frforsubfig,frforlongtbl,floatsetup')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from floatrow.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file floatrow.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{floatrow}
+       [2006/07/24 v0.1j floatrow: float package extension]
+\@ifundefined{float@caption}{%
+  \@ifundefined{rotfloat@float}{}%
+    {\PackageError{floatrow}{Do not use rotfloat package with floatrow}{}%
+  \@namedef{opt@floatrow.sty}{}\endinput}}%
+  {\PackageError{floatrow}{Do not use float package with floatrow}{}%
+  \@namedef{opt@floatrow.sty}{}\endinput}
+\@namedef{ver@float.sty}{2001/11/08 v1.3d (excerpt)
+    Float enhancements (AL)}
+\@namedef{ver@rotfloat.sty}{2004/01/04 v1.2 (excerpt)
+    Combining float+rotating package (AS)}
+\RequirePackage{keyval}
+\RequirePackage{caption3}[2006/01/12]
+\@ifdefinable\FR@flboxreset{\let\FR@flboxreset\@floatboxreset}
+\@ifdefinable\FR@makecaption{\let\FR@makecaption\@makecaption}
+\newcommand\FB@caption{%
+   \ifx\@captype\@undefined
+     \@latex@error{\noexpand\caption outside float}\@ehd
+     \expandafter\@gobble
+   \else
+     \refstepcounter\@captype
+     \expandafter\@firstofone
+   \fi
+   {\@dblarg{\@caption\@captype}}%
+}
+\@ifdefinable\float@caption{\let\float@caption\@caption}
+\newcounter{float@type}
+\@ifundefined{c@figure}%
+  {\setcounter{float@type}{1}}%
+  {\setcounter{float@type}{4}}
+\newcommand\flrow@error[1]{\PackageError{floatrow}{%
+  Unknown float style `#1'}{\@eha}}
+\newcommand\floatstyle[1]{\@ifundefined{flrow@sty@#1}%
+  {\flrow@error{#1}}{\edef\float@style{#1}}}
+\newcommand\floatname[2]{\@namedef{fname@#1}{#2}}
+\newcommand\floatplacement[2]{\@namedef{fps@#1}{#2}}
+\newif\if@@FS
+\newcommand\FR@redefs{%
+  \@ifundefined{HyOrg@float@makebox}{}%
+    {\let\float@makebox\HyOrg@float@makebox}%
+  \ifx\flrow@makecaption\@makecaption\relax
+  \else
+    \let\FR@makecaption\@makecaption
+    \let\@makecaption\flrow@makecaption
+  \fi
+  \let\@floatboxreset\flrow@flboxreset}
+\newcommand\flrow@makecaption[2]{\global\setbox\@floatcapt
+  \vbox\bgroup\@parboxrestore
+   \reset@font
+   \if@@FS
+      \ifdim\FBc@wd>\z@
+        \hsize\FBc@wd
+      \else
+        \adj@dim\hsize+\FBo@wadj=\hsize
+      \fi
+   \fi
+   \linewidth\hsize
+   \normalsize
+   \abovecaptionskip\z@\belowcaptionskip\z@
+   \FR@makecaption{#1}{#2}\egroup}
+\newcommand\killfloatstyle{\FBbuildtrue
+  \if@@FS\hsize\FB@wd\fi\global\@@FSfalse}
+\newcommand\RawFloats[1][\@captype]{\killfloatstyle
+ \@parboxrestore
+ \let\@makecaption\FR@makecaption
+ \@namedef{end#1}{\end@float}%
+ \@namedef{end#1*}{\end@dblfloat}%
+ \@namedef{endsideways#1}{\end@rotfloat}%
+ \@namedef{endsideways#1*}{\end@rotdblfloat}%
+ }
+\newcommand\flrow@capsetup{}
+\edef\float@style{plain}
+\@ifdefinable\FBB@wd{\let\FBB@wd\relax}
+\newcommand\restylefloat{%
+   \@ifstar{\flrow@restylefloat{no}\flrow@restyle}%
+     {\flrow@restylefloat{yes}\flrow@restyle}}
+\newcommand\flrow@restylefloat[3]{%
+   \edef\FR@tmp{\noexpand
+     \floatsetup[#3]{style=\float@style,relatedcapstyle=#1}}\FR@tmp
+   #2{#3}}
+\newcommand\flrow@restyle[1]{%
+  \@namedef{#1}{\killfloatstyle\def\@captype{#1}\FR@redefs
+    \flrow@setlist{{#1}}%
+    \textwidth\columnwidth\edef\FBB@wd{\the\columnwidth}%
+    \FRifFBOX\@@setframe\fi\@@FStrue\@float{#1}}%
+  \@namedef{#1*}{\killfloatstyle\def\@captype{#1}\FR@redefs
+    \flrow@setlist{{#1}{widefloat}{wide#1}}%
+    \FRifFBOX\@@setframe\fi\@@FStrue\edef\FBB@wd{\the\textwidth}%
+    \let\@xdblfloat\@xfloat\@dblfloat{#1}}%
+  \expandafter\let\csname end#1\endcsname\float@end
+  \expandafter\let\csname end#1*\endcsname\float@dblend
+ \@ifundefined{@rotfloat}{}{%
+  \@namedef{sideways#1}{\killfloatstyle\def\@captype{#1}\FR@redefs
+    \flrow@setlist{{#1}{rotfloat}{rot#1}}%
+    \columnwidth\textheight\edef\FBB@wd{\the\textheight}%
+    \FRifFBOX\@@setframe\fi\@@FStrue
+    \let\rotfloat@@makebox\float@makebox
+    \let\float@makebox\rotfloat@makebox
+    \@float{#1}}%
+  \@namedef{endsideways#1}{\FBbuildtrue\float@end}
+  \ifx\@rotdblfloat\undefined
+   \@namedef{sideways#1*}{%
+     \PackageError{floatrow}{%
+      You need rotating version 2.10 or newer to do this}{\@ehd}%
+     \@nameuse{sideways#1}}%
+  \else
+   \@namedef{sideways#1*}{\killfloatstyle\def\@captype{#1}\FR@redefs
+     \flrow@setlist{{#1}{rotfloat}{rot#1}{widerotfloat}{widerot#1}}%
+     \columnwidth\textheight\edef\FBB@wd{\the\textheight}%
+     \FRifFBOX\@@setframe\fi\@@FStrue
+     \let\@xdblfloat\@xfloat
+     \let\rotfloat@@makebox\float@makebox
+     \let\float@makebox\rotdblfloat@makebox
+     \@dblfloat{#1}}%
+  \fi
+  \@namedef{endsideways#1*}{\FBbuildtrue\float@dblend}}
+ \@ifundefined{wrapfloat}{}{%
+   \@ifundefined{flrow@WF@rapt}{\let\flrow@WF@rapt\WF@rapt
+   \def\WF@rapt[##1]##2{\FRifFBOX\@@setframe\fi\@@FStrue
+     \dimen@##2\relax
+     \ifdim\dimen@>\z@
+       \edef\FBB@wd{\the\dimen@}\FB@fs@wd\dimen@\FBo@wd
+     \fi
+     \flrow@WF@rapt[##1]{\dimen@}%
+       \@ifundefined{capstart}{}{\capstart}%
+       \the\FR@everyfloat\ignorespaces}%
+   }{}%
+   \@namedef{wrap#1}{\killfloatstyle\def\@captype{#1}%
+     \FR@redefs\FBc@wd\z@
+     \flrow@setlist{{#1}{wrapfloat}{wrap#1}{tmpset}}%
+     \global\let\flrow@typ@tmpset\undefined
+     \def\WF@floatstyhook{\let\@currbox\WF@box
+       \ifFBbuild
+         \global\setbox\WF@box\flrow@FB{\wd\WF@box}%
+       \else
+         \global\let\WF@box\@currbox
+       \fi}%
+     \@ifnextchar[\WF@wr{\WF@wr[]}}%]
+   \@namedef{endwrap#1}{\endwrapfloat
+     \@ifundefined{FloatHBarrier}{}\FloatHBarrier
+     }}
+ \@ifundefined{subfloat}{}{\@ifundefined{c@sub#1}{\newsubfloat{#1}}{}}}
+\@ifdefinable\float@exts{\newtoks\float@exts}
+\newcommand\newfloat{\@ifstar{\flrow@restylefloat{no}\newfloat@}%
+   {\flrow@restylefloat{yes}\newfloat@}}
+\newcommand\newfloat@[3]{\@ifnextchar[{\@@newfloat{#1}{#2}{#3}}%
+  {\@newfloat{#1}{#2}{#3}}}
+\newcommand\@newfloat[3]{%
+  \DeclareNewFloatType{#1}{placement=#2,fileext=#3}}
+\@ifdefinable\@@newfloat{}
+\def\@@newfloat#1#2#3[#4]{%
+  \DeclareNewFloatType{#1}{placement=#2,fileext=#3,within=#4}}
+\let\@float@Hx\@xfloat
+\def\@xfloat#1[{\@ifnextchar{H}{\@float@HH{#1}[}{\@float@Hx{#1}[}}
+\newsavebox\float@box
+\def\@float@HH#1[H]{%
+  \@ifundefined{FloatHBarrier}{}\FloatHBarrier
+  \expandafter\let\csname end#1\endcsname\float@endH
+  \let\@currbox\float@box
+  \flrow@setlist{{floatH}{#1H}}%
+  \def\@captype{#1}\setbox\@floatcapt=\vbox{}%
+  \setbox\@currbox\color@vbox\normalcolor
+    \vbox\bgroup
+      \hsize\columnwidth
+      \linewidth\columnwidth
+      \@parboxrestore
+      \@floatboxreset \@setnobreak
+  \ignorespaces}
+\newcommand\flrow@flboxreset{\FR@flboxreset
+  \@ifundefined{capstart}{}{\capstart}%
+  \FB@facing\@tempswafalse\FBiffacing\@tempswatrue\fi
+  \if@tempswa\FB@readaux{\relax}\fi
+  \flrow@settype{tmpset}\global\let\flrow@typ@tmpset\undefined
+  \global\let\FBcheight\relax\global\let\FBoheight\relax
+  \global\let\FBfheight\relax
+  \FBifcapbeside\FC@fs@wd\else\FB@fs@wd\fi
+  \the\FR@everyfloat}
+\@ifdefinable\FBcheight{\let\FBcheight\relax}
+\@ifdefinable\FBoheight{\let\FBoheight\relax}
+\@ifdefinable\FBfheight{\let\FBfheight\relax}
+\newcommand\FB@fs@wd{\@tempdima\FBB@wd
+  \flrow@setwd\textwidth\@tempdima
+  \adj@dim\@tempdima-\FB@wadj=\@tempdima
+  \settowidth\@tempdimb{{\FBleftmargin}{\FBrightmargin}}%
+  \advance\@tempdima-\@tempdimb
+  \global\FBc@wd\@tempdima\global\FB@wd\@tempdima
+  \adj@dim\@tempdima-\FBo@wadj={\global\FBo@wd}%
+  \hsize\FBo@wd\linewidth\hsize
+  \FBifcaptop
+    \ifnum\FPOScnt=0\columnwidth\hsize\else\columnwidth\FBc@wd\fi
+  \else
+    \columnwidth\FBc@wd
+  \fi}
+\newcommand\FC@fs@wd{\@tempdima\FBB@wd\flrow@FClist
+  \settowidth\@tempdimb{{\FCleftmargin}{\FCrightmargin}}%
+  \advance\@tempdima-\@tempdimb
+  \adj@dim\@tempdima-\FB@wadj=\@tempdima
+  \settowidth\@tempdimb{{\floatcapbesidesep}}%
+  \advance\@tempdima-\@tempdimb
+  \FC@ifc@wd
+     \ifx\FCwidth\relax
+        \PackageError{You didn't define width of caption\MessageBreak
+          for plain float environment.}{\flrow@eh}%
+     \else
+        \global\FBc@wd=\FCwidth
+        \FC@ifo@fil\advance\@tempdima-\FBc@wd\fi
+     \fi
+  \else
+    \global\FBc@wd\@tempdima
+  \fi
+  \FC@ifo@fil\else\@tempdima.5\@tempdima
+    \flrow@setwd\FB@wd\@tempdima\fi
+  \adj@dim\@tempdima-\FBo@wadj={\global\FBo@wd}%
+  \FC@ifc@wd\else\global\advance\FBc@wd-\FB@wd\fi
+  \hsize\FBo@wd\linewidth\hsize\columnwidth\FBc@wd\linewidth\hsize
+  \FCset@vpos}
+\newcommand\float@makebox[1]{%
+  \FBifcapbeside\flrow@FC{#1}\else\flrow@FB{#1}\fi}
+\newcommand\FBaskip{\z@}\newcommand\FBbskip{\z@}
+\newif\ifFBbuild\FBbuildtrue
+\newcommand\flrow@FB[1]{\vbox{\@tempdima=#1\vskip\FBaskip
+  \@parboxrestore\hbox to\@tempdima{\def\FB@zskip{\vskip\z@}%
+  \FBleftmargin\flrow@FB@\FBrightmargin}%
+  \FBiffacing\FB@writeaux{\string\global\string\c@FBcnt\thepage}\fi
+  \gdef\begin@FBBOX{\vbox\bgroup}\gdef\end@FBBOX{\egroup}%
+  \vskip\FBbskip\gdef\FBaskip{\z@}\gdef\FBbskip{\z@}}}
+\newcommand\flrow@FC[1]{\vbox{\@tempdima=#1\@parboxrestore
+  \flrow@FClist\vskip\FBaskip
+  \hbox to\@tempdima{\FCleftmargin\flrow@FC@\FCrightmargin}%
+  \FBiffacing\FB@writeaux{\string\global\string\c@FBcnt\thepage}\fi
+  \nocapbeside\global\let\FCwidth\relax
+  \vskip\FBbskip\gdef\FBaskip{\z@}\gdef\FBbskip{\z@}}}
+\newcommand\FCc@box[1]{\def\@parboxto{}\FC@bbox#1\FC@ebox}
+\newcommand\FC@bbox{\vbox\@parboxto\bgroup}
+\newcommand\FC@ebox{\vskip\z@\egroup}
+\newcommand\FCo@box[1]{\def\@parboxto{}\ifx\FBoheight\relax\FC@bbox\else
+  \def\@parboxto{to\FBoheight}\FC@bbox\vsize\FBoheight\fi#1\FC@ebox}
+\newcommand\FBafil{\vfill}\newcommand\FBbfil{\vfill}
+\newcommand\FBw@box[1]{\hsize#1\columnwidth#1\linewidth#1%
+  \normalfont\normalcolor}
+\newcommand\FB@vbox[3]{\ifx#2\relax\vbox\bgroup\else
+  \vbox to#2\bgroup\vsize#2\fi\FBw@box#1#3\vskip\z@\egroup}
+\newcommand\FB@vtop[3]{\ifx#2\relax\vtop\bgroup\else
+  \vtop to#2\bgroup\vsize#2\fi\vskip\z@\FBw@box#1#3\egroup}
+\newcommand\flrow@FB@{\FB@frame{\begin@FBBOX
+  \adj@dim\FBo@wd+\FBo@wadj=\hsize
+  \@tempdima\ht\@currbox\advance\@tempdima\dp\@currbox
+  \ifdim\@tempdima=\z@
+     \def\@@FBskip{}\let\FBo@frame\@gobble
+  \fi
+  \@parboxrestore\@@FBabove
+  \FBifcaptop
+    \ifvoid\@floatcapt\else
+      \FB@vbox\FBc@wd\FBcheight{\FBifCAPTOP\else\vfill\fi
+        \unvbox\@floatcapt
+        \ifnum\FPOScnt=1\vbox{\FB@foot}\fi\vfil}%
+      \@@FBskip\hrule\@height\z@\@depth\z@
+    \fi
+    \vtop{\vskip\z@\FBo@frame{\FB@vtop\FBo@wd\FBoheight
+      {\FBafil\unvbox\@currbox\FBbfil
+      \vskip\z@
+      \ifnum\FPOScnt=0
+        \FB@vtop\FBo@wd\FBfheight{\FB@foot\vfil}\fi}}\par
+      \par\vskip\z@
+      \ifnum\FPOScnt=2\vskip\z@
+        \FB@vtop\FBc@wd\FBfheight{\FB@foot\vfil}\fi}%
+  \else\ifnum\FPOScnt=0\FPOScnt=1\fi
+    \FBo@frame{\FB@vbox\FBo@wd\FBoheight{\FBafil
+       \unvbox\@currbox\FBbfil}}\par
+    \ifvoid\@floatcapt\else
+      \@@FBskip\hrule\@height\z@\@depth\z@
+      \FB@vtop\FBc@wd\FBcheight{\hsize\columnwidth\unvbox\@floatcapt
+        \ifnum\FPOScnt=1\vtop{\FB@foot}\fi\par
+        \vfill\vskip\z@\vss
+        \ifnum\FPOScnt=2\FB@vtop\FBc@wd\FBfheight{\FB@foot\vfil}\fi
+        }\fi
+  \fi\@@FBbelow\FB@zskip\end@FBBOX}}
+\newcommand\flrow@FC@{\FB@frame{\begin@FBBOX
+   \adj@dim\FBo@wd+\FBo@wadj=\hsize
+   \settowidth\@tempdimb{\floatcapbesidesep}\advance\hsize\@tempdimb
+   \advance\hsize\FBc@wd\@parboxrestore\@@FBabove
+    \hbox{\floatfacing*%
+      {\ifvoid\@floatcapt\else
+         \FCc@box{\FBw@box\FBc@wd\unvbox\@floatcapt\FB@foot}%
+         \floatcapbesidesep\fi
+       \FBf@raise{\FBo@frame{\FCo@box{\FBw@box\FBc@wd\unvbox\@currbox}}}}%
+      {\FBf@raise{\FBo@frame{\FCo@box{\FBw@box\FBo@wd\unvbox\@currbox}}}%
+       \ifvoid\@floatcapt\else
+         \floatcapbesidesep\FCc@box{\FBw@box\FBc@wd
+           \unvbox\@floatcapt\FB@foot}\fi
+      }}\par\@@FBbelow\vskip\z@
+    \end@FBBOX}}
+\newcommand\FB@foot{\let\FR@ifFOOT\iftrue\FB@putfoots\@@par\FB@putfnotes}
+\newcommand\FB@zskip{}
+\newcommand\float@end{\ifFBbuild\@endfloatbox
+    \global\setbox\@currbox\float@makebox\columnwidth
+    \let\@endfloatbox\relax\fi
+  \end@float}
+\newcommand\float@endH{\@endfloatbox\par
+  \addpenalty\@beginparpenalty\vskip\intextsep
+  \ifFBbuild\setbox\@currbox\float@makebox\columnwidth\fi
+  \box\@currbox\par\addpenalty\@endparpenalty\vskip\intextsep\relax}
+\newcommand\float@dblend{\ifFBbuild\@endfloatbox
+    \global\setbox\@currbox\float@makebox\textwidth
+    \let\@endfloatbox\relax\fi
+  \end@dblfloat}
+\newsavebox\@floatcapt
+\newcommand*{\listof}[2]{%
+  \@ifundefined{ext@#1}{\flrow@error{#1}}{%
+    \@namedef{l@#1}{\@dottedtocline{1}{1.5em}{2.3em}}%
+    \float@listhead{#2}%
+    \begingroup\setlength{\parskip}{\z@}%
+      \@starttoc{\@nameuse{ext@#1}}%
+    \endgroup}}
+\providecommand*{\float@listhead}[1]{%
+  \@ifundefined{chapter}{\def\@tempa{\section*}}%
+    {\def\@tempa{\chapter*}}%
+  \@tempa{#1\@mkboth{\MakeUppercase{#1}}{\MakeUppercase{#1}}}}%
+\newcommand\float@addtolists[1]{%
+  \def\float@do##1{\addtocontents{##1}{#1}} \the\float@exts}
+\PackageInfo{floatrow}{Modified float package code loaded}
+\IfFileExists{rotating.sty}{\@tempswatrue}{\@tempswafalse}
+\if@tempswa
+  \let\rotfloat@HH\@float@HH
+  \def\@float@HH#1{%
+    \expandafter\let\csname endsideways#1\endcsname\float@endH
+    \let\end@float\relax
+    \rotfloat@HH{#1}}
+  \newcommand*\rotfloat@makebox[1]{%
+    \vbox{\def\@float##1[##2]{}\let\end@float\relax
+      \@rotfloat{}[]%
+      \ifFBbuild\rotfloat@@makebox{#1}\else\box\@currbox\fi
+      \end@rotfloat}}
+  \newcommand*\rotdblfloat@makebox[1]{%
+    \vbox{\def\@float##1[##2]{}\let\end@dblfloat\relax
+      \@rotdblfloat{}[]%
+      \ifFBbuild\rotfloat@@makebox{#1}\else\box\@currbox\fi
+      \end@rotdblfloat}}
+\PackageInfo{floatrow}{Modified rotfloat package code loaded}
+\fi
+\@ifdefinable\FR@everyfloat{\newtoks\FR@everyfloat}
+\FR@everyfloat={\let\@footnotetext\@mpfootnotetext
+  \def\@mpfn{mpfootnote}\def\thempfn{\thempfootnote}\c@mpfootnote\z@
+  \floatobjectset\floatfont}
+\let\FR@ifFOOT\iffalse
+\newcommand\FB@putfnotes{%
+  \ifvoid\@mpfootins\else\FR@ifFOOT
+    \vskip\floatfootskip\normalcolor\FBfootnoterule
+    \unvbox\@mpfootins\@@par
+  \fi\fi}
+\@ifdefinable\flrow@foot{\newinsert\flrow@foot}
+\newcommand\FB@putfoots{%
+  \ifvoid\flrow@foot\else\FR@ifFOOT
+    \vskip\floatfootskip\normalcolor
+    \unvbox\flrow@foot\@@par
+  \fi\fi}
+\AtBeginDocument{\providecommand\mpfootnotemark{\@ifnextchar[%]
+   \@xmpfootnotemark{\stepcounter\@mpfn
+   \protected@xdef\@thefnmark{\thempfn}\@footnotemark}}%
+ \@ifundefined{@xmpfootnotemark}
+   {\def\@xmpfootnotemark[#1]{\begingroup\c@mpfootnote#1\relax
+    \unrestored@protected@xdef\@thefnmark{\thempfn}\endgroup
+    \@footnotemark}}{}}
+\newcommand\floatfoot{\@ifstar
+  {\def\FR@tmp{\@parboxrestore\captionfootfont}\floatfoot@}%
+  {\def\FR@tmp{\captionfootfont}\floatfoot@}}
+\newcommand\floatfoot@[1]{%
+  \global\setbox\flrow@foot\vbox{%
+    \if@@FS\hsize\columnwidth\linewidth\columnwidth\fi
+    \@parboxrestore\reset@font\color@begingroup
+  \caption@settype{\@captype}%
+  \caption@settype{floatfoot}%
+    \captionsetup{labelformat=empty,labelsep=none}%
+     \caption@@make{}{\FR@tmp#1\@finalstrut\strutbox}%
+  \color@endgroup}}%
+\newcommand\newfloatcommand[2]{%
+  \@ifundefined{#1}{}%
+    {\PackageError{floatrow}{\string#1 already defined}{\@ehd}}%
+  \@ifnextchar[{\FB@nc{#1}{#2}}{\FB@nc{#1}{#2}[]}}
+\newcommand\renewfloatcommand[2]{%
+  \@ifundefined{#1}{}%
+    {\PackageInfo{floatrow}{Redefining \string#1}}%
+  \@ifnextchar[{\FB@nc{#1}{#2}}{\FB@nc{#1}{#2}[]}}
+\@ifdefinable\FB@nc{}\@ifdefinable\FB@@nc{}
+\def\FB@nc#1#2[#3]{%
+  \@ifnextchar[{\FB@@nc{#1}{#2}[#3]}{\FB@@nc{#1}{#2}[#3][]}}
+\def\FB@@nc#1#2[#3][#4]{%
+  \@namedef{#1}{\begingroup
+  #3\def\@captype{#2}%
+  \@ifnextchar[{\@floatbox}{\@floatbox[#4]}}}
+\newfloatcommand{ffigbox}{figure}[\nocapbeside][]
+\newfloatcommand{ttabbox}{table}[\captop][\FBwidth]
+\newfloatcommand{fcapside}{figure}[\capbeside][]
+\@ifdefinable\FB@wd {\newdimen\FB@wd}
+\@ifdefinable\FBo@wd{\newdimen\FBo@wd}
+\@ifdefinable\FBc@wd{\newdimen\FBc@wd}
+\newlength\FBo@ht
+\newlength\FBc@ht
+\newlength\FBf@ht
+\newlength\FBo@max
+\newlength\FBc@max
+\newlength\FBf@max
+\newcommand\FR@loc@addcnt[2]{%
+  \@ifundefined{c@#1}{\@nocounterr{#1}}%
+    {\advance\csname c@#1\endcsname #2\relax}}
+\newcommand\FR@loc@refcnt[1]{%
+  \@ifundefined{c@#1}{\@nocounterr{#1}}%
+   {\advance\csname c@#1\endcsname1\relax}}
+\newcommand\FR@loc@{\let\label\@gobble
+  \let\refstepcounter\FR@loc@refcnt\let\refsteponlycounter\FR@loc@refcnt
+  \let\cl@@ckpt\empty\let\addtocounter\FR@loc@addcnt
+  \def\sf@updatecaptionlist##1##2##3##4{}}
+\def\FBtmp@cap#1[#2]#3{\sbox\@tempboxa
+  {\caption@@@make{\caption@lfmt{\@nameuse{\@captype name}}%
+              {\@nameuse{the\@captype}}}{#3}}%
+  \global\@tempdimb\wd\@tempboxa}
+\newcommand\FBget@box[3]{%
+  \FBiffloatrow\else
+    \ifx\FBB@wd\relax
+      \ifdim\hsize=\z@
+        \@ifundefined{wf@@caption}{}{\let\caption\wf@@caption}%
+        \hsize.5\columnwidth\advance\hsize-.5\columnsep
+      \else
+        \edef\FBB@wd{\the\hsize}%
+      \fi
+    \else
+      \hsize\FBB@wd
+    \fi
+  \fi
+  \adj@dim\hsize-\FB@wadj=\@tempdima
+  \FBifcapbeside
+    \FCget@@wd{#1}{#3}%
+  \else
+    \nofilFCOhsize
+    \FBiffloatrow\else
+      \settowidth\@tempdimb{{\FBleftmargin}{\FBrightmargin}}%
+      \advance\@tempdima-\@tempdimb
+    \fi
+  \fi
+  \FC@ifo@fil\@tempdima\FB@wd\else\FB@wd\@tempdima\fi
+  \adj@dim\@tempdima-\FBo@wadj=\FBo@wd
+  \FBiffloatrow\else\hsize\FBo@wd\fi
+  \FBifcapbeside\hsize\FB@wd\fi
+  \linewidth\hsize
+  \def\reserved@a{#1}\ifx\reserved@a\empty
+    \else\FBget@@wd{#1}{#3}\fi
+  \hsize\FBo@wd\linewidth\hsize
+  \FBifcapbeside
+    \FC@ifc@wd\else\advance\FBc@wd-\FB@wd\fi
+  \else
+    \FBc@wd\FB@wd
+  \fi
+  \setbox0\vbox{\FR@loc@\hsize\FBo@wd\linewidth\hsize
+    \FBifcaptop
+      \ifnum\FPOScnt=0\columnwidth\hsize\else\columnwidth\FBc@wd\fi
+    \else
+      \columnwidth\FBc@wd
+    \fi
+    #3}%
+  \FBc@ht\ht\@floatcapt\advance\FBc@ht\dp\@floatcapt
+  \FBo@ht\ht0\advance\FBo@ht\dp0\let\FBheight\FBo@ht
+  \setbox2\vbox{\null\par\FB@foot\par}%
+  \FBf@ht\ht2\advance\FBf@ht\dp2%
+  \FBiffloatrow
+    \ifdim\FBf@ht>\FBf@max\global\FBf@max\FBf@ht\fi
+    \ifCADJ
+      \FBifcaptop
+        \ifnum\FPOScnt=1\global\advance\FBc@ht\FBf@ht\fi
+      \else
+        \ifnum\FPOScnt=2
+          \ifdim\FBf@ht>\FBf@max
+            \global\advance\FBc@ht\FBf@ht
+          \else
+            \global\advance\FBc@ht\FBf@max
+          \fi
+        \else
+          \global\advance\FBc@ht\FBf@ht
+        \fi
+      \fi
+      \ifdim\FBc@ht>\FBc@max\global\FBc@max\FBc@ht\fi
+      \gdef\FBcheight{\FBc@ht}\gdef\FBfheight{\FBf@ht}%
+    \fi
+  \fi
+  \def\reserved@a{#2}\ifx\reserved@a\empty
+    \FBiffloatrow\ifOADJ
+      \ifdim\FBo@ht>\FBo@max\global\FBo@max\FBo@ht\fi
+      \FBifcaptop
+        \ifnum\FPOScnt=0
+          \ifdim\FBf@ht>\FBf@max\global\FBf@max\FBf@ht\fi
+        \fi
+      \fi
+      \gdef\FBoheight{\FBo@ht}\gdef\FBfheight{\FBf@ht}%
+    \fi\fi
+  \else
+     \FBget@@ht{#2}%
+  \fi}
+\newcommand\FCget@@wd[2]{\flrow@FClist
+  \FBiffloatrow\else
+    \settowidth\@tempdimb{{\FCleftmargin}{\FCrightmargin}}%
+    \advance\@tempdima-\@tempdimb\advance\hsize-\@tempdimb
+  \fi
+  \settowidth\@tempdimb{\floatcapbesidesep}\advance\@tempdima-\@tempdimb
+  \FC@ifo@fil\FB@wd\@tempdima\fi
+  \FC@ifc@wd
+    \ifx\FCwidth\relax
+      \setbox1\vbox{\FR@loc@
+        \let\caption\FB@caption
+        \let\@caption\FBtmp@cap
+         #2}%
+      \FBc@wd=\@tempdimb
+    \else
+      \FBc@wd=\FCwidth
+    \fi\FC@ifo@fil\advance\FB@wd-\FBc@wd\fi
+  \else
+    \FBc@wd\@tempdima
+  \fi
+  \@tempdima.5\@tempdima}
+\newcommand\FBget@@wd[2]{\@tempswafalse
+  \begingroup
+    \@tempdima-3000pt\let\FBwidth\@tempdima
+    \setlength\dimen@{#1}\ifdim\dimen@<\z@\global\@tempswatrue\fi
+  \endgroup
+  \if@tempswa
+    \setbox0\hbox{\FR@loc@#2}\FBo@wd\wd0%
+    \let\FBwidth\FBo@wd
+    \setlength\FBo@wd{#1}%
+    \advance\FBo@wd\leftskip\advance\FBo@wd\rightskip
+    \adj@dim\FBo@wd+\FBo@wadj=\FB@wd
+    \setbox\flrow@foot\box\voidb@x
+    \setbox\@mpfootins\box\voidb@x
+  \else
+    \setlength\FB@wd{#1}%
+    \adj@dim\FB@wd-\FB@wadj=\FB@wd
+    \adj@dim\FB@wd-\FBo@wadj=\FBo@wd
+    \let\FBwidth\FBo@wd
+  \fi}
+\newcommand\FBget@@ht[1]{\@tempswafalse
+  \begingroup
+    \@tempdimb-3000pt\let\FBheight\@tempdimb
+    \setlength\dimen@{#1}\ifdim\dimen@<\z@
+      \global\@tempswatrue\fi
+  \endgroup
+  \setlength\FBo@ht{#1}%
+  \if@tempswa
+    \adj@dim\FBo@ht+\FBo@hadj=\FBo@ht
+    \FBifcaptop\ifnum\FPOScnt=0\advance\FBo@ht\FBf@ht\fi\fi
+  \else
+    \adj@dim\FBo@ht-\FBo@hadj=\FBo@ht
+    \adj@dim\FBo@ht-\FB@hadj=\FBo@ht
+    \setbox0\vbox{\offinterlineskip\vbox{\@@FBabove}%
+      \FBifcapbeside\else\@@FBskip\hrule\@height\z@\@depth\z@\fi
+      \vtop{\@@FBbelow}}%
+    \global\advance\FBo@ht-\ht0\global\advance\FBo@ht-\dp0%
+    \FBifcapbeside\else\FBget@@@ht\fi
+    \FBiffloatrow\ifOADJ
+      \ifdim\FBo@ht>\FBo@max\global\FBo@max\FBo@ht\fi
+    \fi\fi
+  \fi
+  \def\FBoheight{\FBo@ht}}
+\newcommand\FBget@@@ht{%
+    \ifdim\FBc@ht>\FBc@max
+      \global\advance\FBo@ht-\FBc@ht
+    \else
+      \global\advance\FBo@ht-\FBc@max
+    \fi
+    \FBifcaptop\ifnum\FPOScnt=1\else
+      \ifdim\FBf@ht>\FBf@max
+        \global\advance\FBo@ht-\FBf@ht
+      \else
+        \global\advance\FBo@ht-\FBf@max
+      \fi
+    \fi\fi
+  }
+\newcommand\FB@writeaux[1]{%
+  \begingroup
+    \let\thepage\relax\let\protect\@unexpandable@protect
+    \edef\reserved@a{\write\@auxout{\string\gdef
+    \expandafter\string\csname @@FBset@\romannumeral
+    \the\c@FBl@b\endcsname{#1}}}\reserved@a
+  \endgroup
+  \addtocounter{FBl@b}{1}}
+\newcommand\FB@readaux[1]{%
+  \@ifundefined{@@FBset@\romannumeral\the\c@FBl@b}%
+    {#1}{\@nameuse{@@FBset@\romannumeral\the\c@FBl@b}}}
+\newcounter{FBl@b}
+\let\FC@ifFBOX\iffalse
+\newcommand\FBs@raise{\raisebox{-\totalheight}}
+\newcommand\FBf@raise{}
+\newcommand\FCset@vpos{\@FC@vpos
+  \ifcase\count@
+    \gdef\FC@bbox{$\vcenter\@parboxto\bgroup\vskip\z@}%
+    \gdef\FC@ebox{\vskip\z@\egroup$}%
+    \gdef\FBf@raise{}%
+    \gdef\FBs@raise{\raisebox{-.5\totalheight}}%
+  \or\gdef\FC@bbox{\vtop\@parboxto\bgroup\vskip\z@}%
+    \gdef\FC@ebox{\vskip\z@\egroup}%
+    \FC@ifFBOX\gdef\FBf@raise{\raisebox{-\height}}%
+    \else\gdef\FBf@raise{}\fi
+    \gdef\FBs@raise{\raisebox{-\totalheight}}%
+  \or\gdef\FC@bbox{\vbox\@parboxto\bgroup}\gdef\FC@ebox{\vskip\z@\egroup}%
+    \FC@ifFBOX\gdef\FBf@raise{\raisebox{\depth}}%
+    \else\gdef\FBf@raise{}\fi
+    \gdef\FBs@raise{}\fi}
+\@ifdefinable\adj@dim{}
+\def\adj@dim#1#2#3=#4{\dimen@\z@#3\ifdim\dimen@=\z@#4#1\else
+  \adj@@dim#1#2#3{#4}\fi}
+\newcommand\adj@@dim[4]{\@tempdima#1\advance\@tempdima#2\dimen@
+  #4=\@tempdima}
+\newcommand\floatbox[2][]{\begingroup
+  #1\def\@captype{#2}%
+  \@ifnextchar[{\@floatbox}{\@floatbox[]}}
+\@ifdefinable\@floatbox{}\@ifdefinable\@@floatbox{}
+\def\@floatbox[#1]{%
+  \@ifnextchar[{\@@floatbox[#1]}{\@@floatbox[#1][]}}
+\def\@@floatbox[#1][#2]{%
+  \@ifnextchar[{\@@@floatbox[#1][#2]}{\@@@floatbox[#1][#2][]}}%]
+\@ifdefinable\@@@floatbox{}
+\long\def\@@@floatbox[#1][#2][#3]#4#5{%
+  \@FB@vpos{#3}%
+  \if@@FS\else\FR@redefs
+    \flrow@setlist{{\@captype}}\FRifFBOX\@@setframe\fi\@@FStrue
+  \fi
+  \FBifcapbeside\flrow@FClist\fi
+  \flrow@settype{tmpset}\global\let\flrow@typ@tmpset\undefined
+  \@parboxrestore\floatobjectset\floatfont
+  \FBget@box{#1}{#2}{#4#5}%
+  \FBifcapbeside\FCset@vpos\fi
+  \FBiffloatrow\FR@floatbox{\@ifundefined{capstart}{}{\capstart}#4#5}\else
+    \adj@dim\FB@wd+\FB@wadj=\hsize\linewidth\hsize
+    \ifx\FBB@wd\relax\edef\FBB@wd{\the\hsize}\fi
+    \FBsetbox@obj{\@ifundefined{capstart}{}{\capstart}#4#5}\FBbuildtrue
+    \FBifcapbeside\flrow@FC\FBB@wd\else\flrow@FB\FBB@wd\fi
+    \global\FBbuildfalse
+  \fi
+  \endgroup\ignorespaces}
+\newcommand\FR@floatbox[1]{\@tempswafalse
+    \ifOADJ\@tempswatrue\fi\ifCADJ\@tempswatrue\fi
+    \if@tempswa\@ifundefined{FB@@boxmax}{}{\FB@@boxmax}\fi
+    \FBsetbox@obj{#1}\begin@FBBOX
+      \FBifcapbeside\flrow@FC@\else\flrow@FB@\fi
+    \end@FBBOX
+    \addtocounter{FRobj}{-1}%
+    \@tempswafalse\FBiffacing\@tempswatrue\fi
+    \ifCADJ\@tempswatrue\fi\ifOADJ\@tempswatrue\fi
+    \ifnum\c@FRobj=0%
+      \if@tempswa
+        \FB@writeaux{\string\c@FBcnt\thepage
+          \string\def\string\FB@@boxmax{%
+          \ifOADJ\string\FBo@ht\the\FBo@max
+          \string\FBf@ht\the\FBf@max\fi
+          \ifCADJ\string\FBc@ht\the\FBc@max\fi}}\fi
+      \global\FBbuildfalse
+    \else
+      \advance\Xhsize-\FB@wd
+      \FBifcapbeside\advance\Xhsize-\FBc@wd
+        \settowidth\@tempdimb{\floatcapbesidesep}%
+        \advance\Xhsize-\@tempdimb\fi
+      \floatrowsep
+      \adj@dim\Xhsize-\FB@wadj={\global\Xhsize}%
+    \fi}
+\newcommand\FBsetbox@obj[1]{%
+  \setbox\float@box\color@vbox\normalcolor
+  \FBifcaptop
+     \FB@vtop\FBo@wd\FBoheight\bgroup\FBafil\floatobjectset\floatfont
+      \ifnum\FPOScnt=0\columnwidth\FBo@wd\else\columnwidth\FBc@wd\fi
+  \else
+     \FB@vbox\FBo@wd\FBoheight\bgroup\FBafil\floatobjectset\floatfont
+      \columnwidth\FBc@wd
+  \fi
+  #1\FBbfil\egroup\color@endbox
+  \let\@currbox\float@box}
+\let\FBiffloatrow\iffalse
+\newcounter{FRobj}
+\newlength\Xhsize
+\newcommand\floatrow[1][2]{\setcounter{FRobj}{#1}\FB@facing
+  \@tempswafalse\FBiffacing\@tempswatrue\fi
+  \ifCADJ\@tempswatrue\fi\ifOADJ\@tempswatrue\fi
+  \if@tempswa\FB@readaux{\relax}\fi
+  \vbox\bgroup\vskip\FBaskip\hsize\FBB@wd\@@FRabove
+    \hb@xt@\hsize\bgroup\let\FBiffloatrow\iftrue\FRleftmargin\begingroup
+      \Xhsize\hsize\count@#1\advance\count@-1%
+      \settowidth\@tempdima{{\FRleftmargin}{\FRrightmargin}}%
+      \advance\Xhsize-\@tempdima
+      \settowidth\@tempdima{\floatrowsep}%
+      \advance\Xhsize-\count@\@tempdima
+      \@tempdimb\Xhsize\divide\@tempdimb#1%
+      \FB@wd\@tempdimb\hsize\@tempdimb\ignorespaces}
+\def\endfloatrow{\ifdim\lastskip>\z@\unskip\fi
+    \endgroup\FRrightmargin\egroup%h box
+  \global\let\FBiffloatrow\iffalse\@@FRbelow
+  \vskip\FBbskip\gdef\FBaskip{\z@}\gdef\FBbskip{\z@}\egroup%v box
+  \global\FBf@max\z@\global\FBo@max\z@\global\FBc@max\z@
+  \gdef\begin@FBBOX{\vbox\bgroup}\gdef\end@FBBOX{\egroup}}
+\newcommand\begin@FBBOX{\vbox\bgroup}
+\def\end@FBBOX{\egroup}
+\newcommand\CenterFloatBoxes{\CADJfalse\OADJfalse
+  \buildFBBOX{\hbox\bgroup$\vcenter\bgroup\vskip\z@}%
+             {\vskip\z@\egroup$\egroup}}
+\newcommand\TopFloatBoxes{\CADJfalse\OADJfalse
+  \buildFBBOX{\vtop\bgroup\vskip\z@}{\egroup}}
+\newcommand\BottomFloatBoxes{\CADJfalse\OADJfalse
+  \buildFBBOX{\vbox\bgroup}{\vskip\z@\egroup}}
+\newcommand\PlainFloatBoxes{%
+  \gdef\begin@FBBOX{\vbox\bgroup}\gdef\end@FBBOX{\egroup}}
+\newcommand\buildFBBOX[2]{\gdef\begin@FBBOX{#1}\gdef\end@FBBOX{#2}}
+\newcommand\flrow@setbool[2]{%
+  \caption@ifinlist{#2}{1,true,yes,on}{\let#1\iftrue
+  }{\caption@ifinlist{#2}{0,false,no,off}{\let#1\iffalse
+  }{\PackageError{floatrow}{Undefined boolean value `#2'}{\flrow@eh}%
+  }}}
+\def\floatsetup{\@ifnextchar[\flrow@setuptype\flrow@setup}
+\def\flrow@setuptype[#1]#2{%
+  \@ifundefined{flrow@typ@#1}{\@namedef{flrow@typ@#1}{#2}}%
+    {\expandafter\l@addto@macro\csname flrow@typ@#1\endcsname{,#2}}}
+\newcommand\thisfloatsetup{\floatsetup[tmpset]}
+\def\flrow@setup{\setkeys{floatrow}}
+\def\flrow@esetup#1{%
+  \edef\FR@tmp{\noexpand\flrow@setup{#1}}\FR@tmp}
+\def\flrow@settype#1{\@ifundefined{flrow@typ@#1}{}%
+  {\flrow@esetup{\csname flrow@typ@#1\endcsname}}}%
+\newcommand\flrow@setlist[1]{\@flrow@setlist#1;%
+  \FR@ifCST\flrow@capsetup\fi\@cap@setlist#1;%
+  \caption@setposition{\FBifcaptop t\else b\fi}}
+\newcommand\@flrow@setlist[1]{\flrow@settype{#1}\@ifnextchar;\@gobble
+  \@flrow@setlist}
+\newcommand\@cap@setlist[1]{\caption@settype{#1}%
+   \@ifnextchar;{\let\caption@setfloattype\@gobble\@gobble}\@cap@setlist}
+\newcommand\flrow@FClist{\flrow@setlist
+  {{floatbeside}{capbesidefloat}{\@captype beside}{capbeside\@captype}}}
+\newcommand*\clearfloatsetup[1]{\@nameundef{flrow@typ@#1}}
+\newcommand\flrow@eh{%
+  If you do not understand this error, please take look\MessageBreak
+  at `floatrow' and `caption' package documentations.\MessageBreak
+  \@ehc}
+\newcommand\DeclareFROpt{%
+  \@ifstar{\flrow@declopt\AtEndOfPackage}
+          {\flrow@declopt\@gobble}}
+\newcommand*\flrow@declopt[2]{%
+  #1{\undefine@key{floatrow}{#2}}\define@key{floatrow}{#2}}
+\@onlypreamble\DeclareFROpt
+\@onlypreamble\flrow@declopt
+\newcommand*\DeclareFloatStyle[2]{%
+  \global\@namedef{flrow@sty@#1}{#2}}
+\@onlypreamble\DeclareFloatStyle
+\newcommand*\flrow@setstyle[1]{%
+  \@ifundefined{flrow@sty@#1}%
+    {\PackageError{floatrow}{Undefined float style `#1'}{\flrow@eh}}%
+    {\FBstyle@reset
+     \def\flrow@capsetup{%
+        \@ifundefined{caption@sty@#1}{}{\caption@setstyle{#1}}%
+        \caption@settype {#1}}%
+     \flrow@esetup{\csname flrow@sty@#1\endcsname}}}
+\DeclareFloatStyle{plain}{}
+\DeclareFloatStyle{plaintop}{capposition=top}
+\DeclareFloatStyle{boxed}{captionskip=2pt,
+  framestyle=fbox,heightadjust=object,framearound=object}
+\DeclareFloatStyle{ruled}{precode=thickrule,midcode=rule,postcode=lowrule,
+  capposition=top,heightadjust=all}
+\DeclareFloatStyle{Ruled}{style=ruled,capposition=TOP}
+\DeclareFloatStyle{Plaintop}{capposition=TOP}
+\DeclareFloatStyle{Boxed}{style=boxed,framefit=yes}
+\DeclareFloatStyle{BOXED}{framestyle=fbox,
+  framefit=yes,heightadjust=all,framearound=all}
+\DeclareFROpt{style}{\flrow@setstyle{#1}}
+\let\FR@ifCST\iftrue
+\DeclareFROpt{relatedcapstyle}[0]{\flrow@setbool{\FR@ifCST}{#1}}
+\DeclareFROpt{font}{\flrow@setfont{font}{#1}}
+\DeclareFROpt{footfont}{\captionsetup[floatfoot]{font={#1}}}
+\DeclareCaptionOption{footfont}{\caption@setfont{footfont}{#1}}
+\newcommand*\floatfont{}
+\newcommand*\captionfootfont{\normalfont\footnotesize}
+\let\DeclareFloatFont\DeclareCaptionFont
+\@onlypreamble\DeclareFloatFont
+\newcommand*\flrow@setfont[2]{%
+  \let\caption@tempa\@empty
+  \begingroup\setkeys{caption@fnt}{#2}\endgroup
+  \expandafter\let\csname float#1\endcsname\caption@tempa}
+\DeclareFROpt{capposition}{\flrow@cappos{#1}}
+\DeclareFROpt{position}{\flrow@cappos{#1}}
+\newcommand*\flrow@cappos[1]{%
+  \caption@ifinlist{#1}{t,top,above}{\captop\nocapbeside
+  }{\caption@ifinlist{#1}{T,TOP,ABOVE}{\CAPTOP\nocapbeside
+  }{\caption@ifinlist{#1}{b,bottom,below,default}{\capbot\nocapbeside
+  }{\caption@ifinlist{#1}{beside,side}{\caption@setposition{a}\capbeside
+  }{\PackageError{floatrow}{Undefined caption position `#1'}{\flrow@eh}%
+  }}}}}
+\let\FBifcaptop\iffalse
+\newcommand\captop{\let\FBifcaptop\iftrue}
+\newcommand\capbot{\let\FBifcaptop\iffalse}
+\let\FBifCAPTOP\iffalse
+\newcommand\CAPTOP{\captop\let\FBifCAPTOP\iftrue\CADJtrue}
+\let\FBifcapbeside\iffalse
+\newcommand\capbeside{\global\let\FBifcapbeside\iftrue}
+\newcommand\nocapbeside{\global\let\FBifcapbeside\iffalse}
+\DeclareFROpt{capbesideframe}[0]{\flrow@setbool{\FC@ifFBOX}{#1}}
+\DeclareFROpt{capbesidewidth}[1]{\flrow@FCc@wd{#1}}
+\let\FC@ifc@wd\iffalse
+\newcommand\useFCwidth{\let\FC@ifc@wd\iftrue\let\FCwidth\relax}
+\@ifdefinable\FCwidth{\let\FCwidth\relax}
+\newcommand\flrow@FCc@wd[1]{%
+  \caption@ifinlist{#1}{none,sidefill}{\let\FC@ifc@wd\iffalse
+  }{\useFCwidth\def\FCwidth{#1}}}
+\DeclareFROpt{capbesideposition}{\flrow@scpos{#1}}
+\newcommand\DeclareSCPos[2]{%
+  \define@key{flrow@scpos}{#1}[]{\g@addto@macro\FR@tmp{#2}}}
+\newcommand*\flrow@scpos[1]{%
+  \let\FR@tmp\@empty
+  \begingroup\setkeys{flrow@scpos}{#1}\endgroup
+  \FR@tmp}
+\@onlypreamble\DeclareSCPos
+\DeclareSCPos{left}{\def\@FC@hpos{\let\FBiffacing\iffalse\count@\@ne}}
+\DeclareSCPos{right}{\def\@FC@hpos{\let\FBiffacing\iffalse\count@\z@}}
+\DeclareSCPos{inside}{\def\@FC@hpos{\let\FBiffacing\iftrue
+  \count@\c@FBcnt}}
+\DeclareSCPos{outside}{\def\@FC@hpos{\let\FBiffacing\iftrue
+  \count@\c@FBcnt\advance\count@\@ne}}
+\DeclareSCPos{center}{\def\@FC@vpos{\count@\z@}}
+\DeclareSCPos{top}{\def\@FC@vpos{\count@\@ne}}
+\DeclareSCPos{bottom}{\def\@FC@vpos{\count@\tw@}}
+\newcommand*\@FC@vpos{\count@\tw@}
+\newcommand*\@FC@hpos{\let\FBiffacing\iftrue\count@\c@FBcnt}
+\newcounter{FBcnt}
+\DeclareFROpt{footposition}{\flrow@ftpos{#1}}
+\newcommand\DeclareFtPos[2]{%
+  \define@key{flrow@ftpos}{#1}[]{\g@addto@macro\FR@tmp{#2}}}
+\newcommand*\flrow@ftpos[1]{%
+  \let\FR@tmp\@empty
+  \begingroup\setkeys{flrow@ftpos}{#1}\endgroup
+  \FR@tmp}
+\@onlypreamble\DeclareFtPos
+\@ifdefinable\FPOScnt{\newcount\FPOScnt}
+\DeclareFtPos{caption}{\FPOScnt1\relax}
+\DeclareFtPos{bottom}{\FPOScnt2\relax}
+\DeclareFtPos{default}{\FPOScnt0\relax}
+\DeclareFROpt{heightadjust}{\flrow@htadj{#1}}
+\newcommand\DeclareHtAdj[2]{%
+  \define@key{flrow@htadj}{#1}[]{\g@addto@macro\FR@tmp{#2}}}
+\newcommand*\flrow@htadj[1]{\let\FR@tmp\@empty
+  \begingroup\setkeys{flrow@htadj}{#1}\endgroup
+  \FR@tmp}
+\@onlypreamble\DeclareHtAdj
+\DeclareHtAdj{all}{\CADJtrue\OADJtrue}
+\DeclareHtAdj{caption}{\CADJtrue}
+\DeclareHtAdj{object}{\OADJtrue}
+\DeclareHtAdj{none}{\CADJfalse\OADJfalse}
+\DeclareHtAdj{nocaption}{\CADJfalse}
+\DeclareHtAdj{noobject}{\OADJfalse}
+\newif\ifCADJ
+\newif\ifOADJ
+\DeclareFROpt{valign}{\@FB@vpos{#1}}
+\newcommand\@FB@vpos[1]{%
+  \if#1t\def\FBafil{}\def\FBbfil{\vss}\else
+     \if#1b\def\FBafil{\vss}\def\FBbfil{}\else
+        \if#1c\def\FBafil{\vskip0ptplus1fillminus1000pt}\def\FBbfil{\vskip0ptplus1fillminus1000pt}\else
+           \if#1s\def\FBafil{\vskip0ptminus1000pt}\def\FBbfil{\vskip0ptminus1000pt}%
+  \fi\fi\fi\fi}
+\DeclareFROpt{facing}[1]{\flrow@setbool{\FBiffacing}{#1}}
+\let\FBiffacing\iffalse
+\newcommand\FB@facing{}
+\DeclareFROpt{margins}{\flrow@FBAlign{#1}}
+\newcommand*\flrow@FBAlign[1]{%
+  \@ifundefined{flrow@mj@#1}%
+    {\PackageError{floatrow}{Undefined float alignment `#1'}{\flrow@eh}}%
+    {\@nameuse{flrow@mj@#1}}}
+\newcommand*\DeclareMarginSet[2]{%
+  \global\@namedef{flrow@mj@#1}{#2}}
+\@onlypreamble\DeclareMarginSet
+\newskip\LTleft\newskip\LTright
+\DeclareMarginSet{centering}{\setfloatmargins{\hfill}{\hfill}%
+  \LTleft=\fill \LTright=\fill}
+\DeclareMarginSet{raggedright}{\setfloatmargins{}{\hfil}%
+  \LTleft=\z@ \LTright=\fill}
+\DeclareMarginSet{raggedleft}{\setfloatmargins{\hfil}{}%
+  \LTleft=\fill \LTright=\z@}
+\newcommand\flrow@mj@default{\flrow@mj@centering}
+\newcommand\floatfacing{\@ifstar
+  {\@FC@hpos\floatfacing@}{\FB@facing\floatfacing@}}
+\newcommand\floatfacing@[2]{\@tempswafalse
+  \FBiffacing\@tempswatrue\fi\if@twoside\@tempswatrue\fi
+  \if@tempswa
+    \ifodd\count@#1\else#2\fi
+  \else#2\fi}
+\newcommand\floatboxmargins{\def\FR@tmp{FB}\FB@mset}
+\newcommand\floatrowmargins{\def\FR@tmp{FR}\FB@mset}
+\newcommand\floatcapbesidemargins{\def\FR@tmp{FC}\FB@mset}
+\newcommand\FB@mset{\@ifstar{\FB@mset@}{\FB@@mset}}
+\newcommand\FB@mset@[2]{%
+  \def\FB@facing{\let\FBiffacing\iftrue\count@\c@FBcnt}%
+  \@namedef{\FR@tmp leftmargin}{\floatfacing{#1}{#2}}%
+  \@namedef{\FR@tmp rightmargin}{\floatfacing{#2}{#1}}}
+\newcommand\FB@@mset[2]{\def\FB@facing{}%
+  \@namedef{\FR@tmp leftmargin}{#1}\@namedef{\FR@tmp rightmargin}{#2}}
+\newcommand\setfloatmargins{\@ifstar{\FB@allset@}{\FB@@allset}}
+\newcommand\FB@allset@[2]{%
+  \def\FR@tmp{FR}\FB@mset@{#1}{#2}%
+  \def\FR@tmp{FB}\FB@mset@{#1}{#2}%
+  \def\FR@tmp{FC}\FB@mset@{#1}{#2}}
+\newcommand\FB@@allset[2]{%
+  \def\FR@tmp{FR}\FB@@mset{#1}{#2}%
+  \def\FR@tmp{FB}\FB@@mset{#1}{#2}%
+  \def\FR@tmp{FC}\FB@@mset{#1}{#2}}
+\setfloatmargins{\hfill}{\hfill}
+\DeclareFROpt{objectset}{\flrow@FBoAlign{#1}}
+\DeclareFROpt{justification}{\flrow@FBoAlign{#1}}
+\let\DeclareObjectSet\DeclareCaptionJustification
+\@onlypreamble\DeclareObjectSet
+\newcommand*\flrow@FBoAlign[1]{%
+  \@ifundefined{caption@hj@#1}%
+    {\PackageError{floatrow}{Undefined object setting `#1'}{\flrow@eh}}%
+    {\expandafter\let\expandafter\floatobjectset
+     \csname caption@hj@#1\endcsname}}
+\newcommand*\floatobjectset{\centering}
+\DeclareFROpt{floatwidth}{\flrow@FBo@wd{#1}}
+\let\FC@ifo@fil\iffalse
+\newcommand\filFCOhsize{\let\FC@ifo@fil\iftrue}
+\newcommand\nofilFCOhsize{\let\FC@ifo@fil\iffalse}
+\newcommand\flrow@setwd{\relax}
+\newcommand\flrow@FBo@wd[1]{%
+  \caption@ifinlist{#1}{sidefil}{\filFCOhsize
+  }{\nofilFCOhsize\def\flrow@setwd{\@tempdima=#1}}}
+\DeclareFROpt{floatrowsep}{\flrow@setFRsep\floatrowsep{#1}}
+\DeclareFROpt{capbesidesep}{\flrow@setFRsep\floatcapbesidesep{#1}}
+\let\DeclareFloatSeparators\DeclareCaptionLabelSeparator
+\@onlypreamble\DeclareFloatSeparators
+\newcommand*\flrow@setFRsep[2]{%
+  \@ifundefined{caption@lsep@#2}%
+    {\PackageError{floatrow}{Undefined float separator `#2'}{\flrow@eh}}%
+    {\expandafter\let\expandafter#1\csname caption@lsep@#2\endcsname}}
+\DeclareFloatSeparators{columnsep}{\hskip\columnsep}
+\DeclareFloatSeparators{qquad}{\qquad}
+\DeclareFloatSeparators{fil}{\hskip\columnsep plus1fil}
+\DeclareFloatSeparators{fill}{\hskip\columnsep plus1fill}
+\newcommand\floatrowsep{\hskip\columnsep}
+\newcommand\floatcapbesidesep{\hskip\columnsep}
+\DeclareFROpt{precode}{\flrow@FBrule\@@FRabove\@@FBabove{#1}}
+\DeclareFROpt{rowprecode}{\flrow@FRrule\@@FRabove\@@FBabove{#1}}
+\DeclareFROpt{midcode}{\flrow@FBskip{#1}}
+\DeclareFROpt{postcode}{\flrow@FBrule\@@FRbelow\@@FBbelow{#1}}
+\DeclareFROpt{rowpostcode}{\flrow@FRrule\@@FRbelow\@@FBbelow{#1}}
+\newcommand\DeclareFloatVCode[2]{\@namedef{flrow@FBr@#1}{#2}}
+\@onlypreamble\DeclareFloatVCode
+\newcommand\DeclareFloatPrecode{\DeclareFloatVCode}
+\newcommand\DeclareFloatMidcode{\DeclareFloatVCode}
+\newcommand\DeclareFloatPostcode{\DeclareFloatVCode}
+\newcommand*\flrow@FBrule[3]{%
+  \@ifundefined{flrow@FBr@#3}%
+    {\PackageError{floatrow}{Undefined rule `#3'}{\flrow@eh}}%
+    {\let#1\empty
+     \expandafter\let\expandafter#2\csname flrow@FBr@#3\endcsname}}
+\newcommand*\flrow@FRrule[3]{%
+  \@ifundefined{flrow@FBr@#3}%
+    {\PackageError{floatrow}{Undefined rule `#3'}{\flrow@eh}}%
+    {\def#2{\FBiffloatrow\else\@nameuse{flrow@FBr@#3}\fi}%
+     \expandafter\let\expandafter#1\csname flrow@FBr@#3\endcsname}}
+\newcommand*\flrow@FBskip[1]{%
+  \@ifundefined{flrow@FBr@#1}%
+    {\PackageError{floatrow}{Undefined rule `#1'}{\flrow@eh}}%
+    {\expandafter\let\expandafter\@@FBskip\csname flrow@FBr@#1\endcsname}}
+\DeclareFloatVCode{none}{}
+\DeclareFloatVCode{thickrule}{\hrule height.8ptdepth0pt\kern2pt}
+\DeclareFloatVCode{rule}{\kern2pt\hrule\kern2pt}
+\DeclareFloatVCode{lowrule}{\kern2pt\hrule}
+\DeclareFloatVCode{captionskip}{\vskip\captionskip}
+\newcommand\FBstyle@reset{\let\FRifFBOX\iffalse\OADJfalse\CADJfalse\capbot
+  \def\@@FBskip{\vskip\captionskip}\def\@@FRabove{}\def\@@FRbelow{}%
+  \def\@@FBabove{}\def\@@FBbelow{}%
+  \def\FB@Bset{}\gdef\FB@frame{}\gdef\FBo@frame{}%
+  \gdef\FBo@wadj{}\gdef\FBo@hadj{}\gdef\FB@wadj{}\gdef\FB@hadj{}}
+\newcommand\@@FRabove{}\newcommand\@@FRbelow{}
+\newcommand\@@FBabove{}\newcommand\@@FBbelow{}
+\newcommand\@@FBskip{\vskip\captionskip}
+\newcommand\FB@frame{}\newcommand\FBo@frame{}
+\newcommand\FBo@wadj{}\newcommand\FBo@hadj{}
+\newcommand\FB@wadj{}\newcommand\FB@hadj{}
+\newcommand\FB@Bset{}
+\DeclareFROpt{framestyle}{\@ifundefined{FB@#1@frame}%
+  {\let\FRifFBOX\iffalse}{\let\FRifFBOX\iftrue\def\FB@B@{#1}}}
+\DeclareFROpt{framearound}{\flrow@fr@round{#1}}
+\newcommand*\flrow@fr@round[1]{%
+ \caption@ifinlist{#1}{object,contents}{\let\FRifFBOX\iftrue
+    \def\FB@BO@{FBo}%
+  }{\caption@ifinlist{#1}{floatbox,all}{\let\FRifFBOX\iftrue
+    \def\FB@BO@{FB}%
+  }{\caption@ifinlist{#1}{none}{\let\FRifFBOX\iffalse
+  }{\PackageError{floatrow}{Undefined framed object `#1'}{\flrow@eh}%
+  }}}}
+\DeclareFROpt{framefit}[0]{\flrow@setbool{\FRifFIT}{#1}}
+\DeclareFROpt{frameset}{\def\FB@Bset{#1}}
+\let\FRifFIT\iffalse
+\newcommand\FB@BO@{FBo}\newcommand\FB@B@{}
+\newcommand\@@setframe{%
+  \@namedef{\FB@BO@ @hadj}{\@nameuse{FB@\FB@B@ @reset}\FB@Bset
+    \@nameuse{FB@\FB@B@ @adj}}%
+  \@namedef{\FB@BO@ @wadj}{\FRifFIT\@nameuse{FB@\FB@B@ @reset}\FB@Bset
+    \@nameuse{FB@\FB@B@ @adj}\fi}%
+  \@namedef{\FB@BO@ @frame}{\@nameuse{FB@\FB@B@ @reset}\FB@Bset
+    \@nameuse{FB@\FB@B@ @frame}}}
+\let\FRifFBOX\iffalse
+\newcommand\FB@fbox@frame[1]{\hbox{%
+  \FRifFIT\else\kern-\fboxrule\kern-\fboxsep\fi
+  \fbox{#1}%
+  \FRifFIT\else\kern-\fboxrule\kern-\fboxsep\fi}\ignorespaces}
+\newcommand\FB@fbox@adj{\dimen@=2\fboxsep\advance\dimen@2\fboxrule}
+\newcommand\FB@fbox@reset{\fboxsep3\p@\fboxrule.4\p@}
+\DeclareFROpt{captionskip}{\def\captionskip{#1}%
+  \setlength\abovecaptionskip{#1}}
+\DeclareFROpt{footskip}{\def\floatfootskip{#1}}
+\newcommand\captionskip{10\p@}
+\newcommand\floatfootskip{\skip\@mpfootins}
+\DeclareFROpt{footnoterule}{\flrow@footrule{#1}}
+\newcommand\DeclareFloatFootnoterule[2]{%
+  \long\@namedef{flrow@fnrule@#1}{#2}}
+\newcommand*\flrow@footrule[1]{%
+  \@ifundefined{flrow@fnrule@#1}%
+    {\PackageError{floatrow}{Undefined footnoterule `#1'}{\flrow@eh}}%
+    {\let\@@FRabove\empty
+     \expandafter\let\expandafter\FBfootnoterule\csname
+       flrow@fnrule@#1\endcsname}}
+\@onlypreamble\DeclareFloatFootnoterule
+\DeclareFloatFootnoterule{normal}{\kern-3\p@
+  \@tempdima.4\columnwidth
+  \hrule\@width\@tempdima\kern2.6\p@}
+\DeclareFloatFootnoterule{limited}{\kern-3\p@
+  \@tempdima.4\columnwidth
+  \ifdim\@tempdima>\frulemax\@tempdima=\frulemax\fi
+  \hrule\@width\@tempdima\kern2.6\p@}
+\newcommand\frulemax{1in}
+\DeclareFloatFootnoterule{fullsize}{\kern-3\p@
+  \hrule\@width\hsize\kern2.6\p@}
+\DeclareFloatFootnoterule{none}{}
+\@ifdefinable\FBfootnoterule{\let\FBfootnoterule\footnoterule}
+\let\FR@iffancy\iffalse
+\DeclareFROpt{fancyboxes}{\flrow@setbool{\FR@iffancy}{#1}}
+\newcommand\DeclareFNOpt{%
+   \@ifstar{\flrow@declfnopt\AtBeginDocument}
+           {\flrow@declfnopt\@gobble}}
+\newcommand*\flrow@declfnopt[2]{%
+   #1{\undefine@key{newfloat}{#2}}\define@key{newfloat}{#2}}
+\@onlypreamble\DeclareFNOpt
+\newcommand\flnew@setdefault{\setkeys{newfloat}
+  {placement=tbp,fileext=lox}}
+\@ifdefinable\flrow@types{\newtoks\flrow@types}
+\newcommand\DeclareNewFloatType[2]{\def\FB@captype{#1}%
+  \expandafter\edef\csname ftype@#1\endcsname{\value{float@type}}%
+  \addtocounter{float@type}{\value{float@type}}
+  \@namedef{fname@#1}{#1}\newcounter{#1}%
+  \expandafter\edef\csname fnum@#1\endcsname
+    {\expandafter\noexpand\csname fname@#1\endcsname\
+       \expandafter\noexpand\csname the#1\endcsname}%
+  \@namedef{the#1}{\arabic{#1}}%
+  \flnew@setdefault\setkeys{newfloat}{#2}%
+  \let\FR@tmp=\relax
+  \xdef\@tempa{\noexpand\flrow@types{\the\flrow@types \FR@tmp{#1}}}%
+  \@tempa
+  \expandafter\edef\csname ftype@#1\endcsname{\value{float@type}}%
+  \addtocounter{float@type}{\value{float@type}}}
+\@onlypreamble\DeclareNewFloatType
+\DeclareFNOpt*{placement}{\flnew@fps{#1}}
+\newcommand\flnew@fps[1]{\@namedef{fps@\FB@captype}{#1}}
+\@onlypreamble\flnew@fps
+\DeclareFNOpt*{name}{\flnew@fname{#1}}
+\newcommand\flnew@fname[1]{\@namedef{fname@\FB@captype}{#1}}
+\@onlypreamble\flnew@fname
+\DeclareFNOpt*{fileext}{\flnew@ext{#1}}
+\newcommand\flnew@ext[1]{\@namedef{ext@\FB@captype}{#1}%
+  \let\float@do=\relax
+  \xdef\@tempa{\noexpand\float@exts{\the\float@exts \float@do{#1}}}%
+  \@tempa}
+\@onlypreamble\flnew@ext
+\DeclareFNOpt*{within}{\flnew@within{#1}}
+\newcommand\flnew@within[1]{\@addtoreset{\FB@captype}{#1}%
+  \expandafter\edef\csname the\FB@captype\endcsname{%
+      \expandafter\noexpand\csname
+        the#1\endcsname.\noexpand\arabic{\FB@captype}}}
+\@onlypreamble\flnew@within
+\DeclareFNOpt*{relatedcapstyle}[0]{\flrow@setbool{\FR@ifCST}{#1}}
+\newlength\FBsc@max
+\newlength\FBso@max
+\@ifdefinable\FBsubcheight{\let\FBsubcheight\relax}
+\@ifdefinable\FBsuboheight{\let\FBsuboheight\relax}
+\newcommand\adjustsubfloats{\@tempswafalse
+  \ifCADJ\@tempswatrue\fi\ifOADJ\@tempswatrue\fi
+  \if@tempswa\FB@writeaux{%
+    \string\global\string\c@FBcnt\thepage
+    \ifCADJ\string\edef\string\FBsubcheight{\the\FBsc@max}\fi
+    \ifOADJ\string\edef\string\FBsuboheight{\the\FBso@max}\fi
+   }\fi
+  \global\let\FBsubcheight\relax\global\let\FBsuboheight\relax
+  \global\FBso@max\z@\global\FBsc@max\z@}
+\newcommand\subfloatrow[1][2]{\c@FRobj=#1%local
+  \ifdim\parindent<\z@\leavevmode\else\noindent\fi\hbox\bgroup
+    \Xhsize\hsize\count@#1\advance\count@-1%
+    \settowidth\@tempdima{\subfloatrowsep}%
+    \advance\Xhsize-\count@\@tempdima
+    \@tempdimb\Xhsize\divide\@tempdimb#1%
+    \hsize\@tempdimb\ignorespaces}
+\def\endsubfloatrow{\ifdim\lastskip>\z@\unskip\fi
+  \egroup\adjustsubfloats}
+\newcommand\subfloatrowsep{\hskip\columnsep}
+\DeclareFROpt{subfloatrowsep}{\flrow@setFRsep\subfloatrowsep{#1}}
+\AtBeginDocument{\@ifundefined{LT@array}{}{\let\flrow@oriLT@array\LT@array
+   \let\LT@array\flrow@LT@array}}
+\newcommand\flrow@LT@array{%
+   \flrow@setlist{{table}{longtable}}\normalfont\floatfont
+   \belowcaptionskip\captionskip
+   \FBifLTcapwidth
+     \let\flrow@LT@make@row\LT@make@row
+     \def\LT@make@row{%
+       \let\LT@make@row\flrow@LT@make@row
+       \LT@make@row
+       \ifx\LT@save@row\relax\else\begingroup
+         \LTcapwidth\z@
+         \def\LT@entry####1####2{\advance\LTcapwidth####2}\LT@save@row
+         \ifdim\LTcapwidth=\z@\else\global\LTcapwidth\LTcapwidth\fi
+       \endgroup\fi}%
+   \fi
+   \flrow@oriLT@array}
+\let\FBifLTcapwidth\iffalse
+\DeclareFROpt{LTcapwidth}{\flrow@LTcapwd{#1}}
+\newcommand*\flrow@LTcapwd[1]{%
+  \caption@ifinlist{#1}{table,contents}{\let\FBifLTcapwidth\iftrue
+  }{\let\FBifLTcapwidth\iffalse\setlength\LTcapwidth{#1}}}
+\def\ProcessOptionsWithKV#1{%
+  \let\@tempc\relax
+  \let\FR@tmp\@empty
+  \@for\CurrentOption:=\@classoptionslist\do{%
+    \@ifundefined{KV@#1@\CurrentOption}%
+    {}%
+    {%
+      \@ifundefined{KV@#1@\CurrentOption @default}{%
+       \PackageInfo{#1}{Global option `\CurrentOption' ignored}%
+      }{%
+      \PackageInfo{#1}{Global option `\CurrentOption' processed}%
+      \edef\FR@tmp{\FR@tmp,\CurrentOption,}%
+      \@expandtwoargs\@removeelement\CurrentOption
+        \@unusedoptionlist\@unusedoptionlist
+        }%
+    }%
+  }%
+  \edef\FR@tmp{%
+    \noexpand\setkeys{#1}{%
+      \FR@tmp\@ptionlist{\@currname.\@currext}%
+    }%
+  }%
+  \FR@tmp
+  \let\CurrentOption\@empty
+  \AtEndOfPackage{\let\@unprocessedoptions\relax}}
+\ProcessOptionsWithKV{floatrow}
+\FR@iffancy\RequirePackage{fr-fancy}\fi
+\let\ProcessOptionsWithKV\undefined
+\AtBeginDocument{\flrow@restyle{table}\flrow@restyle{figure}%
+  \let\FR@tmp\flrow@restyle \the\flrow@types
+  \@onlypreamble\flrow@restyle\flrow@types{}}
+\endinput
+%%
+%% End of file `floatrow.sty'.

@@ -1,0 +1,289 @@
+% This is FCUSE.STY 
+% Version 1.1 
+% Date 8-MAY-1993
+% 
+% (c) 1992, 1993 by J"org Knappen
+% This file is part of the fc-package 
+% See fc.rme for more information
+%
+% J"org Knappen
+% Institut f"ur Kernphysik
+% Postfach 39 80
+% D-W 6500 Mainz
+% knappen@vkpmzd.kph.uni-mainz.de
+%
+% The african zusatz letters are made more typeable by this style. This is
+% achieved by making three characters active: + = /
+% All these characters keep their usual meaning in math mode, type $+$ to get
+% a plus in text. By duplication, you also get the escape character.
+%
+% the plus has the heaviest load:
+% +b: hooktop b
+% +c: hooktop c
+% +d: hooktop d
+% +e: open e
+% +f: long f
+% +g: ipa gamma
+% +i: latin iota
+% +j: enj
+% +k: hooktop k
+% +n: eng
+% +o: open o
+% +p: hooktop p
+% +s: esh
+% +t: hooktop t
+% +u: variant u
+% +v: round v (variant u)
+% +y: hooktop y
+% +z: ezh
+% ++: plus sign
+% ...and the uppercase ones
+%
+% The slash produces some crossed forms:
+% /d: crossed d
+% /h: crossed h
+% /t: crossed t
+% //: slash
+% ...and the uppercase ones
+%
+% The rest is left to the equals sign:
+% =d: d with tail
+% =e: inverted e
+% =t: long t
+% ==: equals sign
+% ...and the uppercase ones
+%
+
+
+% Add the active characters to \do and \sanitize
+\begingroup
+  \def\do{\noexpand\do\noexpand}%
+  \edef\next{\endgroup
+   \def\noexpand\dospecials{\dospecials\do\+\dospecials\do\=\dospecials\do\/}}%
+\next
+  \begingroup
+    \def\@makeother{\noexpand\@makeother\noexpand}%
+    \edef\next{\endgroup
+      \def\noexpand\@sanitize{\@sanitize\@makeother\+\@sanitize\@makeother\=%
+      \@sanitize\@makeother\/}}%
+\next
+
+
+%
+%  active character mechanism
+%  ----------------------------
+%
+\def\activecharactersoff{%
+  \catcode`\==12 \catcode`\+=12 \catcode`\/=12 }
+\def\activecharacterson{%
+  \catcode`\==\active\catcode`\+=\active\catcode`\/=\active}
+
+\begingroup \activecharactersoff
+\def\next{\endgroup
+  \def\originalplus{+}
+  \def\originalequals{=}
+  \def\originalslash{/}}
+\next
+
+
+% For all arguments of an active character which should be treated in
+% a special way, we define a macro with the argument text in the name.
+%
+% \ch@macro#1 constructs this name.   (Where ch is either
+% plus, equals or slash)
+%
+% (If the expansion of \ch@macro results in another call of \ch@macro
+% the inner macro shouldn't contain unexpandable primitives like
+% \relax.  Otherwise TeX warns about a "Missing \endcsname inserted."
+% 
+%
+\def\plus@macro#1{\csname @plus@\string #1@plus@\endcsname}
+\def\equals@macro#1{\csname @equals@\string #1@equals@\endcsname}
+\def\slash@macro#1{\csname @slash@\string #1@slash@\endcsname}
+
+% The definition of the active character macro:
+%
+%
+\def\@active@plus#1{\expandafter\expandafter\expandafter
+  \ifx\plus@macro{#1}\relax
+    \expandafter\normal@plus
+  \else
+    \expandafter\protect\expandafter\active@plus
+  \fi {#1}}
+\def\@active@equals#1{\expandafter\expandafter\expandafter
+  \ifx\equals@macro{#1}\relax
+    \expandafter\normal@equals
+  \else
+    \expandafter\protect\expandafter\active@equals
+  \fi {#1}}
+\def\@active@slash#1{\expandafter\expandafter\expandafter
+  \ifx\slash@macro{#1}\relax
+    \expandafter\normal@slash
+  \else
+    \expandafter\protect\expandafter\active@slash
+  \fi {#1}}
+
+
+% The braces of {#1} in \@active@ch are necessary if someone wants to
+% define a active character macro for things like "{}.  They ensure that
+% \active@ch is called with the correct argument.
+% For \normal@ch we have to delete the braces and insert a normal
+% character.
+%
+\def\normal@plus#1{\originalplus #1}
+\def\normal@equals#1{\originalequals #1}
+\def\normal@slash#1{\originalslash #1}
+
+
+% For combinations +x, =x, /x which should be treated in a special way,
+% \active@ch is called with `x' as argument.
+% In the current implementation the actions for argument #1 are saved
+% in macro with name \ch@macro{#1}.  These macro expand to two groups
+% containing the action for text and for math mode.
+% The support of other ``modes''  can be implemented
+% in this macro.
+% +
+\def\active@plus#1{%
+  \csname plus@\ifmmode second\else first\fi
+%     \plus@macro has to be expanded three times:
+%     1. \plus@macro       --> \csname...
+%     2. \csname...      --> control seqence
+%     3. control seqence --> {text mode}{math mode}
+    \expandafter\expandafter\expandafter\expandafter
+    \expandafter\expandafter\expandafter
+  \endcsname
+  \plus@macro{#1}}
+%
+\def\plus@first#1#2{#1}
+\def\plus@second#1#2{#2}
+% =
+\def\active@equals#1{%
+  \csname equals@\ifmmode second\else first\fi
+%     \equals@macro has to be expanded three times:
+%     1. \equals@macro       --> \csname...
+%     2. \csname...      --> control seqence
+%     3. control seqence --> {text mode}{math mode}
+    \expandafter\expandafter\expandafter\expandafter
+    \expandafter\expandafter\expandafter
+  \endcsname
+  \equals@macro{#1}}
+%
+\def\equals@first#1#2{#1}
+\def\equals@second#1#2{#2}
+% /
+\def\active@slash#1{%
+  \csname slash@\ifmmode second\else first\fi
+%     \slash@macro has to be expanded three times:
+%     1. \slash@macro       --> \csname...
+%     2. \csname...      --> control seqence
+%     3. control seqence --> {text mode}{math mode}
+    \expandafter\expandafter\expandafter\expandafter
+    \expandafter\expandafter\expandafter
+  \endcsname
+  \slash@macro{#1}}
+%
+\def\slash@first#1#2{#1}
+\def\slash@second#1#2{#2}
+
+
+% The definition of a ch-macro is done with...
+%
+% +
+%
+\def\def@plusmacro#1#2#3{\expandafter\expandafter\expandafter
+  \def\plus@macro{#1}{{#2}{#3}}}
+
+\def\let@plusmacro#1#2{\begingroup
+  \edef\next{\endgroup \let
+    \expandafter\expandafter\expandafter\noexpand\plus@macro{#1}%
+    \expandafter\expandafter\expandafter\noexpand\plus@macro{#2}}%
+  \next}
+% =
+\def\def@equalsmacro#1#2#3{\expandafter\expandafter\expandafter
+  \def\equals@macro{#1}{{#2}{#3}}}
+
+\def\let@equalsmacro#1#2{\begingroup
+  \edef\next{\endgroup \let
+    \expandafter\expandafter\expandafter\noexpand\equals@macro{#1}%
+    \expandafter\expandafter\expandafter\noexpand\equals@macro{#2}}%
+  \next}
+% /
+\def\def@slashmacro#1#2#3{\expandafter\expandafter\expandafter
+  \def\slash@macro{#1}{{#2}{#3}}}
+
+\def\let@slashmacro#1#2{\begingroup
+  \edef\next{\endgroup \let
+    \expandafter\expandafter\expandafter\noexpand\slash@macro{#1}%
+    \expandafter\expandafter\expandafter\noexpand\slash@macro{#2}}%
+  \next}
+
+
+% Definitions for all active character macros...
+% (The empty groups after some macro are necessary for \write commands,
+% otherwise spaces after these macro will be ignored.)
+%
+%     +
+%
+\def@plusmacro{b}{^^a0}{\originalplus b}
+\def@plusmacro{c}{^^b0}{\originalplus c}
+\def@plusmacro{d}{^^a1}{\originalplus d}
+\def@plusmacro{e}{^^a2}{\originalplus e}
+\def@plusmacro{f}{^^a4}{\originalplus f}
+\def@plusmacro{g}{^^a6}{\originalplus g}
+\def@plusmacro{i}{^^e0}{\originalplus i}
+\def@plusmacro{j}{^^a9}{\originalplus j}
+\def@plusmacro{k}{^^a8}{\originalplus k}
+\def@plusmacro{n}{^^ad}{\originalplus n}
+\def@plusmacro{o}{^^aa}{\originalplus o}
+\def@plusmacro{p}{^^b1}{\originalplus p}
+\def@plusmacro{s}{^^ac}{\originalplus s}
+\def@plusmacro{t}{^^ba}{\originalplus t}
+\def@plusmacro{u}{^^ae}{\originalplus u}
+\def@plusmacro{v}{^^ae}{\originalplus v}
+\def@plusmacro{y}{^^af}{\originalplus y}
+\def@plusmacro{z}{^^b6}{\originalplus z}
+\def@plusmacro{+}{\originalplus}{\originalplus\originalplus}
+\def@plusmacro{B}{^^80}{\originalplus B}
+\def@plusmacro{C}{^^90}{\originalplus C}
+\def@plusmacro{D}{^^81}{\originalplus D}
+\def@plusmacro{E}{^^82}{\originalplus E}
+\def@plusmacro{F}{^^84}{\originalplus F}
+\def@plusmacro{G}{^^86}{\originalplus G}
+\def@plusmacro{I}{^^c0}{\originalplus I}
+\def@plusmacro{J}{^^89}{\originalplus J}
+\def@plusmacro{K}{^^88}{\originalplus K}
+\def@plusmacro{N}{^^8d}{\originalplus N}
+\def@plusmacro{O}{^^8a}{\originalplus O}
+\def@plusmacro{P}{^^91}{\originalplus P}
+\def@plusmacro{S}{^^8c}{\originalplus S}
+\def@plusmacro{T}{^^9a}{\originalplus T}
+\def@plusmacro{U}{^^8e}{\originalplus U}
+\def@plusmacro{V}{^^8e}{\originalplus V}
+\def@plusmacro{Y}{^^8f}{\originalplus Y}
+\def@plusmacro{Z}{^^96}{\originalplus Z}
+
+% =
+\def@equalsmacro{d}{^^f0}{\originalequals d}
+\def@equalsmacro{D}{^^d0}{\originalequals D}
+\def@equalsmacro{t}{^^bb}{\originalequals t}
+\def@equalsmacro{T}{^^9b}{\originalequals T}
+\def@equalsmacro{e}{^^a3}{\originalequals e}
+\def@equalsmacro{E}{^^83}{\originalequals E}
+\def@equalsmacro{=}{\originalequals}{\originalequals\originalequals}
+
+% /
+\def@slashmacro{d}{^^9e}{\originalslash d}
+\def@slashmacro{D}{^^d0}{\originalslash D}
+\def@slashmacro{h}{^^a7}{\originalslash h}
+\def@slashmacro{H}{^^87}{\originalslash H}
+\def@slashmacro{t}{^^b7}{\originalslash t}
+\def@slashmacro{T}{^^97}{\originalslash T}
+\def@slashmacro{/}{\originalslash}{\originalslash\originalslash}
+%
+\activecharacterson
+\let+\@active@plus
+\let=\@active@equals
+\let/\@active@slash
+\endinput
+
+

@@ -1,0 +1,707 @@
+%% file: TXSdcol.tex  - Double Column Output - TeXsis version 2.18
+%% @(#) $Id: TXSdcol.tex,v 18.0 1999/07/07 21:20:41 myers Exp $
+%======================================================================*
+% Double Column Output Routines:
+%
+% These macros let you create double column output, with balancing
+% of partially filled columns, and with top, bottom, and footnote
+% insertions in the columns or across the width of the page.
+%
+% To set up for double column output on a page of a given <width> and
+% <height> and with columns of width <c-width> put the following at the
+% beginning of your document:
+%
+%       \hsize=<width>  \vsize=<height>
+%       \SetDoubleColumns{<c-width>}
+%
+% Note that this re-defines TeX's \output routine.  It does not actually 
+% put you in double column mode.  To do that, say \doublecolumns.  To
+% switch back to single column output say \enddoublecolumns (or the
+% synonym \singlecolumn).   Partially filled columns will be balanced
+% to the best of TeX's abilities.
+%
+% The usual insertions of TeX and TeXsis (\topinsert, \midinsert,
+% \pageinsert, \heavyinsert and \bottominsert) put insertions into the
+% current column.  To force an insertion into a particular column, say
+% \forceleft or \forceright INSIDE the insertion material.  
+%
+% Wide insertions across the width of both columns can be made with
+% \widetopinsert, \widepageinsert, or \widebottominsert.  
+%
+% Long equations which need to span both columns should be enclosed
+% between \longequation (before the first "$$") and \endlongequation
+% (after trailing "$$").  Rules to guide the eye are put at the bottom
+% of the left column above the equation and above the right column below
+% the equation (as is done in Physical Review).  You can change this.
+%
+% Footnotes created with \footnote or \vfootnote will be placed at the
+% bottom of the current column.  You can place a footnote across the
+% bottom of both columns with \widefootnote or \widevfootnote.
+%
+% You can always force a skip to the next column with \newcolumn.
+% To skip to a completely new page use \vfill\eject, as usual.
+%
+% In single column mode all of these macros either behave as their
+% single-column counterparts or do nothing, as appropriate, so that
+% your document comes out looking right in single column mode.
+%
+% WARNING!  Formatting double column documents is inherently more
+% difficult than regular typesetting.  Here are some helpful hints:
+%   (1) Since double columns are narrow, the normal TeX spacing produces 
+% many overfull \hbox's. To avoid this, the interword skip \spaceskip is
+% changed to \doublecolskip=.3333em plus .3333em minus .1em
+% More uniform spacing can be obtained by changing \doublecolskip.
+%   (2) The value of \vbadness and \hbadness are doubled in double
+% column mode, but you may want to increase them further to avoid
+% complaints of overfull boxes.  But don't increase these too much.
+%   (3) To balance columns it is essential to have some stretch in the
+% column.  Using \parskip=\smallskipamount helps, or try adding a little
+% stretch to the \baselineskip with: \advance\baselineskip by 0pt plus 0.5pt
+%
+% This version of these macros is a complete re-write of the TeXsis
+% double column macros previous to version 2.16.  Some of the methods
+% used here are adapted from The TeXBook, pg 417, and TUGboat, Vol 6, pg 29.
+% See the file TXSdcol.doc for further documentation.
+%
+% @(#) Dependencies: none -- this file can be used as is with plain.tex,
+%
+%======================================================================*
+% (C) copyright 1994, 1999 by Eric Myers and Frank Paige.
+% This file is a part of TeXsis.  Distribution and/or modifications
+% are allowed under the terms of the GNU General Public License (GPL).  
+% This software is made available WITHOUT ANY WARRANTY of any kind.
+%======================================================================*
+\message{- Double column format.}
+
+\catcode`@=11                                   % make @ a letter for this file
+
+\newdimen\colwidth                              % width of column
+\newdimen\pagewidth                             % total width of page
+\newdimen\pageheight                            % total height of page
+\newdimen\rulewd          \rulewd=.5pt          % col. rule height
+\newdimen\colmaxdepth     \colmaxdepth=4pt      % max. split depth
+                                                
+\newdimen\@bigColHeight         % height of both columns together
+\newdimen\@saveSplitmax         % to save \splitmaxdepth
+\newdimen\@saveVsize            % to save \vsize
+\newskip\s@veskip               % to save \spaceskip
+\newskip\doublecolskip          % new \spaceskip
+\doublecolskip=.3333em plus .3333em minus .1em  % with more stretch
+
+\newdimen\@leftpluscenter       % how far to move over for rule
+
+\newbox\partialpage             % save single column partial page here
+
+\newif\ifleftc@lumn             % insert in left column?
+\newif\if@wid                   % flag: this is a wide insert
+\newif\if@bot                   % flag: this is a bottom insert
+
+\def\@LET{\global\let}          % we'll use this a lot
+
+%--------------------------------------------------*
+% Until you say \SetDoubleColumns, the instructions \doublecolumns,
+% \enddoublecolumns, \leftcolrule and \rightcolrule and so on are 
+% simply \relax.  This is so you can put these in a document which
+% uses double columns, but then print it with one of the single
+% column formats without them getting in the way, or vice versa.
+%
+
+\colwidth=\hsize                % default column width is \hsize
+
+\def\doublecolumns{\relax}      \def\enddoublecolumns{\relax}
+\def\leftcolrule{\relax}        \def\rightcolrule{\relax}
+\def\longequation{\relax}       \def\endlongequation{\relax}
+\def\wideequation{\relax}       \def\endwideequation{\relax}
+\def\newcolumn{\relax}          \def\widetopinsert{\topinsert}
+\def\widepageinsert{\pageinsert}\def\widebottominsert{\bottominsert}
+\let\widefootnote=\footnote     \let\widevfootnote=\vfootnote
+
+%  Save Plain definitions of inserts so we can restore them later
+
+\let\@plaintopinsert=\topinsert  \let\@plainmidinsert=\midinsert
+\let\@plainbottominsert=\bottominsert\let\@plainheavyinsert=\heavyinsert
+\let\@plainpageinsert=\pageinsert\let\@plainendinsert=\endinsert
+\let\@plainvfootnote=\vfootnote  \let\@plainfootnote=\footnote
+
+
+% \SetDoubleColumns<column-width> sets things up for double column mode
+% with columns of the given width, using the current settings for \vsize
+% and \hsize.
+
+\def\SetDoubleColumns#1{% set up double column mode
+   \global\colwidth=#1\relax                    % column width
+   \pagewidth=\hsize \pageheight=\vsize         % page sizes
+   \@bigColHeight=\vsize                        % total height = \vsize
+   \multiply \@bigColHeight by 2                % times 2
+   \@leftpluscenter=\pagewidth                  % \@leftpluscenter = size
+   \advance \@leftpluscenter by -\colwidth      % to right column
+   \dimen\NWins=\pageheight \dimen\NEins=\pageheight % maximum top insert size
+   \dimen\SWins=\pageheight \dimen\SEins=\pageheight % max bottom insert
+   \output={\@nepageout{\pagecontents}}%        % new \output, single columns
+   \let\doublecolumns=\@doublecolumns           % enable \doublecolumns
+   \let\rightcolrule=\@rightcolrule             % enable rule
+   \let\leftcolrule=\@leftcolrule               %
+   \let\longequation=\@longequation             % enable wide eqns.
+   \let\wideEquation=\@longequation             %
+}
+
+%  \setdoublecolumns<page-width><page-height><column-width> is included
+%  for backward compatability with TeXsis 2.15 and earlier.
+
+\def\setdoublecolumns#1#2#3{%
+   \emsg{> Please use \string\SetDoubleColumns\ instead}%
+   \global\hsize=#1\global\vsize=#2\relax
+   \SetDoubleColumns{#3}}
+
+
+%     \@doublecolumns starts double column output. It redefines \endinsert
+% to handle double column insertions and \widetopinsert and \widepageinsert
+% to do them.  The inserts are made global so that they get to \output
+% from inside groups.
+
+\def\@doublecolumns{% begin double column formatting
+   \begingroup                                  % keep changes local
+   \def\enddoublecolumns{\@enddoublecolumns}%   % enable \enddoublecolumns
+   \def\doublecolumns{\relax}%                  % in case twice
+   \def\endmode{\@enddoublecolumns}%            % implicit end, if needed
+   \let\newcolumn=\@newcolumn                   %
+%
+   \output={\global\setbox\partialpage=\vbox{%  % save page so far, 
+      \ifvoid\topins\else\unvbox\topins         %   including top inserts
+         \bigskip\fi                            %   with some space between
+         \unvbox255                             %   main page
+      }}\eject                                  % in \partialpage
+   \output={\@doublecolumnout}%                 % set to 2 column output
+%
+   \@saveVsize=\vsize                           % save old \vsize
+   \hsize=\colwidth \vsize=\@bigColHeight       % set width to column width,
+   \advance\vsize by -2\ht\partialpage          %   height to 2*page minus
+   \advance\vsize by -2\dp\partialpage          %   what's already there
+   \global\s@veskip=\spaceskip                  % save old interword glue
+   \global\spaceskip=\doublecolskip             % stretch for small cols.
+   \global\displaywidth=\colwidth               % equations have \colwidth
+   \global\hyphenpenalty=0                      % hyphens are OK
+   \multiply\vbadness by 2 \multiply\hbadness by 2 % be more tolerant
+   \clubpenalty=150                             % club line penalty
+   \widowpenalty=150                            % widow line penalty
+% Set macros to their double column dopplegangers
+   \@LET\topinsert=\@doubletopinsert
+   \@LET\bottominsert=\@doublebottominsert
+   \@LET\pageinsert=\@doublefullinsert
+   \@LET\midinsert=\@doublemidinsert
+   \@LET\heavyinsert=\@doubleheavyinsert
+   \@LET\endinsert=\@enddoubleinsert     
+   \@LET\widetopinsert=\@widetopinsert
+   \@LET\widepageinsert=\@widepageinsert
+   \@LET\widebottominsert=\@widebottominsert
+   \@LET\vfootnote=\@doubleVfootnote            % \footnote uses this one
+   \@LET\widefootnote=\@widefootnote    
+   \@LET\widevfootnote=\@wideVfootnote
+}
+
+
+% \@enddoublecolumns ends double column output and balances the columns.
+% This also allows for double width equations. The grouping insures that
+% \endinsert is reset to the Plain version.
+
+\def\@enddoublecolumns{% end double column mode, go back to single column
+   \global\output={\@balancecolumns}\eject      % balance & output so far
+   \global\output={\@nepageout{\pagecontents}}% % back to single column output
+   \global\vsize=\@saveVsize                    % reset vsize
+   \endgroup                                    % end 2 col. group
+   \pagegoal=\vsize                             % reset overall goal size
+   \spaceskip=\s@veskip                         % reset interword glue...
+   \hyphenpenalty=50 \displaywidth=\hsize 
+   \def\endmode{\relax}%                        % reset \endmode
+% Reset macros to single column version:
+   \@LET\topinsert=\@plaintopinsert
+   \@LET\midinsert=\@plainmidinsert
+   \@LET\pageinsert=\@plainpageinsert
+   \@LET\endinsert=\@plainendinsert   
+   \@LET\bottominsert=\@bottominsert
+   \@LET\heavyinsert=\@heavyinsert    
+   \@LET\vfootnote=\@plainvfootnote
+   \@LET\widetopinsert=\@plaintopinsert
+   \@LET\widepageinsert=\@plainpageinsert
+   \@LET\widefootnote=\@plainfootnote
+   \@LET\widebottominsert=\@plainbottominsert
+   \@LET\widevfootnote=\@plainvfootnote
+}% end of \@enddoublecolumns
+
+\def\begindoublecolumns{\doublecolumns}         % synonym
+\def\singlecolumn{\enddoublecolumns}            % synonym
+
+
+% How to skip to a new column.  If we are in the left column, fill it
+% up to force a skip to the right.  If in the right column, skip to the
+% next page.
+
+\def\@newcolumn{% skip to next column, left or right
+      \vskip\z@                                 % force vertical mode
+      \ifdim\pagetotal<\pageheight              % left column?
+        \dimen@=\pageheight \advance\dimen@ by -\pagetotal % room left in left
+        \vskip\dimen@\goodbreak                 % fill up to end of left col
+      \else \vfill\eject \fi}                   % else skip to next page
+
+
+
+
+
+%--------------------------------------------------*
+% BOTTOM INSERTIONS:
+%
+% Modifications to \output routines to add \bottominsert, which inserts
+% the material at the bottom of the page, and \heavyinsert, which
+% inserts the material at current position or at bottom of next page.
+% Based on Plain TeX \output but with these modifications and additions: 
+%
+% These are for single columns or wide insertions in double columns
+% mode (for which see the other modifications to the output routines 
+% futher down).
+
+
+\newinsert\botins 
+\skip\botins=\bigskipamount     % space to skip before bottom insert
+\count\botins=1000              % magnification factor (1 to 1)
+\dimen\botins=\maxdimen         % no limit per page
+
+\newif\if@bot           % flags whether this is a bottom (not top) insert
+
+
+% Define/redefine insertions to include \@botfalse or true
+
+\def\topinsert{\@midfalse\p@gefalse\@botfalse\@ins}
+\def\pageinsert{\@midfalse\p@getrue\@botfalse\@ins}
+\def\midinsert{\@midtrue\p@gefalse\@botfalse\@ins\topspace\bigskipamount}
+\def\heavyinsert{\@midtrue\p@gefalse\@bottrue\@ins\topspace\bigskipamount}
+\def\bottominsert{\@midfalse\p@gefalse\@bottrue\@ins\topspace\bigskipamount}
+
+
+\def\endinsert{%  end any insert (\topinsert, \midinsert, \bottominsert...)
+  \egroup      % finish the \vbox
+  \if@mid \dimen@\ht\z@ \advance\dimen@\dp\z@ 
+    \advance\dimen@12\p@ \advance\dimen@\pagetotal
+    \ifdim\dimen@>\pagegoal\@midfalse\p@gefalse\fi\fi
+  \if@mid \bigskip\box\z@\bigbreak      % if mid dump it right here
+  \else\if@bot\@insert\botins \else\@insert\topins \fi
+  \fi
+  \endgroup}
+
+\def\@insert#1{% \insert a floating top/bottom/page (not mid) insert
+  \insert#1{\penalty100                         % floating insertion
+  \splittopskip\z@skip                          % no skip if split
+  \splitmaxdepth\maxdimen \floatingpenalty\z@
+  \ifp@ge \dimen@=\dp\z@                        % full page insert?
+    \vbox to\vsize{\unvbox\z@\kern-\dimen@}%    % box to page height
+  \else \box\z@ \nobreak                        % top/bottom? Unbox 0
+    \ifx #1\topins \ifp@ge\else\bigbreak\fi\fi   % bigskip below every topinsert
+  \fi}}
+
+
+% Modfied version of \pagecontents to include bottom inserts
+
+\def\pagecontents{%  constructs page contents, including bottom inserts
+  \ifvoid\topins\else\unvbox\topins     % top inserts, if any
+      \vskip\skip\topins\fi             % and some space below
+  \dimen@=\dp\@cclv \unvbox\@cclv       % main page contents from \box255
+  \ifvoid\footins\else                  % footnote inserts, if present
+    \vskip\skip\footins                 % skip above
+    \footnoterule                       % put the rule above footnotes
+    \unvbox\footins\fi                  % then the footnotes
+  \ifvoid\botins\else\vskip\skip\botins % bottom inserts? space above
+        \unvbox\botins\fi               % and then insert the text
+  \ifr@ggedbottom \kern-\dimen@ \vfil \fi}
+
+
+%--------------------------------------------------*
+% FLOATING INSERTIONS for double columns:
+
+% Since there can now be insertions at the top and bottom of both
+% the left and right columns, they will be labeled by compass points.
+
+\newinsert\NWins \skip\NWins=0pt \newinsert\SWins \skip\SWins=0pt
+\newinsert\NEins \skip\NEins=0pt \newinsert\SEins \skip\SEins=0pt
+
+
+% There are also insertions for footnotes at the bottom of either column
+
+\newinsert\LFins \count\LFins=1000 \dimen\LFins=5cm \skip\LFins=\bigskipamount 
+\newinsert\RFins \count\RFins=1000 \dimen\RFins=5cm \skip\RFins=\bigskipamount
+
+
+%  \@enddoubleinsert is a modified version of \endinsert which
+%  decides whether to put an insertion in the left or the right column.
+%  \endinsert is let equal this in \doublecolumns mode.
+
+\def\@enddoubleinsert{% end an \insert in double column mode
+   \egroup                                      % finish the \vbox\z@
+%
+% Decide whether in left or right column:
+%
+   \ifdim\pagetotal<\pageheight\leftc@lumntrue  % left if page total < 1 col
+      \else \leftc@lumnfalse\fi                 %   right otherwise
+   \ifx L\LRf@rce \leftc@lumntrue \fi           % or forced left
+   \ifx R\LRf@rce \leftc@lumnfalse \fi          % or forced right
+%
+% If midinsert requested, decide whether there is room...
+%
+   \if@mid                                      % midinsert selected
+      \dimen@=\ht\z@ \advance\dimen@ by \dp\z@  % dimen0 = height + depth
+      \advance\dimen@ by \baselineskip          % + baselineskip
+      \advance\dimen@ by \pagetotal             % + page total
+      \ifleftc@lumn                             % if in left column
+         \ifdim\dimen@>\pageheight              % \pageheight = 1 col height
+         \@midfalse\p@gefalse\fi                % top insert
+      \else                                     % in right column
+         \ifdim\dimen@>\@bigColHeight           % \@bigColHeight = 2 col height
+         \@midfalse\p@gefalse\fi\fi             % top insert
+   \fi                                          % end if@mid
+%
+% If room for midinsert, do it; otherwise make insert in same column.
+%
+   \if@mid \bigskip\box\z@\bigbreak             % fits: just do it
+   \else                                        % otherwise: where to put it?
+      \if@wid                                   % wide insert
+         \if@bot\let\@whichins=\botins          %   bottom?
+         \else\let\@whichins=\topins\fi         %   or top?
+      \else                                     % not wide, so...
+         \if@bot                                % bottom?
+            \ifleftc@lumn\let\@whichins=\SWins  %   bottom left is SW
+            \else \let\@whichins=\SEins\fi      %   bottom right is SE
+         \else                                  % top?
+            \ifleftc@lumn\let\@whichins=\NWins  %   top left is NW
+            \else \let\@whichins=\NEins\fi      %   top right is NE
+         \fi                                    %
+      \fi                                       % end of \if@wid
+      \C@lumnInsert\@whichins                   % do the insertion
+   \fi                                          % end \if@mid
+   \endgroup                                    % end the insertion group
+   \global\let\LRf@rce=X                        % reset forcing flag
+}
+
+
+% \C@lumnInsert{<insert#>} makes an appropriate insertion of the
+% material into the named insert. It also inserts a \bigskip after or
+% before the inserted box, just like the Plain \endinsert. Note that
+% all the skips for these inserts are 0pt.
+
+\def\C@lumnInsert#1{% make an insertion into insertion #1
+   \if@wid\count#1=2000\relax                   % wide inserts count x 2
+   \else\count#1=1000\fi                        % otherwise x 1
+   \insert#1{%                                  % make the insertion
+      \penalty100 \splitmaxdepth=\maxdimen      %   
+%%    \topskip=\z@skip \splittopskip=\z@skip    %
+      \floatingpenalty=\z@                      % no penalty for floating
+      \if@wid\hsize=\pagewidth\fi               % full width
+      \ifp@ge \dimen@=\dp\z@                    % dimen0 = depth
+         \vbox to\pageheight{\unvbox\z@ \kern-\dimen@}% full page = \pageheight
+      \else                                     % not full page
+         \ifx#1\botins\bigskip\fi               % skip before bottom insert
+         \ifx#1\SWins\bigskip\fi                % skip before bottom insert
+         \ifx#1\SEins\bigskip\fi                % skip before bottom insert
+         \box\z@\nobreak                        % now add box0
+         \ifx#1\topins\bigskip\fi               % space below top insert
+         \ifx#1\NWins\bigskip\fi                % space below top insert
+         \ifx#1\NEins\bigskip\fi                % space below top insert
+      \fi                                       % end of \ifp@ge
+   }%                                           % end of insert
+}
+
+
+%     \wideXXXinsert make floating insertions across both columns. They
+% use the same insert as the normal (single column) insert of the same
+% name because it goes in the same place. 
+
+\def\@widetopinsert{% make a full width (wide) insertion at top of page
+   \@midfalse\p@gefalse\@widtrue\@botfalse
+   \@ins \hsize=\pagewidth}   
+
+\def\@widepageinsert{% full width, full length (i.e. full page) insertion
+   \@midfalse\p@getrue\@widtrue\@botfalse       % wide page insert
+   \@ins \hsize=\pagewidth}   
+
+\def\@widebottominsert{% full width insertion at bottom of page
+   \@midfalse\p@gefalse\@widtrue\@bottrue       % wide page insert
+   \@ins \hsize=\pagewidth}    
+
+
+%       \@doubleXXXinsert is like \XXXinsert in Plain but also sets
+% \@widfalse to prevent wide inserts.
+
+\def\@doubletopinsert{\@midfalse\p@gefalse\@botfalse\@widfalse\@ins}
+\def\@doublemidinsert{\@midtrue\@botfalse\@widfalse\@ins}
+\def\@doublefullinsert{\@midfalse\p@getrue\@botfalse\@widfalse\@ins}
+\def\@doublebottominsert{\@midfalse\p@gefalse\@bottrue\@widfalse\@ins}
+\def\@doubleheavyinsert{\@midtrue\p@gefalse\@bottrue\@widfalse\@ins}
+
+
+
+% \forceleft and \forceright force left and right insertions independent
+% of the current column position.
+
+\def\forceleft{\global\let\LRf@rce=L}           % force left insert
+\def\forceright{\global\let\LRf@rce=R}          % force right insert
+
+\let\LRf@rce=X                                  % default is no force
+
+%--------------------------------------------------*
+% FOOTNOTES:  wide footnotes go across the bottom of both columns,
+% while the others just go in the left or right column.  The names
+% begin with @ because these are only enabled in double column mode.
+
+\def\@widefootnote#1{% footnote across a double column page
+  \let\@sf=\empty % parameter #2 (the text) is read later
+  \ifhmode\edef\@sf{\spacefactor\the\spacefactor}\/\fi
+  #1\@sf\@wideVfootnote{#1}}
+
+\def\@wideVfootnote#1{\insert\footins\bgroup
+  \hsize=\pagewidth                             % as wide as a page
+  \interlinepenalty=\interfootnotelinepenalty
+  \splittopskip=\ht\strutbox % top baseline for broken footnotes
+  \splitmaxdepth=\dp\strutbox \floatingpenalty=\@MM
+  \leftskip=\z@skip \rightskip=\z@skip \spaceskip=\z@skip \xspaceskip=\z@skip
+  \textindent{#1}\footstrut\futurelet\next\fo@t}
+
+\def\@doubleVfootnote#1{% double column footnote in left or right column
+   \ifdim\pagetotal<\pageheight\relax   %
+        \def\next{\@dblVfootnote\LFins{#1}}%
+   \else\def\next{\@dblVfootnote\RFins{#1}}%
+   \fi\next}
+
+\def\@dblVfootnote#1#2{% footnote insert in whichever column named by #1
+   \insert#1\bgroup                             % begin insert
+     \interlinepenalty\interfootnotelinepenalty %
+     \splittopskip=\ht\strutbox % top baseline for broken footnotes
+     \splitmaxdepth=\dp\strutbox \floatingpenalty\@MM %
+     \leftskip=\z@skip \rightskip=\z@skip      %
+     \spaceskip=\z@skip \xspaceskip=\z@skip    %
+     \textindent{#2}\footstrut\futurelet\next\fo@t}
+
+%
+%--------------------------------------------------*
+% OUTPUT ROUTINES for double columns:
+
+
+% \@nepageout ships out a single page with running headlines
+% and footlines added.  Can be used with single or double columns,
+% depending on what you put as the argument.
+
+\def\@nepageout#1{%                             % output one page
+   \shipout\vbox{%                              % output a box
+      \offinterlineskip                         % no interline spacing!
+      \wideheadline                             % make wide headline
+      \vbox to \pageheight{\boxmaxdepth=\maxdepth %
+          #1\relax}%                            % box containing #1
+      \widefootline}%                           % make wide footline
+   \advancepageno}%                             % increment page number
+
+
+% The following are like \makeheadline and \makefootline in Plain
+% except that they use \hbox to\pagewidth instead of \line.  
+
+\def\wideheadline{% \makeheadline for double column mode
+   \vbox to\z@{\vskip-22.5\p@                   % skip up some
+      \ifx\undefined\headlineoffset\else\vskip-\headlineoffset\fi
+      \hbox to \pagewidth{\vbox to 8.5\p@{}\the\headline}% content in \headline
+      \vss}%            
+   \nointerlineskip}%   
+
+\def\widefootline{% \makefootline for double column mode
+   \baselineskip=24\p@                          % space down
+      \ifx\undefined\footlineoffset\else\vskip\footlineoffset\fi
+   \hbox to \pagewidth{\the\footline}}%         % content in \footline
+
+
+% \@doublecolumnout splits the page into two columns, including any
+% insertions which have accumulated.
+
+\def\@doublecolumnout{% output routine for double column mode
+%   
+% get height of columns in \dimen@
+%
+   \dimen@=\pageheight                          % start with total space
+   \advance\dimen@ by -\ht\partialpage          % subtract used height
+   \advance\dimen@ by -\dp\partialpage          % ... and deptn
+   \ifvoid\topins\else                          % subtract top inserts
+      \advance\dimen@ by -\ht\topins            %
+      \advance\dimen@ by -\dp\topins            %
+      \advance\dimen@ by -\bigskipamount        % including skip
+      \advance\dimen@ by -\splittopskip\fi      % and extra at top of cols.
+   \ifvoid\botins\else                          % subtract any bottom inserts
+      \advance\dimen@ by -\ht\botins            %
+      \advance\dimen@ by -\dp\botins            %
+      \advance\dimen@ by -\bigskipamount\fi     % including skip
+   \ifvoid\footins\else                         % subtract full width footnotes
+      \advance\dimen@ by -\ht\footins           %
+      \advance\dimen@ by -\dp\footins           %
+      \advance\dimen@ by -\skip\footins\fi      % including skip
+   \@saveSplitmax=\splitmaxdepth \splitmaxdepth=\colmaxdepth 
+   \splittopskip=\topskip
+%
+% construct left and right columns, with inserts inserted, and force
+% them to the desired size \dimen@
+%
+   \ifdim\dimen@>\baselineskip                  % if room for at least 1 line
+      \MakeColumn{1}{255}{\dimen@}{\NWins}{\LFins}{\SWins}%
+      \MakeColumn{2}{255}{\dimen@}{\NEins}{\RFins}{\SEins}%
+      \setbox1=\vbox to \dimen@{\unvbox1}%      % reset to same size
+      \setbox2=\vbox to \dimen@{\unvbox2}%      % reset to same size 
+   \else                                        % ... else no room
+      \setbox1=\vbox{}\setbox2=\vbox{}%         % so just empty columns
+   \fi                                          % end if room for columns
+%
+   \@nepageout{\@pagesofar\@pagebottom}%        % ship out double column page
+   \global\vsize=\@bigColHeight                 %
+   \unvbox255 \penalty\outputpenalty            % put remaining text back
+   \splitmaxdepth=\@saveSplitmax}               % reset \splitmaxdepth
+
+
+% \MakeColumn{outbox}{inbox}{size}{topinsert}{footinsert}{bottominsert}
+% creates a column of text of the given length, with the topinsert added
+% at the top, and the footnote and bottominsert added at the bottom
+% of the column (in that order).  The result is put in outbox, while
+% what is left over remains in inbox.  
+
+\def\MakeColumn#1#2#3#4#5#6{% make a column with top and bottom inserts
+%
+% start the column with the topinsert (#4) and the main text (#2)
+%
+   \setbox3=\vbox{\ifvoid#4\else\unvbox#4\vskip\skip#4\fi \unvbox#2}%
+%
+% also collect column footnotes (#5) and bottom inserts (#6)
+%
+
+   \setbox4=\vbox{\ifvoid#5\else\vskip\skip#5\footnoterule\unvbox#5\fi%
+       \ifvoid#6\else\vskip\skip#6\unvbox#6\fi}% 
+% 
+% split off just right amount from top stuff to make output column
+%
+   \dimen@ii=#3\relax
+   \advance\dimen@ii by -\ht4 \advance\dimen@ii by -\dp4\relax
+   \setbox#1=\vsplit3 to \dimen@ii 
+%
+% put the top and bottom together; put remainder from split back in input
+%
+   \setbox#1=\vbox{\unvbox#1\unvbox4}%
+   \setbox#2=\vbox{\unvbox3}%
+}
+
+
+% \@pagesofar adds double column material to the page.  The left column
+% is in box 1, and the right column is in box 2
+
+\def\@pagesofar{% add stuff to top of page collected so far
+   \ifvoid\topins\else\unvbox\topins            % wide top inserts, if any?
+       \vskip\skip\topins\fi                    % some space below them
+   \unvbox\partialpage                          % partial page from past?
+   \wd1=\hsize \wd2=\hsize                      % set column sizes
+   \hbox to \pagewidth{\box1\hfill\box2}}%      % combine 2 column boxes
+
+
+% \@pagebottom puts the (wide) bottom and footnote inserts in place,
+% if there are any.
+
+\def\@pagebottom{% add inserts to bottom of a page
+   \ifvoid\botins\else\bigskip\unvbox\botins\fi % wide bottom inserts, if any
+   \ifvoid\footins\else                         % wide footnotes, if any
+      \vskip\skip\footins\footnoterule          % skip and rule above them
+      \unvbox\footins\fi}                       % then the footnotes
+
+
+% \@balancecolumns is the output routine for balancing 2 columns. 
+% (Based loosely on \balancecolumns from The TeXbook, pg 417)
+   
+\def\@balancecolumns{% balance partial double columns page
+%
+% get target column height from sum of text and all inserts 
+%
+   \setbox255=\vbox{\unvbox255}% reset glue
+   \dimen@=\ht255 \advance\dimen@ by \dp255     % main text  
+   \@addsize\dimen@\NWins \@addsize\dimen@\NEins % top inserts
+   \@addsize\dimen@\LFins \@addsize\dimen@\RFins % column footnotes
+   \@addsize\dimen@\SWins \@addsize\dimen@\SEins % bottom inserts
+   \divide \dimen@ by 2                         % and divide by 2
+   \@saveSplitmax=\splitmaxdepth                %
+   \splitmaxdepth=\colmaxdepth                  %
+   \splittopskip=\topskip                       % top skip for splits
+%
+% Loop over possible splits of text into left and right columns.
+% Always use copies of boxes to avoid destroying contents.
+%
+   \advance\dimen@ by -.5\baselineskip          % and a smidgeon LESS
+   {\vbadness=20000 \loop                       % suppress errors
+      \setbox0=\copy255                         %
+      \setbox5=\copy\NWins \setbox6=\copy\LFins\setbox7=\copy\SWins
+      \setbox8=\copy\NEins \setbox9=\copy\RFins \setbox10=\copy\SEins
+      \MakeColumn{1}{0}{\dimen@}{5}{6}{7}%      % first column fixed height
+      \MakeColumn{2}{0}{\pageheight}{8}{9}{10}% % second big enuf for all
+      \ifdim\ht2>\ht1
+        \global\advance\dimen@ by 1pt 
+      \repeat}%                                 %   increment and try again
+%
+% End loop over possible splits.
+%
+   \MakeColumn{1}{255}{\dimen@}{\NWins}{\LFins}{\SWins}%
+   \MakeColumn{2}{255}{\pageheight}{\NEins}{\RFins}{\SEins}%
+   \dimen@=\ht1 \ifdim\ht2>\ht1 \dimen@=\ht2 \fi % larger of two
+   \setbox1=\vbox to \dimen@{\unvbox1}%         % reset to same size
+   \setbox2=\vbox to \dimen@{\unvbox2}%         % reset to same size 
+   \splitmaxdepth=\@saveSplitmax                % restore \splitmaxdepth
+   \output={\@balancingerror}%                  % prepare for error
+   \@pagesofar}                                 % put columns on page
+
+
+\def\@addsize#1#2{% add size of box/insert #2 to counter #1 
+   \ifvoid#2\else\advance#1 by \skip#2\relax    % unless void, add skip,
+     \advance#1 by \ht#2 \advance#1 by \dp#2\relax % and height and depth
+   \fi}
+
+
+% If the balanced columns fill the page then \output will be called
+% again, and this error message will be displayed.
+
+\newhelp\@balncErrormsg{%
+@balancecolumns: I couldn't figure out how to balance the^^M
+two columns.  Maybe you can re-arange some text to make ^^M
+the job easier.  Try typing i\string\vfill to see the page anyway.}
+
+\def\@balancingerror{% error, columns not balanced before page finished
+   \newlinechar=`\^^M                           % ^^M is line break
+   \errhelp=\@balncErrormsg                     % longer help message
+   \errmessage{Page cannot be balanced}%        % error message
+   \@nepageout{\unvbox255}}%                    % do something anyway
+
+
+%--------------------------------------------------*
+% \@leftcolrule and \@rightcolrule put rules across left and right
+% columns for spanned equations
+
+\def\@leftcolrule{%     Rule across bottom of left column
+   \vskip 2pt\nointerlineskip   % some whitespace first
+   \hbox to \pagewidth{%                % left column
+       \vbox to 6pt{\vfil \hrule width\colwidth height\rulewd}%
+       \hbox{\vrule height 6pt width\rulewd}\hfill}%
+   \smallskip\nobreak}
+
+\def\@rightcolrule{% rule across top of a right column after balancing
+   \vskip\baselineskip\nointerlineskip
+   \hbox to \pagewidth{\hfill   % stretch across to right column
+       \hbox{\vrule height 6pt width\rulewd}%
+       \vbox to 6pt{\hrule width\colwidth height\rulewd \vfil}}%
+   \vskip 2pt}
+
+\def\@longequation{%
+   \enddoublecolumns            % balance what we have
+   \@leftcolrule                % rule below to separage
+   \def\endlongequation{\@endlongequation}} % enable
+
+\def\@endlongequation{%
+    \@rightcolrule              % with the rule at top of right column
+    \doublecolumns}             % then back to double column mode
+                                                
+                                                
+\def\longequation{\relax}                       % default for single column
+\def\endlongequation{\relax}                    %   does nothing
+
+
+%>>> EOF TXSdcol.tex <<<

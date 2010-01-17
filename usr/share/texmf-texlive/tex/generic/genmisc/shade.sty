@@ -1,0 +1,177 @@
+A `frequently asked question' is that for possibilites to produce
+shaded boxes.
+
+Since the answers usually (just as recently) point either to PostScript
+\special's and PiCTeX it seems that a `simpler' and easier to use version
+is not readily available --- though I did not check this.
+
+A small and simple approach to shaded boxes is the use of a special font
+providing shaded rectangles, and some macros which automatically compose the
+desired box from these characters.
+
+Since, of course, the finest shading can be achieved by using single pixels
+for the pattern, the best shading pattern is *device dependent*.
+Furthermore, one generally defined shading pattern would imply the danger,
+that - because of rounding errors - at the boundaries (between two of the
+characters) `lines' would occur, and that the pattern would not look completely
+uniform.  Consequently, since different fonts are to be used for different
+printers, the dvi file is *device dependent* in this sense, too, though the
+code - both for the macros and for the metafont description - is device
+independent.
+
+%%% SHADE.rdm
+%%% ReadMe file for SHADE.mf and SHADE.tex/sty
+%%% -------------------------------------------------------------------------
+%%% Version 1 - March 21, 1993
+%%% Peter Schmitt, Institute of Mathematics, University of Vienna
+%%%                Strudlhofgasse 4, A-1090 Wien, Austria
+%%%         e-mail A8131DAL@helios.edvz.univie.ac.at
+%%%                schmitt@awirap.bitnet
+%%% -------------------------------------------------------------------------
+
+\magnification=\magstep1
+\parindent0pt \parskip 3pt
+\input shade.tex
+
+{\tt SHADE} is a \TeX\ tool that can be used to produce shaded boxes
+neither using PostScript nor Pic\TeX.
+
+% The syntax is:
+
+\shade{This text will appear on a shaded background!}
+
+The shading macro first packs its argument into an hbox.
+
+\shade{\vbox{\hsize 5cm
+       \leftskip=0pt plus 1fil\rightskip=0pt plus 1fil
+       \parfillskip=0pt
+       Then it measures the dimensions of this box and produces a
+       shaded box slightly larger then this box, using the font
+       shade produced by {\tt shade.mf}. Finally it
+       puts the box back and overlays it with the shaded box.
+       \par
+      }}
+
+Since the best shading is achieved at the lowest possible resolution,
+the font \shade{SHADE} is {\bf not device independent} --- it uses
+the printer resolution. Therefore the .dvi file is
+{\bf not device independent}, either.
+The macro code, however, {\bf is device independent}.
+This method was used because otherwise shading, and in particular
+the boundaries between two shading characters, could turn out to be not
+completely uniform.
+For the same reason, the font should only be used at its true size.
+
+The {\tt shade} package consists of three files:
+    {\tt shade.mf,           % MetaFont file for shading font
+         shade.tex,          % macro file be used with LaTeX, too
+         shade.rdm.          % this file
+                            % it can be processed by TeX as a demo file
+       }
+It was tested with a HP Laserjet II plus.
+
+\bye
+
+%%% end of SHADE.rdm %%%
+%%% SHADE.tex or SHADE.sty
+%%% Macros for use with font SHADE
+%%% -------------------------------------------------------------------------
+%%% Version 1 - March 21, 1993
+%%% Peter Schmitt, Institute of Mathematics, University of Vienna
+%%%                Strudlhofgasse 4, A-1090 Wien, Austria
+%%%         e-mail A8131DAL@helios.edvz.univie.ac.at
+%%%                schmitt@awirap.bitnet
+%%% -------------------------------------------------------------------------
+
+\catcode`\:11
+
+\font\grey:=shade at 10truept
+
+\newbox\shade:box
+\newdimen\fill:boundary
+    \setbox0=\hbox{\grey:\char0\relax}\fill:boundary=\ht0
+\newcount\fill:level \newdimen\fill:size \newdimen\fill:goal
+
+\long\def\shade#1{\leavevmode
+             \setbox\shade:box=\hbox{#1}%
+             \def\shade:column{}\def\shade:row{}%
+             \fill:level=5 \fill:goal=\wd\shade:box
+                \advance\fill:goal by 2\fill:boundary
+             \let\shade:v\relax \Fill: \shade:row\shade:v
+             \fill:level=5
+             \fill:goal=\ht\shade:box \advance\fill:goal by \dp\shade:box
+                \advance\fill:goal by 2\fill:boundary
+             \let\shade:h\relax \Fill: \shade:column\shade:h
+             \fill:goal=\ht\shade:box \advance\fill:goal by \dp\shade:box
+             \setbox0=\vbox to\fill:goal{\offinterlineskip\grey:
+                 \def\shade:h##1{%
+                     \def\shade:v####1{\char####1##1\relax}%
+                     \hbox to \wd\shade:box{\hss\shade:row\hss}}
+                 \vss \shade:column \vss
+                 }\ht0=\ht\shade:box \dp0=\dp\shade:box
+             \rlap{\box0}\box\shade:box
+            }
+\def\Fill: {\setbox0=\hbox{\grey:\char\fill:level\relax}\fill:size=\ht0 
+            \fill:}
+\def\fill: #1#2{%
+    \ifdim \fill:size>\fill:goal
+           \advance\fill:level by-1
+            \ifnum \fill:level>-1 \let \fill:next = \Fill:
+                            \else \let \fill:next = \fill:stop \fi
+     \else \edef#1{#1#2\the\fill:level}\advance\fill:goal by -\fill:size
+           \let \fill:next = \fill:
+      \fi \fill:next #1#2}
+\def\fill:stop#1#2{}
+
+\endinput
+
+%%% end of SHADE.tex/sty %%%
+%%% SHADE.mf
+%%% Font SHADE for use with SHADE.TEX/STY
+%%% -------------------------------------------------------------------------
+%%% Version 1 - March 21, 1993
+%%% Peter Schmitt, Institute of Mathematics, University of Vienna
+%%%                Strudlhofgasse 4, A-1090 Wien, Austria
+%%%         e-mail A8131DAL@helios.edvz.univie.ac.at
+%%%                schmitt@awirap.bitnet
+%%% -------------------------------------------------------------------------
+
+mode_setup;
+magnification=1000;
+font_identifier "Shade";
+font_coding_scheme "Shade Style Matrix";
+font_size 10pt#;
+
+%%% a = side of smallest shaded square (3x3 pixels)
+    a#:=(3/pixels_per_inch)*1in#;
+    define_pixels(a);
+%%% greybox produces a shaded rectangle:
+%%%     height 2^H*a
+%%%      width 2^W*a
+%%%                                     ... 
+%%% it consists of WxH `unit squares':  .*.
+%%%                                     ... 
+%%% its character code is 10*W + H
+%%%     i.e., the first digit corresponds to the width and
+%%%           the second digit corresponds to the height of the character
+
+def greybox (expr H, W) =
+    HH:=2**H; WW:=2**W;
+    beginchar(10*W+H, WW*a#, HH*a#, 0);
+       pickup pencircle scaled 1;
+       fill (1,1)--(1,3*HH)--(3*WW,3*HH)--(3*WW,1)--cycle;
+       pickup pencircle scaled 2;
+       for x = 0 step 3 until 3*HH : undraw (0,x)--(3*WW,x); endfor;
+       for x = 0 step 3 until 3*WW : undraw (x,0)--(x,3*HH); endfor;
+       endchar;
+    enddef;
+
+%%% produce characters for H and W from 0 to 5
+
+for ww = 0 upto 5 :
+    for hh = 0 upto 5 : greybox (hh,ww); endfor;
+    endfor;
+
+bye;
+
+%%% end of SHADE.mf %%%

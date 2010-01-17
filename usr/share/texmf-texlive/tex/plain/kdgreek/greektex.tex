@@ -1,0 +1,329 @@
+%
+%				GREEKTEX.TEX
+%				---------
+%
+%			      K J Dryllerakis
+%
+%				Dec 7, 1992
+%
+%				VERSION: 3.1
+%
+%	This is the macro file for GreekTeX. If this file is used
+%	and not the greek.tex (FMT) no hyphenation patterns for greek
+%	are loaded. IT can be used for short greek text inside english text.
+%	Note that PLAIN must be preloaded and bare a fmtversion 3.0 or
+%	higher (to ensure existence of language definitions).
+% 	Greek is defined to be language 1 or actually last_language+1.
+%
+%	Pleaaaaaaaaase don't modify this file
+%
+%		Note: Used in conjunction with KD Fonts
+%
+\catcode`\@=11			% We will access TeX private macros
+\newwrite\@screen		% Define a screen ouput
+\def\showstring#1{\immediate\write\@screen{#1}}
+\def\sp@{ }\def\sp@s{\sp@\sp@\sp@\sp@\sp@\sp@\sp@\sp@\sp@}
+\def\c@p{\showstring{}\showstring{\sp@s\sp@s\sp@s GreekTeX -- Version 3.1}%
+\showstring{\sp@s\sp@s\sp@s  ---------------------------}
+\showstring{\sp@s GreekTeX is a macro package for typesetting greek texts.}
+\showstring{\sp@s It is maily compatible with the haralambous package,}
+\showstring{\sp@s from which it inherits the top level macros.}
+\showstring{\sp@s GreekTeX includes easy access to font families, a choise}
+\showstring{\sp@s of delimiters, and makes typesetting scientific papers}
+\showstring{\sp@s in greek as easy as in TeX itself.}
+\showstring{\sp@s}
+\showstring{\sp@s\sp@s\sp@s Copyright K J Dryllerakis 1991-1992}
+\showstring{\sp@s\sp@s\sp@s ------------------------------}%
+}
+\c@p
+%
+%	A List of Reserved Keywords that should not be redefined
+%	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+%
+%		a. accesible from the document
+%
+%	\|		The character |
+%	\begingreek	Begin a group of greek text
+%	\endgreek	End a group of greek text
+%	\greek		A new language definition
+%	\gr		switch to classical greek font
+%	\gbf		switch to classical boldface font
+%	\git		switch to classical italics font
+%	\gsl		switch to classical slanted font
+%	\gtt		switch to classical typewritter font
+%	\gt		Greater than > symbol
+%	\lt		Less than < symbol
+%	\math		If we are using $ as del. it is equiv to $
+%	\setgreek	Select greek mode to be the primary mode
+%	\setlatin	Restore standard mode (at any stage)
+%	\showstring	Log a string on the terminal
+%
+%		b. Internal Control Sequences
+%
+%	\gr@@kdelimsbar Use | as begin- and end-greek
+%	\gr@@kdelimsdol Use $ as begin- and end-greek
+%	\@ldend		A copy of plain TeX's \end
+%	\@screen	Screen Output for messages
+%	\t@f@nt		Remembers greek font used last
+%	\t@f@m		Remembers greek family used last
+%	\t@size		Remembers greek point size used last
+%	\c@p		Product Copyright Notice
+%	\grfam		Greek classic font family register
+%	\grslfam	Greek slanted font family register
+%	\grttfam	Greek typewriter font family register
+%	\grbffam	Greek boldface font family register
+%	\grifam		Greek italics font family register
+%	\l@tinm@de	Definition to restore plain TeX's mode
+%
+%			Start Up Definitions
+%			--------------------
+%
+\ifx\gr@@kformatloaded\relax\catcode`\@=\active
+ \endinput\else\let\gr@@kformatloaded\relax\fi
+\newif\ifdelimsbar\delimsbarfalse	% Check for | as delimiter
+\chardef\|=`\|				% A way to access |
+\gdef\t@f@nt{\tengr}			% Remember font used last
+\gdef\t@size{\grtenpoint}		% Remember size used last
+\gdef\t@f@m{\fam\grfam}			% Remember family used last
+% ^ THESE ARE INITIAL VALUES. DO NOT ALTER!
+\newlanguage\greek			% Define Greek as a new language
+\def\lt{<}				% Remember Less than
+\def\gt{>}				% and greater than signs
+\language0				% Switch to default language
+%
+%		   		Greek Font Bits
+%				_______________
+%
+%	First we load the greek fonts and declare the families
+%	Then we define point sizes for typesetting greek texts
+%
+%		Classic Greek Family
+%		^^^^^^^^^^^^^^^^^^^^
+\newfam\grfam
+\font\tengr=kdgr10		% 10 point Classic Greek Font
+\font\ninegr=kdgr9		%  9 point Classic Greek Font
+\font\eightgr=kdgr8		%  8 point Classic Greek Font
+\font\sixgr=kdgr8 at 6truept	%  6 point simulated Classic Greek (x.75)
+\def\gr{\tengr\fam\grfam}
+%
+%		Slanted Greek Family
+%		^^^^^^^^^^^^^^^^^^^^
+\newfam\grslfam
+\font\tengrsl=kdsl10		% 10 Point Slanted Greek Font
+\font\ninegrsl=kdsl10 at 9truept% 9 point (sim.) Slanted Greek
+\font\eightgrsl=kdsl10 at 8truept%8 point (sim.) Slanted Greek
+\def\gsl{\tengrsl\fam\grslfam}
+%
+%		Boldface Greek Family
+%		^^^^^^^^^^^^^^^^^^^^^
+\newfam\grbffam
+\font\tengrbf=kdbf10		% 10 Point Boldface Greek Font
+\font\ninegrbf=kdbf9		%  9 Point Boldface Greek
+\font\eightgrbf=kdbf8		%  8 Point Boldface Greek
+\def\gbf{\tengrbf\fam\grbffam}
+%
+%		Italic Greek Family
+%		^^^^^^^^^^^^^^^^^^^
+\newfam\grifam
+\font\tengri=kdti10		% 10 Point Italic Greek Font
+\font\ninegri=kdti10 at 9truept	%  9 Point (sim.) Italic Greek
+\font\eightgri=kdti10 at 8truept%  8 Point (sim.) Italic Greek
+\def\git{\tengri\fam\grifam}
+%
+%		Typerwriter Greek Family
+%		^^^^^^^^^^^^^^^^^^^^^^^^
+\newfam\grttfam
+\font\tengrtt=kdtt10		% 10 Point Typewritter Greek Font
+\font\ninegrtt=kdtt10 at 9truept%  9 Point (sim.) Typewritter Greek 
+\font\eightgrtt=kdtt10 at 8truept% 8 Point (sim.) Typewritter Greek 
+\hyphenchar\eightgrtt=-1 \hyphenchar\tengrtt=-1
+\hyphenchar\ninegrtt=-1		% Supress Hyphenation
+\def\gtt{\tengrtt\fam\grttfam}
+%
+% 		Greek Point Size Conventions
+%		^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+%
+\def\grtenpoint{%		GREEK TENPOINT
+\gdef\t@size{\grtenpoint}% Make a note of the font size
+\textfont\grfam=\tengr\scriptfont\grfam=\eightgr\scriptscriptfont\grfam=\sixgr%
+\textfont\grbffam=\tengrbf\scriptfont\grbffam=\ninegrbf%
+\textfont\grifam=\tengri\scriptfont\grbffam=\ninegri%
+\textfont\grttfam=\tengrtt%
+\textfont\grslfam=\tengrsl%
+\def\gr{\fam\grfam\tengr}%		Switch for classic greek
+\let\rg\gr%				Also rg for compatibility
+\def\it{\fam\grifam\tengri}%		Switch for Greek Italics
+\def\sl{\fam\grslfam\tengrsl}%		Switch for Greek Slanted
+\def\tt{\fam\grttfam\tengrtt}%		Switch for Greek Typerwriter
+\def\bf{\fam\grbffam\tengrbf}%		Switch for Greek Boldface
+\let\git\it\let\gsl\sl%
+\let\gbf\bf\let\gtt\tt%			Retain LaTeX compatibility
+\def\rm{\fam0\tenrm}%			Switch For latin roman
+\def\lit{\fam\itfam\tenit}%		Switch for latin italics
+\def\lsl{\fam\slfam\tensl}%		Switch for latin slanted
+\def\ltt{\fam\ttfam\tentt}%		Switch for latin typewriter
+\def\lbf{\fam\bffam\tenbf}%		Switch for latin boldface
+\normalbaselineskip=.6cm%		Normal Base Line distance
+\setbox\strutbox=\hbox{\vrule height8.5pt width0pt depth4.5pt}%
+\normalbaselines\gr%
+}
+\def\grninepoint{%		GREEK NINEPOINT
+\gdef\t@size{\grninepoint}% Make a note of the font size
+\textfont\grfam=\ninegr\scriptfont\grfam=\eightgr\scriptscriptfont\grfam=\sixgr%
+\textfont\grbffam=\ninegrbf\scriptfont\grbffam=\eightgrbf%
+\textfont\grifam=\ninegri\scriptfont\grbffam=\eightgri%
+\textfont\grttfam=\ninegrtt%
+\textfont\grslfam=\ninegrsl%
+\def\gr{\fam\grfam\ninegr}%		Switch for classic greek
+\let\rg\gr%				Also rg for compatibility
+\def\it{\fam\grifam\ninegri}%		Switch for Greek Italics
+\def\sl{\fam\grslfam\ninegrsl}%		Switch for Greek Slanted
+\def\tt{\fam\grttfam\ninegrtt}%		Switch for Greek Typerwriter
+\def\bf{\fam\grbffam\ninegrbf}%		Switch for Greek Boldface
+\let\git\it\let\gsl\sl%
+\let\gbf\bf\let\gtt\tt%			Retain LaTeX compatibility
+\def\rm{\fam0\tenrm}%			Switch For latin roman
+\def\lit{\fam\itfam\nineit}%		Switch for latin italics
+\def\lsl{\fam\slfam\ninesl}%		Switch for latin slanted
+\def\ltt{\fam\ttfam\ninett}%		Switch for latin typewriter
+\def\lbf{\fam\bffam\ninebf}%		Switch for latin boldface
+\normalbaselineskip=.52cm%		Normal Base Line distance
+\setbox\strutbox=\hbox{\vrule height8pt width0pt depth3pt}%
+\normalbaselines\gr%
+}
+\def\greightpoint{%		GREEK EIGHTPOINT
+\gdef\t@size{\greightpoint}% Make a note of the font size
+\textfont\grfam=\eightgr\scriptfont\grfam=\sixgr\scriptscriptfont\grfam=\sixgr%
+\textfont\grbffam=\eightgrbf\scriptfont\grbffam=\eightgrbf%
+\textfont\grifam=\eightgri\scriptfont\grbffam=\eightgri%
+\textfont\grttfam=\eightgrtt%
+\textfont\grslfam=\eightgrsl%
+\def\gr{\fam\grfam\eightgr}%		Switch for classic greek
+\let\rg\gr%				Also rg for compatibility
+\def\it{\fam\grifam\eightgri}%		Switch for Greek Italics
+\def\sl{\fam\grslfam\eightgrsl}%	Switch for Greek Slanted
+\def\tt{\fam\grttfam\eightgrtt}%	Switch for Greek Typerwriter
+\def\bf{\fam\grbffam\eightgrbf}%	Switch for Greek Boldface
+\let\git\it\let\gsl\sl%
+\let\gbf\bf\let\gtt\tt%			Retain LaTeX compatibility
+\def\rm{\fam0\eightrm}%			Switch For latin roman
+\def\lit{\fam\itfam\eightit}%		Switch for latin italics
+\def\lsl{\fam\slfam\eightsl}%		Switch for latin slanted
+\def\ltt{\fam\ttfam\eighttt}%		Switch for latin typewriter
+\def\lbf{\fam\bffam\eightbf}%		Switch for latin boldface
+\normalbaselineskip=.35cm%		Normal Base Line distance
+\setbox\strutbox=\hbox{\vrule height7pt width0pt depth2pt}%
+\normalbaselines\gr%
+}
+%
+%		Macros For entering greek mode,
+%		and delimiter preferences.
+%		-------------------------------
+%
+%	\begingreek : Begin a group of Greek Text.
+%	^^^^^^^^^^^^  Everything is enclosed in a group to keep
+%	              changes local. Then we switch to greek hyphenation
+%		      and iniciate the greekmode. This assigns the correct
+%	              \catcode values to punctuation and accentuation marks.
+%	              We then reload the information of the point
+%	              size used last and switch to the family needed.
+%	              The \t@f@nt and \t@f@m macro is used to ensure that 
+%	              or fonts and families are remembered.
+%
+%	\endgreek :   Ends a group of Greek Text.
+%	^^^^^^^^^^    Before ending the group we save information
+%	              about the current font, to be used when we re-enter 
+%	              greek mode.
+%
+%	\gr@@km@de :  Switches to greek interpretation of ascii characters
+%	^^^^^^^^^^^   Normally changes are kept local but can be used
+%	              as a general macro to obtain a global greek mode.
+%	              Note the different use of | if this is chosen
+%	              to be a delimiter.
+%
+\def\begingreek{\bgroup\language\greek\gr@@km@de%
+\t@size\t@f@m\t@f@nt\ignorespaces}
+%
+\def\endgreek{\xdef\t@f@nt{\the\font}\xdef\t@f@m{\noexpand\fam\the\fam}\egroup}
+%
+\def\gr@@km@de{%
+\ifdelimsbar\else\catcode`\|=11\fi%
+\catcode`\<=11% 	Turn Everything to letters!
+\catcode`\>=11% 	All accents are done through ligatures
+\catcode`\'=11%
+\catcode`\`=11%
+\catcode`\~=11%
+\catcode`\"=11%
+\lccode`\<=`\<%
+\lccode`\>=`\>%
+\lccode`\'=`\'%
+\lccode`\~=`\~%
+\lccode`\"=`\"%
+}
+%
+\def\l@tinm@de{%
+\catcode`\|=12%
+\catcode`\<=12% 	Turn Everything to what plain tex has
+\catcode`\>=12%
+\catcode`\'=12%
+\catcode`\`=12%
+\catcode`\~=13%
+\catcode`\"=12%
+\catcode`\$=3%	% Restore the math symbol!
+}
+%
+% Switch Permenantly do greek mode
+%
+\def\setgreek{\delimsbarfalse\gr@@km@de\language\greek}
+%
+% and to latin as well
+%
+\def\setlatin{\l@tinm@de\language0}
+%
+%	It is very frequent that the user will ask to \end the document
+%	before a greek group was closed. In order to prevent this we 
+%	redefine the \end command after saving the old one in \@ldend.
+%	The new \end checks for un-ended greek groups and if it is found
+%	a warning message is issued and the group is automatically closed.
+%
+\let\@ldend=\end
+\gdef\end{\ifnum\language=\greek\endgreek%
+\showstring{GreekTeX Warning: A group of greek text was automatically closed}%
+\fi\@ldend}
+%
+%	Since it is possible that switching from one language to
+%	the other is very frequent, a special way to avoid \begingreek
+%	and \endgreek is defined. This is done through the definition of
+%	delimiters; available delims are | and $. If \greekdelims{bar}
+%	is chosen then a greek block is marked as | ..greek text.. |
+%	In order to access |, use \|.
+%	If $ is used, use \math for math mode and \math\math for
+%	display mode.
+%
+\gdef\greekdelims#1{\edef\c@mp@re{#1}\def\t@st@a{bar}\def\t@st@b{dollar}%
+\ifx\c@mp@re\t@st@a\gr@@kdelimsbar\else%
+\ifx\c@mp@re\t@st@b\gr@@kdelimsdol\fi\fi}
+%
+% 	Bar as delimeter
+%
+{\catcode`\|=13\gdef\gr@@kdelimsbar{\catcode`\|=13\delimsbartrue%
+\def|{\ifnum\language=\greek\endgreek\else\begingreek\fi}}
+}
+%
+%	Dollar as delimiter
+%
+\let\m@thm@de=$
+{\catcode`\$=13%
+\gdef\gr@@kdelimsdol{\catcode`\$=13%
+\def${\ifnum\language=\greek\endgreek\else\begingreek\fi}%
+\global\let\math=\m@thm@de%
+\gdef\display{\math\math}\gdef\enddisplay{\math\math}}%
+}
+%
+\catcode`\@=12 % at signs are no longer letters
+%
+\def\fmtname{greek}\def\fmtversion{3.1} % identifies the current format
+
+\endinput
+
+

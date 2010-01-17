@@ -1,0 +1,77 @@
+%%
+%% This is file `multiply.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% bez123.dtx  (with options: `mult')
+%% 
+%% Author: Peter Wilson (CUA and NIST)
+%%         now at: peter.r.wilson@boeing.com
+%% 
+%% Copyright 1998 Peter R. Wilson
+%% 
+%%  This program is provided under the terms of the
+%%  LaTeX Project Public License distributed from CTAN
+%%  archives in directory macros/latex/base/lppl.txt.
+%% 
+\ProvidesPackage{multiply}[1998/10/14 v1.1 Multiplication of lengths without overflow]
+\newlength{\n@fl@wa}
+\newlength{\n@fl@wb}
+\newlength{\n@fl@wc}
+\newif\ifch@nge
+\newcommand{\multnooverflow}[2]{%
+  \n@fl@wa = #1\relax%
+  \n@fl@wb = #2\relax%
+  \ch@ngefalse%
+  \ifnum\n@fl@wb = \@ne%
+  \else%
+    \ifnum\n@fl@wb = \z@%
+      \n@fl@wa = \z@%
+    \else%
+      \ifnum\n@fl@wb = \m@ne%
+        \ch@ngetrue%
+      \else%
+        \ifnum\n@fl@wa = \z@%
+        \else%
+          \ifnum\n@fl@wa = \@ne%
+            \n@fl@wa = \n@fl@wb%
+          \else%
+            \ifnum\n@fl@wa = \m@ne%
+              \n@fl@wa = -\n@fl@wb%
+            \else%
+              \ifnum\n@fl@wa < \z@%
+                \ch@ngetrue%
+                \n@fl@wa = -\n@fl@wa%
+              \fi%
+              \ifnum\n@fl@wb < \z@%
+                \n@fl@wb = -\n@fl@wb%
+                \ifch@nge%
+                  \ch@ngefalse%
+                \else%
+                  \ch@ngetrue%
+                \fi%
+              \fi%
+              \n@fl@wc = \maxdimen%
+              \divide\n@fl@wc by \n@fl@wb%
+              \advance\n@fl@wc by -1sp% \m@ne
+              \ifnum\n@fl@wa > \n@fl@wc%
+                \n@fl@wa = \maxdimen%
+                \PackageWarning{multiply}{Multiplication overflow}%
+              \else%
+                \multiply\n@fl@wa by \n@fl@wb%
+              \fi%
+            \fi%
+          \fi%
+        \fi%
+      \fi%
+    \fi%
+  \fi%
+  \ifch@nge%
+    \n@fl@wa = -\n@fl@wa%
+  \fi%
+  #1 = \n@fl@wa%
+}
+\endinput
+%%
+%% End of file `multiply.sty'.

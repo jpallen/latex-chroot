@@ -1,0 +1,120 @@
+% Driver file for Xucuri font `xuc.mf'
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Designed and (c) by Johannes Heinecke                                     %
+%                     Humboldt-Universit"at zu Berlin                       %
+%                     Philosophische Faskult"at II                          %
+%                     Institut f"ur deutsche Sprache und Linguistik         %
+%                     Computerlinguistik                                    %
+%                     J"agerstr. 10/11                                      %
+%                     D - 10099 Berlin                                      %
+%                     <heinecke@compling.hu-berlin.de>                      %
+% Please send any improvements, corrections, suggestions, enhancements etc  %
+% to the Author!                                                            %
+%                                                                           %
+% Version 0.2 as of 14th July 1998                                          %
+%                                                                           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+
+font_coding_scheme:="Xucuri - Georgian";
+mode_setup;
+if known cmbase: font_setup; fi         % If used with cmbase
+
+font_xuc_setup;
+
+let xucchar=\;
+
+% fontmaking:=1;        % to generate a TFM File during proof-ing
+
+%% Zeichendefinitionsdateien %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+input xucfont;                % the xucuri alphabet majuscules (Mrglovani)
+input xucl;                   % the xucuri alphabet minuscules (.Kutxovani)
+if unknown cmbase: input xucp; else: input punct; fi % punctuation
+if unknown cmbase: input xucd; else: input romand; fi  % digits: if cmbase is
+                                                        % used this font will
+                                                        % load cm-digits, for
+                                                        % they are finer tuned.
+
+
+%% Font-Parameter fuer TeX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+font_quad 2.5mxu#;                 % 1 em
+font_x_height mxlittle#;           % 1 ex
+font_normal_space 3.5mxu#;           % word gap
+font_normal_stretch 2mxu#;         % word gap may stretch by ...
+font_normal_shrink 1mxu#;          % word gap my shrink by ...
+font_slant slant;
+
+% special "grayfont graylj";     % Only for GFtoDVI on emTeXs METAFONT
+
+%% Ligature-Tables %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Palatals:
+ligtable "+" : "S" =: oct"005",
+               "C" =: oct"001",
+               "J" =: oct"010",
+               "Z" =: oct"007",
+               "s" =: oct"025",
+               "c" =: oct"021",
+               "j" =: oct"030",
+               "z" =: oct"027";
+
+% Glottalized stops
+ligtable "." : "C" =: oct"000",
+               "G" =: oct"002",
+               "K" =: oct"003",
+               "P" =: oct"004",
+               "T" =: oct"006",
+               "c" =: oct"020",
+               "g" =: oct"022",
+               "k" =: oct"023",
+               "t" =: oct"026",
+               "p" =: oct"024",
+               "+" =: ",";
+
+% Old Georgian "ho"
+ligtable "O" : "1" =: oct"011";
+%              oct"005" kern -mxhalf#,
+%              "Z"      kern -.5mxzw#;
+
+% Old Georgian "Short i"
+ligtable "I" : "1" =: oct"012";
+
+ligtable "i" : "1" =: oct"032";
+
+
+% long "ee"
+ligtable "E" : "0" =: oct"016";
+
+ligtable "e" : "0" =: oct"036";
+
+
+% Unaspirated "q"
+ligtable "Q" : "1" =: oct"015";
+
+ligtable "q" : "1" =: oct"035";
+
+
+% Keep the "s" away from letters with an ascender on the right
+% ligtable oct"004" : oct"007" : "k" : "m" : "x" : "s" kern .5mxzw#;
+
+% two ' make a double quote
+ligtable "'" : "'" kern -.8mxzw#;
+
+% two , make a double comma, 
+ligtable "," : "," kern -mxzw#,
+               "C" =: oct"014",
+               "c" =: oct"034";
+
+%% Hyphens etc.
+ligtable "-" : "-" =: 123;  % cf. The METAfontbook S. 306
+ligtable 123 : "-" =: 124;
+
+% Let "z" and oct005 closer two the little letters
+%ligtable "a" : "d" : "g" : "l" : "t" : "u" : "p" : oct"002" : "c" : oct"010" :
+%               oct"005" kern -mxhalf#,
+%               "1" =: oct"021",
+%               "z"      kern -.5mxzw#;
+
+endinput;

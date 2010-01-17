@@ -1,0 +1,97 @@
+%% This file is a part of the ArmTeX 2.0
+%% [1999/06/01 v2.0 arm.tex (plain TeX input file for writing in Armenian)]
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%% Making '@' letter.
+%%
+\catcode`\@=11
+
+
+%% Double input protection.
+%%
+\expandafter\ifx\csname ArmTeX@PlainLoaded\endcsname\relax
+\let\ArmTeX@PlainLoaded\null\else\endinput\fi
+
+
+%% Some auxilliary macros.
+%%
+\def\ArmTeX@Armtoday{\number\day~\ifcase\month\or
+  hunvari\or phetrvari\or marti\or aprili\or maisi\or hunisi\or
+  hulisi\or o'gostosi\or septemberi\or hoktemberi\or noyemberi\or
+  dektemberi\fi~\number\year th.}
+\def\ArmTeX@Armdischyph{\discretionary{\char123}{}{}}
+\let\ArmTeX@Savedexclam=\!
+\let\ArmTeX@Savedbar=\|
+\let\ArmTeX@Savedstar=\*
+\let\ArmTeX@Saveddischyph=\-
+\let\ArmTeX@Savedtoday=\today
+
+
+%% User macros.
+%%
+\def\armdate{\let\today\ArmTeX@Armtoday}
+\def\armhyph{\let\-\ArmTeX@Armdischyph
+             \let\@dischyph\ArmTeX@Armdischyph}
+\def\armdateoff{\let\today\ArmTeX@Savedtoday}
+\def\armhyphoff{\let\-\ArmTeX@Saveddischyph
+                \let\@dischyph\ArmTeX@Saveddischyph}
+\def\ArmTeX{{A\kern -0.08ex\raise 0.63ex\hbox{\smash{r}}\kern -0.22em%
+  \lower 0.43ex\hbox{m}\kern -0.16em\aroff\TeX}}
+\def\latArmTeX{{Arm\kern -0.15em\TeX}}
+
+\chardef\textbraceleft=94
+\chardef\textbraceright=95
+\chardef\textdollar=36
+\chardef\texthash=35
+\chardef\textpercent=37
+\chardef\textand=38
+\chardef\textexclam=126
+\chardef\textquestion=127
+\def\textanjgic{\leavevmode
+    \kern0.02em\vrule height0.4ex depth-0.25ex width0.8em\kern0.02em\relax}
+\def\textbreaklig{{\kern0pt}}
+\let\?\textquestion
+\def\*{\ifmmode\ArmTeX@Savedstar\else\textbreaklig\fi}
+\def\!{\ifmmode\ArmTeX@Savedexclam\else\textexclam\fi}
+\def\|{\ifmmode\ArmTeX@Savedbar\else\textanjgic\fi}
+\def\{{\ifmmode\lbrace\else\textbraceleft\relax\fi}
+\def\}{\ifmmode\rbrace\else\textbraceright\relax\fi}
+\def\vdots{\vbox{\baselineskip4\p@ \lineskiplimit\z@
+  \kern6\p@\hbox{$\ldotp$}\hbox{$\ldotp$}\hbox{$\ldotp$}}}
+\def\ddots{\mathinner{\mkern1mu\raise7\p@
+  \vbox{\kern7\p@\hbox{$\ldotp$}}\mkern2mu
+  \raise4\p@\hbox{$\ldotp$}\mkern2mu\raise\p@\hbox{$\ldotp$}\mkern1mu}}
+
+
+%% Font changing macros.
+%%
+\let\arofffont=\rm
+\def\aroff{\armdateoff\armhyphoff\arofffont}
+
+\def\ArmTeX@DeclarePlainFont#1#2#3{%
+\font#1=#2
+\hyphenchar #1=-1
+\def#3{\armdate\armhyph #1}}
+
+\ArmTeX@DeclarePlainFont{\tenartmrm}{artmr10}{\artm}
+\ArmTeX@DeclarePlainFont{\tenartmbf}{artmb10}{\artmbf}
+\ArmTeX@DeclarePlainFont{\tenartmsl}{artmsl10}{\artmsl}
+\ArmTeX@DeclarePlainFont{\tenartmbfsl}{artmbs10}{\artmbfsl}
+\ArmTeX@DeclarePlainFont{\tenartmit}{artmi10}{\artmit}
+\ArmTeX@DeclarePlainFont{\tenartmbfit}{artmbi10}{\artmbfit}
+\ArmTeX@DeclarePlainFont{\tenarssrm}{arssr10}{\arss}
+\ArmTeX@DeclarePlainFont{\tenarsssl}{arsssl10}{\arsssl}
+\ArmTeX@DeclarePlainFont{\tenarssbf}{arssb10}{\arssbf}
+\ArmTeX@DeclarePlainFont{\tenarssbfsl}{arssbs10}{\arssbfsl}
+
+
+%% Making '@' other.
+%%
+\catcode`\@=12
+
+
+%% That's all, Folks!
+%%
+\endinput

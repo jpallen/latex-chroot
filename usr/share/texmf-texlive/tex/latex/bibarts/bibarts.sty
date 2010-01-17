@@ -1,0 +1,579 @@
+\message{ bibarts BIBLIOGRAPHY -- 1.3 -- <28.Mar.1998> }
+
+%%
+%%  ENGLISH ABSTRACT:
+%%  =================
+%%
+%%  bibarts helps you to make a bibliography (literature, sources & index).
+%%  - bibarts switches from english to german, if \newumlaut is defined
+%%    (in german.sty, \newumlaut is defined).
+%%  - bibarts switches from LaTeX 2.09 to LaTeX 2e, if \LaTeX2e is defined
+%%    (see definition of \@footnotetext in bibarts.sty).
+%%  - If you are no DOS user, you have to compile gbibsort.c using your own
+%%    compiler, or, you have to use your own sorting program. If you do not
+%%    use gbibsort, you may not use commands \sort, \male, nor \female.
+%%  - bibarts.sty defines the following commands:
+%%     1  \makebar: Prepares bibliography FILE.bar.
+%%        You have to perform the following steps:
+%%          1.1 latex FILE.tex
+%%          1.2 gbibsort FILE.bar FILE.phy
+%%          1.3 makeind[e]x FILE.bar
+%%          1.4 latex FILE.tex
+%%          1.5 latex FILE.tex
+%%        FILE.bar contains three kinds of items: literature, sources, and
+%%        index. They are created by commands 2, 3, 4, 5, 9, 10 and 12.
+%%     2  \vli{Donald}{Knuth}{The TeX-Book, Reading (Mass.) 1984}
+%%        - prints "Donald Knuth: The TeX-Book, Reading (Mass.) 1984".
+%%        - writes "Knuth, Donald: The TeX-Book, Reading (Mass.) 1984"
+%%          into list of literature. "Knuth" will be underlined.
+%%     3  \vqu does the same, but writes into list of sources.
+%%     4  \addtovli{a}{b}{c}: Writes "b, a: c" into list of literature.
+%%     5  \addtovqu{a}{b}{c}: Writes "b, a: c" into list of sources.
+%%     6  \printonlyvli{a}{b}{c}: Prints "a b: c". (2 <=> 4 + 6)
+%%     7  \printonlyvqu{a}{b}{c}: Prints "a b: c". (3 <=> 5 + 7)
+%%     8  \sort{A} in \vli's, \vqu's, \addtovli's or \addtovqu's arguments
+%%        will be sorted like if there is an A, but A will not be printed.
+%%     9  \bib{HINT}: Prints HINT and writes HINT to index, indexing page
+%%        number and, if \bib is in a footnote, an exponent after the page
+%%        number will also show the number of this footnote.
+%%    10  \addtobib{HINT} writes HINT to index. (Do not use \sort{A}, but A@)
+%%    11  \printonlybib{HINT} prints HINT.         (9 <=> 10 + 11)
+%%    12  \kurz{SHORT} prints "(in the following SHORT)" and behaves like
+%%        \addtobib{SHORT}, too. If it is in \vli's, \vqu's, \addtovli's or
+%%        \addtovqu's arguments, it writes "[SHORT]" into the bibliography.
+%%    13  \printvli: Prints list of literature (extracting FILE.phy).
+%%    14  \printvqu: Prints list of sources (extracting FILE.phy).
+%%    15  \printnumvli: Prints list of literature, but adds to every item
+%%        the page (and the footnote) number from which the item came from:
+%%        "TITLE >> PAGENO" or "TITLE >> PAGENO^FOOTNOTENO"
+%%        (^FOOTNOTENO, if \vli or \addtovli have been in a footnote).
+%%    16  \printnumvqu: Prints the list of sources like \printnumvli.
+%%    17  If you start gbibsort with option -K, and there is an author in the
+%%        list of literature or the list of sources more than one time, the
+%%        name of this author will be printed only the first time, and then
+%%        instead of his name it will be printed 'similar'. You may change
+%%        'similar' to "---" by saying "\renewcommand{\killname}{---}".
+%%        At the end of \vli's, \vqu's, \addtovli's or \addtovqu's first
+%%        argument, you may say \female, or \male. Instead of \killname,
+%%        \femalename ("Dies.") or \malename ("Ders.") will be printed.
+%%    18  \printind: Prints the index, extracting FILE.ind. If \bib was
+%%        in a footnote, footnote number is added as an exponent to page
+%%        number. All entries coming from footnotes are printed first.
+%%          18.1 article: "HINT: PAGENO^FOOTNOTENO, ..., PAGENO, ...,"
+%%          18.2 report:  "HINT
+%%                           Chapter CHAPTERNO: PAGENO^FOOTNOTENO, PAGENO,"
+%%          18.3 book:    "HINT
+%%                           Part PARTNO:
+%%                             Chapter CHAPTERNO: PAGENO^FOOTNOTENO, PAGENO,"
+%%          Write yourself an index style file with the following lines:
+%%                          delim_0 " "
+%%                          delim_1 " "
+%%                          delim_2 " "
+%%                          delim_n "\\komma "
+%%                          delim_t " "
+%%          Use this style in MakeIndex' command line (-s STYLE).
+%%    19  \bibmark{LABEL}: Writes "in the following LABEL" and sets LABEL.
+%%          LABEL may be Authors' name. (To be used in footnotes.)
+%%    20  \bibref{LABEL}:  Writes "LABEL (see n. XX on p. YY)".       *19
+%%    21  \xbibmark{TEXT}{LABEL}: Writes "in the following TEXT" and sets
+%%          LABEL. TEXT may be an Authors' name, if this name contains
+%%          commands, which are not transformed in macro \@markprotect.
+%%    22  \xbibref{TEXT}{LABEL}:  Writes "TEXT (see n. XX on p. YY)". *21
+%%
+%%  =================
+%%
+%%
+%%         (c) Timo Baumann
+%%
+%%         CopyLeft: a) Verantwortung  -  b) Benutzung  -  c) Distribuntion
+%%
+%%                   Der Anwender erkennt die Punkte a) - c) an.
+%%                      a) Keinerlei Haftung ! 
+%%                      b) Keine Funktions-Garantie !
+%%                      c) bibarts.sty und bibarts.tex d"urfen 
+%%                              nur weitergegeben werden, wenn
+%%                                 1. daf"ur keine Kosten erhoben werden, 
+%%                                       die "uber diejenigen f"ur ihren
+%%                                       Transfer hinausgehen !
+%%                                 2. vorgenommene "Anderungen 
+%%                                       kommentiert sind !
+%%                                 
+
+
+%%          Verweise:
+
+\def\stressing#1{\def\@stress{#1}}
+
+\stressing{underline}  %% -> \underline{NAME}; you may change {underline}
+                       %% to {rm}, {sf}, ..., but do NOT use '\' in front!
+
+\def\punctuation{:}    %% Satzzeichen zwischen NAME und REST (nicht Index!).
+
+\def\killname{$\sim$}
+\def\femalename{Dies.}   %%  \vli{...}{...\female}{...}
+\def\malename{Ders.}     %%  \vli{...}{...\male}{...}
+\def\seenotename{\@ifundefined{newumlaut}{see n.}{wie Anm.}}
+\def\onname{\@ifundefined{newumlaut}{on}{auf}}
+\def\pgname{\@ifundefined{newumlaut}{p.}{S.}}
+\@ifundefined{seename}{\def\seename{see}}{}
+  %% 2. Arg. ist leer, denn in GERMAN.STY steht \def\seename{siehe}!
+
+\def\bibref#1{{\schrift #1 \@markprotect (\iffootnote
+ \seenotename\,\ref{#1} \onname{} \else \seename{} \fi
+ \pgname\,\pageref{#1})}}
+
+\def\xbibref#1#2{{\schrift #1 \@markprotect (\iffootnote
+ \seenotename\,\ref{#2} \onname{} \else \seename{} \fi
+ \pgname\,\pageref{#2})}}
+
+\def\bibmark#1{{\schrift\quotename{} #1\@markprotect\label{#1}}}
+\def\xbibmark#1#2{{\schrift\quotename{} #1\@markprotect\label{#2}}}
+\def\quotename{\@ifundefined{newumlaut}{in the following}{im folgenden}:}
+
+\def\kurz#1{ (\schrift{\quotename{} \protect\bib{#1}})}
+
+\def\@markprotect{%
+\@ifundefined{newumlaut}{}{%
+\def"{|Q|}}%
+\def\IeC{|IeC|}%              %% Falls LaTeX2e
+\def~{|T|}%
+\def\"{|A|}%
+\def\'{|B|}%
+\def\`{|C|}%
+\def\^{|D|}%
+\def\AA{|AA|}%
+\def\aa{|aa|}%
+\def\ae{|ae|}%
+\def\AE{|AE|}%
+\def\b{|b|}%
+\def\c{|c|}%
+\def\P{|P|}%
+\def\S{|S|}%
+\def\copyright{|copyright|}%
+\def\pounds{|pounds|}%
+\def\={|=|}%
+\def\.{|.|}%
+\def\ss{|ss|}%
+\def\underline{|U|}%
+}
+
+
+%%          Ausgabe von Sonderzeichen ins BAR-File:
+
+%%          F"ur \[addto]vli und \[addto]vqu sortierrelevante,
+%%                 aber nicht auszudruckende Eintr"age:
+
+\def\sort#1{}
+
+
+%%          Zeichen, das "{NAME}, {VORNAME}" mehrfach genannter Autoren
+%%                 ab der zweiten Nennung in den Listen ersetzt,
+%%                 falls GBIBSORT mit der Option -K gestartet wird:
+
+\newcounter{sex}
+\setcounter{sex}{0}
+\def\thesex{\arabic{sex}}
+\def\female{\setcounter{sex}{1}}
+\def\male{\setcounter{sex}{2}}
+\def\Ikillname{\ifnum\thesex=0\killname\fi\ifnum\thesex=1\femalename\fi\ifnum\thesex=2\malename\fi}
+
+\def\@sIcHerUnG{%
+\def\female{{\punctuation}@\string\female}%  %% \vli{Pamela\female}{..}{..}
+\def\male{{\punctuation}@\string\male}%      %% \vli{Peter\male}{..}{..}
+\def\kurz##1{{} [##1]}%  %% \vli{..}{..}{..\kurz{KK}}
+\def\sort##1{{##1}@}%    %% ##1 RELEVANT zum sortieren, aber nicht drucken.
+\def\LaTeX{\string\LaTeX}%
+\@ifundefined{newumlaut}{}{%  %% falls nicht german
+\def"{\string"}}%        %% Alternative 1: %% \def"{\string"\}  | NICHT F"UR
+\def\"{\string\"}%       %% Alternative 2: %% \def\"{\string"}  | LaTeX2e !
+\def\IeC{}%              %% Falls LaTeX2e
+\def~{\string~}%
+\def\~{\string\~}%
+\def\'{\string\'}%
+\def\`{\string\`}%
+\def\^{\string\^}%
+\def\AA{\string\AA}%
+\def\aa{\string\aa}%
+\def\ae{\string\ae}%
+\def\AE{\string\AE}%
+\def\b{\string\b{}}%
+\def\c{\string\c{}}%
+\def\P{\string\P}%
+\def\S{\string\S}%
+\def\copyright{\string\copyright}%
+\def\pounds{\string\pounds}%
+\def\={\string\=}%
+\def\.{\string\.}%
+\def\ss{\string\ss}%
+\def\authorstress{\string\authorstress}%
+\def\underline{\string\underline}%
+}
+
+
+%%          Die Schrift, in der die im Befehl stehenden
+%%                 Angaben in der Fu"snote ausgedruckt werden: 
+
+\def\schrift{\sf}
+
+
+     
+%%          Die Schrift, in der das mit \printvli aufgerufene
+%%                 Literatur-Verzeichnis und das mit \printvqu
+%%                 aufgerufene Quellen-Verzeichnis ausgedruckt wird:
+
+\def\barschrift{\small}
+
+
+%%          Die Schrift, in der Stichworte und Seitenzahlen
+%%                 des Index ausgedruckt werden:
+
+\def\indschrift{\sf}
+
+
+\def\authorstress#1{\csname\@stress\endcsname{#1}}
+
+%%          Nur Ausdruck an Ort und Stelle:
+
+\def\printonlyvli#1#2#3{{\schrift #1 {\authorstress{#2}}{\punctuation} #3}}
+\def\printonlyvqu#1#2#3{{\schrift #1 {\authorstress{#2}}{\punctuation} #3}}
+\def\printonlybib#1{{\schrift #1}}
+
+
+
+%%          Nur schreiben ins Auswurffile:
+
+\def\addtovli#1#2#3{\ifbibarts\@vli{{\authorstress{#2}}, {#1}{\punctuation} {#3}}\fi}
+\def\addtovqu#1#2#3{\ifbibarts\@vqu{{\authorstress{#2}}, {#1}{\punctuation} {#3}}\fi}
+\def\addtobib#1{\ifbibarts\@bib{#1:}\fi}
+
+
+%%          Schreiben an Ort und Stelle und ins Auswurffile:
+
+\def\vli#1#2#3{\addtovli{#1}{#2}{#3}\printonlyvli{#1}{#2}{#3}}
+\def\vqu#1#2#3{\addtovqu{#1}{#2}{#3}\printonlyvqu{#1}{#2}{#3}}
+\def\bib#1{\addtobib{#1}\printonlybib{#1}}
+
+
+%%          Erzeugen von "Kapitell-Ueberschriften" in den Listen:
+
+\def\KapSchr{\large\bf}
+
+\def\Kapitell{%
+\@Kapitell{a}{A}
+\@Kapitell{b}{B}
+\@Kapitell{c}{C}
+\@Kapitell{d}{D}
+\@Kapitell{e}{E}
+\@Kapitell{f}{F}
+\@Kapitell{g}{G}
+\@Kapitell{h}{H}
+\@Kapitell{i}{I}
+\@Kapitell{j}{J}
+\@Kapitell{k}{K}
+\@Kapitell{l}{L}
+\@Kapitell{m}{M}
+\@Kapitell{n}{N}
+\@Kapitell{o}{O}
+\@Kapitell{p}{P}
+\@Kapitell{q}{Q}
+\@Kapitell{r}{R}
+\@Kapitell{s}{S}
+\@Kapitell{t}{T}
+\@Kapitell{u}{U}
+\@Kapitell{v}{V}
+\@Kapitell{w}{W}
+\@Kapitell{x}{X}
+\@Kapitell{y}{Y}
+\@Kapitell{z}{Z}
+}
+
+
+\newif\if@kapitell\@kapitellfalse
+\def\bibVkapit{\vspace{3ex}\pagebreak[3]}
+\def\bibAkapit{\vspace{.5ex}\@kapitelltrue\nopagebreak}
+
+\def\@Kapitell#1#2{%
+     \ifbibarts
+\@vli{\sort{\authorstress #1!!!!!} \protect\bibVkapit {\protect\KapSchr #2} \protect\bibAkapit}
+\@vqu{\sort{\authorstress #1!!!!!} \protect\bibVkapit {\protect\KapSchr #2} \protect\bibAkapit}
+\@bib{#1 -- --@                    \protect\bibVkapit {\protect\KapSchr #2} \protect\bibAkapit}
+     \fi
+}
+
+
+%%          Auswurffile:  (Diese Konstruktion hat latex.tex als Vorbild.)
+
+\newif\ifbibarts\bibartsfalse
+
+\def\makebar{\bibartstrue\if@filesw\newwrite\@barfile%
+\immediate\openout\@barfile=\jobname.bar%
+\def\@bib{\@bsphack\begingroup%
+\def\protect####1{\string####1\space}%  N"utzlichkeit unklar.
+\@sIcHerUnG%
+\@sanitize\@wrbbar}%
+\def\@vqu{\@bsphack\begingroup%
+\def\protect####1{\string####1\space}%  N"utzlichkeit unklar.
+\@sIcHerUnG%
+\@sanitize\@wrqbar}%
+\def\@vli{\@bsphack\begingroup%
+\def\protect####1{\string####1\space}%  N"utzlichkeit unklar.
+\@sIcHerUnG%
+\@sanitize\@wrlbar}%
+\typeout{Volltiteldatei \jobname.bar vorbereitet. }\fi}
+
+
+\def\@wrbbar#1{%
+\@ifundefined{thepart}{}{\ifnum\value{part}>0%
+\ifnum\value{part}<10\def\G{\string!\string\G{\arabic{part}}{\partname~\thepart}}\fi%
+\ifnum\value{part}>9\ifnum\value{part}<100\def\G{\string!\string\I{\arabic{part}}{\partname~\thepart}}\fi\fi%
+\fi}%
+\@ifundefined{thechapter}{}{\ifnum\value{chapter}>0%
+\ifnum\value{chapter}<10\def\E{\string!\string\E{\arabic{chapter}}{\chaptername~\thechapter}}\fi%
+\ifnum\value{chapter}>9\ifnum\value{chapter}<100\def\E{\string!\string\F{\arabic{chapter}}{\chaptername~\thechapter}}\fi\fi%
+\fi}%
+\ifnum\value{page}<10\def\X{\string|X}\else%
+\ifnum\value{page}<100\def\X{\string|Y}\else%
+\def\X{\string|Z}\fi\fi%
+\ifnum\value{page}<10\def\x{\string|x{\arabic{page}}{\thepage}}\else%
+\ifnum\value{page}<100\def\x{\string|y{\arabic{page}}{\thepage}}\else%
+\def\x{\string|z{\arabic{page}}{\thepage}}\fi\fi%
+\stepcounter{arts}%
+\iffootnote%
+\edef\@tempa{\write\@barfile{\string%
+\indexentry{#1\G\E\X{}{\thepage}}{\thefootnote}}}%          %[]
+\else%
+\edef\@tempa{\write\@barfile{\string%
+\indexentry{#1\G\E\x}{\thearts}}}%                               %[]
+\fi%
+\expandafter\endgroup\@tempa%
+\if@nobreak \ifvmode\nobreak\fi\fi\@esphack}
+
+
+\def\@wrqbar#1{%
+\ifnum\value{page}<10\def\X{\string\X}\else%
+\ifnum\value{page}<100\def\X{\string\Y}\else%
+\def\X{\string\Z}\fi\fi%
+\def\F{\string\F}\def\E{\string\E}%
+\stepcounter{arts}%
+\iffootnote%
+\edef\@tempa{\write\@barfile{\string%
+\quellentry{#1\X{}{\thepage}}{\F{}{\thefootnote}}}}%            %[]
+\else%
+\edef\@tempa{\write\@barfile{\string%
+\quellentry{#1\X{}{\thepage}}{\E{}{\thearts}}}}%
+\fi%
+\expandafter\endgroup\@tempa%
+\if@nobreak \ifvmode\nobreak\fi\fi\@esphack}
+
+
+\def\@wrlbar#1{%
+\ifnum\value{page}<10\def\X{\string\X}\else%
+\ifnum\value{page}<100\def\X{\string\Y}\else%
+\def\X{\string\Z}\fi\fi%
+\def\F{\string\F}\def\E{\string\E}%
+\stepcounter{arts}%
+\iffootnote%
+\edef\@tempa{\write\@barfile{\string%
+\literentry{#1\X{}{\thepage}}{\F{}{\thefootnote}}}}%            %[]
+\else%
+\edef\@tempa{\write\@barfile{\string%
+\literentry{#1\X{}{\thepage}}{\E{}{\thearts}}}}%
+\fi%
+\expandafter\endgroup\@tempa%
+\if@nobreak \ifvmode\nobreak\fi\fi\@esphack}
+
+
+            \def\x{}\def\y{}\def\z{}
+            \def\X{}\def\Y{}\def\Z{}
+            \def\F{}\def\E{}
+            \def\G{}\def\I{}
+
+
+
+%%          Ausdruck des erzeugten Files (.phy und .ind):
+                
+\newif\ifquelle
+\newif\ifliteratur
+\newif\ifindex
+
+\def\indexentry#1#2{\ifindex\if@kapitell\item{#1}\else\item{#1}{#2}\fi\fi}
+\def\literentry#1#2{\ifliteratur\if@kapitell\item{#1}\else\item{#1}{#2}\fi\fi}
+\def\quellentry#1#2{\ifquelle\if@kapitell\item{#1}\else\item{#1}{#2}\fi\fi}
+                                          
+
+
+\def\info{{\item Das File {\tt\jobname.tex} mu\ss\ ein weiteres Mal
+                 \LaTeX--bearbeitet werden, um hier etwas sehen
+                 zu k\"onnen. {\tt\jobname.bar} sollte zuvor
+                 alphabetisch auf\\ {\tt \jobname.phy} sortiert werden.
+                 --- Oder fehlt der Befehl {\tt $\backslash$makebar}
+                 im Vorspann?}}
+
+
+\def\verw{ $\gg$ }
+ \def\LiTbox#1#2{\if@kapitell\@kapitellfalse\else\verw{#2}\fi}
+\def\LITfBOX#1#2{\if@kapitell\@kapitellfalse\else$^{#2}$\fi}
+
+
+\def\printnumvqu{{%%%%\section{Quellenverzeichnis}
+                \quelletrue\literaturfalse\indexfalse
+                \barschrift
+                  \def\X{\LiTbox}\def\Y{\LiTbox}\def\Z{\LiTbox}
+                  \def\x{\LiTbox}\def\y{\LiTbox}\def\z{\LiTbox}
+                                 \def\E{\NeIn}\def\F{\LITfBOX}
+                                  \def\G{\NeIn}\def\I{\NeIn}
+                \message{|> VQU }
+                \begin{description}
+                  \parsep 0ex \itemsep -.5ex
+                  \@input{\jobname.phy}
+                  \def\@noitemerr{\@warning{Leeres \jobname.phy-File}\info}
+                \end{description}\message{<|}
+              }}
+
+
+\def\printnumvli{{%%%%\section{Literaturverzeichnis}
+                \literaturtrue\quellefalse\indexfalse
+                \barschrift
+                  \def\X{\LiTbox}\def\Y{\LiTbox}\def\Z{\LiTbox}
+                  \def\x{\LiTbox}\def\y{\LiTbox}\def\z{\LiTbox}
+                                 \def\E{\NeIn}\def\F{\LITfBOX}
+                                  \def\G{\NeIn}\def\I{\NeIn}
+                \message{|> VLI }
+                \begin{description}
+                  \parsep 0ex \itemsep -.5ex
+                  \@input{\jobname.phy}
+                  \def\@noitemerr{\@warning{Leeres \jobname.phy-File}\info}
+                \end{description}\message{<|}
+              }}
+
+
+\def\NeIn#1#2{}
+
+\def\printvqu{{%%%%\section{Quellenverzeichnis}
+                \literaturfalse\quelletrue\indexfalse
+                \barschrift
+                  \def\X{\NeIn}\def\Y{\NeIn}\def\Z{\NeIn}
+                  \def\x{\NeIn}\def\y{\NeIn}\def\z{\NeIn}
+                                  \def\E{\NeIn}\def\F{\NeIn}
+                                  \def\G{\NeIn}\def\I{\NeIn}
+                \message{|> VQU }
+                \begin{description}
+                  \parsep 0ex \itemsep -.5ex
+                  \@input{\jobname.phy}
+                  \def\@noitemerr{\@warning{Leeres \jobname.phy-File}\info}
+                \end{description}\message{<|}
+              }}
+
+
+\def\printvli{{%%%%\section{Literaturverzeichnis}
+                \literaturtrue\quellefalse\indexfalse
+                \barschrift
+                  \def\X{\NeIn}\def\Y{\NeIn}\def\Z{\NeIn}
+                  \def\x{\NeIn}\def\y{\NeIn}\def\z{\NeIn}
+                                  \def\E{\NeIn}\def\F{\NeIn}
+                                  \def\G{\NeIn}\def\I{\NeIn}
+                \message{|> VLI }
+                \begin{description}
+                  \parsep 0ex \itemsep -.5ex
+                  \@input{\jobname.phy}
+                  \def\@noitemerr{\@warning{Leeres \jobname.phy-File}\info}
+                \end{description}\message{<|}
+              }}
+
+
+%\def\BiBbox#1#2{{#2}}
+%
+%\def\printbib{{%%%%\section{indexentries}
+%                \indextrue\literaturfalse\quellefalse
+%                \footnotesize
+%                    \catcode`\|=0
+%                  \def\X{\BiBbox}\def\Y{\BiBbox}\def\Z{\BiBbox}
+%                  \def\x{\BiBbox}\def\y{\BiBbox}\def\z{\BiBbox}
+%                  \def\E{\iNDExKAP}\def\F{\iNDExKAP}
+%                  \def\G{\iNDExPAR}\def\I{\iNDExPAR}
+%                \message{|> BIB }
+%                \begin{description}
+%                  \parsep 0ex \itemsep -.5ex
+%                  \@input{\jobname.phy}
+%                  \def\@noitemerr{\@warning{Leeres \jobname.phy-File}\info}
+%                \end{description}
+%                   \message{<|}
+%              }}
+
+
+\newcounter{CH}
+\def\theCH{\arabic{CH}}
+
+
+\newif\ifkomma\kommafalse
+\def\komma{\ifkomma{}, \fi}
+
+\def\iNDExBOX#1#2#3{\if@kapitell\@kapitellfalse\else{\ifnum\theCH=#1\else{\indschrift #2}{, }\fi}\setcounter{CH}{#1}\fi}
+\def\IndeXbox#1#2#3{\if@kapitell\@kapitellfalse\else{{\indschrift #2}}\raisebox{1ex}{\kommatrue{\scriptsize #3}\kommafalse}{, }\fi}
+\def\iNDExKAP#1#2{\setcounter{CH}{-5000}{\it #2}\/: }
+\def\iNDExPAR#1#2{\setcounter{CH}{-5000}{\it #2}\/: }
+
+\def\printind{{%    \theindex -UMGEBUNG HAT  \indexname  ALS "UBERSCHRIFT
+                    \barschrift
+             %\def\bibVkapit{}
+             \everypar{\setcounter{CH}{-5000}}
+                  \def\x{\iNDExBOX}\def\X{\IndeXbox}
+                  \def\y{\iNDExBOX}\def\Y{\IndeXbox}
+                  \def\z{\iNDExBOX}\def\Z{\IndeXbox}
+                  \def\E{\iNDExKAP}\def\F{\iNDExKAP}  %
+                  \def\G{\iNDExPAR}\def\I{\iNDExPAR}  %
+                 \begin{sloppy}    \@input{\jobname.ind}    \end{sloppy}
+               }}
+
+           
+           
+%%          LOGO:
+
+\def\bibarts{{\rm B\kern -.05em\lower .5ex\hbox{i}\kern -.15em\lower -.28ex\hbox{\it b}\kern -.17em\lower .5ex\hbox{A}\kern -.29em\lower -.72ex\hbox{r}\kern -.13em\lower .2ex\hbox{t}\kern -.13em\lower -.303ex\hbox{s}}}
+
+
+
+
+%%          BIBINDEX   \def\@footnotetext STAMMEN AUS latex.tex
+%%                     UND latex.ltx. MIT AUSNAHME VON
+%%                         \footnotetrue  UND  \footnotefalse
+%%                     EVTL. SOLLTE DIESE STRUKTUR ERSETZT WERDEN,
+%%                     WENN SIE IN EINER ANDEREN LaTeX-VERSION
+%%                     ANDERS IST.
+
+\newif\iffootnote
+
+\@ifundefined{LaTeX2e}{%%%%%% dann LaTeX 2.09 (aus latex.tex)
+\long\def\@footnotetext#1{\footnotetrue\insert\footins{\reset@font\footnotesize
+    \interlinepenalty\interfootnotelinepenalty
+    \splittopskip\footnotesep
+    \splitmaxdepth \dp\strutbox \floatingpenalty \@MM
+    \hsize\columnwidth \@parboxrestore
+   \edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}\@makefntext
+    {\rule{\z@}{\footnotesep}\ignorespaces
+      #1\strut}}\footnotefalse}}{%%%%%% ansonsten LaTeX 2e (aus latex.ltx)
+\long\def\@footnotetext#1{\footnotetrue\insert\footins{%
+    \reset@font\footnotesize
+    \interlinepenalty\interfootnotelinepenalty
+    \splittopskip\footnotesep
+    \splitmaxdepth \dp\strutbox \floatingpenalty \@MM
+    \hsize\columnwidth \@parboxrestore
+    \protected@edef\@currentlabel{%
+       \csname p@footnote\endcsname\@thefnmark
+    }%
+    \color@begingroup
+      \@makefntext{%
+        \rule\z@\footnotesep\ignorespaces#1\@finalstrut\strutbox}
+    \color@endgroup}\footnotefalse}}
+
+
+
+
+\newcounter{arts}
+\setcounter{arts}{5000}  %% Es wird von weniger als 5000 Eintr"agen
+                         %% ins File.BAR ausgegangen. Dieser Z"ahler
+                         %% sorgt f"ur die Reihenfolge der \bib-Eintr"age, 
+                         %% die nicht in Fussnoten stehen.
+\def\thearts{\arabic{arts}}
+
+\endinput

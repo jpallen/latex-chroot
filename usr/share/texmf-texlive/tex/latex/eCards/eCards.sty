@@ -1,0 +1,369 @@
+%%
+%% This is file `eCards.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% eCards.dtx  (with options: `copyright,package')
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% eCards.sty package,                  2003-3-10       %%
+%% Copyright (C) 1999-2002  D. P. Story                 %%
+%%   dpstory@uakron.edu                                 %%
+%%                                                      %%
+%% This program can redistributed and/or modified under %%
+%% the terms of the LaTeX Project Public License        %%
+%% Distributed from CTAN archives in directory          %%
+%% macros/latex/base/lppl.txt; either version 1 of the  %%
+%% License, or (at your option) any later version.      %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NeedsTeXFormat{LaTeX2e}[1997/12/01]
+\ProvidesPackage{eCards}
+ [2003/05/18 v1.0 eCards: An electronic flash cards package (dps)]
+\DeclareOption{memLogo}{\let\@memLogo=y}
+\let\@memLogo=n
+\DeclareOption{listing}{\ecListingtrue}
+\newif\ifecListing \ecListingfalse
+\DeclareOption{custom}{\let\@ecCustom=y}
+\let\@ecCustom=n
+\DeclareOption{nohints}
+    {%
+        \let\@ecNoHints=y
+        \def\hintDest{ex.\exnoCard}%
+        \def\solnDest{ex.\exnoCard}%
+    }
+\let\@ecNoHints=n
+\def\hintDest{ex.\exnoCard}%
+\def\solnDest{ex.\exnoCard.s}%
+\ProcessOptions
+\RequirePackage{web}
+\RequirePackage{exerquiz}
+\newcommand{\cardsFinishedMsg}[1]{\def\CARDSFINISHED{#1}}
+\cardsFinishedMsg{You've seen all the cards!}
+\textBgColor{cornsilk}
+\def\cardColor#1{\def\@cardColor{#1}}
+\def\hintColor#1{\def\@hintColor{#1}}
+\def\solnColor#1{\def\@solnColor{#1}}
+\cardColor{vlightblue}
+\hintColor{cornsilk}
+\solnColor{webyellow}
+\let\web@copyright=\@gobble
+\let\exnoCard=\the@exno
+\let\web@rightheader=\@empty
+\def\io#1{\immediate\write\@auxout{#1}}
+\def\endsolnexerhookaux{%
+    \ifnum\@panelconfig=0\relax
+        \immediate\write\verbatim@out
+            {\string\insNaviBar*{\hfil\string\NextCard\hfil}}%
+    \fi
+}
+\def\include@solutions{%
+    \let\webnewpage=\relax
+    \immediate\closeout\ex@solns
+    \ifeq@nosolutions\else
+        \iftherearesolutions\newpage\markright{\exsecrunhead}%
+            \ifx\webnewpage\relax
+                \def\webnewpage{\let\webnewpage=\newpage}%
+            \fi
+            \eqsolutionshook
+            \addcontentsline{toc}{section}
+                {\protect\numberline{}\exsectitle}%
+            \input{\jobname.sol}%
+        \fi
+    \fi
+}
+\AtEndDocument{\io{\string\gdef\string\totalCards{\the@exno}}\clearpage}
+\def\theNumCards{\csname totalCards\endcsname}
+\def\nMarker{0}
+\def\ReturnTo#1#2{\eq@fititin#2}
+\renewcommand\exsecrunhead{}
+\renewcommand\exlabel{}
+\renewcommand\exsectitle{}
+\newenvironment{multiChoice}[1]
+{%
+    \par\smallskip\def\aftershortquizskip{}%
+    \def\sq@priorhook{}\renewcommand\sqlabel{\@gobble}%
+    \ifnum\nMarker=0\relax
+        \def\sqWrongRespJS{app.alert(\eqsqwgmsg,3);
+            this.gotoNamedDest("\hintDest");}%
+    \fi
+    \begin{shortquiz}
+        \begin{answers}[\solnDest]{#1}%
+}%
+{%
+        \end{answers}
+    \end{shortquiz}
+}
+\everyRespBoxTxt{\BG{1 1 1}}\everyRespBoxMath{\BG{1 1 1}}
+\newenvironment{fillIn}
+{%
+    \def\RespBoxTxtOnBlur{ecOnBlurRespBox(retn, \exnoCard, \nMarker);}%
+    \unskip\begin{oQuestion}{\ifnum\nMarker>0\relax
+        \solnDest\else\hintDest\fi}%
+}
+{\end{oQuestion}}
+
+\newenvironment{card}
+{%
+    \newpage
+    \gdef\nMarker{0}
+    \def\eqexheader{\noindent}
+        \renewcommand\exsllabelformat{\noindent}
+    \renewcommand\exrtnlabelformat{}
+    \renewcommand\exsecrunhead{}
+    \ifnum\@panelconfig=0\relax
+        \def\exersolnheadhook
+            {\string\def\string\solndest{\solnDest}}%
+    \else
+        \def\exersolnheadhook{\string\def\string\exnoCard{\exnoCard}%
+            \string\def\string\solndest{\solnDest}%
+            \string\gdef\string\nMarker
+                {\if\@ecNoHints y2\else1\fi}\string\defineSoln}%
+    \fi
+    \begin{exercise}
+        \textBgColor{\@cardColor}%
+        \headCard
+}%
+{%
+        \tailCard
+    \end{exercise}%
+    \ifnum\@panelconfig=0\relax\aftergroup\cardNaviBar\fi
+}
+\newcommand{\headCard}
+{%
+    \vspace*{\stretch{.1}}%
+    \begin{center}%
+    \Large\textbf{QUESTION}\par\vspace*{.25in}%
+    \begin{minipage}{.85\linewidth}%
+        \large\unskip\noindent\ignorespaces%
+}
+\newcommand{\tailCard}
+{%
+    \end{minipage}
+    \end{center}
+    \par\vspace{\stretch{2}}%
+}
+\newenvironment{response}
+    {\solnexer@woparts[0pt]}{\endsolnexer@woparts}
+\newenvironment{hint}
+{%
+    \textBgColor{\@hintColor}%
+    \headHint
+}%
+{%
+    \tailHint
+    \ifnum\@panelconfig=0\relax
+        \insNaviBar{\hfill\hintSoln\ \hintNextCard\hfill}\fi
+    \newpage\gdef\nMarker{2}\noindent\hypertarget{\solndest}{}%
+}
+\if\@ecNoHints y%
+    \let\hint=\comment
+    \let\endhint=\endcomment
+\fi
+\newcommand{\headHint}
+{%
+    \vspace*{\stretch{.1}}%
+    \begin{center}%
+        \Large\textbf{HINT}\par\vspace*{.25in}%
+        \begin{minipage}{.85\linewidth}%
+        \large\unskip\noindent\ignorespaces%
+}
+\newcommand{\tailHint}
+{%
+        \end{minipage}
+    \end{center}
+    \par\vspace{\stretch{2}}%
+}
+\newenvironment{answer}
+{%
+    \textBgColor{\@solnColor}%
+    \headAnswer
+}%
+{%
+    \tailAnswer
+}
+\newcommand{\headAnswer}
+{%
+    \vspace*{\stretch{.1}}%
+    \begin{center}%
+        \Large\textbf{ANSWER} \\\vspace*{.25in}%
+        \begin{minipage}{.85\linewidth}%
+        \large\unskip\noindent\ignorespaces%
+}
+\newcommand{\tailAnswer}
+{%
+        \end{minipage}
+    \end{center}
+    \vspace*{\stretch{2}}
+}
+\def\iconWidth{40pt}\def\iconHeight{15pt}
+\def\ecHomePage#1{\def\@ecHomePage{#1}}
+\ecHomePage{http://www.math.uakron.edu/\string~dpstory/acrotex.html}
+\def\ecLogo#1{\def\@ecLogo{#1}}
+\ecLogo{\includegraphics[scale=.4]{graphics/uakron}}
+\def\ecLogoLink#1{\def\@ecLogoLink{#1}}
+\let\@ecLogoLink=\@empty
+\def\makeesc#1{\catcode`#1=0\relax}
+\begin{defineJS}{\fsJS}
+if (app.viewerVersion < 5.0)
+    app.fullscreen = !app.fullscreen
+else
+{
+    app.fs.cursor = cursor.visible;
+    app.fs.defaultTransition = "";
+    app.fs.useTimer = false;
+    app.fs.isFullScreen = !app.fs.isFullScreen;
+}
+\end{defineJS}
+\begin{defineJS}[\makeesc\@]{\beginJS}
+aCardsReviewed = new Array();
+getNextCard();
+this.resetForm();
+var f = this.getField("ex");
+if ( f != null )
+{
+    var g = f.getArray();
+    for (var i = 0; i < g.length; i++)
+        g[i].strokeColor  = @eqDefaultColor;
+}
+\end{defineJS}
+\newcommand\noHintJSAction{}
+\newNaviIcon[j]{\Soln}\iconWidth\iconHeight{\footnotesize Soln}
+    {\ifnum\nMarker=2\relax\else
+        this.gotoNamedDest("\solnDest");\fi}
+\newNaviIcon[j]{\Hint}\iconWidth\iconHeight{\footnotesize Hint}
+    {\if\@ecNoHints y\noHintJSAction
+        \else\ifnum\nMarker=0this.gotoNamedDest("\hintDest");\fi\fi}
+\newNaviIcon[j]{\NextCard}\iconWidth\iconHeight{\footnotesize Next}
+    {getNextCard();}
+\newNaviIcon[j]{\hintNextCard}\iconWidth\iconHeight
+    {\footnotesize Next}{getNextCard();}
+\newNaviIcon[j]{\hintSoln}\iconWidth\iconHeight{\footnotesize Soln}
+    {this.gotoNamedDest("\solndest");}
+\newNaviIcon[j]{\Begin}\iconWidth\iconHeight
+    {\footnotesize Begin}{\beginJS}
+\newNaviIcon[l]{\Home}\iconWidth\iconHeight{\footnotesize Home}
+    {\ifnum\arabic{page}=1\relax\def\next{\href{\@ecHomePage}}\else
+    \def\next{\hyperlink{page.1}}\fi\next}
+\newNaviIcon[j]{\FullScreen}\iconWidth\iconHeight
+    {\footnotesize FS}{\fsJS}
+\newNaviIcon[j]{\Close}\iconWidth\iconHeight{\footnotesize Close}
+    {app.execMenuItem("Close")}
+\edef\@@Logo{\if\@memLogo y\relax
+    \noexpand\unhcopy\noexpand\Logo\else\noexpand\@ecLogo\fi}
+\ifnum\@panelconfig>0\relax
+    \renewcommand\panelNaviGroup
+    {%
+        \def\iconWidth{28pt}
+        \ifnum\thepage=1\relax
+            \parbox[c]{58pt}
+            {%
+                \Begin\hfil\FullScreen\\
+                \Close\hfil\Home
+            }%
+            \else
+            \parbox[c]{58pt}
+            {%
+                {\ifnum\nMarker>0\relax
+                    \navibarTextColor{lightblue}\fi
+                 \if\@ecNoHints y\relax
+                    \navibarTextColor{lightblue}\fi\Hint}\hfil
+                {\ifnum\nMarker=2\relax
+                    \navibarTextColor{lightblue}\fi\Soln}\\
+                \NextCard\hfil\Home
+            }%
+        \fi
+    }
+    \newbox\Logo
+    \if\@memLogo y\relax
+        \AtBeginDocument{\global\setbox\Logo = \hbox{\@ecLogo}}
+    \fi
+    \buildpanel
+    {%
+        \ifx\@ecLogoLink\@empty\@@Logo
+        \else\href{\@ecLogoLink}{\@@Logo}\fi
+        \par\vspace{\stretch{1}}%
+        \rotatebox{-90}{\aebLogo}%
+        \par\vspace{\stretch{1}}%
+        \panelNaviGroup
+    }
+    \def\defineSoln{\newNaviIcon[j]{\Soln}\iconWidth\iconHeight
+        {\footnotesize Soln}{this.gotoNamedDest("\solndest");}
+        \def\sqWrongRespJS{app.alert(\eqsqwgmsg,3);
+            this.gotoNamedDest("\solndest");}%
+    }
+\else
+    \def\cardNaviBar{\insNaviBar{\hfill
+        \if\@ecNoHints n\Hint\ \fi\Soln\ \NextCard \ \Home\hfill}%
+    }
+\fi
+\let\importdljs=y
+\begin{insDLJS}[isCardloaded]{flashcrd}{Flash Card JS}
+var isCardloaded=true;
+var maxNumberCards = 100;
+var aCardsReviewed = new Array();
+var cardsFinished = "\CARDSFINISHED";
+function getNextCard()
+{
+    numCards = \theNumCards;
+    var nCardsReviewed = aCardsReviewed.length;
+    if ( nCardsReviewed == numCards )
+    {
+        app.alert(cardsFinished,3);
+        this.gotoNamedDest("page.1");
+    }
+    else
+    {
+        var look4Next = true;
+        while (look4Next)
+        {
+            var nextCard = Math.random();
+            nextCard *= maxNumberCards;
+            nextCard = Math.ceil(nextCard);
+            nextCard \%= numCards;
+            nextCard += 1;
+            for ( var i = 0; i < nCardsReviewed; i++)
+                if ( aCardsReviewed[i] == nextCard ) break;
+            if ( i == nCardsReviewed ) look4Next = false;
+        }
+        aCardsReviewed.push(nextCard);
+        this.gotoNamedDest("qex."+nextCard);
+    }
+}
+function ecOnBlurRespBox (retn, exnoCard, nMarker)
+{
+    if (retn != null) {
+        if (retn) {
+            app.alert(\eqsqrtmsg,3);
+            var dest = "ex." + exnoCard + ".s";
+            this.gotoNamedDest(dest);
+        }
+        else {
+            app.alert(\eqsqwgmsg,3);
+            if (nMarker==0) {
+                var dest = "ex." + exnoCard;
+                this.gotoNamedDest(dest);
+            }
+            else {
+                var dest = "ex." + exnoCard + ".s";
+                this.gotoNamedDest(dest);
+            }
+        }
+    }
+    else {
+        var str = event.target.value.toString();
+        if (str.replace(/\s/g,"") == "")
+        event.target.strokeColor = \eqDefaultColor;
+    }
+}
+\end{insDLJS}
+\begin{execJS}{execjs}
+app.execMenuItem("Save");
+\end{execJS}
+\ifecListing
+    \input{eCardsList.def}
+\fi
+\if\@ecCustom y\InputIfFileExists{eCard.cus}{}{}\fi
+\endinput
+%%
+%% End of file `eCards.sty'.

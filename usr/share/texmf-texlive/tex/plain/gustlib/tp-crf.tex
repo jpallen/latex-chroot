@@ -1,0 +1,115 @@
+% ------------------------------------------------------------------
+% TP-CRF:  cross-reference generic macros.
+% Author:  Tomasz Przechlewski <ekotp@halina.univ.gda.pl>.
+% Date:    02.01.1997. Version 0.5
+%
+% This macros are described in detail in the article ,,Odsy{\l}acze'',
+% GUST bulletin, number 5, 1995
+% --------------
+% User commands:
+% --------------
+% \ref, \pageref  = insert cross-reference, insert page number.
+% \defreference   = define cross-reference.
+% \makecrfile     = write references to auxilliary (*.crf) file.
+% \nocrfile       = suppress writing to auxilliary file.
+% \nocrwarnings   = suppress warning messages.
+%
+% ------------------------------------------------------------------
+
+\catcode`@=11
+
+\def\@crwrn#1{\if@crwrns\immediate\write16{#1}\fi}
+\def\@markmissingcr{\relax}
+%\def\@markmissingcr{{\bf ??}\@marginmarker}
+%\def\@marginmarker{\vadjust{\vbox to0pt{%
+%\kern-.77\normalbaselineskip
+%\hbox{{\it\kern\hsize\kern15pt?}}\vss}}}
+
+\newif\if@crwrns \global\@crwrnstrue % default
+
+\def\nocrfile{\global\@crfilefalse}
+\def\nocrwarnings{\global\@crwrnsfalse}
+
+\def\@car#1#2{#1} \def\@cdr#1#2{#2}
+
+\long\def\@ifundefined#1#2#3{\expandafter\ifx\csname
+ #1\endcsname\relax#2\else#3\fi}
+
+\def\namedef#1{\expandafter \def\csname #1\endcsname}
+
+\def\newlabel#1#2{\@ifundefined{#1}{}%
+{\@crwrn{!WARNING: LABEL #1 REPEATED}}%
+\global\namedef{#1}{#2}}
+
+\newread\crfile
+
+\openin\crfile=\jobname.crf
+\ifeof\crfile
+  \@crwrn{FILE \jobname.crf NOT FOUND}
+ \else
+  \@crwrn{READING REFS FROM \jobname.crf}
+  \input \jobname.crf
+\fi
+
+\closein\crfile  
+\newwrite\crfile
+
+\def\makecrfile{\@crwrn{STARTING CR-FILE: \jobname.crf}%
+\immediate \openout\crfile=\jobname.crf}
+\def\nocrfile{\@crwrn{CR-FILE \jobname.crf NOT CREATED}\def\crfile{-1}}
+
+\def\ref#1{\@nextcrf\@ifundefined{#1}{\@markmissingcr
+\@crwrn{!WARNING: UNDEFINED REFERENCE \string#1}}%
+{\edef\@tempa{\csname #1\endcsname}\expandafter \@car\@tempa}}
+
+\def\pageref#1{\@nextpcrf \@ifundefined{#1}{\@markmissingcr
+\@crwrn{!WARNING: UNDEFINED REFERENCE \string#1}}%
+{\edef\@tempa{\csname #1\endcsname}\expandafter \@cdr\@tempa}}
+
+\def\defreference#1#2{\@nextdrf
+\edef\save{\string\newlabel{#1}%
+{{#2}{\noexpand\folio}}}\write\crfile\expandafter{\save}%
+\ignorespaces}
+
+\newcount\@crfC \newcount\@pcrfC \newcount\@dcrfC
+
+\def\@nextdrf{\global\advance\@dcrfC1\relax}
+\def\@nextcrf{\global\advance\@crfC1}
+\def\@nextpcrf{\global\advance\@pcrfC1}
+\def\crstatistics{%
+\@crwrn{==============================}
+\@crwrn{= REFERENCE STATISTICS =======}
+\@crwrn{= refs defined.... \the\@dcrfC}
+\@crwrn{= refs used....... \the\@crfC}
+\@crwrn{= page refs used.. \the\@pcrfC}
+\@crwrn{==============================}}
+
+\outer\def\bye{\crstatistics\end}
+\catcode`@=12
+
+\endinput
+%%
+%% Example:
+%% =======
+%\input tp-crf
+%\makecrfile
+%
+%\newcount\SecC
+%\def\label#1{\defreference{#1}{\the\SecC}}
+%\def\sec#1{\vskip\baselineskip\global\advance\SecC1
+%\leftline{\bf\the\SecC.~#1}\par\nobreak\smallskip}
+%
+%\sec{First section}
+%\label{sec:first}
+%This is section~\ref{sec:first} on page~\pageref{sec:first}.
+%Compare section~\ref{sec:second} on page~\pageref{sec:second}.
+%
+%\vfill\eject
+%
+%\sec{Second section}
+%\label{sec:second}
+%This is section~\ref{sec:second} on page~\pageref{sec:second}.
+%Compare section~\ref{sec:first} on page~\pageref{sec:first}.
+%
+%\bye
+%%

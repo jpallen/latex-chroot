@@ -1,0 +1,173 @@
+%%
+%% This is file `adrdir.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% adrconv.dtx  (with options: `dir')
+%% Copyright (c) 2001 Axel Kielhorn
+%% 
+%% This file will generate fast loadable files from adrconv.dtx when
+%% run through LaTeX or TeX.
+%% 
+%% This file is part of the adrconv bundle.
+%% 
+%% This file can be distributed and/or modified under the conditions of
+%% the LaTeX Project Public License, either version 1.2 of the license
+%% or (at you option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-procejt.org/lppl.txt
+%% and version 1.2 or later ist part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%% 
+%% The adrconv bundle consists at least of the files adrconv.dtx,
+%% adrconv.ins and adrguide.tex.
+%% 
+%% You are NOT ALLOWED to change this file.
+%% 
+%% You are NOT ALLOWED to distribute this file without adrconv.dtx,
+%% adrconv.ins or adrguide.tex.
+\ifx\ProvidesFile\undefined\def\ProvidesFile#1[#2]{}\fi
+\ProvidesFile{%
+   adrdir%
+  .tex%
+  }
+  [2002/06/23 v1.2b LaTeX2e
+  Interactive address directory generation]
+\documentclass[headsepline,10pt,twoside]{scrartcl}
+\newcommand*\jj {j}
+\newcommand*\ja {ja}
+\newcommand*\y  {y}
+\newcommand*\yes{yes}
+\newread\ttyin
+\newcommand*{\gobble}[1]{}
+\def\iden#1{#1}
+\def\strip#1#2 \gobble{\def #1{#2}}
+\def\defpar{\par}
+\def\Ask#1#2{%
+    \message{#2}\read\ttyin to #1\ifx#1\defpar\def#1{}\else
+    \iden{\expandafter\strip\expandafter#1#1\gobble\gobble}
+    \gobble\fi}
+\newif\ifGerman
+\newif\ifRunningHead
+\newdimen\leftfield
+\newdimen\rightfield
+\newdimen\adrindent
+\oddsidemargin  -1in
+\evensidemargin -1in
+\newcommand*\adrfile{}
+\newcommand*\adrtitle{}
+\typeout{^^J%
+   *** dir.tex v2.0 by Frank Neukam <01 Dec 1993>^^J%
+   *** LaTeX2e-changes by Markus Kohm 1994/10/29^^J%
+   *** ADRconv-changes by Axel Kielhorn 1999^^J%
+   *** ngerman-changes by Markus Kohm 2001^^J%
+   ^^J%
+   To create a address-directory just answer the questions:^^J%
+   ^^J}
+\Ask\answer{Use german? [y/n]^^J%
+  Mit deutscher Sprachanpassung? [j/n]}
+\ifx\jj\answer\Germantrue\else
+\ifx\ja\answer\Germantrue\else
+\ifx\y\answer\Germantrue\else
+\ifx\yes\answer\Germantrue\else
+                \Germanfalse\fi\fi\fi\fi
+\ifGerman
+  \def\germanpackage{ngerman}
+  \Ask\answer{Mit alter deutscher Rechtschreibung? [j/n]}
+  \ifx\jj\answer\def\germanpackage{german}\else
+    \ifx\ja\answer\def\germanpackage{german}\else
+      \ifx\y\answer\def\germanpackage{german}\else
+        \ifx\yes\answer\def\germanpackage{german}\fi\fi\fi\fi
+     \usepackage{\germanpackage}
+\fi
+\InputIfFileExists{dir.cfg}{%
+  \typeout{Load local configuration-file.}}{%
+  \typeout{No local configuration-file found.}}
+\Ask\adrfile{^^J%
+  Name of address-file (without .adr)?^^J%
+  Name der Adressdatei (ohne .adr)?}
+\Ask\adrtitle{^^J%
+  Title of directory/list?^^J%
+  Titel des Verzeichnisses?}
+\Ask\adrformat{^^J%
+  Name of the layout^^J%
+  Layoutname?}
+\Ask\answer{^^J%
+  With running head? [y/n]^^J%
+  Namen in der Kopfzeile? [j/n]}
+\ifx\jj\answer\RunningHeadtrue\else
+\ifx\ja\answer\RunningHeadtrue\else
+\ifx\y\answer\RunningHeadtrue\else
+\ifx\yes\answer\RunningHeadtrue\else
+               \RunningHeadfalse\fi\fi\fi\fi
+\ifRunningHead
+\usepackage{scrpage}
+\renewpagestyle{headings}{%
+  (0pt,0pt)%
+  {\strut\rightmark\ -- \leftmark\hfil}%
+  {\hfil\strut\rightmark\ -- \leftmark}%
+  {\hfil\strut\rightmark\ -- \leftmark\hfil}%
+  (\textwidth,.4pt)%
+  }{%
+  (0pt,0pt)%
+  {\pagemark\hfill}%
+  {\hfill\pagemark}%
+  {\hfill\pagemark\hfill}%
+  (0pt,0pt)}
+\fi
+\def\headfont{\sffamily\bfseries}
+\ifx\adrformat\empty
+  \def\adrformat{adrdir}
+\fi
+\InputIfFileExists{\adrformat.cfg}{}{%
+  \typeout{^^J%
+    *** File \adrformat.cfg not found!^^J%
+    *** Datei \adrformat.cfg nicht gefunden!^^J%
+    ^^J}
+  }
+\begin{document}
+\ifRunningHead
+  \def\adrchar#1{\typeout{#1}}
+\else
+  \def\adrchar#1{\clearpage\typeout{#1}\markboth{#1}{#1}}
+\fi
+\def\adrentry#1#2#3#4#5#6#7#8{\hspace{\adrindent}%
+ \parbox[b]{\leftfield}
+   {\raggedright \hspace{-\adrindent}{\sc #1}%
+    \def\tempa{#1}\ifx \tempa\empty \else , #2\fi%
+    \def\tempa{#3}\ifx \tempa\empty \else \par #3\fi%
+    \def\tempa{#7}\ifx \tempa\empty \else \par (#7)\fi%
+   }%
+ \hfill%
+ \parbox[b]{\rightfield}
+   {\raggedleft%
+    \def\tempa{#8}\ifx \tempa\empty \else {\scriptsize #8}\par \fi
+    {\small #4}%
+   }\par%
+ \ifRunningHead
+   \markboth{#1}{#1}
+ \fi
+}
+\ifx\adrfile\empty \else
+     \InputIfFileExists{\adrfile.adr}{%
+     \pagestyle{empty}
+     \null\vfil
+     \begin{center}
+       {\Large \sfb \adrtitle\par}
+     \end{center}
+     \vfil\vfil\null
+     \cleardoublepage
+     \raggedbottom
+     \pagestyle{headings}
+     }{%
+     \typeout{^^J%
+              *** File \adrfile.adr not found!^^J%
+              *** Datei \adrfile.adr nicht gefunden!^^J%
+              ^^J}
+     }
+\fi
+\end{document}
+\endinput
+%%
+%% End of file `adrdir.tex'.

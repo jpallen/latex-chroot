@@ -1,0 +1,37 @@
+%% This file is part of the ANTOMEGA project version 0.6
+%% -----------------------------------------------------
+%% 
+%% It may be distributed under the terms of the LaTeX Project Public
+%% License, as described in lppl.txt in the base LaTeX distribution.
+%% Either version 1.0 or, at your option, any later version.
+
+%% Copyright (c) 1999 John Plaice and Yannis Haralambous
+%% The information was provided by Martin Duerst.
+%% Modifications 2003 by Alexej Kryukov
+%% Please report errors to: A.M. Kryukov <basileia@yandex.ru>
+
+%% This file was taken from the original omega package and renamed
+%% from inutf8.otp to uniutf2uni.otp to avoid name clashes
+%% in case of independent developement.
+
+%% Conversion to Unicode from UTF-8.
+
+%% The only difference between this file and the original
+%% inutf8.otp is different definition for conversion symbols not
+%% defined in utf8. The new definition allows to mix utf-8 text
+%% with Omega-styled Unicode representation (like ^^^^****).
+
+input:  1;
+output: 2;
+
+expressions:
+
+@"00-@"7F
+  => \1;
+(@"C0-@"DF)(@"80-@"BF)
+  => #(((\1-@"C0)*@"40) + (\2-@"80));
+(@"E0-@"EF)(@"80-@"BF)(@"80-@"BF)
+  => #(((\1-@"E0)*@"1000) + ((\2-@"80)*@"40) + (\3-@"80));
+
+% All other symbols including Unicode characters.
+. => \1;

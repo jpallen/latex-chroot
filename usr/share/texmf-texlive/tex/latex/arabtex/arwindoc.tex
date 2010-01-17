@@ -1,0 +1,118 @@
+% arwindoc.tex
+% 9 Apr 1997
+% 
+\documentclass[12pt]{article}
+\usepackage{arabtex}
+
+\begin {document}
+
+
+\begin{table}[htbp]
+\begin{center}
+\novocalize \setarab
+\small \tabcolsep 4.5pt
+
+\def \sun {% sun symbol
+\unitlength 0.2em
+\begin{picture}(4,4)(-1.4,-1.2)
+\put(0.6,0.2){\circle{1.6}}
+\put(+1.0,+1.0){.}  \put(+1.0,-1.0){.}
+\put(-1.0,-1.0){.}  \put(-1.0,+1.0){.}
+\put(+0.8,+0.8){.}  \put(+0.8,-0.8){.}
+\put(-0.8,-0.8){.}  \put(-0.8,+0.8){.}
+\end{picture}}
+
+\def \mc #1{\multicolumn{2}{c|}{#1}}
+
+
+\begin{tabular}
+{|c||@{}c@{}|@{}c@{}|c|@{}c@{}|@{}c@{}|c|c|c|c|c|c|@{}c@{}|c|c|c|c|@{}c@{%
+\vrule height 15pt depth 9pt width 0pt}||}
+\hline
+   & 00& 01& 02&\mc{03}&04&05 &06&07&08&09&10&11&12&  13  &  14   &  15 \\
+\hline
+\hline
+00 &NUL&DLE&SP &0& \<0> &@& P & ` & p && &NSP& & & \<_d> &  & \<|B"aN> \\
+\hline
+01 &SOH&DC1&!  &1& \<1> &A& Q & a & q &&&\<,> && \<-'>  & \<r>  & \<l> & \<|B"uN> \\
+\hline
+02 &STX&DC2&"  &2& \<2> &B& R & b & r &&&&& \<'A>  & \<z>  &   & \<|B"iN> \\
+\hline
+03 &ETX&DC3&\# &3& \<3> &C& S & c & s &&&&& \<'a>  & \<s>  & \<m>  & \<|B"a> \\
+\hline
+04 &EOT&DC4&\$ &4& \<4> &D& T & d & t &&&&&\<w"'>& \<^s> & \<n>  &       \\
+\hline
+05 &ENQ&NAK&\% &5& \<5> &E& U & e & u &&&&& \<'i>  & \<.s> &  \<h> & \<|B"u> \\
+\hline
+06 &ACK&SYN&\& &6& \<6> &F& V & f & v &&&&& \<Y"'->& \<.d> & \<w>  & \<|B"i>  \\
+\hline
+07 &BEL&ETB& ' &7& \<7> &G& W & g & w &&&&& \<a>   &  &   &  \\
+\hline
+08 &BS &CAN& ) &8& \<8> &H& X & h & x &&&&& \<b>   & \<.t> &   & \<|BB>  \\
+\hline
+09 &HT &EM & ( &9& \<9> &I& Y & i & y &&&&& \<T>   & \<.z> &   &   \\
+\hline
+10 &LF &SUB&$*$&\mc{:}  &J& Z & j & z &&&&\<;>& \<t>   & \<`> &  &  \<|B"> \\
+\hline
+11 &VT &ESC&$+$&\mc{;}  &K&\verb"]"&k&\verb"}"&&&&&\<_t>&\<.g>& &  \\
+\hline
+12 &FF &IS4& , &\mc{$>$}&L&\verb"\"&l&\verb"|"&&&& &\<^g>&\<B|B|B> & \<Y> & \\
+\hline
+13 &CR &IS3&$-$&\mc{$=$}&M&\verb"["&m&\verb"{"&&&SHY& &\<.h>& \<f> & \<y> & \\
+\hline
+14 &SO &IS2& . &\mc{$<$}&N&\verb"^"&n&\verb"~"& & & & &\<_h>&\<q>&  & \\
+\hline
+15 &SI &IS1& / &\mc{?}  &O&\verb"_"&o&  &  & & & \<?> &\<d> &\<k>&  &DEL\\
+\hline
+\end{tabular}
+\end{center}
+%\caption{MS Windows with arabic support code table}\label{awin}
+\caption{MS Arabic Windows code table (CP 1256)}\label{awin}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The file \verb"arabwin.sty" contains a reading module for the
+{\em MS-Windows with arabic support} code.
+It is installed by the \LaTeX\ option \verb"arabwin"
+or by \verb"\input arabwin.sty".
+The module is activated by \verb"\setcode {arabwin}";
+all following Arabic text will be considered to be coded according to
+the {\em MS-Windows with arabic support} standard.
+The ArabTeX notation may be reactivated by \verb"\setcode {arabtex}".
+                                                  \index{code!MS-Windows}
+                                                  \index{MS-Windows}
+                                                  \index{code!8-bit}
+                                                  \index{\setcode{arabwin}}
+                                                  \index{\setcode{arabtex}}
+
+The {\em MS-Windows with arabic support} code (see Table \ref{awin})
+is an 8-bit code closely related both to 7-bit ASCII; 
+whereas the lower 128 positions are identical to
+ASCII (ISO 646), some of the upper 128 positions contain the Arabic characters
+plus additional graphic and control characters.
+                                                  \index{code!ASCII}
+
+We reuse the ASMO 449
+reading routines, after suitable modification of the input. 
+This only works correctly if the input text does not contain 
+genuine ASCII letters, as we
+project the Arabic characters onto their locations in ASMO 449. 
+Please note that only the characters that appear in Table \ref{awin}
+are correctly processed.
+Some of the code switching messages in the log file are spurious; 
+do not worry.
+
+The notes on vowelization and transliteration of ASMO 449 apply also.
+
+The driver file indicated for ASMO 449 will be usable after the
+obvious modifications; however, your \TeX\ installation must be
+capable of processing 8-bit data input.
+This is nowadays usually the case; otherwise you can try to
+locally find some utility program that will strip the highest order bit
+off the characters in your file, and process the result via ASMO 449.
+
+\end  {document}
+%%%%%%%%%%%%%%%%%%%%%%%% EOF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+

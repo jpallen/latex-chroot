@@ -1,0 +1,156 @@
+%%
+%% This is file `abc.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% abc.dtx  (with options: `package')
+%% 
+%%  Copyright 2006 Enrico Gregorio
+%% 
+%%  This program is provided under the terms of the
+%%  LaTeX Project Public License distributed from CTAN
+%%  archives in directory macros/latex/base/lppl.txt.
+%% 
+%%  Author: Enrico Gregorio
+%%          Enrico dot Gregorio at univr dot it
+%% 
+%%  This work has the LPPL maintenance status "author-maintained".
+%% 
+\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+\ProvidesPackage{abc}
+  [2006/03/22 v1.0 Enrico Gregorio]
+\newif\ifabc@shellescape
+\newif\ifabc@generate
+\newif\ifabc@warning
+\DeclareOption{noshellescape}{\abc@shellescapefalse\abc@warningtrue}
+\DeclareOption{shellescape}{\abc@shellescapetrue}
+\DeclareOption{nogenerate}{\abc@generatefalse}
+\DeclareOption{generate}{\abc@generatetrue}
+\def\abc@epsext{eps}
+\DeclareOption{ps2eps}{\def\abc@pscmd{ps2eps -f}}
+\DeclareOption{ps2epsi}{\def\abc@pscmd{ps2epsi}\def\abc@epsext{epsi}}
+\DeclareOption{ps2epsidos}{\def\abc@pscmd{ps2epsi}\def\abc@epsext{epi}}
+\ExecuteOptions{generate,shellescape,ps2eps}
+\ProcessOptions\relax
+\RequirePackage{verbatim}
+\RequirePackage{keyval}
+\RequirePackage{graphicx}
+\RequirePackage{ifpdf}
+\newcommand{\abc@cmd}{abcm2ps}       % virtually no choice
+\newcommand{\abc@parm}{-O= -c}       % -O= MUST stay
+\newcommand{\abc@epstopdfcmd}{epstopdf}
+\newcommand{\abc@pdfext}{pdf}
+\def\normalabcoutputfile{out-abc}
+\def\abc@tempfile{\normalabcoutputfile}
+\def\abc@opt{}
+\let\abc@postopt\@empty
+\ifpdf
+  \let\abc@finalext\abc@pdfext
+\else
+  \let\abc@finalext\abc@epsext
+\fi
+\newif\ifabc@center
+\abc@centertrue
+\newcommand{\abcwidth}{\linewidth}  % only fractions of \linewidth
+\newwrite\abc@out
+\def\abc@startgen{%
+  \@bsphack
+  \immediate\openout\abc@out\abc@tempfile.abc
+  \let\do\@makeother\dospecials
+  \catcode`\^^M\active \catcode`\^^I=12
+  \def\verbatim@processline{%
+  \immediate\write\abc@out
+    {\the\verbatim@line}}%
+  \verbatim@start}
+\def\abc@finishgen{%
+  \immediate\closeout\abc@out
+  \@esphack
+  \abc@process
+}
+\def\abc@doshellcommand{%
+  \immediate\write18{%
+    \abc@cmd\space
+    \abc@parm\space
+    \abc@opt\space
+    \abc@tempfile.abc
+    \ifx\abc@postopt\@empty
+    \else\space\abc@postopt\fi}%
+  \immediate\write18{%
+    \abc@pscmd\space\abc@tempfile.ps}%
+  \ifpdf
+    \immediate\write18{%
+      \abc@epstopdfcmd\space\abc@tempfile.\abc@epsext}%
+  \fi
+}
+\def\abc@nodoshellcommand{%
+\immediate\write\abc@outsh{%
+  \abc@cmd\space
+  \abc@parm\space
+  \abc@opt\space
+  \abc@tempfile.abc
+  \ifx\abc@postopt\@empty
+  \else\space\abc@postopt\fi}%
+\immediate\write\abc@outsh{%
+  \abc@pscmd\space\abc@tempfile.ps}%
+\ifpdf
+  \immediate\write\abc@outsh{%
+    \abc@epstopdfcmd\space\abc@tempfile.\abc@epsext}%
+\fi
+  }
+\AtEndDocument{%
+  \ifabc@warning
+    \PackageWarningNoLine{abc}{%
+    Remember to generate the [eps,pdf] files before compiling%
+    \MessageBreak
+    again. Use the file \abc@tempfile.sh for a list or as a script}%
+  \fi}
+\ifabc@shellescape
+  \let\abc@process\abc@doshellcommand
+\else
+  \newwrite\abc@outsh
+  \immediate\openout\abc@outsh\abc@tempfile.sh
+  \AtEndDocument{\closeout\abc@outsh}
+  \let\abc@process\abc@nodoshellcommand
+\fi
+\ifabc@generate
+  \let\abc@start\abc@startgen
+  \let\abc@finish\abc@finishgen
+\else
+  \let\abc@start\comment
+  \let\abc@finish\endcomment
+\fi
+\def\abc{\@ifnextchar[\abc@grab{\abc@grab[]}}
+\define@key{abc}{name}{\def\abc@tempfile{#1}}
+\define@key{abc}{options}{\def\abc@opt{#1}}
+\define@key{abc}{postoptions}{\def\abc@postopt{#1}}
+\define@key{abc}{program}{\def\abc@cmd{#1}\let\abc@parm\@empty}
+\define@key{abc}{width}{\def\abc@width{#1}}
+\define@key{abc}{center}[true]{\csname abc@center#1\endcsname}
+\def\abc@grab[#1]{\let\abc@width=\abcwidth\setkeys{abc}{#1}\abc@start}
+\def\endabc{%
+  \abc@finish
+  \trivlist\item[]\ifabc@center\centering\fi
+  \IfFileExists{\abc@tempfile.\abc@finalext}
+    {\includegraphics[width=\abc@width]{\abc@tempfile.\abc@finalext}}%
+    {\global\abc@warningtrue\fbox{\abc@tempfile}}%
+  \endtrivlist
+}
+\def\abcinput{\@ifnextchar[\abc@grabinput{\abc@grabinput[]}}
+\def\abc@grabinput[#1]#2{\let\abc@width=\abcwidth\setkeys{abc}{#1}%
+  \begingroup\def\abc@tempfile{#2}%
+  \IfFileExists{\abc@tempfile.abc}
+  {%
+    \abc@process
+    \begin{center}
+    \IfFileExists{\abc@tempfile.\abc@finalext}
+      {\includegraphics[width=\abc@width]{\abc@tempfile.\abc@finalext}}%
+      {\fbox{\abc@tempfile}}%
+    \end{center}%
+  \endgroup
+  }
+  {\PackageWarning{abc}{No file \abc@tempfile.abc found}}%
+}
+\endinput
+%%
+%% End of file `abc.sty'.

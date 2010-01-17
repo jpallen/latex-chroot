@@ -1,0 +1,309 @@
+% simpsons.mf by Raymond Chen (rjc@math.princeton.edu) 
+ 
+mode_setup; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Parameters (and typical values) 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Pen control 
+% 
+% u#            the basic unit. 
+%               A choice of 1/16in# makes Lisa fit into a 1.5" square. 
+% 
+% thin#         The pen used for everything, unless otherwise noted. 
+%               A value of 1/18u# produces a razor-sharp-ish pen, 
+%               good for low resolution work (and which scales nicely). 
+%               But a value of 1/9u# produces a slightly thicker line 
+%               which might show up better. 
+%               And a value of 1/5u# produces a heavy pen, more in keeping 
+%               with MG's drawing style. 
+% 
+% fine#         For fine detail, like the atom logo on the SNPP cooling tower. 
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Physical attributes for everybody 
+% 
+% tau_top       Curviness of the top part of the little `t' that 
+%               forms the ridges inside the ear.  Recommend 45. 
+% 
+% tau_side      Curviness of the side part of the little `t' that 
+%               forms the ridges inside the ear.  Recommend 45. 
+% 
+% dimple_depth  Amount of curve (in degrees) to give the dimple. 
+%               Positive value makes the cheeks puffier. 
+%               Negative value makes the dimple deeper. 
+%               Recommend -10. 
+% 
+% innocence#    Size of pupils.  Suggest 0.5u#. 
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Controls for the ladies 
+% 
+% lace#         The pen used for necklaces.  Recommend = thin#. 
+% 
+% pearl#        Size of pearls in the necklace.  Set pearl < 0 
+%               to suppress the necklace altogether. 
+%               Recommend 1.9u#. 
+% 
+% mascara       Thickness of the eyelashes, relative to thin#. 
+%               1.5 means eyelashes are 1.5 times thicker than regular strokes. 
+%               Recommend a value of 1.0. 
+% 
+% seductiveness Curliness of the eyelashes.  In degrees.  Suggest 5. 
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Controls for the kids 
+% 
+% spikiness     Controls spikiness (tension) of Lisa and Maggie's hair. 
+%               Lower numbers make it wavier, 
+%               higher numbers make it spikier.  5 seems about right. 
+% 
+% kemptness#    How uniform the spikes of Bart's hair are. 
+%               Higher values make Bart's hair more erratic. 
+%               A value of 0 makes them perfectly evenly spaced. 
+%               I think 0.05u# looks about right. 
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Controls for Homer 
+% 
+% starch        How much Homer's collar points flare outwards. 
+%               Larger values make Homer's collar stick out more. 
+%               In degrees 0..90.  Recommend 30. 
+% 
+% machismo      How much the front of Homer's shirt opens. 
+%               Larger values make it more open.  Degrees 0..90. Recommend 60. 
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Controls for Marge 
+% 
+% curlers       How large to make the `bumps' the make up Marge's hair. 
+%               In degrees.  Suggest 30. 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+u# = 1/80in#; 
+%thin# = 1/9 u#;         % heavy lines 
+thin# = 1/5 u#;        % realistically heavy 
+fine# = 1/9u#; 
+ 
+tau_top := 45; 
+tau_side := 45; 
+dimple_depth = -10; 
+innocence# := .5u#; 
+ 
+lace# = thin#; 
+pearl# = 1.9u#; 
+mascara = 1.0; 
+seductiveness := 7; 
+ 
+spikiness := 5; 
+kemptness# := 1/20u#; 
+ 
+starch := 30; 
+machismo := 60; 
+ 
+curlers := 30; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Preparing to do business 
+ 
+define_pixels(u, pearl, innocence, kemptness); 
+define_whole_blacker_pixels(thin, fine, lace); 
+ 
+pickup pencircle scaled thin; thinpen = savepen; 
+pickup pencircle scaled fine; finepen = savepen; 
+pickup pencircle scaled (thin * mascara); lashpen = savepen; 
+pickup pencircle scaled lace; lacepen = savepen; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Private macros 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+def openit =                            % so screen previewing works better 
+    openwindow currentwindow from origin to (screen_rows, screen_cols) 
+    at (0, screen_rows-1) enddef; 
+ 
+def :: = ..tension spikiness.. enddef;     % For drawing the kids' spiky hair. 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% preclip     -- clips the path p to start at q. 
+% postclip    -- clips the path p to end at r. 
+% prepostclip -- clips the path p to start at q and end at r. 
+% hardjoin    -- start on p and end on q, transition when they intersect 
+ 
+def preclip(expr p,q)= 
+    subpath (xpart(p intersectiontimes q), infinity) of p enddef; 
+def postclip(expr p, r) = reverse preclip(reverse p, r) enddef; 
+def prepostclip(expr p, q, r) = postclip(preclip(p, q), r) enddef; 
+ 
+secondarydef p hardjoin q = 
+    begingroup dz_ := p intersectiontimes q; 
+        subpath (0, xpart dz_) of p .. subpath(ypart dz_, infinity) of q 
+    endgroup enddef; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Drawing bent lines (i.e., shallowly curved).. Positive theta curves 
+% to the left, negative to the right. 
+ 
+vardef bend(expr theta, p, q) = 
+    p{(q-p) rotated  theta}.. 
+     {(q-p) rotated -theta}q enddef; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Drawing opaquely 
+def overdraw expr c = erase fill c; draw c enddef; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Labelling shifted points 
+vardef labelsoffset@#(expr offset)(text t) = 
+    if proofing > 1: forsuffixes $=t: makelabel@#(str$, z$+offset); endfor 
+    fi enddef; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Facial features 
+ 
+def dimplepath(expr p, q) =             % top coordinate first 
+    if proofing>1: hide( makelabel("", p); makelabel("", q); ) fi 
+%    p{(q-p) rotated  dimple_depth}.. 
+%     {(q-p) rotated -dimple_depth}q 
+    bend(dimple_depth, p, q) 
+enddef; 
+ 
+%   _s__q 
+% p/ | 
+%    | 
+%     \r 
+ 
+def drawtau(expr p, q, r, s) = 
+    if proofing>1: makelabel("p", p); makelabel("q", q); 
+                   makelabel("r", r); makelabel("s", s); fi 
+    c_ := p{(q-p) rotated tau_top}..q; 
+    draw c_; 
+%    draw postclip( (r{(s-r) rotated tau_side}.. 
+%                     {(s-r) rotated -tau_side}s), c_) enddef; 
+    draw postclip( bend(tau_side, r, s), c_) enddef; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Eyelashes either bend clockwise or counter-clockwise as they leave 
+% the eye. 
+% 
+% p = starting point, q = ending point, d = delta 
+%   d>0 = curves right, d<0 = curves left.  Bigger d means more curve. 
+ 
+def makelash(expr ofs,p,q,d) = 
+    if proofing>1: hide( makelabel("", ofs+p); makelabel("", ofs+q); ) fi 
+    bend(d*seductiveness, ofs+p, ofs+q) enddef; 
+ 
+% Right lashes clip to the right eye, left lashes to the left eye_ 
+vardef rlash@#(expr p,q,d) = 
+    lash@# := preclip(makelash( 
+                      if known z.eye_right: z.eye_right else:origin fi, p,q,d), 
+                      eye_right); 
+    draw lash@# enddef; 
+vardef llash@#(expr p,q,d) = 
+    lash@# := preclip(makelash( 
+                      if known z.eye_left: z.eye_left else:origin fi, p, q, d), 
+                      eye_left); 
+    draw lash@# enddef; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Marge's hair contains little puffs. 
+ 
+def puffhair(text t) =                  % t is a list of pairs 
+    hide( n_ := 0; for z=t: z_[incr n_] := z; 
+          if proofing>1: makelabel(decimal n_, z); fi endfor) 
+    z_1 
+        for k = 2 upto n_: 
+            {(z_[k] - z_[k-1]) rotated -curlers} .. 
+            {(z_[k] - z_[k-1]) rotated  curlers} z_[k] 
+        endfor enddef; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Character positions 
+ 
+def simpdochar(expr c, ht, wd, dp, name) = 
+    beginchar(c, ht, wd, dp); name enddef; 
+ 
+string current_char_name; 
+def pictureof(suffix c)(expr wd, ht, dp) = 
+   beginchar(2c, wd, ht, dp); 
+    current_char_name := str c; 
+    current_char_name & " looking right, no pupils" enddef; 
+ 
+def endpicture = 
+    pic_ := currentpicture; 
+    endchar; 
+ 
+    beginchar(incr charcode, charwd, charht, chardp); 
+    current_char_name & " looking left, no pupils"; 
+    currentpicture := pic_ reflectedabout ((.5w, 0), (.5w, h)); 
+    endchar; 
+    pic_ := nullpicture enddef; 
+ 
+def unreflectedpictureof(suffix c)(expr wd, ht, dp) = 
+    beginchar(c, wd, ht, dp); str c enddef; 
+ 
+let unreflectedendpicture = endchar; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Draw grid marks during proofing 
+ 
+def makebox(text rule) = 
+    for y = 0 step 4u.o_ until charht*hppp: 
+        rule((0, y), (w, y)); 
+    endfor 
+    rule((0, charht*hppp), (w, charht*hppp)); 
+    rule((0, chardp*hppp), (w, chardp*hppp)); 
+ 
+    for x = 0 step 4u until charwd*hppp: 
+        rule ((x, -d.o_), (x, h.o_)); 
+    endfor 
+    rule ((charwd*hppp, -d.o_), (charwd*hppp, h.o_)); 
+enddef; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Eye positions 
+% 
+% Eye positions are stored in the fontdimens. 
+ 
+def eyepos(expr p, a, b, c, d) = fontdimen 4 + 4p: a, b, c, d enddef; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Local variables 
+ 
+def local(text t, v) = 
+    forsuffixes $=v: save v; t v; endfor enddef; 
+ 
+def localpath text v = local(path)(v) enddef; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+Lisa = 1; 
+Homer = 2; 
+Bart = 3; 
+Marge = 4; 
+Maggie = 5; 
+Burns = 6; 
+ 
+proofing:=2; 
+% screenstrokes; 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+beginchar(0, 0, innocence#, 0); "A pupil (no width)"; 
+    fill fullcircle scaled innocence; 
+endchar; 
+ 
+% and character 1 is SNPP. 
+input snpp 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% The x-height is 1pt.  The purpose of this is so that pupil positioning 
+% can be done in ex-units, which will therefore scale properly if the 
+% font is loaded at nonstandard magnifications. 
+ 
+fontdimen 5: 1pt#; 
+ 
+input lisa 
+input homer 
+input bart 
+input marge 
+input maggie 
+input burns 
+end 

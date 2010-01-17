@@ -1,0 +1,608 @@
+% Make sure the macros we want to replace are loaded
+if unknown gen_acc : readfrom("gen_acc") fi
+numeric doing_u; doing_u=0; % flag to position diaeresis
+
+def rough(suffix $,@)(expr dot_size,depth,shear) =
+ pickup fine.nib; pos$(dot_size,90);
+ if square_dots: pos$'(dot_size,180); z$'=z$; dot($',$);  % squarish dot
+  comma_join_:=max(fine.breadth,floor .7dot_size);
+  comma_bot_:=max(fine.breadth,floor .5dot_size);
+  pos@0(comma_join_,180); pos@1(comma_join_,180);
+  pos@2(comma_bot_,180); y@0=y$; y@1=y$l; y@2=y@1+dot_size-depth;
+  x@0r=x@1r=x$'r; lft x@2r=good.x(x$-eps);
+  filldraw stroke z@0e--z@1e..z@2e;  % tail
+ else: pos@1(vair,90); pos@2(vair,180); pos@3(vair,-90);
+  z@1r=z$r; y@1l:=y$; lft x@2r=hround(x$-.5depth+.5shear);
+  x@3+.5vair=x$+.5dot_size+shear;
+  y@2=.5[y@1,y@3]; bot y@3r=vround(top y@1r-depth);
+  % position a vertical path through the left side of the bulb
+  x@1'=x@1-.5dot_size;
+  % At the intersection of that path with SL's tail, get the direction
+  pair d@@; d@@=( direction
+    (xpart( (z@2{down}...z@3) intersectiontimes ((x@1',0){up}--(x@1',y@1)))) 
+    of (z@2{down}...z@3));
+  % Tilt a pen at a right angle to that direction
+  pos@3'(vair,angle(d@@)-90);
+  % Place it at the intersection.  This will be the new end of the tail.
+  z@3'=directionpoint d@@ of(z@2{down}...z@3); 
+  y_:=ypart((z@1{left}...z@2{down}...z@3)
+   intersectiontimes (z$l{left}..{right}z$r)); if y_<0: y_:=1; fi
+  filldraw z$r{right}..subpath (0,y_) of (z$l{left}..{right}z$r)--cycle; % dot
+  filldraw stroke z@1e{left}...z@2e{down}...{d@@}z@3'e; fi  % tail
+ penlabels(@1,@2,@3); enddef;
+     
+def smooth(suffix $,@)(expr dot_size,depth,shear) =
+ pickup fine.nib; pos$(dot_size,90);
+ if square_dots: pos$'(dot_size,0); z$'=z$; dot($',$);  % squarish dot
+  comma_join_:=max(fine.breadth,floor .7dot_size);
+  comma_bot_:=max(fine.breadth,floor .5dot_size);
+  pos@0(comma_join_,0); pos@1(comma_join_,0);
+  pos@2(comma_bot_,0); y@0=y$; y@1=y$l; y@2=y@1+dot_size-depth;
+  x@0r=x@1r=x$'r; rt x@2r=good.x(x$-eps);
+  filldraw stroke z@0e--z@1e..z@2e;  % tail
+ else: pos@1(vair,90); pos@2(vair,0); pos@3(vair,-90);
+  z@1r=z$r; y@1l:=y$; rt x@2r=hround(x$+.5depth+.5shear);
+  x@3-.5vair=hround(x$-.5dot_size+shear);
+  y@2=.5[y@1,y@3]; bot y@3r=vround(top y@1r-depth);
+  path pp; pp = (z@2{down}...z@3);
+  % position a vertical path through the right side of the bulb
+  x@1'=x@1+.5dot_size;
+  % At the intersection of that path with SL's tail, get the direction
+  pair d@@; d@@=( direction
+    (xpart( (z@2{down}...z@3) intersectiontimes ((x@1',0){up}--(x@1',y@1)))) 
+    of (z@2{down}...z@3));
+  % Tilt a pen at a right angle to that direction
+  pos@3'(vair,angle(d@@)+90);
+  % Place it at the intersection.  This will be the new end of the tail.
+  z@3'=directionpoint d@@ of(z@2{down}...z@3); 
+  y_:=ypart((z@1{right}...z@2{down}...z@3)
+   intersectiontimes (z$l{right}..{left}z$r)); if y_<0: y_:=1; fi
+  filldraw z$r{left}..subpath (0,y_) of (z$l{right}..{left}z$r)--cycle; % dot
+  filldraw stroke z@1e{right}...z@2e{down}...{d@@}z@3'e; fi  % tail
+ penlabels(@1,@2,@3); enddef;
+     
+
+% Improve spacing with sprit plus accent groups.
+% The original spacing was governed by the placement of the accent.
+% One of the variables set the position of the accent bottom .5stem
+% to the right of center (plus other adjustments).  By increasing this 
+% to 1.2stem, we get the accent still within the set-width, but far enough
+% right that the breathings (which are placed relative to the bottom
+% of the accent) can be pulled to the left by .7stem.  
+% This ensures that there will be more than a stem width between
+% any element of breathing and any element of either acute or
+% grave.
+
+vardef spirit_acute(expr center) text type =
+numeric sp_bottom, sp_height;
+sp_bottom=h-sp_height=max(.8[h,x_height],x_height+o+separator);
+numeric dot_diam#; dot_diam# = 3/4dot_size#;
+define_whole_blacker_pixels(dot_diam);
+dot_diam:=max(fine.breadth,min(dot_diam,floor(2/3sp_height)));
+if serifs: x21-x22=1/6w;
+ x21+.5stem=hround(center+.25u+.5vair+(x21-x22)+1.2stem); %lft x22r ~ center+.25u
+else: rt x21r=hround (4/5w+.5stem); lft x22l=hround(center+.25u); fi
+ begingroup;
+  numeric saved_h;
+  numeric saved_x_height;
+  saved_x_height = x_height;
+  saved_h=h;
+  save h;
+  save x_height;
+  h=saved_h + .75vair;
+  x_height = saved_x_height + .3vair;
+generate_grave; penlabels(21,22);
+  endgroup;
+if 1type0: %spirit and accent separated by .1u (rough) or .25u (smooth)
+ x31=hround(lft x22 if serifs:r-.5sp_height else:l-.5dot_diam fi -.7stem -.25u);
+else: x31+.5dot_diam=hround(lft x22 if serifs:r else: l fi -.7stem-.1u); fi
+y31+.5dot_diam=h;
+if1type0:smooth else:rough fi (31,a,dot_diam,sp_height,0);
+enddef;
+     
+
+vardef spirit_grave(expr center) text type =
+numeric sp_bottom, sp_height;
+sp_bottom=h-sp_height=max(.8[h,x_height],x_height+o+separator);
+numeric dot_diam#; dot_diam# = 3/4dot_size#;
+define_whole_blacker_pixels(dot_diam);
+dot_diam:=max(fine.breadth,min(dot_diam,floor(2/3sp_height)));
+% x22 is set to the right of x21 by 1/6w.  The tilt is only 1/6w here.
+% x21 is set out to the right of the midpoint by the sum of .5stem and 
+% .25u.  Let's try a full stem width
+%if serifs: x22-x21=1/6w; x21-.5stem=hround(center+.25u);
+if serifs: x22-x21=1/6w; x21-1.2stem=hround(center+.25u);
+else: rt x22r=hround (4/5w+.5stem); lft x21l=hround(center+.25u); fi
+ begingroup;
+  numeric saved_h;
+  numeric saved_x_height;
+  saved_x_height = x_height;
+  saved_h=h;
+  save h;
+  save x_height;
+  h=saved_h + .75vair;
+  x_height = saved_x_height + .3vair;
+generate_grave; penlabels(21,22);
+  endgroup;
+% In the original, the following spacing adjustments tracked |spirit_acute|.
+% This was wrong way round.  When the accent is barytone, lft x21l is nowhere
+% near the left edge of the picture, and the crowding effect is the reverse
+% of what it is with the oxytone accent.  Added an extra .15u to make
+% up for the first problem, and an extra .45u to relieve the crowding
+% against the smooth breathing.  But the more general widening set up
+% above is more significant. PAM, 10 May, 1997
+% remember that "type" is a macro replaced by either < or >
+if 1type0: %spirit and accent separated by .65u (rough) or .85u (smooth)
+ x31=hround(lft x21l-.5 if serifs:sp_height else:dot_diam fi -.7stem -.45u);
+else: x31+.5dot_diam=hround(lft x21l - .7stem -.65u); fi
+y31+.5dot_diam=h;
+%y31+dot_diam=h;
+if1type0:smooth else:rough fi (31,a,dot_diam,sp_height,0);
+enddef;
+
+% Reshape the iota subscript, but only for resolutions above 600
+% Thin it out so that it can have a slight hook.
+% Lengthen both the simple and the refined form, so that the
+% simple form drops as low as the tail of eta, and the refined form
+% drops to the bottom of the shoulder.  Since we only make it up
+% three times, we do not save the picture, but this means that
+% all the necessary values must be known when the three iota
+% subscript characters are written.  The iota subscript under
+% eta will be made shorter to open a larger space under the
+% right vertical stroke of eta.
+
+def iota_sub(expr pos_stem) =
+if known pic.iota:
+  addto currentpicture also pic.iota shifted (hround(pos_stem),0);
+else:
+  picture temp_picture; temp_picture=currentpicture; clearit;
+  pickup fine.nib;
+  x51=0; pos51(stem,180); top y51=vround(-o-2separator);
+  x52=x51; pos52(stem,180);
+  % Use the original simple subscript for lower resolutions.
+  if ( ((pixels_per_inch / mag) < 599) or (pixels_per_inch < 420) ) :
+    bot y52=-desc_depth;
+    filldraw circ_stroke z52e--z51e;
+  else :
+    % longer iota subscript with narrower tapering stem and slight hook
+    bot y52=-iota_dp;
+    pos51'(.6[hair,stem],180); pos51''(.3[hair,stem],180);
+    pos52'(.3[hair,stem],270); pos53'(.2[hair,stem],0);
+    x51'r = x51''r = x51r; 
+    bot y52'r = -iota_dp; x53'r = x51l+hair; x52' = 1/2[x51',x53'];
+    y51' = y51-separator; top y53' = 5/6[y51,y52]; 
+    y51'' = -desc_depth; % y51'' = y53';
+    filldraw double_circ_stroke z51'e--z51''e..z52'e..z53'e;
+  fi;
+% Need to make sure that this is drawn each time (it's only four times).
+%%%%%  if not working_hard : picture pic.iota; pic.iota=currentpicture; fi
+  currentpicture:=currentpicture shifted (hround(pos_stem),0);
+  addto currentpicture also temp_picture;
+fi;
+enddef;
+
+% Rewrite the width and height management of circumflex
+% Put limit on horizontal spread, and give the plain
+% circumflex more roll (depends on parameter circ_ht# in parameter file.)
+% change the shape to supply points at the ends and a thickening at the
+% center.  This is more traditional and gives more shape to the
+% squeezed variant.  The ends are set to vair, and the middle to
+% mid_width + vair.  (Silvio Levy's mid_width is actually quite small and
+% is used at the ends as well as the mid-point.  I use it at the intermediate 
+% points.  The result harmonizes well with other proportions.
+
+def generate_circumflex(expr center,squeeze)=
+numeric mid_width; mid_width=if squeeze:.1 else: .5 fi [vair,stem];
+if serifs:
+%pickup fine.nib; pos21(hround(mid_width-eps),180); pos22(vair,90);
+% pos23(mid_width,90); pos24(vair,90); pos25(hround(mid_width-eps),180);
+pickup fine.nib; pos21(hround(vair-eps),180); pos22(mid_width,90);
+ pos23(mid_width+vair,90); pos24(mid_width,90); pos25(hround(vair-eps),180);
+ % limit spread of circumflex while retaining scaling for narrow characters.
+ lft x21r=w-rt x25l=hround (center-if(w<9u):w/3 else:3u fi); 
+ x22-x21=x23-x22=x24-x23=x25-x24;
+ % The "squeezed" circumflex tops out at body_height.  
+ bot y21=bot y24l=vround(if squeeze:.75else:.6fi[x_height,h]-vair);
+ top y22r=top y25=h; y23=.5[y22,y24];
+ filldraw stroke z21e{up}...z22e{right}..z23e..{right}z24e...{up}z25e; % stroke
+else:
+ pos21(vair,-180); pos23(vair,0); y21=y23;
+ lft x21r=hround(center-w/3); rt x23r=hround(center+w/3);
+ bot y23=vround max(x_height+o+separator,
+   if squeeze: 2/3 else: 1/3 fi [x_height,h]-.5mid_width);
+ x22=center; pos22(mid_width,90); top y22r=h;
+ filldraw stroke z21e{up}...z22e...{down}z23e;
+fi
+enddef;
+     
+% The spirit_circumflex height ( Circ_ht#) has been raised
+% to give more room to the breathing under it
+% Also rewrite the position of x31 below
+
+vardef spirit_circumflex(expr center) text type=
+generate_circumflex(center,true);       %variable `squeeze'
+numeric sp_bottom, sp_height, sp_top, box_top;
+box_top=bot if serifs: y21l else: y22l fi;
+sp_top=sp_bottom+sp_height=vround(.15[box_top,x_height]);
+sp_top+sp_bottom=box_top+x_height;
+numeric dot_diam#; dot_diam# = 5/8dot_size#;
+define_whole_blacker_pixels(dot_diam);
+pickup fine.nib;
+dot_diam:=max(fine.breadth,min(dot_diam,floor(2/3sp_height-eps)));
+x31 if1type0:+.5dot_diam fi=hround(center);
+% The code that was here was equivalent to x31=hround(center);
+% By shifting x31 leftward only for the smooth breathing, we move the
+% "optical center" of the smooth breathing to about where
+% the "optical center" of the rough breathing is.  This relieves
+% the crowding under the downcurve of the circumflex.
+y31+.5dot_diam=vround(sp_top);
+if1type0:smooth else:rough fi (31,a,dot_diam,sp_height,0);
+penlabels(31);
+enddef;
+     
+% Spread out the accented diareses; pull acute a bit to the left 
+% and shove grave a bit to the right (1/8u in both instances).
+% Raise the accent slightly, and shorten it by changing
+% h and x_height within a save group. 10 May, 1997.
+% The angle of the accent is governed by the width of iota, since
+% this gives the cleanest association of accent and diaeresis.
+% The older calculation depended on the width of the underlying character,
+% which flattens out the angle and makes the accent crowd the dot it
+% is closest to.
+% An adjustment is required to raise the dots away from the tips
+% of the upsilon.  Once they are spaced out, they bleed into the
+% character.  This undoes much of the effect of the raising of
+% the accent mentioned above, but since prau+ is about the only
+% even slightly common root with a upsilon diaeresis, this does not
+% too much matter.
+
+vardef diaeresis_acute(expr center)=
+  if serifs: x21-x22=1.25u; x21+.5stem=hround(center+5/6(x21-x22)+.5stem-1/8u);
+  else: rt x21r=hround (3.75u+.5stem); lft x22l=hround(center-.5vair); fi
+  begingroup;
+  numeric saved_h;
+  numeric saved_x_height;
+  saved_x_height = x_height;
+  saved_h=h;
+  save h;
+  save x_height;
+  h=Circ_ht;
+  x_height = saved_x_height + 1.5(h - saved_h);
+  generate_grave; penlabels(21,22);
+  endgroup;
+  generate_diaeresis(center,.9dot_size,2.25dot_size,
+    if doing_u > 0: .35 else : .5 fi [h,x_height],x_height+separator);
+enddef;
+     
+vardef diaeresis_grave(expr center)=
+  if serifs: x22-x21=1.25u; x21-.5stem=hround(center-5/6(x22-x21)-.5stem+1/8u);
+  else: lft x21l=hround (1.25u-.5stem); rt x22r=hround(center+.5vair); fi
+  begingroup;
+  numeric saved_h;
+  numeric saved_x_height;
+  saved_x_height = x_height;
+  saved_h=h;
+  save h;
+  save x_height;
+  h=Circ_ht;
+  x_height = saved_x_height + 1.5(h - saved_h);
+  generate_grave; penlabels(21,22);
+  endgroup;
+  generate_diaeresis(center,.9dot_size,2.25dot_size,
+    if doing_u > 0: .35 else : .5 fi [h,x_height],x_height+separator);
+enddef;
+     
+vardef generate_underdot(expr center,base)=
+  pickup tiny.nib;
+  pos31(dot_diam,0); pos32(dot_diam,90); 
+  x31l=hround(center+(x31l-x31)); x31=x32;
+  y32l=vround(base); y31=y32;  dot(31,32);
+  penlabels(31,32);
+enddef;
+
+% Set up remapping of Grave and Acute, Asper and Lenis.
+% This allows a more natural setting of single quotes, apostrophe 
+% and angle brackets.
+% Move two accents out of the way of Ibycus
+% Xi and digamma. Correct height of "Smooth breathing
+% with grave" and "Rough breathing with circumflex"
+% composites.
+% Slight redesign of freestanding "Iota subscript".
+% Reposition Breve and Macron, but these will usually
+% be got from the prosody font anyway.
+%
+def selectaccent expr t =
+  currenttitle:= t;
+  if t = "Grave accent" :
+    code_offset := bary_tone - ASCII"`" ;  let next_ = use_it_
+  elseif t = "Acute accent" :
+    code_offset := oxy_tone - ASCII"'" ;  let next_ = use_it_
+  elseif t = "Rough breathing" : let next_ = lose_it_
+  elseif t = "Smooth breathing" : let next_ = lose_it_
+  elseif t = "Rough breathing with acute" : let next_ = lose_it_
+  elseif t = "Rough breathing with grave" : let next_ = lose_it_
+  elseif t = "Rough breathing with circumflex" : let next_ = lose_it_
+  elseif t = "Smooth breathing with acute" : let next_ = lose_it_
+  elseif t = "Smooth breathing with grave" : let next_ = lose_it_
+  elseif t = "Smooth breathing and circumflex" : let next_ = lose_it_
+  elseif t = "Diaeresis with circumflex" : let next_ = lose_it_
+  elseif t = "Iota subscript" : let next_ = lose_it_
+  elseif t = "Breve accent" :
+    code_offset := breve - oct"036" ;  let next_ = use_it_
+  elseif t = "Macron (bar) accent" :
+    code_offset := longum - oct"037";  let next_ = use_it_
+  else: code_offset := 0 ; let next_ = use_it_ fi; next_ enddef;
+
+def selectaspirate expr t =
+  currenttitle:= t;
+  if t = "Italic letter h" :
+    code_offset := aspirate - ASCII"h" ;  let next_ = use_it_
+  else: let next_ = lose_it_ fi; next_ enddef;
+
+let cmchar = selectaspirate;
+
+input itall
+
+code_offset:=0;
+let cmchar = relax;
+
+% Use adjust fit to kern the accents that go with
+% uppercase out a bit to the left so that accented uppercase does not
+% take more than its proper letterspace.  Should have been applied
+% to trailing side bearing too, but there is too much water under
+% the bridge now.  Silvio Levy's accents have no
+% adjust_fit, and a character with no adjust_fit picks up
+% the values of the previous character.
+
+cmchar "Rough breathing";
+beginchar(asper_glyph,9u#,acc_ht#,0);
+adjust_fit(-4u#,0);
+spirit(.5w)<;
+endchar;
+     
+cmchar "Smooth breathing";
+beginchar(lenis_glyph,9u#,acc_ht#,0);
+adjust_fit(-5u#,0);
+spirit(.5w)>;
+endchar;
+     
+cmchar "Rough breathing with acute";
+beginchar(asper_oxy,9u#,acc_ht#,0);
+adjust_fit(-3u#,0);
+spirit_acute(.5w)<;
+endchar;
+     
+cmchar "Rough breathing with grave";
+beginchar(asper_bary,9u#,acc_ht#,0);
+adjust_fit(-3u#,0);
+spirit_grave(.5w)<;
+endchar;
+     
+% Do asper_perispomenon with corrected heights.
+cmchar "Rough breathing with circumflex";
+beginchar(asper_peri,9u#,Circ_ht#,0);
+adjust_fit(-3u#,0);
+spirit_circumflex(.5w)<;
+endchar;
+     
+cmchar "Smooth breathing with acute";
+beginchar(lenis_oxy,9u#,acc_ht#,0);
+adjust_fit(-3u#,0);
+spirit_acute(.5w)>;
+endchar;
+     
+% Do lenis_barytone with corrected height.
+cmchar "Smooth breathing with grave";
+beginchar(lenis_bary,9u#,acc_ht#,0);
+adjust_fit(-3u#,0);
+spirit_grave(.5w)>;
+endchar;
+
+cmchar "Smooth breathing and circumflex";
+beginchar(lenis_peri,9u#,Circ_ht#,0);
+adjust_fit(-3u#,0);
+spirit_circumflex(.5w)>;
+endchar;
+     
+% Provide an alternative for the depth of iota subscript.
+
+cmchar "Iota subscript";
+beginchar("|",9u#,0,
+  if ( ((pixels_per_inch / mag) < 599) or (pixels_per_inch < 420)) :
+	    desc_depth#
+  else :
+    iota_dp#
+  fi );
+adjust_fit(0,0);  % Don't omit this---see note following.
+iota_sub(.5w);
+endchar;
+
+% The adjust_fit macro really ought to be used with all characters,
+% because if it isn't, the chardx value (pixel displacement in the
+% gf file) will not be recalculated, but will be picked up from
+% the last character that did have an adjust_fit line.  Here, I
+% leave the sloppy side-effect in place because I know I want
+% the few affected accents to have the same 9u width.
+%
+
+let cmchar = selectaccent;
+
+readfrom("graccent");
+
+code_offset:=0;
+let cmchar = relax;
+
+
+%                     Zero-width space
+% Takes the place of "Diaeresis with circumflex", which cannot occur.
+% iota and upsilon only affected by diaeresis when short.
+% This is useful for deligaturing sigma. with the  "s|" digraph.
+% Besides, it can often help to have a zero-width character available.
+% But you can't draw the box so proofing and displaying must be off.
+% 
+% Adjust_fit has to be used to get a true zero-width. A curious side-effect
+% of setting the character width to eps is that the u value is recalculated
+% to a colossal negative value.  It is not worth the trouble to discover
+% why, since a saved u value will obviate the errors and oversized
+% shift values that happen with the recalculated u.  The effect noted here
+% is absent from proof mode calculations.  It is only a problem when
+% usable rasters are being laid down.
+%
+begingroup;
+numeric saved_u; saved_u:=u;
+save u;
+save proofing; proofing:=0;
+save displaying; displaying:=0;
+
+cmchar "Zero-width Space";
+beginchar(null_space, eps,0,0); % The adjust-fit calculation
+adjust_fit(-eps,0);             % does a division, so w must be > 0.
+endchar;	                % canceling it out with "-eps" is 
+		                % unnecessary, but it feels better.
+
+numeric dot_diam#; dot_diam#=max(dot_size#,cap_curve#);
+
+
+beginchar(doti,eps,0,desc_depth#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-2.5saved_u, -d);
+endchar;
+
+beginchar(dotI,eps,0,desc_depth#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-3.25saved_u, -d);
+endchar;
+
+beginchar(dote,eps,0,desc_depth#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-3.75saved_u, -d);
+endchar;
+
+beginchar(dotbt,eps,0,desc_depth#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-4saved_u, -d);
+endchar;
+
+beginchar(dotJdlmnpqu,eps,0,desc_depth#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-4.5saved_u, -d);
+endchar;
+
+beginchar(dotkos,eps,0,desc_depth#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-5.25saved_u, -d);
+endchar;
+
+beginchar(dotGZ,eps,0,desc_depth#);  % Also upper case Koppa
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-5.5saved_u, -d);
+endchar;
+
+beginchar(dotchjz,eps,0,desc_depth# + dot_diam#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-5.5saved_u, -d);
+endchar;
+
+beginchar(dotCEVaw,eps,0,desc_depth#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-6saved_u, -d);
+endchar;
+
+beginchar(dotBFLNPRSTW,eps,0,desc_depth#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-6.5saved_u, -d);
+endchar;
+
+beginchar(dotH,eps,0,desc_depth#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-6.75saved_u, -d);
+endchar;
+
+beginchar(dotAOQUXY,eps,0,desc_depth#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-7.25saved_u, -d);
+endchar;
+
+beginchar(dotDK,eps,0,desc_depth#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-7.5saved_u, -d);
+endchar;
+
+beginchar(dotM,eps,0,desc_depth#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-8.75saved_u, -d);
+endchar;
+
+beginchar(dotgx,eps,0,desc_depth# + 1.5dot_diam#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-5.5saved_u, -d);
+endchar;
+
+beginchar(dotr,eps,0,desc_depth# + 1.5dot_diam#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-4.5saved_u, -d);
+endchar;
+
+beginchar(dotfy,eps,0,desc_depth# + 2dot_diam#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-5.75saved_u, -d);
+endchar;
+
+beginchar(dotkoppa,eps,0,desc_depth# + 2dot_diam#);
+define_whole_blacker_pixels(dot_diam);
+adjust_fit(-eps,0);
+generate_underdot(-5saved_u, -d);
+endchar;
+
+% The three positions for iota subscript
+% Equivalent to Times Ten Greek's /iotasubscripta etc., except that these
+% are designed as postpositives kerned strongly to the left.  Setwidth 0
+% but I am not sure that the type1 version can get away with that
+
+% /iotasubscripta
+beginchar(a_isub,eps,0,iota_dp#);
+adjust_fit(-eps,0);
+iota_sub(-5saved_u);
+endchar;
+
+% The top position of iota subscript under eta is dropped to
+% provide better spacing between the letter and the subscript.
+%
+% /iotasubscripte
+beginchar(h_isub,eps,0,iota_dp#);
+adjust_fit(-eps,0);
+begingroup;
+numeric saved_o;
+saved_o = o;
+save o;
+o = 3saved_o;
+iota_sub(-6.85saved_u);
+endgroup;
+endchar;
+
+% /iotasubscripto
+beginchar(w_isub,eps,0,iota_dp#);
+adjust_fit(-eps,0);
+iota_sub(-6saved_u);
+endchar;
+
+endgroup;
+
+

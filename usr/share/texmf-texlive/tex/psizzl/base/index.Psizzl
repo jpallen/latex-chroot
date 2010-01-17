@@ -1,0 +1,91 @@
+% INDEX PSIZZL - indexing macros for TeX version 1.0
+% index entries come in two visibilities - non-silent and silent
+% non-silent entries are preceeded by a ^
+% while silent entries are preceeded by ^^
+% the four types of non-silent entries are as follows
+% ^{text}   - type 0, normal
+% ^|text|   - type 1, TeX input, but not a control sequence
+% ^|\text|  - type 2, TeX control sequence
+% ^\<text>  - type 3, TeX concept, a mnemonic name
+%
+% the format of the entry in the index file is:
+% text_!n_pp.  where _ is a space, n is the index type,
+%                    pp is the page number
+%
+\newif\ifproofindex
+\let\numbercount=\relax
+\def\\{%
+   {\tt\char'134}%
+   }%
+\def\<{%
+   \relax\ifmmode\mskip\medmuskip\else\char'74\fi
+   }%
+\newwrite\@ndexwrite\def\@ndexfile{index.psiztemp }%
+\adddef\fmtreset{%
+   \immediate\openout\@ndexwrite=\@ndexfile % file for index reminders
+   }%
+\newif\ifsilent
+\def\specialhat{%
+   \relax\ifmmode\def\next{^}\else\let\next=\beginxref\fi\next
+   }%
+\def\beginxref{%
+   \futurelet\next\beginxrefswitch
+   }%
+\def\beginxrefswitch{%
+   \ifx\next\specialhat\let\next\silentxref
+      \else\silentfalse\let\next\xref
+      \fi
+   \next
+   }%
+{\c@tCactive\global\let^\specialhat\gdef\silentxref^{\silenttrue\xref}}%
+\c@tCactive\adddef\l@twrite\l@tCzero %this turns on indexing capability
+{\c@tVcontrol\c@tBactive|gdef\{}}% \ as an active character -> nothing
+\def\marginstyle{\vrule height6pt depth2pt width0pt \sevenrm}%
+\chardef\bslash=`\\
+\def\xref{%
+   \futurelet\next\xrefswitch
+   }%
+\def\xrefswitch{%
+   \begingroup
+      \ifx\next|%
+         \aftergroup\vxref % case 1 or 2, |arg| or |\arg|
+         \else
+         \ifx\next\<%
+            \aftergroup\anglexref % case 3, "\<arg>" means angle bracke
+            \else
+            \aftergroup\normalxref% case 0, "{arg}"
+            \fi
+         \fi
+      \endgroup
+   }%
+\def\vxref|{\c@tBactive\futurelet\next\vxrefswitch}%
+\def\vxrefswitch#1|{\c@tBcontrol
+   \ifx\next\empty
+      \def\xreftype{2}\def\next{{\tt\bslash\text}}% type 2, |\arg|
+      \else
+      \def\xreftype{1}\def\next{{\tt\text}}% type 1, |arg|
+      \fi
+   \edef\text{#1}\makexref
+   }%
+\def\anglexref\<#1>{%
+   \def\xreftype{3}\def\text{#1}\def\next{$\langle$\text$\rangle$}%
+   \makexref
+   }%
+\def\normalxref#1{%
+   \def\xreftype{0}\def\text{#1}\let\next=\text\makexref
+   }%
+\def\makexref{%
+   \ifproofindex
+      \insert\margin{\hbox{\marginstyle\text}}%
+      \xdef\writeit{%
+         \write\@ndexwrite{%
+            \text\space!\xreftype\space\noexpand\number\p@gecount.%
+            }%
+         }%
+      \writeit
+      \else\ifhmode\kern\z@\fi
+      \fi
+   \ifsilent\ignorespaces\else\next\fi
+   }%
+% the \insert (which is done in proofmode only) suppresses hyphenation,
+% so the \kern\z@ is put in to give the same effect in non-proofmode.

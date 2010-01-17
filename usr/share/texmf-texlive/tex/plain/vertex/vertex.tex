@@ -1,0 +1,491 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%                            VerTeX
+%                           Hal Varian
+%                           August 1987
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%      verbatim macros from TeXbook, page 380--382.
+%          to invoke, type: \verbatim# TeX stuff ...#
+%          Any character can be used in place of #.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\uncatcodespecials{\def\do##1{\catcode`##1=12}\dospecials}
+
+\def\setupverbatim{\tt%
+\def\par{\leavevmode\endgraf}\catcode`\`=\active%
+\obeylines\uncatcodespecials\obeyspaces}%
+{\obeyspaces\global\let =\ }%
+{\catcode`\`=\active \gdef`{\relax\lq}}
+
+\def\verbatim{\begingroup\setupverbatim\doverbatim}
+\def\doverbatim#1{\def\next##1#1{##1\endgroup}\next}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Load various fonts
+%      there are both computer modern and almost modern fonts
+%      available; comment out the ones you aren't using
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Computer Modern fonts
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\font\sctwelve=cmcsc10 scaled\magstep1
+\font\scten=cmcsc10 
+
+\font\tenrm=cmr10
+\font\teni=cmmi10
+\font\tensy=cmsy10
+\font\tenbf=cmbx10
+\font\tenit=cmti10
+
+\font\ninerm=cmr9   \font\eightrm=cmr8    \font\sixrm=cmr6
+\font\ninei=cmmi9   \font\eighti=cmmi8    \font\sixi=cmmi6
+\font\ninesy=cmsy9  \font\eightsy=cmsy8   \font\sixsy=cmsy6
+\font\ninebf=cmbx9  \font\eightbf=cmbx8   \font\sixbf=cmbx6
+\font\nineit=cmti9  \font\eightit=cmti8
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Almost Modern fonts
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\font\sctwelve=amcsc10 scaled\magstep1
+%\font\scten=amcsc10 
+%
+%\font\tenrm=amr10
+%\font\teni=ammi10
+%\font\tensy=amsy10
+%\font\tenbf=ambx10
+%\font\tenit=amti10
+%
+%\font\ninerm=amr9   \font\eightrm=amr8    \font\sixrm=amr6
+%\font\ninei=ammi9   \font\eighti=ammi8    \font\sixi=ammi6
+%\font\ninesy=amsy9  \font\eightsy=amsy8   \font\sixsy=amsy6
+%\font\ninebf=ambx9  \font\eightbf=ambx8   \font\sixbf=ambx6
+%\font\nineit=amti9  \font\eightit=amti8
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Define font families
+%       (see TeXbook, p. 414-5)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\catcode`@=11
+\newskip\ttglue
+
+\def\tenpoint{\def\rm{\fam0\tenrm}%
+\textfont0=\tenrm \scriptfont0=\sevenrm \scriptscriptfont0=\fiverm%
+\textfont1=\teni \scriptfont1=\seveni \scriptscriptfont1=\fivei%
+\textfont2=\tensy \scriptfont2=\sevensy \scriptscriptfont2=\fivesy%
+\textfont3=\tenex \scriptfont3=\tenex \scriptscriptfont3=\tenex%
+\textfont\itfam=\tenit \def\it{\fam\itfam\tenit}%
+\textfont\bffam=\tenbf \scriptfont\bffam=\sevenbf%
+\scriptscriptfont\bffam=\fivebf \def\bf{\fam\bffam\tenbf}%
+\tt \ttglue=.5em plus.25em minus.15em%
+\ifdouble\normalbaselineskip=1.5pc plus .5pt minus .5pt \else\normalbaselineskip=12pt\fi
+\setbox\strutbox=\hbox{\vrule height8.5pt depth3.5pt width0pt}%
+\let\sc=\eightrm \normalbaselines\rm}
+
+\def\ninepoint{\def\rm{\fam0\ninerm}%
+\textfont0=\ninerm \scriptfont0=\sixrm \scriptscriptfont0=\fiverm%
+\textfont1=\ninei\scriptfont1=\sixi\scriptscriptfont1=\fivei%
+\textfont2=\ninesy \scriptfont2=\sixsy \scriptscriptfont2=\fivesy%
+\textfont3=\tenex \scriptfont3=\tenex \scriptscriptfont3=\tenex%
+\textfont\itfam=\nineit\def\it{\fam\itfam\nineit}% 
+\textfont\bffam=\ninebf\scriptfont\bffam=\sixbf%
+\scriptscriptfont\bffam=\fivebf\def\bf{\fam\bffam\ninebf}% 
+\tt \ttglue=.5em plus.25em minus.15em %
+\normalbaselineskip=11pt%
+\setbox\strutbox=\hbox{\vrule height8pt depth3pt width0pt}% 
+\let\sc=\sevenrm\let\big=\ninebig\normalbaselines\rm}
+
+\def\eightpoint{\def\rm{\fam0\eightrm}%
+\textfont0=\eightrm \scriptfont0=\sixrm \scriptscriptfont0=\fiverm%
+\textfont1=\eighti \scriptfont1=\sixi \scriptscriptfont1=\fivei%
+\textfont2=\eightsy \scriptfont2=\sixsy \scriptscriptfont2=\fivesy%
+\textfont3=\tenex\scriptfont3=\tenex \scriptscriptfont3=\tenex%
+\textfont\itfam=\eightit \def\it{\fam\itfam\eightit}%
+\textfont\bffam=\eightbf \scriptfont\bffam=\sixbf%
+\scriptscriptfont \bffam=\fivebf \def\bf{\fam\bffam\eightbf}%
+\tt \ttglue=.5em plus.25em minus.15em%
+\normalbaselineskip=9pt%
+\setbox\strutbox=\hbox{\vrule height7pt depth2pt width0pt}%
+\let\sc=\sixrm \let\big=\eightbig\normalbaselines\rm}
+
+\def\tenbig#1{{\hbox{$\left#1\vbox to 8.5pt{}\right.\n@space$}}}
+\def\ninebig#1{{\hbox{$\textfont0=\tenrm\textfont2=\tensy
+   \left#1\vbox to7.25pt{}\right.\n@space$}}}
+\def\eightbig#1{{\hbox{$\textfont0=\ninerm\textfont2=\ninesy
+   \left#1\vbox to6.5pt{}\right.\n@space$}}}
+
+%Only a partial setup for 6-point, since it is used so rarely
+\def\sixpoint{\def\rm{\fam0\sixrm}% switch to 6-point type
+ \textfont0=\sixrm \textfont2=\sixsy
+ \textfont\itfam=\sixi \def\it{\fam\itfam\sixi}%
+ \normalbaselineskip=7.5pt\normalbaselines\rm}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \fnote -- numbered footnotes in small type -- from TeXbook, p. 416
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%register for automatic footnote numbering
+\newcount\FootNumber
+\FootNumber=1
+
+%insert for holding footnotes to print as endnotes at end of paper
+
+\newinsert\endnoteins        %define a new insert
+\skip\endnoteins=0pt         %space added when endnote is present
+\count\endnoteins=0          %magnification factor
+\dimen\endnoteins=\maxdimen  %maximum endnotes per page
+
+%print endnotes
+\def\PrintEndNotes{\vfill\eject\ifvoid\endnoteins
+                     \else\centerline{\bf Footnotes}\parskip=\medskipamount
+                     \bigskip\unvbox\endnoteins\fi}
+
+%footnote macro
+%    Write notes in 8 point
+%    Write to \endnotesins for end notes
+
+
+\def\fnote#1{\footnote{$^{\the\FootNumber}$}{\eightpoint #1\endfnote}
+\insert\endnoteins{\tenpoint\medskip\noindent\number\FootNumber. #1\par
+\ifdouble\bigskip\fi}%
+\global\advance\FootNumber by 1}
+
+%      We must end paragraph to restore original baselines and
+%      therefore have to skip up the amount of the baselineskip to keep
+%      the space between footnotes right.
+
+\def\endfnote{\par\vskip-\normalbaselineskip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      \makeheadline -- redefine to omit headline on title pages (p. 364
+%                       of TeXBook)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newif\iftitle                      %true if this is a titlepage
+  \global\titlefalse
+
+\def\titlepage{\global\titletrue}  %set flag if this is a Titlepage
+
+\def\titlehead{\hfil}
+\def\titlefoot{\hfil}
+
+\def\makeheadline{\vbox to 0pt{\vskip-22.5pt%
+    \line{\vbox to8.5pt{}%
+    \iftitle\titlehead
+    \else\the\headline\fi}\vss}\nointerlineskip}
+
+\def\makefootline{\baselineskip=24pt 
+   \iftitle\line{\titlefoot}\global
+   \titlefalse\else\line{\the\footline}\fi}
+
+%no footnoterule by default; can reset in sty files.
+\def\footnoterule{}
+
+\def\pagecontents{\ifvoid\topins\else
+\unvbox\topins\fi
+  \dimen@=\dp\@cclv \unvbox\@cclv % open up \box255
+  \ifvoid\footins\else % Footnote info is present
+    \vskip\skip\footins \footnoterule \unvbox\footins\fi
+  \ifr@ggedbottom \kern-\dimen@ \vfil \fi}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     Create various boxes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newbox\titlebox
+\newbox\authorbox
+\newbox\affilbox
+\newbox\addressbox
+\newbox\keywordsbox
+\newbox\datebox
+\newbox\versionbox
+\newbox\thanksbox
+\newbox\abstractbox
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Create various counters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcount\SectionNumber\SectionNumber=1
+\newcount\SubsectionNumber\SubsectionNumber=1
+\newcount\EquationNumber\EquationNumber=0
+\newcount\FigureNumber\FigureNumber=0
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  \Reset -- to reset all counters and \pageno
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\Reset{\global\SectionNumber=1\global\SubsectionNumber=1
+\global\EquationNumber=0\global\FigureNumber=0\global\pageno=1
+\global\FootNumber=1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   \today -- gives today's date
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\today{\ifcase\month\or
+   January\or February\or March\or April\or May\or June\or
+   July\or August\or September\or October\or November\or December\fi
+   \space\number\day, \number\year}
+
+%can reset this in sty files.
+\def\version#1{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Some math definitions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%can redefine in .sty files
+\def\proof{\medbreak\noindent{\it Proof.  }}
+
+%can redefine in .sty files
+\def\qed{\vrule height8pt width4pt depth0pt\par\medskip}
+
+%display mode partial derivatives
+\def\D#1#2{{{\partial #1} \over {\partial #2}}}
+
+%math mode partial derivations
+\def\d#1#2{\partial #1/\partial #2}
+
+%for naming equations
+\def\Equation#1{\global\advance\EquationNumber by 1
+	      \global\edef#1{\number\EquationNumber}(#1)}
+
+%for roman text in math or display mode
+\def\text#1{\hbox{\rm #1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Figures -- use \Fig\junk the first time you reference a figure, and
+%            use \Figure\junk{2in}{This figure is junk.} when you want
+%            it to appear.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%  \Fig -- for invoking figure
+%%%  #1 is reference name for figure
+
+\def\Fig#1{\global\advance\FigureNumber by 1
+           \global\edef#1{\number\FigureNumber}Figure #1}
+
+%%%  \Figure --- to have space reserved for figure.
+%%% #1 is reference name for figure
+%%% #2 is height of figure
+%%% #3 is caption for figure
+
+\def\Figure#1#2#3{
+     \midinsert
+     \vbox to #2{\vfil}
+     \hbox to \hsize{\vbox{\parindent=0pt%
+     {\bf Figure \number#1}.\space \rm #3}}
+     \endinsert}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      \boxit -- this will surround a box by rules
+%                useful for debugging and design purposes 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newif\ifDoBoxes
+\DoBoxestrue
+
+\def\boxit#1{\ifDoBoxes\vbox{\hrule\hbox{\vrule\vbox{#1}\vrule}\hrule}
+\else\vbox{\hbox{\vbox{#1}}}\fi}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%will set hanging indentation in amount specified by \parindent
+\def\HangRef{\hangindent\parindent\ignorespaces\noindent}
+
+\newif\ifbook
+\newif\ifjour
+\newif\ifinbook
+\newif\ifunpublished
+\newif\ifinbook
+
+\newbox\nobox
+\newbox\bybox
+\newbox\pagesbox
+\newbox\paperbox
+\newbox\yrbox
+\newbox\datebox
+\newbox\volbox
+\newbox\jourbox
+\newbox\bookbox
+\newbox\publbox
+\newbox\publaddrbox
+\newbox\editorbox
+\newbox\paperinfobox
+\newbox\bookinfobox
+
+\def\no#1{\setbox\nobox\hbox{#1}}
+\def\by#1{\setbox\bybox\hbox{#1}}
+\def\pages#1{\setbox\pagesbox\hbox{#1}}
+\def\paper#1{\setbox\paperbox\hbox{#1}}
+\def\yr#1{\setbox\yrbox\hbox{#1}}
+\def\date#1{\setbox\datebox\hbox{#1}}
+\def\vol#1{\setbox\volbox\hbox{\bf #1}}
+\def\jour#1{\setbox\jourbox\hbox{\it #1}\jourtrue}
+\def\book#1{\setbox\bookbox\hbox{\it #1}\booktrue}
+\def\inbook#1{\setbox\bookbox\hbox{\it #1}\inbooktrue}
+\def\editor#1{\setbox\editorbox\hbox{#1}}
+\def\publ#1{\setbox\publbox\hbox{#1}}
+\def\publaddr#1{\setbox\publaddrbox\hbox{#1}}
+\def\paperinfo#1{\setbox\paperinfobox\hbox{#1}\unpublishedtrue}
+
+\def\ref{\relax}
+\def\endref{\SetRef}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Headings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\runningname#1{\edef\runname{#1}}
+\def\runningtitle#1{\edef\runtitle{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    \CenterBox and \LeftBox
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\CenterBox creates a vbox with several lines of centered text
+%modeled after TeXbook, p. 412
+%     #1 name of box
+%     #2 font used in box
+%     #3 baselineskip in box
+%     #4 text for box, lines separated by \cr
+%
+%\LeftBox does the same for left justified text
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\CenterBox#1#2#3#4{
+   \global\setbox#1=\vbox{\baselineskip=#3\halign{#2\hfil##\hfil\cr#4\crcr}}}
+
+\def\LeftBox#1#2#3#4{
+   \global\setbox#1=\vbox{\baselineskip=#3\halign{#2##\hfil\cr#4\crcr}}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  \section and \subsection
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newbox\sectionbox
+
+\def\Romannumeral#1{\uppercase\expandafter{\romannumeral#1}}
+
+\newif\ifRomanSection\RomanSectionfalse
+
+% taken from TeXbook, p. 355, but changed the parameters so that
+%   it won't fill out the page so readily.  If you really want all
+%   the pages to be the same size, use \let\BigBreak=\bigbreak
+
+\def\BigBreak{\vskip0pt plus .05\vsize\penalty-250
+    \vskip0pt plus-.05\vsize\bigskip\vskip\parskip}
+
+\def\DoCenteredSection#1{
+   \BigBreak
+   \SubsectionNumber=0
+   \CenterBox
+        \sectionbox
+        \SectionFont
+        \normalbaselineskip
+        {\ifRomanSection\Romannumeral\SectionNumber
+        \else\number\SectionNumber\fi.\enskip#1}
+   \line{\hfil\box\sectionbox\hfil}
+   \global\advance\SectionNumber by 1
+   \nobreak\medskip
+   \noindent}
+
+\def\DoLeftSection#1{
+   \BigBreak
+   \SubsectionNumber=0
+   \LeftBox
+        \sectionbox
+        \SectionFont
+        \normalbaselineskip
+        {\ifRomanSection{\Romannumeral\SectionNumber}
+        \else\number\SectionNumber\fi.\enskip#1}
+   \line{\box\sectionbox\hfil}
+   \global\advance\SectionNumber by 1
+   \nobreak\medskip
+   \noindent}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Titles and authors
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\DoCenteredTitle#1{
+    \titlepage\global
+    \CenterBox
+       \titlebox
+       \TitleFont
+       \normalbaselineskip
+       {#1}}
+
+\def\DoLeftTitle#1{
+    \titlepage\global
+    \LeftBox
+       \titlebox
+       \TitleFont
+       \normalbaselineskip
+       {#1}}
+
+\def\DoCenteredAuthor#1{
+    \CenterBox
+       \authorbox
+       \AuthorFont
+       \normalbaselineskip
+       {#1}}
+
+\def\DoLeftAuthor#1{
+     \LeftBox
+     \authorbox
+     \AuthorFont
+     \normalbaselineskip
+      {#1}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   \prelim -- will write "preliminary verison" on cover
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newif\ifPreliminaryVersion
+ \global\PreliminaryVersionfalse
+
+\def\prelim{\PreliminaryVersiontrue}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   quote mode -- inserts and singlespaces
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\quote#1{\medskip{\normalbaselineskip=12pt\tenpoint
+       \narrower #1 \par}\smallskip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   \doublespace -- prints document in doublespace
+%   \singlespace -- reverts to singlespace
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newif\ifdouble\doublefalse 
+\def\doublespace{\global\doubletrue\tenpoint}
+\def\singlespace{\global\doublefalse\tenpoint}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   define dummys; will be redefined if needed in .sty files
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\runtitle#1{}
+\def\runname#1{}
+\def\titleheadline{\hfil}
+\def\titlefootline{\hfil}
+\overfullrule=0pt  %so the black boxes don't print out in margins
+\def\enddocument{\relax}

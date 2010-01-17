@@ -1,0 +1,134 @@
+% morehelp.sty version 0.1       1997 by Olaf Kummer
+%
+% see morehelp.README for explanations
+%
+\NeedsTeXFormat{LaTeX2e}[1997/12/01]
+\ProvidesPackage{morehelp}[1997/02/18 More Help Package V0.1]
+
+% Save the original definition.
+\let\morehelp@latex@error=\@latex@error
+
+% Define some auxillary macros.
+\def\morehelp@iftrue{\iftrue}
+\def\morehelp@iffalse{\iffalse}
+
+% It is helpful to distinguish the first error.
+\newif\if@additional@error
+\@additional@errorfalse
+
+% Check if the second argument is a prefix of the
+% first argument. Arguments are delimited by plus signs.
+\def\morehelp@ifmatches#1#2+#3#4+{%
+  \def\morehelp@a{#1}%
+  \def\morehelp@b{#2}%
+  \def\morehelp@c{#3}%
+  \def\morehelp@d{#4}%
+  \ifx\morehelp@d\@empty
+    \ifx\morehelp@a\morehelp@c
+      \def\morehelp@return{\morehelp@iftrue}%
+    \else
+      \def\morehelp@return{\morehelp@iffalse}%
+    \fi
+  \else\ifx\morehelp@b\@empty
+    \def\morehelp@return{\morehelp@iffalse}%
+  \else\ifx\morehelp@a\morehelp@c
+    \def\morehelp@return{%
+      \expandafter\expandafter\expandafter\morehelp@ifmatches
+      \expandafter\morehelp@b\expandafter+\morehelp@d+}%
+  \else
+    \def\morehelp@return{\morehelp@iffalse}%
+  \fi\fi\fi
+  \morehelp@return
+}
+
+% Check if the first argument is a prefix of the 
+% current error message. If yes, replace the current
+% help message by the second argument.
+\def\morehelp@try@#1#2#3{%
+  % Is this the error message we are looking for?
+  \expandafter\morehelp@ifmatches\morehelp@msg.+#2+%
+    % Yes, but is it helpful?
+    #1\morehelp@a{#3}%
+    \ifx\morehelp@a\@empty\else
+      % Replace the help message.
+      \let\morehelp@help=\morehelp@a%
+    \fi
+  \fi
+}
+
+% The help text is given as is, without choices.
+\def\morehelp@try{\morehelp@try@\def}
+
+% The help text is expandable and will try some tricks to be more precise.
+\def\morehelp@try@expand{\morehelp@try@\edef}
+
+% Redefine the internal error handling routine of LateX.
+\def\@latex@error#1#2{%
+  % Are we on safe ground?
+  \ifx\protect\relax
+    {% Yes, proceed with analysis.
+      % Inhibit looping.
+      \let\@latex@error=\morehelp@latex@error
+      % Keep track of the actual error.
+      \def\morehelp@msg{#1}%
+      \let\morehelp@help\@empty%
+      % See if we can find a better help message.
+      %
+      % We read the file with the messages now. Slower and somewhat
+      % more error prone than reading it ahead of time, but
+      % more memory efficient.
+      \makeatletter
+      \@@input morehelp.eng\relax
+      \makeatother
+      % Now we output the error.
+      \ifx\morehelp@help\@empty
+        \@latex@error{#1}{#2}
+      \else
+        \GenericError{%
+          \space\space\space\@spaces\@spaces\@spaces
+        }{%
+          LaTeX Error: #1%
+        }{%
+          \morehelp@help.^^J^^J%
+          See the LaTeX manual or LaTeX Companion for further explanation.%
+        }{#2}%
+      \fi
+      \@additional@errortrue
+    }%
+  \else
+    % No, we might run into trouble. Better be invisible.
+    \morehelp@afterfi\morehelp@latex@error{#1}{#2}%
+  \fi
+}
+
+\let\@latexerr\@latex@error
+
+% Try to catch the most obvious catcode error.
+
+\def\morehelp@a{\spacefactor\@m}
+\def\morehelp@afterelse#1\else#2\fi{\fi#1}
+\def\morehelp@afterfi#1\fi{\fi#1}
+
+\ifx\morehelp@a\@%
+  % Nobody clobbered \@, so we try to redefine it.
+  \def\@{%
+    % Are we ok?
+    \ifhmode
+      % Yes, probably the user knows what to do.
+      \morehelp@afterelse\spacefactor\@m
+    \else
+      \expandafter\morehelp@atcommand
+    \fi
+  }
+  \begingroup
+    \makeatother
+    \expandafter\global\expandafter\let\csname morehelp@atsign\endcsname=@
+  \endgroup
+
+  \def\morehelp@atcommand{%
+    \ifx\morehelp@modefor@err\undefined
+      \@@input morehelp.dyn\relax
+    \fi
+    \morehelp@atcommand
+  }
+\fi

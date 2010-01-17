@@ -1,0 +1,288 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% MYPHYX for TEX Version 2.9   -- created 12/15/88
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\def\MYHEAD{\setbox0=\vtop{\baselineskip=10pt
+     \ialign{\eightrm ##\hfil\cr
+        \slacbin\cr
+        P.~O.~Box 4349\cr
+        Stanford, CA 94309\cropen{1\jot}
+        (415) 926--4423\cr
+        SHARON at SLACVM\cr}}%
+   \setbox2=\hbox{\caps Stanford Linear Accelerator Center}%
+   \hrule height 0pt \kern -0.5in
+   \vbox to 0pt{\vss\centerline{\seventeenrm STANFORD UNIVERSITY}}
+   \vbox{} \medskip
+   \line{\hbox to 0.7\hsize{\hss \lower 10pt \box2 \hfill }\hfil
+         \hbox to 0.25\hsize{\box0 \hfil }}\medskip }
+ 
+  \def\myletter{\let\letterhead=\MYHEAD \letter}
+  \def\binno{81}
+  \def\slacext{2266}
+  \def\half{\hbox{${1\over 2}\,$}}
+  \def\etal{{\it et al.}}
+ 
+  \def\bar#1{\overline{#1}}
+  \def\kbar{{\mathchar'26\mskip-9muk}}
+  \def\pbar{{\rlap/p}}
+  \def\ubar{\bar{u}}
+  \def\dbar{\bar{d}}
+ 
+  \def\str{\penalty-10000\hfilneg\ }    % line break with right adjust
+  \def\Str{\penalty-10000\hfilneg\ }    % line break with right adjust
+  \def\nostr{\hfill\penalty-10000\ }    % line break with ragged right
+  \let\brk=\nextline
+  \def\|{\vrule height 16pt depth 6 pt}
+ 
+\def\ZZ{\hbox{$\not\kern0.15em\not\kern-0.21em\lower0.2em
+        \vbox{\hrule width 0.52em height 0.06em depth 0pt}
+        \kern-0.50em\raise0.7em
+        \vbox{\hrule width 0.52em height 0.06em depth 0pt}$}}
+ 
+\def\frac#1/#2{\leavevmode\kern.1em\raise.5ex\hbox{\the\scriptfont0
+         #1}\kern-.1em/\kern-.15em\lower.25ex\hbox{\the\scriptfont0 #2}}
+ 
+%   \frac3/4 gives you a very nice 3/4 - slanted.
+ 
+  \def\IR{{$\rm I\!R$}}
+  \def\lozenge{\boxit{\hbox to 1.5pt{
+               \vrule height 1pt width 0pt \hfill}}}
+ 
+  \def\Buildrel#1\under#2{\mathrel{\mathop{#2}\limits_{#1}}}
+  \def\simZ{{\Buildrel \sim \under Z}}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This macro inserts pictures (and, more generally, \vbox es) neatly
+%   into the MIDDLE of a paragraph.
+%        --- #1 should be a \vbox ---
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+  \def\pix#1{\vadjust{\vbox{\kern 1.0cm #1 \kern 1.0cm}}}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% These macros insert (\vbox es) using respectively \topinsert and
+%     \pageinsert.  Since these macros put you into vertical mode,
+%     they should only be called BETWEEN paragraphs.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+  \def\tpix#1{\topinsert #1 \endinsert}
+  \def\ppix#1{\pageinsert #1 \endinsert}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  To define a \vbox for an inserted figure, use the following command:
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \Picture\CompEP\height=4.125in \width=\hsize\caption{\narrower
+%         The caption goes here.}
+% \savepicture\FigureOne
+%        (\Picture  calls \FIG and assigns the figure the caption
+%                indicated and the figure number \CompEP.  It also
+%                creates a \vbox of the right size for a picture
+%                of the indicated height, and \savepicture assigns this
+%                to the macro \FigureOne.)
+%
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% TWO LINE MACRO (used in tables)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+\def\twoline#1:#2#3{\vtop{\hbox to #1{\hss \strut #2 \hss}
+                          \hbox to #1{\hss \strut #3 \hss}}}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Three nice dots left to right moving upward.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\def\mddots{\mathinner{\mskip1mu\raise1pt\hbox{.}\mskip2mu
+   \raise4pt\hbox{.}\mskip2mu\raise7pt\vbox{\kern7pt\hbox{.}}\mskip1mu}}
+%
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \clock returns time in hours:minutes on a 24 hour basis
+% check \fullclock too
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcount\timecount
+\newcount\hours \newcount\minutes  \newcount\temp \newcount\pmhours
+ 
+\hours = \time
+\divide\hours by 60
+\temp = \hours
+\multiply\temp by 60
+\minutes = \time
+\advance\minutes by -\temp
+\def\hour{\the\hours}
+\def\minute{\ifnum\minutes<10 0\the\minutes
+            \else\the\minutes\fi}
+\def\clock{
+\ifnum\hours=0 12:\minute\ AM
+\else\ifnum\hours<12 \hour:\minute\ AM
+      \else\ifnum\hours=12 12:\minute\ PM
+            \else\ifnum\hours>12
+                 \pmhours=\hours
+                 \advance\pmhours by -12
+                 \the\pmhours:\minute\ PM
+                 \fi \fi \fi \fi }
+ 
+\def\fullclock{\hour:\minute}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \draft causes the symbolic names of equations to be printed
+%        alongside the equation numbers
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+\let\eqnameold=\eqname
+\def\draft{\def\eqname##1{\eqnameold##1:{\tt\string##1}}}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Letter with no letterhead
+% insert \blankheads after \letters
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+\def\blankheads{\let\letterhead=\blankletterhead
+    \lettertopskip=7pt plus 3pt}
+\def\blankletterhead{\hrule height 0pt \vskip 1.3in}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  this gives you a boldface character in math mode.
+%     $\bold\beta$
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+\def\bold#1{\setbox0=\hbox{$#1$}%
+     \kern-.025em\copy0\kern-\wd0
+     \kern.05em\copy0\kern-\wd0
+     \kern-.025em\raise.0433em\box0 }
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  Definition for a slash over a letter
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+% from M. Peskin
+\def\dslash{\not{\hbox{\kern-2pt $\partial$}}}
+\def\Dslash{\not{\hbox{\kern-4pt $D$}}}
+\def\Qslash{\not{\hbox{\kern-4pt $Q$}}}
+\def\pslash{\not{\hbox{\kern-2.3pt $p$}}}
+\def\kslash{\not{\hbox{\kern-2.3pt $k$}}}
+\def\qslash{\not{\hbox{\kern-2.3pt $q$}}}
+%
+%
+ \newtoks\slashfraction
+ \slashfraction={.13}
+ \def\slash#1{\setbox0\hbox{$ #1 $}
+ \setbox0\hbox to \the\slashfraction\wd0{\hss \box0}/\box0 }
+ 
+% EXAMPLE OF HOW TO USE IT
+% $\slash D$
+% {\slashfraction={.075} $\slash{\cal A}$}
+% $\slash B$
+% $\slash a$
+% {\slashfraction={.09} $\slash p$}
+% $\slash q$
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% this gives you \leftrightarrow over \slash\partial
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+ \def\leftrightarrowfill{$\mathord-\mkern-6mu%
+   \cleaders\hbox{$\mkern-2mu\mathord-\mkern-2mu$}\hfill
+   \mkern-6mu\mathord\leftrightarrow$}
+ \def\overlrarrow#1{\vbox{\ialign{##\crcr
+       \leftrightarrowfill\crcr\noalign{\kern-1pt\nointerlineskip}
+       $\hfil\displaystyle{#1}\hfil$\crcr}}}
+ 
+%  $$ \overlrarrow{\slash\partial} $$
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  This is a macro written by Marvin which makes Young tableaux:
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+  \def\yboxit#1#2{\vbox{\hrule height #1 \hbox{\vrule width #1
+                  \vbox{#2}\vrule width #1 }\hrule height #1 }}
+ 
+  \def\fillbox#1{\hbox to #1{\vbox to #1{\vfil}\hfil}}
+  \def\ybox{\yboxit{0.4pt}{\fillbox{8pt}}\hskip-0.4pt}
+  \def\nbox{\yboxit{0pt}{\fillbox{8pt}}}
+ 
+  \def\tableaux#1{\vcenter{\offinterlineskip
+                  \halign{&\tabskip 0pt##\cr #1}}}
+  \def\cry{\cropen{-0.4pt}}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+% An example of the use of \tableaux is:
+% $$ X = \tableaux{\ybox & \ybox & \ybox \cry
+%                  \ybox & \ybox & \nbox \cry
+%                  \ybox & \nbox & \nbox \cry} $$
+%
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       by M. Peskin
+%       These macros make 4- and 5-pt skeleton diagrams
+%            with labelled endpoints and internal lines.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+  \def\fourptfcn#1#2#3#4#5{ \matrix{#1\cr\cr#2\cr}
+      \hbox{$  \Bigg\rangle \kern -2.5pt
+         {\phantom{whichcan}\over {\textstyle \downabit #5} }
+           \kern-2.5pt  \Bigg\langle$} \matrix{#3\cr\cr#4\cr} }
+  \def\fiveptfcn#1#2#3#4#5#6#7{ \matrix{#1\cr\cr#2\cr}
+      \hbox{$  \Bigg\rangle \kern -2.5pt
+        {{\pile} \lower  6pt\hbox{$\spire#5$} {\pile}\over
+           \phantom{can}{\textstyle \downabit#6}\phantom{which}
+             {\textstyle \downabit #7}\phantom{can}}
+               \kern-2.5pt \Bigg\langle$} \matrix{#3\cr\cr#4\cr} }
+  \def\spire#1{\matrix{#1\cr\Bigm|\cr}}
+  \def\pile{\phantom{\matrix{1\cr2\cr3\cr}}}
+  \def\downabit{\vphantom{\bigm|}}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+\def\unlock{\catcode`@=11}   % This allows us to modify PLAIN macros.
+%
+\def\lock{\catcode`@=12}     % at signs are no longer letters
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% These changes give you references on the line in brackets [3]
+% and in the reference list.  [1]  A. Einstein ...
+%
+%
+%\unlock
+%\def\step@ver#1{\rel@x \ifmmode #1\else \ifhmode
+%        \roll@ver{$\ {} #1$ }\else {\setbox0=\hbox{${} #1$ }}\fi\fi }
+%\def\attach#1{\step@ver{\strut {\mkern 4mu #1} }}
+%\def\normalrefmark#1{\attach{ [ #1 ] }}
+%\def\NPrefmark#1{\step@ver{{\ [#1]}}}
+%\def\refitem#1{\r@fitem{[#1]}}
+%\lock
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%

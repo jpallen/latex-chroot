@@ -1,0 +1,288 @@
+%% file: TXStags.tex - Labels and Tags - TeXsis version 2.18
+%% @(#) $Id: TXStags.tex,v 18.0 1999/07/09 17:24:29 myers Exp $
+%======================================================================*
+% TAGS - create lables and links for things    
+%
+%
+% This file is a part of TeXsis.
+% (C) copyright 1991, 1997 by Eric Myers and Frank Paige.
+%======================================================================*
+\message{Labels and tags.}
+
+% I/O and switches:                     
+
+\newread\auxfilein                              % input for jobname.aux file
+\newwrite\auxfileout                            % output for jobname.aux file
+\newif\ifauxswitch      \auxswitchtrue          % enable writing to .aux file?
+
+\let\XA=\expandafter    \let\NX=\noexpand       % shorthand 
+\catcode`"=12                                   % make sure " is not active
+\catcode`@=11                                   % @ is a letter  here
+
+\newcount\@BadTags   \@BadTags= 0               % count undefined tags
+
+%==================================================*
+% INITIALIZATION. \auxinit is used to open jobname.aux for output to
+% save these definitions for the next run.  It opens the file and then
+% disables itself so it doesn't try to open the file again.
+
+\def\auxinit{%  once only initialization of auxilliary file
+  \ifauxswitch                          %
+    \@FileInit\auxfileout=\jobname.aux[Auxiliary File]%%
+  \else \gdef\auxwritenow##1{}\gdef\auxwrite##1{} \fi % turn off .aux output
+  \gdef\auxinit{\relax}}                % only do \auxinit once!
+
+% How to write to the .aux file in general
+
+\def\auxwritenow#1{\auxinit             % write immediately to .aux file
+   \immediate\write\auxfileout{#1}}
+
+\def\auxwrite#1{\auxinit\write\auxfileout{#1}} % write (delayed) to .aux file
+
+
+% \auxoutnow{csname}{value} writes the definition to the \jobname.aux
+% file immediately.  \auxout writes when the page is output
+
+\def\auxoutnow#1#2{\auxwritenow{\string\newlabel{#1}{{#2}{\folio}}}}
+\def\auxout#1#2{\auxwrite{\string\newlabel{#1}{{#2}{\folio}}}}
+
+%- \ReadAUX looks for a file called jobname.aux  and if it exists reads
+%  it in.  This file should have tag and label definitions from a
+%  previous run (and now containing \newlabel's and such)
+
+\def\ReadAUX{%  reads in the auxilliary file from a previous run
+   \openin\auxfilein=\jobname.aux       % open old .aux file for input
+   \ifeof\auxfilein\closein\auxfilein   % if EOF it's empty.
+   \else\closein\auxfilein              % else close it and... 
+     \begingroup                        % fix up special characters...
+        \def\@tag##1##2{\endgroup       % simpler way to \tag here
+           \edef\@@temp{##2}%           % put ``value'' in \@@temp
+           \testtag{##1}\XA\xdef\csname\tok\endcsname{\@@temp}}%
+       \unSpecial\ATunlock              % special characters not so special
+       \input\jobname.aux \relax        % ...and read in the file
+     \endgroup                          % back to special characters
+   \fi}                                 % else ignore it
+
+%==================================================*
+% TAGGING.  Save information by labeling it.
+%
+%  \tag{name}{<value>} defines the control sequence \@name@  to be
+%  <value>, and writes the definition to the file jobname.aux so 
+%  jobs that follow can resolve forward references.  (The @'s
+%  in \@name@ are a part of the name, and are included so that
+%  the user does not define a tag with the same name as a control 
+%  sequence.  The backslash is actually not a part of the name.)
+%  We use \csname ... \endcsname so that label names can include 
+%  digits, numbers and other characters.  It is not a good idea to 
+%  use &,~,\,| or other special characters.   Spaces may be included 
+%  in a name, but they are ignored.
+
+\def\tag{%              \tag{name}{value} defines \@name@ to be "value"
+   \begingroup\unSpecial                % to turn off special chars
+    \@tag}                              % do the tagging
+
+\def\@tag#1#2{%         does the work for \tag
+   \endgroup                            % end group from \tag
+   \ifx\folio#2                         % is the value a \folio
+     \auxout{#1}{#2}%                   % write to .aux when page is printed
+   \else                                % else define and write it now
+     \edef\@@temp{#2}%                  % put ``value'' in \@@temp
+     \stripblanks @#1@\endlist          % \testtag{#1} --> \tok
+     \XA\xdef\csname\tok\endcsname{\@@temp}% define \@name@ as ``value''
+     \auxoutnow{#1}{\@@temp}%           % write def to .aux file
+   \fi}
+
+%-------------------------*
+%  \label{name} tags \@name@ with the current value of \lab@l, 
+%  which is set to the proper value by various macros, such as 
+%  \chapter, \section, etc...
+
+\def\label{\begingroup\unSpecial\@label}
+\def\@label#1{\endgroup\tag{#1}{\lab@l}}
+
+\def\lab@l{\relax}                      % start with empty label
+
+% \newlabel{name}{{<value>}{page}} does about the same thing, but
+% can be written to the .aux file (and has the same syntax as in LaTeX)
+
+\def\newlabel{\begingroup\unSpecial\@newlabel}
+\def\@newlabel#1#2{\endgroup\do@label#2\label{#1}}
+\def\do@label#1#2{\def\lab@l{#1}\def\lab@lpage{#2}}
+
+%-------------------------*
+%  \use{name} uses the value of \@name@ if it is defined; otherwise it
+%  puts {\bf "name"} into the text and writes an error message to the 
+%  log file
+
+\def\use{%      \use{name} evaluates to \@name@, which is set by \tag
+   \begingroup\unSpecial\@use}          
+
+\def\@use#1{\endgroup                   % end unspecial characters
+   \stripblanks @#1@\endlist                    % @name@ -> \tok w/o blanks
+   \XA\ifx\csname\tok\endcsname\relax\relax     % is \@name@ undefined?
+     \emsg{> UNDEFINED TAG #1 ON PAGE \folio.}% % yes: error message
+     \global\advance\@BadTags by 1              % count how many
+     \@errmark{UNDEF}%                          %   and mark in output
+     \edef\tok{{\bf\tok}}%                      % and return \bf ``name''
+   \else                                        % else:
+     \edef\tok{\csname\tok\endcsname}%          %  get the definition
+   \fi                                          %
+   \tok}                                        % evaluate it
+
+
+% -- \unSpecial makes certain special characters have ``normal''
+%    catcodes so they can be used in tag labels.
+
+\def\unSpecial{% gives special characters ``normal'' catcodes 
+     \catcode`@=12 \catcode`"=12 \catcode``=12  \catcode`'=12
+     \catcode`[=12 \catcode`]=12 \catcode`(=12  \catcode`)=12
+     \catcode`<=12 \catcode`>=12 \catcode`\&=12 \catcode`\#=12 
+     \catcode`/=12}
+
+
+%  \stripblanks <text> \endlist removes extraneous blanks from 
+%  the token list in <text> and puts the result in \tok.
+%  \tok is \empty if text is ALL blank.
+
+\def\stripblanks{%    everything up to \endlist --> \tok, with blanks removed
+   \let\tok=\empty\@stripblanks}
+
+\def\@stripblanks#1{\def\next{#1}\@striplist}
+
+\def\@striplist{%
+   \ifx\next\stripblanks\message{>\NX\@striplist: Oops!}\next=\endlist\fi %
+   \ifx\next\endlist\let\next=\relax           %
+   \else\@stripspace\let\next=\@stripblanks\fi %
+   \next}
+
+\def\@stripspace{\XA\if\space\next\else\edef\tok{\tok\next}\fi}
+
+\def\endlist{\endlist}                  % \endlist is undefined on purpose
+
+
+%  \testtag{name} determines whether the label given by "name" 
+%  is undefined (using the fact that \csname makes a default assignment 
+%  of undefined control sequences to \relax) and sets \undefinedtrue
+%  or \undefinedfalse as appropriate.  The full name is in \tok (with
+%  blanks removed) so you can use it with \csname\tok\endcsname.
+%  Use: \testtag{foo}\ifundefined <stuff> \else <other stuff> \fi
+
+\newif\ifundefined      \undefinedfalse
+
+\def\testtag#1{\stripblanks @#1@\endlist 
+   \XA\ifx\csname\tok\endcsname\relax\undefinedtrue
+      \else\undefinedfalse\fi}
+
+
+%  \checktags tells you if there were any undefined tags or references...
+%  Use this at the end of a run to warn about possible errors.
+
+\def\checktags{%  check for any undefined tags
+  \ifnum\@BadTags>\z@                           % any undefine tags?
+    \emsg{>}\emsg{> There were \the\@BadTags\ references to undefined tags.}%
+    \emsg{> See the file \jobname.log for the citations, or try running}%
+    \emsg{> TeXsis again to resolve forward references.}\emsg{>}%
+  \fi}
+
+%==================================================*
+% PARSE LABELS.  
+%
+%  \LabelParse <text>;;\endlist parses <text> as an equation,
+%  figure or table label.  It separates out letters, if present (eg. 
+%  label;a for Figure 2a, but the ";" does not appear in output.)  
+%  It increments the counter \@count, if appropriate, and builds an ID in
+%  \@ID.  It also \tag's the label with the value of the ID,
+%  preceeding the label with the prefix \@prefix to distinguish its type.
+
+\def\LabelParse#1;#2;#3\endlist{% 
+  \def\@TagName{\@prefix#1}%                    % NAME= for html link target
+  \if ?#3?\relax                                % if #3 is null, no ";" present
+    \global\advance\@count by\@ne               %   so advance the count 
+  \else                                         % if ; , look for letter
+    \stripblanks #2\endlist                     % remove any blanks from letter
+    \edef\@arg{\tok}\if a\@arg\relax            % if ";" present is it ";a"?
+      \global\advance\@count by\@ne\fi          % yes: advance counter anyway
+    \xdef\@ID{\@chaptID\@sectID\the\@count\@arg}% construct label;part
+    \tag{\@prefix#1;\@arg}{\@ID}%               %   and tag it #nn;x
+  \fi                                           % end \if ?#3?
+  \xdef\@ID{\@chaptID\@sectID\the\@count}%      % construct value for label
+  \tag{\@prefix#1}{\@ID}%                       % tag #nn
+}                                               % end of \LabelParse
+
+\def\@ID{}                                      % default \@ID is null
+
+%======================================================================*
+% HyperTeXt support via \special HTML:
+%
+% \html{<stuff>} simply stuffs the ``stuff'' into an HTML \special
+% \linkto{<NAME>}{<text>} makes a link to a target created with \linkname
+% \linkname{<NAME>}{<text>} makes a NAME= target for the given text
+% \href{URL}{text} links the given text to the URL (as per LANL example)
+% \URL{URL} links to the given URL and puts it in the text
+
+
+\newif\ifhtml   \htmlfalse      % default is HTML OFF!
+
+% These just turn off special characters that might be in link names
+% or URL's, and then invoke @hidden macros to do the real work (below).
+
+\def\html{\begingroup\htmlChar\@html}
+
+\def\linkto{\begingroup\htmlChar\@linkto}
+\def\linkname{\begingroup\htmlChar\@linkname}
+
+\def\href{\begingroup\htmlChar\@href}
+\def\URL{\begingroup\htmlChar\@URL}
+\def\xxxcite{\begingroup\htmlChar\@xxxcite}
+
+% Hyperlink NAMES or URL's may contain characters which are special to 
+% TeX, so \htmlChar turns off their special meaning while we read
+% in the link or URL.  Then we end the group so that special characters
+% CAN be used in the text portion of the link.
+
+\def\notie{\def~{\Tilde}}
+\def\urlChar{\def\/{\discretionary{}{/}{/}}\def\.{\discretionary{.}{}{.}}}
+\def\@htmlChar{\def\/{/}}
+
+
+\begingroup
+  \catcode`\~=12  \catcode`"=12     \catcode`\/=12
+  \catcode`<=12   \catcode`>=12  
+  \begingroup
+     \catcode`\%=12 \catcode`\#=12 
+     \gdef\htmlChar{\notie
+        \catcode`@=12 \catcode`"=12  \catcode``=12  \catcode`'=12
+        \catcode`[=12 \catcode`]=12  \catcode`(=12  \catcode`)=12
+        \catcode`<=12 \catcode`>=12  \catcode`_=12  \catcode`^=12  
+        \catcode`$=12 \catcode`\&=12 \catcode`\#=12 \catcode`%=12 
+        \catcode`~=12 \catcode`/=12  \catcode`/=12  \@htmlChar}
+     \gdef\hash{#}\gdef\Tilde{~}
+  \endgroup
+
+% General HTML: 
+
+  \gdef\@html#1{\ifhtml\special{html:#1}\fi\endgroup}%
+
+% Local Links: 
+
+  \gdef\@linkto#1{\endgroup\@@linkto{#1}}% Arg #2 is whatever follows
+  \gdef\@@linkto#1#2{\html{<a href="\hash#1">}{#2}\html{</a>}}
+  \gdef\@linkname#1{\endgroup\@@linkname{#1}}
+  \gdef\@@linkname#1#2{\html{<a name="#1">}{#2}\html{</a>}}
+
+% General Links (any URL):
+
+  \gdef\@href#1{\endgroup\@@href{#1}}%  Arg #2 is whatever follows
+  \gdef\@@href#1#2{\html{<a href="#1">}\urlChar{#2}\html{</a>}}%
+  \gdef\@URL#1{\html{<a href="#1">}\urlChar{\tt #1}\html{</a>}\endgroup}%
+
+  \gdef\@xxxcite#1{\href{http://xxx.lanl.gov/abs/#1}%
+        \urlChar{#1}\relax}
+
+\endgroup
+
+% synonyms for macros in hyperbasics.tex
+
+\let\hypertarget=\linkname  \let\hname=\linkname
+
+%>>> EOF TXStags.tex <<<

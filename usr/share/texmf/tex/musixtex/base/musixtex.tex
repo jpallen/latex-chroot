@@ -1,0 +1,4696 @@
+%
+%   This file is part of MusiXTeX
+%
+%   MusiXTeX is free software; you can redistribute it and/or modify
+%   it under the terms of the GNU General Public License as published by
+%   the Free Software Foundation; either version 2, or (at your option)
+%   any later version.
+%
+%   MusiXTeX is distributed in the hope that it will be useful,
+%   but WITHOUT ANY WARRANTY; without even the implied warranty of
+%   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%   GNU General Public License for more details.
+%
+%   You should have received a copy of the GNU General Public License
+%   along with MusiXTeX; see the file COPYING.  If not, write to
+%   the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+%   Boston, MA 02111-1307, USA.
+%
+\ifx\undefined\startpiece \else \endinput \fi
+\edef\catcodeat{\the\catcode`\@}\catcode`\@=11
+
+\ifx\makeatletter\undefined\def\makeatletter{\catcode`\@=11\relax}\fi
+\ifx\makeatother\undefined\def\makeatother{\catcode`\@=12\relax}\fi
+
+\def\mufl@x{0.83}%
+\def\mxversion{T.112}
+\def\mxdate{3 Jan. 2003}
+
+\immediate\write16{MusiXTeX(c) \mxversion\space<\mxdate>}%
+\everyjob{\immediate\write16{MusiXTeX(c) \mxversion\space<\mxdate>}}%
+
+% moved out:
+% - 1/128th beams        -> musixbm
+% - triple pointed notes -> musixtri
+
+% and shrinked the memory consumption
+
+%++ickd 19Sep1997: with help of William P. Houser introduced dotted slurs.
+%        Changes marked with +ickd for added single lines, -ickd for replaced
+%++ickd  single lines, ++ickd...++ickd for added blocks
+
+%++simick 04Dec2000: Don Simons and Werner Icking made some improvements
+%          to volta-processing and centerbar processing the changes are
+%          marked with +simick for added single lines, -simick for
+%++simick  replaced lines and ++simick...++simick for added blocks
+
+% TeXperts may want to change the next
+
+% PARAMETER DIFFERENT THAN PLAIN
+
+\showboxdepth=0
+\showboxbreadth=0
+
+\ifx\undefined\documentstyle % -> []plain.tex
+  \parindent0pt
+  \hoffset-15.4mm
+  \voffset-10mm
+  \hsize190mm
+  \vsize260mm
+\fi
+
+%%% from LaTeX
+% The following definitions save token space.  E.g., using \@height
+% instead of height saves 5 tokens at the cost in time of one macro
+% expansion.
+
+\def\@height{height}
+\def\@depth{depth}
+\def\@width{width}
+
+%%% also removed 'by', '='
+
+\def\@to{to}
+\def\p@ne{.1}
+\def\qu@rt{.25}
+\def\h@lf{.5}
+\def\p@seven{.7}
+
+%%%from plain
+% To make the macros more efficient in time and space,
+% several constant values are declared here as control sequences
+% If they were changed, anything could happen; so they are private symbols
+
+%\chardef\active=13
+%\chardef\&=`\&   -> 38
+%\chardef\#=`\#   -> 35
+%\chardef\$=`\$   -> 36
+% Nomenclature: '@' means most times 'e' or seperator, sometimes 'o','a'
+
+\chardef\f@ur=4
+\chardef\fiv@=5
+\chardef\si@=6
+\chardef\s@v@n=7
+\chardef\@ight=8
+\chardef\nin@=9
+\chardef\t@n=10
+\chardef\@l@v@n=11
+\chardef\tw@lv@=12
+\chardef\fourt@@n=14
+\chardef\fiv@t@@n=15
+\chardef\tw@nty=20
+\chardef\@xxiii=23
+\chardef\@xxv=25
+\chardef\@xxiv=24
+\chardef\@xxvi=26
+\chardef\@xxvii=27
+\chardef\@xxix=29
+\chardef\@xxxii=32
+\chardef\@xl=40
+\chardef\@xli=41
+\chardef\@xlv=45
+\chardef\@l=50
+\chardef\@lii=52
+\chardef\@liv=54
+\chardef\@lxxxiii=83
+\chardef\@c=100
+\chardef\@cxv=115
+\chardef\@cxxviii=128
+
+\newif\ifcatcodesmusic
+
+\def\catcodesmusic{\ifcatcodesmusic\relax
+  \else
+  \edef\catcode@gt{\the\catcode`\>}\catcode`\>\tw@lv@
+  \edef\catcode@lt{\the\catcode`\<}\catcode`\<\tw@lv@
+  \edef\catcode@vert{\the\catcode`\|}\catcode`\|\active
+  \edef\catcode@and{\the\catcode`\&}\catcode`\&\active
+  \edef\catcode@excl{\the\catcode`\!}\catcode`\!\tw@lv@
+  \edef\catcode@star{\the\catcode`\*}\catcode`\*\tw@lv@
+  \edef\catcode@pt{\the\catcode`\.}\catcode`\.\tw@lv@
+  \edef\catcode@sc{\the\catcode`\:}\catcode`\:\tw@lv@
+  \let\@@bar\bar
+  \def\bar{\barre}%
+  \fi\catcodesmusictrue}
+
+\catcodesmusic
+
+% MusicTeX + MuFlex -> MusiXTeX
+\def\musixtex{MusiX\TeX}
+
+\def\kernm{\kern-}
+
+%...\let\@wloG=\wlog
+%...\def\wlog#1{}
+
+%%% account registers
+
+\let\maxinstruments\si@
+
+% temporary registers
+
+\newcount\n@i
+\newcount\n@ii
+\newcount\n@iii
+\newcount\n@iv
+\newcount\n@v
+\newcount\n@vi
+\newcount\n@vii
+\newcount\n@viii
+%\newcount\count@ %=\count255 def'd in plain
+
+\newbox\toks@box
+\newbox\w@rkbox
+\newbox\n@otebox
+
+\newdimen\y@
+\newdimen\y@i
+\newdimen\y@ii
+\newdimen\y@iii
+\newdimen\y@iv
+\newdimen\y@v
+
+% altitude
+
+\newskip\k@ii
+\newskip\k@iii
+\newskip\k@iiii
+\newskip\k@iiv
+\newskip\k@iv
+\newskip\k@ivi
+
+% InterNote
+
+\newdimen\i@ni
+\newdimen\i@nii
+\newdimen\i@niii
+\newdimen\i@niv
+\newdimen\i@nv
+\newdimen\i@nvi
+
+\def\i@n{\z@} % safety in case of....
+
+% positions x et z de debut des poutres
+
+\newdimen\b@xi  \newdimen\b@zi
+\newdimen\b@xii \newdimen\b@zii
+\newdimen\b@xiii\newdimen\b@ziii
+\newdimen\b@xiv \newdimen\b@ziv
+\newdimen\b@xv  \newdimen\b@zv
+\newdimen\b@xvi \newdimen\b@zvi
+
+\newdimen\c@xi  \newskip\c@zi
+\newdimen\c@xii \newskip\c@zii
+\newdimen\c@xiii\newskip\c@ziii
+\newdimen\c@xiv \newskip\c@ziv
+\newdimen\c@xv  \newskip\c@zv
+\newdimen\c@xvi \newskip\c@zvi
+
+\newdimen\d@xi  \newskip\d@zi
+\newdimen\d@xii \newskip\d@zii
+\newdimen\d@xiii\newskip\d@ziii
+\newdimen\d@xiv \newskip\d@ziv
+\newdimen\d@xv  \newskip\d@zv
+\newdimen\d@xvi \newskip\d@zvi
+
+\newdimen\e@xi  \newskip\e@zi
+\newdimen\e@xii \newskip\e@zii
+\newdimen\e@xiii\newskip\e@ziii
+\newdimen\e@xiv \newskip\e@ziv
+\newdimen\e@xv  \newskip\e@zv
+\newdimen\e@xvi \newskip\e@zvi
+
+\newdimen\f@xi  \newskip\f@zi
+\newdimen\f@xii \newskip\f@zii
+\newdimen\f@xiii\newskip\f@ziii
+\newdimen\f@xiv \newskip\f@ziv
+\newdimen\f@xv  \newskip\f@zv
+\newdimen\f@xvi \newskip\f@zvi
+
+% pentes des poutres ( entier de -9 a +9 )
+% multiplicite des poutres ( de -5 a +5 . 0= inactive )
+
+\newcount\b@pi  \newcount\b@ni
+\newcount\b@pii \newcount\b@nii
+\newcount\b@piii\newcount\b@niii
+\newcount\b@piv \newcount\b@niv
+\newcount\b@pv  \newcount\b@nv
+\newcount\b@pvi \newcount\b@nvi
+
+% Number of Portees
+
+\newcount\n@pi  \n@pi\@ne
+\newcount\n@pii \n@pii\@ne
+\newcount\n@piii\n@piii\@ne
+\newcount\n@piv \n@piv\@ne
+\newcount\n@pv  \n@pv\@ne
+\newcount\n@pvi \n@pvi\@ne
+
+% Actual Signs   Old Signs
+
+\newcount\a@si  \newcount\o@si
+\newcount\a@sii \newcount\o@sii
+\newcount\a@siii\newcount\o@siii
+\newcount\a@siv \newcount\o@siv
+\newcount\a@sv  \newcount\o@sv
+\newcount\a@svi \newcount\o@svi
+
+% ActualCleftoks
+
+\newtoks\a@ci  \a@ci={{\z@}{\z@}{\z@}{\z@}}
+\newtoks\a@cii \a@cii={{\z@}{\z@}{\z@}{\z@}}
+\newtoks\a@ciii\a@ciii={{\z@}{\z@}{\z@}{\z@}}
+\newtoks\a@civ \a@civ={{\z@}{\z@}{\z@}{\z@}}
+\newtoks\a@cv  \a@cv={{\z@}{\z@}{\z@}{\z@}}
+\newtoks\a@cvi \a@cvi={{\z@}{\z@}{\z@}{\z@}}
+
+% OldCleftoks
+
+\newtoks\o@ci
+\newtoks\o@cii
+\newtoks\o@ciii
+\newtoks\o@civ
+\newtoks\o@cv
+\newtoks\o@cvi
+
+% MeterToks
+
+\newtoks\m@ti
+\newtoks\m@tii
+\newtoks\m@tiii
+\newtoks\m@tiv
+\newtoks\m@tv
+\newtoks\m@tvi
+
+% Altitude of choir groups
+
+\newskip\g@bi
+\newskip\g@bii
+\newskip\g@biii
+
+% Height of choir groups
+
+\newskip\g@hi
+\newskip\g@hii
+\newskip\g@hiii
+
+\let\maxgroups\thr@@ % maximum three groups of instruments or choirs
+\newcount\group@no
+
+%%% fonts
+
+%%
+% Font package for Musixtex.
+%
+% Ross Mitchell
+% February 1995
+%%
+
+%%
+% Find current font prefix (cm, dc, ec)
+%%
+\def\@onetoks#1#2+{#1}
+\def\@secondtoks#1#2#3+{#2}
+\def\@twotoks#1#2#3+{#1#2}
+\def\@svntoks#1#2#3#4#5#6#7#8+{#7}
+\rm
+\edef\fontid{\expandafter\@twotoks\fontname\the\font+}
+\edef\DynFontId{\fontid}
+\edef\fontfid{\expandafter\@onetoks\fontname\the\font+}
+\edef\fontsid{\expandafter\@secondtoks\fontname\the\font+}
+%
+% Find out whether \rm font name of the form dcr1000 , i.e. with a digit at
+% 7th position
+
+\edef\Thelastfontname{\expandafter\@svntoks\fontname\the\font---------+}
+
+\newif\iflongDCfontnames
+\newif\iflongECfontnames
+\if\Thelastfontname 0 \longDCfontnamestrue\fi
+\if\Thelastfontname 1 \longDCfontnamestrue\fi
+\if\Thelastfontname 2 \longDCfontnamestrue\fi
+\if\Thelastfontname 3 \longDCfontnamestrue\fi
+\if\Thelastfontname 4 \longDCfontnamestrue\fi
+\if\Thelastfontname 5 \longDCfontnamestrue\fi
+\if\Thelastfontname 6 \longDCfontnamestrue\fi
+\if\Thelastfontname 7 \longDCfontnamestrue\fi
+\if\Thelastfontname 8 \longDCfontnamestrue\fi
+\if\Thelastfontname 9 \longDCfontnamestrue\fi
+\iflongDCfontnames
+  \if\fontfid e
+     \longECfontnamestrue
+     \longDCfontnamesfalse
+  \fi
+  \if\fontfid r
+     \if\fontsid x
+       \longECfontnamestrue
+       \longDCfontnamesfalse
+       \def\DynFontId{cm}
+     \fi
+  \fi
+\fi
+
+%%
+% Eight point fonts: roman, bold, and italic.
+%%
+
+\ifx\undefined\eightrm
+\iflongDCfontnames
+  \font\eightrm=\fontid r0800
+  \font\eightbf=\fontid bx0800
+  \font\eightit=\fontid ti0800
+\else\iflongECfontnames
+  \font\eightrm=\fontid rm0800
+  \font\eightbf=\fontid bx0800
+  \font\eightit=\fontid ti0800
+\else
+  \font\eightrm=\fontid r8
+  \font\eightbf=\fontid bx8
+  \font\eightit=\fontid ti8
+\fi
+\fi
+\fi
+
+%%
+% Nine point fonts: roman, bold, and italic.
+%%
+
+\ifx\undefined\ninerm
+\iflongDCfontnames
+  \font\ninerm=\fontid r0900
+  \font\ninebf=\fontid bx0900
+  \font\nineit=\fontid ti0900
+\else\iflongECfontnames
+  \font\ninerm=\fontid rm0900
+  \font\ninebf=\fontid bx0900
+  \font\nineit=\fontid ti0900
+\else
+  \font\ninerm=\fontid r9
+  \font\ninebf=\fontid bx9
+  \font\nineit=\fontid ti9
+\fi
+\fi
+\fi
+
+%%
+% Ten point fonts: roman, bold, and italic and typewriter.
+% Load only if not already defined (Necessary in Latex2e).
+%%
+
+\ifx\undefined\tenrm
+\iflongDCfontnames
+  \font\tenrm=\fontid r1000
+  \font\tenbf=\fontid bx1000
+  \font\tenit=\fontid ti1000
+\else\iflongECfontnames
+  \font\tenrm=\fontid rm1000
+  \font\tenbf=\fontid bx1000
+  \font\tenit=\fontid ti1000
+\else
+  \font\tenrm=\fontid r10
+  \font\tenbf=\fontid bx10
+  \font\tenit=\fontid ti10
+\fi
+\fi
+\fi
+
+%%
+% Twelve point fonts: roman, bold, and italic.
+%%
+\ifx\undefined\twelverm
+\iflongDCfontnames
+  \font\twelverm=\fontid r1200
+  \font\twelvebf=\fontid bx1200
+  \font\twelveit=\fontid ti1200
+\else\iflongECfontnames
+  \font\twelverm=\fontid rm1200
+  \font\twelvebf=\fontid bx1200
+  \font\twelveit=\fontid ti1200
+\else
+  \font\twelverm=\fontid r12
+  \font\twelvebf=\fontid bx12
+  \font\twelveit=\fontid ti12
+\fi
+\fi
+\fi
+
+%%
+% Large fonts for titles: boldface only.
+%%
+\ifx\bigfont\undefined
+\iflongDCfontnames
+\font\bigfont=\fontid bx1440 % 14pt, formerly \moyen.
+\else\iflongECfontnames
+\font\bigfont=\fontid bx1440 % 14pt, formerly \moyen.
+\else
+\font\bigfont=\fontid bx12 scaled \magstep1 % 14pt, formerly \moyen.
+\fi
+\fi
+\fi
+
+\ifx\Bigfont\undefined
+\iflongDCfontnames
+\font\Bigfont=\fontid bx1728 % 17pt, formerly \gros.
+\else\iflongECfontnames
+\font\Bigfont=\fontid bx1728 % 17pt, formerly \gros.
+\else
+\font\Bigfont=\fontid bx12 scaled \magstep2 % 17pt, formerly \gros.
+\fi
+\fi
+\fi
+
+\ifx\BIgfont\undefined
+\iflongDCfontnames
+\font\BIgfont=\fontid bx2074 % 20pt, formerly \gros.
+\else\iflongECfontnames
+\font\BIgfont=\fontid bx2074 % 20pt, formerly \gros.
+\else
+\font\BIgfont=\fontid bx12 scaled \magstep3 % 20pt.
+\fi
+\fi
+\fi
+
+\ifx\BIGfont\undefined
+\iflongDCfontnames
+\font\BIGfont=\fontid bx2488 % 25pt, formerly \enorme.
+\else\iflongECfontnames
+\font\BIGfont=\fontid bx2488 % 25pt, formerly \enorme.
+\else
+\font\BIGfont=\fontid bx12 scaled \magstep4 % 25pt, formerly \emorme.
+\fi
+\fi
+\fi
+
+%%
+% Bold italic fonts for dynamic markings.
+%%
+
+\iflongDCfontnames
+\font\ppffsixteen=\DynFontId bi1000
+\font\ppfftwenty=\DynFontId bi1200
+\font\ppfftwentyfour=\DynFontId bi1440
+\font\ppfftwentynine=\DynFontId bi1728
+\font\smallppff=\DynFontId bi1000
+\font\normppff=\DynFontId bi1200
+\font\medppff=\DynFontId bi1440
+\else\iflongECfontnames
+\font\ppffsixteen=\DynFontId bi1000
+\font\ppfftwenty=\DynFontId bi1200
+\font\ppfftwentyfour=\DynFontId bi1440
+\font\ppfftwentynine=\DynFontId bi1728
+\font\smallppff=\DynFontId bi1000
+\font\normppff=\DynFontId bi1200
+\font\medppff=\DynFontId bi1440
+\else
+\font\ppffsixteen=\DynFontId bxti10
+\font\ppfftwenty=\DynFontId bxti10 scaled \magstep1
+\font\ppfftwentyfour=\DynFontId bxti10 scaled \magstep2
+\font\ppfftwentynine=\DynFontId bxti10 scaled \magstep3
+\font\smallppff=\DynFontId bxti10
+\font\normppff=\DynFontId bxti10 scaled \magstep1
+\font\medppff=\DynFontId bxti10 scaled \magstep2
+\fi
+\fi
+
+\def\smalldyn{\let\ppff\smallppff \let\p@@f\ppff}
+\def\normdyn{\let\ppff\normppff \let\p@@f\ppff}
+\def\meddyn{\let\ppff\medppff \let\p@@f\twelveit}
+
+\font\musiceleven=musix11
+\font\musicthirteen=musix13
+\font\musicsixteen=musix16
+\font\musictwenty=musix20
+\font\musictwentyfour=musix24
+\font\musictwentynine=musix29
+
+% piano brackets, slides, guitar chords, lines, (de)crescendi, circles
+
+\font\mxsps=musixspx
+
+%%
+% Define six font families.
+%%
+
+\def\smalltype{%
+  \let\rm\eightrm
+  \let\bf\eightbf
+  \let\it\eightit
+  \rm}
+\def\Smalltype{%
+  \let\rm\ninerm
+  \let\bf\ninebf
+  \let\it\nineit
+  \rm}
+\def\normtype{%
+  \let\rm\tenrm
+  \let\bf\tenbf
+  \let\it\tenit
+  \rm}
+\def\medtype{%
+  \let\rm\twelverm
+  \let\bf\twelvebf
+  \let\it\twelveit
+  \rm}
+\def\bigtype{%
+  \let\rm\bigfont
+  \let\bf\bigfont
+  \let\it\bigfont
+  \bf}
+\def\Bigtype{%
+  \let\rm\Bigfont
+  \let\bf\Bigfont
+  \let\it\Bigfont
+  \bf}
+\def\BIgtype{%
+  \let\rm\BIgfont
+  \let\bf\BIgfont
+  \let\it\BIgfont
+  \bf}
+\def\BIGtype{%
+  \let\rm\BIGfont
+  \let\bf\BIGfont
+  \let\it\BIGfont
+  \bf}
+
+%%%
+%
+%   Slur macro package for MusicTeX
+%
+%   Ross Mitchell, February 20 1993
+%
+%%%
+%%
+%   Load the font set
+%
+%   Nomenclature: slur[p][size]
+%       [p] :   sign  of slur gradient; u=positive, d=negative, z=zero
+%%
+
+\font\slurz=xslz20
+\font\slurzd=xslz20d %+ickd
+
+\font\slurueleven=xslu11 % slur up eleven points
+\font\sluruthirteen=xslu13
+\font\slurusixteen=xslu16
+\font\slurutwenty=xslu20
+\font\slurutwentyfour=xslu24
+\font\slurutwentynine=xslu29
+
+\font\slurdeleven=xsld11 % slur down eleven points
+\font\slurdthirteen=xsld13
+\font\slurdsixteen=xsld16
+\font\slurdtwenty=xsld20
+\font\slurdtwentyfour=xsld24
+\font\slurdtwentynine=xsld29
+
+%++ickd same for dotted slurs
+\font\sluruelevend=xslu11d % slur up eleven points
+\font\sluruthirteend=xslu13d
+\font\slurusixteend=xslu16d
+\font\slurutwentyd=xslu20d
+\font\slurutwentyfourd=xslu24d
+\font\slurutwentynined=xslu29d
+
+\font\slurdelevend=xsld11d % slur down eleven points
+\font\slurdthirteend=xsld13d
+\font\slurdsixteend=xsld16d
+\font\slurdtwentyd=xsld20d
+\font\slurdtwentyfourd=xsld24d
+\font\slurdtwentynined=xsld29d
+%++ickd
+
+%!these fonts can't be used with highres printers (>~800dpi)
+% for these printers comes a interface to PS using DVIPS (PS-Tricks)
+% and \special{}-commands next time (patience is a virtue ...)
+
+\font\xtie=xslhz20
+\font\xtied=xslhz20d %+ickd
+
+\font\hslurdeleven=xslhd11 % slur half down eleven points
+\font\hslurdthirteen=xslhd13
+\font\hslurdsixteen=xslhd16 % slur half down sixteen points
+\font\hslurdtwenty=xslhd20
+\font\hslurdtwentyfour=xslhd24
+\font\hslurdtwentynine=xslhd29
+
+\font\hslurueleven=xslhu11
+\font\hsluruthirteen=xslhu13
+\font\hslurusixteen=xslhu16
+\font\hslurutwenty=xslhu20
+\font\hslurutwentyfour=xslhu24
+\font\hslurutwentynine=xslhu29
+
+%++ickd same for dotted slurs
+\font\hslurdelevend=xslhd11d % slur half down eleven points
+\font\hslurdthirteend=xslhd13d
+\font\hslurdsixteend=xslhd16d % slur half down sixteen points
+\font\hslurdtwentyd=xslhd20d
+\font\hslurdtwentyfourd=xslhd24d
+\font\hslurdtwentynined=xslhd29d
+
+\font\hsluruelevend=xslhu11d
+\font\hsluruthirteend=xslhu13d
+\font\hslurusixteend=xslhu16d
+\font\hslurutwentyd=xslhu20d
+\font\hslurutwentyfourd=xslhu24d
+\font\hslurutwentynined=xslhu29d
+%++ickd
+
+% number of pending slurs
+
+\newcount\N@s
+
+% horizontal start position of slur
+
+\newdimen\s@xi
+\newdimen\s@xii
+\newdimen\s@xiii
+\newdimen\s@xiv
+\newdimen\s@xv
+\newdimen\s@xvi
+
+% sense u,d and x (flag) for pending slurs
+
+\newtoks\s@si  \s@si={x}
+\newtoks\s@sii \s@sii={x}
+\newtoks\s@siii\s@siii={x}
+\newtoks\s@siv \s@siv={x}
+\newtoks\s@sv  \s@sv={x}
+\newtoks\s@svi \s@svi={x}
+
+% vertical offset of slur
+
+\newdimen\s@Y
+\newdimen\s@Yi
+\newdimen\s@Yii
+\newdimen\s@Yiii
+\newdimen\s@Yiv
+\newdimen\s@Yv
+\newdimen\s@Yvi
+
+% altportee of slur
+
+\newskip\s@ai
+\newskip\s@aii
+\newskip\s@aiii
+\newskip\s@aiv
+\newskip\s@av
+\newskip\s@avi
+
+% vertical start position of slur [steps of internote]
+
+\newcount\s@yi
+\newcount\s@yii
+\newcount\s@yiii
+\newcount\s@yiv
+\newcount\s@yv
+\newcount\s@yvi
+
+
+% instrument number of that slur (to retrieve internote)
+
+\newcount\s@Ni
+\newcount\s@Nii
+\newcount\s@Niii
+\newcount\s@Niv
+\newcount\s@Nv
+\newcount\s@Nvi
+
+% vertical end position of slur [steps of internote], used from \breakslur
+% the value \maxdimen is used to decide, if \breakslur is used or not (flag)
+
+\newcount\s@zi  \s@zi\maxdimen
+\newcount\s@zii \s@zii\maxdimen
+\newcount\s@ziii\s@ziii\maxdimen
+\newcount\s@ziv \s@ziv\maxdimen
+\newcount\s@zv  \s@zv\maxdimen
+\newcount\s@zvi \s@zvi\maxdimen
+
+%++ickd: dotted indicator for pending slurs
+
+\newtoks\s@di
+\newtoks\s@dii
+\newtoks\s@diii
+\newtoks\s@div
+\newtoks\s@dv
+\newtoks\s@dvi
+%++ickd
+
+\def\roman@n@i{\romannumeral\n@i\endcsname}
+
+\def\s@l@ctslur#1\relax{%
+  \n@i#1\relax\test@num
+  \edef\s@a{\csname s@a\roman@n@i}%  dimen (altportee)
+  \edef\s@x{\csname s@x\roman@n@i}%  dimen (hor start pos)
+  \edef\s@y{\csname s@y\roman@n@i}%  count (startnote [internote])
+  \edef\s@N{\csname s@N\roman@n@i}%  count (instrument number)
+  \edef\s@z{\csname s@z\roman@n@i}%  count (endnote [internote])
+  \edef\s@Y{\csname s@Y\roman@n@i}%  dimen (voffset)
+  \edef\s@d{\csname s@d\roman@n@i}%  token (dotted) +ickd
+  \edef\s@s{\csname s@s\roman@n@i}}% token (sense)
+
+% get current position (returns the dimen in \y@v)
+% (\lin@pos starts behind signatures!)
+
+\newdimen\lin@pos
+\def\getcurpos{\y@v\lin@pos \advance\y@v\locx@skip}
+
+% \n@i   vertical offset of first  note (number); temporary
+% \n@ii  vertical offset of second note (number); temporary
+% \n@iii meet note
+% \n@iv  first note
+% \n@v   temp. character
+% \n@vi  last note
+% \n@vii right halfslur length
+% \n@viii   don't touch
+% \y@    complete length of slur - allowed overlap (4pt), temp. length
+% \y@i   abs. height of slur
+% \y@ii  complete length of slur
+% \y@iii old maxslurwidth
+% \y@iv  don't touch
+% \y@v   don't touch
+
+% \@sense{u,d}
+%
+% if \curve (\midslur) is used
+%   \@meet{}
+%   \l@length{}
+%   \r@length{}
+
+% #1 start pitch #2 end pitch #3 length #4 right hoffset
+
+\newcount \meet@minus@n@iv
+\def\writ@slur#1#2#3#4{\check@staff %  modified: sld... into slurd...   12.04.95 ick
+    \let\slz\slurz%       inserted
+    \let\slzd\slurzd%     inserted for dotted slurs +ickd
+  \ifx\s@N\undefined \relax % \let\internote\Internote
+  \else
+    \edef\internote{\csname i@n\romannumeral\s@N\endcsname}%
+  \fi
+%    \immediate\write16{\noexpand\writ@slur internote:\the\internote}%
+  \n@iv#1%
+  \n@vi#2%
+%%
+%   Get note vertical offsets
+%   \n@iv=   vertical offset of first  note(n@i temp);
+%   \n@vi=   vertical offset of second note(n@ii temp);
+%   \y@i =   reference height of first note (pt);
+%
+% Define adequate fonts for this slur, according to the value of \internote
+%
+  \ifdim\internote>3.5pt
+    \let\sld\slurdtwentynine \let\slu\slurutwentynine
+    \let\hslurd\hslurdtwentynine \let\hsluru\hslurutwentynine
+    \let\sldd\slurdtwentynined \let\slud\slurutwentynined %        +ickd
+    \let\hslurdd\hslurdtwentynined \let\hslurud\hslurutwentynined %+ickd
+    \def\@stepwidth{3.6pt}%
+  \else   \ifdim\internote>2.9pt
+    \let\sld\slurdtwentyfour \let\slu\slurutwentyfour
+    \let\hslurd\hslurdtwentyfour \let\hsluru\hslurutwentyfour
+    \let\sldd\slurdtwentyfourd \let\slud\slurutwentyfourd %        +ickd
+    \let\hslurdd\hslurdtwentyfourd \let\hslurud\hslurutwentyfourd %+ickd
+    \def\@stepwidth{3.0pt}%
+  \else  \ifdim\internote>2.3pt
+    \let\sld\slurdtwenty \let\slu\slurutwenty
+    \let\hslurd\hslurdtwenty \let\hsluru\hslurutwenty
+    \let\sldd\slurdtwentyd \let\slud\slurutwentyd %        +ickd
+    \let\hslurdd\hslurdtwentyd \let\hslurud\hslurutwentyd %+ickd
+    \def\@stepwidth{2.5pt}%
+  \else  \ifdim\internote>1.8pt
+    \let\sld\slurdsixteen \let\slu\slurusixteen
+    \let\hslurd\hslurdsixteen \let\hsluru\hslurusixteen
+    \let\sldd\slurdsixteend \let\slud\slurusixteend %        +ickd
+    \let\hslurdd\hslurdsixteend \let\hslurud\hslurusixteend %+ickd
+    \def\@stepwidth{2pt}%
+  \else  \ifdim\internote>1.4pt
+    \let\sld\slurdthirteen \let\slu\sluruthirteen
+    \let\hslurd\hslurdthirteen \let\hsluru\hsluruthirteen
+    \let\sldd\slurdthirteend \let\slud\sluruthirteend %        +ickd
+    \let\hslurdd\hslurdthirteend \let\hslurud\hsluruthirteend %+ickd
+    \def\@stepwidth{1.6pt}%
+  \else
+    \let\sld\slurdeleven \let\slu\slurueleven
+    \let\hslurd\hslurdeleven \let\hsluru\hslurueleven
+    \let\sldd\slurdelevend \let\slud\sluruelevend %        +ickd
+    \let\hslurdd\hslurdelevend \let\hslurud\hsluruelevend %+ickd
+    \def\@stepwidth{1.28pt}%
+  \fi\fi\fi\fi\fi
+%
+% End choice of font
+%
+  \n@i\n@iv \pl@base % \y@i = initial height
+  \n@ii\n@vi
+%
+% Select appropriate font
+% Set \n@i to the vertical difference index
+% setup \n@iii(meetnote)
+%
+  \ifnum\n@ii=\n@i                     % Slope is zero
+    \n@iii\n@i
+    \if u\@sense \advance\n@iii\thr@@ \else \advance\n@iii-\thr@@ \fi
+    \def\@slope{z}\n@i\z@
+  \else
+    \ifnum\n@ii<\n@i                   % Slope is negative
+      \C@csl\n@i\n@ii\def\@slope{d}%         % compute @meet height for slurs
+    \else                              % Slope is positive
+      \C@csl\n@ii\n@i\def\@slope{u}\n@i\n@ii % compute @meet height for slurs
+    \fi
+  \fi
+%%
+%   Select the required font and load the width parameters
+%
+%   Font specific parameters
+%   \y@iii is the horizontal width of the longest slur in the fonts
+%   This parameter is loaded from the tfm \fontdimen parameter 5
+%   respectively
+%%
+  \y@iii\fontdimen\fiv@\csname sl\@slope\endcsname
+  \y@ii#3%
+%
+% \n@i contains slope (difference between start and end note)
+%
+% force longslurs if (!!! no check, be careful !!!)
+% long slurs are at least 20[16] pt long) !!! Perhaps will change again !!!
+% - difference between first note and last note > 8
+% - if \curve or \midslur is def'd
+% - if \invertslur is used
+%
+  \ifnum\n@i>\@ight \y@iii\z@ \fi % RMslurs limit 8 steps
+  \ifx\@meet\empty \else\y@iii\z@ \fi
+  \ifx\@invert\@ne \y@iii\z@ \fi
+  \ifdim\y@ii>\y@iii % start of longslurs
+%
+% setup meet height of slur
+%
+    \ifx\empty\@meet
+%      \immediate\write16{\noexpand\@meet was empty.}%
+    \else
+      \n@iii\n@iv
+      \advance\n@iii\@meet
+    \fi
+    \edef\@meet{\the\n@iii}%
+%     \immediate\write16{\noexpand\@meet = \@meet.}%
+%
+% allow a little bit overlap (2*2pt) for nicer outlook (as longer as nicer)
+% clip to extremities
+% compute the max length in fontunits (\count@)
+%
+    \y@\y@ii \advance\y@\f@ur\p@ \n@v\y@
+    \sp@pt\t@n % 10pt steps
+    \advance\n@v-\f@ur % first brace is 20pt wide (perhaps 10pt is better ??)
+    \min@n@v\z@
+    \max@n@v\fourt@@n % largest braces are 2*((90pt-20pt)/10pt)
+    \count@\n@v % max length
+%
+% compute the length of the starting and ending halfslurs
+% in case, that curve is not def'd
+%
+    \ifx\empty\l@length
+      \divide\n@v\tw@ % 2 halfslurs
+      \n@vii\n@v
+      \n@ii\n@v
+      \def@lr
+%
+% first try to reach nicer long slurs without using \curve
+%
+      \if z\@slope % leave ties untouched
+      \else
+        \ifnum\count@>\z@ % only for long slurs
+          \multiply\n@v\tw@
+          \if\@slope\@sense % uu,dd advance l@length ud,du advance r@length
+            \s@adjust\n@vii\n@ii
+          \else
+            \s@adjust\n@ii\n@vii
+          \fi
+          \def@lr
+        \fi
+      \fi
+%
+% adjust \curve parameters, if neccesary
+%
+    \else
+      \n@vii\l@length
+      \n@ii\r@length
+      \loop
+        \count@\n@vii
+        \advance\count@\n@ii
+        \ifnum\count@>\n@v
+        \advance\n@vii\m@ne \ifnum\n@vii<\z@ \n@vii\z@ \fi
+        \advance\n@ii\m@ne  \ifnum\n@ii<\z@  \n@ii\z@  \fi
+      \repeat
+      \def@lr
+    \fi
+%
+% clip to extremity heights (max slur height= 16\internote)
+%
+    \C@csm\n@iv
+    \C@csm\n@vi
+%
+% change sense and offset behind linebreak and reset flag
+%
+    \ifx\@invert\@ne \ifdim\s@x=\z@
+      \@invsl \let\@invert\empty \s@Y-\s@Y
+    \fi \fi
+%
+% compute final height and put the box
+%
+%    \immediate\write16{ before @meet:\noexpand\y@i=\the\y@i}%
+%    \message{ was \noexpand\n@iv\the\n@iv}%
+%    \message{ was \noexpand\n@vi\the\n@vi}%
+%
+    \meet@minus@n@iv=\@meet
+    \advance\meet@minus@n@iv-\n@iv
+%    \immediate\write16{\noexpand\meet@minus@n@iv=\the\meet@minus@n@iv}%
+%    \y@i\@meet\internote % \y@i final height
+% change from DT for staffspacing not standard
+    \y@i \@stepwidth % part proportional to slur font size
+    \multiply \y@i \meet@minus@n@iv
+    \advance\y@i \n@iv\internote % was done by \pl@base...
+%
+    \C@sof % add the voffsets
+    \llap{\raise\y@i\hbox\@to\y@ii{%
+%
+% compute the beginning and ending halfslur chars
+% n@i  firstslur
+% n@ii lastslur
+% n@v  character
+%
+    \C@cc\n@iv\n@i\n@ii
+    \C@cc\n@vi
+%
+    \n@v\l@length
+    \multiply\n@v\sixt@@n %  16 different heigths
+    \advance\n@v\n@i % offset to length
+    \advance\n@v\@cxxviii %  offset to starthalfslur
+    \@boX  \box\ch@box\hss%   put starthalfslur
+    \n@v\r@length
+    \multiply\n@v\sixt@@n
+    \advance\n@v\n@ii
+%
+% put ending halfslur in box
+%
+    \ifx\@invert\@ne \@invsl \fi
+    \@boX
+%
+% put the middle extension (could be replaced by []rule)
+%
+    \ifdim\y@ii>\p@ne\p@
+      \n@v\y@ii
+      \sp@pt\f@ur % 4pt steps
+      \ifx\@invert\@ne
+        \divide\n@v\tw@
+        \if u\@sense \advance\n@v\@cxxviii \fi
+        \mid@box\hss\hss% don't ask me why
+        \if u\@sense \advance\n@v-\@cxxviii \else \advance\n@v\@cxxviii \fi
+        \mid@box%
+      \else
+        \if d\@sense \advance\n@v\@cxxviii \fi
+        \mid@box \fi \fi
+%
+% place the end of slur and kern right horizontal offset
+%
+    \hss\box\ch@box}\kern#4}%
+%
+% reset slurcurve
+%
+    \global\let\@meet\empty
+    \let\l@length\empty
+    \let\@invert\empty
+%
+%>>>>>>  start of RM slurs
+% Set \n@v to the width index in the slur font table
+%
+  \else
+    \ifdim\y@ii<\@ight\p@ \y@ii\@ight\p@ \fi % Clip to extremities
+    \y@\y@ii
+    \advance\y@-\si@\p@
+    \n@v\y@
+    \sp@pt\f@ur
+%
+% Find decimal character count into font table
+% (a) Zero height slurs: charnum=                         width index
+% (b) Others:            charnum= 16*(height index - 1) + width index
+% Place the character count in \n@v
+%
+    \if z\@slope
+      \if d\@sense \advance\n@v\@liv \fi % \@liv(=54) offset to slurchars
+    \else
+      \advance\n@i\m@ne     %     height index - 1
+      \multiply\n@i\sixt@@n % 16*(height index - 1)
+      \advance\n@v\n@i      % 16*(height index - 1) + width index
+      \if d\@sense \advance\n@v\@cxxviii \fi
+    \fi
+%
+% Place the slur character
+%
+    \C@sof
+    \ifnum\n@v>255 % to avoid diags in case of...
+      \n@v=255\relax
+    \fi
+    \ifnum\n@v<0 % to avoid diags in case of...
+      \n@v=0\relax
+    \fi
+%
+    \llap{\raise\y@i\hbox\@to\y@ii{%
+%-ickd \hss\csname sl\@slope\endcsname\char\n@v\hss}\kern#4}%
+       \hss\csname sl\@slope\@dotted\endcsname\char\n@v\hss}\kern#4}%
+  \fi
+\fi} % end writ@slur
+
+
+\def\sp@pt#1{\divide\n@v65536\divide\n@v#1}
+\def\max@n@v#1{\ifnum\n@v>#1\n@v#1\fi}
+\def\min@n@v#1{\ifnum\n@v<#1\n@v#1\fi}
+
+%-ickd \def\mid@box{\hbox{\xtie\char\n@v}}
+\def\mid@box{%
+    \ifnum\n@v>255 % to avoid diags in case of...
+      \n@v=255\relax
+    \fi
+    \ifnum\n@v<0 % to avoid diags in case of...
+      \n@v=0\relax
+    \fi
+%
+    \hbox{\csname xtie\@dotted\endcsname\char\n@v}}
+%-ickd \def\@boX{\setbox\ch@box\hbox{\csname hslur\@sense\endcsname\char\n@v}%
+\def\@boX{%
+    \ifnum\n@v>255 % to avoid diags in case of...
+      \n@v=255\relax
+    \fi
+    \ifnum\n@v<0 % to avoid diags in case of...
+      \n@v=0\relax
+    \fi
+%
+  \setbox\ch@box\hbox{\csname hslur\@sense\@dotted\endcsname\char\n@v}%
+  \advance\y@ii-\wd\ch@box}
+
+\def\def@lr{\edef\l@length{\the\n@vii}\edef\r@length{\the\n@ii}}
+
+\def\s@adjust#1#2{%
+  \ifnum\n@v<\count@ \advance#1\@ne \fi
+  \ifnum\n@v>\z@ \advance#1\@ne \advance#2\m@ne
+    \ifnum#1>\s@v@n #1\s@v@n \fi \fi}
+
+\def\C@csl#1#2{% compute meet height for slurs
+  \if u\@sense \n@iii#1\advance\n@iii\tw@
+  \else \n@iii#2\advance\n@iii-\tw@ \fi
+  \ifx\@invert\@ne
+    \n@iii#1\advance\n@iii-#2\divide\n@iii\tw@ \advance\n@iii#2\fi
+    \advance#1-#2}
+
+\def\C@cc#1{% slur = abs(meet-note) - 1
+  \n@ii\@meet
+  \advance\n@ii-#1%
+  \ifnum\n@ii<\z@ \n@ii-\n@ii \fi
+  \advance\n@ii\m@ne
+  }
+%  \ifnum\n@ii<\z@\immediate\write16{Warning: \noexpand\C@cc->\noexpand\n@ii=\the\n@ii}\fi
+%  \n@ii\z@}  % modeif DT 20-12-97
+
+\def\C@csm#1{% clip to extremity heights (max slur height= 16\internote)
+  \n@i\n@iii
+  \advance\n@i-#1%
+  \ifnum\n@i>\sixt@@n
+    \ifnum\n@iii>#1%
+      #1\n@iii \advance#1-\sixt@@n
+    \else
+      #1\n@iii \advance#1\sixt@@n
+    \fi
+  \fi}
+
+\def\C@sof{\advance\y@i\s@Y % abs. voffset
+  \ifx\@Ti\@ne \advance\y@i\s@a \let\@Ti\empty \fi}% call from cutslur
+
+% manual influation on the curve for long slurs
+% must be coded in front of \tslur
+% #1 final height [number, steps of internote, relativ to beginning! note]
+% #2 (length)slope left #3 (length)slope right
+
+\def\curve#1#2#3{\getcurpos % ignore \curve behind a linebreak
+  \ifdim\y@v>\@xxxii\p@ \xdef\@meet{#1}\edef\l@length{#2}\edef\r@length{#3}\relax
+  \else
+%    \message{\noexpand\curve #1#2#3 not expanded}%
+  \fi}
+
+% raise (or lower) only the mid of slur
+% #1 final height [number, steps of internote, relativ to beginning! note]
+%! #1 can still be changed to work relativ from default height ???
+
+\def\midslur#1{\getcurpos
+  \ifdim\y@v>\@xxxii\p@ \xdef\@meet{#1}\relax
+  \else
+%    \message{\noexpand\midslur #1 not expanded}%
+  \fi}
+
+\let\@meet\empty
+\let\l@length\empty
+\let\r@length\empty
+
+% Liftslur #1 refnumber #2 lift[steps of internote]
+
+\def\Liftslur#1#2{\n@i#1\advance\n@i\@ne \advance\csname s@y\roman@n@i#2}
+
+% breakslur #1 refnumber #2 endheight during linebreak[steps of internote]
+
+\def\breakslur#1#2{\inhgetn@i#2\relax\n@ii\n@i
+  \n@i#1\advance\n@i\@ne \global\csname s@z\roman@n@i\n@ii}
+
+% invertslur #1 refnumber
+
+\def\@invsl{\if u\the\s@s \s@s{d}\else \s@s{u}\fi}
+
+\def\invertslur#1{\s@l@ctslur#1\relax
+  \if u\the\s@s \global\s@s{D}% change sense and set flag for invertslur
+  \else \global\s@s{U}\fi}
+
+% initiate slur #1 reference number #2 start note
+
+\def\isluru{\i@slur\h@lf{1\p@seven\internote}u}% 'normal'
+\def\issluru{\i@slur{1\p@ne}{\p@seven\internote}u}% shorter for accords
+% for beam(ib[l]u) or stem, doesn't work with \stemcut (yet?)
+\def\ibsluru{\y@i\stemfactor\interbeam
+             \advance\y@i\h@lf\internote \i@slur1\y@i u}
+\def\islurd{\i@slur\h@lf{-1\p@seven\internote}d}
+\def\isslurd{\i@slur{1\p@ne}{-\p@seven\internote}d}
+\def\ibslurd{\y@i\stemfactor\interbeam
+             \advance\y@i\h@lf\internote \y@i-\y@i \i@slur0\y@i d}
+
+% initiate slur at half note width but NO vertical offset (for linkings)             
+
+\def\ihsluru{\i@slur\h@lf\z@ u}%
+\def\ihslurd{\i@slur\h@lf\z@ d}%
+
+\let\itieu\issluru
+\let\itied\isslurd
+\def\istieu{\i@slur{1\p@ne}{\qu@rt\internote}u}% shorter for accords
+\def\istied{\i@slur{1\p@ne}{-\qu@rt\internote}d}%
+\let\itenu\istieu
+\let\itenl\istied
+\let\Itenu\istieu
+\let\Itenl\istied
+
+\def\dotted{\let\dott@d\@ne}\let\dott@d\empty %+ickd
+
+\def\@mis{missing }
+
+% #1 hoffset #2 voffset #3 sense (u,d) #4 reference number #5 start note
+
+\def\i@slur#1#2#3#4#5{%
+ \check@staff
+  \global\advance\N@s\@ne % update slurcounter
+  \s@l@ctslur#4\relax
+% test for already invoked \islur
+  \if x\the\s@s \else\errmessage{\@mis\noexpand\tslur#4}\fi
+  \global\s@Y#2% store voffset (abs. dim. to rel. height)
+  \global\s@s{#3}% store sense (u,d)
+  \ifx\dott@d\empty \global\s@d{}\else\global\s@d{d}\fi %+ickd
+  \let\dott@d\empty %               set dotted indicator +ickd
+  \global\s@N\noinstrum@nt % store instrument number
+  \inhgetn@i#5\relax
+  \global\s@y\n@i % start vpos (steps of internote)
+  \global\s@a\altportee % store altportee of current slur
+  \getcurpos
+  \advance\y@v#1\qn@width
+  \global\s@x\y@v
+ \fi}% start hpos (current pos including hoffset)
+
+% terminate slur #1 reference number #2 end note
+% the various types only influence the horizontal offset, if you want to
+% terminate a \ibslur with a \tslur it becomes a little bit tricky
+
+\def\tslur{\t@slur\h@lf}
+\def\tsslur{\t@slur{-\p@ne}}
+\def\tubslur{\t@slur1}
+\def\tdbslur{\t@slur0}
+\def\tbsluru{\t@slur1}
+\def\tbslurd{\t@slur0}
+
+\def\ttie#1{\let\T@i\@c \t@slur{-\p@ne}#1\@ne}
+\def\tleg#1{\let\T@i\@c \tslur #1\@ne}
+\let\tten\ttie
+\let\Tten\ttie
+\let\Tleg\tleg
+
+% y@i  linewidth
+% y@iv right hoffset
+% y@v  endpos, complete length
+
+% #1 hoffset #2 reference number #3 end note
+
+\def\t@slur#1#2#3{%
+  \check@staff
+  \s@l@ctslur#2\relax
+  \y@iv#1\qn@width
+  \def\@sense{\the\s@s}%
+  \edef\@dotted{\the\s@d}%+ickd
+% test for missing \islur
+  \if x\@sense \errmessage{\@mis\noexpand\islur#2}\fi
+% test for \invertslur
+  \if D\@sense \s@s{u}%
+      \let\@invert\@ne
+  \fi
+  \if U\@sense \s@s{d}%
+      \let\@invert\@ne
+  \fi
+% compute length
+  \getcurpos
+  \advance\y@v\y@iv
+% eoline
+  \y@eol\advance\y@-\beforeruleskip
+% clip slur at eoline
+  \ifdim\y@v>\y@ \y@v\y@ \advance\y@v\beforeruleskip \y@iv\beforeruleskip \fi
+  \advance\y@v-\s@x
+  \ifx\T@i\@c \n@i\s@y \else \inhgetn@i#3\relax \fi
+  \writ@slur\s@y\n@i\y@v{-\y@iv}%
+% reset sense of slur
+  \global\s@s{x}\let\T@i\empty
+  \global\advance\N@s\m@ne
+  \fi}% update slur counter
+
+ % this command is made to terminate the slur #1 exactly on the note pitch  #2
+\def\Tslurbreak#1#2{\s@l@ctslur#1\relax
+  \def\@sense{\the\s@s}%
+  {\if d\@sense \advance\transpose 2\raise0.2\Interligne\hbox{\tslur{#1}{#2}}\relax
+   \else \advance\transpose -2\raise-0.2\Interligne\hbox{\tslur{#1}{#2}}\relax
+   \fi
+  }%
+\global\let\@meet\empty
+\let\l@length\empty
+\let\r@length\empty
+\let\@invert\empty
+}
+
+\def\Islurubreak#1#2{{\advance\transpose -1\isluru{#1}{#2}}}
+\def\Islurdbreak#1#2{{\advance\transpose 1\islurd{#1}{#2}}}
+
+\def\TslurbreakNextBar#1#2{\off{\beforeruleskip}\hloff{\Tslurbreak{#1}{#2}}\off{-\beforeruleskip}}   
+\def\IslurubreakPrevBar#1#2{\off{-\afterruleskip}\hloff{\Islurubreak{#1}{#2}}\off{\afterruleskip}}
+\def\IslurdbreakPrevBar#1#2{\off{-\afterruleskip}\hloff{\Islurdbreak{#1}{#2}}\off{\afterruleskip}}
+
+\def\y@eol{\y@\line@width \advance\y@-\sign@skip
+  \advance\y@-\clef@skip \advance\y@-\s@indent}
+
+% hold up the RM-slur calling, because faster coding,
+% if the slurs are inside a bar (and you use one kind of \notes)
+% and ... there is no limitation in the number of slurs
+% if you want to call a short slur, extending to the left use \slur[][][]0
+
+% #1 start pitch #2 final pitch #3 sense(u,d) #4 length[noteskip]
+
+\def\C@slur#1#2#3#4{\check@staff
+  \inhgetn@i#1\relax \n@ii\n@i
+  \inhgetn@i#2\relax \relax
+  \ifx\dott@d\empty \gdef\@dotted{}\else\gdef\@dotted{d}\fi %+ickd
+  \let\dott@d\empty %                   set dotted indicator +ickd
+  \def\@sense{#3}%
+  \if d\@sense \s@Y-\s@Y \fi
+  \y@v#4\noteskip
+  \y@iv\y@v
+  \advance\y@iv\y@ii
+  \advance\y@v\y@iii
+  \kern\y@iv
+  \writ@slur\n@ii\n@i\y@v\z@
+  \kernm\y@iv
+  \fi}
+
+\def\sslur{%
+  \let\s@N\undefined % do not store instrument number
+  \s@Y\p@seven\internote
+  \y@iii-1.2\qn@width % offset to length 1.1behind+.1before
+  \y@ii-\p@ne\qn@width
+  \C@slur}
+\def\slur{%
+  \let\s@N\undefined % do not store instrument number
+  \s@Y1\p@seven\internote
+  \y@iii\z@
+  \y@ii\h@lf\qn@width
+  \C@slur}
+\def\stie#1{\sslur{#1}{#1}}
+\def\tie#1{\slur{#1}{#1}}
+
+%%% setup fontsizes
+
+\newdimen\interbeam % distance entre poutres
+\newdimen\b@amthick % half beamthickness
+\newdimen\Interligne% de la base d'une ligne a l'autre
+\newdimen\Internote % la moitie de \Interligne
+\let\internote\Internote
+\def\musixchar{\musixfont\char}
+\def\keychar{\musickeyfont\char}
+
+\let\musicnorfont\musictwenty
+
+\def\set@Largenotesize{\let\musixfont\musicLargefont
+  \let\xgregfont\xgregLargefont
+  \b@amthick.3456\Interligne \interbeam1.08\Interligne }
+
+\def\set@largenotesize{\let\musixfont\musiclargefont
+  \let\xgregfont\xgreglargefont
+  \b@amthick.288\Interligne \interbeam.9\Interligne }
+
+\def\set@normalnotesize{\let\musixfont\musicnorfont
+  \let\xgregfont\xgregnorfont
+  \b@amthick.24\Interligne \interbeam\p@seven5\Interligne }
+
+\def\set@smallnotesize{\let\musixfont\musicsmallfont
+  \let\xgregfont\xgregsmallfont
+  \b@amthick\p@ne92\Interligne \interbeam.6\Interligne }
+
+\def\set@tinynotesize{\let\musixfont\musictinyfont
+  \let\xgregfont\xgregtinyfont
+  \b@amthick\p@ne536\Interligne \interbeam.48\Interligne }
+
+\def\normalnotesize{\set@normalnotesize\comput@specifics
+  \let\curr@ntsiz@\normalnotesize}
+\def\smallnotesize{\set@smallnotesize\comput@specifics
+  \let\curr@ntsiz@\smallnotesize}
+\def\tinynotesize{\set@tinynotesize\comput@specifics
+  \let\curr@ntsiz@\tinynotesize}
+
+\def\musickeyfont{%
+  \ifdim\internote<\p@seven6\Internote \musictinyfont
+  \else
+    \ifdim\internote<.95\Internote \musicsmallfont
+    \else
+      \ifdim\internote<1.19\Internote \musicnorfont
+      \else
+        \ifdim\internote<1.43\Internote \musiclargefont
+        \else
+          \musicLargefont
+        \fi
+      \fi
+    \fi
+  \fi}
+
+\def\meterfont{%
+  \ifdim\internote<\p@seven6\Internote \metersmallfont
+  \else
+    \ifdim\internote<.95\Internote \meternorfont
+    \else
+      \ifdim\internote<1.19\Internote \meterbigfont
+      \else
+        \ifdim\internote<1.43\Internote \meterlargefont
+        \else \meterLargefont
+        \fi
+      \fi
+    \fi
+  \fi}
+
+\newbox\ch@box
+\newcount\musicsize
+\newdimen\qd@skip
+\newdimen\qn@width
+\newdimen\wn@width
+
+\newskip\txt@ff
+\newskip\s@indent % store parindent
+\newskip\big@spc
+
+\newdimen\lthick \lthick=.4pt
+\def\hlthick{\h@lf\lthick}
+
+%%%
+
+\def\normalmusicsize{\musicsize\tw@nty \comput@specifics
+  \afterruleskip\@ight\p@ \elemskip\fontdimen\si@\musicnorfont}
+\def\smallmusicsize{\musicsize\sixt@@n \comput@specifics
+  \afterruleskip\si@\p@ \elemskip\fontdimen\si@\musicnorfont}
+\def\largemusicsize{\musicsize\@xxiv \comput@specifics
+  \afterruleskip\t@n\p@ \elemskip\fontdimen\si@\musicnorfont}
+\def\Largemusicsize{\musicsize\@xxix \comput@specifics
+  \afterruleskip\t@n\p@ \elemskip\fontdimen\si@\musicnorfont}
+
+\def\comput@fonts{%
+  \ifnum\musicsize=\sixt@@n
+    \let\musicLargefont\musictwentyfour
+    \let\musiclargefont\musictwenty
+    \let\musicnorfont\musicsixteen
+    \let\musicsmallfont\musicthirteen
+    \let\musictinyfont\musiceleven
+    \let\xgregLargefont\xgregtwentyfour
+    \let\xgreglargefont\xgregtwenty
+    \let\xgregnorfont\xgregsixteen
+    \let\xgregsmallfont\xgregthirteen
+    \let\xgregtinyfont\xgregeleven
+    \let\slurd\slurdsixteen \let\sluru\slurusixteen
+    \let\hslurd\hslurdsixteen \let\hsluru\hslurusixteen
+    \let\meternorfont\tenbf \let\metersmallfont\eightbf
+    \let\meterbigfont\twelvebf \let\meterlargefont\bigfont
+    \let\meterLargefont\Bigfont
+    \let\ppff\ppffsixteen
+  \else\ifnum\musicsize=\@xxiv
+    \let\musicLargefont\musictwentynine
+    \let\musiclargefont\musictwentynine
+    \let\musicnorfont\musictwentyfour
+    \let\musicsmallfont\musictwenty
+    \let\musictinyfont\musicsixteen
+    \let\xgregLargefont\xgregtwentynine
+    \let\xgreglargefont\xgregtwentynine
+    \let\xgregnorfont\xgregtwentyfour
+    \let\xgregsmallfont\xgregtwenty
+    \let\xgregtinyfont\xgregsixteen
+    \let\sluru\slurutwenty \let\slurd\slurdtwenty
+    \let\hsluru\hslurutwenty \let\hslurd\hslurdtwenty
+    \let\meternorfont\bigfont \let\metersmallfont\twelvebf
+    \let\meterbigfont\Bigfont \let\meterlargefont\BIgfont
+    \let\meterlargefont\BIGfont
+    \let\ppff\ppfftwentyfour
+  \else\ifnum\musicsize=\@xxix
+    \let\musicLargefont\musictwentynine
+    \let\musiclargefont\musictwentynine
+    \let\musicnorfont\musictwentynine
+    \let\musicsmallfont\musictwentyfour
+    \let\musictinyfont\musictwenty
+    \let\xgregLargefont\xgregtwentynine
+    \let\xgreglargefont\xgregtwentynine
+    \let\xgregnorfont\xgregtwentynine
+    \let\xgregsmallfont\xgregtwentyfour
+    \let\xgregtinyfont\xgregtwenty
+    \let\sluru\slurutwenty \let\slurd\slurdtwenty
+    \let\hsluru\hslurutwenty \let\hslurd\hslurdtwenty
+    \let\slurud\slurutwentyd \let\slurdd\slurdtwentyd %    +ickd
+    \let\hslurud\hslurutwentyd \let\hslurdd\hslurdtwentyd %+ickd
+    \let\meternorfont\Bigfont \let\metersmallfont\bigfont
+    \let\meterbigfont\BIgfont \let\meterlargefont\BIGfont
+    \let\meterLargefont\BIGfont
+    \let\ppff\ppfftwentynine
+  \else
+    \ifnum\musicsize=\tw@nty
+    \else\ifnum\musicsize=\z@
+         \else\errmessage{\noexpand\musicsize=\the\musicsize\space not supported,
+           set to default of 20}%
+         \fi
+    \fi\musicsize\tw@nty
+    \let\musicLargefont\musictwentynine
+    \let\musiclargefont\musictwentyfour
+    \let\musicnorfont\musictwenty
+    \let\musicsmallfont\musicsixteen
+    \let\musictinyfont\musicthirteen
+    \let\xgreglargefont\xgregtwentyfour
+    \let\xgregLargefont\xgregtwentynine
+    \let\xgregnorfont\xgregtwenty
+    \let\xgregsmallfont\xgregsixteen
+    \let\xgregtinyfont\xgregthirteen
+    \let\sluru\slurutwenty \let\slurd\slurdtwenty
+    \let\hsluru\hslurutwenty \let\hslurd\hslurdtwenty
+    \let\meternorfont\twelvebf \let\metersmallfont\tenbf
+    \let\meterbigfont\bigfont \let\meterlargefont\Bigfont
+    \let\meterLargefont\BIgfont
+    \let\ppff\ppfftwenty
+  \fi\fi\fi
+}%
+
+\def\comput@specifics{\comput@fonts\comput@sizes}
+
+\def\comput@sizes{%
+  \Interligne\fontdimen\fiv@\musicnorfont
+  \Internote\h@lf\Interligne \big@spc.6\Interligne
+  \qn@width\fontdimen\si@\musixfont
+  \wn@width1\qu@rt\qn@width
+  \txt@ff\h@lf\qn@width
+  \qd@skip\qn@width\advance\qd@skip-\hlthick}
+
+%\newdimen\afterruleskip
+\newskip\afterruleskip
+\newdimen\staffbotmarg % marge au-dessous des portees
+\newdimen\stafftopmarg % au-dessus des portees
+\newdimen\line@width
+
+\def\normalvalue{1}
+\def\largevalue{1.2}
+\def\Largevalue{1.44}
+\def\smallvalue{.8}
+\def\tinyvalue{.64}
+
+\def\instrumentnumber#1{\n@v#1\relax
+  \min@n@v\@ne
+  \max@n@v\maxinstruments
+  \edef\nbinstruments{\the\n@v}}
+
+% staffsize
+
+\def\setsize#1#2{\n@v#1\relax % select instrument
+  \expandafter\edef\csname staffspacing\romannumeral\n@v\endcsname{#2}}
+
+\let\staffspacingi\@ne
+\let\staffspacingii\@ne
+\let\staffspacingiii\@ne
+\let\staffspacingiv\@ne
+\let\staffspacingv\@ne
+\let\staffspacingvi\@ne
+
+% number of staffs
+
+\def\setstaffs#1#2{\n@v#1\relax \csname n@p\romannumeral\n@v\endcsname#2}
+
+% staff lines
+
+\def\setlines#1#2{\n@v#1\relax % select instrument
+  \expandafter\def\csname n@l\romannumeral\n@v\endcsname{#2}}
+
+\newdimen\interportee % distance between staffs of the same instrument (incl)
+\newcount\noport@@
+\newcount\noinstrum@nt
+\newdimen\altportee
+
+\def\interstaff#1{\def\interfacteur{#1}}
+
+\def\s@l@ctinstr{%
+  \edef\altitude{\csname k@i\romannumeral\noinstrum@nt\endcsname}%
+  \edef\st@ffs{\csname n@p\romannumeral\noinstrum@nt\endcsname}%
+  \edef\nblines{\csname n@l\romannumeral\noinstrum@nt\endcsname}%
+  \edef\internote{\csname i@n\romannumeral\noinstrum@nt\endcsname}%
+  \interportee\interfacteur\internote \interportee\tw@\interportee}
+
+\def\C@Inter{\stem@skip\interportee \advance\stem@skip-\@ight\internote
+  \ifnum\nblines=\f@ur \advance\stem@skip\tw@\internote \fi
+  \ifnum\nblines>\fiv@  \advance\stem@skip-\tw@\internote \fi}
+
+%%% loop over instruments and staffs
+
+\def\count@portee{\advance\noport@@\@ne}
+
+\def\n@loop{\noinstrum@nt\z@ \loop\ifnum\noinstrum@nt<\nbinstruments
+  \advance\noinstrum@nt\@ne \s@l@ctinstr}
+
+\def\m@loop{\noinstrum@nt\z@ \loop\ifnum\noinstrum@nt<\maxinstruments
+  \advance\noinstrum@nt\@ne}
+
+\def\p@loop{\noport@@\z@ \loop\ifnum\noport@@<\st@ffs
+  \altportee\altitude \advance\altportee\noport@@\interportee}
+
+\def\Comp@High{\y@v\st@ffs\interportee \C@Inter\advance\y@v-\stem@skip}
+
+% to be used to make heavy bars at staff left
+% modified according to Werner Icking
+
+
+\def\groupbottom#1#2{\group@no#1\relax
+  \advance\group@no\m@ne\test@grnum % testgr@num advances group@no by 1...
+  \expandafter\def\csname lowersonginstrum\romannumeral\group@no\endcsname{#2}}
+
+\def\grouptop#1#2{\group@no#1\relax
+  \advance\group@no\m@ne\test@grnum % testgr@num advances group@no by 1...
+  \expandafter\def\csname uppersonginstrum\romannumeral\group@no\endcsname{#2}}
+
+\def\songbottom{\groupbottom1}
+\def\songtop{\grouptop1}
+
+\let\lowersonginstrumi\maxdimen
+\let\lowersonginstrumii\maxdimen
+\let\lowersonginstrumiii\maxdimen
+\let\uppersonginstrumi\z@
+\let\uppersonginstrumii\z@
+\let\uppersonginstrumiii\z@
+
+\def\g@loop{\group@no\z@ \loop\ifnum\group@no<\maxgroups
+  \s@l@ctgroup}
+\def\s@l@ctgroup{%
+  \relax\test@grnum
+  \edef\g@b{\csname g@b\romannumeral\group@no\endcsname}%  dimen (group bottom)
+  \edef\g@h{\csname g@h\romannumeral\group@no\endcsname}%  dimen (group top)
+  \edef\lowersonginstrum{\csname lowersonginstrum\romannumeral\group@no\endcsname}%  dimen (group top)
+  \edef\uppersonginstrum{\csname uppersonginstrum\romannumeral\group@no\endcsname}%  dimen (group top)
+  }%
+\def\test@grnum{%
+  \ifnum\group@no<\z@ \group@no\@c \fi
+  \ifnum\group@no<\maxgroups \else
+    \errmessage{Wrong group number=\the\group@no! max=\the\maxgroups}\group@no\z@ \fi
+  \advance\group@no\@ne}
+
+% \nobarmessages prevents bar messages
+
+\def\nobarmessages{\let\no@b\@ne}
+\let\no@b\empty
+
+% \nolinemessages prevents line messages in phase three
+\def\nolinemessages{\let\no@l\@ne}
+\let\no@l\empty
+
+% \nobarnumbers prevents bar numbering (Ian Collier)
+% \barnumbers restores bar numbering
+
+\def\nobarnumbers{\let\lin@bar\empty \let\freqbarno\maxdimen}
+\def\barnumbers{\let\freqbarno\normalvalue}
+\barnumbers
+
+% show barnumbers only at the beginning system
+
+\def\raisebarno{\f@ur\internote}
+\let\shiftbarno\z@
+
+\def\writebarno{\boxit{\eightbf\the\barno\barnoadd}}
+\def\systemnumbers{\nobarnumbers\let\lin@bar\@ne}
+
+% add 'a' behind the systembarnumber, if the previous line ended without
+% a bar rule
+
+\let\z@sw\empty
+\def\writezbarno{a}
+\def\barnoadd{\ifx\z@sw\@ne \writezbarno \fi}
+
+% supress the beginning vertical rule for one line sheets
+
+\def\startrule{\let\b@rule\empty}
+\def\nostartrule{\let\b@rule\z@}
+\startrule
+
+%%% distance between instruments (added to \interportee)
+
+\newdimen\interinstrument
+
+\let\interinstrumenti\interinstrument
+\let\interinstrumentii\interinstrument
+\let\interinstrumentiii\interinstrument
+\let\interinstrumentiv\interinstrument
+\let\interinstrumentv\interinstrument
+\let\interinstrumentvi\interinstrument
+
+\def\setinterinstrument#1#2{\n@v#1\relax % select instrument
+  \expandafter\def\csname interinstrument\romannumeral\n@v\endcsname{#2}}
+
+%%% portees
+
+\newdimen\systemheight
+\newdimen\altplancher
+
+% New version by Werner Icking
+
+\def\writ@staffs{%
+  \y@\staffbotmarg \global\altplancher\staffbotmarg
+  \rlap{\n@loop\w@st\repeat
+% beginning vertical rule
+  \systemheight\y@
+  \advance\systemheight-\altplancher
+  \C@Inter \global\advance\systemheight-\stem@skip
+  \ifx\empty\b@rule \raise\altplancher\rlap{%
+      \vrule\@depth\hlthick\@height\systemheight\@width\lthick}\fi
+% 'Akkoladenklammer' don't know the english word
+  \g@loop
+   \ifnum\uppersonginstrum<\lowersonginstrum
+   \else
+    \global\advance\g@h-\stem@skip \global\advance\g@h-\g@b
+    \global\advance\g@h\Interligne \global\advance\g@b-\Internote
+    \raise\g@b\llap{\uplap{\offinterlineskip
+      \hbox{\musixfont\fourt@@n}\hbox{\vrule\@height\g@h
+        \@width\internote}\hbox{\musixfont\fiv@t@@n}}\kern\internote}%
+   \fi
+  \repeat
+% systembarnumbers
+  \ifx\lin@bar\@ne \y@\altplancher \advance\y@\systemheight
+    \advance\y@\raisebarno \raise\y@\rlap{\kern\shiftbarno\writebarno}\fi
+% strut
+  \advance\stafftopmarg\staffbotmarg
+  \raise\stafftopmarg\hbox{\vrule\@height\systemheight\@width\z@}}}
+
+\def\uplap#1{\vbox\@to\z@{\vss#1}}
+
+% new version of \w@st by Werner Icking
+
+\newskip\instrum@in@group
+\def\w@st{%
+  \global\noport@@\z@ \global\altitude\y@
+  \global\instrum@in@group=\z@
+  {\g@loop
+  \ifnum\noinstrum@nt=\lowersonginstrum
+    \global\g@b\altitude
+  \fi
+  \ifnum\uppersonginstrum>\lowersonginstrum\relax
+    \ifnum\noinstrum@nt<\lowersonginstrum\relax
+    \else
+      \ifnum\noinstrum@nt>\uppersonginstrum\relax
+      \else
+%       \message{\the\noinstrum@nt\space in-group!}%
+        \global\instrum@in@group=2\internote
+      \fi
+    \fi
+  \fi
+  \repeat}%
+% nullportee
+  \ifnum\st@ffs=\z@
+    \advance\y@\f@ur\Interligne
+  \else
+% multportee
+    \ifnum\st@ffs>\@ne \Comp@High\n@v\y@v \sp@pt\tw@
+      \advance\n@v\@cxxviii \divide\y@v\tw@
+%==== the parenthesis should be shifted to the left if within
+%==== songbottom -- songtop
+      \advance\y@v\y@
+      \raise\y@v\hbox{\kern -\instrum@in@group\mxsps\char\n@v\kern\instrum@in@group}%
+    \fi
+% normal staff
+     {\loop \staff@lines\ifnum\noport@@<\st@ffs \repeat}%
+  \fi % fin du \else pour 0 portees=chant
+  {\g@loop
+  \ifnum\noinstrum@nt=\uppersonginstrum \global\g@h\y@ \fi
+  \repeat}%
+  \ifnum\noinstrum@nt<\nbinstruments
+    \advance\y@\csname interinstrument\romannumeral\noinstrum@nt\endcsname \fi}
+
+\def\staff@lines{\raise\y@\rlap{\uplap{%
+  \ifcase\nblines
+  \or \Lin@\zLin@\zLin@
+  \or \Lin@\zLin@\Lin@\zLin@
+  \or \Lin@\zLin@\Lin@\zLin@\Lin@
+  \or \Lin@\Lin@\Lin@\Lin@
+  \or \Lin@\Lin@\Lin@\Lin@\Lin@
+  \or \Lin@\Lin@\Lin@\Lin@\Lin@\Lin@
+  \or \Lin@\Lin@\Lin@\Lin@\Lin@\Lin@\Lin@
+  \or \Lin@\Lin@\Lin@\Lin@\Lin@\Lin@\Lin@\Lin@
+  \or \Lin@\Lin@\Lin@\Lin@\Lin@\Lin@\Lin@\Lin@\Lin@
+  \fi\kernm\hlthick}}%
+  \global\advance\y@\interportee \count@portee}
+
+\def\zLin@{\kern\tw@\internote}
+\def\Lin@{\zLin@\kernm\lthick\hrule\@width\line@width}
+
+\newskip\boxitsep \boxitsep\thr@@\p@\relax
+
+\def\boxit#1{\vbox{\hrule\hbox{\vrule\kern\boxitsep\vbox{%
+  \kern\boxitsep\hbox{#1}\kern\boxitsep}\kern\boxitsep\vrule}\hrule}}
+\def\circleit#1{\setbox\ch@box\hbox{#1}\y@v\ht\ch@box
+  \y@v1.41\ht\ch@box % => sqrt(2)
+  \n@v\y@v \sp@pt\tw@ \advance\n@v69\rlap{#1}%
+  \raise\h@lf\ht\ch@box\rlap{\kern\h@lf\wd\ch@box\mxsps\char\n@v}}
+
+\def\thinrul@{\writ@rule\lthick}
+\def\thickrul@{\writ@rule\big@spc}
+
+%%% start normal score
+
+%%
+%   Define a counter to keep track of total number of bars in piece
+%   which are terminated by a barline. This is not necessarily
+%   the same as \barno, in view of (eg) a bar containing
+%   multiple bars rest.
+%%
+%   !!! \barsinpi@c@ now used for \zbar and \xbar too, if you use them
+%       the value of \barsinpi@c@ says nothing !!!
+%
+
+\newcount\barsinpi@c@
+\newcount\barno
+\newcount\startbarno \startbarno\@ne
+\newdimen\sign@skip
+\newdimen\maxsign@skip
+
+
+\def\piece@begina{\catcodesmusic \barno\startbarno \@l@mskip\elemskip
+  \barsinlin@\z@ \let\z@sw\empty \frenchspacing
+% \let\barrul@\thinrul@ \comp@internote}	%-simick
+  \b@rrul@\comp@internote}			%+simick
+
+\def\comp@internote{\comput@specifics
+ \n@loop
+  \internote\csname staffspacing\romannumeral\noinstrum@nt\endcsname\Internote
+ \repeat
+ \line@width\hsize}
+
+\def\piece@beginb{\advance\line@width-\parindent \s@indent\parindent
+  \writ@staffs \writ@names \advance\line@width\parindent}
+
+\def\piece@beginc{%
+% write clefs
+  \n@loop{\writ@clefi}\repeat \kern\clef@skip
+% everystaff stuff
+  \everyst@ff
+% write signatures
+  \sign@skip\z@ \n@loop{\s@l@ctsigns \let\@Ti\writ@sign \C@wsi}\repeat
+  \kern\sign@skip \m@loop \s@l@ctsigns \o@s\a@s \s@l@ctclefs \o@c\a@c \repeat
+  \let\Writ@newsigns\empty \hskip\z@ plus\p@ minus\p@ \lastbarpos\z@}
+
+\let\fil@begin\empty
+\let\Writ@meters\empty
+
+\def\startpiece{\ifstartmuflex@done\relax
+                \else\startmuflex
+                \immediate\write16{\noexpand\startmuflex launched by
+                  \noexpand\startpiece }%
+                \fi
+  \barsinpi@c@\z@ \piece@begina \leavevmode \piece@beginb
+  \piece@beginc \fil@begin \Writ@meters
+  \let\volta@set\empty  % tells the kind of volta setting at next bar
+  \let\volta@cut\empty  % flag to tell that a volta has been cut at line end
+  \let\volta@type\empty % the current volta setting (same defs as \volta@set)
+  \let\endvolta@set\empty  % tells the kind of volta closing at next bar
+}
+
+\let\everystaff\empty
+\def\everyst@ff{\everystaff}% --> MuFlex Pass II
+
+%%% continue score
+
+\let\atnextline\empty
+
+\def\piece@conta{\catcodesmusic \atnextline \let\atnextline\empty
+  \comp@internote \leavevmode \barsinlin@\z@ }
+
+\def\contpiece{\noindent \piece@conta \writ@staffs \piece@beginc
+  \Writ@meters \wbarno@x \addspace\afterruleskip
+}
+
+% like contpiece but with indentation (parindent) and instrument names
+% it's for changing the number of instrument in one piece
+
+\let\fil@indent\empty
+\def\Contpiece{\piece@conta \piece@beginb \fil@indent \piece@beginc
+  \Writ@meters}
+
+%%% end score
+
+\let\ragg@d\empty
+\let\z@suspend@autoflag\empty % used in musixcpt only
+
+\def\z@suspend{%
+  \z@suspend@autoflag % used in musixcpt only
+% cutvolta
+  \write@volta@hrule
+  \ifx\volta@type\tw@\let\volta@set\tw@ \let\volta@type\empty
+    \let\volta@cut\tw@\fi % restart volta at next line if continuous
+  \ifx\volta@type\thr@@\let\volta@set\thr@@ \let\volta@type\empty
+    \let\volta@cut\thr@@ \fi % restart volta at next line if continuous
+% cutoctline
+  \o@loop
+  \ifdim\o@x<\maxdimen \let\T@ii\n@ii \C@TO \o@x\z@ \fi
+  \repeat
+% cut trill
+  \tr@loop
+  \ifdim\tr@x<\maxdimen \let\T@ii\n@ii \C@TR \tr@x\z@ \fi
+  \repeat
+% cutslur
+  \ifnum\N@s>\z@%     % any pending slurs ?
+    \n@viii\maxinstruments % test all possible numbers
+    \advance\n@viii\m@ne
+    \loop\ifnum\n@viii>\m@ne
+      \s@l@ctslur\n@viii\relax
+      \edef\@sense{\the\s@s}%
+      \if x\@sense%     % sense flag
+      \else%            % found slur
+        \edef\@dotted{\the\s@d}% +ickd
+        \y@v\lin@pos % get current position
+        \advance\y@v-\s@x % slurlength = currentpos - startpos
+        \let\@Ti\@ne    % set flag for \writ@slur (\staffbotmarg)
+        \ifnum\s@z=\maxdimen \s@z\s@y \fi % flag (\breakslur not used -> tie)
+        \writ@slur\s@y\s@z\y@v\p@% avoid touching the bar rule
+        \s@x\z@% reset startpos for next line
+        \s@z\maxdimen% reset breakslur
+      \fi
+    \advance\n@viii\m@ne \repeat
+  \fi\s@indent\z@
+%
+  \ragg@d\par\lin@pos\z@ \endcatcodesmusic}
+
+\def\stoppiec@{\check@nopen\n@wbar\z@suspend}
+%\def\stoppiece{\stoppiec@\@nds@ction}		%-simick
+\def\stoppiece{\T@bil\fi\stoppiec@\@nds@ction}	%+simick
+\let\endpiece\stoppiece
+
+\def\zstoppiec@{\check@nopen\zn@wbar\z@suspend}
+%\def\zstoppiece{\zstoppiec@\@nds@ction}	%-simick
+\def\zstoppiece{\T@bil\fi\zstoppiec@\@nds@ction}%+simick
+
+\def\Stoppiece{\setdoubleBAR\stoppiece}
+\let\Endpiece\Stoppiece
+
+%%% short excerpts
+
+\def\startextract{\lastbarno\z@ \barno\startbarno
+  \piece@begina\setbox\w@rkbox\hbox{\writ@staffs}% to compute heights
+  \setbox\w@rkbox\hbox\bgroup% !! all changes are local !!
+  \line@width\maxdimen
+  \maxbarsinlin@\maxdimen	%+simick
+  \let\T@bil\iftrue \let\everyst@ff\everystaff \let\fil@spc\empty
+  \let\fil@termskip\empty \let\fil@signs\empty \let\fil@barno\empty
+  \let\leftrepeat\leftrepeat@II \let\leftrightrepeat\leftrightrepeat@II
+  \piece@beginc\Writ@meters\addspace\afterruleskip}
+
+% enable left and right extracts (e.g. for footnotes)
+
+\let\extractline\centerline
+
+\def\endextract{\let\z@suspend\write@volta@hrule
+  \stoppiec@\egroup\line@width\wd\w@rkbox
+  \extractline{\writ@names\writ@staffs\unhbox\w@rkbox}%
+  \endcatcodesmusic}
+\def\zendextract{\let\stoppiec@\zstoppiec@ \endextract}
+
+%%
+%   Redefine \t@rmskip to include a macro for writing a record to a file,
+%   and define the macro
+%%
+
+\newdimen\x@skip
+\newdimen\n@skip
+
+\let\fil@termskip\empty
+\def\t@rmskip{\kern\n@skip\advance\x@skip\n@skip
+  \advance\lin@pos\x@skip
+  % case of \hardnotes
+  \ifnum\V@sw>0\relax
+    \y@v\n@skip \fil@spc
+  \fi
+  % end case \hardnotes
+  \fil@termskip\global\n@skip\z@ \global\x@skip\z@ \let\V@sw\z@}
+
+%%
+%   Define the amount of space before each barline,
+%%
+
+%\newdimen\beforeruleskip
+\newskip\beforeruleskip
+
+%%
+%   We must distinguish between scalable ('soft'=1) material in the bar
+%   (eg noteboxes) and absolute ('hard'=0) widths such as those from
+%   barlines and clef symbols
+%   Hence introduce a switch defining this attribute
+%%
+
+\newcount\widthtyp@ \widthtyp@\@ne
+
+%%% bar numbers
+
+\newcount\lastbarno
+
+\def\writethebarno{\fontbarno\the\barno\kernm\qn@width}
+\def\fontbarno{\it}
+
+\def\wbarno@x{\lastbarpos\lin@pos
+  \ifx\volta@set\empty
+    \n@iii\barno \divide\n@iii\freqbarno\relax
+    \ifnum\n@iii=\lastbarno
+    \else \y@\altplancher \advance\y@\systemheight \advance\y@\tw@\internote
+      \raise\y@\llap{\writethebarno}\fi
+  \else
+    \ifx\volta@cut\empty
+    \else % volta was cut, there is nothing colliding with bar number.
+      \n@iii\barno \divide\n@iii\freqbarno\relax
+      \ifnum\n@iii=\lastbarno
+      \else \y@\altplancher \advance\y@\systemheight \advance\y@\tw@\internote
+        \raise\y@\llap{\writethebarno}\fi
+    \fi
+    \write@volta
+  \fi
+  \b@rrul@		%+simick
+  \n@iii\barno \divide\n@iii\freqbarno\relax \lastbarno\n@iii }
+
+%%%  pass selective scoring
+
+\newskip\cut@v % contains width of bar rule
+\newskip\init@volta@pos   % start position of volta
+\newskip\volta@startcor	%+simick volta start correction in case of leftrepeats
+\newskip\volta@endcor	%+simick volta end correction in case of rightrepeats
+
+\def\raisevolta{\f@ur\internote}
+
+\newbox\writ@volta@box
+
+\def\voltadot{.}%
+\def\write@volta{% writes the requested |n. and moves the things for further use
+  \ifx\volta@type\empty\else\errmessage{/setvolta collision!}\fi
+  \y@\altplancher \advance\y@\systemheight
+  \advance\y@\raisevolta
+% \setbox\writ@volta@box\rlap{\vrule %   \musixfont\sixt@@n		%-simick
+%   \rm\ \vphantom{\^{\volta@text}\strut gq}\volta@text\voltadot}%	%-simick
+  \setbox\writ@volta@box\rlap{\vrule\rm\strut\ \volta@text\voltadot}%	%+simick
+  \xdef\thevolta@boxheight{\the\ht\writ@volta@box}%
+  \xdef\thevolta@boxdepth{\the\dp\writ@volta@box}%
+  \ifx\volta@cut\empty \else\setbox\writ@volta@box\null
+  \fi   % if continuation, make writ@volta@box null
+% \raise\y@\llap{\box\writ@volta@box}%						%-simick
+  \kernm\volta@startcor\raise\y@\llap{\box\writ@volta@box}\kern\volta@startcor	%+simick
+  \let\volta@type\volta@set
+  \let\volta@set\empty
+  \let\volta@cut\empty
+% \init@volta@pos\lin@pos\relax						%-simick
+  \init@volta@pos\lin@pos \advance\init@volta@pos-\volta@startcor	%+simick
+}%
+
+\def\write@volta@hrule{% write the hrule of volta bar at its end
+  \ifx\volta@type\empty
+  \else
+    \y@v\lin@pos \advance\y@v-\init@volta@pos
+%   \global\advance\cut@v\lthick \advance\y@v-\cut@v	%-simick
+%   \global\advance\cut@v\lthick			%-simick
+    \ifnum\barsinlin@=\maxbarsinlin@			%+simick
+      \y@i\z@						%+simick
+    \else						%+simick
+      \y@i\cut@v \advance\y@i-\volta@endcor		%+simick
+    \fi							%+simick
+    \advance\y@v-\y@i					%+simick
+    \y@\altplancher \advance\y@\systemheight
+    \advance\y@\raisevolta
+    \raise\y@\llap{%
+      \raise\thevolta@boxheight
+%     \hbox{\vrule\@height\z@\@depth\lthick\@width\y@v}}%		%-simick
+      \hbox{\vrule\@height\z@\@depth\lthick\@width\y@v}\kern\y@i}%	%+simick
+% check whether termination has been required
+    \ifx\endvolta@set\thr@@ \let\volta@type\thr@@\fi % \endvoltabox forces type \thr@@
+    \ifx\endvolta@set\empty \else \write@volta@endbox\fi
+    % now set volta@type \@ne to \empty
+    \ifx\volta@type\@ne \let\volta@type\empty\fi
+  \fi
+}%
+
+\def\write@volta@endbox{% write the hrule of volta bar at its end
+  \ifx\volta@type\empty
+  \else
+%   \y@v\lin@pos \advance\y@v-\init@volta@pos		%-simick
+%   \global\advance\cut@v\lthick \advance\y@v-\cut@v	%-simick
+%   \global\advance\cut@v\lthick			%-simick
+    \y@\altplancher \advance\y@\systemheight
+    \advance\y@\raisevolta
+    \ifx\volta@type\thr@@
+%     \raise\y@\llap{\raise\thevolta@boxheight\hbox{\true@endvoltabox}}%	%-simick
+      \raise\y@\llap{\raise\thevolta@boxheight\hbox{\true@endvoltabox}\kern\y@i}%+simick
+    \fi
+% now force volta@type to \empty
+    \let\volta@type\empty
+    \let\endvolta@set\empty
+    \let\volta@cut\empty
+  \fi
+}%
+
+%\check
+
+\let\writ@volta\empty  % provisional for testing %
+
+\let\volta@set\empty  % tells the kind of volta setting at next bar
+                      % \@ne = single \setvolta, \tw@ = \Setvolta
+                      % \thr@@ = setvoltabox
+
+\let\volta@type\empty % the current volta setting (same defs as \volta@set)
+\let\volta@cut\empty
+
+\let\endvolta@set\empty  % tells the kind of volta closingg at next bar
+                      % \@ne = not used, \tw@ = terminate \Setvolta[box]
+                      % \thr@@ = terminate \Setvolta[box] with an ending hook
+
+\def\setvolta{\let\volta@set\@ne \gen@setvolta}
+\def\Setvolta{\let\volta@set\tw@ \gen@setvolta}
+\def\setvoltabox{\let\volta@set\thr@@ \gen@setvolta}
+
+\def\gen@setvolta#1{\def\volta@text{#1}}
+
+\def\setendvolta{%
+                 \ifx\volta@type\empty\volta@err
+                 \else\let\endvolta@set\tw@
+                 \fi}
+
+\def\setendvoltabox{%
+                 \ifx\volta@type\empty\volta@err
+                 \else\let\endvolta@set\thr@@
+                 \fi}
+
+\let\endvolta\setendvolta
+\let\endvoltabox\setendvoltabox
+
+\def\true@endvoltabox{\raise-\thevolta@boxheight
+ \llap{\vrule\@height\thevolta@boxheight \@depth\thevolta@boxdepth}}
+
+\def\volta@err{\immediate\write16{%
+ type=\ifx\volta@type\empty 0\else \number\volta@type\fi,
+ set=\ifx\volta@set\empty 0\else \number\volta@set\fi}%
+\errmessage{\noexpand\endvolta, %\noexpand\contvolta,
+\noexpand\endvoltabox\space does not match opening \noexpand\S[s]volta...}}
+
+
+%%% line breaking stuff
+
+\let\@nds@ction\empty
+
+\newcount\barsinlin@
+\newcount\maxbarsinlin@
+
+%\def\@LeftRp{\stoppiec@\contpiece\addspace{\h@lf\afterruleskip}%		%-simick
+%  \kernm\afterruleskip\l@eftrepeat\kern\afterruleskip}				%-simick
+\def\@LeftRp{\stoppiec@\l@@ftrepeat\advance\volta@startcor-\afterruleskip	%+simick
+  \contpiece\addspace{\h@lf\afterruleskip}%					%+simick
+  \kernm\afterruleskip\l@eftrepeat\kern\afterruleskip				%+simick
+  \advance\lastbarpos\afterruleskip \b@rrul@}					%+simick
+
+\def\T@bil{\advance\barsinlin@\@ne \ifnum\barsinlin@<\maxbarsinlin@}
+
+\def\barre{\T@bil \@bar\else\stoppiec@\contpiece \fi}
+\def\xbar{\@bar\advance\barsinpi@c@\m@ne}
+\def\zbar{\T@bil \zn@wbar\else\zstoppiec@\contpiece \fi}
+\def\alaligne{\stoppiece\contpiece}
+\def\zalaligne{\zstoppiece\contpiece}
+\def\leftrepeat@II{\T@bil \setleftrepeat\@bar\else\@LeftRp \fi}
+\let\leftrepeat\leftrepeat@II
+\def\leftrightrepeat@II{\T@bil \setleftrightrepeat
+  %\setbox\toks@box\l@eftrightrepeat \global\cut@v=\wd\toks@box
+  \@bar
+  \else\setrightrepeat\@LeftRp \fi}
+\let\leftrightrepeat\leftrightrepeat@II
+\def\alapage{\stoppiece\eject\contpiece}
+\def\zalapage{\zstoppiece\eject\contpiece}
+
+% minuscule: une seule barre
+% majuscule: double barre
+
+\let\Writ@newsigns\empty
+
+\def\updat@context{\writ@newclefs
+  \T@bil \wbarno@x\Writ@newsigns\Writ@meters\addspace\afterruleskip
+  \else\Writ@newsigns\z@suspend\contpiece \fi}
+
+\def\changecontext{\showallbarrules\n@wbar\updat@context}
+\def\Changecontext{\showallbarrules\setdoublebar\changecontext}
+\def\zchangecontext{\advance\n@skip\beforeruleskip \widthtyp@\@ne \t@rmskip
+ \zn@wbar\updat@context}
+
+\def\pchangecontext{\showallbarrules\n@wbar
+  \writ@newclefs\Writ@newsigns\z@suspend\eject\contpiece}
+\def\pChangecontext{\setdoublebar\pchangecontext}
+
+%%% bars, repeatbars, ...
+
+%%
+%   Change ... to add skip \beforeruleskip to the preceeding notebox,
+%   and to set the 'soft' switch for the output record
+%%
+%%
+%   Redefine \n@wbar to write the bar line thickness to file,
+%   then reset \n@skip and \x@skip
+%%
+
+\newskip\lastbarpos
+\let\fil@barno\empty
+\let\atnextbar\empty
+
+\def\n@wbar{%
+  \t@rmskip % essai DT
+  \advance\n@skip\beforeruleskip \widthtyp@\@ne \t@rmskip
+% \ifdim\cut@v>\z@ \else\ifx\barrul@\thinrul@ \else\global\cut@v.9\Interligne \fi\fi	%-simick
+% \barrul@\widthtyp@\z@ \fil@termskip\let\barrul@\thinrul@				%-simick
+  \barrul@\widthtyp@\z@ \fil@termskip							%+simick
+  \advance\barsinpi@c@\@ne \fil@barno
+  \ifx\no@b\empty \message{bar \the\barno}\fi
+  \advance\barno\@ne \advance\lin@pos\x@skip \atnextbar \let\atnextbar\empty
+  \write@volta@hrule									%+simick
+% \global\cut@v\z@ % <===================================== inserted			%-simick
+  \global\n@skip\z@ \global\x@skip\z@ \let\z@sw\empty
+% \write@volta@hrule									%-simick
+}%
+
+\def\@bar{\n@wbar\wbarno@x\addspace\afterruleskip}
+
+\def\zn@wbar{\t@rmskip\advance\barsinpi@c@\@ne \let\z@sw\@ne}
+
+\def\small@spc{\addspace{\h@lf\big@spc}}
+
+\def\b@rrul@{\let\barrul@\thinrul@							%+simick
+   \global\cut@v\lthick \global\volta@endcor-\thr@@\lthick \global\volta@startcor\z@}	%+simick
+\def\r@ightrepeat{%
+  \hbox{\writ@colons\addspace\big@spc\thinrul@\small@spc\thickrul@}}
+\def\r@@ghtrepeat{%									%+simick
+  \global\cut@v\big@spc \global\advance\cut@v\lthick \global\advance\cut@v\h@lf\big@spc	%+simick
+  \global\volta@endcor\cut@v \global\advance\cut@v\big@spc \global\volta@startcor\z@}	%+simick
+\def\l@eftrepeat{%
+  \hbox{\thickrul@\small@spc\thinrul@\addspace\big@spc\writ@colons}}
+\def\l@@ftrepeat{%									%+simick
+  \global\cut@v\big@spc \global\advance\cut@v\h@lf\big@spc \global\advance\cut@v\lthick	%+simick
+  \global\advance\cut@v\big@spc \global\volta@endcor\z@ \global\volta@startcor\big@spc	%+simick
+  \global\advance\volta@startcor\lthick \global\advance\volta@startcor\h@lf\big@spc}	%+simick
+\def\l@eftrightrepeat{\hbox{\writ@colons\addspace\big@spc\thickrul@
+  \small@spc\thickrul@\addspace\big@spc\writ@colons}}
+\def\l@@ftrightrepeat{%									%+simick
+  \global\cut@v\big@spc \global\advance\cut@v\big@spc \global\volta@endcor\cut@v	%+simick
+  \global\advance\cut@v\h@lf\big@spc							%+simick
+  \global\volta@startcor\big@spc \global\advance\volta@startcor\big@spc			%+simick
+  \global\advance\cut@v\volta@endcor \global\advance\volta@startcor-\lthick}		%+simick
+
+\def\doublebar{\showallbarrules\setdoublebar\barre}% double barre de mesure
+%\def\setdoubleBAR{\showallbarrules\def\barrul@{\thinrul@\small@spc\thickrul@}}		%-simick
+\def\setdoubleBAR{\showallbarrules\def\barrul@{\thinrul@\small@spc\thickrul@}%		%+simick
+  \global\cut@v\lthick \global\advance\cut@v\h@lf\big@spc \global\volta@endcor\cut@v	%+simick
+  \global\advance\cut@v\big@spc \global\volta@startcor\z@}				%+simick
+%\def\setemptybar{\def\barrul@{\relax}}							%-simick
+\def\setemptybar{\def\barrul@{\relax}%							%+simick
+  \global\cut@v\z@ \global\volta@endcor-\f@ur\lthick \global\volta@startcor\z@}		%+simick
+\def\setdoublebar{\showallbarrules\global\cut@v.4\Interligne
+  \global\advance\cut@v\tw@\lthick \global\volta@endcor\z@ \global\volta@startcor\z@	%+simick
+  \def\barrul@{\thinrul@\addspace{.4\Interligne}\thinrul@}}
+
+\def\rightrepeat{\setrightrepeat\barre}
+
+%\def\setrightrepeat{\showallbarrules\let\barrul@\r@ightrepeat}				%-simick
+\def\setrightrepeat{\showallbarrules\let\barrul@\r@ightrepeat \r@@ghtrepeat}		%+simick
+%\def\setleftrepeat{\showallbarrules\let\barrul@\l@eftrepeat}				%-simick
+\def\setleftrepeat{\showallbarrules\let\barrul@\l@eftrepeat \l@@ftrepeat}		%+simick
+%\def\setleftrightrepeat{\showallbarrules\let\barrul@\l@eftrightrepeat}			%-simick
+\def\setleftrightrepeat{\showallbarrules\let\barrul@\l@eftrightrepeat \l@@ftrightrepeat}%+simick
+
+% write colons on all staffs (a part of [left][right]repeat symbols
+
+\def\writ@colons{\n@loop{\w@coli}\repeat}
+\def\w@coli{\p@loop
+  \raise\altportee\hbox{\raise4\internote\hbox{\keychar55}}\count@portee\repeat}
+
+%%% seperated and full barlines
+
+%\def\rul@full#1{\raise\altplancher\rlap{\vrule\@depth\hlthick
+%  \@height\systemheight\@width#1}\addspace#1}
+
+\def\rul@full#1{\hbox{\raise\altplancher\rlap{\vrule\@depth\hlthick
+  \@height\systemheight\@width#1}}\addspace#1}
+
+\def\rul@sep#1{\n@loop
+    \edef\rul@hidden{\csname h@bl\romannumeral\noinstrum@nt\endcsname}%
+    \Comp@High\hbox{\raise\altitude\rlap{%
+%    \message{(tw@=\meaning\tw@\space thr@@=\meaning\thr@@\space \number\noinstrum@nt->}\expandafter\show\rul@hidden
+    \expandafter
+    \ifx\rul@hidden\relax  % if \relax = never hidden
+      \vrule\@depth\hlthick\@width#1\@height\y@v
+    \else
+       \expandafter
+       \ifx\rul@hidden\thr@@  % if \thr@@ = not hidden one time,
+         \vrule\@depth\hlthick\@width#1\@height\y@v
+         \global\expandafter\let\rul@hidden\tw@ % reset to perm. hidden
+       \else
+         \expandafter
+         \ifx\rul@hidden\tw@ % if \tw@ = always hidden
+           \relax
+         \else
+           \expandafter
+           \ifx\rul@hidden\@ne % if \@ne = hidden only one time
+             \global\expandafter\let\rul@hidden\relax
+           \fi
+         \fi
+       \fi
+    \fi}}\repeat\addspace#1}
+
+%== hides (only) next bar line for specified instrument
+\def\Hidebarrule#1{\global\expandafter\let\csname h@bl\romannumeral#1\endcsname\@ne}
+
+%== hides all next bar lines for specified instrument
+\def\hidebarrule#1{\global\expandafter\let\csname h@bl\romannumeral#1\endcsname\tw@}
+
+%== force showing all bar lines for specified instrument
+\def\showbarrule#1{\global\expandafter\let\csname h@bl\romannumeral#1\endcsname\relax}
+
+%== force showing all bar lines for all instruments
+\def\showallbarrules{%
+ %\ifx\writ@rule\rul@sep\relax
+  \n@loop
+  \global\expandafter\let\csname h@bl\romannumeral\noinstrum@nt\endcsname\relax
+  \repeat
+ %\fi
+}
+
+%== force showing (only) next bar line for specified instrument
+\def\Showbarrule#1{\global\expandafter\let\csname h@bl\romannumeral#1\endcsname\thr@@}
+
+% standard vrules over all instruments
+\def\stdbarrules{\let\writ@rule\rul@full }
+
+% separated vrules par instrum
+\def\sepbarrules{\let\writ@rule\rul@sep }
+\stdbarrules
+
+%%% signs
+
+\def\s@l@ctsigns{\edef\a@s{\csname a@s\romannumeral\noinstrum@nt\endcsname}%
+  \edef\o@s{\csname o@s\romannumeral\noinstrum@nt\endcsname}}%
+
+\def\setsign#1#2{\noinstrum@nt#1\relax
+  \let\Writ@newsigns\writ@newsigns % only write them, when they are touched
+  \s@l@ctsigns % select instrument
+  \a@s#2\relax %
+}
+
+\def\generalsignature#1{\let\Writ@newsigns\writ@newsigns
+  \m@loop \s@l@ctsigns \a@s#1\repeat}
+
+% Inhibits writing erasing naturals at next change of context
+\def\ignorenats{\m@loop \s@l@ctsigns \o@s\z@ \repeat}
+
+\def\changesignature{\t@rmskip\Writ@newsigns}
+
+\def\writ@sign{\ifnum\a@s=\z@ \else
+  \n@v\@lii
+  \ifnum\a@s>\z@ \C@sig\t@n
+    \C@sh\@ne\s@v@n
+    \C@sh\tw@\@l@v@n
+    \C@sh\thr@@\@ight
+    \C@sh\f@ur\fiv@
+    \C@sh\fiv@\nin@
+    \C@sh\si@\si@\fi
+  \n@v\@l
+  \ifnum\a@s<\z@ \C@sig\si@
+    \C@fl\@ne\nin@
+    \C@fl\tw@\fiv@
+    \C@fl\thr@@\@ight
+    \C@fl\f@ur\f@ur
+    \C@fl\fiv@\s@v@n
+    \C@fl\si@\thr@@\fi
+  \fi}
+
+\def\C@sh#1#2{\ifnum\a@s>#1\C@sig#2\fi}
+\def\C@fl#1#2{\ifnum\a@s<-#1\C@sig#2\fi}
+
+%%
+%   Augment \writ@newsigns so that
+%   (1) the space taken by the mid-line sign change is written to the file;
+%   (2) the new value of \sign@skip is written to the file
+%   Note that this is not necessarily the same value
+%   as the mid-line value, which includes cancellation naturals when
+%   the key signature changes from N flats to M sharps (or vice-versa)
+%%
+
+\let\fil@signs\empty
+
+\def\writ@newsigns{\sign@skip\z@
+  \n@loop{\s@l@ctsigns \let\@Ti\writ@newsign \C@wsi}\repeat
+  \n@skip\sign@skip \widthtyp@\z@ \t@rmskip
+  \m@loop \s@l@ctsigns \o@s\a@s \repeat
+  \let\Writ@newsigns\empty \fil@signs }
+
+\def\upd@width#1{\ifdim#1<\wd\toks@box \global#1\wd\toks@box \fi}
+\def\writ@box{\leavevmode\raise\altportee\rlap{\box\toks@box}}
+
+\newcount\ut@ref
+
+\def\get@refs#1#2#3#4{% #1-#4: cle correspondante 0=sol, 5-6=fa, 1-4=ut
+  \ifcase\noport@@ \ut@ref\z@ \or \ut@ref#1\or \ut@ref#2\or
+    \ut@ref#3\or \ut@ref#4\fi
+    \relax \ifnum \ut@ref=9\relax \ut@ref-1\relax\fi
+    \global\ut@ref\ut@ref }
+
+ %\def\writ@newsign{\ifnum\a@s=\z@ \else\kern.4\Internote \fi
+ %    \ifnum\o@s<\z@ \w@flats\w@sharps\else\w@sharps\w@flats \fi}
+
+\def\writ@newsign{\ifnum\a@s=\z@ \else\kern.4\Internote \fi
+    \ifnum\o@s<\z@ \w@cancelflats\w@flats\w@sharps
+    \else\w@cancelsharps\w@sharps\w@flats \fi}
+
+\def\w@flats{\W@Fl\z@\si@ \W@Fl\@ne\nin@ \W@Fl\tw@\fiv@ \W@Fl\thr@@\@ight
+  \W@Fl\f@ur\f@ur \W@Fl\fiv@\s@v@n \W@Fl\si@\thr@@}
+
+\def\w@cancelflats{\W@canFl\z@\si@ \W@canFl\@ne\nin@ \W@canFl\tw@\fiv@
+  \W@canFl\thr@@\@ight \W@canFl\f@ur\f@ur \W@canFl\fiv@\s@v@n \W@canFl\si@\thr@@}
+
+ %\def\W@Fl#1#2{%
+ %  \ifnum\a@s<-#1\n@v\@l \C@sig#2\else \ifnum\o@s<-#1\n@v\@liv \C@sig#2\fi \fi}
+
+\def\W@Fl#1#2{%
+  \ifnum\a@s<-#1\n@v\@l \C@sig#2\else \ifnum\o@s<-#1\relax\fi \fi}
+
+\def\W@canFl#1#2{%
+  \ifnum\a@s<-#1\relax\else \ifnum\o@s<-#1\n@v\@liv \C@sig#2\fi \fi}
+
+\def\w@sharps{\W@Sh\z@\t@n \W@Sh\@ne\s@v@n \W@Sh\tw@\@l@v@n
+  \W@Sh\thr@@\@ight \W@Sh\f@ur\fiv@ \W@Sh\fiv@\nin@ \W@Sh\si@\si@}
+
+\def\w@cancelsharps{\W@canSh\z@\t@n \W@canSh\@ne\s@v@n \W@canSh\tw@\@l@v@n
+  \W@canSh\thr@@\@ight \W@canSh\f@ur\fiv@ \W@canSh\fiv@\nin@ \W@canSh\si@\si@}
+
+ %\def\W@Sh#1#2{%
+ %  \ifnum\a@s>#1\n@v\@lii \C@sig#2\else\ifnum\o@s>#1\n@v\@liv \C@sig#2\fi \fi}
+
+\def\W@Sh#1#2{%
+  \ifnum\a@s>#1\n@v\@lii \C@sig#2\else\ifnum\o@s>#1\relax\fi \fi}
+
+\def\W@canSh#1#2{%
+  \ifnum\a@s>#1\relax\else\ifnum\o@s>#1\n@v\@liv \C@sig#2\fi \fi}
+
+\def\C@wsi{\s@l@ctclefs \p@loop \count@portee \expandafter\get@refs\the\a@c
+  \setbox\toks@box\hbox{\kern.4\Internote \@Ti \kern.4\Internote}%
+  \upd@width\sign@skip \writ@box \repeat}
+
+ %\def\C@sig#1{\n@iii#1%
+ %  \ifnum\ut@ref>\z@
+ %  \advance\n@iii\ut@ref \advance\n@iii\ut@ref
+ %  \ifnum\ut@ref=\si@ \advance\n@iii-\s@v@n \fi
+ %  \ifnum\ut@ref>\thr@@ \advance\n@iii-\s@v@n \fi
+ %  \ifnum\n@iii>\@l@v@n \advance\n@iii-\s@v@n \fi
+ %\fi
+ %\advance\n@iii-\tw@ \raise\n@iii\internote
+ %\hbox\@to\tw@\internote{\hss\keychar\n@v\hss}}
+
+\def\C@sig#1{\n@iii#1% Correction by W. Icking
+  \advance\n@iii\ut@ref \advance\n@iii\ut@ref
+  \ifnum\ut@ref=\si@ \advance\n@iii-\fourt@@n%
+  \else \ifnum\ut@ref>\z@ \advance\n@iii-\s@v@n \fi\fi
+  \ifnum\n@iii<\@ne \global\advance\n@iii\s@v@n \fi
+  \ifnum\n@iii<\@ne \global\advance\n@iii\s@v@n \fi
+  \ifnum\n@iii>\@l@v@n \advance\n@iii-\s@v@n \fi
+  \ifnum\n@iii>\@l@v@n \advance\n@iii-\s@v@n \fi
+  \advance\n@iii-\tw@ \raise\n@iii\internote
+  \hbox\@to\tw@\internote{\hss\keychar\n@v\hss}}
+
+%%% meterindicators
+
+\def\s@l@ctm@t{\edef\m@t{\csname m@t\romannumeral\noinstrum@nt\endcsname}}
+
+\def\setmeter#1#2{\noinstrum@nt#1\relax % select instrument
+  \let\Writ@meters\writ@meters % only write them, when they are touched
+  \s@l@ctm@t \m@t{#2\empty\empty\empty}}
+
+\def\generalmeter#1{\let\Writ@meters\writ@meters
+  \m@loop \s@l@ctm@t \m@t{{#1}{#1}{#1}{#1}}\repeat}
+
+%%
+%   Redefine \writ@meters to set the 'hard' switch for
+%   \t@rmskip, indicating that this length is unscaleable
+%%
+
+% \meterskip influence the space before !first! writemeters
+\newskip\meterskip
+
+\def\writ@meters{\addspace\meterskip \meterskip\z@ \global\n@skip\z@
+  \n@loop{\writ@meteri}\repeat
+  \ifdim\n@skip>\z@ \advance\n@skip\big@spc
+    \widthtyp@\z@ \t@rmskip \fi \let\Writ@meters\empty}
+
+\def\writ@meteri{\s@l@ctm@t \p@loop \setbox\toks@box
+  \hbox{\expandafter\writ@meterp\the\m@t{}{}{}{}}\upd@width\n@skip
+  \writ@box \count@portee\repeat}
+
+\def\writ@meterp#1#2#3#4{%
+  \ifcase\noport@@\hbox{#1}\or \hbox{#2}\or \hbox{#3}\or \hbox{#4}\fi}
+
+\def\meterfrac#1#2{\setbox\toks@box\vbox{\hbox{\ \meterfont#1}%
+  \hbox{\ \meterfont #2}}\vbox\@to\@ight\internote{\offinterlineskip
+  \vss\hbox\@to\wd\toks@box{\hss\meterfont#1\hss}\vss
+  \vss\hbox\@to\wd\toks@box{\hss\meterfont#2\hss}\vss}}
+
+%%% clefs
+
+\def\s@l@ctclefs{\edef\a@c{\csname a@c\romannumeral\noinstrum@nt\endcsname}%
+  \edef\o@c{\csname o@c\romannumeral\noinstrum@nt\endcsname}}
+
+% why simple, when it can be done complicated ?
+
+\newtoks\t@c
+\def\@fourtoks#1#2#3#4#5+{#1#2#3#4}
+
+\def\setclef#1#2{\noinstrum@nt#1\relax
+  \ifnum#1<1\errmessage{Instrument number not positive}\fi
+  \s@l@ctclefs \t@c{#2000}%
+  \a@c\expandafter\expandafter\expandafter{\expandafter\@fourtoks\the\t@c+}}
+ \let\setclefs\setclef
+
+\let\bass\si@
+\let\alto\thr@@
+\let\treble\z@
+
+\def\setclefsymbol#1#2{\n@v#1\relax % select instrument
+  \expandafter\def\csname bassc@s\romannumeral\n@v\endcsname{#2}%
+  \expandafter\def\csname altoc@s\romannumeral\n@v\endcsname{#2}%
+  \expandafter\def\csname treblec@s\romannumeral\n@v\endcsname{#2}%
+}%
+
+\def\setbassclefsymbol#1#2{\n@v#1\relax % select instrument
+  \expandafter\def\csname bassc@s\romannumeral\n@v\endcsname{#2}%
+}%
+
+\def\setaltoclefsymbol#1#2{\n@v#1\relax % select instrument
+  \expandafter\def\csname altoc@s\romannumeral\n@v\endcsname{#2}%
+}%
+
+\def\settrebleclefsymbol#1#2{\n@v#1\relax % select instrument
+  \expandafter\def\csname treblec@s\romannumeral\n@v\endcsname{#2}%
+}%
+
+\def\trebleclef{\keychar71}
+\def\bassclef{\keychar73}
+\def\altoclef{\keychar75}
+
+\def\smalltrebleclef{\keychar72}
+\def\smallbassclef{\keychar74}
+\def\smallaltoclef{\keychar76}
+
+\def\trebleoct{\trebleclef\raise 9\internote\hbox\@to\z@{\smalltype\it\kern -1.8\Interligne 8\hss}}
+\def\bassoct{\bassclef\raise 2\internote\hbox\@to\z@{\smalltype\it\kern -2.3\Interligne 8\hss}}
+\def\treblelowoct{\trebleclef\raise -7\internote\hbox\@to\z@{\smalltype\it\kern -2.3\Interligne 8\hss}}
+\def\basslowoct{\bassclef\raise -6\internote\hbox\@to\z@{\smalltype\it\kern -2.5\Interligne 8\hss}}
+
+\newskip\clef@skip
+
+\def\changeclefs{\t@rmskip\writ@newclefs}
+
+\def\zchangeclefs{\t@rmskip\zwrit@newclefs}
+
+% since the characters are shifted by default(Metafont) they looked
+% a little bit strange when you mix several staffstaffsizes (flushleft)
+% I've introduced a hack(kern kernm), that they are (nearly) centered
+% (aehmm, really not the best way, because now they look strange
+% if you use music footnotes)
+
+\def\writ@clefi{\s@l@ctclefs
+  \p@loop
+  \setbox\toks@box\hbox{\expandafter\writ@clefp\the\a@c}%
+  \upd@width\clef@skip\raise\altportee\rlap{%
+    \ifdim\internote<\Internote \kern\thr@@\Internote\kernm\thr@@\internote \fi
+    \box\toks@box}\count@portee\repeat}
+
+\def\writ@clefp#1#2#3#4{%
+  \ifcase\noport@@\singl@clef#1%
+  \or \singl@clef#2\or \singl@clef#3\or \singl@clef#4\fi}
+
+\def\singl@clef#1{\n@iii#1\relax
+  \ifcase\n@iii
+    \C@Clef\@ne\trebleclef@var\or
+    \C@Clef\z@\altoclef@var\or
+    \C@Clef\@ne\altoclef@var\or
+    \C@Clef\tw@\altoclef@var\or
+    \C@Clef\thr@@\altoclef@var\or
+    \C@Clef\tw@\bassclef@var\or
+    \C@Clef\thr@@\bassclef@var\or
+    \C@Clef\f@ur\bassclef@var\or % 7 = subbass
+    \or
+    \C@Clef\z@\trebleclef@var    % 9 = french violin-clef
+  \fi
+}
+
+\def\C@Clef#1#2{\n@iii#1\relax\multiply\n@iii\tw@
+  \raise\n@iii\internote\hbox{#2}}
+
+\def\bassclef@var{\expandafter
+  \ifx\csname bassc@s\romannumeral\noinstrum@nt\endcsname\z@
+  \bassclef\else \csname bassc@s\romannumeral\noinstrum@nt\endcsname \fi}
+\def\trebleclef@var{\expandafter
+  \ifx\csname treblec@s\romannumeral\noinstrum@nt\endcsname\z@
+  \trebleclef\else \csname treblec@s\romannumeral\noinstrum@nt\endcsname \fi}
+\def\altoclef@var{\expandafter
+  \ifx\csname altoc@s\romannumeral\noinstrum@nt\endcsname\z@
+  \altoclef\else \csname altoc@s\romannumeral\noinstrum@nt\endcsname \fi}
+
+\def\smallbassclef@var{\expandafter
+  \ifx\csname bassc@s\romannumeral\noinstrum@nt\endcsname\z@
+  \smallbassclef\else \csname bassc@s\romannumeral\noinstrum@nt\endcsname \fi}
+\def\smalltrebleclef@var{\expandafter
+  \ifx\csname treblec@s\romannumeral\noinstrum@nt\endcsname\z@
+  \smalltrebleclef\else \csname treblec@s\romannumeral\noinstrum@nt\endcsname \fi}
+\def\smallaltoclef@var{\expandafter
+  \ifx\csname altoc@s\romannumeral\noinstrum@nt\endcsname\z@
+  \smallaltoclef\else \csname altoc@s\romannumeral\noinstrum@nt\endcsname \fi}
+
+
+%%
+%   Redefine \writ@newclefs similarly
+%
+%   Note that \clef@skip does not change for the different clef
+%   symbols (always 3.2\Interligne for normal sized clefs)
+%   Hence there is no need to communicate clef changes to the
+%   formatting program
+%%
+
+\def\writ@newclefs{\clef@skip\z@ \n@loop{\writ@newclefi}\repeat
+  \n@skip\clef@skip \widthtyp@\z@ \t@rmskip
+  \m@loop \s@l@ctclefs \o@c\a@c \repeat}
+
+% the same as \writ@newclefs, but no spacing
+
+\def\zwrit@newclefs{\clef@skip\z@
+  \setbox\writ@volta@box \hbox{\n@loop{\writ@newclefi}\repeat}%
+  \kern -\clef@skip \box\writ@volta@box
+  \kern \clef@skip
+  \clef@skip\z@ % test
+  \n@skip\clef@skip
+  \widthtyp@\z@
+  \t@rmskip
+  \m@loop \s@l@ctclefs \o@c\a@c \repeat}
+
+% Thanks to Helmut Kopka for helping me out
+\def\writ@newclefi{\s@l@ctclefs\p@loop
+  \setbox\toks@box\hbox{\expandafter\expandafter\expandafter\writ@newclefp
+  \the\expandafter\a@c\the\o@c}%
+  \upd@width\clef@skip \writ@box \count@portee\repeat}
+
+\def\writ@newclefp#1#2#3#4#5#6#7#8{%
+  \ifcase\noport@@\newsingl@clef#1#5\or \newsingl@clef#2#6\or
+  \newsingl@clef#3#7\or \newsingl@clef#4#8\fi}
+
+\def\newsingl@clef#1#2{\n@iii#1\relax \n@ii#2\relax
+  \ifnum\n@ii=\n@iii
+  \else
+    \ifcase\n@iii
+      \C@Clef\@ne\smalltrebleclef@var\or
+      \C@Clef\z@\smallaltoclef@var\or
+      \C@Clef\@ne\smallaltoclef@var\or
+      \C@Clef\tw@\smallaltoclef@var\or
+      \C@Clef\thr@@\smallaltoclef@var\or
+      \C@Clef\tw@\smallbassclef@var \or
+      \C@Clef\thr@@\smallbassclef@var\or
+      \C@Clef\f@ur\smallbassclef@var\or % 7 = subbass
+      \or
+      \C@Clef\z@\smalltrebleclef@var    % 9 = french violin-clef
+    \fi
+  \fi}
+
+%%% instrumentnames
+
+%\let\Writ@names\empty
+
+\def\setname#1#2{\n@v#1\relax % select instrument
+%  \let\Writ@names\writ@names
+  \expandafter\edef\csname instrument\romannumeral\n@v\endcsname{#2}}
+
+\def\writ@names{\n@loop
+  \setbox\toks@box\null\relax
+  \ifnum\st@ffs>0\relax
+  \setbox\toks@box\llap{\vbox{\hbox\@to\parindent{%
+    \hss\csname instrument\romannumeral\noinstrum@nt\endcsname\hss}}\ \ }%
+  \fi  
+  \altportee\altitude \Comp@High \advance\y@v-\ht\toks@box
+  \advance\altportee\h@lf\y@v
+  \writ@box
+  \repeat}
+
+%%%
+
+% les notes proprement dites
+
+\newdimen\noteskip
+\newcount\transpose
+\newcount\normaltranspose
+\newdimen\locx@skip
+\newdimen\elemskip
+\newdimen\@l@mskip
+
+\def\check@staff{%
+  \ifnum\noport@@>\st@ffs\relax
+  \ifx\Post@Elims\undefined\else
+    \immediate\write16{check@staff\space inst=\the\noinstrum@nt\space
+    staff=\the\noport@@\space st@ffs=\the\st@ffs\space Elim.}\relax
+  \fi
+  \ifnum\st@ffs>0\relax
+     \errmessage{Staff number (\the\noport@@) out of specified range (\the\st@ffs)!}\fi
+  \else\relax}
+%\def\check@staff{\iftrue\relax}
+
+\let\ifactiveinstrument\check@staff
+
+\def\nextstaff{\@ndstaff\beginstaff}
+\def\nextinstrument{\@ndstaff\begininstrument}
+\def\prevstaff{\@ndstaff\advance\noport@@-2\relax\beginstaff}
+\def\selectstaff#1{\@ndstaff\noport@@#1\relax
+  \advance\noport@@ -1\relax\beginstaff}
+\def\selectinstrument#1{\@ndstaff\noinstrum@nt#1\relax
+  \advance\noinstrum@nt -1\relax\begininstrument}
+
+\def\begininstrument{\advance\noinstrum@nt\@ne \s@l@ctinstr
+  \ifdim\internote<\p@seven6\Internote \set@tinynotesize \comput@sizes
+  \else
+    \ifdim\internote<.95\Internote \set@smallnotesize \comput@sizes
+    \else
+      \ifdim\internote<1.19\Internote \set@normalnotesize \comput@sizes
+      \else
+        \ifdim\internote<1.43\Internote \set@largenotesize \comput@sizes
+        \else
+          \set@Largenotesize \comput@sizes
+        \fi
+      \fi
+    \fi
+  \fi
+  \noport@@\z@ \beginstaff}
+
+\def\beginstaff{\leavevmode
+  \altportee\altitude \advance\altportee\noport@@\interportee
+  \count@portee \s@l@ctclefs \expandafter\get@refs\the\a@c
+  \setbox\n@otebox\hbox\bgroup
+  \let\rq\rq@ \let\lq\lq@ \let\ds\ds@oup \let\mp\mp@
+  \locx@skip\x@skip}
+
+\def\@ndstaff{\egroup
+  \ifdim\n@skip<\wd\n@otebox \n@skip\wd\n@otebox \fi
+  \raise\altportee\rlap{\unhbox\n@otebox}}
+
+%%% shifting
+
+\def\offs@t#1{\off{-\s@o@}#1\off\s@o@}
+\def\loffset#1{\edef\s@o@{#1\qn@width}\offs@t}
+\def\roffset#1{\edef\s@o@{-#1\qn@width}\offs@t}
+\def\roff{\roffset\@ne}
+\def\loff{\loffset\@ne}
+\def\hroff{\roffset\h@lf}
+\def\hloff{\loffset\h@lf}
+
+%%% decode collective coding
+
+% les symboles de notes ou assimiles
+
+\newcount\inh@alt
+\def\getn@i{\inh@alt\z@ \xgetn@i}
+\def\inhgetn@i{\inh@alt\@ne \xgetn@i}
+
+\def\f@tok#1#2\af@tok{#1}
+\def\s@tok#1#2\af@tok{#2}
+
+% \n@viii used as flag: \n@viii=\maxdimen -> argument is no number
+
+\def\C@Get{\n@viii\maxdimen \edef\alt@suite{\noexpand\getn@i\s@uite\relax}}
+\def\C@GET{\n@viii\maxdimen \edef\alt@suite{%
+  \ifnum\inh@alt=\z@ \noexpand\@TI{\s@uite}\fi \noexpand\getn@i\s@uite\relax}}
+
+\def\xgetn@i#1\relax{\n@viii\z@ \n@i\maxdimen % par defaut
+%% \edef\t@ruc{\f@tok #1\relax\af@tok}%
+  \edef\t@ruc{\expandafter\f@tok #1\relax\af@tok}%
+  \edef\s@uite{\s@tok #1\empty\af@tok}%
+%% pas lettre
+  \ifcat a\t@ruc \n@i\expandafter`\t@ruc\relax
+%% ramener au E (position zero en clef de sol, ut@ref=0)
+    \ifnum\n@i>96\advance\n@i-101%
+    \else\advance\n@i-\@lxxxiii % ramener au S= E + 14
+    \fi
+    \advance\n@i\ut@ref \advance\n@i\ut@ref \advance\n@i\transpose
+    \edef\ss@uite{\noexpand\n@fon{\s@uite}}%
+%% cas active character dont chiffre
+  \else
+    \let\ss@uite\empty
+    \let\alt@suite\empty
+    \ifcat 1\t@ruc
+      \if =\t@ruc \let\@TI\na  \C@GET \fi
+      \if *\t@ruc \sk \C@Get \fi
+      \if .\t@ruc \let\@TI\pt   \C@GET \fi
+      \if >\t@ruc \let\@TI\dsh \C@GET \fi
+      \if <\t@ruc \let\@TI\dfl \C@GET \fi
+      \if !\t@ruc \transpose\normaltranspose \C@Get \fi
+      \if '\t@ruc \advance\transpose\s@v@n   \C@Get \fi
+      \if `\t@ruc \advance\transpose-\s@v@n  \C@Get \fi
+      \ifnum\n@viii<\maxdimen \n@i#1\fi
+    \else
+      \if ^\t@ruc \let\@TI\sh \C@GET \fi
+      \if _\t@ruc \let\@TI\fl \C@GET \fi
+    \fi\alt@suite
+  \fi}
+
+%%% setting stems and flags
+
+\newdimen\st@bot % note stem bottom
+\newdimen\st@top % note stem top
+\newdimen\stem@skip
+
+\def\stdstemfalse{\let\stdst@m\@ne}
+
+\def\setst@m{%
+  \advance\y@i\altportee
+  \ifdim\st@bot>\y@i \global\st@bot\y@i \fi
+  \ifdim\st@top<\y@i \global\st@top\y@i \fi
+  \advance\y@i-\altportee}
+
+\def\resetst@m{%
+  \global\st@bot\maxdimen \global\st@top-\maxdimen \let\stdst@m\empty}
+\resetst@m
+
+\def\minst@bot{\ifdim\st@bot>\f@ur\internote
+  \ifx\stdst@m\empty \st@bot\f@ur\internote \fi \fi}
+
+\def\maxst@top{\ifdim\st@top<\f@ur\internote
+  \ifx\stdst@m\empty \st@top\f@ur\internote \fi \fi}
+
+\def\stem@rule{%
+  \vrule\@height\st@top\@depth-\st@bot\@width\lthick\kernm\lthick}
+
+\def\comp@stem{\advance\st@bot-\altportee \advance\st@top-\altportee}
+
+\def\C@stem{\ifdim\st@top>\st@bot
+  \comp@stem\kern\stem@skip\stem@rule
+  \kernm\stem@skip
+  \fi\resetst@m}
+
+\def\stemlength#1{\def\stemfactor{#1}}
+\def\DefaultStemlength{4.66}
+\stemlength{\DefaultStemlength}
+
+% cut stems in extrem positions for multiple voices in one staff
+
+\def\stemcut{\let\st@mcut\empty}
+\def\nostemcut{\let\st@mcut\@ne}
+\stemcut
+
+\def\Box@Flag{\setbox\ch@box\hbox{\musixfont\char\n@vii}\y@v\ht\ch@box }
+
+\def\down@flag{\Box@Flag\advance\st@bot-\y@v
+  \advance\st@bot-\stemfactor\interbeam
+  \advance\st@bot\DefaultStemlength\interbeam
+  \ifdim\st@top>\st@bot \comp@stem\minst@bot
+    \stem@rule\raise\st@bot\box\ch@box \fi\resetst@m}
+
+\def\up@flag{\Box@Flag\advance\st@top\y@v
+  \advance\st@top\stemfactor\interbeam
+  \advance\st@top-\DefaultStemlength\interbeam
+  \ifdim\st@top>\st@bot \comp@stem\maxst@top
+    \kern\qd@skip\stem@rule\advance\st@top-\y@v \raise\st@top\box\ch@box%
+    \kernm\qd@skip \fi\resetst@m}
+
+\def\cutst@l#1{%
+  \ifdim\st@bot<-#1\internote \advance\st@bot\qu@rt\interbeam \fi}
+
+\def\downst@m{\stem@skip\z@
+  \advance\st@bot-\stemfactor\interbeam
+  \advance\st@bot-\altportee
+  \ifx\st@mcut\empty
+    \ifdim\st@bot<-\thr@@\internote
+      \cutst@l\thr@@\cutst@l\f@ur\cutst@l\fiv@
+      \cutst@l\si@\cutst@l\s@v@n\cutst@l\@ight \fi \fi
+  \minst@bot\advance\st@bot\altportee
+  \C@stem}
+
+\def\cutst@u#1{%
+  \ifdim\st@top>#1\internote \advance\st@top-\qu@rt\interbeam \fi}
+
+\def\upst@m{\stem@skip\qd@skip
+  \advance\st@top\stemfactor\interbeam
+  \advance\st@top-\altportee
+  \ifx\st@mcut\empty
+    \ifdim\st@top>\@l@v@n\internote
+      \cutst@u\@l@v@n\cutst@u\tw@lv@\cutst@u\active
+      \cutst@u\fourt@@n\cutst@u\fiv@t@@n\cutst@u\sixt@@n \fi \fi
+  \maxst@top\advance\st@top\altportee
+  \C@stem}
+
+\newdimen\s@lope
+
+\def\comp@slope#1{\s@lope\b@p#1\divide\s@lope\tw@nty}
+
+\def\beamst@m{% queue de note vers une poutre
+  \getcurpos \advance\y@v-\b@x
+  \y@ii\b@p\y@v \divide\y@ii\tw@nty \advance\y@ii\b@z
+  \ifdim\y@ii>\st@top % la poutre est au-dessus
+    \stem@skip\qd@skip \comp@slope\stem@skip \advance\y@ii\s@lope
+    \ifnum\b@n>\z@ \advance\y@ii\b@n\interbeam \advance\y@ii-\interbeam \fi
+    \st@top\y@ii % a mettre a jour avec la pente ulterieurement
+  \else
+    \stem@skip\z@
+    \ifdim\y@ii<\st@bot
+      \ifnum\b@n<\z@ \advance\y@ii\b@n\interbeam \advance\y@ii\interbeam \fi
+      \st@bot\y@ii \fi \fi
+  \C@stem}
+
+%%% writing notes inclusive lines (subsidiary lines ?) (german: Hilfslinien)
+
+\newif\ifadvance\advancetrue
+
+% Modification by Werner Icking
+% ledger lines exceed the note by: y@vi := 0.35 (noteskip - notewidth)
+%                             and: 0.5 qn@width > y@vi > 0.2 qn@width
+\newdimen\y@vi
+\def\h@linei{%
+  \y@ii\n@v\internote
+  \y@iii\y@ii
+  \advance\y@ii\hlthick
+  \advance\y@iii-\hlthick
+  \y@vi\noteskip			% noteskip
+%-\ifnum\y@vi=\z@ \y@vi\maxdimen\fi	% (or maxdimen if noteskip = 0)
+  \advance\y@vi-\y@v			% - notewidth
+  \y@vi0.7\y@vi				% this may be eaten =: additional length
+  \y@iv\h@lf\qn@width\ifnum\y@vi>\y@iv \y@vi\y@iv\fi % not more than 0.5 qn@width
+  \y@iv0.2\qn@width  \ifnum\y@vi<\y@iv \y@vi\y@iv\fi % not less than 0.2 qn@width
+  \y@iv\y@v				% notewidth
+  \advance\y@iv\y@vi			% + additional length =: total length
+  \kernm\h@lf\y@vi			% center the ledger line
+%-\message{noteskip = \the\noteskip, length = \the\y@iv, notewidth = \the\y@v}%
+  \vrule\@height\y@ii\@depth-\y@iii\@width\y@iv
+  \kernm\y@iv\kern\h@lf\y@vi}
+
+% end Werner Icking's modification  of ledger lines.
+% old behaviour can be restored with musixfll.tex (or musixfll.sty)
+
+\def\writ@note{%
+  \ifnum\n@i<\@c
+% help lines \n@i (position)
+    \ifnum\nblines>\thr@@ % no help lines for percussion instruments
+      \n@v\z@
+      \ifnum\n@i<\m@ne % waste memory, but saves time
+        \loop \advance\n@v\m@ne \ifnum\n@i<\n@v
+          \advance\n@v\m@ne \h@linei
+        \repeat
+      \else
+        \n@v\nblines \advance\n@v\m@ne \multiply\n@v\tw@
+        \ifnum\n@i>\n@v
+          \loop \advance\n@v\@ne \ifnum\n@i>\n@v
+            \advance\n@v\@ne \h@linei
+          \repeat
+        \fi
+      \fi
+    \fi
+%
+    \pl@base\setst@m\st@m
+    \ifadvance \raise\y@i\adv@box\n@sym \else \raise\y@i\hbox{\n@sym}\fi
+    \ss@uite \advancetrue
+  \fi}
+
+\def\adv@box#1{\hbox\@to\noteskip{#1\hss}\advance\locx@skip\noteskip}
+
+%%% breve, longa, maxima, arbitrary notes, non spacing
+
+\def\zmaxima{\def\w@h{\musixchar36}\y@v\tw@\wn@width \advancefalse \g@w}
+\def\zlonga{\def\w@h{\musixchar39}\y@v\wn@width \advancefalse \g@w}
+\def\zbreve{\def\w@h{\musixfont\@xxxii}\y@v\wn@width \advancefalse \g@w}
+\def\zwq{\def\w@h{\musixchar56}\y@v\wn@width \advancefalse \g@w}
+\def\zwqq{\def\w@h{\musixchar127}\y@v\wn@width \advancefalse \g@w}
+
+\def\g@w#1{\let\st@m\resetst@m
+  \check@staff
+  \getn@i#1\relax\let\n@fon\g@w \let\n@sym\w@h \writ@note
+  \fi}
+
+\def\maxima{\def\w@h{\musixchar36}\y@v\tw@\wn@width \g@w}
+\def\longa{\def\w@h{\musixchar39}\y@v\wn@width \g@w}
+\def\breve{\def\w@h{\musixfont\@xxxii}\y@v\wn@width \g@w}
+\def\wq{\def\w@h{\musixchar56}\y@v\wn@width \g@w}
+\def\wqq{\def\w@h{\musixchar127}\y@v\wn@width \g@w}
+
+%%% alternate longa (with up stem) by Ingo Struck
+%%% struck@student.uni-siegen.de
+
+\def\lngdnst@m{\stem@skip1.25\qd@skip
+  \advance\st@bot-\stemfactor\interbeam
+  \advance\st@bot-\altportee
+  \ifx\st@mcut\empty
+    \ifdim\st@bot<-\thr@@\internote
+      \cutst@l\thr@@\cutst@l\f@ur\cutst@l\fiv@
+      \cutst@l\si@\cutst@l\s@v@n\cutst@l\@ight \fi \fi
+  \minst@bot\advance\st@bot\altportee
+  \C@stem}
+
+\def\lngupst@m{\stem@skip1.25\qd@skip
+  \advance\st@top\stemfactor\interbeam
+  \advance\st@top-\altportee
+  \ifx\st@mcut\empty
+    \ifdim\st@top>\@l@v@n\internote
+      \cutst@u\@l@v@n\cutst@u\tw@lv@\cutst@u\active
+      \cutst@u\fourt@@n\cutst@u\fiv@t@@n\cutst@u\sixt@@n \fi \fi
+  \maxst@top\advance\st@top\altportee
+  \C@stem}
+
+\def\@longa#1{\getn@i#1\relax
+  \ifnum\n@i>\thr@@
+    \let\st@m\lngdnst@m
+  \else
+    \let\st@m\lngupst@m
+  \fi
+  \let\n@fon\@longa \let\n@sym\q@u \y@v\qn@width \writ@note}
+
+\def\l@ngasymbol{\def\q@u{\musixfont\@xxxii}}
+
+\def\longaa{\l@ngasymbol\@longa}
+
+%%% whole notes
+
+\def\C@Point#1#2{\ifodd\n@i \else#2\internote \fi\hbox{\musixchar#1}}
+
+\def\wh{\def\w@h{\musixfont\nin@}\y@v\wn@width \g@w}
+\def\whp{\def\w@h{\musixfont\nin@\roffset\qu@rt{\C@Point\z@\raise}}%
+  \y@v\wn@width \g@w}
+\def\whpp{\def\w@h{\musixfont\nin@\roffset\qu@rt{\C@Point\@ne\raise}}%
+  \y@v\wn@width \g@w}
+
+%%% whole noteheads, no advance
+
+\def\zw{\advancefalse\wh}
+\def\zwp{\advancefalse\whp}
+\def\zwpp{\advancefalse\whpp}
+\let\zwh\zw
+
+\def\lw#1{\kernm\wn@width\zw{#1}\kern\wn@width}
+\def\rw#1{\kern\wn@width\zw{#1}\kernm\wn@width}
+
+%%% common routines for noteheads with the same width as a quarter note
+
+\def\@qa#1{\getn@i#1\relax
+  \ifnum\n@i>\thr@@
+    \let\st@m\downst@m
+  \else
+    \let\st@m\upst@m
+  \fi
+  \let\n@fon\@qa \let\n@sym\q@u \y@v\qn@width \writ@note}
+
+\def\@qu{\let\st@m\upst@m    \g@q}
+\def\@ql{\let\st@m\downst@m  \g@q}
+\def\@zq{\let\st@m\setst@m   \advancefalse\g@q}
+\def\@nq{\let\st@m\resetst@m \g@q}
+
+\def\g@q#1{\check@staff
+   \getn@i#1\relax\let\n@fon\g@q \let\n@sym\q@u
+   \y@v\qn@width \writ@note\fi}
+
+\def\@qup{\let\st@m\upst@m    \g@qp}
+\def\@qlp{\let\st@m\downst@m  \g@qp}
+\def\@zqp{\let\st@m\setst@m   \advancefalse\g@qp}
+\def\@nqp{\let\st@m\resetst@m \g@qp}
+
+\def\q@up{\q@u\C@Point\z@\raise}
+\def\g@qp#1{\check@staff
+   \getn@i#1\relax\let\n@fon\g@qp \let\n@sym\q@up
+   \y@v\qn@width \writ@note\fi}
+
+\def\@qupp{\let\st@m\upst@m    \g@qpp}
+\def\@qlpp{\let\st@m\downst@m  \g@qpp}
+\def\@zqpp{\let\st@m\setst@m   \advancefalse\g@qpp}
+\def\@nqpp{\let\st@m\resetst@m \g@qpp}
+
+\def\q@upp{\q@u\C@Point\@ne\raise}
+\def\g@qpp#1{\check@staff
+   \getn@i#1\relax\let\n@fon\g@qpp \let\n@sym\q@upp
+   \y@v\qn@width \writ@note\fi}
+
+\def\@lqu#1{\kernm\qn@width\advancefalse\@qu{#1}\kern\qn@width}
+\def\@rqu#1{\kern\qn@width\advancefalse\@qu{#1}\kernm\qn@width}
+
+\def\@lql#1{\kernm\qn@width\advancefalse\@ql{#1}\kern\qn@width}
+\def\@rql#1{\kern\qn@width\advancefalse\@ql{#1}\kernm\qn@width}
+
+\def\@lq#1{\kernm\qn@width\@zq{#1}\kern\qn@width}
+\def\@rq#1{\kern\qn@width\@zq{#1}\kernm\qn@width}
+
+\def\@qb#1{\s@l@ctbeam#1\relax \let\st@m\beamst@m \g@q}
+\def\@tqb#1{\s@l@ctbeam#1\relax \C@tb\t@bbl\lthick \let\st@m\beamst@m \g@q}
+\def\@tqh#1{\s@l@ctbeam#1\relax \C@tb\t@bbu\qn@width \let\st@m\beamst@m \g@q}
+\def\@qbp#1{\s@l@ctbeam#1\relax \let\st@m\beamst@m \g@qp}
+\def\@qbpp#1{\s@l@ctbeam#1\relax \let\st@m\beamst@m \g@qpp}
+
+\def\@ca{\n@iv\@xlv \@mca}
+\def\@cca{\n@iv46 \@mca}
+\def\@ccca{\n@iv47 \@mca}
+\def\@cccca{\n@iv48 \@mca}
+\def\@ccccca{\n@iv49 \@mca}
+
+\def\@mca#1{\getn@i#1\relax  \n@vii\n@iv
+  \ifnum\n@i>\thr@@
+    \let\st@m\down@flag
+  \else
+    \let\st@m\up@flag \advance\n@vii -\fiv@\relax
+  \fi
+  \let\n@fon\@mca \let\n@sym\q@u  \y@v\qn@width \writ@note}
+
+\def\@cu{\n@vii\@xl \let\st@m\up@flag \g@q}
+\def\@ccu{\n@vii\@xli \let\st@m\up@flag \g@q}
+\def\@cccu{\n@vii42\let\st@m\up@flag \g@q}
+\def\@ccccu{\n@vii43\let\st@m\up@flag \g@q}
+\def\@cccccu{\n@vii44\let\st@m\up@flag \g@q}
+
+\def\@cl{\n@vii\@xlv \let\st@m\down@flag \g@q}
+\def\@ccl{\n@vii46\let\st@m\down@flag \g@q}
+\def\@cccl{\n@vii47\let\st@m\down@flag \g@q}
+\def\@ccccl{\n@vii48\let\st@m\down@flag \g@q}
+\def\@cccccl{\n@vii49\let\st@m\down@flag \g@q}
+
+\def\@cup{\n@vii\@xl \let\st@m\up@flag \g@qp}
+\def\@ccup{\n@vii\@xli \let\st@m\up@flag \g@qp}
+\def\@clp{\n@vii\@xlv \let\st@m\down@flag \g@qp}
+\def\@cclp{\n@vii46\let\st@m\down@flag \g@qp}
+
+
+\def\@cupp{\n@vii\@xl \let\st@m\up@flag \g@qpp}
+\def\@clpp{\n@vii\@xlv \let\st@m\down@flag \g@qpp}
+
+%%% half notes
+
+\def\h@symbol{\def\q@u{\musixfont\@ight}}
+
+\def\ha{\h@symbol\@qa}
+\def\hu{\h@symbol\@qu}
+\def\hup{\h@symbol\@qup}
+\def\hupp{\h@symbol\@qupp}
+
+\def\hl{\h@symbol\@ql}
+\def\hlp{\h@symbol\@qlp}
+\def\hlpp{\h@symbol\@qlpp}
+
+\def\hb{\h@symbol\@qb}
+
+\def\zh{\h@symbol\@zq}
+\def\zhp{\h@symbol\@zqp}
+\def\zhpp{\h@symbol\@zqpp}
+
+\def\lh{\h@symbol\@lq}
+\def\rh{\h@symbol\@rq}
+
+\def\zhu{\advancefalse\hu}
+\def\zhup{\advancefalse\hup}
+\def\zhupp{\advancefalse\hupp}
+
+\def\lhu{\h@symbol\@lqu}
+\def\rhu{\h@symbol\@rqu}
+
+\def\zhl{\advancefalse\hl}
+\def\zhlp{\advancefalse\hlp}
+\def\zhlpp{\advancefalse\hlpp}
+
+\def\lhl{\h@symbol\@lql}
+\def\rhl{\h@symbol\@rql}
+
+%%% quarter notes, stem up
+
+\def\q@symbol{\def\q@u{\musixfont\s@v@n}}
+
+\def\qa{\q@symbol\@qa}
+
+\def\qu{\q@symbol\@qu}
+\def\qup{\q@symbol\@qup}
+\def\qupp{\q@symbol\@qupp}
+
+%%% quarter notes, stem down
+
+\def\ql{\q@symbol\@ql}
+\def\qlp{\q@symbol\@qlp}
+\def\qlpp{\q@symbol\@qlpp}
+
+%%% quarter notes, stem up, no advance
+
+\def\zqu{\advancefalse\qu}
+\def\zqup{\advancefalse\qup}
+\def\zqupp{\advancefalse\qupp}
+
+\def\lqu{\q@symbol\@lqu}
+\def\rqu{\q@symbol\@rqu}
+
+%%% quarter notes, stem down, no advance
+
+\def\zql{\advancefalse\ql}
+\def\zqlp{\advancefalse\qlp}
+\def\zqlpp{\advancefalse\qlpp}
+
+\def\lql{\q@symbol\@lql}
+\def\rql{\q@symbol\@rql}
+
+%%% quarter noteheads, no advance
+
+\def\zq{\q@symbol\@zq}
+\def\zqp{\q@symbol\@zqp}
+\def\zqpp{\q@symbol\@zqpp}
+
+\def\lqp#1{\loff{\zqp{#1}}}%
+\def\lqpp#1{\loff{\zqpp{#1}}}%
+\def\rqp#1{\roff{\zqp{#1}}}%
+\def\rqpp#1{\roff{\zqpp{#1}}}%
+
+\def\lq@{\q@symbol\@lq}
+\def\rq@{\q@symbol\@rq}
+
+%
+% note heads without stems
+\def\nh{\h@symbol\@nq}
+\def\nq{\q@symbol\@nq}
+\def\znh{\advancefalse\nh}
+\def\znq{\advancefalse\nq}
+
+%%% 8th, 16th, 32th, 64th, (128th) notes
+
+\def\ca{\q@symbol\@ca}
+\def\cca{\q@symbol\@cca}
+\def\ccca{\q@symbol\@ccca}
+\def\cccca{\q@symbol\@cccca}
+\def\ccccca{\q@symbol\@ccccca}
+
+\def\cu{\q@symbol\@cu}
+\def\ccu{\q@symbol\@ccu}
+\def\cccu{\q@symbol\@cccu}
+\def\ccccu{\q@symbol\@ccccu}
+\def\cccccu{\q@symbol\@cccccu}
+
+\def\cup{\q@symbol\@cup}
+\def\ccup{\q@symbol\@ccup}
+\def\cupp{\q@symbol\@cupp}
+
+\def\zcu{\advancefalse\cu}
+\def\zccu{\advancefalse\ccu}
+\def\zcccu{\advancefalse\cccu}
+\def\zccccu{\advancefalse\ccccu}
+\def\zcccccu{\advancefalse\cccccu}
+
+\def\lcu#1{\kernm\qn@width\zcu{#1}\kern\qn@width}
+\def\rcu#1{\kern\qn@width\zcu{#1}\kernm\qn@width}
+
+\def\zcup{\advancefalse\cup}
+\def\zcupp{\advancefalse\cupp}
+
+\def\cl{\q@symbol\@cl}
+\def\ccl{\q@symbol\@ccl}
+\def\cccl{\q@symbol\@cccl}
+\def\ccccl{\q@symbol\@ccccl}
+\def\cccccl{\q@symbol\@cccccl}
+
+\def\clp{\q@symbol\@clp}
+\def\clpp{\q@symbol\@clpp}
+
+\def\zcl{\advancefalse\cl}
+\def\zccl{\advancefalse\ccl}
+\def\zcccl{\advancefalse\cccl}
+\def\zccccl{\advancefalse\ccccl}
+\def\zcccccl{\advancefalse\cccccl}
+
+\def\zclp{\advancefalse\clp}
+\def\zclpp{\advancefalse\clpp}
+
+\def\lcl#1{\kernm\qn@width\zcl{#1}\kern\qn@width}
+\def\rcl#1{\kern\qn@width\zcl{#1}\kernm\qn@width}
+
+%%% beam notes
+
+\def\qb{\q@symbol\@qb}
+\def\qbp{\q@symbol\@qbp}
+\def\qbpp{\q@symbol\@qbpp}
+
+\def\zqb{\advancefalse\qb}
+\def\zqbp{\advancefalse\qbp}
+\def\zqbpp{\advancefalse\qbpp}
+
+\def\tqh{\q@symbol\@tqh}
+\def\tqb{\q@symbol\@tqb}
+\def\ztqh{\advancefalse\q@symbol\@tqh}
+\def\ztqb{\advancefalse\q@symbol\@tqb}
+
+%%% grace notes
+
+\def\grcu{\q@symbol\@grcu}
+\def\grcl{\q@symbol\@grcl}
+
+\def\@grcu{\n@vii\tw@lv@ \let\st@m\up@flag \g@q}
+\def\@grcl{\n@vii\active \let\st@m\down@flag \g@q}
+
+%%% starting beams
+
+% \ibu{0<=numero<10}{altitude~note}{pente de -9 a +9}
+% \ibl{0<=numero<10}{altitude~note}{pente de -9 a +9}
+
+% \b@p slope (-9) - (9)
+% \b@n number of pending beamlines (-4) - (4)
+
+\def\test@num{%
+  \ifnum\n@i<\z@ \n@i\@c \fi
+  \ifnum\n@i<\maxinstruments \else
+    \n@i\z@ \errmessage{Wrong slur or beam number!}\fi
+  \advance\n@i\@ne}
+
+\def\s@l@ctbeam#1\relax{%
+  \n@i#1\relax\test@num
+  \edef\b@x{\csname b@x\romannumeral\n@i\endcsname}%
+  \edef\b@z{\csname b@z\romannumeral\n@i\endcsname}%
+  \edef\b@n{\csname b@n\romannumeral\n@i\endcsname}%
+  \edef\b@p{\csname b@p\romannumeral\n@i\endcsname}}
+
+\def\s@l@ctc{\edef\c@x{\csname c@x\romannumeral\n@i\endcsname}%
+  \edef\c@z{\csname c@z\romannumeral\n@i\endcsname}}
+
+\def\s@l@ctd{\edef\d@x{\csname d@x\romannumeral\n@i\endcsname}%
+  \edef\d@z{\csname d@z\romannumeral\n@i\endcsname}\s@l@ctc}
+
+\def\s@l@cte{\edef\e@x{\csname e@x\romannumeral\n@i\endcsname}%
+  \edef\e@z{\csname e@z\romannumeral\n@i\endcsname}\s@l@ctd}
+
+\def\s@l@ctf{\edef\f@x{\csname f@x\romannumeral\n@i\endcsname}%
+  \edef\f@z{\csname f@z\romannumeral\n@i\endcsname}\s@l@cte}
+
+\def\s@l@ctg{\edef\g@x{\csname g@x\romannumeral\n@i\endcsname}%
+  \edef\g@z{\csname g@z\romannumeral\n@i\endcsname}\s@l@ctf}
+
+\def\ibu#1{\s@l@ctbeam#1\relax \i@bu}
+\def\ibbu#1{\s@l@ctbeam#1\relax \s@l@ctc \i@bbu}
+\def\ibbbu#1{\s@l@ctbeam#1\relax \s@l@ctd \i@bbbu}
+\def\ibbbbu#1{\s@l@ctbeam#1\relax \s@l@cte \i@bbbbu}
+\def\ibbbbbu#1{\s@l@ctbeam#1\relax \s@l@ctf \i@bbbbbu}
+
+\def\ibl#1{\s@l@ctbeam#1\relax \i@bl}
+\def\ibbl#1{\s@l@ctbeam#1\relax \s@l@ctc \i@bbl}
+\def\ibbbl#1{\s@l@ctbeam#1\relax \s@l@ctd \i@bbbl}
+\def\ibbbbl#1{\s@l@ctbeam#1\relax \s@l@cte \i@bbbbl}
+\def\ibbbbbl#1{\s@l@ctbeam#1\relax \s@l@ctf \i@bbbbbl}
+
+\def\i@bu#1#2{%\check@staff
+  \ifnum\b@n=\z@ \else \C@tb\t@bbu\qn@width \fi \global\b@n\m@ne
+  \inhgetn@i#1\relax \n@v#2 \C@ib+\global\advance\b@x\qd@skip}
+
+\def\i@bl#1#2{%\check@staff
+  \ifnum\b@n=\z@ \else \C@tb\t@bbl\lthick \fi \global\b@n\@ne
+  \inhgetn@i#1\relax \n@v#2 \C@ib-}
+
+\def\C@ib#1{\max@n@v\nin@\min@n@v{-\nin@}\global\b@p\n@v % clip slope number
+    \getcurpos \global\b@x\y@v \b@z#14.333\interbeam \advance\b@z\altportee
+    \pl@base \global\advance\b@z\y@i}
+
+\def\C@ba#1#2{\global\advance#1#2\interbeam}
+
+\def\i@bbu#1#2{\ifnum\b@n=\z@ \i@bu{#1}{#2}\C@ba\b@z\@ne \fi\n@bbu}
+\def\i@bbl#1#2{\ifnum\b@n=\z@ \i@bl{#1}{#2}\C@ba\b@z\m@ne \fi\n@bbl}
+
+\def\i@bbbu#1#2{\ifnum\b@n=\z@
+  \i@bbu{#1}{#2}\C@ba\b@z\@ne \C@ba\c@z\@ne \fi\n@bbbu}
+\def\i@bbbl#1#2{\ifnum\b@n=\z@
+  \i@bbl{#1}{#2}\C@ba\b@z\m@ne \C@ba\c@z\m@ne \fi\n@bbbl}
+
+\def\i@bbbbu#1#2{\ifnum\b@n=\z@
+  \i@bbbu{#1}{#2}\C@ba\b@z\@ne \C@ba\c@z\@ne \C@ba\d@z\@ne \fi\n@bbbbu}
+\def\i@bbbbl#1#2{\ifnum\b@n=\z@
+  \i@bbbl{#1}{#2}\C@ba\b@z\m@ne \C@ba\c@z\m@ne \C@ba\d@z\m@ne \fi\n@bbbbl}
+
+\def\i@bbbbbu#1#2{\ifnum\b@n=\z@
+  \i@bbbbu{#1}{#2}\C@ba\b@z\@ne \C@ba\c@z\@ne \C@ba\d@z\@ne \C@ba\e@z\@ne \fi\n@bbbbbu}
+\def\i@bbbbbl#1#2{\ifnum\b@n=\z@
+  \i@bbbbl{#1}{#2}\C@ba\b@z\m@ne \C@ba\c@z\m@ne \C@ba\d@z\m@ne \C@ba\e@z\m@ne \fi\n@bbbbbl}
+
+%%% changing beams
+
+\def\Dec@b#1#2{\ifnum\b@n=#1#2\fi\ifnum\b@n=-#1#2\fi}
+
+%!\def\nbbu#1{\s@l@ctbeam#1\relax \s@l@ctc \ifnum\b@n>-\tw@ \ifnum\b@n<\tw@ \n@bbu \fi \fi }
+%!\def\nbbl#1{\s@l@ctbeam#1\relax \s@l@ctc \ifnum\b@n>-\tw@ \ifnum\b@n<\tw@ \n@bbl \fi \fi }
+
+\def\nbbu#1{\s@l@ctbeam#1\relax \s@l@ctc \n@bbu}
+\def\nbbl#1{\s@l@ctbeam#1\relax \s@l@ctc \n@bbl}
+
+\def\nbbbu#1{\s@l@ctbeam#1\relax \s@l@ctd \Dec@b\@ne\n@bbu \Dec@b\tw@\n@bbbu}
+\def\nbbbl#1{\s@l@ctbeam#1\relax \s@l@ctd \Dec@b\@ne\n@bbl \Dec@b\tw@\n@bbbl}
+
+\def\nbbbbu#1{\s@l@ctbeam#1\relax \s@l@cte
+  \Dec@b\@ne\n@bbu \Dec@b\tw@\n@bbbu \Dec@b\thr@@\n@bbbbu}
+\def\nbbbbl#1{\s@l@ctbeam#1\relax \s@l@cte
+  \Dec@b\@ne\n@bbl \Dec@b\tw@\n@bbbl \Dec@b\thr@@\n@bbbbl}
+
+\def\nbbbbbu#1{\s@l@ctbeam#1\relax \s@l@ctf
+  \Dec@b\@ne\n@bbu \Dec@b\tw@\n@bbbu \Dec@b\thr@@\n@bbbbu \Dec@b\f@ur\n@bbbbbu}
+\def\nbbbbbl#1{\s@l@ctbeam#1\relax \s@l@ctf
+  \Dec@b\@ne\n@bbl \Dec@b\tw@\n@bbbl \Dec@b\thr@@\n@bbbbl \Dec@b\f@ur\n@bbbbbl}
+
+\def\n@bbu{\C@nb\c@z\c@x\@ne\qd@skip}
+\def\n@bbl{\C@nb\c@z\c@x\@ne\z@}
+\def\n@bbbu{\C@nb\d@z\d@x\tw@\qd@skip}
+\def\n@bbbl{\C@nb\d@z\d@x\tw@\z@}
+\def\n@bbbbu{\C@nb\e@z\e@x\thr@@\qd@skip}
+\def\n@bbbbl{\C@nb\e@z\e@x\thr@@\z@}
+\def\n@bbbbbu{\C@nb\f@z\f@x\f@ur\qd@skip}
+\def\n@bbbbbl{\C@nb\f@z\f@x\f@ur\z@}
+
+\def\C@nb#1#2#3#4{%
+  \global#1\b@z
+  \ifnum\b@n<\z@ \global\advance\b@n\m@ne \global\advance#1-#3\interbeam \fi
+  \ifnum\b@n>\z@ \global\advance\b@n\@ne \C@ba#1#3\fi
+ {\advance\locx@skip#4\getcurpos \global#2\y@v
+  \advance\y@v-\b@x \comp@slope\y@v \global\advance#1\s@lope}}
+
+%%% beam termination
+
+\def\b@adjust{\ifdim\y@ii>\tw@\y@ \advance\y@\y@ \advance\n@vi\@ne \fi}
+
+\def\@beam{% \y@ii : longueur, \b@p : pente, \y@i : altitude
+  \ifnum\b@p=\z@
+% slope zero
+    \y@iii\y@i\y@iv\y@i
+    \advance\y@iii-\b@amthick \advance\y@iv\b@amthick
+    \vrule\@height\y@iv\@depth-\y@iii\@width\y@ii
+  \else\n@vi\z@
+% slope offset
+    \ifnum\b@p>\z@ \n@vi\b@p \multiply\n@vi\si@ \advance\n@vi-\si@ \fi
+    \ifnum\b@p<\z@ \n@vi-\b@p \multiply\n@vi\si@ \advance\n@vi58\fi
+% find longest possible character to avoid patchwork
+    \y@\tw@\p@
+    \b@adjust \b@adjust \b@adjust \b@adjust \b@adjust
+    \advance\n@vi\@cxxviii
+    \chardef\b@alk\n@vi\musixfont
+%
+%    \curwidth=0pt \curheight=\y@i \curxpos=\completewidth
+%    \loop\ifdim\curwidth<\completewidth
+%      \advance\curxpos by -\beamwidth
+%      \ifdim\curxpos<0pt
+%         \comp@slope\curxpos
+%         \advance\curheight by \s@lope \kern\curxpos \fi
+%      \raise\curheight\hbox{\b@alk}%
+%      \advance\curwidth by \beamwidth
+%      \comp@slope\beamwidth
+%      \advance\curheight by \s@lope
+%    \repeat \fi
+%
+    \y@iv\z@ \y@iii\y@i \y@v\y@ii
+    \loop\ifdim\y@iv<\y@ii
+      \advance\y@v-\y@
+      \ifdim\y@v<\z@ \comp@slope\y@v \advance\y@iii\s@lope \kern\y@v \fi
+      \raise\y@iii\hbox{\b@alk}%
+      \advance\y@iv\y@ \comp@slope\y@ \advance\y@iii\s@lope
+    \repeat \fi}
+
+\def\s@l@ctcde{\s@l@ctc \s@l@ctd \s@l@cte \s@l@ctf }
+
+\def\tbu#1{\s@l@ctbeam#1\relax \C@tb\t@bbu\qn@width }
+\def\tbbu#1{\s@l@ctbeam#1\relax  \s@l@ctcde \t@bbu}
+\def\tbbbu#1{\s@l@ctbeam#1\relax  \s@l@ctcde \t@bbbu}
+\def\tbbbbu#1{\s@l@ctbeam#1\relax  \s@l@ctcde \t@bbbbu}
+\def\tbbbbbu#1{\s@l@ctbeam#1\relax  \s@l@ctcde \t@bbbbbu}
+
+\def\tbl#1{\s@l@ctbeam#1\relax \C@tb\t@bbl\lthick }
+\def\tbbl#1{\s@l@ctbeam#1\relax  \s@l@ctcde \t@bbl}
+\def\tbbbl#1{\s@l@ctbeam#1\relax  \s@l@ctcde \t@bbbl}
+\def\tbbbbl#1{\s@l@ctbeam#1\relax  \s@l@ctcde \t@bbbbl}
+\def\tbbbbbl#1{\s@l@ctbeam#1\relax  \s@l@ctcde \t@bbbbbl}
+
+\def\beam@pos#1{\getcurpos\y@ii\y@v\advance\y@ii-#1}
+
+\def\C@tb#1#2{%
+  \n@ii\b@n \ifnum\n@ii<\z@ \n@ii-\n@ii \fi
+  \ifcase\n@ii \or \or \s@l@ctc \or \s@l@ctd \or \s@l@cte \or \s@l@ctf \or \s@l@ctg\fi
+  \ifnum\b@n<\m@ne #1\fi
+  \ifnum\b@n>\@ne #1\fi
+  \y@i\b@z \advance\y@i-\altportee \beam@pos\b@x
+  \advance\y@ii#2\relax
+  \check@staff
+    \llap{\@beam\kernm#2}\relax
+  \fi\global\b@n\z@}
+
+\def\t@bbu{\n@v\tw@ \C@b\t@bbbu\n@bbu\y@i\c@z \beam@pos\c@x \t@xbu}
+\def\t@bbl{\n@v\tw@ \C@b\t@bbbl\n@bbl\y@i\c@z \beam@pos\c@x \t@xbl}
+
+\def\t@bbbu{\n@v\thr@@ \C@b\t@bbbbu\n@bbbu\y@i\d@z \beam@pos\d@x \t@xbu}
+\def\t@bbbl{\n@v\thr@@ \C@b\t@bbbbl\n@bbbl\y@i\d@z \beam@pos\d@x \t@xbl}
+
+\def\t@bbbbu{\n@v\f@ur \C@b\t@bbbbbu\n@bbbbu\y@i\e@z \beam@pos\e@x \t@xbu}
+\def\t@bbbbl{\n@v\f@ur \C@b\t@bbbbbl\n@bbbbl\y@i\e@z \beam@pos\e@x \t@xbl}
+
+\def\t@bbbbbu{\n@v\fiv@ \C@b\empty\n@bbbbbu\y@i\f@z \beam@pos\f@x \t@xbu}
+\def\t@bbbbbl{\n@v\fiv@ \C@b\empty\n@bbbbbl\y@i\f@z \beam@pos\f@x \t@xbl}
+
+\def\C@b#1#2{%
+  \n@ii\b@n \ifnum\n@ii<\z@ \n@ii-\n@ii \fi
+  \ifnum\n@ii>\n@v #1\fi
+  \loop
+  \advance\n@v\m@ne
+  \ifnum\n@ii=\n@v {\advance\locx@skip-\qn@width#2}\fi
+  \ifnum\n@v>\@ne \repeat}
+
+\def\t@xbu{\C@txb\qn@width\interbeam\b@amthick\qd@skip>}
+\def\t@xbl{\C@txb\lthick\b@amthick\interbeam\hlthick<}
+
+\def\C@txb#1#2#3#4#5{\advance\y@i-\altportee
+  \advance\y@ii#1\relax
+  \check@staff
+    \llap{\@beam\kernm#1}%
+  \ifnum\b@n#5\z@ \comp@slope\y@ii \advance\y@i\s@lope
+    \raise\y@i\rlap{\kern#4\vrule\@height#3\@depth#2\@width\lthick}\relax
+  \fi
+  \fi
+  \ifnum\b@n<\z@ \global\advance\b@n\@ne \fi
+  \ifnum\b@n>\z@ \global\advance\b@n\m@ne \fi}
+
+%%% semiautomatic beams
+
+% adjustable beam slopes
+% #1: beam number
+% #2: starting pitch
+% #3: ending pitch,
+% #4: extension (number of \noteskip's)
+
+\def\Ibu#1{\s@l@ctbeam#1\relax\I@bu\i@bu}
+\def\Ibl#1{\s@l@ctbeam#1\relax\I@bl\i@bl}
+\def\Ibbu#1{\s@l@ctbeam#1\relax \s@l@ctc \I@bu\i@bbu}
+\def\Ibbl#1{\s@l@ctbeam#1\relax \s@l@ctc \I@bl\i@bbl}
+\def\Ibbbu#1{\s@l@ctbeam#1\relax \s@l@ctd \I@bu\i@bbbu}
+\def\Ibbbl#1{\s@l@ctbeam#1\relax \s@l@ctd \I@bl\i@bbbl}
+\def\Ibbbbu#1{\s@l@ctbeam#1\relax \s@l@cte \I@bu\i@bbbbu}
+\def\Ibbbbl#1{\s@l@ctbeam#1\relax \s@l@cte \I@bl\i@bbbbl}
+\def\Ibbbbbu#1{\s@l@ctbeam#1\relax \s@l@cte \I@bu\i@bbbbbu}
+\def\Ibbbbbl#1{\s@l@ctbeam#1\relax \s@l@cte \I@bl\i@bbbbbl}
+
+% compute altitude difference of tried beam in \y@iv
+% and compare with notes altitude difference
+
+\def\@@chk{\y@iv.05\y@v \multiply\y@iv\n@viii}
+
+\def\I@buuchk{\@@chk
+  \ifdim\y@iv>\n@ii\internote \advance\n@viii\m@ne \I@buuchk \fi
+  \ifnum\n@viii>\nin@ \advance\n@i\@ne \advance\n@ii\m@ne \I@buuchk \fi}
+
+\def\I@bldchk{\@@chk
+  \ifdim\y@iv<\n@ii\internote \advance\n@viii\@ne \I@bldchk \fi
+  \ifnum\n@viii<-\nin@ \advance\n@i\m@ne \advance\n@ii\@ne \I@bldchk \fi}
+
+\def\I@budchk{\@@chk
+  \ifdim\y@iv<\n@ii\internote \advance\n@viii\@ne \I@budchk \fi}
+
+\def\I@bluchk{\@@chk
+  \ifdim\y@iv>\n@ii\internote \advance\n@viii\m@ne \I@bluchk \fi}
+
+\def\I@bu{\let\@Ti\I@buuchk \let\@Tii\I@budchk \C@Ib}
+\def\I@bl{\let\@Ti\I@bluchk \let\@Tii\I@bldchk \C@Ib}
+
+\def\C@Ib#1#2#3#4{{\n@v#4\relax \min@n@v\@ne
+  \inhgetn@i#3\relax\n@ii\n@i
+  \inhgetn@i#2\relax\advance\n@ii-\n@i
+  \y@v\noteskip \multiply\y@v\n@v
+  \ifnum\n@ii=\z@ #1{#2}0%
+  \else
+    \ifnum\n@ii>\z@ \n@viii\t@n \@Ti\else\n@viii-\t@n \@Tii \fi
+    \edef\I@boper{\noexpand#1{\the\n@i}{\the\n@viii}\relax}\I@boper
+  \fi}}
+
+% sets of double notes with computed slopes
+
+\def\B@h{\let\B@ii\tqh}
+\def\B@b{\let\B@ii\tqb}
+
+\def\Dqbu{\let\B@i\Ibu \B@h\C@Dq}
+\def\Dqbl{\let\B@i\Ibl \B@b\C@Dq}
+\def\Dqbbu{\let\B@i\Ibbu \B@h\C@Dq}
+\def\Dqbbl{\let\B@i\Ibbl \B@b\C@Dq}
+
+\def\C@Dq#1#2{\B@i0{#1}{#2}1\qb0{#1}\B@ii0{#2}}
+
+% sets of triple notes with computed slopes
+
+\def\Tqbu{\let\B@i\Ibu \B@h\C@Tq}
+\def\Tqbl{\let\B@i\Ibl \B@b\C@Tq}
+\def\Tqbbu{\let\B@i\Ibbu \B@h\C@Tq}
+\def\Tqbbl{\let\B@i\Ibbl \B@b\C@Tq}
+
+\def\C@Tq#1#2#3{\B@i0{#1}{#3}2\qb0{#1#2}\B@ii0{#3}}
+
+% sets of quadruple notes with computed slopes
+
+\def\Qqbu{\let\B@i\Ibu \B@h\C@Qq}
+\def\Qqbl{\let\B@i\Ibl \B@b\C@Qq}
+\def\Qqbbu{\let\B@i\Ibbu \B@h\C@Qq}
+\def\Qqbbl{\let\B@i\Ibbl \B@b\C@Qq}
+
+\def\C@Qq#1#2#3#4{\B@i0{#1}{#4}3\qb0{#1#2#3}\B@ii0{#4}}
+
+%%% duration points
+
+\def\pt{\g@pt\@ne\z@}
+\def\ppt{\g@pt\@ne\@ne}
+\def\pppt{\g@pt\@ne\tw@}
+
+\def\lpt{\g@pt\m@ne\z@}
+\def\lppt{\g@pt\m@ne\@ne}
+\def\lpppt{\g@pt\m@ne\tw@}
+
+\def\g@pt#1#2#3{\check@staff
+  \inhgetn@i#3\relax \relax % two \relax since the first one
+  \ifnum\n@i<\@c                          % in swallowed by \inhgetn@i
+    \ifodd\n@i \else\advance\n@i#1\fi
+    \pl@base \raise\y@i\hbox{\musixchar#2}\fi\fi}
+
+%%% rests
+
+\def\wholeshift#1{\roffset{\p@ne25}{#1}}
+
+\def\centerbar#1{\y@ii\lin@pos \advance\y@ii-\lastbarpos \advance\y@ii\cut@v
+ \kern-\h@lf\y@ii\lrlap{#1}\kern\h@lf\y@ii}%
+
+\def\centerPAUSe{\centerbar\PAUSe}
+\def\centerPAuse{\centerbar\PAuse}
+%\def\centerpause{\let\adv@box\hbox \centerbar\pause}
+%\def\centerhpause{\let\adv@box\hbox \centerbar\hpause}
+\def\centerpause{\centerbar\pause}
+\def\centerhpause{\centerbar\hpause}
+
+\def\C@ps#1#2#3{\n@viii#3\multiply\n@viii\tw@
+  \advance\n@viii#2\raise\n@viii\internote \hbox{\musixchar#1}}
+\def\C@pspt#1#2#3{\n@viii#3\multiply\n@viii\tw@
+  \advance\n@viii#2\raise\n@viii\internote \hbox{\musixchar#1\relax
+  \ifnum #1=\t@n\relax \raise 0.7\internote\hbox{\kern 0.2\qn@width\musixchar0}%
+  \else \raise -0.7\internote\hbox{\kern 0.2\qn@width\musixchar0}%
+  \fi}%
+  }
+
+\def\PAUSe{\adv@box{\musixchar59}}
+\def\PAuse{\adv@box{\musixchar58}}
+
+\def\pause{\check@staff
+   \adv@box{\raise\si@\internote\hbox{\musixchar61}}\fi}
+\def\pausep{%\check@staff
+   \wholeshift{\pt5}\pause}
+\def\liftpause{\C@ps\@l@v@n\si@}
+\def\liftpausep{\C@pspt\@l@v@n\si@}
+
+\def\hpause{\check@staff
+   \adv@box{\raise\f@ur\internote\hbox{\musixchar60}}\fi}
+\let\hp\hpause
+\def\hpausep{%\check@staff
+   \wholeshift{\pt5}\hpause}
+\def\lifthpause{\C@ps\t@n\f@ur}
+\def\lifthpausep{\C@pspt\t@n\f@ur}
+
+\newdimen\lift@rest
+\def\adv@restbox#1{\hbox{\lift@rest 5\internote
+ \advance\lift@rest -2.5\fontdimen\fiv@\musixfont
+ \raise\lift@rest\hbox\@to\noteskip{#1\hss}}\advance\locx@skip\noteskip}
+
+\def\qp{\check@staff
+  \adv@restbox{\musixchar62}\fi}
+\let\soupir\qp
+
+\def\ds@oup{\check@staff
+  \adv@restbox{\musixchar63}\fi}
+\def\qs{\check@staff
+  \adv@restbox{\musixchar64}\fi}
+\def\hs{\adv@restbox{\musixchar65}}
+\def\qqs{\adv@restbox{\musixchar66}}
+
+%%% accidentals
+
+\newskip\accshift
+
+\def\bigaccid{\let\small@test\iftrue}
+\def\smallaccid{\let\small@test\iffalse}
+\def\varaccid{\def\small@test{\ifdim\noteskip>1\p@seven\qn@width}}
+
+\varaccid % accidents de taille variable
+
+\def\na#1{\small@test\bigna{#1}\else\smallna{#1}\fi}
+\def\fl#1{\small@test\bigfl{#1}\else\smallfl{#1}\fi}
+\def\sh#1{\small@test\bigsh{#1}\else\smallsh{#1}\fi}
+\def\dfl#1{\small@test\bigdfl{#1}\else\smalldfl{#1}\fi}
+\def\dsh#1{\small@test\bigdsh{#1}\else\smalldsh{#1}\fi}
+
+% n@vi char pos of cautionpar (normal=5, doubleflat=6)
+% n@v  offset to char pos (flat=0, dflat=1, sharp=2, dsharp=3, natural=4)
+% n@vi offset to char pos (big=0, small=60)
+% n@vii =maxdimen -> cautionacctrue
+
+\def\writ@ba{\pl@base\raise\y@i\llap{\musixchar\n@v\kern\accshift}}
+\def\set@ba{\let\@Ti\writ@ba \n@vi\z@}
+
+\def\bigna{\set@ba  \let\@Tii\@Na  \n@v\f@ur \C@acc}
+\def\bigfl{\set@ba  \let\@Tii\@Fl  \n@v\z@   \C@acc}
+\def\bigsh{\set@ba  \let\@Tii\@Sh  \n@v\tw@  \C@acc}
+\def\bigdfl{\set@ba \let\@Tii\@dFl \n@v\@ne  \C@acc}
+\def\bigdsh{\set@ba \let\@Tii\@dSh \n@v\thr@@ \C@acc}
+
+\def\@sa{\ifnum\n@vii=\maxdimen \C@ChaR \musixchar\n@v \kern.3\qn@width
+  \else \musixchar\n@v \fi \n@vii\z@}
+\def\writ@sa{\pl@base\raise\y@i\llap{\@sa\kern\accshift}}
+\def\set@sa{\let\@Ti\writ@sa \n@iv\fiv@ \n@vi\@xl }
+
+\def\smallna{\set@sa  \let\@Tii\@Na  \n@v\f@ur \C@acc}
+\def\smallfl{\set@sa  \let\@Tii\@Fl  \n@v\z@   \C@acc}
+\def\smallsh{\set@sa  \let\@Tii\@Sh  \n@v\tw@  \C@acc}
+\def\smalldfl{\set@sa \n@iv\si@ \let\@Tii\@dFl \n@v\@ne  \C@acc}
+\def\smalldsh{\set@sa \let\@Tii\@dSh \n@v\thr@@ \C@acc}
+
+\def\cna{\n@vii\maxdimen \smallna}
+\def\cfl{\n@vii\maxdimen \smallfl}
+\def\csh{\n@vii\maxdimen \smallsh}
+\def\cdfl{\n@vii\maxdimen \smalldfl}
+\def\cdsh{\n@vii\maxdimen \smalldsh}
+
+\def\writ@ua{\advance\n@i\thr@@ \zchar\n@i{\kern\qu@rt\qn@width\@sa}}
+\def\set@upper{\let\@Ti\writ@ua \n@iv\fiv@ \n@vi\@xl }
+
+\def\upperna{\set@upper  \let\@Tii\@Na  \n@v\f@ur \C@acc}
+\def\upperfl{\set@upper  \let\@Tii\@Fl  \n@v\z@   \C@acc}
+\def\uppersh{\set@upper  \let\@Tii\@Sh  \n@v\tw@  \C@acc}
+
+\def\@Na{\ifcase\n@ii \n@v\tw@ \or \n@v\f@ur \or \n@v\z@ \fi}
+\def\@Fl{\ifcase\n@ii \n@v\f@ur \or \n@v\z@ \or \n@v\@ne \fi}
+\def\@Sh{\ifcase\n@ii \n@v\thr@@ \or \n@v\tw@ \or \n@v\f@ur \fi}
+\def\@dFl{\ifcase\n@ii \n@v\z@ \or \n@v\@ne \or
+  \message{\@nod flatten \noexpand\dfl \t@ruc}\let\@Ti\empty \fi}
+\def\@dSh{\ifcase\n@ii
+  \message{\@nod sharpen \noexpand\dsh \t@ruc}\let\@Ti\empty
+  \or \n@v\thr@@ \or \n@v\tw@ \fi}
+
+\def\C@acc#1{%
+  \check@staff
+  \inhgetn@i#1\relax
+  \ifx\rel@sw\@ne
+    \s@l@ctsigns \n@iii\n@i
+    \advance\n@iii-\ut@ref \advance\n@iii-\ut@ref
+    \loop\ifnum\n@iii>\si@ \advance\n@iii-\s@v@n \repeat
+    \loop\ifnum\n@iii<\z@ \advance\n@iii\s@v@n \repeat
+    \ifcase\n@iii
+    \n@ii\si@      % mi
+    \or\n@ii\@ne   % fa
+    \or\n@ii\thr@@ % sol
+    \or\n@ii\fiv@  % la
+    \or\n@ii\s@v@n % si
+    \or\n@ii\tw@   % do
+    \or\n@ii\f@ur  % re
+    \fi
+% \n@ii positive signature limit, \n@ii-8 negative signature limit
+    \advance\n@ii-\a@s \advance\n@ii\si@ \divide\n@ii\s@v@n
+    \@Tii
+  \fi \advance\n@v\@l \advance\n@v\n@vi \@Ti
+  \fi}
+
+\def\@nod{Can't double }
+
+\def\relativeaccid{\let\rel@sw\@ne }
+\def\absoluteaccid{\let\rel@sw\empty }
+\absoluteaccid
+
+\def\lna#1{\loffset\smallvalue{\na{#1}}}
+\def\lfl#1{\loffset\smallvalue{\fl{#1}}}
+\def\lsh#1{\loffset\smallvalue{\sh{#1}}}
+\def\ldfl#1{\loffset\smallvalue{\dfl{#1}}}
+\def\ldsh#1{\loffset\smallvalue{\dsh{#1}}}
+
+%%% special metersigns
+
+\def\allabreve{\raise4\internote\hbox{\keychar82}}          %-> 2/2
+\def\reverseallabreve{\raise4\internote\hbox{\keychar123}}
+\def\meterC{\raise4\internote\hbox{\musickeyfont\@lxxxiii}} %-> 4/4
+\def\reverseC{\raise4\internote\hbox{\keychar84}}           %-> 4/2
+\def\meterplus{{\keychar57}}
+
+%%% arpeggio
+
+\def\arpeggio#1#2{\zcharnote{#1}{%
+  \uplap{\leaders\hbox{\musixchar70}\vskip#2\Interligne}}}
+\def\larpeggio#1#2{\loffset\smallvalue{\arpeggio{#1}{#2}}}
+
+%%% ornaments, special signs
+
+\def\@Char#1{\zcharnote{#1}\C@ChaR}
+
+\def\backturn{\n@iv67\@Char}
+\def\turn{\n@iv68\@Char}
+\def\duevolte{{\keychar78}}
+\def\caesura{\llap{\musixchar79\kern\h@lf\noteskip}}
+\def\coda{\n@iv85\C@coda}
+\def\Coda{\n@iv105\C@coda}
+\def\C@coda#1{\llap{\@Char{#1}\kern\afterruleskip}}
+\def\segno{\n@iv86\@Char}
+\def\Segno{{\keychar110}}
+\def\shake{\n@iv87\@Char}
+\def\Shake{\n@iv88\@Char}
+\def\Shakel{\n@iv106\@Char}
+\def\Shakenw{\n@iv107\@Char}
+\def\Shakesw{\n@iv108\@Char}
+\def\Shakene{\n@iv109\@Char}
+\def\mordent{\n@iv89\@Char}
+\def\Mordent{\n@iv119\@Char}
+\def\doublethumb{\n@iv121\@Char}
+
+%%% accents
+
+\def\upbow{{\musixfont\@xxiii}}
+\def\downbow{{\musixchar22}}
+
+\def\flageolett{\n@iv120\uacc@Char}
+\def\usfz{\n@iv\tw@nty \uacc@Char}
+\def\lsfz{\n@iv21\lacc@Char}
+\def\dsfz{\lsfz}
+\def\upz{\n@iv\@xxiv \uacc@Char}
+\def\lpz{\n@iv\@xxv \lacc@Char}
+\def\dpz{\lpz}
+\def\ust{\n@iv\@xxvi \uacc@Char}
+\def\lst{\n@iv\@xxvii \lacc@Char}
+\def\dst{\lst}
+\def\uppz{\n@iv28\uacc@Char}
+\def\lppz{\n@iv\@xxix \lacc@Char}
+\def\dppz{\lppz}
+\def\usf{\n@iv30\uacc@Char}
+\def\lsf{\n@iv31\lacc@Char}
+\def\dsf{\lsf}
+\def\upzst{\n@iv18\uacc@Char}
+\def\lpzst{\n@iv19\lacc@Char}
+\def\dpzst{\lpzst}
+
+\def\uacc@Char#1{\check@staff
+  \inhgetn@i#1\relax \relax
+  \ifnum\n@i<\@ight \ifodd\n@i \else\advance\n@i\@ne \fi \fi
+  \zchar\n@i\C@ChaR
+  \fi}
+
+\def\lacc@Char#1{\check@staff
+  \inhgetn@i#1\relax \relax
+  \ifnum\n@i>\@ne \ifodd\n@i \else\advance\n@i\m@ne \fi \fi
+  \zchar\n@i\C@ChaR
+  \fi}
+
+\def\C@ChaR{\musixfont\char\n@iv}
+
+ %%% accents on beams (correction proposed by Klaus Bechert)
+
+\def\acc@ubalk{\acc@balk>\@ne}
+\def\acc@lbalk{\acc@balk<\m@ne}
+\def\acc@balk#1#2#3{\s@l@ctbeam#3\relax \getcurpos \advance\y@v\txt@ff
+  \advance\y@v-\b@x \y@ii\b@p\y@v \divide\y@ii\tw@nty \advance\y@ii\b@z
+  \ifnum\b@n#1#2\relax \advance\y@ii\b@n\interbeam
+  \advance\y@ii-#2\interbeam \fi
+  \advance\y@ii-\altportee \raise\y@ii\rlap\balk@accent}
+\let\balk@accent\C@ChaR
+
+%\def\bflageolett{\n@iv120\acc@ubalk}
+\def\busfz{\n@iv\tw@nty \acc@ubalk}
+\def\blsfz{\n@iv21\acc@lbalk}
+%\def\bdownbow{\n@iv22\acc@ubalk}
+%\def\bupbow{\n@iv\@xxiii \acc@lbalk}
+\def\bupz{\n@iv\@xxiv \acc@ubalk}
+\def\blpz{\n@iv\@xxv \acc@lbalk}
+\def\bust{\n@iv\@xxvi \acc@ubalk}
+\def\blst{\n@iv\@xxvii \acc@lbalk}
+\def\buppz{\n@iv28\acc@ubalk}
+\def\blppz{\n@iv\@xxix \acc@lbalk}
+\def\busf{\n@iv30\acc@ubalk}
+\def\blsf{\n@iv31\acc@lbalk}
+%\def\bupzst{\n@iv18\acc@ubalk}
+%\def\blpzst{\n@iv19\acc@lbalk}
+
+% The next macros puts triplets (and others def'd with \txt) on beams
+
+\def\txt{\eightit3}
+
+\def\butext#1{\txt@ff\qn@width
+  \def\balk@accent{\uplap{\lrlap{\kern\tw@\txt@ff\txt}\kern\internote}}%
+  \acc@ubalk{#1}\txt@ff\h@lf\qn@width \let\balk@accent\C@ChaR}
+
+\def\bltext#1{\txt@ff\z@
+  \def\balk@accent{\vbox\@to\z@{\kern\internote\lrlap\txt\vss}}%
+  \acc@lbalk{#1}\txt@ff\h@lf\qn@width \let\balk@accent\C@ChaR}
+
+%%% end of accents on beams (correction proposed by Klaus Bechert)
+
+%%% crescendo, decrescendo
+
+% These macros puts variable size (de)crescendo marks.
+% \(de)crescendo{#1} #1=length (any TeX dimension, max 192pt(\simeq 68mm))
+
+\def\C@cresc#1{\y@iv#1\n@v\y@iv
+  \sp@pt\@ne \advance\n@v\thr@@ % sp->pt  round up
+  \divide\n@v\si@               % the next is 6pt(notehead) wider
+  \max@n@v\@xxxii
+  \min@n@v\@ne                  % clip to extremities
+  \advance\n@v\n@ii             % first character position (-1)
+  \mxsps\char\n@v}
+
+\def\crescendo{\n@ii\@lxxxiii \C@cresc}
+\def\decrescendo{\n@ii\@cxv \C@cresc}
+
+\newskip\@icresc
+\def\icresc{\getcurpos\global\@icresc\y@v }
+\def\tcresc{\n@ii\@lxxxiii \C@cre}
+\def\tdecresc{\n@ii\@cxv \C@cre}
+\def\C@cre{\getcurpos\advance\y@v-\@icresc \kernm\y@v\C@cresc\y@v\kern\y@v}
+
+%%% pedal signs
+
+\def\raiseped{-5}
+
+\def\sPed{\musixchar34}
+\def\sPED{\zchar\raiseped\sPed}
+\def\Ped{\musixchar35}
+\def\PED{\zchar\raiseped\Ped}
+\def\Dep{\musixchar33}
+\def\DEP{\zchar\raiseped\Dep}
+\def\sDep{\musixchar104}
+\def\sDEP{\zchar\raiseped\sDep}
+
+%%% fermata
+
+\def\fermataup{\n@iv80\@Char}
+\def\fermatadown{\n@iv81\@Char}
+% center on whole note
+\def\Fermataup#1{\wholeshift{\fermataup{#1}}}
+\def\Fermatadown#1{\wholeshift{\fermatadown{#1}}}
+
+%%% trills
+
+\def\trilleX{\let\T@i\empty \C@trille}
+\let\trille\trilleX
+\def\TrilleX{\def\T@i{\it tr }\C@trille}
+\let\Trille\TrilleX
+\def\C@trille#1#2{\zcharnote{#1}{\y@v#2\noteskip \trill@}}
+
+\let\maxtrilles\si@
+
+\newskip\@itrillei
+\newskip\@itrilleii
+\newskip\@itrilleiii
+\newskip\@itrilleiv
+\newskip\@itrillev
+\newskip\@itrillevi
+
+ %\def\s@l@cttrille#1\relax{%
+ %  \n@i#1\relax  \ifnum\n@i<\z@ \n@i\@c \fi
+ %  \ifnum\n@i<\maxtrilles \else
+ %    \n@i\z@ \errmessage{Wrong trill number!}\fi
+ %  \advance\n@i\@ne
+ %  \edef\@itrille{\csname @itrille\roman@n@i}%  dimen (altportee)
+ %  }% select trill
+
+
+\def\itrille{\itrill@old{0}}
+\def\ttrille{\ttrill@old{0}}
+\def\tTrille{\tTrill@old{0}}
+
+\def\itrill@old#1{\s@l@cttrill#1\relax
+  \ifdim\tr@x < \maxdimen\errmessage{\@mis \noexpand\Ttrille \number #1}\fi
+  \getcurpos\global\tr@y\y@v}
+\def\ttrill@old#1{\s@l@cttrill#1\relax
+  \message{\noexpand\tr@x=\the\tr@x, No. #1}%
+  \ifdim\tr@x < \maxdimen\else\errmessage{\@mis \noexpand\Itrille \number #1}\fi
+  \let\T@i\empty \C@tri}
+\def\tTrill@old#1{\s@l@cttrill#1\relax
+  \message{\noexpand\tr@x=\the\tr@x, No. #1}%
+  \ifdim\tr@x < \maxdimen\else\errmessage{\@mis \noexpand\Itrille \number #1}\fi
+  \def\T@i{\it tr }\C@tri}
+
+\def\C@tri#1{\getcurpos\advance\y@v-\tr@y \kernm\y@v
+  \zcharnote{#1}\trill@\kern\y@v\let\T@i\empty\let\@itrille\undefined}
+\def\trill@{\hbox\@to\y@v{\T@i\leaders\hbox{\musixchar69}\hfill}}
+
+%%%%%%
+
+\let\maxtrills\si@
+
+\newskip\tr@xi \tr@xi\maxdimen\relax % starting horizontal pos
+\newskip\tr@xii \tr@xii\maxdimen\relax % starting horizontal pos
+\newskip\tr@xiii \tr@xiii\maxdimen\relax % starting horizontal pos
+\newskip\tr@xiv \tr@xiv\maxdimen\relax % starting horizontal pos
+\newskip\tr@xv \tr@xv\maxdimen\relax % starting horizontal pos
+\newskip\tr@xvi \tr@xvi\maxdimen\relax % starting horizontal pos
+
+\newtoks\tr@swi % heading of trill
+\newtoks\tr@swii % heading of trill
+\newtoks\tr@swiii % heading of trill
+\newtoks\tr@swiv % heading of trill
+\newtoks\tr@swv % heading of trill
+\newtoks\tr@swvi % heading of trill
+
+\newskip\tr@yi % height of trill
+\newskip\tr@yii % height of trill
+\newskip\tr@yiii % height of trill
+\newskip\tr@yiv % height of trill
+\newskip\tr@yv % height of trill
+\newskip\tr@yvi % height of trill
+\newcount\tr@number
+
+\def\tr@loop{\tr@number\z@ \loop\ifnum\tr@number<\maxtrills
+  \s@l@cttrill\tr@number\relax
+  \advance\tr@number\@ne }
+
+\def\s@l@cttrill#1\relax{%
+  \n@i#1\relax  \ifnum\n@i<\z@ \n@i\@c \fi
+  \ifnum\n@i<\maxtrills \else
+    \n@i\z@ \errmessage{Wrong trill number!}\fi
+  \advance\n@i\@ne
+  \xdef\tr@x{\csname tr@x\roman@n@i}%
+  \xdef\tr@y{\csname tr@y\roman@n@i}%
+  \xdef\tr@sw{\csname tr@sw\roman@n@i}%
+  }% select octiaviation line
+
+%\newskip\tr@x \tr@x\maxdimen\relax % starting horizontal pos
+%\newskip\tr@y % height of trill
+
+\def\Itrille#1{\s@l@cttrill#1\relax
+  \ifdim\tr@x < \maxdimen\errmessage{\@mis \noexpand\Ttrille \number #1}\fi
+  \global\tr@sw={\relax}%
+  \C@T}
+\def\ITrille#1{\s@l@cttrill#1\relax
+  \ifdim\tr@x < \maxdimen\errmessage{\@mis \noexpand\Ttrille \number #1}\fi
+  \global\tr@sw={{\it tr }}%
+  \C@T}
+
+\def\C@T#1{%
+  \getcurpos\global\tr@x\y@v % store horizontal pos
+  \inhgetn@i#1\relax\pl@base\advance\y@i\altportee % get absolute height
+  \global\tr@y\y@i }
+
+\def\Ttrille#1{\s@l@cttrill#1\relax
+  \ifdim\tr@x < \maxdimen\else\errmessage{\@mis \noexpand\Itrille \number #1}\fi
+  \advance\tr@y-\altportee \let\T@ii\char \C@TR \global\tr@x\maxdimen }
+ \let\TTrille\Ttrille
+
+\def\C@TR{%
+  \ifx\T@ii\n@ii \y@v\lin@pos \else \getcurpos \fi
+  \advance\y@v-\tr@x \kernm\y@v \raise\tr@y\hbox\@to\y@v{%
+%  \the\tr@sw\xleaders\hbox{\musixchar69}\hfill\T@ii\n@ii}}%
+% Correction by Julian Gilbey
+  \the\tr@sw\xleaders\hbox{\musixchar69}\hfill}}%
+
+%%% octave lines
+
+\def\octnumberup{\octnumberdefault\vrule width 0pt height2ex}
+\def\octnumberdefault{\ppffsixteen8}
+\def\octnumberdown{\octnumberdefault$^a$\eightit\kern 0.3em bassa\vrule width 0pt depth \Internote}
+
+\def\octfinup{\check@staff
+  \n@v\@xxiii\n@ii\@xxiv\global\o@swz={\@ne}\fi
+  \C@of}
+\def\octfindown{\check@staff
+  \n@v\@xxv \n@ii\@xxvi\global\o@swz={\z@}\fi
+  \C@of}
+\def\C@of#1#2{\check@staff
+  \y@v#2\noteskip\zcharnote{#1}{\hbox\@to\y@v{%
+  \xdef\o@sw{\csname o@swz\endcsname}\relax
+  \octnumber\mxsps\xleaders\hbox{\char\n@v}\hfill\char\n@ii}}%
+  \fi}
+
+%%%%%%
+% selecting \octnumber??? according to \o@sw
+\def\octnumber{%     \show\o@sw
+ \setbox\w@rkbox\hbox{%
+ \ifnum \@ne=\the\o@sw\relax \octnumberup
+ \else \octnumberdown
+ \fi}%
+ \ifdim \wd\w@rkbox>\y@v\setbox\w@rkbox\hbox{\octnumberdefault}\fi
+ \box\w@rkbox
+}	
+  
+
+%%%%%%
+
+\let\maxoctlines\si@
+
+\newskip\o@xi \o@xi\maxdimen\relax % starting horizontal pos
+\newskip\o@xii \o@xii\maxdimen\relax % starting horizontal pos
+\newskip\o@xiii \o@xiii\maxdimen\relax % starting horizontal pos
+\newskip\o@xiv \o@xiv\maxdimen\relax % starting horizontal pos
+\newskip\o@xv \o@xv\maxdimen\relax % starting horizontal pos
+\newskip\o@xvi \o@xvi\maxdimen\relax % starting horizontal pos
+
+\newskip\o@yi % height of octline
+\newskip\o@yii % height of octline
+\newskip\o@yiii % height of octline
+\newskip\o@yiv % height of octline
+\newskip\o@yv % height of octline
+\newskip\o@yvi % height of octline
+
+\newtoks\o@swz % sense of octline for \octfin[up][down] without number
+\newtoks\o@swi % sense of octline
+\newtoks\o@swii % sense of octline
+\newtoks\o@swiii % sense of octline
+\newtoks\o@swiv % sense of octline
+\newtoks\o@swv % sense of octline
+\newtoks\o@swvi % sense of octline
+
+\newcount\o@number
+
+\def\o@loop{\o@number\z@ \loop\ifnum\o@number<\maxoctlines
+  \s@l@ctoctline\o@number\relax
+  \advance\o@number\@ne }
+
+\def\s@l@ctoctline#1\relax{%
+  \n@i#1\relax  \ifnum\n@i<\z@ \n@i\@c \fi
+  \ifnum\n@i<\maxoctlines \else
+    \n@i\z@ \errmessage{Wrong octaviation line number!}\fi
+  \advance\n@i\@ne
+  \xdef\o@x{\csname o@x\roman@n@i}%
+  \xdef\o@y{\csname o@y\roman@n@i}%
+  \xdef\o@sw{\csname o@sw\roman@n@i}%
+  }% select octiaviation line
+
+%\newskip\o@x \o@x\maxdimen\relax % starting horizontal pos
+%\newskip\o@y % height of octline
+
+\def\ioctfinup{\Ioctfinup0}
+\def\ioctfindown{\Ioctfindown0}
+\def\Ioctfinup#1{\check@staff
+  \s@l@ctoctline#1\relax
+  \ifdim\o@x < \maxdimen\errmessage{\@mis \noexpand\Toctfin \number #1}\fi
+  \global\o@sw={\@ne}\fi
+  \C@O}
+\def\Ioctfindown#1{\check@staff
+  \s@l@ctoctline#1\relax
+  \ifdim\o@x < \maxdimen\errmessage{\@mis \noexpand\Toctfin \number #1}\fi
+  \global\o@sw={\z@}\fi
+  \C@O}
+
+\def\C@O#1{\check@staff
+  \getcurpos\global\o@x\y@v % store horizontal pos
+  \inhgetn@i#1\relax\pl@base\advance\y@i\altportee % get absolute height
+  \global\o@y\y@i
+  \fi}  % clise check@staff in Ioctfinup/down
+
+\def\toctfin{\Toctfin0}
+\def\Toctfin#1{\check@staff
+  \s@l@ctoctline#1\relax
+  \advance\o@y-\altportee \let\T@ii\char \C@TO \global\o@x\maxdimen
+  \fi}
+
+\def\C@TO{\check@staff
+  \ifnum \@ne=\the\o@sw
+    \n@v\@xxiii \n@ii\@xxiv \else \n@v\@xxv \n@ii\@xxvi \fi
+  \ifx\T@ii\n@ii \y@v\lin@pos \else \getcurpos \fi
+  \advance\y@v-\o@x \kernm\y@v \raise\o@y\hbox\@to\y@v{%
+  \octnumber\mxsps\xleaders\hbox{\char\n@v}\hfill\T@ii\n@ii}\relax
+  \fi}%
+
+% Liftoctline #1 refnumber #2 lift[steps of internote]
+
+\def\Liftoctline#1#2{\n@i#1\advance\n@i\@ne
+ \advance\csname o@y\roman@n@i#2\internote}
+
+%%% some specials
+
+\def\metron#1#2{{\stemlength\f@ur\noteskip\t@n\p@ #1 1\ = #2}}
+\def\metronequiv#1#2{{\stemlength\f@ur\noteskip\t@n\p@ #1 1\ = #2 1}}
+
+\def\xtuplet#1#2{\n@iv#1\advance\n@iv\m@ne {\sign@skip=\n@iv\noteskip
+  \sign@skip=0.5\sign@skip \xdef\half@sign@skip{\the\sign@skip}}%
+  \zcharnote{#2}{\kern\h@lf\qn@width\kern \half@sign@skip\lrlap{\eightit#1}}}
+\def\triolet{\xtuplet3}
+
+%\check
+
+\def\zbreath{\check@staff\raise\si@\internote\rlap{\BIGfont'}\fi}
+\def\cbreath{\check@staff\adv@box{\raise\si@\internote
+   \hbox\@to\noteskip{\hss\BIGfont'\hss}}\fi}
+
+% The following macros can be used to surround a note by parentheses
+% \l[r]par p produces a left[right] parenthesis at pitch p (Ian Collier)
+
+\def\lpar{\n@iv\thr@@ \@Char}
+\def\rpar{\n@iv\f@ur \@Char}
+
+% \bracket pn draws a square bracket [ to bracket an interval
+% of an n-th whose lowest note is p (Ian Collier)
+
+\def\bracket#1#2{\y@iv#2\internote \advance\y@iv\tw@\internote
+  \inhgetn@i#1\relax\pl@base \advance\y@i-1\h@lf\internote
+  \raise\y@i\llap{\uplap{\offinterlineskip\hbox{\mxsps\@xxvii}%
+  \hbox{\vrule\@height\y@iv}\hbox{\mxsps\@xxvii}}}}
+
+%%% dynamics
+
+\def\f@kern{\kernm\p@ne ex}
+\def\p@kern{\kernm\p@ne5ex}
+
+\def\f{{\ppff f}}
+\def\ff{{\ppff f\f@kern f}}
+\def\fp{{\ppff f\f@kern p}}
+\def\sF{{\it s\ppff \p@kern f}}
+\def\fff{{\ppff f\f@kern f\f@kern f}}
+\def\ffff{{\ppff f\f@kern f\f@kern f\f@kern f}}
+\def\mf{{\ppff m\p@kern\f@kern f}}
+\def\mp@{{\ppff m\p@kern p}}
+\let\mezzopiano\mp@
+\def\p{{\ppff p}}
+\def\pp{{\ppff p\p@kern p}}
+\def\ppp{{\ppff p\p@kern p\p@kern p}}
+\def\pppp{{\ppff p\p@kern p\p@kern p\p@kern p}}
+
+%%% spacings
+
+% if you want to reduce the space behind e.g. \changecontext, use
+% \addspace{dim} ! Only scaleable values are allowed !
+
+\def\addspace#1{\kern#1\global\advance\x@skip#1}
+
+% \hardspace inserts (reduces) outside of \notes..\en unscaleable space
+
+\let\fil@spc\empty
+\def\hardspace#1{\check@nopen\t@rmskip\y@v#1\addspace\y@v\fil@spc}
+
+\def\off#1{\advance\locx@skip#1\kern#1}
+\def\sk{\off\noteskip}
+\def\hsk{\off{\h@lf\noteskip}}
+\def\bsk{\off{-\noteskip}}
+
+%%
+%   Redefine \qsk to be scaleable softwidth rather than a fixed kern
+%   Otherwise, over/underfull boxes will occur on rescaled (pass 2) material
+%%
+
+\def\hqsk{\off{\h@lf\@l@mskip}}
+\def\qsk{\off\@l@mskip}
+
+\def\nspace{\hardspace{\h@lf\qn@width}}
+\def\qspace{\hardspace\qn@width}
+
+%%% notes spacing
+
+\def\arithmeticskipscale{%
+  \def\znotes{\vnotes0\elemskip}
+  \def\notes{\vnotes2\elemskip}%       16th
+  \def\notesp{\vnotes2\h@lf\elemskip}% 16th point=8 trio
+  \def\Notes{\vnotes3\elemskip}%       8th
+  \def\Notesp{\vnotes3\h@lf\elemskip}% 8th point=4 trio
+  \def\NOtes{\vnotes4\elemskip}%       4th
+  \def\NOtesp{\vnotes4\h@lf\elemskip}% 4th point
+  \def\NOTes{\vnotes5\elemskip}%       2th
+  \def\NOTesp{\vnotes5\h@lf\elemskip}% 2th point
+  \def\NOTEs{\vnotes6\elemskip}%       1th
+  \def\NOTEsp{\undefined}%
+  \def\NOTES{\undefined}%
+}%
+
+\def\geometricskipscale{%
+  \def\znotes{\vnotes0\elemskip}
+  \def\notes{\vnotes2\elemskip}%       16th
+  \def\notesp{\vnotes2.38\elemskip}% 16th point=8 trio
+  \def\Notes{\vnotes2.83\elemskip}%       8th
+  \def\Notesp{\vnotes3.36\elemskip}% 8th point=4 trio
+  \def\NOtes{\vnotes4\elemskip}%       4th
+  \def\NOtesp{\vnotes4.76\elemskip}% 4th point
+  \def\NOTes{\vnotes5.66\elemskip}%       2th
+  \def\NOTesp{\vnotes6.72\elemskip}% 2th point
+  \def\NOTEs{\vnotes8\elemskip}%       1th
+  \def\NOTEsp{\vnotes9.52\elemskip}%       1th
+  \def\NOTES{\vnotes11.32\elemskip}%       1th
+}%
+\arithmeticskipscale
+
+\def\scale#1{\def\scalenoteskip{#1}}
+\let\scalenoteskip\normalvalue
+
+\def\multnoteskip#1{\noteskip#1\noteskip}
+
+\def\vnotes#1\elemskip{\noteskip#1\@l@mskip \@vnotes}
+
+\let\V@sw\z@
+%\def\varnotes#1{\t@rmskip \let\V@sw\@ne
+%  \setbox\ch@box\hbox{#1}\noteskip\wd\ch@box \@vnotes}
+
+\def\hardnotes#1\notes{\t@rmskip \let\V@sw\@ne
+  \noteskip#1\relax \@vnotes}
+
+\let\thelyrics\empty
+%\def\hardlyrics#1\notes{\t@rmskip \let\V@sw\@ne \def\thelyrics{\hbox{#1}}%
+%  \setbox\ch@box\thelyrics \noteskip\wd\ch@box \@vnotes}
+\def\softlyrics#1{\def\thelyrics{\hbox{#1}}}%
+\def\hardlyrics#1\notes{\t@rmskip \let\V@sw\@ne
+  \let\save@noteskip\noteskip
+  \def\noteskip{\z@\relax\errmessage{You cannot use \noexpand\noteskip
+     in \noexpand\hardlyrics's 1st argument!}}%
+  \def\thelyrics{\hbox{#1}}%
+  \setbox\ch@box\thelyrics \let\noteskip\save@noteskip
+  \noteskip\wd\ch@box \@vnotes}
+
+
+\def\@vnotes{\multnoteskip\scalenoteskip
+  \def|{\nextstaff}\def&{\nextinstrument}\normaltranspose\transpose
+  \check@nopen\notes@open\@ne
+  \kern\n@skip\advance\x@skip\n@skip \locx@skip\x@skip
+  \n@skip\noteskip \noinstrum@nt\z@ \begininstrument}
+
+\def\en{\@ndstaff\notes@open\z@
+  \ifnum\V@sw>0\t@rmskip
+  \fi
+ \let\thelyrics\empty}
+\let\enotes\en
+
+\newcount\notes@open
+
+\def\check@nopen{%
+  \ifnum\notes@open>\z@ \en\errmessage{\@mis\noexpand\enotes ->}\fi}
+
+%%% text, lyrics, free positioning of chars
+
+\def\pl@base{\y@i\n@i\internote}
+\def\lrlap#1{\rlap{\hss#1}}
+\def\hard@box#1{\rlap{\hbox\@to\noteskip{#1\hfil}}}
+\def\dhard@box#1{\rlap{\hbox\@to\tw@\noteskip{#1\hfil}}}
+\def\thard@box#1{\rlap{\hbox\@to\thr@@\noteskip{#1\hfil}}}
+
+\def\zcharnote{\let\@Ti\rlap  \C@ch}
+\def\lcharnote{\let\@Ti\llap  \C@ch}
+\def\ccharnote{\let\@Ti\lrlap \C@ch}
+\def\hcharnote{\let\@Ti\hard@box \C@ch}
+\def\charnote#1#2{\zcharnote{#1}{#2}\sk}
+
+\def\C@ch#1#2{\check@staff\inhgetn@i#1\relax\pl@base\raise\y@i\@Ti{#2}\fi}
+
+\def\zmidstaff{\let\@Ti\rlap  \C@mid}
+\def\lmidstaff{\let\@Ti\llap  \C@mid}
+\def\cmidstaff{\let\@Ti\lrlap \C@mid}
+
+\def\C@mid#1{\check@staff\y@v\interportee \advance\y@v\f@ur\Interligne \divide\y@v\tw@
+  \raise\y@v\uplap{\@Ti{\strut#1}\vss}\fi}
+
+\def\zchar#1#2{\check@staff\raise#1\internote\rlap{#2}\fi}
+\def\lchar#1#2{\check@staff\raise#1\internote\llap{#2}\fi}
+\def\cchar#1#2{\check@staff\raise#1\internote\lrlap{#2}\fi}
+\def\hchar#1#2{\check@staff\raise#1\internote\hard@box{#2}\fi}
+
+\def\uptext#1{\check@staff\zchar\t@n{#1}\fi}
+\def\Uptext#1{\check@staff\zchar\fourt@@n{#1}\fi}
+
+\def\setsongraise#1#2{\n@v#1\relax % select instrument
+  \expandafter\def\csname T@R\romannumeral\n@v\endcsname{#2}}
+
+\let\T@Ri\z@
+\let\T@Rii\z@
+\let\T@Riii\z@
+\let\T@Riv\z@
+\let\T@Rv\z@
+\let\T@Rvi\z@
+
+\def\qlrlap#1{\rlap{\hbox to \qn@width{\hss#1\hss}}}
+\def\zsong{\let\@Ti\rlap \C@t}
+\def\lsong{\let\@Ti\llap \C@t}
+\def\csong{\let\@Ti\qlrlap \C@t}
+\def\hsong{\let\@Ti\hard@box \C@t}
+\def\dhsong{\let\@Ti\dhard@box \C@t}
+\def\thsong{\let\@Ti\thard@box \C@t}
+
+\def\C@t#1{\C@tx{\@Ti{\strut#1}\vss}}
+
+\def\C@tx{%
+  \ifnum\noinstrum@nt=\@ne \y@iv\staffbotmarg \else
+    \advance\noinstrum@nt\m@ne
+    \y@iv\csname interinstrument\romannumeral\noinstrum@nt\endcsname
+    \C@Inter \advance\y@iv\stem@skip \divide\y@iv\tw@
+    \advance\noinstrum@nt\@ne \fi
+    \advance\y@iv-\csname T@R\romannumeral\noinstrum@nt\endcsname
+%%    \advance\noinstrum@nt\@ne \fi
+  \lower\y@iv\uplap}
+
+%%% slope lines and brackets
+
+% varline #1=height[dimen] #2=length[dimen] #3=slope (1\eqiv 1.125degree)
+% (comments and ideas from Ian Collier)              (from -20 upto 20 )
+% This macro is used by some of the others which follow,
+% using it directly it must be set in zero box
+
+\def\varline#1#2#3{\n@v#3\y@i#2%
+  \n@ii-\tw@nty \min@n@v\n@ii
+  \max@n@v\tw@nty \n@iii\n@v
+  \ifnum\n@v<\z@ \n@v-\n@v \advance\n@v\tw@nty \fi % offset to lower linechars
+  \advance\n@v\@xxix
+  \setbox\ch@box\hbox{\mxsps\char\n@v}%
+  \y@iv\wd\ch@box \y@ii\qu@rt\p@ \y@ii\n@iii\y@ii \y@iii\z@
+  \raise#1\internote\hbox{\ifx\@hook\@ne \mxsps\char\n@iv \fi
+% main loop
+  \loop\ifdim\y@iv<\y@i
+  \raise\y@iii\copy\ch@box\advance\y@iv\wd\ch@box \advance\y@iii\y@ii \repeat
+% last element
+%
+%  \finalheight=2.5\completewidth
+%  \finalheight=\n@iii\finalheight
+%  \divide\finalheight by 100
+%  \advance\overlapwidth by -\completewidth
+%  \stepheight=-2.5\overlapwidth
+%  \stepheight=\n@iii\stepheight
+%  \divide\stepheight by 100
+%  \advance\curheight by \stepheight
+%  \kern -\overlapwidth \raise\curheight \box\ch@box
+%
+  \y@v2\h@lf\y@i \y@v\n@iii\y@v \divide\y@v\@c \advance\y@iv-\y@i
+  \y@ii-2\h@lf\y@iv \y@ii\n@iii\y@ii \divide\y@ii\@c \advance\y@iii\y@ii
+  \kernm\y@iv\raise\y@iii\box\ch@box%
+  \ifx\@hook\@ne \raise\y@v\hbox{\mxsps\char\n@iv}\fi
+% text in the middle
+  \ifx\@text\@ne \ifnum\n@vi=\@ne \y@iii\p@ \else\y@iii-\p@ \fi
+    \advance\y@iii\h@lf\y@v \kernm\h@lf\y@i\raise\y@iii\vbox\@to\z@{%
+    \ifnum\n@vi=\@ne \vss \fi\lrlap\txt\ifnum\n@vi=\@ne \else\vss \fi}\fi}%
+  \let\@hook\empty \let\@text\empty}
+%
+% y@i  =complete length
+% y@ii =height of linechar
+% y@iii=current height
+% y@iv =current width
+% y@v  =height of ending line
+%
+% n@iii=slope
+% n@iv =(number of char for hooks)
+% n@v  =slope (number of linechar)
+% n@vi =1 -> text above
+% @hook=\@ne -> draws hookrules at begin and end of line
+% @text=\@ne -> puts text at the middle of the line (def'd with \txt)
+
+% \ov[un]bkt{p}{n}{s} draws a bracket over the music starting at the
+% current position at pitch p, width n\noteskip and slope s, causing no space
+% #1=height (note), #2=length (noteskips) #3=slope (1\eqiv 1.125[degree])
+
+\def\ovbkt{\n@iv22\C@bkt}
+\def\unbkt{\n@iv21\C@bkt}
+
+\def\C@bkt#1#2#3{\y@v#2\noteskip \advance\y@v\wn@width \let\@hook\@ne
+  \inhgetn@i#1\relax \rlap{\kernm\p@ne\qn@width\varline\n@i\y@v{#3}}}
+
+% \up[down]trio{p}{n}{s} same as above,
+% draws \txt (default \eightit 3) above[below] in the middle
+% #1=height (note), #2=length (noteskips) #3=slope (1\eqiv 1.125[degree])
+
+\def\uptrio{\n@vi\z@ \let\@text\@ne \ovbkt}
+\def\downtrio{\n@vi\@ne \let\@text\@ne \unbkt}
+
+%%% standard settings
+
+\def\resetlayout{\let\interfacteur\nin@
+  \stafftopmarg\thr@@\Interligne \staffbotmarg\thr@@\Interligne
+  \let\n@li\fiv@ \let\n@lii\fiv@ \let\n@liii\fiv@
+  \let\n@liv\fiv@ \let\n@lv\fiv@ \let\n@lvi\fiv@
+  \noinstrum@nt1\s@l@ctinstr\internote\Internote
+  \resetclefsymbols}
+
+\def\resetclefsymbols{%
+  \let\bassc@si\z@ \let\bassc@sii\z@ \let\bassc@siii\z@
+  \let\bassc@siv\z@ \let\bassc@sv\z@ \let\bassc@svi\z@
+  \let\altoc@si\z@ \let\altoc@sii\z@ \let\altoc@siii\z@
+  \let\altoc@siv\z@ \let\altoc@sv\z@ \let\altoc@svi\z@
+  \let\treblec@si\z@ \let\treblec@sii\z@ \let\treblec@siii\z@
+  \let\treblec@siv\z@ \let\treblec@sv\z@ \let\treblec@svi\z@
+}
+
+\resetlayout
+\let\nbinstruments\maxinstruments
+\normalnotesize
+\normalmusicsize
+\resetlayout
+\def\nbinstruments{1}
+
+%%%
+%
+%   This is muflex.tex version 1.00 , January 1993
+%
+%   Macro library for MusicTeX `flexiline' operations: MuFlex.
+%   The idea is to set up a two pass system.
+%   On the first pass, information about each bar is written to the file
+%       jobname.mx1.
+%   After the first pass, an external (non TeX) routine is run to
+%   determine optimal values of the elemental spacing (\elemskip)
+%   for each line, so as to properly fill each line, and to lead to
+%   the piece filling an integral number of lines.
+%   The relevant parameters are written onto the file
+%       jobname.mx2.
+%   On the second pass, the .mx2 file is read in, and the information
+%   used as described above.
+%
+%   Ross Mitchell, January 1993.
+%
+%%%
+
+\newwrite\outmux
+\def\fil@{\immediate\write\outmux}
+
+%%
+%   \mulooseness is the MuFlex analog of TeX's \looseness parameter:
+%   the increment to the natural number of lines in the section just
+%   ended.
+%%
+
+\newcount\mulooseness
+%   Alternative \linegoal
+\newcount\linegoal
+
+%%
+%   Invoke \startmuflex before \startpiece to find out the pass number
+%   and generally get things going.
+%%
+% !!! If you want (have) to override the .mx1, delete the .mx2 before !!!
+%  !! You have to change the mx1, if you change the spacing inbetween !!
+
+\newif\ifstartmuflex@done
+\def\startmuflex{%
+  \ifstartmuflex@done
+    \immediate\write16{Warning: \noexpand\startmuflex\space
+       already done, ignored.}%
+  \else
+    \startmuflex@donetrue
+%    \global\let\ifstartmuflex@done\iftrue
+    \openin\inmux\jobname.mx2\relax
+    \ifeof\inmux
+      \immediate\openout\outmux\jobname.mx1\relax
+      \fil@{\mufl@x}%
+      \pass@I
+    \else
+      \message{(\jobname.mx2)}\pass@II
+    \fi
+  \fi}
+
+\let\endmuflex\empty
+
+\newbox\l@eftrightbox
+
+\def\leftrightrepeat@I{%
+ %  \setbox\toks@box\l@eftrightrepeat\y@v\wd\toks@box
+ %  \setbox\toks@box\l@eftrepeat\y@iv\wd\toks@box
+ %  \advance\y@v\y@iv \global\advance\x@skip-\y@v
+  %
+  \setleftrightrepeat\@bar
+  \edef\thex@skip{\the\x@skip}%
+  \setbox\l@eftrightbox\l@eftrightrepeat
+  \edef\they@v{\the\wd\l@eftrightbox}%
+  \setbox\l@eftrightbox\l@eftrepeat
+  \edef\they@iv{\the\wd\l@eftrightbox}%
+  \global\x@skip\thex@skip
+  \fil@{l \they@v\space\they@iv}}
+
+\def\leftrepeat@I{%
+%  \setbox\toks@box\l@eftrepeat\y@iv\wd\toks@box
+%  \global\advance\x@skip-\y@iv
+  \setleftrepeat\@bar
+  \edef\thex@skip{\the\x@skip}%
+  \setbox\l@eftrightbox\l@eftrepeat
+  \edef\they@iv{\the\wd\l@eftrightbox}%
+  \global\x@skip\thex@skip
+  \fil@{L \they@iv}}
+
+% \akkoladen from: "Rainer Dunker" <rainer.dunker@ebe-online.de>
+
+
+\def\akkoladen#1{%
+  \def\akk@count{0}%  avoid occupying yet another count register
+  \ifx\empty#1\else\@akkoladen#1\@nd\fi
+  % deactivate all remaining \grouptop...bottom items
+  \loop
+   \ifnum\akk@count<\maxgroups
+    \incr@akk@count
+    \expandafter\groupbottom\expandafter{\akk@count}\maxdimen
+    \expandafter\grouptop\expandafter{\akk@count}\z@
+  \repeat}
+\def\@akkoladen#1#2#3\@nd{%
+  \incr@akk@count
+  \expandafter\groupbottom\expandafter{\akk@count}{#1}%
+  \expandafter\grouptop\expandafter{\akk@count}{#2}%
+  \ifx\empty#3\else\@akkoladen#3\@nd\fi}
+\def\incr@akk@count{%
+  \count@\akk@count\relax \advance\count@\@ne \edef\akk@count{\the\count@}}
+
+
+%%
+%   Define \pass@I to perform the following functions:
+%
+%   (a) set line and page breaking for the first pass by setting
+%       rigid values for \elemskip       (#1),
+%                        \maxbarsinlin@  (#2)
+%
+%   (b) Redefine \t@rmskip so that it writes to the .mx1 file;
+%
+%   (c) Redefine part of \debutmorceau to open the output (.mx1) file
+%       and write the following parameters to the .mx1 file:
+%       \line@width
+%       \parindent
+%       \beforeruleskip
+%       \afterruleskip
+%       \elemskip
+%       \clef@skip
+%       \sign@skip;
+%
+%   (d) redefine various other macros so that length measures will be
+%       written to the .mx1 file
+%%
+
+\def\pass@I{\def\@nds@ction{\fil@{*\space\the\mulooseness\space\the\linegoal}%
+  \mulooseness\z@\relax \linegoal\z@}%
+
+%\def\pass@I{\def\@nds@ction{\fil@{*\space\the\mulooseness}\mulooseness\z@}%
+%%
+%   Redefine \t@rmskip to include a macro for writing a record to a file,
+%   and define the macro
+%%
+  \def\fil@termskip{%
+    \fil@{\the\barsinpi@c@\space\the\widthtyp@\space\the\x@skip}%
+    \widthtyp@\@ne}%
+%%
+%   Redefine part of debutmorceau to write header information to file
+%%
+  \def\fil@begin{%
+    \fil@{S}% Startindicator
+    \fil@{\the\line@width}%
+    \fil@{\the\parindent}%
+    \fil@{\the\beforeruleskip}%
+    \fil@{\the\afterruleskip}%
+    \fil@{\the\@l@mskip}%
+    \fil@{\the\clef@skip}%
+    \fil@{\the\sign@skip}}%
+%
+%   -> \writ@newsigns
+%
+  \def\fil@signs{%
+    \maxsign@skip\z@
+    \n@loop  \s@l@ctsigns
+            \sign@skip\tw@\Internote
+            \sign@skip\a@s\sign@skip
+            \ifdim\sign@skip<\z@ \sign@skip-\sign@skip \fi
+            \global\advance\sign@skip\smallvalue\Internote
+            \ifdim\maxsign@skip<\sign@skip \global\maxsign@skip\sign@skip
+            \fi
+    \repeat
+    \global\sign@skip\maxsign@skip
+    \fil@{s\space\the\sign@skip}}%
+%
+%   -> \Contpiece
+%
+  \def\fil@indent{\fil@{\the\barsinpi@c@\space0 \the\parindent}}%
+%
+%   when a line is stopped with a zbar, to the next bar is added the amount
+%   of afterruleskip
+%   -> no line break during Pass 1 and indicate musixflx a zbar
+%
+  \def\zbar{\zn@wbar\fil@{z \the\barno}}%
+%
+%   \leftrightrepeat behaves different in mid of line and end of line
+%   -> no line break during Pass 1, get the widths and
+%      indicate musixflx a leftrightrepeat
+%
+  \let\leftrightrepeat\leftrightrepeat@I
+%
+%   s.a.
+%
+  \let\leftrepeat\leftrepeat@I
+%
+%   -> \hardspace
+%
+  \def\fil@spc{\fil@{h \the\y@v}}%
+%
+%   makes the .mx2 more transparent
+%
+  \def\fil@barno{\fil@{b \the\barno}}%
+%
+%   break line if value of \lin@pos (exclusive parindent, signs and clefs)
+%   is larger than 0.5\hsize
+%
+  \def\T@bil{\getcurpos \ifdim\y@v<\h@lf\line@width}%
+%
+%   close the file
+%
+  \def\endmuflex{\immediate\closeout\outmux}}%
+
+%%
+%   Macros to set up the second pass
+%%
+
+\newread\inmux
+
+%%
+%   Main macro: \pass@II
+%   Function: %%%(a) Open the .mx2 file
+%             %%%(b) Set the number of lines per page to #1
+%             (c) Set the \everystaff macro to read and decode line
+%                 parameter settings
+%             %%%(d) Define end of bar, end of line and repeat macros
+%             %%%    according to \autolines
+%%
+
+\def\pass@II{\def\ragg@d{\hfilneg\ }%
+%  \def\everyst@ff{\everystaff\read\inmux\@to\inline \inline}} % ancient
+  \def\everyst@ff{\read\inmux\@to\inline \inline\relax \everystaff}}
+
+%%
+%   \inline expands to \lineset#1#2#3#4#5, so define the latter
+%%
+
+\def\lineset#1#2#3#4#5{\ifx\no@l\empty \message{<#1>}\fi
+  \maxbarsinlin@#2%
+  \@l@mskip#3%
+  \elemskip\@l@mskip
+  \afterruleskip#4%
+  \beforeruleskip#5}
+
+\def\musicparskip{\parskip\z@ plus\fiv@\Interligne minus\Interligne}
+
+\def\endcatcodesmusic{%
+  \catcode`\&\catcode@and
+  \catcode`\|\catcode@vert
+  \catcode`\>\catcode@gt
+  \catcode`\<\catcode@lt
+  \catcode`\!\catcode@excl
+  \catcode`\*\catcode@star
+  \catcode`\:\catcode@sc
+  \catcode`\.\catcode@pt
+  \let\bar\@@bar
+  \catcodesmusicfalse}
+
+\endcatcodesmusic
+
+%...\let\wlog=\@wloG
+
+\catcode`\@=\catcodeat
+\endinput
+

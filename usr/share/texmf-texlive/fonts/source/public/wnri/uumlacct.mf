@@ -1,0 +1,31 @@
+%
+% Washington Romanized Indic accent driver
+%
+% Macro to draw subscript umlaut accent
+%
+
+cmchar "Umlaut (diaresis) accent";
+numeric dot_diam#,dot_diam;
+dot_diam#=max(dot_size#,cap_curve#);
+beginchar(oct"177",9u#,min(asc_height#,10/7x_height#+.5dot_diam#),0);
+dot_diam=max(tiny.breadth,hround(max(dot_size,cap_curve)-2stem_corr));
+italcorr h#*slant+.5dot_diam#-2.25u#;
+adjust_fit(0,0);
+pickup tiny.nib; pos1(dot_diam,0); pos2(dot_diam,90);
+x1=x2=2.75u; top y2r=h+1;
+if bot y2l<x_height+o+slab: y2l:=min(y2r-eps,x_height+o+slab+.5tiny); fi
+y1=.5[y2l,y2r]; dot(1,2);  % left dot
+pos3(dot_diam,0); penpos4(y2r-y2l,90); y3=y4=y1; x3=x4=w-x1;
+dot(3,4);  % right dot
+transform Tf; Tf = identity shifted (-.5w+ slant*(-h-.325desc_depth),aspect_ratio*(-h-.325desc_depth));
+savePicture(UmlPic);
+endgroup;
+
+extra_endchar:=
+  " czdm ap(UmlPic);  ah; oechar; ";
+boolean dotson; dotson=true; % don't omit dots on i, j, and possibly etc.
+
+def cp = uuml enddef;
+
+% end of file uumlacct.mf
+

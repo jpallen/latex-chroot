@@ -1,0 +1,1270 @@
+%%
+%% This is file `camel.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% camel.dtx  (with options: `lexitex')
+%% 
+%% This file is part of the Camel package.
+%% ---------------------------------------
+%% This is a generated file.
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% You are not allowed to change this file.  You may however copy
+%% this file to a file with a different name and then change the
+%% copy if (a) you do not charge for the modified code, (b) you
+%% acknowledge Camel and its author(s) in the new file, if it
+%% is distributed to others, and (c) you attach these same
+%% conditions to the new file.
+%% 
+%% The above conditions do not apply to the demonstration
+%% file test.tex.
+%% 
+%% You are not allowed to distribute this file alone.  You are not
+%% allowed to take money for the distribution or use of this file
+%% (or a changed version) except for a nominal charge for copying
+%% etc.
+%% 
+%% You are allowed to distribute this file under the condition that
+%% it is distributed with all of its contents, intact.
+%% 
+%% For error reports, or offers to help make Camel a more powerful,
+%% friendlier, and better package, please contact me on
+%% `fb' at soas.ac.uk
+%% 
+\NeedsTeXFormat{LaTeX2e}[1994/12/01] \ProvidesPackage{camel}
+[1997/02/17 v1.0t General bibliography engine (Frank Bennett)]
+\@ifclassloaded{ltxdoc}{}{\RequirePackage{index}[1995/09/28]}
+\RequirePackage{keyval}[1995/09/21]
+\RequirePackage{overword}
+\def\supra{, {\em supra}}%
+\def\Id{{\em\@law@lettercase Id.}}%
+\newtoks\@ltok@userconetop%
+\newtoks\@ltok@userconetopplural%
+\newtoks\@ltok@userptop%
+\newtoks\@ltok@userptoctwo%
+\newtoks\@ltok@useratbridge%
+\newtoks\@ltok@useratbridgeplural%
+\newtoks\@ltok@usercitefirst
+\newtoks\@ltok@usercitepage
+\newtoks\@ltok@usercitelast
+\newtoks\@ltok@infoot \@ltok@infoot={\ note\ }
+\newtoks\@ltok@onpage \@ltok@onpage={\ page\ }
+\newtoks\@ltok@proofcitelast
+ \@ltok@proofcitelast{{Editor, publisher and stuff, 1994}}
+\newtoks\@ltok@proofpage
+ \@ltok@proofpage{{12345}}
+\newtoks\@ltok@proofciteone
+ \@ltok@proofciteone{{Source}}
+\newtoks\@ltok@prooftitle
+ \@ltok@prooftitle{{Title of work}}
+\newtoks\@ltok@proofauthor
+ \@ltok@proofauthor{{Author's name}}
+\global\let\@law@delim\relax
+\global\let\@law@pingroup\relax
+\global\let\@law@pinstart\relax
+\global\let\@law@pinend\relax
+\newif\if@law@statuteverbose
+\def\statuteverboseon{\@law@statuteverbosetrue}
+\def\statuteverboseoff{\@law@statuteverbosefalse}
+\statuteverboseoff
+\newif\if@law@forcefootnotes
+\def\forcefootnotes{\global\@law@forcefootnotestrue}
+\def\noforcefootnotes{\global\@law@forcefootnotesfalse}
+{
+ \catcode`\_=13
+ \catcode`\^=13
+ \catcode`\|=13
+ \gdef\@law@barkill{\def\@law@comma{, }%
+                    \def\@law@ampersand{\ \& }%
+                    \def\@law@dash{--}%
+                    \def\@law@delim{}\def_##1_{}\def|##1\relax{}\def^{}}%
+ \gdef\@law@barnil{\def_{}\def^##1^{}\def|{}}
+ \gdef\@law@barinfull{\def^{}}
+ \gdef\@law@barinshort{\def^##1^{}}
+}
+\def\bridges#1#2#3#4#5#6{%
+ \@ltok@userconetop{#1}%
+ \@ltok@userconetopplural{#2}%
+ \@ltok@userptop{#3}%
+ \@ltok@userptoctwo{#4}%
+ \@ltok@useratbridge{#5}%
+ \@ltok@useratbridgeplural{#6}%
+}
+\def\dash{--}
+\def\exclaim{!}%
+\def\@law@gobble{}
+\def\@law@argtwolist{}
+\def\p@LexiTeX{{\reset@font\rm\ \unskip\hbox{L%
+ \kern-.06em\hbox{\sc e}%
+ \kern-.05em\hbox{\sc x}%
+ \kern-.05em\lower.65ex\hbox{I}%
+ \kern-.18emT%
+ \kern-.1667em\lower.65ex\hbox{E}%
+ \kern-.125emX}}}%
+\def\LexiTeX{\protect\p@LexiTeX}%
+\def\p@LexiBib{{\reset@font\rm\ \unskip\hbox{L%
+ \kern-.06em\hbox{\sc e}%
+ \kern-.05em\hbox{\sc x}%
+ \kern-.05em\hbox{\sc i}%
+ \kern-.06em{\sc B}%
+ \kern-.05em\hbox{\sc i}%
+ \kern-.05em{\sc b}}}}%
+\def\LexiBib{\protect\p@LexiBib}%
+\newenvironment{lexilist}%
+{\message{Loading citation data}\@law@listinputtingtrue}%
+ {\@law@listinputtingfalse}
+\newtoks\@ltok@a
+\newtoks\@ltok@b
+\newtoks\@ltok@argtwo
+\newtoks\@ltok@pagesstring
+\newtoks\@ltok@authormainface
+\newtoks\@ltok@authoroptionface
+\newtoks\@ltok@titlemainface
+\newtoks\@ltok@titleoptionface
+\newtoks\@ltok@citefirstmainface
+\newtoks\@ltok@citefirstoptionface
+\newtoks\ltokspecialface
+\newtoks\@ltok@citetype%
+\newtoks\@ltok@whereitsat
+\newtoks\@ltok@stylename
+\newtoks\@ltok@nickname
+\newtoks\@ltok@author
+\newtoks\@ltok@name
+\newtoks\@ltok@citefirst
+\newtoks\@ltok@citepage
+\newtoks\@ltok@citelast
+\newtoks\@ltok@pageorfootno
+\newtoks\@ltok@hereinafter
+\newtoks\@ltok@bigsourcecite
+\newtoks\@ltok@bigsourcepage
+\newtoks\@ltok@atot
+\newtoks\@ltok@ttocone
+\newtoks\@ltok@conetop
+\newtoks\@ltok@conetopplural
+\newtoks\@ltok@ptop
+\newtoks\@ltok@ptoctwo
+\newtoks\@ltok@atbridge
+\newtoks\@ltok@atbridgeplural
+\newtoks\@ltok@plistmacro
+\newcounter{citesinfoot}
+\newcounter{citeslastfoot}
+\newcounter{law@paranormal}
+\newcounter{law@parapin}
+\newcounter{law@paracounter}
+\newif\if@law@biblabels
+\newif\if@law@usepages
+\newif\if@law@table
+\newif\if@law@usepinpoints
+\newif\if@law@maketable
+\newif\if@law@printcite
+\newif\if@law@listinputting
+\newif\if@law@bibentry
+\newif\if@law@firstuseofcite
+\newif\if@law@longcite
+\newif\if@law@infoot
+\newif\if@justabove
+\newif\if@l@quiteexact
+\newif\if@nosupra
+\newif\if@law@printauthor%
+\newif\if@law@printtitle%
+\newif\if@law@requiresubjects%
+\newif\if@law@subjectfound%
+\def\normcase{\def\@law@lettercase{}}
+\def\lowcase{\def\@law@lettercase##1{%
+  {\aftergroup\normcase\lowercase{##1}}}}
+\normcase
+\def\@law@multicheck#1\@law@multiflag#2\query#3\end{#2}%
+\def\@law@multiflag#1\query{}%
+\def\@law@multiset{\global\@ltok@conetop\@ltok@conetopplural%
+                   \global\@ltok@atbridge\@ltok@atbridgeplural}
+\def\newinterword{\begingroup\catcode`\_=13\catcode`\^=13%
+  \@law@newinterword}
+\def\newinterword#1#2{\global\@ltok@a=\expandafter{\@law@wordlist}%
+  \global\@ltok@b={#1}\global\@ltok@c={#2}%
+  \xdef\@law@temp{\noexpand\\\noexpand{\the\@ltok@b\noexpand}%
+    \noexpand{\the\@ltok@c\noexpand}\the\@ltok@a}%
+  \global\let\@law@wordlist\@law@temp\endgroup}
+\newcount\c@law@footnote%
+\def\volno{\message{(No volume for \the\@ltok@nickname)}}%
+\def\@law@headersearchend{\camelrefname}
+\def\@law@abandonheadersearch#1\@law@headersearchend{}
+\def\@law@headersearch#1#2#3#4{%
+  \def\@law@temptwo{#1}%
+  \ifx\@law@temp\@law@temptwo%
+   \let\@law@headersearchend\relax%
+   \let\\=\@law@abandonheadersearch%
+   {}#3%
+  \fi}
+\def\@law@getsubjectheader#1{%
+  {\def\@law@temp{#1}%
+  \let\\=\@law@headersearch\@law@subjectlist\@law@headersearchend}}
+\let\@law@bibformatsearchend\relax
+\def\@law@abandonbibformatsearch#1\@law@bibformatsearchend{}
+\def\@law@bibformatsearch#1#2#3#4{%
+  \def\@law@temptwo{#1}%
+  \ifx\@law@temp\@law@temptwo%
+   \let\\=\@law@abandonbibformatsearch%
+   {}#4%
+  \fi}
+\def\@law@getbibformat#1{%
+  {\def\@law@temp{#1}%
+  \let\\=\@law@bibformatsearch\@law@subjectlist\@law@bibformatsearchend}}
+\def\@law@subjectsearchend{%
+  \ifx\@law@citesubject\empty%
+   \@camel@error{No subject declared.^^J
+    After declaring a subject or subjects using
+    \string\citationsubject,^^J
+    you have neglected to give a subject (using the s= option)^^J
+    for one of your \string\source\space commands}\@ehc%
+  \else%
+   \@camel@error{Undeclared subject `\@law@citesubject'.^^J
+    An undeclared subject has been given as an argument to
+    a \string\source\space command.^^J  You must first %
+    declare subjects using \string\citationsubject}\@ehc%
+  \fi}
+\def\@law@abandonsubjectsearch#1\@law@subjectsearchend{}
+\def\@law@subjectsearch#1#2#3#4{%
+  \def\@law@temptwo{#1}%
+  \ifx\@law@citesubject\@law@temptwo%
+   \let\@law@subjectsearchend\relax%
+   \let\\=\@law@abandonsubjectsearch%
+  \fi}
+\def\@law@confirmsubject{%
+  {\let\\=\@law@subjectsearch\@law@subjectlist\@law@subjectsearchend}}
+\def\@law@citesubjectcheckend{%
+  \expandafter\let\expandafter\@law@temptwo%
+   \csname @law@\@law@citesubject @citelist\endcsname%
+  \@ltok@a=\expandafter{\@law@temptwo}%
+  \expandafter\xdef%
+  \csname @law@\@law@citesubject @citelist\endcsname{%
+    \the\@ltok@a\noexpand\\%
+  \noexpand{\the\@ltok@nickname\noexpand}}}
+\def\@law@abandoncitesubjectcheck#1\@law@citesubjectcheckend{}
+\def\@law@citesubjectcheck#1{%
+  \def\@law@temptwo{#1}%
+  \ifx\@law@nickname\@law@temptwo%
+   \let\@law@citesubjectcheckend\relax%
+   \let\\=\@law@abandoncitesubjectcheck%
+  \fi}
+\def\@law@maybeaddcitesubject{%
+  {\let\\=\@law@citesubjectcheck%
+  \csname @law@\@law@citesubject @citelist\endcsname%
+   \@law@citesubjectcheckend}}
+\def\@law@end{,}
+\define@key{cameloptions}{a}[F]{\global\@law@printauthorfalse}%
+\define@key{cameloptions}{t}[F]{\global\@law@printtitlefalse}%
+\define@key{cameloptions}{n}[F]{\global\@law@printcitefalse}%
+\define@key{cameloptions}{l}[F]{\message{\lowcase}}%
+\define@key{cameloptions}{f}[T]{\global\@law@longcitetrue}%
+\define@key{cameloptions}{b}[T]{\global\@law@bibentrytrue\global\@law@longcitetrue}%
+\define@key{cameloptions}{Z}{}%
+\define@key{cameloptions}{s}{\if@law@requiresubjects%
+                                \gdef\@law@citesubject{#1}%
+                           \fi}%
+\define@key{cameloptions}{v}{\gdef\volno{#1}}%
+\def\@@parse{\@law@parse}
+\let\@law@parse\@law@parseplain
+\def\@law@alone#1#2{\def\@law@allistitem{#1}%
+  \ifx\@law@alitem\@law@allistitem #2%
+  \let\\=\@law@alfinish\fi}
+\def\@law@alfinish#1\@law@alnomatch{\@law@alnomatch}
+\def\@law@alnomatch{%
+  \global\@ltok@a=\expandafter{\@law@alitem}%
+  \xdef\@law@temp{\the\@ltok@argtwo\the\@ltok@a}%
+  \global\@ltok@argtwo=\expandafter{\@law@temp}}
+\gdef\@law@allist{%
+ \\{&}{\gdef\@law@alitem{\@law@delim%
+                         \@law@multiflag\@law@multiset\query%
+                         \@law@ampersand}}%
+ \\{=}{\gdef\@law@alitem{\@law@delim%
+                            \@law@pinend%
+                            \@law@pingroup%
+                            \@law@pinstart}%
+       \addtocounter{law@parapin}{1}}%
+ \\{-}{\gdef\@law@alitem{\@law@delim
+                         \@law@multiflag\@law@multiset\query%
+                         \@law@dash}}%
+ \\{,}{\gdef\@law@alitem{}%
+    \let\@law@parse\@law@alparsesavecomma}%
+ \\{_}{\@law@get@ul}%
+ \\{^}{\@law@get@carat}%
+ \\{|}{\@law@get@bar}%
+    \@law@alnomatch}
+{\catcode`\_=13\catcode`\^=13\catcode`\|=13%
+ \gdef\@law@get@ul{\gdef\@law@alitem{_}}%
+ \gdef\@law@get@carat{\gdef\@law@alitem{^}}%
+ \gdef\@law@get@bar{\gdef\@law@alitem{\@law@delim|}}%
+}
+\gdef\@law@finishargtwo{%
+  \global\@ltok@a={\@law@pingroup\@law@pinstart}%
+  \xdef\@law@temp{\the\@ltok@a\the\@ltok@argtwo}%
+  \global\@ltok@argtwo=\expandafter{\@law@temp}}
+\gdef\@law@alparsesavecomma{\@ifnextchar,%
+  {\gdef\@law@alitem{\@law@delim\@law@pinend}\@law@alnomatch%
+   \expandafter\@law@finishargtwo%
+   \@gobble}%
+  {\gdef\@law@alitem{\@law@delim%
+                     \@law@multiflag\@law@multiset\query%
+                     \@law@comma}%
+   \@law@alnomatch%
+   \let\@law@parse=\@law@alparseplain\@@parse}}
+\def\@law@alparseplain#1{%
+  \let\@law@nomatch=\@law@alnomatch%
+  \gdef\@law@alitem{#1}\let\\=\@law@alone\@law@allist\@@parse}
+\def\@law@scanlist#1#2{\long\def\@law@temp{#1}%
+  \@ltok@a={#2}%
+  \ifx\@law@temp\@overword\xdef\@SBSword{{\noexpand\em \the\@ltok@a}}%
+  \let\\=\@law@finish\fi}
+\def\@law@wlnomatch{\message{^^J^^J%
+ There is an unregistered inter-citation word (\@overword) on
+ line no \the\inputlineno.  See the LexiTeX documentation
+ for more information.  Please email fb@soas.ac.uk if
+ you want a word added to the inter-citation list.}}
+{\catcode`\_=\active%
+ \catcode`\^=\active%
+\gdef\@law@checkins{%
+  \def^##1{\lowercase{##1}}\def_##1{{\em{##1}}}%
+  \let\@law@tempthree=\\%
+  \let\@law@nomatch=\@law@wlnomatch%
+  \let\\=\@law@scanlist\@law@wordlist%
+  \let\\=\@law@tempthree}
+\gdef\@law@checkpre{%
+  \let\@law@tempthree=\\%
+  \let^\relax\let_\@gobble%
+  \let\@law@nomatch=\@law@wlnomatch%
+  \let\\=\@law@scanlist\@law@wordlist%
+  \let\\=\@law@tempthree}
+}
+\gdef\source{%
+  \if@law@requiresubjects%
+    \gdef\@law@citesubject{}%
+  \fi%
+  \@law@printcitetrue%
+  \@law@printauthortrue%
+  \@law@printtitletrue%
+  \setcounter{law@parapin}{0}%
+  \setcounter{law@paracounter}{0}%
+  \@ifnextchar[{\@lexicite}{\@lexicite[]}}
+\def\@lexicite[#1]#2{\@ifnextcharcareful[{%
+  \addtocounter{law@parapin}{1}\@@lexicite{#1}{#2}}%
+  {\@@lexicitenobrace{#1}{#2}}}
+\def\@ifnextcharcareful#1#2#3{%
+  \gdef\@prenextcharspace{}%
+  \let\reserved@e=#1\def\reserved@a{#2}\def\reserved@b{#3}\futurelet
+    \reserved@c\@ifnchcareful}
+\def\@ifnchcareful{\ifx \reserved@c \@sptoken \let\reserved@d\@xifnchcareful
+      \else \ifx \reserved@c \reserved@e\let\reserved@d\reserved@a\else
+          \let\reserved@d\reserved@b\fi
+      \fi \reserved@d}
+\def\:{\@xifnchcareful}
+\expandafter\def\: {%
+ \gdef\@prenextcharspace{ }\futurelet\reserved@c\@ifnch}
+\def\@@lexicite#1#2[#3]{%
+  \@ifoverword\source%
+    {\@law@checkins\@@@lexicite{#1}{#2}{#3}}%
+    {\gdef\@SBSword{}\@@@lexicite{#1}{#2}{#3}%
+      \@law@citedump{}%
+      \@preoverwordspace%
+      \expandafter\@law@gobble%
+      \@overword{} }%
+    {\gdef\@SBSword{}\@@@lexicite{#1}{#2}{#3}%
+      \@law@citedump{}%
+      \@preoverwordspace%
+      \expandafter\@law@gobble%
+      \@overword{} }}
+\def\@@lexicitenobrace#1#2{%
+  \@ifoverword\source{\@law@checkins\@@@lexicite%
+      {#1}{#2}{}}%
+    {\gdef\@SBSword{}\@@@lexicite%
+      {#1}{#2}{}%
+    \@law@citedump{}%
+    \@prenextcharspace%
+    \expandafter\@law@gobble%
+    \@overword{} }
+    {\gdef\@SBSword{}\@@@lexicite%
+      {#1}{#2}{}%
+    \@law@citedump{}%
+    \@prenextcharspace%
+    \expandafter\@law@gobble%
+    \@overword{} }}
+\def\@law@citestack{}%
+\gdef\@SBSword{}%
+\def\@@@lexicite#1#2#3{%
+ \@ltok@a=\expandafter{\@law@citestack}%
+ \@ltok@b={\@realcite{#1}{#2}{#3}}%
+ \@ltok@c=\expandafter{\@SBSword}%
+ \edef\@law@citestack{\the\@ltok@a\the\@ltok@b\the\@ltok@c}}
+\long\def\@footnotetext#1{\insert\footins{%
+ \@law@infoottrue%                 % Hooks for citation manager
+ \ifnum\the\c@citesinfoot=1\relax%             %
+  \global\let\@law@lastcite\@law@currentcite%  %
+ \else%                                        %
+  \gdef\@law@lastcite{\@dummy}%                %
+ \fi%                                          %
+ \global\setcounter{citesinfoot}{0}% End of hooks
+    \reset@font\footnotesize
+    \interlinepenalty\interfootnotelinepenalty
+    \splittopskip\footnotesep
+    \splitmaxdepth \dp\strutbox \floatingpenalty \@MM
+    \hsize\columnwidth \@parboxrestore
+    \let\@tempa\protect
+    \def\protect{\noexpand\protect\noexpand}%
+    \edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}%
+    \let\protect\@tempa
+    \color@begingroup
+      \normalcolor
+      \@makefntext{%
+        \rule\z@\footnotesep\ignorespaces#1%
+    \@finalstrut\strutbox}
+    \color@endgroup}}
+\def\@law@clparseplain#1,{%
+  \@ifnextchar,%
+    {\def\@law@temp{\@law@onerealcite{#1}}%
+     \expandafter\@law@temp\@gobble}%
+    {\@law@onerealcite{#1}%
+    {\long\def\@overword{;}\@law@checkins%
+     \@SBSword\gdef\@SBSword{}}%
+    \@@parse}}
+\def\@law@citedump{%
+  \if@law@infoot%
+    \begingroup\@law@citestack\endgroup%
+  \else%
+    \if@law@forcefootnotes%
+      \footnote{\begingroup\@law@citestack\@law@gobble.\endgroup}%
+    \else%
+      \begingroup\@law@citestack\endgroup%
+    \fi%
+  \fi%
+\def\@law@citestack{}}
+\def\@realcite#1#2#3{%
+  \ifcat$#1$\else%
+   \setkeys{cameloptions}{#1}
+  \fi%
+  \if@law@requiresubjects%
+   \@law@confirmsubject%
+  \fi%
+  \global\@ltok@argtwo{}%
+  \ifcat$#3$\else%
+    {\let\@law@parse=\@law@alparseplain\@law@parse #3,,}%
+  \fi%
+  {\let\@law@parse=\@law@clparseplain\@law@parse #2,,}%
+  }
+\def\@law@onerealcite#1{%
+  \@ifundefined{@lnick@#1}%
+   {\expandafter\def\csname @lnick@#1\endcsname{%
+    {\small\bf\tt <undefined: #1>}
+    \@latex@warning
+     {Citation `#1' on page \thepage \space undefined}}}%
+    {\relax}%
+  \if@filesw%
+   \immediate\write\@auxout{\string\citation{#1}}%
+   \@ifundefined{@law@managerouthook}%
+    \relax%
+    {\immediate\write\@bibout{\@law@managerouthook{#1}}}%
+  \fi%
+\global\@law@firstuseofcitefalse%
+\csname @lnick@#1\endcsname}
+\def\@lbibitem[#1]{\item[\@biblabel{#1}\hfill]\ignorespaces}
+\def\@bibitem{\item\ignorespaces}
+\def\@law@subjectlist{}
+\def\citationstyle#1{%
+  \ifx\@law@subjectlist\empty%
+    \def\@law@citesubject{all}
+    \expandafter\gdef\csname @law@all@citelist\endcsname{}%
+    \def\@law@subjectlist{\\{all}{}{\camelrefname}{}}%
+  \fi%
+  \if@filesw%
+   \immediate\write\@auxout{\string\bibstyle{#1}}%
+  \fi%
+  \def\@law@savecat{\catcode`@}%
+   \makeatletter%
+   \input{#1.cst}%
+   \input{#1.cit}%
+   \catcode`\@=\@law@savecat%
+  \@ifundefined{@law@bblfile}%
+    {\relax}%
+    {\begin{lexilist}
+       \@input{\@law@bblfile}
+     \end{lexilist}}}
+\def\citationdata#1{%
+  \def\bibliographymanager{\@camel@error{\string\bibliographymanager\space
+      following \string\citationdata.^^J
+    You can use only one of \string\citationdata\space and
+    \string\bibliographymanager\space^^J at the start of a document
+    or after a
+    \string\printthebibliography\space command}\@ehc}%
+  \if@filesw%
+   \immediate\write\@auxout{\string\bibdata{#1}}%
+  \fi%
+  \@ifundefined{@law@wordlist}%
+    {\gdef\@law@bblfile{\jobname.bbl}}%
+    {\begin{lexilist}
+       \@input {\jobname.bbl}
+     \end{lexilist}}}
+\def\@camel@error#1#2{%
+   \GenericError{%
+      \space\space\space\@spaces\@spaces\@spaces
+   }{%
+      Camel Error: #1%
+   }{%
+      See the Camel manual for explanation.%
+   }{#2}%
+}
+{\catcode`\%=12 \gdef\@law@percent{%}}
+\def\bibliographymanager#1{%
+  \def\citationdata{\@camel@error{\string\citationdata\space
+      following \string\bibliographymanager.^^J
+    You can use only one of \string\citationdata\space and
+    \string\bibliographymanager\space^^J at the start of a
+    document or after a
+    \string\printthebibliography\space command.}\@ehc}%
+  \if@filesw%
+   \immediate\write\@auxout{\string\bibdata{camel}}%
+  \fi%
+  \@ifundefined{@law@wordlist}%
+    {\gdef\@law@bibfile{\jobname.bbl}}%
+    {\begin{lexilist}%
+        \@input {\jobname.bbl}
+     \end{lexilist}}%
+  \newwrite\@bibout%
+  \immediate\openout\@bibout camel.bib%
+  \gdef\@law@temp{#1}%
+  \gdef\@law@temptwo{procite}%
+  \ifx\@law@temp\@law@temptwo%
+    \def\@law@managerouthook##1{(##1)}%
+  \fi%
+  \gdef\@law@temptwo{endnote}%
+  \ifx\@law@temp\@law@temptwo%
+    \def\@law@managerouthook##1{[##1]}%
+  \fi%
+  \gdef\@law@temptwo{papyrus}%
+  \ifx\@law@temp\@law@temptwo%
+    \def\@law@managerouthook##1{\@law@percent\@law@percent##1\@law@percent\@law@percent}%
+  \fi%
+  \gdef\@law@temptwo{referencemanager}%
+  \ifx\@law@temp\@law@temptwo%
+    \def\@law@managerouthook##1{\{##1\}}%
+  \fi%
+  \gdef\@law@temptwo{tib}%
+  \ifx\@law@temp\@law@temptwo%
+    \def\@law@managerouthook##1{[.##1.]}%
+  \fi}
+\def\lexibib#1{\csname new#1\endcsname}%
+\def\@law@templistmacro{}
+\def\@law@tempplistmacro{}
+\def\@law@case{case}
+\def\@law@statute{statute}
+\def\@law@article{article}
+\def\@law@book{book}
+{\catcode`\_=13\catcode`\^=13\catcode`\|=13%
+\gdef\@law@clean#1#2{%
+ \def\protect##1{\string##1\space}%
+ \ifcat$\the#1$%
+   \edef#2{}%
+  \else%
+ \def^{\string^}%
+ \def_{\string_}%
+ \@law@barnil%
+ \def\volno{\string\volno}%
+ \def\exclaim{\string\exclaim}%
+ \def\hbox{\string\hbox}%
+ \def\&{\string\&}\def\%{\string\%}%
+ \def\hskip{\string\hskip}%
+ \def\jintercharskip{\string\jintercharskip}%
+ \def\char{\string\char}%
+ \def~{\string~}\def\/{\string\/}%
+ \def\\{\string\\}\def\ {\string\ }\def\sc{\string\sc\space}%
+ \def\rm{\string\rm\space}\def\bf{\string\bf\space}%
+ \def\em{\string\em\space}%
+ \def\={\string\=}%
+ \def\`{\string\`}\def\'{\string\'}%
+ \def\^{\string\^}\def\"{\string\"}\def\~{\string\~}%
+ \def\.{\string\.}\def\u{\string\u}\def\v{\string\v}%
+ \def\H{\string\H\space}\def\t{\string\t\space}%
+ \def\c{\string\c\space}%
+ \def\d{\string\d\space}\def\b{\string\b\space}%
+ \def\oe{\string\oe\space}%
+ \def\ae{\string\ae\space}\def\aa{\string\aa\space}%
+ \def\o{\string\o\space}%
+ \def\l{\string\l\space}\def\ss{\string\ss\space}%
+ \def\OE{\string\OE\space}\def\AE{\string\AE\space}%
+ \def\AA{\string\AA\space}%
+ \def\O{\string\O\space}\def\L{\string\L\space}%
+ \def\dag{\string\dag\space}\def\ddag{\string\ddag\space}%
+ \def\S{\string\S\space}%
+ \def\P{\string\P\space}%
+ \def\TeX{\string\TeX\space}\def\LaTeX{\string\LaTeX\space}%
+ \def\LexiTeX{\string\LexiTeX\space}%
+ \def\BibTeX{\string\BibTeX\space}\def\-{\string\-}%
+\xdef\@law@temp{\the#1}%
+\xdef#2{\expandafter\expandafter\expandafter\@gobble%
+\expandafter\string\csname\@law@temp\endcsname}%
+\fi}
+}
+\def\@law@cleanup{%
+\@law@clean\@ltok@authormainface\@law@authormainfacetemp%
+\@law@clean\@ltok@authoroptionface\@law@authoroptionfacetemp%
+\@law@clean\@ltok@author\@law@authortemp%
+\@law@clean\@ltok@titlemainface\@law@titlemainfacetemp%
+\@law@clean\@ltok@titleoptionface\@law@titleoptionfacetemp%
+\@law@clean\@ltok@argtwo\@law@argtwotemp%
+\@law@clean\@ltok@name\@law@nametemp%
+\@law@clean\@ltok@citepage\@law@citepagetemp%
+\@law@clean\@ltok@citefirstmainface\@law@citefirstmainfacetemp%
+\@law@clean\@ltok@citefirstoptionface\@law@citefirstoptionfacetemp%
+\@law@clean\@ltok@citefirst\@law@citefirsttemp%
+\@law@clean\@ltok@conetop\@law@conetoptemp%
+\@law@clean\@ltok@citelast\@law@citelasttemp%
+\@law@clean\@ltok@ptop\@law@ptoptemp}
+\def\newcitestyle#1#2#3{%
+\@ifundefined{@law@citeload}%
+ {\def\@law@citeload{Loading citation classes: #1 ... }}%
+ {\message{\@law@citeload#1}\def\@law@citeload{...\space}}%
+ \@newcitebridges#1#3%
+  \expandafter\@law@parsefaces#2%
+  \expandafter\xdef\csname#1faces\endcsname{%
+   \noexpand\global\noexpand\@ltok@authormainface\noexpand{%
+    \the\@ltok@authormainface\noexpand}%
+   \noexpand\global\noexpand\@ltok@authoroptionface\noexpand{%
+    \the\@ltok@authoroptionface\noexpand}%
+   \noexpand\global\noexpand\@ltok@titlemainface\noexpand{%
+    \the\@ltok@titlemainface\noexpand}%
+   \noexpand\global\noexpand\@ltok@titleoptionface\noexpand{%
+    \the\@ltok@titleoptionface\noexpand}%
+   \noexpand\global\noexpand\@ltok@citefirstmainface\noexpand{%
+    \the\@ltok@citefirstmainface\noexpand}%
+   \noexpand\global\noexpand\@ltok@citefirstoptionface\noexpand{%
+    \the\@ltok@citefirstoptionface\noexpand}%
+   \noexpand\global\noexpand\@ltok@citetype\noexpand{%
+    \the\@ltok@citetype\noexpand}}%
+ \expandafter\gdef\csname new#1\endcsname##1##2##3##4##5##6##7%
+  {\@newcite{#1}{##1}{##2}{##3}{##4}{##5}{##6}{##7}}}
+\def\@law@parsefaces#1#2#3#4#5#6#7{%
+ \@law@parseoneoption\@ltok@authormainface#1%
+ \@law@parseoneoption\@ltok@authoroptionface#2%
+ \@law@parseoneoption\@ltok@titlemainface#3%
+ \@law@parseoneoption\@ltok@titleoptionface#4%
+ \@law@parseoneoption\@ltok@citefirstmainface#5%
+ \@law@parseoneoption\@ltok@citefirstoptionface#6%
+ \@law@parselastoption\@ltok@citetype#7}
+\def\@law@parseoneoption#1#2{%
+  \if#2s\global#1{\sc}\fi%
+  \if#2i\global#1{\em}\fi%
+  \if#2b\global#1{\bf}\fi%
+  \if#2r\global#1{\rm}\fi%
+  \if#2S\global#1{\sc}\fi%
+  \if#2I\global#1{\em}\fi%
+  \if#2B\global#1{\bf}\fi%
+  \if#2R\global#1{\rm}\fi}
+\def\@law@parselastoption#1#2{%
+  \if#2a\global#1{article}\fi%
+  \if#2b\global#1{book}\fi%
+  \if#2c\global#1{case}\fi%
+  \if#2s\global#1{statute}\fi%
+  \if#2A\global#1{article}\fi%
+  \if#2B\global#1{book}\fi%
+  \if#2C\global#1{case}\fi%
+  \if#2S\global#1{statute}\fi}
+\newtoks\@ltok@c%
+\newtoks\@ltok@d%
+\newtoks\@ltok@e%
+\newtoks\@ltok@f%
+\newtoks\@ltok@g%
+\newtoks\@ltok@h%
+\newtoks\@ltok@i%
+\newtoks\@ltok@j%
+\def\@newcitebridges#1[a]#2[t]#3[c]#4[p]#5(pl)#6[rp]#7[e]:[id]#8(pl)#9[xrf]{%
+\@ltok@c{#2}%
+\@ltok@d{#3}%
+\@ltok@e{#4}%
+\@ltok@f{#5}%
+\@ltok@g{#6}%
+\@ltok@h{#7}%
+\@ltok@i{#8}%
+\@ltok@j{#9}%
+  \expandafter\xdef\csname#1bridges\endcsname{%
+   \noexpand\global\noexpand\@ltok@atot\noexpand{\the\@ltok@c\noexpand}%
+   \noexpand\global\noexpand\@ltok@ttocone\noexpand{\the\@ltok@d\noexpand}%
+   \noexpand\global\noexpand\@ltok@conetop\noexpand{\the\@ltok@e\noexpand}%
+   \noexpand\global\noexpand\@ltok@conetopplural\noexpand{\the\@ltok@g\noexpand}%
+   \noexpand\global\noexpand\@ltok@ptop\noexpand{\the\@ltok@f\noexpand}%
+   \noexpand\global\noexpand\@ltok@ptoctwo\noexpand{\the\@ltok@h\noexpand}%
+   \noexpand\global\noexpand\@ltok@atbridge\noexpand{\the\@ltok@i\noexpand}%
+   \global\@ltok@atbridgeplural\noexpand{\the\@ltok@j\noexpand}}}%
+\newif\if@law@specialbridges%
+\def\@newcite#1#2#3#4#5#6#7#8{%
+\message{=}%
+  {\@ltok@a={#4}\@law@clean\@ltok@a\@law@temp%
+\expandafter\ifx\csname\@law@temp\endcsname\relax%
+\expandafter\expandafter\expandafter\xdef\expandafter%
+ \csname\@law@temp\endcsname{1}%
+\else%
+  \expandafter\expandafter\expandafter\xdef\expandafter%
+  \csname\@law@temp\endcsname{2}%
+\fi}%
+\def\@law@templistmacro{}%
+\def\@law@tempplistmacro{}%
+\setcounter{law@paranormal}{0}
+  \ifcat$\the\@ltok@useratbridgeplural$%
+   \@law@addargument{}\tocitelist%
+   \@law@addargument{}\tocitelist%
+   \@law@addargument{}\tocitelist%
+   \@law@addargument{}\tocitelist%
+   \@law@addargument{}\tocitelist%
+   \@law@addargument{}\tocitelist%
+  \else%
+   \@law@addtoken\@ltok@userconetop\tocitelist%
+   \@law@addtoken\@ltok@userconetopplural\tocitelist%
+   \@law@addtoken\@ltok@userptop\tocitelist%
+   \@law@addtoken\@ltok@userptoctwo\tocitelist%
+   \@law@addtoken\@ltok@useratbridge\tocitelist%
+   \@law@addtoken\@ltok@useratbridgeplural\tocitelist%
+  \fi%
+\@law@addargument{#1}\tocitelist%
+\@law@addtoken\@ltok@bigsourcepage\tocitelist%  (not yet implemented)
+\@law@addtoken\@ltok@bigsourcecite\tocitelist%  (not yet implemented)
+\@law@addtoken\@ltok@hereinafter\tocitelist%    (not yet implemented)
+  \@law@addargument{}\tocitelist%
+  \@law@addargument{}\tocitelist%
+\@law@addtoken\@ltok@citetype\tocitelist%     cite type
+\@law@addargument{#8}\tocitelist%             cite last part
+\@law@addargument{#7}\tocitelist%             cite page
+\@law@addargument{#6}\tocitelist%             cite first part
+\@law@addargument{#5}\tocitelist%             name of work
+\@law@addargument{#4}\tocitelist%             author
+\expandafter\gdef\csname @law@#2@lab\endcsname{#3}% label
+\@law@addargument{#2}\tocitelist%             nickname
+\def\@law@tempplistmacro{}%
+\@law@paracheckone{#2}}%
+\def\@law@paracheckone#1{%
+ \def\@law@temp{{#1}}%
+ \@ifnextchar{=}%
+ {\expandafter\expandafter\expandafter\@law@parachecktwo%
+   \expandafter\@law@temp\@gobble}%
+  {\@@newcite{#1}}}%
+\def\@law@parachecktwo#1{\@ifnextchar[%
+  {\@law@getpara{#1}}%
+  {\@law@getpara{#1}[{}{}{}{}{}]}}
+\def\@law@getpara#1[#2#3#4#5#6]#7#8#9{%
+  \addtocounter{law@parapin}{1}
+  \def\@law@temp{{#1}}%
+  \@law@addpargument{{#2}{#3}{#4}{#5}{#6}{#7}{#8}{#9}}\tolist%
+  \@ifnextchar{=}%
+   {\expandafter\expandafter\expandafter%
+    \@law@parachecktwo\expandafter\@law@temp\@gobble}%
+   {\@@newcite{#1}}}
+\def\@@newcite#1{%
+\@law@addtoken\c@law@paranormal\tocitelist
+\@ltok@a\expandafter{\@law@tempplistmacro}%
+\@law@addtoken\@ltok@a\tocitelist%
+\expandafter\global\expandafter\let\csname @ldata@#1\endcsname=\@law@templistmacro%
+\@ltok@userconetop{}%
+\@ltok@userconetopplural{}%
+\@ltok@userptop{}%
+\@ltok@userptoctwo{}%
+\@ltok@useratbridge{}%
+\@ltok@useratbridgeplural{}%
+\@law@makecitenick{#1}%
+  \if@law@listinputting\def\@law@nick{}\else%
+  \def\@law@nick{\source[f]{#1}}\fi\@law@nick}%
+\def\@law@addargument#1\tocitelist{%
+  \@law@leftappendargument#1\to\@law@templistmacro}
+\long\def\@law@leftappendargument#1\to#2{\@ltok@a={\\{#1}}%
+  \@ltok@b=\expandafter{#2}%
+  \xdef#2{\the\@ltok@a\the\@ltok@b}}
+\def\@law@addtoken#1\tocitelist{\@law@leftappendtoken#1\to\@law@templistmacro}
+\long\def\@law@leftappendtoken#1\to#2{%
+  \xdef\@law@temp{\noexpand\\\noexpand{\the#1\noexpand}}%
+   \@ltok@a=\expandafter{\@law@temp}%
+  \@ltok@b=\expandafter{#2}%
+  \xdef#2{\the\@ltok@a\the\@ltok@b}}
+\def\@law@cut#1\fromcitelist{\@law@lop\@law@templistmacro\to#1}
+\def\@law@lop#1\to#2{\expandafter\@law@lopoff#1\@law@lopoff#1#2}%
+\long\def\@law@lopoff\\#1#2\@law@lopoff#3#4{\global#4={#1}\gdef#3{#2}}
+\def\@law@pincut#1\frompinlist{\@law@pinlop\@law@argtwolist\to#1}
+\def\@law@pinlop#1\to#2{\expandafter\@law@pinlopoff#1\@law@pinlopoff#1#2}%
+\long\def\@law@pinlopoff\@law@pingroup\@law@pinstart#1\@law@pinend#2\@law@pinlopoff#3#4{\global#4={#1}\gdef#3{#2}}
+\def\@law@fetchparas{%
+  \ifnum\the\c@law@paranormal>\the\c@law@paracounter\relax%
+    \@law@pcut\@law@tempplist\fromlist%
+    \expandafter\@law@extractparas\@law@tempplist%
+  \fi}
+\def\@law@extractparas#1#2#3#4#5#6#7#8{%
+  \ifcat$\the\@ltok@useratbridge$%
+  \else%
+    \@ltok@userconetop={#1}%
+    \@ltok@userconetopplural={#2}%
+    \@ltok@userptop={#3}%
+    \@ltok@useratbridge={#4}%
+    \@ltok@useratbridgeplural={#5}%
+  \fi%
+  \global\@ltok@usercitefirst={#6}%
+  \global\@ltok@usercitepage={#7}%
+  \global\@ltok@usercitelast={#8}}
+\def\@law@shiftparas{%
+  \ifnum\the\c@law@paranormal>\the\c@law@paracounter\relax%
+    \ifcat$\the\@ltok@useratbridge$%
+    \else%
+      \global\@ltok@conetop\@ltok@userconetop%
+      \global\@ltok@conetopplural\@ltok@userconetopplural%
+      \global\@ltok@ptop\@ltok@userptop%
+      \global\@ltok@ptoctwo\@ltok@userptoctwo%
+      \global\@ltok@atbridge\@ltok@useratbridge%
+      \global\@ltok@atbridgeplural\@ltok@useratbridgeplural%
+    \fi%
+      \global\@ltok@citefirst\@ltok@usercitefirst%
+      \global\@ltok@citepage\@ltok@usercitepage%
+      \global\@ltok@citelast\@ltok@usercitelast%
+  \fi}
+\def\@law@addpargument#1\tolist{%
+  \addtocounter{law@paranormal}{1}%
+  \@law@rightappendpargument#1\to\@law@tempplistmacro}
+\long\def\@law@rightappendpargument#1\to#2{\@ltok@a={\\{#1}}%
+  \@ltok@b=\expandafter{#2}%
+  \xdef#2{\the\@ltok@b\the\@ltok@a}}
+\def\@law@addptoken#1\tolist{\@law@leftappendptoken#1\to\@law@tempplistmacro}
+\long\def\@law@leftappendptoken#1\to#2{%
+  \xdef\@law@temp{\noexpand\\\noexpand{\the#1\noexpand}}%
+   \@ltok@a=\expandafter{\@law@temp}%
+  \@ltok@b=\expandafter{#2}%
+  \xdef#2{\the\@ltok@a\the\@ltok@b}}
+\def\@law@pcut#1\fromlist{\@law@plop\@law@tempplistmacro\to#1}
+\def\@law@plop#1\to#2{\expandafter\@law@plopoff#1\@law@plopoff#1#2}%
+\long\def\@law@plopoff\\#1#2\@law@plopoff#3#4{\gdef#4{#1}\gdef#3{#2}}
+\def\@law@unstasheverything#1{%
+\gdef\@law@gobble{}%
+\if@law@infoot%
+  \addtocounter{citesinfoot}{1}%
+\fi%
+\expandafter\let\expandafter\@law@templistmacro\csname @ldata@#1\endcsname%
+\global\c@law@footnote\c@footnote%
+\@law@cut\@ltok@plistmacro\fromcitelist%
+\xdef\@law@tempplistmacro{\the\@ltok@plistmacro}%
+\@law@cut\@ltok@a\fromcitelist%
+\expandafter\c@law@paranormal\the\@ltok@a%
+\@law@cut\@ltok@nickname\fromcitelist%
+\@law@cut\@ltok@author\fromcitelist%
+\@law@cut\@ltok@name\fromcitelist%
+\@law@cut\@ltok@citefirst\fromcitelist%
+\@law@cut\@ltok@citepage\fromcitelist%
+\@law@cut\@ltok@citelast\fromcitelist%
+\@law@cut\@ltok@citetype\fromcitelist%
+\@law@cut\@ltok@whereitsat\fromcitelist%
+\@law@cut\@ltok@pageorfootno\fromcitelist%
+\@law@cut\@ltok@hereinafter\fromcitelist%
+\@law@cut\@ltok@bigsourcecite\fromcitelist%(not yet implemented)
+\@law@cut\@ltok@bigsourcepage\fromcitelist%(not yet implemented)
+\@law@cut\@ltok@stylename\fromcitelist%
+\csname \the\@ltok@stylename bridges\endcsname%
+\csname \the\@ltok@stylename faces\endcsname%
+\@law@cut\@ltok@a\fromcitelist%
+  \ifcat$\the\@ltok@a$%
+  \else%
+   \@ltok@atbridgeplural\@ltok@a%
+   \@law@cut\@ltok@atbridge\fromcitelist%
+   \@law@cut\@ltok@ptoctwo\fromcitelist%
+   \@law@cut\@ltok@ptop\fromcitelist%
+   \@law@cut\@ltok@conetopplural\fromcitelist%
+   \@law@cut\@ltok@conetop\fromcitelist%
+   \@law@specialbridgestrue%
+  \fi%
+\ifcat$\the\@ltok@whereitsat$%
+  \if@law@requiresubjects%
+   \@ifundefined{@law@\@law@citesubject @citelist}%
+    {\expandafter\gdef\csname @law@\@law@citesubject @citelist\endcsname{}}%
+    {\relax}%
+  \fi%
+  \@law@maybeaddcitesubject
+  \global\@law@firstuseofcitetrue%
+  \if@law@infoot%
+   \global\@ltok@whereitsat\@ltok@infoot%
+   \global\@ltok@pageorfootno=\expandafter{\the\c@law@footnote}%
+  \else%
+   \global\@ltok@whereitsat\@ltok@onpage%
+   \global\@ltok@pageorfootno=\expandafter{\the\c@page}%
+  \fi%
+  \if@law@specialbridges%
+   \@law@addtoken\@ltok@conetop\tocitelist%
+   \@law@addtoken\@ltok@conetopplural\tocitelist%
+   \@law@addtoken\@ltok@ptop\tocitelist%
+   \@law@addtoken\@ltok@ptoctwo\tocitelist%
+   \@law@addtoken\@ltok@atbridge\tocitelist%
+   \@law@addtoken\@ltok@atbridgeplural\tocitelist%
+  \else%
+   \@law@addargument{}\tocitelist%
+   \@law@addargument{}\tocitelist%
+   \@law@addargument{}\tocitelist%
+   \@law@addargument{}\tocitelist%
+   \@law@addargument{}\tocitelist%
+   \@law@addargument{}\tocitelist%
+  \fi%
+\@law@addtoken\@ltok@stylename\tocitelist%                style name
+\@law@addtoken\@ltok@bigsourcepage\tocitelist%(not yet implemented)
+\@law@addtoken\@ltok@bigsourcecite\tocitelist%(not yet implemented)
+\@law@addtoken\@ltok@hereinafter\tocitelist%  (not yet implemented)
+\@law@addtoken\@ltok@pageorfootno\tocitelist%   (1)(b) stash the footnote bridge
+\@law@addtoken\@ltok@whereitsat\tocitelist%     (2)(b) footnote number
+\@law@addtoken\@ltok@citetype\tocitelist%   cite type
+\@law@addtoken\@ltok@citelast\tocitelist%   cite last part
+\@law@addtoken\@ltok@citepage\tocitelist%   cite page
+\@law@addtoken\@ltok@citefirst\tocitelist%   cite first part
+\@law@addtoken\@ltok@name\tocitelist%   name of work
+\@law@addtoken\@ltok@author\tocitelist%   author
+\@law@addtoken\@ltok@nickname\tocitelist%   nickname
+\@law@addtoken\c@law@paranormal\tocitelist% parallels counter
+\@law@addtoken\@ltok@plistmacro\tocitelist% parallels
+\global\expandafter\let\csname @ldata@#1\endcsname\@law@templistmacro%
+\fi%
+}
+\def\@law@makecitenick#1{%
+    \expandafter\xdef\csname @lnick@#1\endcsname{%
+    \noexpand\@law@unstasheverything\noexpand{#1\noexpand}%
+  \noexpand\@law@setup}}
+{\catcode`\|=13%
+\long\gdef\@law@setup{%
+{\def\@law@firstslash{\begingroup\def\\{\@law@secondslash}%
+   \the\ltokspecialface}%
+  \def\@law@secondslash{\endgroup\def\\{\@law@firstslash}}%
+  \def\\{\@law@firstslash}%
+\@law@justabovecheck%
+\if@law@infoot%
+   \xdef\@law@currentcite{\the\@ltok@author\the\@ltok@name\the\@ltok@citefirst%
+   \the\@ltok@citepage\the\@ltok@citelast}%
+   \xdef\@law@lastpage{\the\@ltok@argtwo}%
+\fi%
+  \begingroup%
+  \@law@tidybridges%
+  \ifx\@law@citesubject\empty%
+   \relax%
+  \else%
+    \if@law@bibentry%
+    \else%
+      \ifnum\the\c@law@paranormal=0\relax%
+        \csname write@one@\@law@citesubject @entry\endcsname%
+      \fi%
+    \fi%
+  \fi%
+  \endgroup%
+\@law@print}}}
+\def\@law@conetopsetup{%
+  \gdef\@law@temp{}%
+  \ifx\@law@argtwolist\@law@temp%
+  \else%
+    \@law@pincut\@ltok@argtwo\frompinlist%
+    \expandafter\@law@multicheck\the\@ltok@argtwo%
+    \@law@multiflag\query\end%
+  \fi}
+\def\@law@tidybridges{%
+  \if@law@printauthor\else\global\@ltok@author{}\fi%
+  \if@law@printtitle\else\global\@ltok@name{}\fi%
+  \ifcat$\the\@ltok@author$%
+    \global\@ltok@atot{}%
+  \fi%
+  \ifcat$\the\@ltok@name$%
+     \global\@ltok@ttocone{}%
+  \fi%
+  \ifcat$\the\@ltok@citefirst$%
+    \global\@ltok@ttocone{}%
+  \fi%
+  \ifcat$\the\@ltok@citelast$%
+   \global\@ltok@ptoctwo{}%
+  \else%
+    \xdef\@law@temp{\the\@ltok@citelast}%
+    \gdef\@law@temptwo{()}%
+    \ifx\@law@temp\@law@temptwo%
+     \global\@ltok@citelast{}%
+     \global\@ltok@ptoctwo{}%
+    \fi%
+  \fi%
+  \ifcat$\the\@ltok@citepage$%
+    \global\@ltok@ptop{}%
+  \fi%
+  \ifcat$\the\@ltok@argtwo$%
+     \global\@ltok@ptop{}%
+     \ifcat$\the\@ltok@citepage$%
+      \global\@ltok@conetop{}%
+     \fi%
+  \fi%
+  \ifcat$\the\@ltok@argtwo$%
+   \global\@ltok@ptop{}%
+   \global\@ltok@atbridge{}%
+   \ifcat$\the\@ltok@citepage$%
+     \global\@ltok@conetop{}%
+    \fi%
+  \fi}
+\def\@law@justabovecheck{%
+  \xdef\@law@temptwo{\the\@ltok@author\the\@ltok@name%
+                     \the\@ltok@citefirst\the\@ltok@citepage%
+                     \the\@ltok@citelast}%
+  \ifx\@law@lastcite\@law@temptwo%
+    \ifnum\the\c@citesinfoot=1\relax%
+     \@law@justabovecheckdetails%
+    \else%
+      \ifx\@law@currentcite\@law@temptwo%
+       \@law@justabovecheckdetails%
+      \else%
+       \@justabovefalse%
+      \fi%
+    \fi%
+  \else%
+    \ifnum\the\c@citesinfoot>1\relax%
+      \ifx\@law@currentcite\@law@temptwo%
+       \@law@justabovecheckdetails%
+      \else%
+       \@justabovefalse%
+      \fi%
+    \fi%
+  \fi}
+\def\@law@justabovecheckdetails{%
+    \ifx\@law@lastpage\empty%
+     \@justabovetrue%
+     \@l@quiteexactfalse%
+    \else%
+     \ifcat$\the\@ltok@argtwo$%
+       \@justabovefalse%
+      \else%
+       \@justabovetrue%
+        \xdef\@law@temp{\the\@ltok@argtwo}%
+        \ifx\@law@temp\@law@lastpage%
+         \@l@quiteexacttrue%
+        \else%
+         \@l@quiteexactfalse%
+        \fi%
+      \fi%
+    \fi}
+\def\@law@finish#1\@law@nomatch{}
+\def\@law@slone#1#2{\def\@law@listitem{#1}%
+  \ifx\@law@optionitem\@law@listitem #2%
+  \let\\=\@law@finish\fi}
+\def\@law@end{,}
+\def\@law@slnomatch{\@camel@error{Citation Warning: Invalid
+    option `\@law@optionitem'
+    given to \string\citationsubject.^^J%
+   Valid options are:^^J
+    2 (force a second-level header for a subject)^^J
+    p (to include pinpoints in an exported table)^^J
+    i=<extension> (use the three-letter extension in^^J
+                  exporting a table)^^J
+    o=<volume>  (use the three-letter extension in^^J
+                 importing a table)^^J%
+To avoid errors in formatting, use commas in the option string^^J%
+only where they are logically necessary to the sense of the^^J%
+string.}\@ehc}
+\newlength{\templen}
+\newlength{\lawlengthone}
+\newlength{\lawlengthtwo}
+\def\@law@getlabel#1{\settowidth\lawlengthone{\csname @law@#1@lab\endcsname}%
+  \ifnum\lawlengthone>\lawlengthtwo%
+    \settowidth\lawlengthtwo{\csname @law@#1@lab\endcsname}%
+  \fi}
+\def\longestlabelfor#1{%
+   \setlength\lawlengthone{0pt}%
+   \setlength\lawlengthtwo{0pt}%
+   \let\\=\@law@getlabel%
+   \csname @law@#1@citelist\endcsname}
+\def\@law@subjectoptionlist{%
+ \\{1}{\gdef\@law@level{1}}%
+ \\{2}{\gdef\@law@level{2}}%
+ \\{p}{\global\@law@usepinpointstrue}%
+ \\{P}{\gdef\@law@bibformat{\global\@law@usepagestrue}}%
+ \\{o}{\gdef\@law@parsemacro##1{\gdef\@law@outputext{##1}}%
+        \let\@law@parse\@law@slparsecomma}%
+ \\{i}{\gdef\@law@parsemacro##1{%
+          \ifcat$##1$\else%
+          \global\@law@maketabletrue%
+          \expandafter\gdef\csname\@law@temp inputext\endcsname{##1}%
+          \fi}%
+        \let\@law@parse\@law@slparsecomma}%
+ \\{=}{\let\@law@parse\@law@slparsebumequal}%
+ \\{,}{}%
+ \\{\end}{\let\@law@nomatch\relax\let\@law@parse\relax}%
+    \@law@nomatch}
+\def\@law@slparsecomma=#1,{%
+  \@law@parsemacro{#1}\let\@law@parse\@law@slparseplain%
+  \@@parse}
+\def\@law@slparsebumequal#1,{\let\@law@parse\@law@slparseplain\@@parse}
+\def\@law@slparseplain#1{%
+  \let\@law@nomatch=\@law@slnomatch%
+  \def\@law@optionitem{#1}\let\\=\@law@slone\@law@subjectoptionlist\@@parse}
+\def\citationsubject{%
+  \@ifnextchar[{\@citationsubject}{\@citationsubject[1]}}
+{\catcode`\|=13%
+\gdef\@citationsubject[#1]#2#3{%
+  \global\let\@law@level\relax%
+  \global\@law@usepinpointsfalse%
+  \global\@law@maketablefalse%
+  \global\@law@requiresubjectstrue%
+  \gdef\@law@bibformat{}%
+  \def\@law@temp{#2}%
+  {\let\@law@parse=\@law@slparseplain\@law@parse #1,\end}%
+  \expandafter\gdef\csname write@one@#2@entry\endcsname{}%
+  \if@law@maketable%
+  \expandafter\def\csname the#2table\endcsname{%
+    \@restonecoltrue%
+    \if@twocolumn\@restonecolfalse\fi%
+    \section*{#3}%
+    \@mkboth%
+      {\uppercase{#3}}%
+      {\uppercase{#3}}%
+    \thispagestyle{plain}%
+    \parindent\z@\parskip\z@ plus.3\p@\relax%
+    \let\item\citationtableitem}
+  \expandafter\def\csname endthe#2table\endcsname{%
+    \if@restonecol\onecolumn%
+    \else\clearpage%
+    \fi}%
+  \def\itemspace{%
+    \par\vskip 10\p@ plus5\p@ minus3\p@\relax}
+  \newindex{#2}{\@law@outputext}{\csname#2inputext\endcsname}{#3}%
+  \if@law@usepinpoints%
+      \expandafter\gdef\csname write@one@#2@entry\endcsname{%
+        {\ifcat$\the\@ltok@argtwo$\@ltok@argtwo{\@law@delim}\fi%
+          \@ltok@pagesstring\@ltok@argtwo%
+          \def\@law@comma{\@law@exportapage}%
+          \def\@law@ampersand{\@law@exportapage}%
+          \def\@law@dash{\@law@exportapage}%
+          \def|{\@law@exportapage}%
+          \def\@law@exportapage####1\@law@delim{%
+            \@ltok@argtwo{####1}%
+            \def\@law@temp{\index[#2]}%
+            \edef\@law@temptwo{%
+             \noexpand{\string\bibitem %
+         \string\source[b,Z=\the\@ltok@nickname]%
+         \noexpand{\the\@ltok@nickname\noexpand}%
+          \ifcat$\the\@ltok@argtwo$\else>####1\fi\string|maybe\noexpand}}%
+            \expandafter\@law@temp\@law@temptwo}
+            \expandafter\@law@exportapage\the\@ltok@pagesstring}}%
+  \else%
+      \expandafter\gdef\csname write@one@#2@entry\endcsname{%
+       \def\@law@temp{\index[#2]}%
+        \edef\@law@temptwo{%
+          \noexpand{\string\bibitem %
+          \string\source[b,Z=\csname @law@\the\@ltok@nickname @lab\endcsname]%
+         \string{\the\@ltok@nickname\string}\string|maybe\noexpand}}%
+       \expandafter\@law@temp\@law@temptwo}%
+  \fi%
+  \fi%
+   \@ltok@a=\expandafter{\@law@subjectlist}%
+   \@ltok@c=\expandafter{\@law@bibformat}%
+   \if@law@usepinpoints%
+     \edef\@law@temp{\noexpand\\\noexpand{#2\noexpand}%
+                     \noexpand{p\noexpand}%
+                     \noexpand{#3\noexpand}
+                     \noexpand{\the\@ltok@c\noexpand}}%
+     \@ltok@b=\expandafter{\@law@temp}%
+   \else%
+     \edef\@law@temp{\noexpand\\\noexpand{#2\noexpand}
+                     \noexpand{\@law@level\noexpand}
+                     \noexpand{#3\noexpand}
+                     \noexpand{\the\@ltok@c\noexpand}}%
+     \@ltok@b=\expandafter{\@law@temp}%
+   \fi%
+    \edef\@law@subjectlist{\the\@ltok@a\the\@ltok@b}}}
+\def\printbibliography{\@ifnextchar[{\@printbibliography}{\@printbibliography[]}}
+\def\@printbibliography[#1]#2{%
+  \global\@law@forcefootnotesfalse%
+  \gdef\@law@temp{#1}\gdef\@law@temptwo{labels=false}%
+  \let\camelrefname\refname%
+  \expandafter\ifx\csname#2inputext\endcsname\relax%
+    \global\@law@tablefalse%
+  \else%
+    \global\@law@tabletrue%
+  \fi%
+  \begingroup%
+    \def\refname{\@law@getsubjectheader{#2}}%
+      \@law@usepagesfalse%
+      \@law@getbibformat{#2}
+      \let\maybe\@gobble%
+      \let\camelfill\relax%
+      \let\camelarrow\relax%
+  \ifx\@law@temp\@law@temptwo%
+        \advance\@totalleftmargin -\labelsep%
+        \advance\linewidth \labelsep%
+        \def\@biblabel##1{}%
+  \fi%
+      \if@law@table%
+        \if@law@usepages%
+          \let\maybe\relax%
+          \let\camelfill\dotfill%
+          \let\camelarrow\rightarrow%
+        \fi%
+      \else%
+        \longestlabelfor{#2}%
+        \ifdim\lawlengthtwo=0pt%
+          \advance\@totalleftmargin -\labelsep%
+          \advance\linewidth \labelsep%
+          \def\@biblabel##1{}%
+        \fi%
+      \fi%
+    \if@law@requiresubjects%
+      \@law@dobibliography{#2}%
+    \else%
+      \gdef\@law@temp{#2}\gdef\@law@temptwo{all}%
+      \ifx\@law@temp\@law@temptwo%
+        \@law@dobibliography{#2}%
+      \else%
+      \message{^^J===================================================^^J%
+                  Camel bibliography ^^J
+                   Document type: without-subjects ^^J
+                   Bibliography type: subject-specific (#2) ^^J
+                   Action: impossible task, ignoring ...^^J%
+                  ===================================================^^J}
+      \fi%
+    \fi%
+  \endgroup}
+\def\@law@dobibliography#1{%
+    \begin{thebibliography}{\if@law@biblabels\longestlabelfor{#1}\rule{\lawlengthtwo}{5pt}\fi}
+      \if@law@table%
+        \if@law@usepages%
+          \addtolength{\parsep}{-.5\parsep}%
+          \addtolength{\itemsep}{-.5\itemsep}%
+        \fi%
+      \fi%
+      \if@law@requiresubjects%
+      \@law@requiresubjectsfalse%
+        \if@law@table
+      \message{^^J===================================================^^J%
+                  Camel bibliography ^^J
+                   Document type: subject-classified cites ^^J
+                   Bibliography type: subject-specific external (#1) ^^J
+                   Action: generating^^J%
+                  ===================================================^^J}
+          \@input{\jobname.\csname#1inputext\endcsname}
+        \else%
+        \gdef\@law@temp{#1}\gdef\@law@temptwo{all}%
+        \ifx\@law@temp\@law@temptwo%
+      \message{^^J===================================================^^J%
+                  Camel bibliography ^^J
+                   Document type: subject-classified cites ^^J
+                   Bibliography type: all citations ^^J
+                   Action: header only (not yet implemented)^^J%
+                  ===================================================^^J}
+        \else%
+      \message{^^J===================================================^^J%
+                  Camel bibliography ^^J
+                   Document type: subject-classified cites ^^J
+                   Bibliography type: subject-specific internal (#1) ^^J
+                   Action: generating^^J%
+                  ===================================================^^J}
+          {\let\\\@law@bibslash%
+          \csname @law@#1@citelist\endcsname}
+        \fi%
+        \fi%
+      \else%
+      \message{^^J===================================================^^J%
+                  Camel bibliography ^^J
+                   Document type: without-subjects ^^J
+                   Bibliography type: all citations ^^J
+                   Action: generating^^J%
+                  ===================================================^^J}
+        {\let\\\@law@bibslash%
+        \csname @law@#1@citelist\endcsname}%
+      \fi%
+     \end{thebibliography}}
+\def\@law@bibslash#1{\bibitem [\csname @law@#1@lab\endcsname] \source[b]{#1}. }
+\endinput
+%%
+%% End of file `camel.sty'.

@@ -1,0 +1,752 @@
+%%
+%% This is file `empheq07.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% empheq07.dtx  (with options: `package')
+%% 
+%% It may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2003/12/01 or later.
+%% 
+%% This work has the LPPL maintenance status "maintained".
+%% 
+%% The Current Maintainer of this work is Morten H\o gholm.
+%% 
+%% This work consists of the files empheq07.dtx and empheq07.ins and
+%% the derived file empheq07.sty.
+%% 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{empheq07}
+          [2004/07/27 v0.7d Emphasizing equations (MH)]
+\DeclareOption*{\PassOptionsToPackage{\CurrentOption}{amsmath}}
+\ProcessOptions\relax
+\RequirePackage{amsmath}[2000/07/18]
+\RequirePackage{calc,keyval}
+\newif\if@emphEQ@FLL
+\newif\if@emphEQ@FLR
+\newif\if@emphEQ@L
+\newif\if@emphEQ@R
+\if@fleqn
+    \iftagsleft@
+        \@emphEQ@FLLtrue
+    \else
+        \@emphEQ@FLRtrue
+    \fi
+\else
+    \iftagsleft@
+        \@emphEQ@Ltrue
+    \else
+        \@emphEQ@Rtrue
+    \fi
+\fi
+\newif\if@emphEQ@gather
+\newif\if@emphEQ@align
+\newif\if@emphEQ@alignat
+\newif\if@emphEQ@multline
+\newif\if@emphEQ@NoNumEq
+\newsavebox{\@emphEQ@Box}
+\newlength{\@emphEQ@BoxWidth}
+\newlength{\@emphEQ@displaywidth}
+\newtoks\@emphEQ@mathbody
+\newcommand{\@emphEQ@Left}{}
+\newcommand{\@emphEQ@Right}{}
+\newlength{\@emphEQ@lwd}
+\newlength{\@emphEQ@rwd}
+\newcommand{\@emphEQ@boxtype}{}
+\newlength{\@emphEQ@boxtypelength}
+\AtBeginDocument{%
+    \@ifpackageloaded{fancybox}{}{%
+        \let\shadowbox=\fbox}}
+\newcommand{\@emphEQ@shadowbox}{\shadowbox}
+\newif\if@emphEQ@shadowbox
+\newlength{\@emphEQ@templength}
+\newcounter{@emphEQ@EqCtr}
+\newcommand{\@emphEQ@CloseEnough}[4]{%
+    \setlength{\@tempdima}{#1-#2}%
+    \ifdim\@tempdima>-5sp
+        \ifdim\@tempdima<5sp
+            #3
+        \else
+            #4
+        \fi
+    \else
+        #4
+    \fi
+}
+\def\@emphEQ@MainEnv{%
+    \edef\@emphEQ@EnvName{\@currenvir}%
+    {\ifnum0=`}\fi
+    \@emphEQ@mathbody{}\@emphEQ@get@body
+}
+\let\end@emphEQ@MainEnv\relax
+\long\def\@emphEQ@get@body#1\end{%
+    \@emphEQ@mathbody\expandafter{\the\@emphEQ@mathbody #1}%
+    \@emphEQ@findend
+}
+\def\@emphEQ@findend#1{%
+    \def\@tempa{#1}%
+    \ifx\@tempa\@emphEQ@EnvName
+        \expandafter\@emphEQ@PostProcess
+    \else
+        \@emphEQ@mathbody\expandafter{\the\@emphEQ@mathbody\end{#1}}%
+        \expandafter\@emphEQ@get@body
+    \fi
+}
+\def\@emphEQ@EnvName{@emphEQ@MainEnv}
+\newcommand*{\@emphEQ@PostProcess}{%
+    \ifx\@emphEQ@boxtype\@emphEQ@shadowbox
+        \@emphEQ@shadowboxtrue
+    \else
+        \@emphEQ@shadowboxfalse
+    \fi
+    \tagshift@=0pt \tagwidth@=0pt \totwidth@=0pt
+    \eqnshift@=0pt \alignsep@=0pt
+    \setcounter{@emphEQ@EqCtr}{\value{equation}}%
+    \begin{lrbox}{\@emphEQ@Box}%
+        \begin{minipage}{\linewidth}%
+        \vskip-\abovedisplayskip\relax\vskip-1pt\relax
+        \the\@emphEQ@mathbody
+        \end{minipage}%
+    \end{lrbox}%
+    \ifnum\value{equation}=\value{@emphEQ@EqCtr}%
+        \ifdim\tagwidth@>0pt
+        \else
+            \@emphEQ@NoNumEqtrue
+        \fi
+    \else
+        \setcounter{equation}{\value{@emphEQ@EqCtr}}%
+    \fi
+    \settowidth{\@emphEQ@boxtypelength}{\@emphEQ@boxtype{}}%
+    \if@emphEQ@FLL % fleqn and leqno
+        \ifdim\alignsep@>0pt % => align
+            \@emphEQ@aligntrue
+            \setlength{\@emphEQ@displaywidth}{\tagshift@-\@mathmargin}%
+        \else
+            \ifdim\eqnshift@=0pt % => multline %tagwidth@>
+                \@emphEQ@multlinetrue
+                \if@emphEQ@NoNumEq
+                    \setlength{\@emphEQ@displaywidth}{%
+                        \linewidth-\multlinegap-\@mathmargin
+                        -\@emphEQ@boxtypelength}%
+                \else
+                    \setlength{\@emphEQ@displaywidth}{%
+                        \linewidth-\tagwidth@-\multlinegap
+                        -\multlinetaggap-\@emphEQ@boxtypelength}%
+                \fi
+            \else
+                \ifdim\tagshift@=0pt % => gather
+                    \@emphEQ@gathertrue
+                    \setlength{\@emphEQ@displaywidth}{%
+                        \totwidth@-\@mathmargin}%
+                \else
+                    \ifdim\tagshift@=\totwidth@ % => alignat
+                        \@emphEQ@alignattrue
+                        \setlength{\@emphEQ@displaywidth}{%
+                            \totwidth@-\@mathmargin}%
+                    \else
+                        %Nothing thus far...
+                    \fi
+                \fi
+            \fi
+        \fi
+    \fi
+    \if@emphEQ@FLR % fleqn and reqno
+        \ifdim\alignsep@>0pt % => align
+            \@emphEQ@aligntrue
+            \setlength{\@emphEQ@displaywidth}{%
+                \linewidth-\@mathmargin+\tagshift@}%
+        \else
+            \ifdim\eqnshift@=0pt % => multline
+                \@emphEQ@multlinetrue
+                \if@emphEQ@NoNumEq
+                    \setlength{\@emphEQ@displaywidth}{%
+                        \linewidth-\multlinegap-\@mathmargin
+                        -\@emphEQ@boxtypelength}%
+                \else
+                    \setlength{\@emphEQ@displaywidth}{%
+                        \linewidth-\tagwidth@-\@mathmargin
+                        -\multlinetaggap-\@emphEQ@boxtypelength}%
+                \fi
+            \else
+                \ifdim\tagshift@=0pt % => gather
+                    \@emphEQ@gathertrue
+                    \setlength{\@emphEQ@displaywidth}{%
+                        \totwidth@-\@mathmargin}%
+                \else
+                    \@emphEQ@CloseEnough{\totwidth@-\tagshift@}%
+                    {\linewidth}%
+                    {\@emphEQ@alignattrue
+                    \setlength{\@emphEQ@displaywidth}%
+                    {\totwidth@-\eqnshift@}}{}%
+                \fi
+            \fi
+        \fi
+    \fi
+    \if@emphEQ@R % reqno
+        \ifdim\alignsep@>0pt % => align
+            \@emphEQ@aligntrue
+            \setlength{\@emphEQ@displaywidth}{\totwidth@}%
+        \else
+            \ifdim\eqnshift@=0pt % => multline
+                \@emphEQ@multlinetrue
+                \if@emphEQ@NoNumEq
+                    \setlength{\@emphEQ@displaywidth}{%
+                        \linewidth-2\multlinegap
+                        -\@emphEQ@boxtypelength}%
+                \else
+                    \setlength{\@emphEQ@displaywidth}{%
+                        \linewidth-\tagwidth@-\multlinegap
+                        -\multlinetaggap-\@emphEQ@boxtypelength}%
+                \fi
+            \else
+                \ifdim\tagshift@=0pt % => gather
+                    \@emphEQ@gathertrue
+                    \setlength{\@emphEQ@displaywidth}{\totwidth@}%
+                \else
+                    \@emphEQ@CloseEnough{\tagshift@}{-\eqnshift@}%
+                    {\@emphEQ@alignattrue
+                    \setlength{\@emphEQ@displaywidth}{\totwidth@}}{}%
+                \fi
+            \fi
+        \fi
+    \fi
+    \if@emphEQ@L % leqno
+        \ifdim\alignsep@>0pt % => align
+            \@emphEQ@aligntrue
+            \setlength{\@emphEQ@displaywidth}{\totwidth@}%
+        \else
+            \ifdim\eqnshift@=0pt % => multline
+                \@emphEQ@multlinetrue
+                \if@emphEQ@NoNumEq
+                    \setlength{\@emphEQ@displaywidth}{%
+                        \linewidth-2\multlinegap
+                        -\@emphEQ@boxtypelength}%
+                \else
+                    \setlength{\@emphEQ@displaywidth}{%
+                        \linewidth-\tagwidth@-\multlinegap
+                        -\multlinetaggap-\@emphEQ@boxtypelength}%
+                \fi
+            \else
+                \ifdim\tagshift@=0pt % => gather
+                    \@emphEQ@gathertrue
+                    \setlength{\@emphEQ@displaywidth}{\totwidth@}%
+                \else
+                    \@emphEQ@CloseEnough{%
+                        \linewidth-\eqnshift@}{\tagshift@}{%
+                        \@emphEQ@alignattrue
+                        \setlength{\@emphEQ@displaywidth}{\totwidth@}}%
+                        {}%
+                \fi
+            \fi
+        \fi
+    \fi
+    \settowidth{\@emphEQ@lwd}{${\@emphEQ@Left}%
+                               {\vphantom{\usebox{\@emphEQ@Box}}}$}%
+    \settowidth{\@emphEQ@rwd}{${\vphantom{\usebox{\@emphEQ@Box}}}%
+                               {\@emphEQ@Right}$}%
+    \begin{lrbox}{\@emphEQ@Box}%
+    \if@emphEQ@shadowbox
+        \addtolength{\@emphEQ@boxtypelength}{-\shadowsize}%
+    \fi
+    \if@emphEQ@align
+        \if@emphEQ@FLL
+            \begin{minipage}{\linewidth+\@emphEQ@lwd
+                +.5\@emphEQ@boxtypelength}%
+                \addtolength{\@mathmargin}{\@emphEQ@lwd
+                    +.5\@emphEQ@boxtypelength}%%
+        \fi
+        \if@emphEQ@FLR
+            \begin{minipage}{\linewidth}%
+                \addtolength{\@mathmargin}{\@emphEQ@lwd
+                    +.5\@emphEQ@boxtypelength}%%
+        \fi
+        \if@emphEQ@L
+            \begin{minipage}{\linewidth+\@emphEQ@lwd-\@emphEQ@rwd}%
+        \fi
+        \if@emphEQ@R
+            \begin{minipage}{\linewidth-\@emphEQ@lwd+\@emphEQ@rwd}%
+        \fi
+    \fi
+    \if@emphEQ@gather
+        \if@emphEQ@FLL
+            \begin{minipage}{\linewidth+\@emphEQ@lwd
+                +.5\@emphEQ@boxtypelength}%
+                \addtolength{\@mathmargin}{\@emphEQ@lwd
+                    +.5\@emphEQ@boxtypelength}%%
+        \fi
+        \if@emphEQ@FLR
+            \begin{minipage}{\linewidth}%
+                \addtolength{\@mathmargin}{\@emphEQ@lwd
+                    +.5\@emphEQ@boxtypelength}%%
+        \fi
+        \if@emphEQ@R
+            \setlength{\@emphEQ@templength}{\linewidth-\totwidth@
+                       -\eqnshift@}%
+            \begin{minipage}{\linewidth-\@emphEQ@lwd+\@emphEQ@rwd
+                             +\@emphEQ@templength-\eqnshift@}%
+        \fi
+        \if@emphEQ@L
+            \setlength{\@emphEQ@templength}{\linewidth-\totwidth@
+                       -\eqnshift@}%
+            \begin{minipage}{\linewidth+\@emphEQ@lwd-\@emphEQ@rwd
+                             -\@emphEQ@templength+\eqnshift@}%
+        \fi
+    \fi
+    \if@emphEQ@alignat
+        \if@emphEQ@FLL
+            \begin{minipage}{\linewidth+\@emphEQ@lwd
+                +.5\@emphEQ@boxtypelength}%
+                \addtolength{\@mathmargin}{\@emphEQ@lwd
+                    +.5\@emphEQ@boxtypelength}%%
+        \fi
+        \if@emphEQ@FLR
+            \begin{minipage}{\linewidth}%
+                \addtolength{\@mathmargin}{\@emphEQ@lwd
+                    +.5\@emphEQ@boxtypelength}%%
+        \fi
+        \if@emphEQ@L
+            \begin{minipage}{\linewidth+\@emphEQ@lwd-\@emphEQ@rwd}%
+        \fi
+        \if@emphEQ@R
+            \begin{minipage}{\linewidth-\@emphEQ@lwd+\@emphEQ@rwd}%
+        \fi
+    \fi
+    \if@emphEQ@multline
+        \if@emphEQ@FLL
+            \begin{minipage}{\linewidth}%
+                \if@emphEQ@NoNumEq
+                    \addtolength{\@mathmargin}{\@emphEQ@lwd
+                        +.5\@emphEQ@boxtypelength}%
+                    \if@emphEQ@shadowbox
+                        \addtolength{\@mathmargin}{\shadowsize}
+                    \fi%
+                \else
+                    \addtolength{\multlinetaggap}{\@emphEQ@lwd
+                        +.5\@emphEQ@boxtypelength}%
+                    \if@emphEQ@shadowbox
+                        \addtolength{\multlinegap}{\shadowsize}%
+                    \fi
+                \fi
+                \addtolength{\multlinegap}{\@emphEQ@rwd
+                    +.5\@emphEQ@boxtypelength}%
+        \fi
+        \if@emphEQ@FLR
+            \begin{minipage}{\linewidth}%
+                \if@emphEQ@NoNumEq
+                    \addtolength{\multlinegap}{\@emphEQ@rwd
+                        +.5\@emphEQ@boxtypelength}%
+                    \if@emphEQ@shadowbox
+                        \addtolength{\multlinegap}{\shadowsize}%
+                    \fi
+                \else
+                    \addtolength{\multlinetaggap}{\@emphEQ@rwd
+                        +.5\@emphEQ@boxtypelength}%
+                    \if@emphEQ@shadowbox
+                        \addtolength{\multlinetaggap}{\shadowsize}%
+                    \fi
+                \fi
+                \addtolength{\@mathmargin}{\@emphEQ@lwd
+                    +.5\@emphEQ@boxtypelength}%
+        \fi
+        \if@emphEQ@L
+            \begin{minipage}{\linewidth}%
+                \if@emphEQ@NoNumEq
+                    \addtolength{\multlinegap}{.5\@emphEQ@rwd
+                        +.5\@emphEQ@lwd+.5\@emphEQ@boxtypelength}%
+                    \if@emphEQ@shadowbox
+                        \addtolength{\multlinegap}{.5\shadowsize}%
+                    \fi
+                \else
+                    \addtolength{\multlinetaggap}{\@emphEQ@lwd
+                        +.5\@emphEQ@boxtypelength}%
+                    \addtolength{\multlinegap}{\@emphEQ@rwd
+                        +.5\@emphEQ@boxtypelength}%
+                    \if@emphEQ@shadowbox
+                        \addtolength{\multlinegap}{\shadowsize}%
+                    \fi
+                \fi
+        \fi
+        \if@emphEQ@R
+            \begin{minipage}{\linewidth}%
+                \if@emphEQ@NoNumEq
+                    \addtolength{\multlinegap}{.5\@emphEQ@rwd
+                        +.5\@emphEQ@lwd+.5\@emphEQ@boxtypelength}%
+                    \if@emphEQ@shadowbox
+                        \addtolength{\multlinegap}{.5\shadowsize}
+                    \fi
+                \else
+                    \addtolength{\multlinetaggap}{\@emphEQ@rwd
+                        +.5\@emphEQ@boxtypelength}%
+                    \addtolength{\multlinegap}{\@emphEQ@lwd
+                        +.5\@emphEQ@boxtypelength}%
+                    \if@emphEQ@shadowbox
+                        \addtolength{\multlinetaggap}{\shadowsize}
+                    \fi
+                \fi
+        \fi
+    \fi
+    \vskip-\abovedisplayskip\relax\vskip-1pt\relax
+    \the\@emphEQ@mathbody
+    \end{minipage}%
+    \end{lrbox}%
+\setlength{\@emphEQ@BoxWidth}{\@emphEQ@displaywidth+\@emphEQ@rwd
+                              +\@emphEQ@lwd}%
+\if@emphEQ@align
+    \if@emphEQ@FLL
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@BoxWidth][l]{%
+            \if@emphEQ@shadowbox \kern.5\shadowsize \fi
+            $\@emphEQ@Left$%
+            \kern-.5\@emphEQ@boxtypelength%
+            \kern-\@mathmargin
+            \kern-\@emphEQ@lwd
+            \usebox{\@emphEQ@Box}%
+            \kern-\@emphEQ@displaywidth
+            \kern-\@emphEQ@rwd
+            \kern-\@emphEQ@lwd
+            $\@emphEQ@Right$}}%
+    \fi
+    \if@emphEQ@FLR
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@BoxWidth][l]{%
+            \if@emphEQ@shadowbox \kern.5\shadowsize \fi
+            $\@emphEQ@Left$%
+            \kern-.5\@emphEQ@boxtypelength%
+            \kern-\@mathmargin
+            \kern-\@emphEQ@lwd
+            \usebox{\@emphEQ@Box}%
+            \kern-\alignsep@
+            $\@emphEQ@Right$}}%
+    \fi
+    \if@emphEQ@L
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@BoxWidth][c]{%
+            %\kern\eqnshift@
+            %\kern-\alignsep@
+            $\@emphEQ@Left$%
+            \kern-\eqnshift@
+            %\kern-\alignsep@
+            \usebox{\@emphEQ@Box}%
+            %\kern-\eqnshift@
+            \kern-\alignsep@
+            $\@emphEQ@Right$}}%
+    \fi
+    \if@emphEQ@R
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@BoxWidth][c]{%
+            $\@emphEQ@Left$%
+            \kern-\eqnshift@
+            \usebox{\@emphEQ@Box}%
+            \kern-\eqnshift@
+            $\@emphEQ@Right$}}%
+    \fi
+\fi
+\if@emphEQ@alignat
+    \if@emphEQ@FLL
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@BoxWidth][l]{%
+            \if@emphEQ@shadowbox \kern.5\shadowsize \fi
+            $\@emphEQ@Left$%
+            \kern-.5\@emphEQ@boxtypelength
+            \kern-\@mathmargin
+            \kern-\@emphEQ@lwd
+            \usebox{\@emphEQ@Box}%
+            \kern\@mathmargin
+            \kern\@emphEQ@displaywidth
+            \kern-\linewidth
+            $\@emphEQ@Right$}}%
+    \fi
+    \if@emphEQ@FLR
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@BoxWidth][l]{%
+            \if@emphEQ@shadowbox \kern.5\shadowsize \fi
+            $\@emphEQ@Left$%
+            \kern-.5\@emphEQ@boxtypelength
+            \kern-\@mathmargin
+            \kern-\@emphEQ@lwd
+            \usebox{\@emphEQ@Box}%
+            \kern\@mathmargin
+            \kern\@emphEQ@displaywidth
+            \kern-\linewidth
+            \kern\@emphEQ@lwd
+            \kern.5\@emphEQ@boxtypelength
+            $\@emphEQ@Right$}}%
+    \fi
+    \if@emphEQ@L
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@BoxWidth][c]{%
+            $\@emphEQ@Left$%
+            \kern-\eqnshift@
+            \usebox{\@emphEQ@Box}%
+            \kern-\eqnshift@
+            $\@emphEQ@Right$}}%
+    \fi
+    \if@emphEQ@R
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@BoxWidth][c]{%
+            $\@emphEQ@Left$%
+            \kern-\eqnshift@
+            \usebox{\@emphEQ@Box}%
+            \kern-\eqnshift@
+            $\@emphEQ@Right$}}%
+    \fi
+\fi
+\if@emphEQ@gather
+    \if@emphEQ@FLL
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@BoxWidth][l]{%
+            \if@emphEQ@shadowbox \kern.5\shadowsize \fi
+            $\@emphEQ@Left$%
+            \kern-.5\@emphEQ@boxtypelength
+            \kern-\@mathmargin
+            \kern-\@emphEQ@lwd
+            \usebox{\@emphEQ@Box}%
+            \kern-\linewidth
+            \kern\@mathmargin
+            \kern\@emphEQ@displaywidth
+            $\@emphEQ@Right$}}%
+    \fi
+    \if@emphEQ@FLR
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@BoxWidth][l]{%
+            \if@emphEQ@shadowbox \kern.5\shadowsize
+            \fi
+            $\@emphEQ@Left$%
+            \kern-.5\@emphEQ@boxtypelength
+            \kern-\@mathmargin
+            \kern-\@emphEQ@lwd
+            \usebox{\@emphEQ@Box}%
+            \kern-\linewidth
+            \kern.5\@emphEQ@boxtypelength
+            \kern\@mathmargin
+            \kern\@emphEQ@displaywidth
+            \kern\@emphEQ@lwd
+            $\@emphEQ@Right$}}%
+    \fi
+    \if@emphEQ@L
+        \setlength{\tagwidth@}{\eqnshift@+\@emphEQ@rwd}%
+        \setlength{\@emphEQ@templength}{\linewidth-\totwidth@
+                                        -\eqnshift@}%
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@BoxWidth][c]{%
+            \ifdim\@emphEQ@templength<\tagwidth@
+                \setlength{\tagwidth@}{\@emphEQ@templength
+                                       +\@emphEQ@lwd}%
+                \ifdim\tagwidth@<\eqnshift@
+                    \kern-\@emphEQ@templength
+                    \kern\eqnshift@
+                \fi
+            \else
+                \kern-\@emphEQ@lwd
+                \kern\@emphEQ@rwd
+                \kern-\@emphEQ@templength
+                \kern\eqnshift@
+            \fi
+            $\@emphEQ@Left$%
+            \kern-\eqnshift@
+            \usebox{\@emphEQ@Box}%
+            %\kern-\eqnshift@
+            \kern-\@emphEQ@lwd
+            \kern\@emphEQ@rwd
+            \kern-\@emphEQ@templength
+            $\@emphEQ@Right$}}%
+    \fi
+    \if@emphEQ@R
+        \setlength{\tagwidth@}{\eqnshift@+\@emphEQ@rwd}%
+        \setlength{\@emphEQ@templength}{\linewidth-\totwidth@
+                                        -\eqnshift@}%
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@BoxWidth][c]{%
+            \kern-\@emphEQ@lwd
+            \kern\@emphEQ@rwd
+            \kern\@emphEQ@templength
+            \kern-\eqnshift@
+            $\@emphEQ@Left$%
+            \ifdim\@emphEQ@templength>\tagwidth@
+                \kern-\eqnshift@
+            \else
+                \kern\@emphEQ@lwd
+                \kern-\@emphEQ@rwd
+                \kern-\@emphEQ@templength
+            \fi
+            \usebox{\@emphEQ@Box}%
+            \kern-\eqnshift@
+            $\@emphEQ@Right$}}%
+    \fi
+\fi
+\if@emphEQ@multline
+    \if@emphEQ@FLL
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@displaywidth][l]{%
+            \if@emphEQ@shadowbox \kern.5\shadowsize \fi
+            $\@emphEQ@Left$%
+            \kern-.5\@emphEQ@boxtypelength
+            \kern-\@emphEQ@lwd
+            \if@emphEQ@NoNumEq
+                \if@emphEQ@shadowbox \kern-\shadowsize \fi
+                \kern-\@mathmargin
+            \else
+                \kern-\tagwidth@
+                \kern-\multlinetaggap
+            \fi
+            \usebox{\@emphEQ@Box}%
+            \kern-\@emphEQ@boxtypelength
+            \if@emphEQ@NoNumEq
+                \kern-\multlinegap
+            \else
+                \kern\multlinegap
+            \fi
+            \kern-\@emphEQ@rwd
+            \kern-\@emphEQ@lwd
+            \kern-\@mathmargin
+            $\@emphEQ@Right$}}%
+    \fi
+    \if@emphEQ@FLR
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@displaywidth][l]{%
+            \if@emphEQ@shadowbox \kern.5\shadowsize \fi
+            $\@emphEQ@Left$%
+            \kern-.5\@emphEQ@boxtypelength
+            \kern-\@emphEQ@lwd
+            \kern-\@mathmargin
+            \usebox{\@emphEQ@Box}%
+            \kern-\@emphEQ@boxtypelength
+            \kern-\@emphEQ@rwd
+            \kern-\@emphEQ@lwd
+            \if@emphEQ@NoNumEq
+                \kern-\multlinegap
+            \else
+                \kern-\multlinetaggap
+            \fi
+            \kern-\@mathmargin
+            \kern-\tagwidth@
+            $\@emphEQ@Right$}}%
+    \fi
+    \if@emphEQ@L
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@displaywidth][l]{%
+            \if@emphEQ@shadowbox \kern.5\shadowsize \fi
+            $\@emphEQ@Left$%
+            \kern-.5\@emphEQ@boxtypelength
+            \kern-\@emphEQ@lwd
+            \if@emphEQ@NoNumEq
+                \kern-\multlinegap
+                \kern.5\@emphEQ@lwd
+                \kern-.5\@emphEQ@rwd
+                \if@emphEQ@shadowbox \kern-.5\shadowsize \fi
+            \else
+                \kern-\multlinetaggap
+                \kern-\tagwidth@
+            \fi
+            \usebox{\@emphEQ@Box}%
+            \kern-.5\@emphEQ@boxtypelength
+            \if@emphEQ@NoNumEq
+                \kern.5\@emphEQ@rwd
+                \kern-.5\@emphEQ@lwd
+            \fi
+            \kern-\@emphEQ@rwd
+            \kern-\multlinegap
+            $\@emphEQ@Right$}}%
+    \fi
+    \if@emphEQ@R
+        \savebox{\@emphEQ@Box}{\makebox[\@emphEQ@displaywidth][l]{%
+            \if@emphEQ@shadowbox \kern.5\shadowsize \fi
+            $\@emphEQ@Left$%
+            \kern-.5\@emphEQ@boxtypelength
+            \if@emphEQ@NoNumEq
+                \if@emphEQ@shadowbox \kern-.5\shadowsize \fi
+                \kern-.5\@emphEQ@rwd
+                \kern.5\@emphEQ@lwd
+            \fi
+            \kern-\@emphEQ@lwd
+            \kern-\multlinegap
+            \usebox{\@emphEQ@Box}%
+            \kern-.5\@emphEQ@boxtypelength
+            \kern-\@emphEQ@rwd
+            \if@emphEQ@NoNumEq
+                \kern-\multlinegap
+                \kern-.5\@emphEQ@lwd
+                \kern.5\@emphEQ@rwd
+            \else
+                \kern-\multlinetaggap
+            \fi
+            \kern-\tagwidth@
+            $\@emphEQ@Right$}}%
+    \fi
+\fi
+\[
+    \if@emphEQ@align
+        \if@emphEQ@L
+            \kern-\alignsep@
+            \kern\eqnshift@
+        \fi
+    \fi
+    \if@emphEQ@gather
+        \if@emphEQ@L
+            \kern-\@emphEQ@templength
+            \kern\eqnshift@
+            \kern\@emphEQ@rwd
+            \kern-\@emphEQ@lwd
+        \fi
+        \if@emphEQ@R
+            \setlength{\tagwidth@}{\eqnshift@+\@emphEQ@rwd}%
+            \ifdim\@emphEQ@templength>\tagwidth@
+                \kern-\@emphEQ@templength
+                \kern\eqnshift@
+                \kern\@emphEQ@lwd
+            \else
+                \kern\@emphEQ@templength
+                \kern-\eqnshift@
+                \kern\@emphEQ@rwd
+                \kern-\@emphEQ@lwd
+            \fi
+        \fi
+    \fi
+    \if@emphEQ@multline
+        \if@emphEQ@NoNumEq
+            % naught
+        \else
+            \if@emphEQ@FLL
+                \kern-\@mathmargin
+                \kern\tagwidth@
+                \kern\multlinetaggap
+            \fi
+            \if@emphEQ@L
+                \kern\tagwidth@
+                \kern\multlinetaggap
+                \kern-\multlinegap
+            \fi
+            \if@emphEQ@R
+                \kern-\tagwidth@
+                \kern-\multlinetaggap
+                \kern\multlinegap
+            \fi
+        \fi
+    \else
+        \if@emphEQ@shadowbox
+            \if@emphEQ@R
+                \kern\shadowsize
+            \fi
+            \if@emphEQ@L
+                \kern\shadowsize
+            \fi
+        \fi
+    \fi
+        \@emphEQ@boxtype{\usebox{\@emphEQ@Box}}%
+        \gdef\@emphEQ@Left{}\gdef\@emphEQ@Right{}%
+        \gdef\@emphEQ@boxtype{}%
+    \]%
+    \ifnum0=`{\fi}%
+    \expandafter\end\expandafter{\@emphEQ@EnvName}%
+}
+\define@key{empheq}{boxtype}{\renewcommand\@emphEQ@boxtype{#1}}
+\define@key{empheq}{Left}{\def\@emphEQ@Left{#1}}
+\define@key{empheq}{Right}{\def\@emphEQ@Right{#1}}
+\newenvironment{empheq}[1][]{\setkeys{empheq}{#1}\@emphEQ@MainEnv}%
+                          {\end@emphEQ@MainEnv\ignorespacesafterend}%
+\newcommand{\DeclareLeftDelimiter}[2][\!]{%
+    \@namedef{empheq\expandafter\@gobble\string#2}{
+    \left#2
+    \vphantom{\usebox{\@emphEQ@Box}}%
+    \right.#1}}
+\newcommand{\DeclareRightDelimiter}[2][\!]{%
+    \@namedef{empheq\expandafter\@gobble\string#2}{%
+        #1\left.
+        \vphantom{\usebox{\@emphEQ@Box}}%
+        \right#2}}%
+\DeclareRightDelimiter{\rbrace}
+\DeclareLeftDelimiter{\lbrace}
+\endinput
+%%
+%% End of file `empheq07.sty'.

@@ -1,0 +1,314 @@
+% CHAPTERS PSIZZL - generate the body of the publication
+%
+% CHAPTER MACRO
+%
+% \chapter{title}
+%                            This command numbers the chapter,
+%                            generates part of the number to be
+%                            used in defining equation numbers,
+%                            centers the line and prints it in
+%                            boldface type.
+%    When the above macro is to be used,
+%    you first set up with the macro
+%
+% \beginbody
+%
+%    Then you define the chapters:
+%
+% \chapter{<chaptertitle>}%
+%
+%    where <chaptertitle> may contain embedded \breaktitle macros
+%
+%    After the \chapter for the last chapter, input the commnad:
+%
+% \beginappendices,
+%
+%    then more \chapter's for the appendices:
+%
+% \chapter{<appendixtitle>}%
+%
+%    Within each chapter, the current chapter name will be \chaptername
+%    (for appendices, this will be a letter).
+%
+%    You may use macros to define sections and subsections within
+%    chapters:
+%
+% \section{<section name>}%
+%
+% \subsection{<subsection name>}%
+%
+%    To output the tables of figures, etc. at the end, give the command:
+%
+% \endbody
+%
+%
+\def\n@llout#1{\immediate\closeout#1\immediate\openout#1}%
+\newcount\partcount
+\def\p@rtinit{\partcount\@ne}%
+\adddef\resd@c{\p@rtinit}%
+\newcount\t@cpagecount\t@cpagecount\m@ne
+\newcount\f@gpagecount\f@gpagecount\m@ne
+\newcount\t@bpagecount\t@bpagecount\m@ne
+\newcount\l@stpagecount\l@stpagecount\m@ne
+\newif\ifpartapp
+\newwrite\p@rtwrite
+\def\p@rtfile{parts.psiztemp }%
+\def\p@rthead{Table of Parts}%
+\n@llout\p@rtwrite\p@rtfile
+\def\part#1{%
+   \ifpartapp%
+      \xdef\p@rtname{Appendix\ \number\partcount}%
+      \else%
+      \xdef\p@rtname{Part\ \romannumeral\partcount}%
+      \fi%
+   \advance\partcount\@ne
+   \begingroup\c@tset%
+   \p@rttable%
+   }%
+\def\p@rtname{}%
+\def\p@rttable#1{%
+   \c@tMeoline\l@tMother
+   \xdef\writeit{%
+      \write\p@rtwrite{%
+         \line{%
+            \strut{\bf\p@rtname}\quad
+            \uppercase{%
+               \h@tMother#1\h@tMother
+               }%
+            \leaderfil\noexpand\number\p@gecount}%
+         }%
+      }%
+   \writeit\endgroup
+   \p@rtheader{#1}%
+   }%
+\def\p@rtheader#1{%
+   \endpage%
+   \llap{}\vfill%
+   {\fortyss
+      \centerline{\p@rtname}%
+      \bigbreak%
+      \centertitle{\uppercase{#1}}%
+      }%
+   \endpage%
+   }%
+\def\partout{%
+   \ifnum\partcount=\z@\else
+      \endpage\p@gefront
+      {\bf\centertitle\p@rthead}%
+      \immediate\closeout\p@rtwrite
+      \input\p@rtfile
+      \fi
+   }%
+\newcount\ch@ptercount
+\newif\if@ppendix% chapter/@ppendix switch
+\newwrite\ch@pterwrite
+\def\ch@pterfile{chapters.psiztemp }%
+\def\ch@pterhead{Table of Contents}%
+\def\ch@ptertext{}%
+\def\@ppendixtext{Appendix }%
+%
+\def\beginbody{%
+   \b@dyreset
+   }%
+\def\b@dyreset{%
+   \def\ch@ptername{}%
+   \ch@pterinit\ch@pterreset
+   \@ppendixfalse
+   \p@geclear
+   }%
+\adddef\resd@c{\ch@pterclear\b@dyreset\fr@nttrue}%
+\def\ch@pterinit{\ch@ptercount\@ne}%
+\def\ch@pterclear{\ch@ptertot\z@\n@llout\ch@pterwrite\ch@pterfile}%
+\def\ch@ptername{}%
+\def\chapter{% title
+   \if@ppendix\xdef\ch@ptername{\char\number\ch@ptercount\relax}%
+      \let\temp\@ppendixtext
+      \else   \xdef\ch@ptername{\number\ch@ptercount\relax}%
+      \let\temp\ch@ptertext
+      \fi\global\advance\ch@ptercount\@ne
+   \ch@ptereject \ch@pterreset
+   \ch@skiph
+   \vbox\bgroup\begingroup\c@tset\ch@ptertable%
+   }%
+\def\ch@ptertable#1{%
+   \@ddch@pt{#1}{\strut{\temp\ch@ptername.}\quad}\endgroup
+   \vskip-\parskip
+   \bf\centertitle{\temp\ch@ptername.\quad#1}\egroup
+   \backpar\ch@skiph
+   }%
+\def\ch@ptercite#1#2{% fig, tab citation style
+   \ifch@pterrenumber#1.#2\else#2\fi
+   }%
+\def\equ@tioncite#1#2{% eqn citation style
+   \ifch@pterrenumber#1-#2\else#2\fi
+   }%
+\def\r@fcite#1#2{% ref citation style
+   \ifr@frenumber#1.#2\else#2\fi
+   }%
+\def\ch@pterreset{\s@ctioninit\s@ctionreset\c@teclear}%
+\def\ch@ptereject{\ifch@pterrenumber\vfill\supereject\fi}%
+\def\beginappendices{\@ppendixtrue\ch@ptercount`A}%
+%
+% build the table of contents,etc iteratively:
+%   1) put out TOC to determine its length => list of tables, figures
+%      get the correct pagenumbers
+%   2) put out list of tables and store its page number
+%   3) put out list of figures and store its page number
+%   4) put out TOC again, now using the correct page numbers for
+%      list of tables  and list of figures
+%
+% (note: after \eject, the page number register contains the previous
+%        page number)
+%
+\newif\iff@gt@bhead
+\def\f@gt@bhead{\f@gt@bheadfalse
+   \ifnum\t@btotal>\z@\f@gt@bheadtrue
+      \line{\strut\t@btabhead\leaderfil\romannumeral-\t@bpagecount}%
+      \fi
+   \ifnum\f@gtotal>\z@\f@gt@bheadtrue
+      \line{\strut\f@gtabhead\leaderfil\romannumeral-\f@gpagecount}%
+      \fi
+   }%
+\newcount\blankcount
+\def\rectoleaf{%
+   \ifquadside
+      \blankcount\pageno
+      \divide\blankcount4\multiply\blankcount4
+      \advance\blankcount-\pageno\blankcount-\blankcount
+      \ifnum\blankcount=\@ne\else\hrule height\z@\endleaf\fi\lock
+      \else\endpage
+      \fi
+   }%
+\newif\ift@c
+\newcount\t@cpages\t@cpages\@ne
+\def\endbody{%
+   \vfill\supereject% is there an alternative?
+   \c@teout\endpage
+   \iffrontmatter
+      \immediate\closeout\ch@pterwrite
+      \ifproof\else\endpage\fi
+      %
+      \l@stpagecount=\number\p@gecount\p@gecount=\number\t@cpagecount
+      \t@bpagecount=\number\t@cpagecount\advance\t@bpagecount\t@cpages
+      \f@gpagecount=\number\t@bpagecount\advance\f@gpagecount\m@ne
+      \t@cfalse
+      {\bf\uppercase{\centertitle{\ch@pterhead}}}\bigbreak
+      \ifnum\ch@ptertot>\z@\unlock\input\ch@pterfile\lock\fi
+      \iff@gt@bhead
+         \ifnum\t@bpagecount=\p@gecount\else\t@ctrue\fi
+         \t@bpagecount=\number\p@gecount\advance\t@bpagecount\m@ne
+         \re@dback\t@btabwrite\t@btabfile\t@btabhead\t@btotal
+         %
+         \ifnum\f@gpagecount=\p@gecount\else\t@ctrue\fi
+         \f@gpagecount=\number\p@gecount\advance\f@gpagecount\m@ne
+         \re@dback\f@gtabwrite\f@gtabfile\f@gtabhead\f@gtotal
+         \endleaf
+         \ift@c
+            \rectoleaf
+            \l@stpagecount=\number\p@gecount\p@gecount=\number\t@cpagecount
+            {\bf\uppercase{\centertitle{\ch@pterhead}}}\bigbreak
+            \ifnum\ch@ptertot>\z@\unlock\input\ch@pterfile\lock\fi
+            %
+            \t@bpagecount=\number\p@gecount\advance\t@bpagecount\m@ne
+            \re@dback\t@btabwrite\t@btabfile\t@btabhead\t@btotal
+            %
+            \f@gpagecount=\number\p@gecount\advance\f@gpagecount\m@ne
+            \re@dback\f@gtabwrite\f@gtabfile\f@gtabhead\f@gtotal
+            \endleaf
+            \fi
+         \fi
+      \endleaf
+      \p@gecount=\number\l@stpagecount
+      \fi
+   }%
+% SECTION MACRO
+%                            The \section macro sets the name in upper
+%                            and lower case capitals, prints the
+% \section{Name}%            section name and number (left adjusted)
+%                            and skips the appropriate amount of space.
+\newcount\s@ctioncount
+\def\s@ctioninit{\global\s@ctioncount\@ne}%
+\def\secskipt{\bigbreak}%
+\def\s@ctionname{}%
+\def\section{\xdef\s@ctionname{\ch@ptername.\number\s@ctioncount}%
+   \global\advance\s@ctioncount\@ne
+   \s@ctionreset
+   \ch@skiph
+   \vbox\bgroup\begingroup\c@tset\s@ctiontable%
+   }%
+\def\s@ctiontable#1{%
+   \@ddch@pt{#1}{\quad\strut{\s@ctionname}\quad}\endgroup
+   \vskip-\parskip
+   \cp\noindent\s@ctionname\quad#1\par\egroup
+   \backpar\ch@skiph\sectionindent
+   }%
+\def\s@ctionreset{\subs@ctioninit\subs@ctionreset}%
+\let\sectionindent\relax
+%
+% SUBSECTION MACRO
+%
+% \subsection{name}%         Subsections appear with a number and
+%                            with the name in slant font.
+%
+\newcount\subs@ctioncount
+\def\subs@ctioninit{\global\subs@ctioncount\@ne}%
+\def\subs@ctionname{}%
+\def\subsection{% subsection macro
+   \xdef\subs@ctionname{\s@ctionname.\number\subs@ctioncount}%
+   \global\advance\subs@ctioncount\@ne
+   \subs@ctionreset
+   \ch@skiph
+   \vbox\bgroup\begingroup\c@tset\subs@ctiontable%
+   }%
+\def\subs@ctiontable#1{%
+   \@ddch@pt{#1}{\qquad\strut{\subs@ctionname}\quad}\endgroup
+   \sl\noindent\subs@ctionname\quad#1\par\egroup
+   \backpar\ch@skiph\subsectionindent
+   }%
+\def\subs@ctionreset{\subsubs@ctioninit\subsubs@ctionreset}%
+\let\subsectionindent\relax
+%
+% SUBSUBSECTION MACRO
+%
+% \subsubsection{name}%         Subsubsections appear with a number and
+%                            with the name in slant font.
+%
+\newcount\subsubs@ctioncount
+\def\subsubs@ctioninit{\global\subsubs@ctioncount\@ne}%
+\def\subsubsection{%
+   \xdef\subsubs@ctionname{\subs@ctionname.\number\subsubs@ctioncount}%
+   \global\advance\subsubs@ctioncount\@ne
+   \subsubs@ctionreset
+   \ch@skiph
+   \vbox\bgroup\begingroup\c@tset\subsubs@ctiontable%
+   }%
+\def\subsubs@ctiontable#1{%
+   \@ddch@pt{#1}{\quad\qquad\strut{\subsubs@ctionname}\quad}\endgroup
+   \sl\noindent\subsubs@ctionname\quad#1\par\egroup
+   \backpar\ch@skiph\subsubsectionindent
+   }%
+\def\subsubs@ctionreset{\p@ntinit\p@ntreset}%
+\let\subsubsectionindent\relax
+%
+% Common to all macros: write into the table of contents file
+%
+\newcount\ch@ptertot\ch@ptertot\z@
+\def\ch@skiph{\par\ifdim\lastskip<\bigskipamount
+  \removelastskip\vskip\bigskipamount\fi}%
+\def\backpar{\nobreak\vskip-\parskip\nobreak\nointerlineskip}%
+\def\t@bcontents{% line for table of contents in table of contents
+   \line{\strut\ch@pterhead\leaderfil\romannumeral-\t@cpagecount}%
+   }%
+\def\@ddch@pt#1#2{\c@tMeoline\l@tMother
+   \xdef\next{%
+      \write\ch@pterwrite{%
+         \line{#2\h@tMother#1\h@tMother%
+            \noexpand\leaderfil\noexpand\numorroman\p@gecount%
+            }%
+         }%
+      }%
+   \next\global\advance\ch@ptertot\@ne
+   \l@tMspace
+   }%
+% for setting the first letter of each word uppercase: make space active
+% cause next token to be \uppercase{\next}

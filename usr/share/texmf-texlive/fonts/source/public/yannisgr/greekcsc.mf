@@ -1,0 +1,34 @@
+mode_setup;
+font_setup;
+ 
+readfrom("gen_acc");
+readfrom("csc_misce");
+readfrom("rgrupper");
+readfrom("digits");
+readfrom("rgrpunct");
+ 
+font_slant slant; font_x_height x_height#;
+if monospace: font_normal_space 9u#; % no stretching or shrinking
+font_quad 18u#;
+font_extra_space 9u#;
+else: font_normal_space 6u#+2letter_fit#;
+font_normal_stretch 3u#; font_normal_shrink 2u#;
+font_quad 18u#+4letter_fit#;
+font_extra_space 2u#;
+fi
+ 
+x_height2#:=x_height#;
+forsuffixes $ = u,width_adj, cap_serif_fit, letter_fit,
+body_height, cap_height, x_height, bar_height, comma_depth,
+flare, cap_hair, stem, cap_stem, cap_curve, cap_ess,
+cap_jut, beak_jut, beak, slab, cap_bar, cap_band, cap_notch_cut,
+o, apex_o: $.# := lower.$.#; endfor
+font_setup;
+readfrom("scsc");
+extra_endchar := extra_endchar & ";charcode:=charcode+code_offset;";
+code_offset:=ASCII"a"-ASCII"A";
+readfrom("rgrupper");
+readfrom("ligcsc");
+ 
+bye.
+ 

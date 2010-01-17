@@ -1,0 +1,49 @@
+%% File 'babelfr.sty'
+%% Babelfr package for LaTeX2e and frenchle.
+%% Copyright (C) 2006 Bernard GAULLE,
+%%                            all rights reserved.
+%%
+%% Package babelfr: since the 2003 release of Babel, the options "french" no 
+%% more loads french.ldf and so disallows the global option "french"; so 
+%%% nobody can now provide, thru Babel, any other French option than the 
+%% "frenchb" option, thanks!
+%% The goal of this litte package "babelfr" is to come back on that decision
+%% and reestablish this historical facility coming from the begining of Babel.
+%% =========================
+%% A noter : si "french" est fourni en option dans \documentclass
+%% et que d'aures langues sont indiquees dans \usepackage{babel},
+%% il est alors necessaire de passer en francais (par \french) juste 
+%% apres le \begin{document}.
+%% 
+%% Bogues : m'envoyer les rapports de bogue a  <frenchle at free.fr>
+%%
+\NeedsTeXFormat{LaTeX2e}[1998/06/01]
+\ProvidesPackage{babelfr}[2006/09/27 v1.0 The Bfr package]
+\ifx\LdfInit\@undefined\input babel.def\relax\fi
+\DeclareOption*{\PassOptionsToPackage{\CurrentOption}{babel} }%
+\ProcessOptions*
+\let\bfr@DO\DeclareOption%
+\def\DeclareOption#1#2{\edef\@tempa{french}\edef\@tempb{#1}%
+                       \def\@tempc{\bfr@DO{#1}{#2}}%
+                       \def\@tempd{\bfr@DO{french}%
+                                          {\let\DeclareOption\bfr@DO%
+                                           \input french.ldf}%
+                                   \bfr@DO{frenchle}%
+                                          {\let\DeclareOption\bfr@DO%
+                                           \input frenchle.ldf}%
+                                   \bfr@DO{frenchpro}%
+                                          {\let\DeclareOption\bfr@DO%
+                                           \input frenchpro.ldf}%   
+                                  }%
+                       \ifx\@tempa\@tempb\expandafter\@tempd%
+                       \else\expandafter\@tempc%
+                       \fi}%
+% Same as \RequirePackageWithOptions{babel} but it runs. %
+\let\@currname@bfr\@currname%
+\def\@currname{babel}%
+\input babel.sty %%
+\let\@currname\@currname@bfr%
+\let\DeclareOption\bfr@DO\let\bfr@DO\undefined%
+\endinput
+%%
+%% End of file `babelfr.sty'.

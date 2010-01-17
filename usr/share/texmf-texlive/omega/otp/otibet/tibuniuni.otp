@@ -1,0 +1,108 @@
+% File tibuniuni-state.otp
+% Conversion to Unicode compound from Unicode
+% Copyright (c) 1997 Norbert Preining
+% this file is part of the otibet package.
+% 
+
+input:	2;
+output:	2;
+
+tables:
+subjoin[@"2a] = {
+@"0f90, @"0f91, @"0f92, @"0f93, @"0f94, @"0f95, @"fffd, @"0f97, 
+@"fffd, @"0f99, @"0f9a, @"0f9b, @"0f9c, @"0f9d, @"0f9e, @"0f9f, 
+@"0fa0, @"0fa1, @"0fa2, @"0fa3, @"0fa4, @"0fa5, @"0fa6, @"0fa7, 
+@"0fa8, @"0fa9, @"0faa, @"0fab, @"0fac, @"0fad, @"fffd, @"fffd, 
+@"0f71, @"0fb1, @"0fb2, @"0fb3, @"0fb4, @"0fb5, @"0fb6, @"0fb7, 
+@"fffd, @"0fb9 };
+
+states: begin, gau, dau, bau, mau, hau, main, vow, post, sec ;
+
+aliases:
+cons		= ( ( @"0f40 - @"0f47 ) | ( @"0f49 - @"0f67 ) | @"0f69| @"25cc );
+vowel		= ( ( @"0f71 - @"0f7f ) | @"0f80 | @"0f81 );
+super		= ( @"0f62 | @"0f63 | @"0f66 ) ;
+praefix		= ( @"0f42 | @"0f51 | @"0f56 | @"0f58 | @"0f60 ) ;
+gauprae		= ( ( @"0f61 - @"0f63 ) | @"0f5d ) ;
+dauprae		= ( @"0f5d | @"0f62 ) ;
+bauprae		= ( @"0f61 - @"0f63 ) ;
+mauprae		= ( @"0f61 | @"0f62 ) ;
+protector	= @"0f6f ;
+raspecial	= ( @"0f40 | @"0f42 | @"0f44 | @"0f47 | @"0f49 | @"0f4f | 
+		    @"0f51 | @"0f53 | @"0f59 | @"0f5b | @"0f63 ) ;
+subjoin		= ( ( @"0f71 - @"0f8b ) | ( @"0f90 - @"0f95 ) | @"0f97 | 
+		    ( @"0f99 - @"0fad ) | ( @"0fb1 - @"0fb7 ) | @"0fb9 ) ;
+
+expressions:
+.			=> <= \1			<begin> ;
+<begin>	@"0f42	end:	=>	\1			<gau>	;
+<begin>	@"0f56	end:	=>	\1			<bau>	;
+<begin>	@"0f51	end:	=>	\1			<dau>	;
+<begin>	@"0f58	end:	=>	\1			<mau>	;
+<begin>	@"0f60	end:	=>	\1			<hau>	;
+<begin>	@"0f42		=> 	\1			<gau>	;
+<begin>	@"0f56		=>	\1			<bau>	;
+<begin>	@"0f51		=> 	\1			<dau>	;
+<begin>	@"0f58		=> 	\1			<mau>	;
+<begin>	@"0f60		=> 	\1			<hau>	;
+<begin> {cons}		=> 	\1			<main>	;
+<begin> @"0f68		=> 	\1			<vow>	;
+<begin> {vowel}		=> 	@"0f68 \1		<vow>	;
+<begin> {subjoin}	=>	\1			<main>	;
+<begin> .		=>	\1			<begin> ;
+%
+<gau> 	{gauprae}	=> 	#(subjoin[\1-@"0f40])	<main>	;
+<gau> 	{cons}		=>	\1			<main>	;
+<gau> 	@"0f68		=>				<vow>	;
+<gau> 	{vowel}		=>	\1			<vow>	;
+<gau>	{subjoin}	=>	\1			<main>	;
+<gau>	.		=>	\1			<main>	;
+
+<dau> 	{dauprae}	=>	#(subjoin[\1-@"0f40])	<main>	;
+<dau> 	{cons}		=>	\1			<main>	;
+<dau> 	@"0f68		=>				<vow>	;
+<dau> 	{vowel}		=>	\1			<vow>	;
+<dau>	{subjoin}	=>	\1			<main>	;
+<dau>	.		=>	\1			<main>	;
+
+<bau>	@"0f62 {raspecial} =>	\1 #(subjoin[\2-@"0f40])<main>  ;
+<bau>	@"0f63 @"0f4f	=>	\1 #(subjoin[\2-@"0f40])<main>	;
+<bau> 	{bauprae}	=>	#(subjoin[\1-@"0f40])	<main>	;
+<bau> 	{cons}		=>	\1			<main>	;
+<bau> 	@"0f68		=>				<vow>	;
+<bau> 	{vowel}		=>	\1			<vow>	;
+<bau>	{subjoin}	=>	\1			<main>	;
+<bau>	.		=>	\1			<main>	;
+
+<mau> 	{mauprae}	=>	#(subjoin[\1-@"0f40])	<main>	;
+<mau> 	{cons}		=>	\1			<main>	;
+<mau> 	@"0f68		=>				<vow>	;
+<mau> 	{vowel}		=>	\1			<vow>	;
+<mau>	{subjoin}	=>	\1			<main>	;
+<mau>	.		=>	\1			<main>	;
+
+<hau>	{cons}		=>	\1			<main>	;
+<hau>	@"0f68		=>				<vow>	;
+<hau> 	{vowel}		=>	\1			<vow>	;
+<hau>	{subjoin}	=>	\1			<main>	;
+<hau>	.		=>	\1			<main>	;
+
+<main> 	{cons}		=>	#(subjoin[\1-@"0f40])	<main>	;
+<main> 	@"0f68		=>				<vow>	;
+<main>	{vowel}		=>	\1			<vow>	;
+<main>	{subjoin}	=>	\1			<main>	;
+<main>	.		=>	\1			<begin> ;
+
+<vow>	{vowel}		=>	\1			<vow>	;
+<vow>	@"0f68		=>				<vow>	;
+<vow>	{cons}		=>	\1			<sec>	;
+<vow>	{subjoin}	=>	\1			<vow>	;
+<vow>	.		=>	\1			<begin> ;
+
+<sec>	{cons}		=>	\1			<sec>	;
+<sec>	{vowel}		=>	\1			<vow>	;
+<sec>	@"0f68		=>				<vow>	;
+<sec>	{subjoin}	=>	\1			<sec>	;
+<sec>	.		=>	\1			<begin>	;
+
+.			=>	\1		<begin> ;

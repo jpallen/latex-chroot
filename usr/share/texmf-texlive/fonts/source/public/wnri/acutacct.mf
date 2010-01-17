@@ -1,0 +1,30 @@
+%
+% Washington Romanized Indic accent driver
+%
+% Macros to draw acute accents
+%
+
+boolean ACUTE; ACUTE=true;
+
+cmchar "Acute accent";
+beginchar(oct"023",9u#,min(asc_height#,2x_height#),0);
+italcorr h#*slant-if serifs: 1.5 fi u#;
+adjust_fit(0,0);
+if serifs: pickup crisp.nib; x1+.5stem=hround(w-2u); x2=2/3[x1,w-x1];
+ y1+.5stem=h+eps; y2=max(2/3[h,x_height],x_height+o+hair);
+ numeric theta; theta=angle(z2-z1)+90;
+ pos1(stem,theta); pos2(hair,theta);
+ filldraw circ_stroke z1e--z2e;  % diagonal
+else: pickup fine.nib; pos1(stem,0); pos2(vair,0);
+ rt x1r=hround(w-1.5u); lft x2l=hround(.5w-.25u-.5vair);
+ top y1=h; bot y2=vround 2/3[h,x_height];
+ filldraw stroke z1e--z2e; fi  % diagonal
+makeACCENT(AcutePic);
+penlabels(1,2); endgroup;
+extra_endchar:=
+  " czu  ap(AcutePic);  ah; oechar; ";
+def cp = acute enddef; 
+boolean dotson; dotson:=false;
+
+% end of file acutacct.mf
+

@@ -1,0 +1,34 @@
+% File incp1251.otp
+% Conversion to Unicode from Cyrillic MS-DOS encoding (CP 1251)
+% Copyright (c) 1995 John Plaice and Yannis Haralambous
+% Copyright (c) 2002 Roozbeh Pournader
+% This file is part of the Omega project.
+%
+% This file was derived from data in the tcs program
+% (ftp://plan9.att.com/plan9/unixsrc/tcs.shar.Z, 16 November 1994)
+% and then modified based on data from glibc data files
+% (http://www.gnu.org/software/libc/libc.html)
+%
+
+input:	1;
+output:	2;
+
+tables:
+
+tabcp1251[@"40] = {
+@"0402, @"0403, @"201A, @"0453, @"201E, @"2026, @"2020, @"2021,
+@"20AC, @"2030, @"0409, @"2039, @"040A, @"040C, @"040B, @"040F,
+@"0452, @"2018, @"2019, @"201C, @"201D, @"2022, @"2013, @"2014,
+@"FFFD, @"2122, @"0459, @"203A, @"045A, @"045C, @"045B, @"045F,
+@"00A0, @"040E, @"045E, @"0408, @"00A4, @"0490, @"00A6, @"00A7,
+@"0401, @"00A9, @"0404, @"00AB, @"00AC, @"00AD, @"00AE, @"0407,
+@"00B0, @"00B1, @"0406, @"0456, @"0491, @"00B5, @"00B6, @"00B7,
+@"0451, @"2116, @"0454, @"00BB, @"0458, @"0405, @"0455, @"0457
+};
+
+expressions:
+
+@"00-@"7F	=> \1;
+@"C0-@"FF	=> #(\1 + @"350);
+@"80-@"BF	=> #(tabcp1251[\1-@"80]);
+.		=> @"FFFD;

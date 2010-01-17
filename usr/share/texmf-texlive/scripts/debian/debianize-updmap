@@ -1,0 +1,414 @@
+# This file, debianize-updmap, is meant to be sourced by updmap and
+# enhance the --enable and --disable options with the functionality
+# needed to deal with Debian's generated updmap.cfg.
+# $Id$
+
+# This is the planned scheme how it works
+# 
+# A for disableMap:
+#   1. create a list of files to act on (either in sysconfdir only, or in user dirs too)
+#   2. grep for not-commented lines in these files that contain $map
+#   CHANGE 3. for each of these files, run configReplace appropriately
+#   3. if in syswide-mode, for each of these files, run configReplace appropriately;
+#      if not in syswide mode, for each of these files,
+#             test whether it is in the syswide dir
+#   3.a if not, run configReplace appropriately
+#   3b. if yes, create copy in user dir and run configReplace appropriately
+#
+# B for enableMap:
+#   1. create a list of files to act on (either in sysconfdir only, or in user dirs too)
+#   2. grep for commented lines in these files that contain $map
+#   2.1. if any are found, check whether it is only one
+#   2.1.1 if there is only one, run configReplace on that file appropriately
+#   2.1.2 if there is more than one, the precedence is 
+#         20tetex-extra.cfg > XX*local*.cfg > 10tetex-base.cfg > any
+#	  (extra has maximum priority because 
+#   2.1.2.1 if it's clear on which file to act, run configReplace on that file
+#           appropriately
+#   2.1.2.2 if unclear (i.e. only "any"), exit with an error
+#   2.2 if none are found, act on 10local.cfg (could be made configurable)
+#       - if 10local.cfg does not exist, create it (with an explanatory comment)
+#       - run configReplace on it appropriately
+#
+# C for syncwithtrees (and even more?)
+# ?
+#
+# After that, update-updmap must be run (in the appropriate mode!), and then updmap
+# must reexecute itself.  Since disableMap is called by enableMap, we need a wrapper
+# for it.  An alternative would be to do this just before the creation of the output
+# files, but I think it's easier this way, and currently updmap only enables one Map
+# file per run.
+
+###############################################################################
+# DebianSyswideMode ()
+#   determine whether we are running in syswide mode (or user-specific)
+###############################################################################
+DebianSyswideMode(){
+  test "$(id -u)" -eq 0 && return 0 || return 1
+}
+
+###############################################################################
+# FindDebianUserdir ()
+#   find the directory containing user-specific updmap snippets
+###############################################################################
+FindDebianUserdir(){
+  defaultuserdir=$HOME/.texmf-config/updmap.d
+
+  # this should read a config item in updmap.cfg, but for now we just
+  # check whether the default exists.
+  if [ -d $defaultuserdir ]; then
+    echo $defaultuserdir
+  fi
+}
+
+
+###############################################################################
+# createDebianConffilelist
+#   create a list of configuration files containing updmap snippets;
+#   we are going to act on these
+###############################################################################
+createDebianConffilelist(){
+  local DebianConffilelist=""
+  syswideFiles=`find /etc/texmf/updmap.d -maxdepth 1 -type f -name '*.cfg'`
+  if ! DebianSyswideMode; then
+    debianuserdir=`FindDebianUserdir`
+    if [ -n "$debianuserdir" ]; then
+      userFiles=`find "$debianuserdir" -maxdepth 1 -type f -name '*.cfg'`
+    fi
+  fi
+  if [ -n "$userFiles" ]; then
+    userBasenames=`for file in $userFiles; do basename $file; done`
+    for file in $syswideFiles; do
+      local copyInUserdir=false
+      
+    done
+  else
+  fi
+}
+
+###############################################################################
+# runUpdate
+#   run update-updmap
+###############################################################################
+runUpdate(){
+  updOptions=""
+  if [ -n "$cfgparam" ]; then
+    # --conffile option was given on the command line
+      updOptions="--output-file $orig"
+  fi
+  # here we could check for an alternative user dir, or output file
+  # but as long as FindDebianUserdir only reports the default location, 
+  # it doesn't make sense
+
+  verboseMsg "Running update-updmap to merge the changed files"
+  update-updmap --quiet $updOptions
+}
+###############################################################################
+# cleanupNoExit()
+#   clean up the temp area, but don't exit
+###############################################################################
+cleanupNoExit()
+{
+  rc=$?
+  $needsCleanup && test -n "$tmpdir" && test -d "$tmpdir" \
+    && { cd / && rm -rf "$tmpdir"; }
+}
+
+###############################################################################
+# reExecSelf
+#   execute ourselves again - the confile has changed after an enable or disable
+#   command has been processed
+###############################################################################
+reExecSelf(){
+  # remove the temporary directory
+  cleanupNoExit
+  
+  # if we need not remake map files, we are done here
+  if [ "$mkmapEnabled" = "false" ]; then exit 0; fi
+
+  # pass ourselves the right options.  
+  repeatOptions=""
+  for option in dvipsoutputdir pdftexoutputdir dvipdfmoutputdir; do
+    # strange that I can't do the same with eval test -n
+    if eval [ ! -z  "\$$option" ]; then
+      repeatOptions="$repeatOptions `eval echo --$option \\$$option`"
+    fi
+  done
+  if [ -n "$cfgparam" ]; then
+    # --conffile option was given on the command line
+    repeatOptions="$repeatOptions --cnffile=$orig"
+  fi
+  if [ "texhashEnabled" = "false" ]; then
+    repeatOptions="$repeatOptions --nohash"
+  fi
+  if [ "$verbose" = "false" ]; then
+    repeatOptions="$repeatOptions --quiet"
+  fi
+  
+  verboseMsg "Now running $progname again to generate output files"
+  echo $progname $repeatOptions
+  exec $progname $repeatOptions
+}
+
+###############################################################################
+# grepType (map,file)
+#   grep in file for entry map, and return the mapType
+###############################################################################
+grepType()
+{
+  map=$1
+  file="$2"
+  egrep "^(MixedMap|Map)[ 	]*$map( |	|$)" "$file" | awk '{print $1}' | sort | uniq
+}
+
+
+###############################################################################
+# findUserfiles (filelist)
+#   pick user-specific files out of a filelist of configuration files
+###############################################################################
+findUserfiles(){
+  userfiles=""
+  while [ $# -gt 0 ]; do
+    file="$1"
+    if [ "$file" = "${file#/etc/texmf/updmap.d}" ]; then
+      # doesn't start with /etc/texmf/updmap.d: must be user-specific
+      userfiles="$userfiles $file"
+    fi
+    shift;
+  done
+  echo $userfiles
+}
+
+###############################################################################
+# findRightMatchfile (mapname,filelist)
+#   find the right file from filelist to enable mapname 
+###############################################################################
+findRightMatchfile(){
+  mapName=$1; shift
+  matchfiles="$@"
+  if [ $# -eq 1 ]; then
+    # it is only one, enable map in it
+    echo $matchfiles
+    verboseMsg "Enabling map file in $matchfiles"
+    return 0
+  else
+    # there are more than one; 
+    if ! DebianSyswideMode; then
+      # can only change files in the user's dir
+      usermatchfiles=`findUserfiles $matchfiles`
+      if [ `(set $usermatchfiles; echo $#)` -eq 1 ]; then
+        # exactly one of them is a user-specific file
+	echo $usermatchfiles
+	verboseMsg "Enabling map file in user-specific file $matchfiles"
+	return 0
+      else
+        # two files in the user directory (as bad as two in the site-wide
+        # dir), or no user-specific files.  If there are two user-specific
+	# files, report about them:
+	test -n "$usermatchfiles" && matchfiles="$usermatchfiles" || true
+      fi
+    fi
+    # for now, we exit with an error.  Any sensible choice would have to 
+    # check whether teTeX or texlive is installed, and I want to save me
+    # that hazzle.
+    cat >&2 <<EOF
+Entries for map file $mapName found in several files:
+$matchfiles
+
+Since updmap.cfg is a generated file in Debian, I don't know how to proceed.
+Please refer to the manpage of update-updmap(1)
+
+EOF
+  fi
+}
+
+###############################################################################
+# pickLocalFile (mapname,directory)
+#   pick the right local file in directory
+###############################################################################
+pickLocalFile(){
+  mapName=$1
+  debDirname=$2
+  debDirname=${debDirname%/}
+  # Is there a file with "local" in the name?
+  localfile=""
+  localfile="`ls $debDirname/*local*cfg 2>/dev/null`"
+  if [ -n "$localfile" ]; then
+    # there is at least one
+    if [ `(set $localfile; echo $#)` -eq 1 ]; then
+      # exactly one
+      verboseMsg "Using local configuration file $localfile"
+      echo $localfile
+      return 0
+    else
+      # more than one local file? Brrrr.
+      cat >&2 <<EOF
+While trying to enable $mapName locally, I found several user-specific map files:
+$localfile
+
+I don't know how to proceed here. Please refer to the manpage of update-upmdap(1)
+
+EOF
+    fi
+  else
+    # no user config file yet
+    echo $debDirname/10local.cfg
+    return 0
+  fi
+}
+
+###############################################################################
+# findRightLocalfile (mapname)
+#   find the right file to enable mapname, site-wide or user-specific
+#   mapname is only needed for the error message
+###############################################################################
+findRightLocalfile(){
+  mapName=$1
+  # Do we know about a user-specific directory?
+  if DebianSyswideMode; then
+    DebCnfFile=`pickLocalFile $mapName /etc/texmf/updmap.d`
+  else
+    debianuserdir=`FindDebianUserdir`
+    /usr/share/texmf/web2c/mktexdir $debianuserdir
+    test -w $debianuserdir || (
+      echo "Target directory $debianuserdir not writable."
+      echo "Exiting"
+      exit 0
+    )
+    DebCnfFile=`pickLocalFile $mapName $debianuserdir`
+  fi
+  # configReplace will try to grep in the file: touch it to prevent a error message
+  touch $DebCnfFile
+  verboseMsg "Using local configuration file $DebCnfFile"
+  echo $DebCnfFile
+}
+
+###############################################################################
+# disableMapInner (map)
+#   disables map in config file (any type) (real command)
+###############################################################################
+disableMapInner()
+{
+  map=$1
+  local mapType
+
+  if [ -z "$DebianConffilelist" ]; then
+    DebianConffilelist=`createDebianConffilelist`
+  fi
+
+  # act on all files that contain an entry
+  for debCnfFile in $DebianConffilelist; do
+    if mapType=`grepType $map "$debCnfFile"`; then
+      # although it's a bug, there might be two types enabled - we disable both
+      for type in $mapType; do
+	configReplace "$debCnfFile" "^$type[[:space:]]*$1" "#! $type $1"
+      done
+    fi
+  done
+}
+
+###############################################################################
+# disableMap (map)
+#   disables map in config file (any type) (Debian wrapper)
+###############################################################################
+disableMap()
+{
+  disableMapInner $1
+  runUpdate
+  reExecSelf
+}
+###############################################################################
+# enableMap (type, map)
+#   enables an entry in the config file for map with a given type.
+###############################################################################
+enableMap()
+{
+  mapType=$1
+  mapName=$2
+  case $1 in
+    Map|MixedMap)
+      ;;
+    *)
+      abort "invalid mapType $mapType"
+      ;;
+  esac
+
+  if [ -z "$DebianConffilelist" ]; then
+    DebianConffilelist=`createDebianConffilelist`
+  fi
+
+  # a map can only have one type, so we carefully disable everything
+  # about map here:
+  disableMapInner "$mapName"
+
+  # now enable with the right type.
+  # But we have to determine where to enable.
+  # is there already a file that contains a (commented) entry?
+  matchfiles=""
+  for file in $DebianConffilelist; do
+    if egrep "^#![[:blank:]]*(MixedMap|Map)[[:blank:]]*$map([[:blank:]]|$)" "$file" >/dev/null ; then
+      matchfiles="$matchfiles $file"
+    fi
+  done
+  if [ -n "$matchfiles" ]; then
+    # there is already (at least) one file that has a commented entry for our map
+    debCnfFile=`findRightMatchfile $mapName $matchfiles`
+    test -w "$debCnfFile" || debCnfFile=""
+  fi
+  if [ -z "$debCnfFile" ]; then
+    # still none, there is no (commented) entry in any writable file yet. 
+    debCnfFile=`findRightLocalfile $mapName`
+    test -n "$debCnfFile" || abort "Cannot proceed. Exiting"
+    verboseMsg "Creating new entry for map file $mapName in $debCnfFile"
+  fi
+
+  configReplace "$debCnfFile" "^#![ 	]*$mapType[ 	]*$mapName" "$mapType $mapName"
+  runUpdate
+  reExecSelf
+}
+
+###############################################################################
+# setOption (option, value)
+#   sets option to value in the config file (replacing the existing setting
+#   or by adding a new line to the config file).
+###############################################################################
+setOption()
+{
+  opt=$1
+  val=$2
+  case "$opt" in
+    LW35)
+      case "$val" in
+        URWkb|URW|ADOBE|ADOBEkb)
+          ;;
+        *)
+          abort "invalid value $val for option $opt"
+          ;;
+      esac
+      ;;
+    dvipsPreferOutline|dvipsDownloadBase35|pdftexDownloadBase14|dvipdfmDownloadBase14)
+      case "$val" in
+        true|false)
+          ;;
+        *)
+          abort "invalid value $val for option $opt"
+      esac
+      ;;
+    *)
+      abort "unsupported option $opt"
+      ;;
+  esac
+
+  DebNullCnfFile=""
+  DebianSyswideMode || debianuserdir=`FindDebianUserdir`
+  if (! DebianSyswideMode) && [ -f "$debianuserdir/00updmap.cfg" ]; then
+    DebNullCnfFile=$debianuserdir/00updmap.cfg
+  else
+    DebNullCnfFile=/etc/texmf/updmap.d/00updmap.cfg
+  fi
+
+  configReplace "$DebNullCnfFile" "^$opt[ 	]" "$opt $val"
+  runUpdate
+  reExecSelf
+}
+

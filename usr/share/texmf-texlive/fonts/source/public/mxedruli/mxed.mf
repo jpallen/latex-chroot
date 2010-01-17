@@ -1,0 +1,107 @@
+% Driver file for Mxedruli font `mxed.mf'
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Designed and (c) by Johannes Heinecke                                     %
+%                     Humboldt-Universit"at zu Berlin                       %
+%                     Philosophische Faskult"at II                          %
+%                     Institut f"ur deutsche Sprache und Linguistik         %
+%                     Computerlinguistik                                    %
+%                     J"agerstr. 10/11                                      %
+%                     D - 10099 Berlin                                      %
+%                     <heinecke@compling.hu-berlin.de>                      %
+% Please send any improvements, corrections, suggestions, enhancements etc  %
+% to the Author!                                                            %
+%                                                                           %
+% Version 2.2 as of 5th March 1996                                          %
+%                                                                           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+font_coding_scheme:="Mxedruli - Georgian";
+mode_setup;
+if known cmbase: font_setup; fi         % If used with cmbase
+font_mxed_setup;
+let mxedchar=\;
+
+% fontmaking:=1;        % to generate a TFM File during proof-ing
+
+%% Zeichendefinitionsdateien %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if mxcap: input mxedcaps; else: input mxedfont; fi       % the mxedruli alphabet
+if unknown cmbase: input mxedd; else: input romand; fi  % digits: if cmbase is
+                                                         % used this font will
+                                                         % load cm-digits, for
+                                                         % they are finer tuned.
+if unknown cmbase: input mxedp; else: input punct; fi   % The same for punctuation
+input mxedacc;      % Accents
+
+%% Font-Parameter fuer TeX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+font_quad 2.5mxu#;                 % 1 em
+font_x_height mxlittle#;           % 1 ex
+font_normal_space 3mxu#;           % word gap
+font_normal_stretch 2mxu#;         % word gap may stretch by ...
+font_normal_shrink 1mxu#;          % word gap my shrink by ...
+font_slant slant;
+
+% special "grayfont graylj";     % Only for GFtoDVI on emTeXs METAFONT
+
+%% Ligature-Tables %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Palatals:
+ligtable "+" : "s" =: oct"005",
+               "c" =: oct"001",
+               "j" =: oct"010",
+               "z" =: oct"007";
+
+% Glottalized stops
+ligtable "." : "c" =: oct"000",
+               "g" =: oct"002",
+               "k" =: oct"003",
+               "p" =: oct"004",
+               "t" =: oct"006",
+               "+" =: ",";
+
+% Old Georgian "ho"
+ligtable "o" : "1" =: oct"011",
+               oct"005" kern -mxhalf#,
+               "z"      kern -.5mxzw#;
+
+% Old Georgian "Short i"
+ligtable "i" : "1" =: oct"012",
+               oct"005" kern -mxhalf#,
+               "z"      kern -.5mxzw#;
+
+% Ossetian "ae" and long "ee"
+ligtable "e" : "1" =: oct"013",
+               "0" =: oct"016",
+               "e" =: oct"016",
+               oct"005" kern -mxhalf#,
+               "z"      kern -.5mxzw#;
+
+% Variated "b"
+if not mxcap: ligtable "b" : "1" =: oct"020"; fi;
+
+% Unaspirated "q"
+ligtable "q" : "1" =: oct"015",
+               oct"005" kern -mxhalf#, 
+               "z"      kern -.5mxzw#;
+
+% Keep the "s" away from letters with an ascender on the right
+ligtable oct"004" : oct"007" : "k" : "m" : "x" : "s" kern .5mxzw#;
+
+% two ' make a double quote
+ligtable "'" : "'" kern -.8mxzw#;
+
+% two , make a double comma, 
+ligtable "," : "," kern -mxzw#,
+               "c" =: oct"014";
+
+%% Hyphens etc.
+ligtable "-" : "-" =: 123;  % cf. The METAfontbook S. 306
+ligtable 123 : "-" =: 124;
+
+% Let "z" and oct005 closer two the little letters
+ligtable "a" : "d" : "g" : "l" : "t" : "u" : "p" : oct"002" : "c" : oct"010" :
+               oct"005" kern -mxhalf#,
+               "1" =: oct"021",
+               "z"      kern -.5mxzw#;
+
+endinput;

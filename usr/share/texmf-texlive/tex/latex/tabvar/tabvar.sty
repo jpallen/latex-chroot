@@ -1,0 +1,200 @@
+%%
+%% This is file `tabvar.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% tabvar.dtx  (with options: `sty')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from tabvar.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file tabvar.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% Copyright (C) Daniel Flipo 2003-2006 <daniel.flipo@univ-lille1.fr>.
+%%
+\NeedsTeXFormat{LaTeX2e}[1997/06/01]
+\ProvidesFile{tabvar.sty}
+        [2006/03/14 v1.0 (Daniel Flipo)]
+\newif\ifFlechesMP \FlechesMPfalse
+\DeclareOption{FlechesMP}{\FlechesMPtrue}
+\DeclareOption{FlechesPS}{\FlechesMPfalse}
+\ProcessOptions
+\RequirePackage{array}
+\RequirePackage{colortbl}
+\RequirePackage{varwidth}
+\RequirePackage{ifthen}
+\RequirePackage{graphicx}
+\RequirePackage{ifpdf}
+\ifpdf
+  \input{supp-pdf}
+  \DeclareGraphicsRule{*}{mps}{*}{}
+\fi
+\newsavebox{\arup}
+\newsavebox{\ardown}
+\newsavebox{\arhor}
+\providecommand{\@ptsize}{0}
+\sbox{\arup}  {\includegraphics[scale=1.\@ptsize]{tabvar.1}}
+\sbox{\ardown}{\includegraphics[scale=1.\@ptsize]{tabvar.2}}
+\sbox{\arhor} {\includegraphics[scale=1.\@ptsize]{tabvar.3}}
+\newcommand{\FlecheCm}{\raisebox{.5ex}{\usebox{\arup}}}
+\newcommand{\FlecheDm}{\raisebox{.5ex}{\usebox{\ardown}}}
+\newcommand{\FlecheHm}{\raisebox{.5ex}{\usebox{\arhor}}}
+\AtBeginDocument{%
+  \ifFlechesMP
+    \newcommand{\FlecheC}{\FlecheCm}%
+    \newcommand{\FlecheD}{\FlecheDm}%
+    \newcommand{\FlecheH}{\FlecheHm}%
+  \else
+    \DeclareFontFamily{U}{tv}{}%
+    \DeclareFontShape{U}{tv}{m}{n}{<->tabvar}{}%
+    \DeclareSymbolFont{tvsymbols}{U}{tv}{m}{n}%
+    \DeclareMathSymbol{\enearrow}{\mathrel}{tvsymbols}{"25}%
+    \DeclareMathSymbol{\esearrow}{\mathrel}{tvsymbols}{"26}%
+    \DeclareMathSymbol{\eastarrow}{\mathrel}{tvsymbols}{"21}%
+    \newcommand{\FlecheC}{\ensuremath{\enearrow}}%
+    \newcommand{\FlecheD}{\ensuremath{\esearrow}}%
+    \newcommand{\FlecheH}{\ensuremath{\eastarrow}}%
+  \fi}
+\newdimen\TVextraheight
+\setlength{\TVextraheight}{.7\baselineskip}
+\newcount\@niveaux
+\newcount\@pos
+\newif\if@socle
+\newcommand{\niveau}[2]{\global\@pos=#1 \global\@niveaux=#2
+                        \global\@socletrue}
+\newcommand{\@socle}{%
+  \ifnum\@pos=1 \@soclefalse \fi
+  \if@socle
+    \rule{\z@}{\TVextraheight}%
+    \@tempcnta=\@pos
+    \advance\@tempcnta by -1
+    \whiledo{\@tempcnta>0}{\TVnl \null \advance\@tempcnta by -1}%
+  \fi}
+\newif\ifreset@niveaux
+\newcommand{\reset@niveaux}{%
+  \ifreset@niveaux
+    \global\@niveaux=1 \global\@pos=1 \global\@soclefalse
+  \fi}
+\newdimen\TVmaxcolwidth
+\setlength{\TVmaxcolwidth}{5em}
+\newcolumntype{C}{%
+   >{\begin{varwidth}[b]{\TVmaxcolwidth}\let\TVnl=\\
+     \let\\=\TVtabularnewline $}%
+   c%
+   <{\@socle \reset@niveaux
+     $\@finalstrut\@arstrutbox\end{varwidth}}}
+\newcolumntype{L}{%
+   >{\begin{varwidth}[b]{\TVmaxcolwidth}\let\TVnl=\\
+     \let\\=\TVtabularnewline $}%
+   l%
+   <{\@socle \reset@niveaux
+     $\@finalstrut\@arstrutbox\end{varwidth}}}
+\newcolumntype{R}{%
+   >{\begin{varwidth}[b]{\TVmaxcolwidth}\let\TVnl=\\
+     \let\\=\TVtabularnewline $}%
+   r%
+   <{\@socle \reset@niveaux
+     $\@finalstrut\@arstrutbox\end{varwidth}}}
+\definecolor{TVcolor}{gray}{0.7}
+\newdimen\TVarraycolsep
+\newdimen\TVcolorLeftSep
+\newdimen\TVcolorRightSep
+\setlength{\TVcolorLeftSep}{\TVarraycolsep}
+\setlength{\TVcolorRightSep}{\TVarraycolsep}
+\newcolumntype{N}{%
+   >{\columncolor{TVcolor}[\TVcolorLeftSep][\TVcolorRightSep]}
+   c}
+\newcommand{\decroit}{\FlecheD
+                      \global\advance\@pos by -1
+                      \ifnum\@pos<1
+                      \PackageError{tabvar.sty}%
+                        {Les arguments la commande
+                         \protect\niveau\space sont incorrects}%
+                      \fi}
+\newcommand{\croit}  {\raisebox{-\baselineskip}{\FlecheC}%
+                      \global\advance\@pos by 1
+                      \ifnum\@pos>\@niveaux
+                      \PackageError{tabvar.sty}%
+                        {Les arguments la commande
+                         \protect\niveau\space sont incorrects}%
+                      \fi}
+\newcommand{\constante}{\FlecheH}
+\newcommand{\dbarre}{\ifnum\@niveaux=1
+                       \@tempdimc=\TVarraystretch\baselineskip
+                     \else
+                       \@tempcnta=\@niveaux
+                       \advance\@tempcnta by -1
+                       \@tempdimc=\@tempcnta\baselineskip
+                       \@tempdimb=\TVextraheight
+                       \ifdim\@tempdimb<.7\baselineskip
+                         \@tempdimb=.7\baselineskip
+                       \fi
+                       \advance\@tempdimc by \@tempdimb
+                       \advance\@tempdimc by \dp\@arstrutbox
+                     \fi
+                     \rule[-\dp\@arstrutbox]{.5\p@}{\@tempdimc}%
+                     \kern 2\p@
+                     \rule[-\dp\@arstrutbox]{.5\p@}{\@tempdimc}%
+                     \@soclefalse}
+\newcommand{\discont}[4][0]{%
+     \settowidth{\@tempdimc}{\ensuremath{#2}}%
+     \settowidth{\@tempdimb}{\ensuremath{#4}}%
+     \ifdim\@tempdimc<\@tempdimb \@tempdimc=\@tempdimb\fi
+     \rule{\z@}{\TVextraheight}%
+     \@soclefalse
+     \ifthenelse{\equal{#3}{<}}%
+     {\makebox[\@tempdimc]{\ensuremath{#4}}%
+      \@tempcnta=#1
+      \whiledo{\@tempcnta>0}{\TVnl \null \advance\@tempcnta by -1}%
+      \TVnl
+      \makebox[\@tempdimc]{\ensuremath{#2}}%
+      \@tempcnta=\@pos
+      \advance\@tempcnta by -1
+      \whiledo{\@tempcnta>0}{\TVnl \null \advance\@tempcnta by -1}%
+      \global\advance\@pos by 1
+      \global\advance\@pos by #1
+     }%
+     {\ifthenelse{\equal{#3}{>}}%
+     {\makebox[\@tempdimc]{\ensuremath{#2}}%
+      \@tempcnta=#1
+      \whiledo{\@tempcnta>0}{\TVnl \null \advance\@tempcnta by -1}%
+      \TVnl
+      \makebox[\@tempdimc]{\ensuremath{#4}}%
+      \@tempcnta=\@pos
+      \advance\@tempcnta by -2
+      \advance\@tempcnta by -#1
+      \whiledo{\@tempcnta>0}{\TVnl \null \advance\@tempcnta by -1}%
+      \global\advance\@pos by -1
+      \global\advance\@pos by -#1
+     }%
+     {\PackageError{tabvar.sty}%
+        {Le second argument de \protect\discont\space doit \^etre
+         \MessageBreak soit '<' soit '>'}}%
+     }%
+}
+\newcommand{\TVarraystretch}{1.5}
+\setlength{\TVarraycolsep}{1pt}
+\newenvironment{tabvar}[1]
+  {\renewcommand{\arraystretch}{\TVarraystretch}%
+   \setlength{\arraycolsep}{\TVarraycolsep}%
+   \global\@niveaux=1 \global\@pos=1 \global\@soclefalse
+   \def\TVtabularnewline{\reset@niveauxtrue\tabularnewline}%
+   \begin{array}{#1}}
+  {\end{array}}
+\InputIfFileExists{tabvar.cfg}
+   {\typeout{loading tabvar.cfg}}
+   {\typeout{tabvar.cfg not found, using default values}}
+\endinput
+%%
+%% End of file `tabvar.sty'.

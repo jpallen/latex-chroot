@@ -1,0 +1,168 @@
+%% file: thesis.txs  - TeXsis version 2.18
+%% @(#) $Id: thesis.txs,v 18.1 2001/04/06 22:23:29 myers Exp $
+%======================================================================*
+% \thesis       Thesis format, including title page, table
+%               of contents, binding margins, etc. 
+%
+% The original version of \thesis was based on the Yale Graduate
+% school standards, but of course every place is different.
+% Therefore we have here \YaleThesis and \UTthesis as two variations.
+% You can start with either one and modify it to suit your needs, or
+% start from scratch and create your own.
+%
+% If you write a \thesis macro for your institution and want to share
+% it with others, please e-mail it to texsis@texsis.org and we will
+% put it on the ftp server.
+%
+
+\ATunlock               % make sure @ is a letter here
+
+%======================================================================*
+% \UTthesis  complies with the UT Graduate School requirements for
+% a thesis, including putting the page number up in the text on the
+% first page of a chapter.  To do this we create a new insert, called
+% \folioins, and redefine part of Plain TeX's \output routines
+% to include this insert.  Then we also put a \mark on the page 
+% to suppress the page numbering in the headline.  I know it's
+% complicated, but it does what UT wants.               -EAM
+
+\newinsert\folioins                     % insert for page numbers
+\skip\folioins=1cm                      % size of page number insert
+\count\folioins=1000                    % magnification factor (1 to 1)
+\dimen\folioins=8in                     % maximum insert per page
+
+
+\def\UTthesis{%
+   \emsg{[Thesis format for University of Texas at Austin, 1989]}%
+   \texsis                              % initialize TeXsis basics
+   \hoffset=0.55in                      % for binding margin 1.5in
+   \hsize=5.65in                        % gives 1.25in right margin
+   \voffset=0.55in                      % makes 1.5in top margin
+   \vsize=8.2in                         % makes 1.25in bottom margin
+   \headlineoffset=-1.5pt               % move page numbers DOWN from normal 
+   \RunningHeadsfalse                   % UT does not want running heads
+%
+   \ContentsSwitchtrue                  % be sure to make a Table of Contents
+   \def\Tbf{\sixteenpoint\bf}%          % Chapter Titles in 16pt bold
+   \def\tbf{\twelvepoint\bf}%           % Section titles in 12pt bold
+   \twelvepoint                         % 12pt type for the text
+   \doublespaced                        % double spacing
+   \autoparens                          % auto-sizing of parens ON
+   \quoteon                             % auto quote matching   ON
+%     
+   \def\titlepage{%                     % \book title page
+      \begingroup                       % any changes local
+       \pageno=-1                       % start on page i
+       \let\endmode=\relax              % \endmode will end a field
+       \def\FootText{\relax}}%          %  no number on title page
+   \def\endtitlepage{%                  % end title page for \book
+       \endmode                         % end any open field
+       \vfil\eject                      % end title page
+      \endgroup                         % close group from \titlepage
+      \pageno=1}%                       % reset page number to 1
+%     
+   \def\abstract{%                      % no "ABSTRACT" title
+      \bigskip\bigskip\medskip          % skip down some
+      \bgroup\doublespaced\narrower\narrower
+   }
+
+% -- \chapter puts the page number in a \folioins insert
+
+\def\afterchapter{\SpecialPage}
+
+\def\SpecialPage{\ifnum\pageno>0
+    \@Mark{\ChapterTitle}% mark on the page inhibits page # headline
+    \insert\folioins{\insertfolio}\fi}  % insert below text
+
+% to get the page number up in the text area on the first page
+% of refereces do \SpecialPage\ListReferences
+
+
+\def\@insertfolio{\line{\hfill-- \folio\ --\hfill}%
+      \gdef\insertfolio{\relax}}  % THERE CAN BE ONLY ONE!
+
+\def\insertfolio{\@insertfolio}         % turn it ON for starters
+
+% -- only display page number in headline if positive, footline if negative
+
+\def\PageNumber{\ifnum\pageno<0\else \folio \fi}
+
+\def\FootLine{\ifnum\pageno<0 \line{\hss -- \folio\ -- \hss}\fi}
+\footline={\FootLine}                         %
+
+% -- re-define \pagecontents from plain to get \folioins if not void
+
+\def\pagecontents{%
+  \ifvoid\topins\else\unvbox\topins\fi
+  \dimen@=\dp\@cclv \unvbox\@cclv % open up \box255
+  \ifvoid\footins\else % footnote info is present
+    \vskip\skip\footins
+    \footnoterule
+    \unvbox\footins\fi
+  \ifvoid\folioins\else % page number insert is present
+    \vskip\skip\folioins
+    \unvbox\folioins\fi
+  \gdef\insertfolio{\@insertfolio} % re-enable for next page
+  \ifr@ggedbottom \kern-\dimen@ \vfil \fi}
+
+% -- Note: to get the page number raised into the text area for the
+%    front pages (roman numeral / negative numbers) you
+%    will have to say \FrontPages to change the page layout.
+%    Remember, front pages are actually printed AFTER the document.
+
+\def\FrontPages{\headline={}%                   % no headlines
+    \advance\vsize by -\skip\folioins
+    \advance\vsize by -10pt
+    \footline={\line{\hss -- \folio\ -- \hss}}} % page number at bottom
+
+}% end of \UTthesis
+     
+
+%--------------------------------------------------*
+% \YaleThesis defines a format acceptable for the Yale Graduate School
+% (at the time I wrote my thesis, in 1984, so be careful!  -EAM). 
+     
+\def\YaleThesis{% document layout for a Thesis or Dissertation
+   \emsg{[Thesis format for Yale Graduate School, 1984]}%
+   \texsis                              % initialize TeXsis basics
+   \ContentsSwitchtrue                  % contents page ON
+   \refswitchtrue                       % save references
+   \auxswitchtrue                       % .AUX file for forward references
+   \hsize=6.0in                         % gives 1in right margin
+   \hoffset=0.5in                       % for binding margin 1.5in
+   \voffset=0.25in                      % move text down a bit
+   \headlineoffset=0.20in               % move headline up (Yale Grad school)
+   \RunningHeadstrue                    % running headlines
+   \def\titlepage{%                     % \thesis title page
+      \bgroup                           % open \titlepage group
+      \pageno=-1                        % start on page i
+      \let\endmode=\relax               % \endmode will end a field
+      \def\FootText{\relax}}%           %  no number on title page
+   \def\endtitlepage{%                  % \thesis end title page
+      \endmode                          % end any open field
+      \vfil\eject                       % end title page
+      \egroup%                          % close \titlepage group
+      \pageno=1}%                       % reset page number
+   \def\abstract{%                      % \thesis abstract
+      \endmode                          % end previous field
+      \bigskip\bigskip\medskip          % skip down some
+      \bgroup                           % abstract has same spacing
+         \let\endmode=\endabstract      % to end \abstract
+         \narrower\narrower}%           %
+   \def\endabstract{%                   % \thesis end abstract
+      \medskip\egroup\bigskip}%         %
+   \def\FootText{--\ \tenrm\folio\ --}% % for 1st page of chapter
+   \def\Tbf{\sixteenpoint\bf}%          % Chapter Titles in 16pt bold
+   \def\tbf{\twelvepoint\bf}%           % Section titles in 12pt bold
+   \elevenpoint                         % 11pt type for most of doc
+   \doublespaced                        % double spacing
+   \autoparens                          % auto-sizing of parens
+   \quoteon                             % auto quote matching
+   \def\FrontPages{\relax}%             % no such thing at Yale
+   }                                    %
+     
+\ATlock                                 % @ goes back to \other
+
+\let\thesis=\YaleThesis
+
+%>>> EOF thesis.txs <<<

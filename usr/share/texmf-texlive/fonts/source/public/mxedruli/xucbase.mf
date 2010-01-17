@@ -1,0 +1,122 @@
+% Xucuri Base File `xucbase.mf'
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Designed and (c) by Johannes Heinecke                                     %
+%                     Humboldt-Universit"at zu Berlin                       %
+%                     Philosophische Faskult"at II                          %
+%                     Institut f"ur deutsche Sprache und Linguistik         %
+%                     Computerlinguistik                                    %
+%                     J"agerstr. 10/11                                      %
+%                     D - 10099 Berlin                                      %
+%                     <heinecke@compling.hu-berlin.de>                      %
+% Please send any improvements, corrections, suggestions, enhancements etc  %
+% to the Author!                                                            %
+%                                                                           %
+% Version 0.3 as of 17th July 1998                                          %
+%                                                                           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+xucbase:=1;         % Es soll nur einmal geladen werden.
+
+newinternal slant;
+
+def font_xuc_setup =        % Eigenes Macro
+  define_pixels(mxu, mxlittle, mxhalf, mxone, mxheight, mxthird,
+                mxmiddle, mxtop, mxfeet, mxlow, mxzw,
+                mxseriffoot,
+                xuclu, xucllittle, xuclhalf, xuclone, xuclheight, xuclthird,
+                xuclmiddle, xucltop, xuclfeet, xucllow, xuclzw,
+                xuclseriffoot);
+
+  define_blacker_pixels(px1, py1, dpx1, dpy1, px2, py2, pdot, 
+               pdash, pcomma, mxserifonset);
+
+  % used by Xucuri majuscules
+  pickup pensquare xscaled px1 yscaled py1 rotated 0;
+  xuc_pen:=savepen;
+
+  % used by Xucuri minuscules main strokes
+  pickup penrazor xscaled px2 rotated 10;
+  xuc_penl:=savepen;
+
+  % used by Xucuri minuscules secondary
+  pickup penrazor xscaled px2 rotated 1;
+  xuc_penlx:=savepen;
+
+  % used by Xucuri arabesques
+  pickup pencircle xscaled px2 yscaled py2 rotated 10;
+  xuc_penb:=savepen;
+
+  pickup penrazor xscaled px2 rotated 30;
+  xuc_penlr:=savepen;
+
+  pickup pencircle xscaled dpx1 yscaled dpy1 rotated 90; % rotated -10; 
+  xuc_digitpen:=savepen;     % Pen for digits
+
+  pickup pencircle xscaled dpx1 yscaled dpy1; % rotated -10; 
+  xuc_punctpen:=savepen;     % Pen for punctuation
+
+  pickup pencircle scaled pdot;
+  xuc_dot:=savepen;          % Pen for dots
+
+  pickup pencircle scaled pdash;
+  xuc_dash:=savepen;         % Pen for lines
+
+  pickup pencircle scaled pcomma;
+  xuc_pcomma:=savepen;         % Pen for Commas
+
+  pickup pensquare scaled pdash;
+  xuc_square:=savepen;
+
+
+  currenttransform:=identity slanted slant yscaled aspect_ratio;
+enddef;
+
+if known cmbase:  % Boxen f"uer den Proofmode (mit CM-Base)
+ def makebox(text rule) =
+  for y=0,h,mxlittle,-d,mxthird:
+    rule((0,y)t_,(r,y)t_); endfor % horizontals
+  for x=0,r,r-mxzw,mxhalf,mxone:
+    rule((x,-d)t_,(x,h)t_); endfor % verticals
+ % for x=u*(1+floor(l/u)) step u until r-1:
+ %  rule((x,-body_depth)t_,(x,body_height)t_); endfor % more verticals
+ % if charic<>0:
+ %  rule((r+charic*pt,h.o_),(r+charic*pt,.5h.o_)); fi % italic correction
+  enddef;
+
+else:  % Boxen f"uer den Proofmode
+ def makebox(text r) =
+   % horizontal lines on y-values:
+   % 0, char-height, char-depth, mxlittle, ...
+   for y=0, xucllittle, xuclheight, -xucllow:
+        r((0,y),(w-mxzw,y)); endfor 
+   r((0, h.o_),(w, h.o_)); % Bounding Box top
+   r((0, -d.o_),(w, -d.o_)); % Bounding Box bottom
+   r((0, h.o_-2),(w, h.o_-2)); % Bounding Box top
+   r((0, -d.o_+2),(w, -d.o_+2)); % Bounding Box bottom
+
+   % vertical lines on x-values:
+   for x=0 step mxhalf until w-mxzw:  r((x,h.o_),(x, -d.o_)); endfor 
+   r((w,-d.o_),(w,h.o_)); % Bounding Box right
+   r((0,-d.o_),(0,h.o_)); % Bounding Box left
+   r((w-2,-d.o_),(w-2,h.o_)); % Bounding Box right
+   r((2,-d.o_),(2,h.o_)); % Bounding Box left
+%   if charic<>0: r((w+charic*hppp,h.o_),(w+charic*hppp,.5h.o_)); fi
+ enddef;
+
+%% def makebox(text r) =
+%%   % horizontal lines on y-values:
+%%   % 0, char-height, char-depth, mxlittle, ...
+%%   for y=0, % h.o_,-d.o_
+%%        xmxthird ,xmxlittle, xmxmiddle, xmxheight,-xmxlow: 
+%%        r((0,y),(w,y)); endfor 
+%%   % vertical lines on x-values:
+%%   % 0, char-width, char-width - mxzw
+%%   % for x=0 step xmxhalf until w-mxzw+1:  r((x,-xmxlow),(x,xmxheight)); endfor 
+%%   for x=0 step xmxone/3 until w-mxzw+1:  r((x,-xmxlow),(x,xmxheight)); endfor 
+%%   r((w,-xmxlow),(w,xmxheight))
+%%   if charic<>0: r((w+charic*hppp,h.o_),(w+charic*hppp,.5h.o_)); fi
+%% enddef;
+fi
+
+endinput;

@@ -1,0 +1,124 @@
+%%
+%% This is file `l3chk.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% l3chk.dtx  (with options: `package,trace')
+%% 
+%% 
+%% EXPERIMENTAL CODE
+%% 
+%% Do not distribute this file without also distributing the
+%% source files specified above.
+%% 
+%% Do not distribute a modified version of this file.
+%% 
+%% 
+%% File: l3chk.dtx Copyright (C) 1990-1998 LaTeX3 project
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{l3chk}
+          [1998/04/20 v1.0e L3 Experimental check module]
+\RequirePackage{l3basics}
+\RequirePackage{l3int}
+\def_new:Npn \chk_local:N #1{\exp_after:NN
+                           \chk_local_aux:w \token_to_string:N#1\q_stop}
+\def_new:Npn \chk_local_aux:w #1#2#3\q_stop{
+   \if_num:w\tex_uccode:D`#2=`G\scan_stop:
+       \err_latex_bug:n{Local~mismatch:~local~function~called~with~
+                     global~variable:^^J\text_put_four_sp: #1#2#3~
+                     on~line~\tex_the:D\tex_inputlineno:D}
+   \else:
+     \if_num:w\tex_uccode:D`#2=`L\scan_stop:
+     \else:
+       \err_latex_bug:n{Variable~mismatch:~function~not~called~with~
+                     proper~variable:^^J\text_put_four_sp: #1#2#3~
+                     on~line~\tex_the:D\tex_inputlineno:D}\fi:
+   \fi:}
+\tex_newlinechar:D=`\^^J
+\def_new:Npn \chk_global:N #1{\exp_after:NN
+                           \chk_global_aux:w \token_to_string:N#1\q_stop}
+\def_new:Npn \chk_global_aux:w #1#2#3\q_stop{
+   \if_num:w\tex_uccode:D`#2=`L\scan_stop:
+       \err_latex_bug:n{Global~mismatch:~global~function~called~with~
+                   local~variable:~#1#2#3~
+                   on~line~\tex_the:D\tex_inputlineno:D}
+   \else:
+     \if_num:w\tex_uccode:D`#2=`G\scan_stop:
+     \else:
+       \err_latex_bug:n{Variable~mismatch:~function~not~called~with~
+                     proper~variable:~#1#2#3~
+                     on~line~\tex_the:D\tex_inputlineno:D}\fi:\fi:}
+\def_new:Npn \pref_global_chk: {
+    \gdef:Npn \chk_local_or_pref_global:N ##1{
+          \chk_global:N ##1
+          \glet:NN \chk_local_or_pref_global:N \chk_local:N}
+    \pref_global:D}
+\let_new:NN \chk_local_or_pref_global:N \chk_local:N
+\def_new:Npn \chk_var_or_const:N #1{\exp_after:NN
+     \chk_var_or_const_aux:w \token_to_string:N#1\q_stop }
+\def_new:Npn \chk_var_or_const_aux:w #1#2#3\q_stop {
+    \if_num:w\tex_uccode:D`#2=`L\scan_stop:
+    \else:
+      \if_num:w\tex_uccode:D`#2=`G\scan_stop:
+      \else:
+        \if_num:w\tex_uccode:D`#2=`C\scan_stop:
+        \else:
+          \if_char_code:w#2q\scan_stop:
+          \else:
+           \err_latex_bug:n{Variable~mismatch:~function~not~called~with~
+                       proper~variable:^^J\text_put_four_sp: #1#2#3~
+                       on~line~\tex_the:D\tex_inputlineno:D}\fi:\fi:\fi:
+    \fi:}
+\def_new:Npn\donotcheck{
+  \let:NN \chk_global:N \use_none:n
+  \let:NN \chk_local:N \use_none:n
+  \let:NN \chk_local_or_pref_global:N \use_none:n
+  \let:NN \pref_global_chk: \pref_global:D
+  \let:NN \chk_new_cs:N \use_none:n
+  \let:NN \chk_exist_cs:N \use_none:n
+  \let:NN \chk_var_or_const:N \use_none:n
+  \let:NN \cs_record_name:N \use_none:n
+  \let:NN \cs_record_name:c \use_none:n
+  \let:NN \cs_record_meaning:N \use_none:n
+  \let:NN \register_record_name:N \use_none:n
+}
+\def_new:Npn\absolutelytracingall{
+  \pref_global:D\g_trace_commands_status\c_two
+  \pref_global:D\g_trace_statistics_status\c_two
+  \pref_global:D\g_trace_pages_status\c_one
+  \pref_global:D\g_trace_output_status\c_one
+  \pref_global:D\g_trace_chars_status\c_one
+  \pref_global:D\g_trace_macros_status\c_two
+  \pref_global:D\g_trace_paragraphs_status\c_one
+  \pref_global:D\g_trace_restores_status\c_one
+  \pref_global:D\g_trace_box_breadth_int\c_ten_thousand
+  \pref_global:D\g_trace_box_depth_int\c_ten_thousand
+  \pref_global:D\g_trace_online_status\c_one
+  \mode_errorstop:D}
+\def_new:Npn\tracingoff{
+  \pref_global:D\g_trace_online_status\c_zero
+  \pref_global:D\g_trace_commands_status\c_zero
+  \pref_global:D\g_trace_statistics_status\c_zero
+  \pref_global:D\g_trace_pages_status\c_zero
+  \pref_global:D\g_trace_output_status\c_zero
+  \pref_global:D\g_trace_chars_status\c_zero
+  \pref_global:D\g_trace_macros_status\c_zero
+  \pref_global:D\g_trace_paragraphs_status\c_zero
+  \pref_global:D\g_trace_restores_status\c_zero
+  \pref_global:D\g_trace_box_breadth_int\c_zero
+  \pref_global:D\g_trace_box_depth_int\c_zero
+}
+\def_new:Npn\traceon#1{\for_clist:Nnn\l_tmpa_tlp{#1}
+         {
+          \cs_free:cF{g_trace_\l_tmpa_tlp _status}
+            {\int_gincr:c{g_trace_\l_tmpa_tlp _status}}
+         }}
+\def_new:Npn\traceoff#1{\for_clist:Nnn\l_tmpa_tlp{#1}
+         {
+          \cs_free:cF{g_trace_\l_tmpa_tlp _status}
+            {\int_gdecr:c{g_trace_\l_tmpa_tlp _status}}
+         }}
+%% 
+%%
+%% End of file `l3chk.sty'.

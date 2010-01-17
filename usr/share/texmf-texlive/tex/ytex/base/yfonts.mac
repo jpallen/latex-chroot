@@ -1,0 +1,155 @@
+% Copyright (c) 1985, 1986 Daniel C. Brotsky.  All rights reserved.
+% Font macros for yTeX.  See the file YTEX.MAC for details.
+
+% CONTENTS
+
+% ^L-page       contents
+% ----------------------------------------------------------------------
+% 1             %% Font macros for YTEX
+% 2             %% typesize
+% 3             %% usersize
+% 4             %% initialization
+
+\message{typesize,}
+
+\newif\ifmagscaling
+\newif\ifexactsizes
+\newdimen\typesiz@
+\newtoks\baselinefactor
+
+\def\typesize {\afterassignment\typ@size\dimen@}
+\def\typ@siz@ {%
+  \let\typ@size=\siz@rr
+  \ymessage{{\string\typesize=\the\dimen@}}
+  \ifdim       10\p@=\dimen@ \tenp@int    \csname usersizeten\endcsname
+  \else \ifdim 11\p@=\dimen@ \elevenp@int \csname usersizeeleven\endcsname
+  \else \ifdim 12\p@=\dimen@ \twelvep@int \csname usersizetwelve\endcsname
+  \else \let\typ@size=\typ@siz@
+        \errhelp={Insert `\string\typesize=<dimen>'
+                  where <dimen> is 10pt, 11pt, or 12pt.}%
+        \errmessage{Unrecognized size (\the\dimen@) in \string\typesize.
+                    Try again.}\fi\fi\fi}
+\def\siz@rr {%
+  \errhelp={Just continue and I'll ignore the size switch.}%
+  \errmessage{You can't change sizes in the middle of a document.}%
+  \relax}
+\def\fixsiz@ {%
+  \ifx\typ@size\siz@rr
+    \else \global\let\typ@size=\siz@rr \global\let\fixsiz@=\relax
+          \errhelp={Too late now.  Just continue and I'll assume you want }%
+          \addtotoks\errhelp\expandafter{\the\typesiz@.}%
+          \errmessage{You never gave a \string\typesize\space command.}%
+    \fi}
+\let\typ@size=\typ@siz@
+
+\def\tenp@int {%
+  \typesiz@=10pt
+  \s@tten \mag=\magstep\z@}
+
+\def\elevenp@int {%
+  \typesiz@=11pt
+  \ifmagscaling
+    \s@tten \ifexactsizes \mag=1100 \else \mag=\magstephalf \fi
+  \else
+    \s@televen \mag=\magstep\z@
+  \fi}
+
+\def\twelvep@int {%
+  \typesiz@=12pt
+  \ifmagscaling
+    \s@tten \ifexactsizes \mag=1200 \else \mag=\magstep\@ne \fi
+  \else
+    \s@ttwelve \mag=\magstep\z@
+  \fi}
+
+\def\s@tten {%
+  \let\regsize=\tenpoint
+  \let\smlsize=\ninepoint
+  \let\smllsize=\eightpoint
+  \let\smlllsize=\eightpoint
+  \let\bigsize=\twelvepoint
+  \let\biggsize=\fourteenpoint
+  \let\bigggsize=\eighteenpoint
+  \regsize}
+
+\def\s@televen {%
+  \let\regsize=\elevenpoint
+  \let\smlsize=\tenpoint
+  \let\smllsize=\ninepoint
+  \let\smlllsize=\eightpoint
+  \let\bigsize=\twelvepoint
+  \let\biggsize=\fourteenpoint
+  \let\bigggsize=\eighteenpoint
+  \regsize}
+
+\def\s@ttwelve {%
+  \let\regsize=\twelvepoint
+  \let\smlsize=\tenpoint
+  \let\smllsize=\ninepoint
+  \let\smlllsize=\eightpoint
+  \let\bigsize=\fourteenpoint
+  \let\biggsize=\eighteenpoint
+  \let\bigggsize=\eighteenpoint
+  \regsize}
+
+\message{usersize,}
+
+% new def of \setnormalspa@cing that leaves displayskips alone
+\def\setnormalsp@cing{%  SIDE EFFECT is to go into \rm
+  \rm   % set the em properly
+  \normalbaselineskip=\the\baselinefactor em%
+  \normalbaselines}
+
+% user hook to \setnormalsp@cing
+\def\setnormalbaselines {\setnormalsp@cing}
+
+\def\normalbaselines{%
+  \lineskip\normallineskip
+  \baselineskip\normalbaselineskip
+  \lineskiplimit\normallineskiplimit
+  \setbox\strutbox=\hbox{\vrule height .7\baselineskip
+                                depth .3\baselineskip width\z@}}
+
+\def\usereighteenpointmacro {%
+  \let\smllrm=\twelverm
+  \let\smlrm=\fourteenrm\let\smlit=\fourteenit
+  \let\smlbf=\fourteenbf\let\smltt=\fourteentt}
+
+\def\userfourteenpointmacro {%
+  \let\smllrm=\tenrm
+  \let\smlrm=\twelverm\let\smlit=\twelveit
+  \let\smlbf=\twelvebf\let\smltt=\twelvett}
+
+\def\usertwelvepointmacro {%
+  \let\smllrm=\ninerm
+  \let\smlrm=\tenrm\let\smlit=\tenit
+  \let\smlbf=\tenbf\let\smltt=\eleventt}
+
+\def\userelevenpointmacro {%
+  \let\smllrm=\eightrm
+  \let\smlrm=\tenrm\let\smlit=\tenit
+  \let\smlbf=\tenbf\let\smltt=\tentt}
+
+\def\usertenpointmacro {%
+  \let\smllrm=\eightrm
+  \let\smlrm=\ninerm\let\smlit=\nineit
+  \let\smlbf=\ninebf\let\smltt=\ninett}
+
+\def\userninepointmacro {%
+  \let\smllrm=\sevenrm
+  \let\smlrm=\eightrm\let\smlit=\eightit
+  \let\smlbf=\eightbf\let\smltt=\eighttt}
+
+\def\usereightpointmacro {%
+  \let\smllrm=\sevenrm
+  \let\smlrm=\eightrm\let\smlit=\eightit
+  \let\smlbf=\eightbf\let\smltt=\eighttt}
+
+\message{initialization,}
+
+% parameters
+\magscalingtrue
+\baselinefactor={1.3}
+
+% default type size
+\tenp@int

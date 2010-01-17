@@ -1,0 +1,202 @@
+%% This file is part of the ANTOMEGA project version 0.7
+%% -----------------------------------------------------
+%% 
+%% It may be distributed under the terms of the LaTeX Project Public
+%% License, as described in lppl.txt in the base LaTeX distribution.
+%% Either version 1.0 or, at your option, any later version.
+%% Copyright (C) 2003 by Alexej Kryukov <basileia@yandex.ru>
+%% Information provided by Mariusz Wodzicki <wodzicki@Math.Berkeley.EDU>
+%%
+%% Please report errors to: A.M. Kryukov <basileia@yandex.ru>
+
+\makeatletter
+
+\LoadOCPByName{\PolishIsoUni}{isoce2uni}
+\LoadOCPByName{\PolishWinUni}{wince2uni}
+\LoadOCPByName{\PolishBabelUni}{babel2pl}
+
+\ocplist\PolishIsoOCP=
+   \addbeforeocplist 500 \PolishIsoUni
+\nullocplist
+
+\ocplist\PolishWinOCP=
+   \addbeforeocplist 500 \PolishWinUni
+\nullocplist
+
+\ocplist\PolishBabelOCP=
+   \addbeforeocplist 2000 \PolishBabelUni
+\nullocplist
+
+\ifx\l@polish\@undefined
+   \ant@nopatterns{polish}
+   \adddialect\l@polish0
+\fi
+
+% Test if Latin Extended-A lccodes/uccodes were loaded and
+% load them if necessary.
+\ifx\equal{\lccode"0100}{"0100}\else%
+   \InputIfFileExists{uni0100.def}{}%
+      {\ant@nocodes{Polish}{Unicode}{0100--01ff}}\fi
+
+\ifx\westernrm\undefined\let\westernrm=\rmdefault\fi
+\ifx\westernsf\undefined\let\westernsf=\sfdefault\fi
+\ifx\westerntt\undefined\let\westerntt=\ttdefault\fi
+
+\ifx\westernencoding\undefined\let\westernencoding=\uniencoding\fi
+
+\def\polish@font{\fontfamily{\westernrm}%
+   \fontencoding{\westernencoding}\selectfont%
+   \let\rmdefault=\westernrm%
+   \let\sfdefault=\westernsf%
+   \let\ttdefault=\westerntt%
+   \let\encodingdefault=\westernencoding}
+
+\def\tmp@uni{unicode}
+\def\tmp@omega{omega}
+\def\tmp@tex{tex}
+
+\def\tmp@ucs{ucs-2}
+\def\tmp@utf{utf-8}
+\def\tmp@iso{iso-8859-2}
+\def\tmp@win{cp1250}
+
+\def\eventualPlPunct{\protect\pushocplist\BasicTexOCP}
+\def\eventualPlShorthands{\protect\pushocplist\PolishBabelOCP}
+\def\eventualPlInput{\protect\pushocplist\BasicInputOCP}
+\def\eventualPlAccents{\protect\pushocplist\BasicAccentsOCP}
+
+\ifx\eventualEuOutput\undefined
+   \def\eventualEuOutput{\protect\pushocplist\LatinUniOutOCP%
+   }
+\fi
+
+\def\polish@OCP{\protect\clearocplists%
+   \eventualPlInput%
+   \eventualPlPunct%
+   \eventualPlShorthands%
+   \eventualPlAccents%
+   \eventualEuOutput}
+
+\define@key{polish}{input}[ucs-2]{%
+   \def\@tmpa{#1}
+   \ifx\@tmpa\tmp@iso\def\eventualPlInput{%
+      \protect\pushocplist\PolishIsoOCP}
+      \typeout{Option: Polish input encoding=iso-8859-2}
+   \else\ifx\@tmpa\tmp@win\def\eventualPlInput{%
+      \protect\pushocplist\PolishWinOCP}
+      \typeout{Option: Polish input encoding=windows-1250}
+   \else\ifx\@tmpa\tmp@utf\def\eventualPlInput{%
+      \protect\pushocplist\BasicInputUtfOCP}
+      \typeout{Option: Polish input encoding=utf-8}
+   \else\def\eventualPlInput{%
+      \protect\pushocplist\BasicInputUcsOCP}
+      \typeout{Option: Polish input encoding=ucs-2}
+   \fi\fi\fi}
+
+\define@key{polish}{shorthands}[on]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\opt@enabled\def\eventualPlShorthands{%
+      \protect\pushocplist\PolishBabelOCP}%
+      \typeout{Option: Shorthands for Polish text enabled}%
+   \else\def\eventualPlShorthands{}%
+      \typeout{Option: Shorthands for Polish text disabled}%
+   \fi}
+
+\define@key{polish}{output}[unicode]{%
+   \def\@tmpa{#1}%
+   \ifx\@tmpa\tmp@tex\def\eventualEuOutput{%
+      \protect\pushocplist\LatinTexOutOCP}%
+      \def\westernencoding{T1}%
+   \else\ifx\@tmpa\tmp@omega\def\eventualEuOutput{%
+      \protect\pushocplist\LatinOmegaOutOCP}%
+      \def\westernencoding{UT1}%
+   \else\def\eventualEuOutput{%
+      \protect\pushocplist\LatinUniOutOCP}%
+      \def\westernencoding{UT1}%
+   \fi\fi}
+
+\def\polish@punctuation{%
+   \frenchspacing%
+}
+
+\def\nopolish@punctuation{%
+   \nonfrenchspacing%
+}
+
+\def\polish@letters{%
+   \def\Aob{^^^^0104}%
+   \def\aob{^^^^0105}%
+   \def\Eob{^^^^0118}%
+   \def\eob{^^^^0119}%
+   \def\Lpb{^^^^0141}%
+   \def\lpb{^^^^0142}%
+   \def\Zkb{^^^^017b}%
+   \def\zkb{^^^^017c}%
+}
+
+\def\nopolish@letters{%
+   \let\Aob\@undefined%
+   \let\aob\@undefined%
+   \let\Eob\@undefined%
+   \let\eob\@undefined%
+   \let\Lpb\@undefined%
+   \let\lpb\@undefined%
+   \let\Zkb\@undefined%
+   \let\zkb\@undefined%
+}
+
+\def\polish@captions{%
+   \def\prefacename{\localpolish{Przedmowa}}%
+   \def\refname{\localpolish{Literatura}}%
+   \def\abstractname{\localpolish{Streszczenie}}%
+   \def\bibname{\localpolish{Bibliografia}}%
+   \def\chaptername{\localpolish{Rozdzia^^^^00aa}}%
+   \def\appendixname{\localpolish{Dodatek}}%
+   \def\contentsname{\localpolish{Spis tre^^^^00b1ci}}%
+   \def\listfigurename{\localpolish{Spis rysunk^^^^00adw}}%
+   \def\listtablename{\localpolish{Spis tablic}}%
+   \def\indexname{\localpolish{Indeks}}%
+   \def\figurename{\localpolish{Rysunek}}%
+   \def\tablename{\localpolish{Tablica}}%
+   \def\partname{\localpolish{Cz^^^^00a6^^^^00b1^^^^00a2}}%
+   \def\enclname{\localpolish{Za^^^^00aa^^^^00a1cznik}}%
+   \def\ccname{\localpolish{Kopie:}}%
+   \def\headtoname{\localpolish{Do}}%
+   \def\pagename{\localpolish{Strona}}%
+   \def\seename{\localpolish{Por^^^^00adwnaj}}%
+   \def\alsoname{\localpolish{Por^^^^00adwnaj tak^^^^00bbe}}%
+   \def\proofname{\localpolish{Dow^^^^00dd}}%
+   \def\today{\localpolish{\ifcase\month\or%
+      stycznia\or lutego\or marca\or kwietnia\or maja\or czerwca\or%
+      lipca\or sierpnia\or wrze^^^^00b1nia\or pa^^^^00b9dziernika\or%
+      listopada\or grudnia\fi%
+      \space\number\day, \number\year}}}
+
+\def\polish@language{\protect\language=\l@polish}
+
+\def\noextras@polish{%
+   \nopolish@punctuation%
+   \nopolish@letters%
+}
+
+\def\blockextras@polish{%
+   \polish@language%
+   \local@hyphenmins{polish}{2}{2}%
+   \polish@punctuation%
+   \polish@letters%
+   \polish@captions%
+   \local@marks{polish}%
+   \polish@OCP%
+   \polish@font%
+}
+
+\def\inlineextras@polish{%
+   \polish@language%
+   \local@hyphenmins{polish}{2}{2}%
+   \polish@punctuation%
+   \polish@letters%
+   \polish@OCP%
+   \polish@font%
+}
+
+\endinput

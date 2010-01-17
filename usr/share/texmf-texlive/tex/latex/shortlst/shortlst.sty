@@ -1,0 +1,133 @@
+%%
+%% This is file `shortlst.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% shortlst.dtx  (with options: `package')
+%%    The shortlst Package
+%%    Copyright 1998 by Mogens Lemvig Hansen
+%%    mlhansen@uniserve.com
+
+%%      You may use this software.
+%%      You may copy this software and the documentation for your own use.
+%%      You may distribute the file \texttt{shortlst.dtx} to others provided
+%%      you do not make a profit doing so.
+%%      You may modify my code and the documentation---including incorporating
+%%      it into your own work---provided you do not make a profit on my work
+%%      or allow others to.
+\NeedsTeXFormat{LaTeX2e}[1997/12/01]
+\ProvidesPackage{shortlst}
+         [1998/11/27 version 1.1]
+\newlength\runitemsep
+\setlength\runitemsep{1em plus .5em minus .5em}
+\newenvironment{runitemize}{%
+   \ifnum \@itemdepth >\thr@@\@toodeep\else
+   \advance\@itemdepth\@ne
+   \edef\@itemitem{labelitem\romannumeral\the\@itemdepth}%
+   \def\@itemlabel{\csname\@itemitem\endcsname}%
+   \let\@item\run@item
+   \let\par\relax
+   \ignorespaces\fi}
+   {\unskip\hspace\runitemsep\ignorespacesafterend}
+\newenvironment{runenumerate}{%
+   \ifnum \@enumdepth >\thr@@\@toodeep\else
+   \advance\@enumdepth\@ne
+   \edef\@enumctr{enum\romannumeral\the\@enumdepth}%
+   \usecounter{\@enumctr}%
+   \def\@itemlabel{\csname label\@enumctr \endcsname}%
+   \let\@item\run@item
+   \let\par\@empty
+   \ignorespaces\fi}
+   {\unskip\hspace\runitemsep\ignorespacesafterend}
+\def\run@item[#1]{%
+   \ifhmode\unskip\hspace\runitemsep\else\leavevmode\fi
+   \if@noitemarg
+      \@noitemargfalse
+      \if@nmbrlist\refstepcounter{\@listctr}\fi
+   \fi
+   \mbox{#1}\kern\labelsep\ignorespaces}
+\newlength\shortitemwidth
+\setlength\shortitemwidth{65pt}
+\newenvironment{shortitemize}[1][\hbox to \shortitemwidth{\hfil}]{%
+   \ifnum \@itemdepth >\thr@@\@toodeep\let\endsh@rtitem\relax\else
+   \ifx\item\sh@rtitem\sh@rtnesterr\let\endsh@rtitem\relax\else
+   \advance\@itemdepth\@ne
+   \edef\@itemitem{labelitem\romannumeral\the\@itemdepth}%
+   \settowidth\shortitemwidth{#1}%
+   \list{}{\addtolength\leftmargin\itemindent
+           \addtolength\leftmargin{-\labelwidth}%
+           \addtolength\leftmargin{-\labelsep}%
+           \setlength\itemindent\z@}%
+   \item\relax
+   \@rightskip\@flushglue \rightskip\@rightskip
+   \let\endsh@rtitem\noindent
+   \let\item\sh@rtitem
+   \def\@itemlabel{\csname\@itemitem\endcsname}%
+   \fi\fi\ignorespaces}%
+   {\endsh@rtitem\endlist}
+\newenvironment{shortenumerate}[1][\hbox to \shortitemwidth{\hfil}]{%
+   \ifnum \@enumdepth >\thr@@\@toodeep\let\endsh@rtitem\relax\else
+   \ifx\item\sh@rtitem\sh@rtnesterr\let\endsh@rtitem\relax\else
+   \advance\@enumdepth\@ne
+   \edef\@enumctr{enum\romannumeral\the\@enumdepth}%
+   \settowidth\shortitemwidth{#1}%
+   \list{}{\addtolength\leftmargin\itemindent
+           \addtolength\leftmargin{-\labelwidth}%
+           \addtolength\leftmargin{-\labelsep}%
+           \setlength\itemindent\z@}%
+   \item\relax
+   \@rightskip\@flushglue \rightskip\@rightskip
+   \let\endsh@rtitem\noindent
+   \let\item\sh@rtitem
+   \usecounter{\@enumctr}%
+   \def\@itemlabel{\csname label\@enumctr \endcsname}%
+   \fi\fi\ignorespaces}%
+   {\endsh@rtitem\endlist}
+\ifx\TX@ftn\undefined
+   \newtoks\TX@ftn
+   \long\def\TX@ftntext#1{%
+     \edef\@tempa{\the\TX@ftn\noexpand\footnotetext
+                       [\the\csname c@\@mpfn\endcsname]}%
+     \global\TX@ftn\expandafter{\@tempa{#1}}}%
+   \long\def\TX@xftntext[#1]#2{%
+     \global\TX@ftn\expandafter{\the\TX@ftn\footnotetext[#1]{#2}}}
+\fi
+\def\sh@rtitem{%
+  \endsh@rtitem
+  \@inmatherr\item
+  \@ifnextchar [\sh@rt@item{\@noitemargtrue \sh@rt@item[\@itemlabel]}}
+\def\sh@rt@item[#1]{%
+   \def\endsh@rtitem{\endlrbox\endgroup%
+      \setlength\@tempdima{\wd\@tempboxa}%
+      \addtolength\@tempdima\labelsep
+      \setlength\@tempdimb\shortitemwidth
+      \addtolength\@tempdimb{2\labelsep}%
+      \addtolength\@tempdimb{\labelwidth}%
+      \addtolength\@tempdima{-1sp}% subtract a Very Small Length
+      \divide\@tempdima by \@tempdimb%
+      \addtolength\@tempdima{1sp}%  add one
+      \multiply\@tempdimb by \@tempdima%
+      \addtolength\@tempdimb{-\wd\@tempboxa}%
+      \usebox\@tempboxa
+      \global\TX@ftn\expandafter{\expandafter}\the\TX@ftn
+      \hspace\@tempdimb}%
+   \if@noitemarg
+      \@noitemargfalse
+      \if@nmbrlist\refstepcounter{\@listctr}\fi
+   \fi
+   \settowidth\@tempdima{#1}%
+   \ifdim\@tempdima>\labelwidth\PackageWarning{shortlst}%
+      {label too wide
+       (set \string\labelwidth\space to at least \the\@tempdima)}%
+   \fi
+   \begingroup\lrbox{\@tempboxa}%
+      \let\@footnotetext\TX@ftntext\let\@xfootnotenext\TX@xftntext
+      \makebox[\labelwidth][r]{#1}%
+      \hspace{\labelsep}\ignorespaces}
+\newcommand{\sh@rtnesterr}{\PackageError{shortlst}
+   {nested short-lists}
+   {don't nest short-list environments within each other}}
+\endinput
+%%
+%% End of file `shortlst.sty'.

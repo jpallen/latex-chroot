@@ -1,0 +1,222 @@
+%%
+%% This is file `fontspec-doc-style.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% fontspec.dtx  (with options: `doc-style')
+%% 
+%%   ________________________________
+%%   The fontspec package for XeLaTeX
+%%   (C) 2004--2006    Will Robertson
+%% 
+%%   License information appended.
+%% 
+\ProvidesPackage{fontspec-doc-style}
+
+\RequirePackage{booktabs,calc,color,enumitem,euler,fancyvrb,fontspec,
+            graphicx,ifthen,ifxetex,url,varioref,xltxtra,xunicode}
+
+%% Titlepage
+\renewcommand\maketitle{%
+  \begin{titlepage}%
+  \null\vfil
+  \vskip 60\p@
+  \begin{center}%
+    {\LARGE \@title \par}%
+    \vskip 3em%
+    {\large
+     \lineskip .75em%
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+      \vskip 1.5em%
+    {\large \@date \par}%
+  \end{center}\par
+  \vfil\null
+  \end{titlepage}%
+  \setcounter{footnote}{0}%
+  \global\let\thanks\relax
+  \global\let\maketitle\relax
+  \global\let\@thanks\@empty
+  \global\let\@author\@empty
+  \global\let\@date\@empty
+  \global\let\@title\@empty
+  \global\let\title\relax
+  \global\let\author\relax
+  \global\let\date\relax
+  \global\let\and\relax}
+
+%% ToC
+\def\@dotsep{1000}
+\setcounter{tocdepth}{2}
+\setlength\columnseprule{0.4pt}
+\renewcommand\tableofcontents{%
+  \begin{multicols}{2}[\section*{\contentsname}]%
+    \small
+    \@starttoc{toc}%
+  \end{multicols}}
+
+%% Index
+\renewenvironment{theglossary}
+  {\small\list{}{}
+     \item\relax
+     \glossary@prologue\GlossaryParms
+     \let\item\@idxitem \ignorespaces
+     \def\pfill{\hspace*{\fill}}}
+  {\endlist}
+
+%% varioref definitions:
+\labelformat{table}{Table~#1}
+\labelformat{section}{Section~#1}
+\labelformat{subsection}{Section~#1}
+
+%% verbatim examples:
+\newlength\examplewidth\newlength\verbatimwidth
+\newlength\exoutdent   \newlength\exverbgap
+\setlength\exverbgap{1em}
+\setlength\exoutdent{-0.15\textwidth}
+\newsavebox\verbatimbox
+\edef\examplefilename{\jobname.example}
+
+\newenvironment{example}
+  {\VerbatimEnvironment
+   \begingroup
+   \begin{VerbatimOut}[gobble=4]{\examplefilename}}
+  {\end{VerbatimOut}
+   \defaultfontfeatures{Mapping=tex-text,Colour=228833}%
+   \typesetexample
+   \endgroup}
+\newenvironment{aatexample}
+  {\VerbatimEnvironment
+   \begingroup
+   \begin{VerbatimOut}[gobble=4]{\examplefilename}}
+  {\end{VerbatimOut}
+   \defaultfontfeatures{Mapping=tex-text,Colour=005599}%
+   \typesetexample
+   \endgroup}
+\newenvironment{opentypeexample}
+  {\VerbatimEnvironment
+   \begingroup
+   \begin{VerbatimOut}[gobble=4]{\examplefilename}}
+  {\end{VerbatimOut}
+   \defaultfontfeatures{Mapping=tex-text,Colour=AA0000}%
+   \typesetexample
+   \endgroup}
+
+\newcommand\typesetexample{%
+   \begin{lrbox}{\verbatimbox}%
+     \BVerbatimInput[fontsize=\small,firstline=\firstline,lastline=\lastline]{\examplefilename}\relax
+   \end{lrbox}
+   \begin{list}{}{\setlength\itemindent{0pt}
+                  \setlength\leftmargin\exoutdent
+                  \setlength\rightmargin{0pt}}\item
+   \ifx\auxwidth\relax
+     \setlength\verbatimwidth{\wd\verbatimbox}%
+   \else
+     \setlength\verbatimwidth{\auxwidth}%
+     \let\auxwidth\relax
+   \fi
+   \begin{minipage}[c]{\textwidth-\exoutdent-\verbatimwidth-\exverbgap}
+     \catcode`\%=14\centering\examplesize\input\examplefilename\relax
+   \end{minipage}\hfill
+   \begin{minipage}[c]{\verbatimwidth}
+     \usebox\verbatimbox
+   \end{minipage}
+   \end{list}
+   \global\let\examplesize\normalsize
+   \gdef\firstline{1}\gdef\lastline{}\par\noindent}
+
+\let\examplesize\normalsize
+\let\auxwidth\relax
+\def\firstline{1}
+\def\lastline{}
+
+\newcommand*\setexsize[1]{\let\examplesize#1}
+\newcommand*\setverbwidth[1]{\def\auxwidth{#1}}
+
+%% Sidenotes:
+\newcommand\warn[2]{%
+  \edef\thisversion{#1}%
+  \ifhmode\unskip~\fi{\ifx\thisversion\fileversion\color{red}\fi
+  $\leftarrow$}%
+  \marginpar{\raggedleft
+    \small%
+      {\ifx\thisversion\fileversion\color{red}\fi$\rightarrow$}%
+      \,{\notefont #1:~#2}}}
+
+\newcommand\new[1]{%
+  \edef\thisversion{#1}%
+  \ifhmode\unskip~\fi{\ifx\thisversion\fileversion\color{blue}\else\color[gray]{0.5}\fi
+  $\leftarrow$}%
+  \marginpar{\raggedleft
+    \small\ifx\thisversion\fileversion\color{blue}\else\color[gray]{0.5}\fi
+    $\rightarrow$\,{\notefont #1:~New!}}}
+
+%% Sidenote font
+\newfontfamily\notefont[Scale=MatchLowercase]{Optima}
+
+%% Various labelling commands:
+\newcommand*\name[1]{{#1}}
+\newcommand*\pkg[1]{\textsf{#1}}
+\newcommand*\opt[1]{\texttt{#1}}
+\newcommand*\feat[1]{\texttt{#1}}
+
+\let\latin\textit
+\def\eg{\latin{e.g.}}
+\def\ie{\latin{i.e.}}
+\def\Eg{\latin{E.g.}}
+\def\Ie{\latin{I.e.}}
+\def\etc{\@ifnextchar.{\latin{etc}}{\latin{etc.}\@}}
+
+\newcommand\note[1]{\unskip\footnote{#1}}
+
+%% LOGOS, tuned for Palatino:
+\TeX@logo@spacing{-0.12em}{-0.12em}%
+  {0.5ex}{-0.3em}{-0.12em}{-0.1em}
+
+\def\MacOSX{Mac~OS~X}
+
+%% fontspec declarations:
+\setmainfont[Mapping=tex-text,Numbers=OldStyle]{FPL Neu}
+\defaultfontfeatures{Scale=MatchLowercase}
+\setsansfont[Weight=1.2, Width=1.1,
+             Mapping=tex-text,
+             BoldFont={Skia},
+             BoldFeatures={Weight=1.7}]{Skia}
+\setmonofont{Osaka-Mono}
+\setmathrm{Optima Regular}
+\setboldmathrm[BoldFont=Optima ExtraBlack]{Optima Bold}
+\defaultfontfeatures{Mapping=tex-text}
+
+%% (La)TeX font-related declarations:
+\linespread{1.05}      % Palatino needs more space between lines
+\lineskiplimit=-5pt    % Osaka is really tall so this prevents ugly lines
+\frenchspacing         % Remove ugly extra space after punctuation
+
+\makeatletter
+\newcounter{argument}
+\g@addto@macro\endmacro{\setcounter{argument}{0}}
+\newcommand*\darg[1]{%
+  \stepcounter{argument}%
+  \noindent{\ttfamily\char`\#\theargument~:~}#1\par}
+\newcommand*\doarg[1]{%
+  \stepcounter{argument}%
+  \noindent{\ttfamily\makebox[0pt][r]{[}\char`\#\theargument]:~}#1\par}
+\makeatother
+
+%% 
+%% Copyright 2005-2006 by Will Robertson <wspr81@gmail.com>
+%% 
+%% Distributable under the LaTeX Project Public License,
+%% version 1.3c or higher (your choice). The latest version of
+%% this license is at: http://www.latex-project.org/lppl.txt
+%% 
+%% This work is "maintained" (as per LPPL maintenance status)
+%% by Will Robertson.
+%% 
+%% This work consists of the file  fontspec.dtx
+%%           and the derived files fontspec.sty and fontspec.pdf.
+%% 
+%%
+%% End of file `fontspec-doc-style.sty'.

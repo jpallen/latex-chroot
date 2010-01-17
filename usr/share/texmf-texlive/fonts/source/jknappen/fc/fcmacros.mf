@@ -1,0 +1,133 @@
+% This is  FCMACROS.MF
+% Version 1.2
+% Date 6-OCT-1996
+%
+% (c) 1991--1996 J"org Knappen   
+% This file is part of the fc-package 
+% See fc.rme for more information
+%
+% J"org Knappen
+% Unternehmensberatung
+% Barbarossaring 43
+% D-55118 Mainz
+% Allemagne
+
+% knappen@vkpmzd.kph.uni-mainz.de
+
+% The following macros are defined:
+%
+% slantswitch, mirror, flip, V_bulb, d_hook_out, v_hook_in, top_hook,
+% left_hook, separator, universal.
+%
+% Higher version of this file might contain more macros.
+%
+
+
+def slantswitch =  % macro from wncyr
+slant:=-slant;
+currenttransform:=identity slanted slant yscaled aspect_ratio 
+                  scaled granularity;
+enddef; %reverse slant so that mirror() will work
+
+
+def mirror (expr axis) =  % macro from wncyr
+%x._qa=x._qb=axis; y._qa=h; y._qb=0; picture V; transform MIRROR;
+x._qa=x._qb=axis; y._qa=h; y._qb=-d; picture V; transform MIRROR;
+MIRROR=identity reflectedabout(z._qa,z._qb);
+V=currentpicture transformed MIRROR; currentpicture:=V;
+slantswitch;
+enddef;
+
+% flip rotates 180 degrees about the centerpoint whose suffix is passed
+def flip (suffix $) =     % macro from wncyr
+picture V; transform FLIP;
+y$:=y$*aspect_ratio;
+FLIP=identity rotatedaround(z$,180) shifted(2slant*y$,0);
+V=currentpicture transformed FLIP; currentpicture:=V;
+enddef;
+
+def V_bulb(suffix $,$$)= % |pos$| is known  % macro adapted from cm
+ y$$+.5cap_curve=cap_height+o; x$$+.5cap_curve=w-u;
+ numeric theta; theta=angle(4(x$-x$$),y$-y$$); pos$$(cap_curve,theta+90);
+ filldraw z$$l{dir theta}..tension atleast 1 and 1..{down}z$l
+  --z$r{up}...{-dir theta}z$$r..cycle;  % bulb
+ enddef;
+
+def d_hook_out(suffix $,$$,$$$)suffix modifier= % jk, modified from cmbase
+% |y$| |x$| and |x$$$| (only) are known
+ pos$(stem,0); pos$$(vair,90);
+ x$$$:=hround(x$$$+.5hair-eps)-.5hair; pos$$$(hair,180);
+ bot y$$l=-d-oo; y$$$=y$+1/12d;
+ if skewed.modifier: x$$=x$+1.25u;
+  filldraw stroke z$e{-u,-x_height}...z$$e{right}...{up}z$$$e;  % hook
+ else: x$$=x$+1.5u;
+  filldraw stroke z$e{down}...z$$e{right}
+   ...{x$$$-(x$+2.5u),x_height}z$$$e; fi enddef;  % hook
+
+def v_hook_in(suffix $,$$,$$$)=% jk, based on cmbase hook_in 
+% z1 and z2 are used. |x$| and |x$$$| are known
+ x$:=hround(x$-.5hair)+.5hair; pos$(hair,180);
+ pos$$(vair,90);     % pos$$$() should be done outside the macro 
+ y$=2/3x_height; top y$$r=x_height+oo; y$$$=3/4x_height;
+  x$$=x$$$-1.5u;
+  filldraw stroke z$e{x$$$-2.5u-x$,x_height}
+   ...z$$e{right}...{z2-z1}z$$$e;
+enddef;  % hook
+
+def top_hook(suffix @,$,$$,$$$,$$$$)=% jk
+% intended for use within italics
+% x@ and rt x$$$$ are known
+x@'=x@; pos@'(stem,180); y@'=1/4[x_height,h];
+pickup fine.nib;
+pos$(stem,180); 
+pos$$(vair,90); pos$$$(hair,0); pos$$$$(flare,0);
+x$=x@; y$=.8[y@',y$$]; x$$=.6[x$$$$,x$]; top y$$r=h+oo;
+y$$$=.85h;
+bulb($$,$$$,$$$$);  % bulb
+filldraw stroke z$$e{left}...z$e...{down}z@'e;  % join
+enddef;
+
+def left_hook(suffix $,@$,$$,$$$,@,@@)= % only z$ is known   %by jk
+pickup tiny.nib;
+if not monospace:
+ if serifs:
+  pos@$(cap_band,90); pos$$(cap_band,90); pos$$$(cap_hair,180); 
+  pos@(cap_band,270); pos@@(flare+(cap_stem-stem),270);
+  x$$=x$-2.5u; lft x$$$r=lft x$-5u; y$$$=.5[y@$,y@@];
+  x@$=x$; top y$$r= top y@$r=top y$; %<-- ge"andert
+  z@r=z@@r; bot y@r=y$-.4h; x@=x$$-.5u;
+  filldraw stroke z@$e--z$$e&super_arc.e($$,$$$);  % link part 1
+  path_.l:=z$$$l{down}...{right}z@l;
+  filldraw path_.l--z@r{left}...{up}z$$$r--cycle; % link part 2
+  path_.r:=z@@l{left}..z@@r{right}; % near-circle
+  filldraw subpath(0,ypart(path_.r intersectiontimes path_.l)) of path_.r
+  --z@r{right}..cycle; % bulb
+ else:
+  pos@$(cap_band,90);pos$$(cap_band,90); pos$$$(cap_hair,180);
+  pos@@(cap_band,260);
+  x@$=x$; top y$$r = top y@$r= top y$; lft x$$$=lft x$-5u; y$$$=y$-.2h;
+  x$$=x$-2.5u; rt x@@l=hround x$$; bot y@@r=vround y$-4u;
+  filldraw stroke   z@$e--z$$e{left}...z$$$e...z@@e;   % full hook
+ fi  
+else:
+  pos@$(cap_band,90);pos$$(cap_band,90); pos$$$(cap_hair,180);
+  pos@@(cap_band,260);
+  x@$=lft x$; top y$$r= top y@$r= top y$; lft x$$$=lft x$-5u; y$$$=y$-.2h;
+  x$$=x@$-2.5u; rt x@@l=hround x$$; bot y@@r=vround y$-4u; 
+  filldraw stroke   z@$e--z$$e{left}..{down}z$$$e;   % full hook
+fi
+enddef;
+
+% Macro for the universal accent, from Yannis Haralambous greek fonts
+% changed jk
+def separator=max(1,vround(1/12x_height)) enddef;
+vardef universal(suffix $)(expr center)=
+x$1=center+.15u; x$4=center-.15u; 
+y$1=y$4=x_height+1.5separator;
+x$2=x$1+.3univ_acc_breadth*(body_height-x_height);
+x$3=x$1-.3univ_acc_breadth*(body_height-x_height);
+y$3=y$2=y$1+univ_acc_breadth*(body_height-x_height);
+fill z$1--z$2--z$3--z$4--cycle;
+enddef; 
+
+endinput;	

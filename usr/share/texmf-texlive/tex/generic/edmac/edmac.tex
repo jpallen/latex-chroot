@@ -1,0 +1,1321 @@
+%%
+%% This is file `edmac.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% edmac.doc 
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from edmac.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file edmac.doc.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+{\catcode`\$=9
+\gdef\fileversion{ $Revision:   3.17  $ }
+\gdef\filedate{ $Date:   12 Jun 1996 17:15:00  $ }}
+\def\docdate{12 June 1996}
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%%
+\ifx\edmacloaded\relax\endinput\else\let\edmacloaded=\relax\fi
+{\newlinechar=`\^^J
+\message{^^J
+ ********************************************************************^^J
+ EDMAC Critical edition macros.^^J
+ Copyright (C) 1990--1996 John Lavagnino and Dominik Wujastyk.^^J
+ This is free software, and you are welcome to redistribute it under^^J
+ certain conditions; see the accompanying file COPYING for details.^^J
+ ^^J%
+\fileversion\space\space\space <\filedate>.^^J
+ ********************************************************************^^J^^J }}
+\def\makeatletter{\catcode`\@=11 }
+\def\makeatother{\catcode`\@=12 }
+\makeatletter
+\newcount\@tempcnta \newcount\@tempcntb
+\def\edmac@warning#1{\immediate\write\sixt@@n{EDMAC warning: #1}}
+\newcount\section@num
+\section@num=0
+\let\extensionchars=\empty
+\newif\ifnumbering
+\def\beginnumbering{%
+  \ifnumbering
+     \errmessage{Numbering has already been started}%
+     \endnumbering
+  \fi
+  \global\numberingtrue
+  \global\advance\section@num by 1
+  \global\absline@num=0
+  \global\line@num=0
+  \global\subline@num=0
+  \global\@lock=0
+  \global\sub@lock=0
+  \global\sublines@false
+  \global\let\next@page@num=\relax
+  \global\let\sub@change=\relax
+  \message{Section \the\section@num }%
+  \line@list@stuff{\jobname.\extensionchars\the\section@num}%
+  \end@stuff}
+\def\endnumbering{%
+  \ifnumbering
+    \global\numberingfalse
+    \normal@pars
+    \ifx\insertlines@list\empty\else
+      \global\noteschanged@true
+    \fi
+    \ifx\line@list\empty\else
+      \global\noteschanged@true
+    \fi
+    \ifnoteschanged@
+      \immediate\write\sixt@@n{EDMAC reminder: }%
+      \immediate\write\sixt@@n{ The number of footnotes in this section
+                                has changed since the last run.}%
+      \immediate\write\sixt@@n{ You will need to run TeX two more times
+                                before the footnote placement}%
+      \immediate\write\sixt@@n{ and line numbering in this section are
+                                correct.}%
+    \fi
+  \else
+    \errmessage{Numbering was not started}%
+  \fi}
+\def\pausenumbering{\endnumbering\global\numberingtrue}
+\def\resumenumbering{%
+  \ifnumbering
+     \global\advance\section@num by 1
+     \message{Section \the\section@num\space
+                               (continuing the previous section)}%
+     \line@list@stuff{\jobname.\extensionchars\the\section@num}%
+     \end@stuff
+  \else
+     \errmessage{Numbering should already have been started.}%
+     \endnumbering
+     \beginnumbering
+  \fi}
+\newif\ifbypage@
+\def\lineation#1{{%
+  \ifnumbering
+    \errmessage{You can't use \string\lineation\space
+                          within a numbered section}%
+  \else
+    \def\@tempa{#1}\def\@tempb{page}%
+    \ifx\@tempa\@tempb
+        \global\bypage@true
+    \else
+       \def\@tempb{section}%
+       \ifx\@tempa\@tempb
+           \global\bypage@false
+       \else
+           \edmac@warning{Bad \string\lineation\space argument.}%
+       \fi
+    \fi
+  \fi}}
+\newcount\line@margin
+\def\linenummargin#1{{%
+  \def\@tempa{#1}\def\@tempb{left}%
+  \ifx\@tempa\@tempb
+      \global\line@margin=0
+  \else
+     \def\@tempb{right}%
+     \ifx\@tempa\@tempb
+         \global\line@margin=1
+     \else
+       \def\@tempb{outer}%
+       \ifx\@tempa\@tempb
+           \global\line@margin=2
+       \else
+         \def\@tempb{inner}%
+         \ifx\@tempa\@tempb
+             \global\line@margin=3
+         \else
+             \edmac@warning{Bad \string\linenummargin\space argument.}%
+         \fi
+       \fi
+     \fi
+  \fi}}
+\newcount\firstlinenum
+\newcount\linenumincrement
+\firstlinenum=5
+\linenumincrement=5
+\newcount\firstsublinenum
+\newcount\sublinenumincrement
+\firstsublinenum=5
+\sublinenumincrement=5
+\newcount\lock@disp
+\def\lockdisp#1{{%
+  \def\@tempa{#1}\def\@tempb{first}%
+  \ifx\@tempa\@tempb
+      \global\lock@disp=0
+  \else
+     \def\@tempb{last}%
+     \ifx\@tempa\@tempb
+         \global\lock@disp=1
+     \else
+       \def\@tempb{all}%
+       \ifx\@tempa\@tempb
+           \global\lock@disp=2
+       \else
+           \edmac@warning{Bad \string\lockdisp\space argument.}%
+       \fi
+     \fi
+  \fi}}
+\newcount\sublock@disp
+\def\sublockdisp#1{{%
+  \def\@tempa{#1}\def\@tempb{first}%
+  \ifx\@tempa\@tempb
+      \global\sublock@disp=0
+  \else
+     \def\@tempb{last}%
+     \ifx\@tempa\@tempb
+         \global\sublock@disp=1
+     \else
+       \def\@tempb{all}%
+       \ifx\@tempa\@tempb
+           \global\sublock@disp=2
+       \else
+           \edmac@warning{Bad \string\sublockdisp\space argument.}%
+       \fi
+     \fi
+  \fi}}
+\newdimen\linenumsep
+\linenumsep=1pc
+\ifx\selectfont\undefined
+  \let\numlabfont=\sevenrm
+\else
+  \def\numlabfont{\fontsize{7}{8pt}\rm}
+\fi
+\def\leftlinenum{\numlabfont\the\line@num
+             \ifsublines@
+               \ifnum\subline@num>0
+                    \unskip\fullstop\the\subline@num
+               \fi
+             \fi
+             \kern\linenumsep}
+\def\rightlinenum{\kern\linenumsep \numlabfont\the\line@num
+             \ifsublines@
+               \ifnum\subline@num>0
+                    \unskip\fullstop\the\subline@num
+               \fi
+             \fi}
+\def\list@create#1{\global\let#1=\empty}
+\def\list@clear#1{\global\let#1=\empty}
+\newtoks\@toksa \newtoks\@toksb
+\global\@toksa={\\}
+\long\def\xright@appenditem#1\to#2{%
+  \global\@toksb=\expandafter{#2}%
+  \xdef#2{\the\@toksb\the\@toksa\expandafter{#1}}%
+  \global\@toksb={}}
+\long\def\xleft@appenditem#1\to#2{%
+  \global\@toksb=\expandafter{#2}%
+  \xdef#2{\the\@toksa\expandafter{#1}\the\@toksb}%
+  \global\@toksb={}}
+\def\gl@p#1\to#2{\expandafter\gl@poff#1\gl@poff#1#2}
+\long\def\gl@poff\\#1#2\gl@poff#3#4{\gdef#4{#1}\gdef#3{#2}}
+\newcount\line@num
+\newcount\subline@num
+\newif\ifsublines@
+\newcount\absline@num
+\newcount\@lock
+\newcount\sub@lock
+\list@create{\line@list}
+\list@create{\insertlines@list}
+\list@create{\actionlines@list}
+\list@create{\actions@list}
+\newcount\page@num
+\newcount\endpage@num
+\newcount\endline@num
+\newcount\endsubline@num
+\newif\ifnoteschanged@
+\newread\@inputcheck
+\def\read@linelist#1{%
+  \list@clear{\line@list}%
+  \list@clear{\insertlines@list}%
+  \list@clear{\actionlines@list}%
+  \list@clear{\actions@list}%
+  \openin\@inputcheck=#1
+  \ifeof\@inputcheck
+    \edmac@warning{Can't find line-list file #1}%
+    \global\noteschanged@true
+  \else
+    \global\noteschanged@false
+    \closein\@inputcheck
+  \begingroup
+     \catcode`\[=1 \catcode`\]=2
+     \makeatletter \catcode`\^^M=9
+     \input #1
+  \endgroup
+ \fi
+  \global\page@num=-1
+  \ifx\actionlines@list\empty
+      \gdef\next@actionline{1000000}%
+  \else
+      \gl@p\actionlines@list\to\next@actionline
+      \gl@p\actions@list\to\next@action
+  \fi}
+\def\@l{\advance\absline@num by 1
+         \ifx\next@page@num\relax \else
+             \page@action
+             \let\next@page@num=\relax
+         \fi
+         \ifx\sub@change\relax \else
+            \ifnum\sub@change>0
+               \sublines@true
+            \else
+               \sublines@false
+            \fi
+            \sub@action
+            \let\sub@change=\relax
+         \fi
+         \ifcase\@lock
+            \or
+               \@lock=2
+            \or \or
+               \@lock=0
+         \fi
+         \ifcase\sub@lock
+            \or
+               \sub@lock=2
+            \or \or
+               \sub@lock=0
+         \fi
+         \ifsublines@
+              \ifnum\sub@lock<2
+                \advance\subline@num by 1
+              \fi
+         \else
+              \ifnum\@lock<2
+                \advance\line@num by 1 \subline@num=0
+              \fi
+         \fi}
+\def\@page#1{\ifbypage@
+             \line@num=0 \subline@num=0
+           \fi
+           \page@num=#1
+           \def\next@page@num{#1}}
+\def\sub@on{\ifsublines@
+     \let\sub@change=\relax
+  \else
+     \def\sub@change{1}%
+  \fi}
+\def\sub@off{\ifsublines@
+     \def\sub@change{-1}%
+  \else
+     \let\sub@change=\relax
+  \fi}
+\def\@adv#1{\ifsublines@
+       \advance\subline@num by #1
+       \ifnum\subline@num<0
+          \edmac@warning{\string\advanceline\space produced
+              a sub-line number less than zero.}%
+          \subline@num=0
+       \fi
+  \else
+       \advance\line@num by #1
+       \ifnum\line@num<0
+          \edmac@warning{\string\advanceline\space produced
+              a line number less than zero.}%
+          \line@num=0
+       \fi
+  \fi
+  \set@line@action}
+\def\@set#1{\ifsublines@
+    \subline@num=#1
+  \else
+    \line@num=#1
+  \fi
+  \set@line@action}
+\def\page@action{%
+  \xright@appenditem{\the\absline@num}\to\actionlines@list
+  \xright@appenditem{\next@page@num}\to\actions@list}
+\def\set@line@action{%
+  \xright@appenditem{\the\absline@num}\to\actionlines@list
+  \ifsublines@
+       \@tempcnta=-\subline@num
+  \else
+       \@tempcnta=-\line@num
+  \fi
+  \advance\@tempcnta by -5000
+  \xright@appenditem{\the\@tempcnta}\to\actions@list}
+\def\sub@action{%
+  \xright@appenditem{\the\absline@num}\to\actionlines@list
+  \ifsublines@
+      \xright@appenditem{-1001}\to\actions@list
+  \else
+      \xright@appenditem{-1002}\to\actions@list
+  \fi}
+\def\lock@on{\futurelet\next\do@lockon}
+\def\do@lockon{%
+  \ifx\next\lock@off
+     \global\let\lock@off=\skip@lockoff
+  \else
+     \xright@appenditem{\the\absline@num}\to\actionlines@list
+     \ifsublines@
+       \xright@appenditem{-1005}\to\actions@list
+       \ifcase\sub@lock
+          \sub@lock=1
+       \else
+          \sub@lock=0
+       \fi
+     \else
+       \xright@appenditem{-1003}\to\actions@list
+       \ifcase\@lock
+          \@lock=1
+       \else
+          \@lock=0
+       \fi
+     \fi
+  \fi}
+\def\do@lockoff{%
+  \xright@appenditem{\the\absline@num}\to\actionlines@list
+  \ifsublines@
+    \xright@appenditem{-1006}\to\actions@list
+    \ifnum\sub@lock=2
+       \sub@lock=3
+    \else
+       \sub@lock=0
+    \fi
+  \else
+    \xright@appenditem{-1004}\to\actions@list
+    \ifnum\@lock=2
+       \@lock=3
+    \else
+       \@lock=0
+    \fi
+  \fi}
+\def\skip@lockoff{\global\let\lock@off=\do@lockoff}
+\global\let\lock@off=\do@lockoff
+\newcount\insert@count
+\def\dummy@ref#1#2{#2}
+\def\@ref#1#2{%
+  \global\insert@count=#1
+  \loop\ifnum\insert@count>0
+    \xright@appenditem{\the\absline@num}\to\insertlines@list
+    \global\advance\insert@count by -1
+  \repeat
+  \begingroup
+    \let\@ref=\dummy@ref
+    \let\page@action=\relax
+    \let\sub@action=\relax
+    \let\set@line@action=\relax
+    \let\@lab=\relax
+    #2
+    \global\endpage@num=\page@num
+    \global\endline@num=\line@num
+    \global\endsubline@num=\subline@num
+  \endgroup
+    \xright@appenditem%
+      {\the\page@num|\the\line@num|%
+       \ifsublines@ \the\subline@num \else 0\fi|%
+       \the\endpage@num|\the\endline@num|%
+       \ifsublines@ \the\endsubline@num \else 0\fi}\to\line@list
+  #2}
+\newwrite\linenum@out
+\newif\iffirst@linenum@out@
+\first@linenum@out@true
+\def\line@list@stuff#1{%
+  \read@linelist{#1}%
+  \iffirst@linenum@out@
+     \immediate\closeout\linenum@out
+     \global\first@linenum@out@false
+     \immediate\openout\linenum@out=#1
+  \else
+     \closeout\linenum@out
+     \openout\linenum@out=#1
+     \page@start
+  \fi}
+\def\new@line{\write\linenum@out{\string\@l}}
+\def\flag@start{%
+  \edef\next{\write\linenum@out{%
+                  \string\@ref[\the\insert@count][}}%
+  \next}
+\def\flag@end{\write\linenum@out{]}}
+\def\page@start{%
+  \iffirst@linenum@out@ \else
+    \write\linenum@out{\string\@page[\the\pageno]}%
+  \fi}
+\def\startsub{\dimen0\lastskip
+  \ifdim\dimen0>0pt \unskip \fi
+  \write\linenum@out{\string\sub@on}%
+  \ifdim\dimen0>0pt \hskip\dimen0 \fi}
+\def\endsub{\dimen0\lastskip
+  \ifdim\dimen0>0pt \unskip \fi
+  \write\linenum@out{\string\sub@off}%
+  \ifdim\dimen0>0pt \hskip\dimen0 \fi}
+\def\advanceline#1{\write\linenum@out{\string\@adv[#1]}}
+\def\setline#1{%
+  \ifnum#1<0
+    \edmac@warning{Bad setline argument.}%
+  \else
+    \write\linenum@out{\string\@set[#1]}%
+  \fi}
+\def\startlock{\write\linenum@out{\string\lock@on}}
+\def\endlock{\write\linenum@out{\string\lock@off}}
+\list@create{\end@lemmas}
+\long\def\dummy@text#1#2/{#1}
+\def\@gobble#1{}
+\def\no@expands{\let\rm=0\let\it=0\let\sl=0\let\bf=0\let\tt=0%
+  \let\b=0\let\c=0\let\d=0\let\t=0%
+  \let\select@@lemmafont=0%
+  \def\protect{\noexpand\protect\noexpand}%
+  \let\startsub=\relax  \let\endsub=\relax
+  \let\startlock=\relax \let\endlock=\relax
+  \let\label=\@gobble   \let\pageref=\@gobble
+  \let\lineref=\@gobble \let\sublineref=\@gobble
+  \let\setline=\@gobble \let\advanceline=\@gobble
+  \let\text=\dummy@text
+  \morenoexpands}
+\let\morenoexpands=\relax
+\long\def\text#1#2/{\leavevmode
+  \begingroup
+    \no@expands
+    \xdef\@tag{#1}%
+    \set@line
+    \global\insert@count=0
+    \ignorespaces #2\relax
+    \flag@start
+  \endgroup
+  #1%
+  \ifx\end@lemmas\empty \else
+    \gl@p\end@lemmas\to\x@lemma
+    \x@lemma
+    \global\let\x@lemma=\relax
+  \fi
+  \flag@end}
+\def\set@line{%
+  \ifx\line@list\empty
+    \global\noteschanged@true
+    \xdef\@nums{000|000|000|000|000|000|\edfont@info}%
+ \else
+   \gl@p\line@list\to\@tempb
+   \xdef\@nums{\@tempb|\edfont@info}%
+   \global\let\@tempb=\undefined
+ \fi}
+\ifx\selectfont\undefined       % we're using Plain fonts
+  \def\edfont@info{\the\fam}
+\else                           % we're using NFSS
+  \def\edfont@info{\f@encoding/\f@family/\f@series/\f@shape}
+\fi
+\def\lemma#1{\xdef\@tag{#1}\ignorespaces}
+\def\linenum#1{%
+  \xdef\@tempa{#1|||||||\noexpand\\\@nums}%
+  \global\let\@nums=\empty
+  \expandafter\line@set\@tempa|\\\ignorespaces}
+\def\line@set#1|#2\\#3|#4\\{%
+  \gdef\@tempb{#1}%
+  \ifx\@tempb\empty
+        \@add{#3}%
+  \else
+        \@add{#1}%
+  \fi
+  \gdef\@tempb{#4}%
+  \ifx\@tempb\empty\else
+      \@add{|}\line@set#2\\#4\\%
+  \fi}
+\def\@add#1{\xdef\@nums{\@nums#1}}
+\newbox\raw@text
+\newif\ifnumberedpar@
+\newcount\num@lines
+\newbox\one@line
+\newcount\par@line
+\def\pstart{\ifnumbering \else
+    \errmessage{\string\pstart\space must be used
+                 within a numbered section}%
+    \beginnumbering
+  \fi
+  \ifnumberedpar@
+    \errmessage{\string\pstart\space encountered while another
+                \string\pstart\space was in effect}%
+    \pend
+  \fi
+  \list@clear{\inserts@list}%
+  \global\let\next@insert=\empty
+  \begingroup\normal@pars
+  \global\setbox\raw@text=\vbox\bgroup
+  \numberedpar@true}
+\def\pend{\ifnumbering \else
+  \errmessage{\string\pend\space must be used
+                  within a numbered section}%
+  \fi
+  \ifnumberedpar@ \else
+    \errmessage{\string\pend\space must follow a \string\pstart}%
+  \fi
+  \brokenpenalty=0 \clubpenalty=0
+  \displaywidowpenalty=0 \interlinepenalty=0 \predisplaypenalty=0
+  \postdisplaypenalty=0 \widowpenalty=0
+  \endgraf\global\num@lines=\prevgraf\egroup
+  \global\par@line=0
+  \loop\ifvbox\raw@text
+     \do@line
+  \repeat
+  \flush@notes
+  \endgroup
+  \ignorespaces}
+\def\autopar{\ifnumbering \else
+    \errmessage{\string\autopar\space must be used
+                  within a numbered section}%
+    \beginnumbering
+  \fi
+  \everypar={\setbox0=\lastbox
+    \endgraf \vskip-\parskip
+    \pstart \noindent \kern\wd0
+    \let\par=\pend}%
+  \ignorespaces}
+\def\normal@pars{\everypar={}\let\par\endgraf}
+\def\do@line{%
+ {\vbadness=10000 \splittopskip=0pt
+ \global\setbox\one@line=\vsplit\raw@text to\baselineskip}%
+ \unvbox\one@line \global\setbox\one@line=\lastbox
+ \getline@num
+\hbox to \hsize{\affixline@num{%
+  \hfil\hbox to \wd\one@line{\new@line\unhbox\one@line}}}%
+ \add@inserts
+ \add@penalties}
+\def\getline@num{%
+  \global\advance\absline@num by 1
+  \do@actions
+  \do@ballast
+  \ifsublines@
+     \ifnum\sub@lock<2
+       \global\advance\subline@num by 1
+     \fi
+  \else
+     \ifnum\@lock<2
+       \global\advance\line@num by 1
+       \global\subline@num=0
+     \fi
+  \fi}
+\newcount\ballast@count
+\newcount\ballast
+\def\do@ballast{\global\ballast@count=0
+  \begingroup
+    \advance\absline@num by 1
+    \ifnum\next@actionline=\absline@num
+      \ifnum\next@action>-1001
+        \global\advance\ballast@count by -\ballast
+       \fi
+     \fi
+  \endgroup}
+\def\do@actions{%
+  \global\let\do@actions@next=\relax
+  \ifnum\absline@num<\next@actionline\else
+    \ifnum\next@action>-1001
+       \global\page@num=\next@action
+       \ifbypage@
+             \global\line@num=0 \global\subline@num=0
+       \fi
+    \else
+       \ifnum\next@action<-4999
+          \@tempcnta=-\next@action
+          \advance\@tempcnta by -5001
+          \ifsublines@
+             \global\subline@num=\@tempcnta
+          \else
+             \global\line@num=\@tempcnta
+          \fi
+       \else
+          \@tempcnta=-\next@action
+          \advance\@tempcnta by -1000
+          \ifcase\@tempcnta
+          \or
+             \global\sublines@true
+          \or
+             \global\sublines@false
+          \or
+             \ifcase\@lock
+               \global\@lock=1
+             \else
+               \global\@lock=0
+             \fi
+          \or
+             \ifnum\@lock=2
+               \global\@lock=3
+             \else
+               \global\@lock=0
+             \fi
+          \or
+             \ifcase\sub@lock
+               \global\sub@lock=1
+             \else
+               \global\sub@lock=0
+             \fi
+          \or
+             \ifnum\sub@lock=2
+               \global\sub@lock=3
+             \else
+               \global\sub@lock=0
+             \fi
+          \else
+             \edmac@warning{Bad action code,
+                                value \next@action.}%
+          \fi
+       \fi
+    \fi
+    \ifx\actionlines@list\empty
+         \gdef\next@actionline{1000000}%
+    \else
+         \gl@p\actionlines@list\to\next@actionline
+         \gl@p\actions@list\to\next@action
+         \global\let\do@actions@next=\do@actions
+    \fi
+  \fi
+\do@actions@next}
+\def\affixline@num#1{%
+  \ifsublines@
+    \@tempcntb=\subline@num
+    \ifnum\subline@num>\firstsublinenum
+      \@tempcnta=\subline@num
+      \advance\@tempcnta by-\firstsublinenum
+      \divide\@tempcnta by\sublinenumincrement
+      \multiply\@tempcnta by\sublinenumincrement
+      \advance\@tempcnta by\firstsublinenum
+    \else
+      \@tempcnta=\firstsublinenum
+    \fi
+    \ifcase\sub@lock
+      \or
+        \ifnum\sublock@disp=1
+           \@tempcntb=0 \@tempcnta=1
+        \fi
+      \or
+        \ifnum\sublock@disp=2 \else
+           \@tempcntb=0 \@tempcnta=1
+        \fi
+      \or
+        \ifnum\sublock@disp=0
+           \@tempcntb=0 \@tempcnta=1
+        \fi
+    \fi
+  \else
+    \@tempcntb=\line@num
+    \ifnum\line@num>\firstlinenum
+       \@tempcnta=\line@num
+       \advance\@tempcnta by-\firstlinenum
+       \divide\@tempcnta by\linenumincrement
+       \multiply\@tempcnta by\linenumincrement
+       \advance\@tempcnta by\firstlinenum
+    \else
+       \@tempcnta=\firstlinenum
+    \fi
+    \ifcase\@lock
+       \or
+         \ifnum\lock@disp=1
+            \@tempcntb=0 \@tempcnta=1
+         \fi
+       \or
+         \ifnum\lock@disp=2 \else
+            \@tempcntb=0 \@tempcnta=1
+         \fi
+       \or
+         \ifnum\lock@disp=0
+            \@tempcntb=0 \@tempcnta=1
+         \fi
+    \fi
+  \fi
+  \ifnum\@tempcnta=\@tempcntb
+    \@tempcntb=\line@margin
+    \ifnum\@tempcntb>1
+      \advance\@tempcntb by\page@num
+    \fi
+    \ifodd\@tempcntb
+      #1\rlap{{\rightlinenum}}%
+    \else
+      \llap{{\leftlinenum}}#1%
+    \fi
+  \else
+    #1%
+  \fi
+  \ifcase\@lock
+  \or
+    \global\@lock=2
+  \or \or
+    \global\@lock=0
+  \fi
+  \ifcase\sub@lock
+  \or
+    \global\sub@lock=2
+  \or \or
+    \global\sub@lock=0
+  \fi}
+\list@create{\inserts@list}
+\def\add@inserts{%
+  \global\let\add@inserts@next=\relax
+  \ifx\inserts@list\empty \else
+  \ifx\next@insert\empty
+    \ifx\insertlines@list\empty
+      \global\noteschanged@true
+      \gdef\next@insert{100000}%
+    \else
+      \gl@p\insertlines@list\to\next@insert
+    \fi
+  \fi
+  \ifnum\next@insert=\absline@num
+    \gl@p\inserts@list\to\@insert
+    \@insert
+    \global\let\@insert=\undefined
+    \global\let\next@insert=\empty
+    \global\let\add@inserts@next=\add@inserts
+  \fi
+\fi
+\add@inserts@next}
+\def\add@penalties{\@tempcnta=\ballast@count
+  \ifnum\num@lines>1
+    \global\advance\par@line by 1
+    \ifnum\par@line=1
+      \advance\@tempcnta by \clubpenalty
+    \fi
+    \@tempcntb=\par@line \advance\@tempcntb by 1
+    \ifnum\@tempcntb=\num@lines
+      \advance\@tempcnta by \widowpenalty
+    \fi
+    \ifnum\par@line<\num@lines
+      \advance\@tempcnta by \interlinepenalty
+    \fi
+  \fi
+    \ifnum\@tempcnta=0
+      \relax
+    \else
+      \ifnum\@tempcnta>-10000
+        \penalty\@tempcnta
+      \else
+        \penalty -10000
+      \fi
+    \fi}
+\def\flush@notes{%
+  \@xloop
+    \ifx\inserts@list\empty \else
+      \gl@p\inserts@list\to\@insert
+      \@insert
+      \global\let\@insert=\undefined
+  \repeat}
+\def\@xloop#1\repeat{%
+  \def\body{#1\expandafter\body\fi}%
+  \body}
+\ifx\selectfont\undefined
+  \font\eightrm=cmr8 \font\eighti=cmmi8  \skewchar\eighti='177
+  \font\eightsy=cmsy8 \skewchar\eightsy='60 \font\eightbf=cmbx8
+  \font\eighttt=cmtt8 \hyphenchar\eighttt=-1 % inhibit hyphenation
+  \font\eightsl=cmsl8 \font\eightit=cmti8
+  \font\sixrm=cmr8  \font\sixi=cmmi8    \skewchar\sixi='177
+  \font\sixsy=cmsy8 \skewchar\sixsy='60 \font\sixbf=cmbx8
+  \font\sixtt=cmtt8 \hyphenchar\sixtt=-1 % inhibit hyphenation
+  \font\sixsl=cmsl8 \font\sixit=cmti8
+  \def\eightpoint{\def\rm{\fam0\eightrm}%
+    \textfont0=\eightrm \scriptfont0=\sixrm
+                        \scriptscriptfont0=\fiverm
+    \textfont1=\eighti  \scriptfont1=\sixi
+                        \scriptscriptfont1=\fivei
+    \textfont2=\eightsy \scriptfont2=\sixsy
+                        \scriptscriptfont2=\fivesy
+    \textfont3=\tenex   \scriptfont3=\tenex
+                        \scriptscriptfont3=\tenex
+    \def\it{\fam\itfam\eightit}\textfont\itfam=\eightit
+    \def\sl{\fam\slfam\eightsl}\textfont\slfam=\eightsl
+    \def\bf{\fam\bffam\eightbf}\textfont\bffam=\eightbf
+    \scriptfont\bffam=\sixbf \scriptscriptfont\bffam=\fivebf
+    \def\tt{\fam\ttfam\eighttt}\textfont\ttfam=\eighttt
+    \normalbaselineskip=9pt
+    \setbox\strutbox=\hbox{\vrule height7pt depth2pt width0pt}%
+    \normalbaselines\rm}
+  \let\notefontsetup=\eightpoint
+  \let\notenumfont=\sevenrm
+  \def\select@lemmafont#1|#2|#3|#4|#5|#6|#7|{%
+     \ifcase#7
+        \rm \or \rm \or \rm \or \rm           % families 0--3
+            \or \it \or \sl \or \bf \or \tt   % families 4--7
+            \else \rm
+     \fi}
+\else
+  \def\notefontsetup{\fontsize{8}{9pt}\selectfont}
+  \def\notenumfont{\fontsize{7}{8pt}\rm}
+  \def\select@lemmafont#1|#2|#3|#4|#5|#6|#7|{\select@@lemmafont#7|}
+  \def\select@@lemmafont#1/#2/#3/#4|%
+    {\fontencoding{#1}\fontfamily{#2}\fontseries{#3}\fontshape{#4}%
+    \selectfont}
+\fi
+\def\Afootnote#1{%
+  \ifnumberedpar@
+    \xright@appenditem{\noexpand\vAfootnote{A}%
+                   {{\@nums}{\@tag}{#1}}}\to\inserts@list
+    \global\advance\insert@count by 1
+  \else
+    \vAfootnote{A}{{0|0|0|0|0|0|0}{}{#1}}%
+  \fi\ignorespaces}
+\def\Bfootnote#1{%
+  \ifnumberedpar@
+    \xright@appenditem{\noexpand\vBfootnote{B}%
+                   {{\@nums}{\@tag}{#1}}}\to\inserts@list
+    \global\advance\insert@count by 1
+  \else
+    \vBfootnote{B}{{0|0|0|0|0|0|0}{}{#1}}%
+  \fi\ignorespaces}
+\def\Cfootnote#1{%
+  \ifnumberedpar@
+    \xright@appenditem{\noexpand\vCfootnote{C}%
+                   {{\@nums}{\@tag}{#1}}}\to\inserts@list
+    \global\advance\insert@count by 1
+  \else
+    \vCfootnote{C}{{0|0|0|0|0|0|0}{}{#1}}%
+  \fi\ignorespaces}
+\def\Dfootnote#1{%
+  \ifnumberedpar@
+    \xright@appenditem{\noexpand\vDfootnote{D}%
+                   {{\@nums}{\@tag}{#1}}}\to\inserts@list
+    \global\advance\insert@count by 1
+  \else
+    \vDfootnote{D}{{0|0|0|0|0|0|0}{}{#1}}%
+  \fi\ignorespaces}
+\def\Efootnote#1{%
+  \ifnumberedpar@
+    \xright@appenditem{\noexpand\vEfootnote{E}%
+                   {{\@nums}{\@tag}{#1}}}\to\inserts@list
+    \global\advance\insert@count by 1
+  \else
+    \vEfootnote{E}{{0|0|0|0|0|0|0}{}{#1}}%
+  \fi\ignorespaces}
+\def\normalvfootnote#1#2{\insert\csname #1footins\endcsname\bgroup
+  \notefontsetup
+  \interlinepenalty\csname inter#1footnotelinepenalty\endcsname
+  \splittopskip\ht\strutbox
+  \splitmaxdepth\dp\strutbox \floatingpenalty\@MM
+  \leftskip\z@skip \rightskip\z@skip
+  \spaceskip\z@skip \xspaceskip\z@skip
+  \csname #1footfmt\endcsname #2\egroup}
+\def\normalfootfmt#1#2#3{%
+  \normal@pars
+  \parindent=0pt \parfillskip=0pt plus 1fil
+  {\notenumfont\printlines#1|}\strut\enspace
+      {\select@lemmafont#1|#2}\rbracket\enskip#3\strut\par}
+\def\endashchar{{\rm--}}
+\def\fullstop{{\rm.}}
+\def\rbracket{{\rm\thinspace]}}
+\newcount\@pnum \newcount\@ssub \newcount\@elin
+\newcount\@esl  \newcount\@dash
+\def\printlines#1|#2|#3|#4|#5|#6|#7|{\begingroup
+  \@pnum=0 \@dash=0
+  \ifbypage@
+     \ifnum#4=#1 \else
+        \@pnum=1
+        \@dash=1
+     \fi
+  \fi
+  \@elin=\@pnum
+  \ifnum#2=#5 \else
+      \@elin=1
+      \@dash=1
+  \fi
+  \@ssub=0
+  \ifnum#3=0 \else
+      \@ssub=1
+  \fi
+  \@esl=0
+  \ifnum#6=0 \else
+      \ifnum#6=#3
+         \@esl=\@elin
+      \else
+         \@esl=1
+         \@dash=1
+      \fi
+  \fi
+  \ifodd\@pnum #1\fullstop\fi
+  #2%
+  \ifodd\@ssub \fullstop #3\fi
+  \ifodd\@dash \endashchar\fi
+  \ifodd\@pnum #4\fullstop\fi
+  \ifodd\@elin #5\fi
+  \ifodd\@esl \ifodd\@elin\fullstop\fi #6\fi
+\endgroup}
+\def\normalfootstart#1{%
+  \vskip\skip\csname #1footins\endcsname
+  \leftskip0pt \rightskip0pt
+  \csname #1footnoterule\endcsname}
+\let\normalfootnoterule=\footnoterule
+\def\normalfootgroup#1{\unvbox\csname #1footins\endcsname}
+\newinsert\Afootins \newinsert\Bfootins
+\newinsert\Cfootins \newinsert\Dfootins
+\newinsert\Efootins
+\newcount\interAfootnotelinepenalty
+\newcount\interBfootnotelinepenalty
+\newcount\interCfootnotelinepenalty
+\newcount\interDfootnotelinepenalty
+\newcount\interEfootnotelinepenalty
+\def\footnormal#1{%
+  \csname inter#1footnotelinepenalty\endcsname=100
+  \expandafter\let\csname #1footstart\endcsname=\normalfootstart
+  \expandafter\let\csname v#1footnote\endcsname=\normalvfootnote
+  \expandafter\let\csname #1footfmt\endcsname=\normalfootfmt
+  \expandafter\let\csname #1footgroup\endcsname=\normalfootgroup
+  \expandafter\let\csname #1footnoterule\endcsname=%
+                                             \normalfootnoterule
+  \count\csname #1footins\endcsname=1000
+  \dimen\csname #1footins\endcsname=0.8\vsize
+  \skip\csname #1footins\endcsname=12pt plus6pt minus6pt}
+\footnormal{A}
+\footnormal{B}
+\footnormal{C}
+\footnormal{D}
+\footnormal{E}
+\def\footparagraph#1{%
+  \expandafter\let\csname #1footstart\endcsname=\parafootstart
+  \expandafter\let\csname v#1footnote\endcsname=\para@vfootnote
+  \expandafter\let\csname #1footfmt\endcsname=\parafootfmt
+  \expandafter\let\csname #1footgroup\endcsname=\para@footgroup
+  \count\csname #1footins\endcsname=1000
+  \para@footsetup{#1}}
+\def\para@footsetup#1{{\notefontsetup
+  \dimen0=\baselineskip
+  \multiply\dimen0 by 1024
+  \divide \dimen0 by \hsize \multiply\dimen0 by 64
+  \expandafter
+  \xdef\csname #1footfudgefactor\endcsname{%
+    \expandafter\en@number\the\dimen0 }}}
+{\catcode`p=12 \catcode`t=12 \gdef\en@number#1pt{#1}}
+\def\parafootstart#1{%
+  \rightskip=0pt \leftskip=0pt \parindent=0pt
+  \vskip\skip\csname #1footins\endcsname
+  \csname #1footnoterule\endcsname}
+\def\para@vfootnote#1#2{\insert\csname #1footins\endcsname
+  \bgroup
+    \notefontsetup
+    \interlinepenalty=\csname inter#1footnotelinepenalty\endcsname
+    \splittopskip=\ht\strutbox
+    \splitmaxdepth=\dp\strutbox \floatingpenalty=\@MM
+    \leftskip0pt \rightskip0pt
+    \setbox0=\vbox{\hsize=\maxdimen
+      \noindent\csname #1footfmt\endcsname#2}%
+    \setbox0=\hbox{\unvxh0}%
+    \dp0=0pt
+    \ht0=\csname #1footfudgefactor\endcsname\wd0
+    \box0
+    \penalty0
+  \egroup}
+\def\unvxh#1{%
+  \setbox0=\vbox{\unvbox#1%
+    \global\setbox1=\lastbox}%
+  \unhbox1
+  \unskip            % remove \rightskip,
+  \unskip            % remove \parfillskip,
+  \unpenalty         % remove \penalty of 10000,
+  \hskip\ipn@skip}   % but add the glue to go between the notes
+\newskip\ipn@skip
+\def\interparanoteglue#1{%
+             {\notefontsetup\global\ipn@skip=#1 \relax}}
+\interparanoteglue{1em plus.4em minus.4em}
+\def\parafootfmt#1#2#3{%
+  \normal@pars
+  \parindent=0pt \parfillskip=0pt plus1fil
+  {\notenumfont\printlines#1|}\enspace
+  {\select@lemmafont#1|#2}\rbracket\enskip
+  #3\penalty-10 }
+\def\para@footgroup#1{%
+  \unvbox\csname #1footins\endcsname \makehboxofhboxes
+  \setbox0=\hbox{\unhbox0 \removehboxes}%
+  \notefontsetup
+  \noindent\unhbox0\par}
+\def\makehboxofhboxes{\setbox0=\hbox{}%
+  \loop
+    \unpenalty
+    \setbox2=\lastbox
+  \ifhbox2
+    \setbox0=\hbox{\box2\unhbox0}
+  \repeat}
+\def\removehboxes{\setbox0=\lastbox
+  \ifhbox0{\removehboxes}\unhbox0 \fi}
+\newcount\@k \newdimen\@h
+\def\rigidbalance#1#2#3{\setbox0=\box#1 \@k=#2 \@h=#3
+  \line{\splittopskip=\@h \vbadness=\@M \hfilneg
+  \valign{##\vfil\cr\dosplits}}}
+\def\dosplits{\ifnum\@k>0 \noalign{\hfil}\splitoff
+  \global\advance\@k-1\cr\dosplits\fi}
+\def\splitoff{\dimen0=\ht0
+  \divide\dimen0 by\@k \advance\dimen0 by\@h
+  \setbox2 \vsplit0 to \dimen0
+  \unvbox2 }
+\def\footthreecol#1{%
+  \expandafter\let\csname v#1footnote\endcsname=\threecolvfootnote
+  \expandafter\let\csname #1footfmt\endcsname=\threecolfootfmt
+  \expandafter\let\csname #1footgroup\endcsname=\threecolfootgroup
+  \threecolfootsetup{#1}}
+\def\threecolfootsetup#1{%
+  \count\csname #1footins\endcsname 333
+  \multiply\dimen\csname #1footins\endcsname by 3 }
+\def\threecolvfootnote#1#2{%
+  \insert\csname #1footins\endcsname\bgroup
+  \notefontsetup
+  \interlinepenalty=\csname inter#1footnotelinepenalty\endcsname
+  \floatingpenalty=20000
+  \splittopskip=\ht\strutbox \splitmaxdepth=\dp\strutbox
+  \rightskip=0pt \leftskip=0pt
+  \csname #1footfmt\endcsname #2\egroup}
+\def\threecolfootfmt#1#2#3{%
+  \normal@pars
+  \hsize .3\hsize
+  \parindent=0pt
+  \tolerance=5000
+  \raggedright
+  \leavevmode
+  \strut{\notenumfont\printlines#1|}\enspace
+  {\select@lemmafont#1|#2}\rbracket\enskip
+  #3\strut\par\allowbreak}
+\def\threecolfootgroup#1{{\notefontsetup
+  \splittopskip=\ht\strutbox
+  \expandafter
+  \rigidbalance\csname #1footins\endcsname 3 \splittopskip }}
+\def\foottwocol#1{%
+  \expandafter\let\csname v#1footnote\endcsname=\twocolvfootnote
+  \expandafter\let\csname #1footfmt\endcsname=\twocolfootfmt
+  \expandafter\let\csname #1footgroup\endcsname=\twocolfootgroup
+  \twocolfootsetup{#1}}
+\def\twocolfootsetup#1{%
+  \count\csname #1footins\endcsname 500
+  \multiply\dimen\csname #1footins\endcsname by 2 }
+\def\twocolvfootnote#1#2{\insert\csname #1footins\endcsname\bgroup
+  \notefontsetup
+  \interlinepenalty=\csname inter#1footnotelinepenalty\endcsname
+  \floatingpenalty=20000
+  \splittopskip=\ht\strutbox \splitmaxdepth=\dp\strutbox
+  \rightskip=0pt \leftskip=0pt
+  \csname #1footfmt\endcsname #2\egroup}
+\def\twocolfootfmt#1#2#3{%
+  \normal@pars
+  \hsize .45\hsize
+  \parindent=0pt
+  \tolerance=5000
+  \raggedright
+  \leavevmode
+  \strut{\notenumfont\printlines#1|}\enspace
+  {\select@lemmafont#1|#2}\rbracket\enskip
+  #3\strut\par\allowbreak}
+\def\twocolfootgroup#1{{\notefontsetup
+  \splittopskip=\ht\strutbox
+  \expandafter
+  \rigidbalance\csname #1footins\endcsname 2 \splittopskip}}
+\newdimen\crop@vsize \crop@vsize=0pt
+\newdimen\crop@hsize \crop@hsize=0pt
+\newdimen\head@margin \head@margin=0pt
+\newdimen\back@margin \back@margin=0pt
+\newdimen\odd@back \odd@back=0pt
+\newdimen\even@back \even@back=0pt
+\newtoks\@back
+\@back={\ifodd\pageno \odd@back \else \even@back\fi}
+\newbox\registration@marks
+\def\vertical@rules{%
+  \hbox to\crop@hsize{%
+    \vrule height1pc width\cropwidth depth0pt
+    \hfil
+    \vrule width\cropwidth depth0pt}}
+\def\horizontal@rules{%
+  \hbox to\crop@hsize{%
+    \llap{\vrule width1pc height\cropwidth \kern\cropgap}%
+    \hfil
+    \rlap{\kern\cropgap \vrule width1pc height\cropwidth}}}
+\newdimen\cropwidth \cropwidth=.4pt
+\newdimen\cropgap \cropgap=5pt
+\newdimen\magicvskip \magicvskip=\topskip
+\let\headlinefont=\rm
+\newif\ifcropmarks@
+\def\cropsetup#1#2#3#4{\cropmarks@true
+  \global\crop@vsize=#1
+  \global\crop@hsize=#2
+  \global\head@margin=#3
+  \global\back@margin=#4
+  \global\odd@back=\back@margin
+  \global\even@back=\crop@hsize
+  \global\advance\even@back by -\hsize
+  \global\advance\even@back by -\back@margin
+  \setbox\registration@marks=
+    \vbox to \crop@vsize{%
+      \offinterlineskip
+      \vbox to0pt{\vss
+        \vertical@rules
+        \kern\cropgap
+        \horizontal@rules}%
+      \vfil
+      \vbox to0pt{%
+        \horizontal@rules
+        \kern\cropgap
+        \vertical@rules\vss}}%
+  \ht\registration@marks=0pt
+  \wd\registration@marks=0pt
+  \global\magicvskip=\topskip
+  {\headlinefont \global\advance\magicvskip by -\ht\strutbox}%
+  \global\advance\magicvskip by -2\baselineskip}
+\output{\edmac@output}
+\def\edmac@output{\shipout\vbox{\normal@pars
+  \ifcropmarks@
+    \do@cropmarks
+  \else
+    \vbox{\makeheadline\pagebody\makefootline}%
+  \fi}%
+  \advancepageno
+  \ifnum\outputpenalty>-\@MM\else\dosupereject\fi}
+\def\pagecontents{\page@start
+  \ifvoid\topins\else\unvbox\topins\fi
+  \dimen@=\dp\@cclv \unvbox\@cclv % open up \box255
+  \do@feet
+  \ifr@ggedbottom \kern-\dimen@ \vfil \fi}
+\def\do@cropmarks{%
+  \vbox{\offinterlineskip
+    \kern\magicvskip
+    \copy\registration@marks
+    \kern-\magicvskip}%
+  \nointerlineskip
+  \kern\head@margin
+  \moveright\the\@back\vbox{\makeheadline\pagebody\makefootline}}
+\def\do@feet{%
+  \ifvoid\footins\else
+    \vskip\skip\footins
+    \footnoterule
+    \unvbox\footins
+  \fi
+  \ifvoid\Afootins\else
+    \Afootstart{A}\Afootgroup{A}%
+  \fi
+  \ifvoid\Bfootins\else
+    \Bfootstart{B}\Bfootgroup{B}%
+  \fi
+  \ifvoid\Cfootins\else
+    \Cfootstart{C}\Cfootgroup{C}%
+  \fi
+  \ifvoid\Dfootins\else
+    \Dfootstart{D}\Dfootgroup{D}%
+  \fi
+  \ifvoid\Efootins\else
+    \Efootstart{E}\Efootgroup{E}%
+  \fi}
+\list@create{\labelref@list}
+\newwrite\@aux
+\def\do@labelsfile{%
+   \openin\@inputcheck=\jobname.aux
+   \ifeof\@inputcheck \else
+      \closein\@inputcheck
+      \begingroup
+         \makeatletter \catcode`\^^M=9
+         \input\jobname.aux
+      \endgroup
+   \fi
+   \immediate\openout\@aux=\jobname.aux
+   \global\let\do@labelsfile=\relax}
+\def\zz@@@{000|000|000} % set three counters to zero in one go
+\def\label#1{\do@labelsfile
+  \write\linenum@out{\string\@lab}%
+  \ifx\labelref@list\empty
+    \xdef\label@refs{\zz@@@}%
+  \else
+    \gl@p\labelref@list\to\label@refs
+  \fi
+  \edef\next{\write\@aux{\string\make@labels\label@refs|{#1}}}%
+  \next}
+\def\make@labels#1|#2|#3|#4{%
+  \expandafter\ifx\csname the@label#4\endcsname \relax\else
+    \edmac@warning{Duplicate definition of label `#4'
+                   on page \number\pageno.}%
+  \fi
+  \expandafter\gdef\csname the@label#4\endcsname{#1|#2|#3}%
+  \ignorespaces}
+\def\@lab{\xright@appenditem
+  {\the\page@num|\the\line@num|%
+     \ifsublines@ \the\subline@num \else 0\fi}\to\labelref@list}
+\def\pageref#1{\ref@undefined{#1}\getref@num{1}{#1}}
+\def\xpageref#1{\getref@num{1}{#1}}
+\def\lineref#1{\ref@undefined{#1}\getref@num{2}{#1}}
+\def\xlineref#1{\getref@num{2}{#1}}
+\def\sublineref#1{\ref@undefined{#1}\getref@num{3}{#1}}
+\def\xsublineref#1{\getref@num{3}{#1}}
+\def\ref@undefined#1{\do@labelsfile
+  \expandafter\ifx\csname the@label#1\endcsname\relax
+  \edmac@warning{Reference `#1'
+           on page \the\pageno\space undefined. Using `000'.}%
+        \fi}
+\def\getref@num#1#2{%
+  \expandafter
+  \ifx\csname the@label#2\endcsname \relax
+    000%
+  \else
+    \expandafter\expandafter\expandafter
+    \label@parse\csname the@label#2\endcsname|#1%
+  \fi}
+\def\label@parse#1|#2|#3|#4{%
+  \ifcase #4\relax
+  \or #1%
+  \or #2%
+  \or #3%
+  \fi}
+\def\xxref#1#2{%
+  {\expandafter\ifx\csname the@label#1\endcsname
+   \relax \expandafter\let\csname the@label#1\endcsname\zz@@@\fi
+   \expandafter\ifx\csname the@label#2\endcsname \relax
+   \expandafter\let\csname the@label#2\endcsname\zz@@@\fi
+   \linenum{\csname the@label#1\endcsname|%
+    \csname the@label#2\endcsname}}}
+\def\makelabel#1#2{\expandafter\xdef\csname the@label#1\endcsname{#2}}
+\newwrite\@end
+\newif\ifend@
+\def\end@open#1{\end@true\immediate\openout\@end=#1\relax}
+\def\end@close{\end@false\immediate\closeout\@end}
+\def\end@stuff{%
+ \ifend@\relax\else
+   \end@open{\jobname.end}%
+ \fi
+ \immediate\write\@end{\string\@section{\the\section@num}}}
+\def\Aendnote#1{{\newlinechar='40
+       \immediate\write\@end{\string\Aend%
+                {\ifnumberedpar@\@nums\fi}%
+                {\ifnumberedpar@\@tag\fi}{#1}}}\ignorespaces}
+\def\Bendnote#1{{\newlinechar='40
+       \immediate\write\@end{\string\Bend%
+                {\ifnumberedpar@\@nums\fi}%
+                {\ifnumberedpar@\@tag\fi}{#1}}}\ignorespaces}
+\def\Cendnote#1{{\newlinechar='40
+       \immediate\write\@end{\string\Cend%
+                {\ifnumberedpar@\@nums\fi}%
+                {\ifnumberedpar@\@tag\fi}{#1}}}\ignorespaces}
+\def\Dendnote#1{{\newlinechar='40
+       \immediate\write\@end{\string\Dend%
+                {\ifnumberedpar@\@nums\fi}%
+                {\ifnumberedpar@\@tag\fi}{#1}}}\ignorespaces}
+\def\Eendnote#1{{\newlinechar='40
+       \immediate\write\@end{\string\Eend%
+                {\ifnumberedpar@\@nums\fi}%
+                {\ifnumberedpar@\@tag\fi}{#1}}}\ignorespaces}
+\def\endprint#1#2#3{{\notefontsetup{\notenumfont\printlines#1|}%
+      \enspace{\select@lemmafont#1|#2}\enskip#3\par}}
+\def\@gobblethree#1#2#3{}
+\let\Aend=\@gobblethree
+\let\Bend=\@gobblethree
+\let\Cend=\@gobblethree
+\let\Dend=\@gobblethree
+\let\Eend=\@gobblethree
+\let\@section=\@gobble
+\def\doendnotes#1{\end@close
+   \begingroup
+      \makeatletter
+      \expandafter\let\csname #1end\endcsname=\endprint
+      \input\jobname.end
+   \endgroup}
+\def\noendnotes{\global\let\end@stuff=\relax
+                \global\chardef\@end=16 }
+\makeatother
+\endinput
+%%
+%% End of file `edmac.tex'.

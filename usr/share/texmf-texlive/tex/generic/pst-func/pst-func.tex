@@ -1,0 +1,558 @@
+%%
+%% This is file `pst-func.tex',
+%%
+%% IMPORTANT NOTICE:
+%%
+%% Package `pst-func.tex'
+%%
+%% Herbert Voss <voss@pstricks.de>
+%%
+%% This program can be redistributed and/or modified under the terms
+%% of the LaTeX Project Public License Distributed from CTAN archives
+%% in directory macros/latex/base/lppl.txt.
+%%
+%% DESCRIPTION:
+%%   `pst-func' is a PSTricks package to plot special functions
+%%
+%% For a ChangeLog go the the end
+%%
+\csname PSTfuncLoaded\endcsname
+\let\PSTfuncLoaded\endinput
+% Requires PSTricks, pst-node, pst-xkey
+\ifx\PSTricksLoaded\endinput\else\input pstricks.tex\fi
+\ifx\PSTnodesLoaded\endinput\else\input pst-plot.tex\fi
+\ifx\PSTricksAddLoaded\endinput\else\input pstricks-add.tex\fi
+\ifx\PSTXKeyLoaded\endinput\else\input pst-xkey.tex \fi
+%
+\edef\PstAtCode{\the\catcode`\@} \catcode`\@=11\relax
+% interface to the `xkeyval' package
+\pst@addfams{pst-func}
+
+\def\fileversion{0.46}
+\def\filedate{2006/09/06}
+\message{`PST-func' v\fileversion, \filedate\space (hv)}
+%
+\pstheader{pst-func.pro}
+%
+\define@key[psset]{pst-func}{xShift}{\def\psk@xShift{#1}}
+\psset[pst-func]{xShift=0}
+%
+\define@key[psset]{pst-func}{cosCoeff}{\def\psk@cosCoeff{#1}}
+\define@key[psset]{pst-func}{sinCoeff}{\def\psk@sinCoeff{#1}}
+\psset[pst-func]{cosCoeff=0,sinCoeff=1} % coeff=a0 a1 a2 a3 ...
+%
+\def\psFourier{\@ifnextchar[{\psFourier@i}{\psFourier@i[]}}
+\def\psFourier@i[#1]#2#3{{%
+  \pst@killglue
+  \psset{#1}
+  \psplot{#2}{#3}{%
+      /type (cos) def
+      /Fourier {
+        aload length /n exch def
+        n -1 roll 2 div n 1 roll % a0/2
+        n 1 sub -1 0 {
+          /i exch def
+          i x mul 180 mul 3.141592 div
+          type (sin) eq {sin}{cos} ifelse
+          mul n 1 roll
+        } for
+        n 1 sub -1 1 { pop add } for
+      } def
+      [\psk@cosCoeff] Fourier
+      /type (sin) def
+      [0 \psk@sinCoeff] Fourier add
+    }%
+}\ignorespaces}
+%
+\define@key[psset]{pst-func}{coeff}{\def\psk@coeff{#1}}
+\define@key[psset]{pst-func}{Abbreviation}{\def\psk@Deriviation{#1}}% compatibility
+\define@key[psset]{pst-func}{Derivation}{\def\psk@Derivation{#1}}
+\define@boolkey[psset]{pst-func}[Pst@]{markZeros}[true]{}
+\define@key[psset]{pst-func}{epsZero}{\def\psk@epsZero{#1}}
+\define@key[psset]{pst-func}{dZero}{\def\psk@dZero{#1}}
+\define@key[psset]{pst-func}{zeroLineTo}{\def\psk@zeroLineTo{#1}}
+\define@key[psset]{pst-func}{zeroLineColor}{\pst@getcolor{#1}\psk@zeroLineColor}
+\newdimen\psk@zeroLineWidth
+\define@key[psset]{pst-func}{zeroLineWidth}{\pssetlength\psk@zeroLineWidth{#1}}
+\define@key[psset]{pst-func}{zeroLineStyle}{%
+  \@ifundefined{psls@#1}%
+    {\@pstrickserr{Line style `#1' not defined}\@eha}%
+    {\edef\psk@zeroLineStyle{#1}}%
+}
+\psset[pst-func]{%
+       coeff=0 1,      % coeff=a0 a1 a2 a3 ...
+       Derivation=0, % 0 is the original function
+       markZeros=false,% no dots for the zeros
+       epsZero=0.1,    % the distance between two zero points   
+       dZero=0.1,      % the distance of the x value for scanning the function
+       zeroLineTo=-1,  % a line to the value of the lineTo's Derivation (-1= none)
+       zeroLineStyle=dashed,%
+       zeroLineWidth=0.5\pslinewidth,%
+       zeroLineColor=black}%
+%
+\def\psPolynomial{\pst@object{psPolynomial}}
+\def\psPolynomial@i#1#2{{%
+  \begin@OpenObj
+  \@nameuse{beginplot@\psplotstyle}%
+  \gdef\psplot@init{}%
+  \@nameuse{testqp@\psplotstyle}%
+  \addto@pscode{%
+    tx@FuncDict begin
+    /coeff [ \psk@coeff ] def
+    /x0 #1 def /x1 #2 def
+    /dx x1 x0 sub \psk@plotpoints\space div def
+    /Derivation \psk@Derivation\space def
+    \ifPst@markZeros 
+      gsave
+      \pst@number\psk@zeroLineWidth SLW
+      \pst@usecolor\psk@zeroLineColor
+      \psk@epsZero\space \psk@dZero\space FindZeros 
+      pstZeros aload length {
+        /xZero exch def
+        xZero \pst@number\psxunit mul /xPixel exch def
+        \psk@dotsize
+        \@nameuse{psds@\psk@dotstyle}%
+        xPixel 0 Dot 
+        \psk@zeroLineTo\space 0 ge { % line to function \psk@lineTo
+          xPixel 0 moveto
+          xZero coeff \psk@zeroLineTo\space FuncValue 
+          \pst@number\psyunit mul xPixel exch L
+          \@nameuse{psls@\psk@zeroLineStyle}
+        } if
+      } repeat
+      grestore
+    \fi
+    /x x0 def
+    /xy {
+      x \psk@xShift\space sub coeff Derivation FuncValue \pst@number\psyunit mul 
+      x \pst@number\psxunit mul exch
+    } def
+    xy moveto
+  }%
+  \if@pst%	lines and dots
+    \psPolynomial@ii%
+  \else%	curves
+    \psPolynomial@iii%
+  \fi%
+  \end@OpenObj
+}\ignorespaces}
+%
+\def\psPolynomial@ii{%
+  \addto@pscode{%
+     xy \@nameuse{beginqp@\psplotstyle}
+    \psk@plotpoints {
+      xy \@nameuse{doqp@\psplotstyle}
+      /x x dx add def
+    } repeat
+    xy \@nameuse{doqp@\psplotstyle}
+    end
+  }%
+  \@nameuse{endqp@\psplotstyle}%
+}
+\def\psPolynomial@iii{%    curves
+  \addto@pscode{%
+    mark
+    /n 2 def
+    \psk@plotpoints {
+      xy 
+      n 2 roll
+      /n n 2 add def
+      /x x dx add def
+    } repeat
+    /x x1 def
+    xy
+    n 2 roll
+    end
+  }%
+  \@nameuse{endplot@\psplotstyle}%
+}
+%
+% Bessel 2004-06-08
+% Manuel Luque, Herbert Voss
+% Look at the end for some more documentation about the algorithm
+%
+\define@key[psset]{pst-func}{constI}{\def\psk@constI{#1 }}
+\define@key[psset]{pst-func}{constII}{\def\psk@constII{#1 }}
+\psset{constI=1,constII=0}
+%
+\def\psBessel{\@ifnextchar[{\psBessel@i}{\psBessel@i[]}}
+\def\psBessel@i[#1]#2#3#4{{%%%  #2 = n
+  \pst@killglue
+  \psset{plotpoints=500}%
+  \psset{#1}%
+  \parametricplot{#3}{#4}{%
+    /J1 0 def
+    /k { 57.29577951 mul } def
+    /xBessel t k def
+    0 0.1 180 {
+      /tB exch k def
+      /J1 J1 0.1 xBessel
+        tB sin mul tB #2\space mul sub cos mul add def
+    } for
+    t J1 180 div \psk@constI mul \psk@constII add
+  }%
+}\ignorespaces}
+%
+\define@key[psset]{pst-func}{sigma}{\def\psk@sigma{#1 }}
+\define@key[psset]{pst-func}{mue}{\def\psk@mue{#1 }}
+\psset[pst-func]{sigma=0.5,mue=0}
+%
+\def\psGauss{\@ifnextchar[{\psGauss@i}{\psGauss@i[]}}
+\def\psGauss@i[#1]#2#3{{%
+    \pst@killglue%
+    \psset{plotpoints=200}%
+    \psset{#1}%
+    \psplot{#2}{#3}{%
+        Euler x \psk@mue sub dup mul 2 div \psk@sigma dup mul div neg exp 
+	1.0 \psk@sigma div TwoPi sqrt div mul%
+    }%
+}\ignorespaces}
+%
+\define@key[psset]{pst-func}{Simpson}{\def\psk@Simpson{#1 }}
+\psset[pst-func]{Simpson=5}
+%
+\def\psGaussI{\pst@object{psGaussI}}
+\def\psGaussI@i#1#2{%
+  \begin@SpecialObj%
+  \addto@pscode{
+    /a #1  def
+    /dx #2 #1 sub \psk@plotpoints\space div def
+    /b a dx add def
+    /scx { \pst@number\psxunit mul } def 
+    /scy { \pst@number\psyunit mul } def
+    tx@FuncDict begin 
+    /Sigma 1 \psk@sigma div TwoPi sqrt div def
+    /SFunc {% x on Stack
+      Euler exch \psk@xShift\space sub dup mul 2 div Sigma dup mul div neg exp Sigma mul 
+    } def 
+    end
+    a scx 0 moveto
+    \psk@plotpoints 1 sub {
+      a b \psk@Simpson % a b M on Styack
+      tx@FuncDict begin Simpson I end % y value on stack
+      scy b scx exch lineto 
+      /b b dx add def
+    } repeat
+    stroke
+  }%
+  \end@SpecialObj%
+}
+%
+\def\psSi{\pst@object{psSi}}
+\def\psSi@i#1#2{%
+  \begin@SpecialObj%
+  \addto@pscode{
+    /x #1  def
+    /dx #2 #1 sub \psk@plotpoints\space div def
+    /scx { \pst@number\psxunit mul } def
+    /scy { \pst@number\psyunit mul } def
+    x scx x tx@FuncDict begin Si end scy moveto
+    \psk@plotpoints 1 sub {
+      x dup scx exch tx@FuncDict begin Si end scy lineto
+      /x x dx add def
+    } repeat
+    stroke
+  }%
+  \end@SpecialObj%
+}
+\def\pssi{\pst@object{pssi}}
+\def\pssi@i#1#2{%
+  \begin@SpecialObj%
+  \addto@pscode{
+    /x #1  def
+    /dx #2 #1 sub \psk@plotpoints\space div def
+    /scx { \pst@number\psxunit mul } def
+    /scy { \pst@number\psyunit mul } def
+    x scx x tx@FuncDict begin si end scy moveto
+    \psk@plotpoints 1 sub {
+      x dup scx exch tx@FuncDict begin si end scy lineto
+      /x x dx add def
+    } repeat
+    stroke
+  }%
+  \end@SpecialObj%
+}
+%
+\def\psCi{\pst@object{psCi}}
+\def\psCi@i#1#2{%
+  \begin@SpecialObj%
+  \addto@pscode{
+    /x #1  def
+    /dx #2 #1 sub \psk@plotpoints\space div def
+    /scx { \pst@number\psxunit mul } def
+    /scy { \pst@number\psyunit mul } def
+    x scx x tx@FuncDict begin Ci end scy moveto
+    \psk@plotpoints 1 sub {
+      x dup scx exch tx@FuncDict begin Ci end scy lineto
+      /x x dx add def
+    } repeat
+    stroke
+  }%
+  \end@SpecialObj%
+}
+\def\psci{\pst@object{psci}}
+\def\psci@i#1#2{%
+  \begin@SpecialObj%
+  \addto@pscode{
+    /x #1  def
+    /dx #2 #1 sub \psk@plotpoints\space div def
+    /scx { \pst@number\psxunit mul } def
+    /scy { \pst@number\psyunit mul } def
+    x scx x tx@FuncDict begin ci end scy moveto
+    \psk@plotpoints 1 sub {
+      x dup scx exch tx@FuncDict begin ci end scy lineto
+      /x x dx add def
+    } repeat
+    stroke
+  }%
+  \end@SpecialObj%
+}
+%
+\define@key[psset]{pst-func}{PSfont}{\def\psk@PSfont{/#1 }}
+\define@key[psset]{pst-func}{valuewidth}{\def\psk@valuewidth{#1 }}
+\define@key[psset]{pst-func}{fontscale}{\def\psk@fontscale{#1 }}
+\psset[pst-func]{PSfont=Times-Roman,fontscale=10,valuewidth=10}
+%
+\def\psPrintValue{\pst@object{psPrintValue}}
+\def\psPrintValue@i#1{%
+  \begin@ClosedObj
+  \addto@pscode{  
+     gsave \psk@PSfont findfont \psk@fontscale scalefont setfont 
+     #1 \psk@valuewidth string cvs 0 0 moveto show grestore
+  }%
+  \end@ClosedObj%
+}
+%
+% Integrals 2006-01-16
+% Jose-Emilio Vila-Forcen, Herbert Voss
+%
+\def\psCumIntegral{\pst@object{psCumIntegral}}
+\def\psCumIntegral@i#1#2#3{%
+  \begin@SpecialObj%
+  \addto@pscode{
+    /a #1  def
+    /dx #2 #1 sub \psk@plotpoints\space div def
+    /b a dx add def
+    /scx { \pst@number\psxunit mul } def
+    /scy { \pst@number\psyunit mul } def
+    tx@FuncDict begin /SFunc { #3 } def end
+    a scx 0 moveto
+    \psk@plotpoints 1 sub {
+      a b \psk@Simpson % a b M on Styack
+      tx@FuncDict begin Simpson I end % y value on stack
+      scy b scx exch lineto
+      /b b dx add def
+    } repeat
+    stroke
+  }%
+  \end@SpecialObj%
+}
+%
+\def\psIntegral{\pst@object{psIntegral}}
+\def\psIntegral@i#1#2(#3,#4)#5{%
+  \begin@SpecialObj%
+  \addto@pscode{
+    /a #3  def
+    /dx #4 #3 sub \psk@plotpoints\space div def
+    /b #4 def
+    /aa #1 def
+    /dd #2 #1 sub \psk@plotpoints\space div def
+    /t aa dd add def
+    /scx { \pst@number\psxunit mul } def
+    /scy { \pst@number\psyunit mul } def
+    tx@FuncDict begin /SFunc { t #5 } def end
+      a b \psk@Simpson % a b M on Stack
+      tx@FuncDict begin Simpson I end % y value on stack
+      scy t scx exch moveto
+      /t t dd add def
+    \psk@plotpoints 1 sub {
+      a b \psk@Simpson % a b M on Stack
+      tx@FuncDict begin Simpson I end % y value on stack
+      scy t scx exch lineto
+      /t t dd add def
+    } repeat
+    stroke
+  }%
+  \end@SpecialObj%
+}
+%
+\def\psConv{\@ifnextchar[{\psConv@i}{\psConv@i[]}}
+\def\psConv@i[#1]#2#3(#4,#5)#6#7{%
+  \psIntegral[#1]{#2}{#3}(#4,#5){pop pop x #6\space x t neg add #7\space mul}%
+}%
+%
+\define@boolkey[psset]{pst-func}[Pst@]{printValue}[true]{}
+\define@key[psset]{pst-func}{barwidth}{\def\psFunc@barwidth{#1 }}% a factor, not a dimen
+\psset[pst-func]{printValue=false,barwidth=1}
+%
+\def\psBinomial{\pst@object{psBinomial}}
+\def\psBinomial@i#1#2{%
+  \begin@SpecialObj%
+  \addto@pscode{
+    /scx { \pst@number\psxunit mul } def
+    /scy { \pst@number\psyunit mul } def
+    /N #1 def
+    /p #2 def
+    /dx \psFunc@barwidth 2 div def
+    /q 1 p sub def
+    /kOld dx neg def
+    kOld scx 0 moveto   % starting point
+%    /Y 1 def   % start value
+    0 1 N {             % N times
+      /k exch def       % save loop variable
+      k 0 eq
+        { /Y q N exp def }
+        { /Y Y N k sub 1 add mul k div p mul q div def }
+      ifelse % recursive definition
+      kOld scx 0 L kOld scx Y scy L k dx add scx Y scy L
+      \ifPst@markZeros k dx add scx 0 L \fi
+      \ifPst@printValue
+        gsave \psk@PSfont findfont \psk@fontscale scalefont setfont
+        Y \psk@valuewidth string cvs
+        k scx \psk@fontscale 2 div add
+        Y scy \pst@number\pslabelsep add moveto
+        90 rotate show grestore
+      \fi
+      /kOld kOld 1 add def
+    } for
+  }%
+  \psk@fillstyle
+  \pst@stroke
+  \end@SpecialObj%
+}
+%
+\def\psBinomialN{\pst@object{psBinomialN}}
+\def\psBinomialN@i#1#2{%
+  \pst@killglue
+  \begin@SpecialObj%
+  \def\cplotstyle{curve}%
+  \ifx\psplotstyle\cplotstyle \@nameuse{beginplot@\psplotstyle}\fi%
+  \addto@pscode{
+    \ifx\psplotstyle\cplotstyle /Curve true def \else /Curve false def \fi
+    /scx { \pst@number\psxunit mul } def 
+    /scy { \pst@number\psyunit mul } def
+    /N #1 def 
+    /p #2 def				% probability
+    /q 1 p sub def
+    /E N p mul def
+    /sigma E q mul sqrt def 		% variant
+    /dx 1.0 sigma div 2 div def
+    /xOld dx neg E sub sigma div def
+    /xEnd xOld neg dx add scx def
+    Curve 
+      { /Coors [xOld dx sub scx 0] def }% saves the coordinates for curve
+      { xOld scx 0 moveto }	% starting point
+    ifelse 
+   0 1 N {				% N times
+      /k exch def			% save loop variable
+      k 0 eq 
+        { /Y q N exp def }
+        { /Y Y N k sub 1 add mul k div p mul q div def }
+      ifelse % recursive definition
+      /x k E sub sigma div dx add def
+      /y Y sigma mul def		% normalize
+      Curve 
+        { x dx sub scx y scy Coors aload length 2 add array astore /Coors exch def}
+        { xOld scx y scy L x scx y scy L
+          \ifPst@markZeros x scx 0 L \fi % 
+        } ifelse
+      \ifPst@printValue 
+        gsave \psk@PSfont findfont \psk@fontscale scalefont setfont 
+        y \psk@valuewidth string cvs 
+        x dx sub scx \psk@fontscale 2 div add 
+        y scy \pst@number\pslabelsep add moveto 
+        90 rotate show grestore
+      \fi
+      /xOld x def
+    } for
+    Curve { [ xEnd 0 Coors aload pop} if % showpoints on top of the stack
+  }%
+  \ifx\psplotstyle\cplotstyle \@nameuse{endplot@\psplotstyle} \else%
+    \psk@fillstyle%
+    \pst@stroke%
+  \fi%
+  \end@SpecialObj%
+  \ignorespaces%
+}
+%
+% Superellipese / Lamefunction
+\define@key[psset]{pst-func}{radiusA}{\pst@getlength{#1}\pst@radiusA}
+\define@key[psset]{pst-func}{radiusB}{\pst@getlength{#1}\pst@radiusB}
+\psset[pst-func]{radiusA=1,radiusB=1}
+%
+\def\psLame{\pst@object{psLame}}
+\def\psLame@i#1{%
+  \addbefore@par{plotpoints=200}
+  \pst@killglue
+  \begin@SpecialObj 
+  \parametricplot{0}{360}{%
+     t cos dup mul 1 #1\space div exp \pst@radiusA \pst@number\psxunit div mul 
+     t 90 gt { t 270 lt { neg } if } if
+     t sin dup mul 1 #1\space div exp \pst@radiusB \pst@number\psyunit div mul 
+     t 180 gt { neg } if }
+  \end@SpecialObj 
+}
+%
+% For polar plots
+%\define@boolkey[psset]{pst-func}[PstAdd@]{polarplot}[true]{}
+%\define@boolkey[psset]{pst-func}[PstAdd@]{algebraic}[true]{}
+%\psset[pst-func]{polarplot=false,algebraic=false}
+%
+\def\psplotImp{\pst@object{psplotImp}}% 20060420
+\def\psplotImp@i(#1,#2)(#3,#4)#5{%
+  \pst@killglue
+  \begingroup
+  \begin@SpecialObj%
+  \addto@pscode{
+    /xMin #1 def
+    /xMax #3 def
+    /yMin #2 def
+    /yMax #4 def
+    \ifPst@polarplot 
+      /@PolarAlgPlot (#5) tx@addDict begin AlgParser end cvx def
+      /Func {
+        /phi y x atan def
+        /r x y Pyth def 
+        \ifPst@algebraic @PolarAlgPlot \else #5 \fi } def 
+    \else
+      /Func \ifPst@algebraic (#5) tx@addDict begin AlgParser end cvx \else { #5 } \fi  def
+    \fi
+    /xPixel xMax xMin sub \pst@number\psxunit mul round cvi def
+    /yPixel yMax yMin sub \pst@number\psxunit mul round cvi def
+    /dx xMax xMin sub xPixel div def
+    /dy yMax yMin sub yPixel div def
+    /setpixel { dy div exch dx div exch \pst@number\pslinewidth 2 div 0 360 arc fill } bind def
+%
+    /VZ true def % suppose that F(x,y)>=0
+    /x xMin def /y yMin def Func 0.0 lt { /VZ false def } if % erster Wert
+    xMin dx 1.5 div xMax {
+      /x exch def
+      yMin dy 1.5 div yMax {
+	/y exch def
+	Func 0 lt 
+	    { VZ { x y setpixel /VZ false def} if }
+	    { VZ {}{ x y setpixel /VZ true def } ifelse } ifelse
+      } for
+    } for
+%
+    /x xMin def /y yMin def Func 0.0 lt { /VZ false def } if % erster Wert
+    yMin dy 1.5 div yMax {
+      /y exch def
+      xMin dx 1.5 div xMax {
+	/x exch def
+	Func 0 lt 
+	    { VZ { x y setpixel /VZ false def} if }
+	    { VZ {}{ x y setpixel /VZ true def } ifelse } ifelse
+      } for
+    } for
+  }%
+  \end@SpecialObj%
+  \endgroup
+  \ignorespaces
+}
+%
+\catcode`\@=\PstAtCode\relax
+%
+%% END: pst-func.tex
+\endinput
+%

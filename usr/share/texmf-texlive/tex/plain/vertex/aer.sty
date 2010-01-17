@@ -1,0 +1,155 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%   This is the AER.STY for ECON.TEX
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Special fonts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\font\fourteenHelv=cmss10 at 14pt
+\font\sctwelve=cmcsc10 scaled\magstep1
+\font\sctwelve=cmcsc10
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Set pagesize
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input twocol
+
+\newdimen\pageheight \pageheight=49pc
+\newdimen\pagewidth \pagewidth=34pc
+\newdimen\fullsize \fullsize=34pc
+\newdimen\ruleht \ruleht=.5pt
+
+\vsize=49pc
+\hsize=34pc
+\colwidth=16pc
+
+\hoffset=.5in
+\voffset=0in
+
+\parindent=20pt
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      Headline and footline
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\nopagenumbers
+\def\rightheadline{\hbox to \fullsize{{VOL. 99 No. 9\hfil\scten\runname\hskip 3em\runtitle}\hfil{\folio}}}
+\def\leftheadline{\hbox to \fullsize{\folio \hfil {\tenpoint THE ARMENIAN ECONOMIC REVIEW}\hfil JUNE, 1986}}
+\headline={\ifodd\pageno\rightheadline \else\leftheadline\fi}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Define topmatter style
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\TitleFont{\fourteenHelv}
+\def\AuthorFont{\sctwelve}
+
+\def\DoCenteredTitle#1{
+    \titlepage\global
+    \CenterBox
+       \titlebox
+       \TitleFont
+       {17pt}
+       {#1}}
+
+\def\title#1{\DoCenteredTitle{#1}}
+
+\def\author#1{\DoCenteredAuthor{{\it By}\space{#1$^*$}}}
+\def\authortwo#1{\message{Use ``author'' for both authors in this style.}}
+
+\def\affil#1{\global\setbox\affilbox\hbox{\tenit\noindent #1}}
+\def\affiltwo#1{\message{In the aer.sty, affiliations go in the 
+"thanks" footnote.}}
+
+\def\thanks#1{\global\setbox\thanksbox\hbox{\eightpoint $^*$#1}}
+
+\def\date#1{\global\setbox\datebox\vbox{\tenrm #1 \hfil}}
+
+\def\abstract#1{\global\setbox\abstractbox\vbox{\sl\hsize=23pc #1}}
+
+\def\keywords#1{}
+\def\address#1{}
+
+\def\topmatter{\relax}
+\def\endtopmatter{\DoTop}
+\def\document{\DoPaper}
+
+\RomanSectiontrue
+\let\SectionFont=\bf
+
+\def\section#1\par{\bigskip\goodbreak
+   \SubsectionNumber=0\noindent
+   {\hfil\bf\uppercase\expandafter{\romannumeral\SectionNumber}.\enskip #1\hfil}
+   \nobreak\medskip
+   \global\advance\SectionNumber by 1
+   \noindent}
+
+%  Something is screwed up with \romannumeral and centering
+%\def\section#1{\DoCenteredSection{#1}}
+
+\def\subsection#1\par{\bigskip\goodbreak\noindent
+   {\hfil\it \number\SectionNumber.\number\SubsectionNumber.\enspace #1\hfil}
+   \nobreak\medskip\noindent}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\RefFont=\tenpoint
+
+\def\Refs{\vskip1in{\hfil\tenpoint REFERENCES\hfil}\vskip 2pc\RefFont}
+
+\def\by#1{\setbox\bybox\hbox{\ninepoint\bf #1}}
+\def\vol#1{\setbox\volbox\hbox{\it #1}}
+
+\def\SetRef{
+  \ifjour\jourfalse\vbox{\HangRef
+     \unhbox\bybox (\unhbox\yrbox), ``\unhbox\paperbox,'' 
+     \unhbox\jourbox, {\unhbox\volbox}, 
+     \ifvoid\nobox\relax\else (\unhbox\nobox), \fi
+     \unhbox\pagesbox. \par}\fi
+
+  \ifbook\bookfalse\par\vbox{\HangRef
+     \unhbox\bybox\space {\it \unhbox\bookbox}. \unhbox\publaddrbox : 
+         \unhbox\publbox , \unhbox\yrbox.\par}\fi
+
+ \ifinbook\inbookfalse\par\vbox{\HangRef
+     \unhbox\bybox\space (\unhbox\yrbox): ``\unhbox\paperbox,'' in 
+     {\it \unhbox\bookbox}, ed. by {\rm \unhbox\editorbox}.
+     \unhbox\publaddrbox : \unhbox\publbox \ifvoid\pagesbox\relax
+     \else, \unhbox\pagesbox .\fi\par}\fi
+
+ \ifunpublished\unpublishedfalse\par\vbox{\HangRef
+     \unhbox\bybox\space(\unhbox\yrbox):
+    ``\unhbox\paperbox,'' \unhbox\paperinfobox .\par}\fi
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Set the paper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\parindent=20pt
+
+\def\DoTop{\Reset
+\vbox{
+\line{\hfil\box\titlebox\hfil}
+\vskip 2pc
+\line{\hfil\box\authorbox\hfil}
+\vskip1pc
+\line{\hfil\box\abstractbox\hfil}
+\vfootnote{*}{\unhbox\thanksbox}
+\vskip2pc}}
+
+\def\DoPaper{\begindoublecolumns}
+
+\let\eqno=\leqno
+\tenpoint
+\hfuzz=8pt
+\def\bye{\enddoublecolumns\vfill\eject\end}
+\def\footnoterule{}

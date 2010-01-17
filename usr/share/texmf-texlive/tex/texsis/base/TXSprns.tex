@@ -1,0 +1,230 @@
+%% file: TXSprns.tex - Automatic Parnthesis Sizing - TeXsis version 2.18
+%% @(#) $Id: TXSprns.tex,v 18.0 1999/07/09 17:24:29 myers Exp $  
+%======================================================================*
+%
+%      \autoparens provides automatic sizing of () and [] in displayed 
+% equations by making these active characters and inserting \left and 
+% \right as needed.  Automatic sizing is NOT provided for other delimiters 
+% such as \{ \} -- these must be handled as in Plain TeX. This feature is
+% turned on and off by:
+%       \autoparens    ==>   automatic sizing on
+%       \offparens     ==>   automatic sizing off
+% The default is \autoparens once you say \texsis.
+%
+%       While \onparens generally simplifies the typing of equations,
+% it can cause problems which might not be expected. Since \autoparens uses 
+% \left ... \right internally, parentheses must be properly balanced.
+% In particular, splitting parentheses by breaking a long equation with
+% an \EQNalign will produce an error.  Most problems can be solved by using
+% control sequences for the plain characters:
+%       \lparen   ==>   (
+%       \rparen   ==>   )
+%       \lbrack   ==>   [
+%       \rbrack   ==>   ]
+%
+% You can still use \left and \right in equations with \autoparens,
+% but they are implicitly inserted if you fortet them.
+%
+% In older versions of TeXsis we used \onparens to provide automatic
+% parenthesis sizing everywhere.  This caused some unexpected problems,
+% so we have restricted \autoparens to displayed equations, where it
+% is most usefful. \onparens is still around, but we don't encourage
+% its use anymore.  Still, we did fix this a little bit so that parens
+% and brackets are only active in math mode.
+%
+% Dependencies: \emsg and \@errmark come from TXSmacs.TeX
+%======================================================================*
+\message{Auto-sizing of Parentheses.}
+\catcode`@=11                   % make sure @ is a letter here
+
+% ---------- first save usual definitions of () and [] and \left and \right
+
+\ifx\@left\undefined            % if \@left undefined then do it
+ \let\@left=\left       \let\@right=\right
+ \let\lparen=(          \let\rparen=)
+ \let\lbrack=[          \let\rbrack=]
+ \let\@vert=\vert
+\fi                             % else its already done
+
+% ---------- Now make definition of () and [] for use when they are active
+
+\begingroup                     %=== make these active catcodes local ===
+\catcode`\(=\active \catcode`\)=\active
+\catcode`\[=\active \catcode`\]=\active
+
+\gdef({\relax                           % \relax  just in case in an alignment
+   \ifmmode \push@delim{P}%             % if math mode record opening delim
+    \@left\lparen                       %   and do \left (
+   \else\lparen                         % else, just a left paren
+   \fi}
+
+\global\let\@lparen=(                   % another name for it
+
+\gdef){\relax                           % \relax in case in an alignment
+   \ifmmode\@right\rparen               % if math mode then \right )
+     \pop@delim\@delim                  % get last opening delimiter
+     \if P\@delim \relax \else          % check for miss-matched delimiters 
+       \if B\@delim\emsg{> Expecting \string] but got \string).}%
+                   \@errmark{PAREN}%
+       \else\emsg{> Unmatched \string).}\@errmark{PAREN}%
+     \fi\fi
+   \else\rparen                         % else just a ")" 
+   \fi}
+
+\gdef[{\relax                           % just in case in alignment
+   \ifmmode \push@delim{B}%             % if math mode record opening delim
+     \@left\lbrack                      %   and do \left [
+   \else\lbrack                         % else, just a left bracket
+   \fi}
+\global\let\@lbrack=[                   % another name for it
+
+\gdef]{\relax                           % \relax in case in an alignment
+   \ifmmode\@right\rbrack               % if math mode then \right ]
+     \pop@delim\@delim                  % get last opening delimeter
+     \if B\@delim \relax \else          % check for mis-matched delimeters
+       \if P\@delim\emsg{> Expecting \string) but got \string].}%
+                   \@errmark{BRACK}%
+       \else\emsg{> Unmatched \string].}\@errmark{BRACK}%
+     \fi\fi
+   \else\rbrack                         % else just a "]"
+   \fi}
+
+% Make \left(, \right), \left[ and \right] work properly even if easyparens 
+% is on.  To use these \let\left=\EZYleft and \let\right=\EZYright
+
+\gdef\EZYleft{\futurelet\nexttok\@EZYleft}      % \nexttok is next tok on list
+\gdef\@EZYleft#1{%                              %  look for ( or [
+   \ifx\nexttok(  \let\nexttok=\lparen          % replace ( with \lparen
+   \else
+   \ifx\nexttok[  \let\nexttok=\lbrack          % replace [ with \lbrack
+   \fi\fi
+   \@left\nexttok}                              %  do usual \left to \nexttok
+
+\gdef\EZYright{\futurelet\nexttok\@EZYright}    % \nexttok is next tok on list
+\gdef\@EZYright#1{%                             %  look for ) or ]
+   \ifx\nexttok)  \let\nexttok=\rparen          % replace ) with \rparen
+   \else
+   \ifx\nexttok]  \let\nexttok=\rbrack          % replace ] with \rbrack
+   \fi\fi
+   \@right\nexttok}                             % do usual \right to \nexttok
+
+\endgroup                       %=== close () and [] as active characters ===
+
+%--------------------------------*
+% macros to push and pop delimeter marker on the stack called \@delimlist
+
+\toksdef\@CAR=0  \toksdef\@CDR=2                % for push and pop delimeters
+
+\def\push@delim#1{\@CAR={{#1}}%                 % add #1
+     \@CDR=\XA{\@delimlist}%                    %  to front
+    \edef\@delimlist{\the\@CAR\the\@CDR}}%      % of \@delimlist
+
+\def\pop@delim#1{\XA\pop@delimlist\@delimlist\endlist#1}% pop from list to #1
+
+\def\pop@delimlist#1#2\endlist#3{\def\@delimlist{#2}\def#3{#1}}    
+
+\def\@delimlist{}                               % start with null list
+
+%==================================================*
+% Turning EZparens on and off:
+
+\newif\ifEZparens   \EZparensfalse
+
+\def\autoparens{\EZparenstrue                   % turn on the switch
+   \everydisplay={\@onParens}%                  % in displayed equations
+   }
+
+\def\@onParens{% turn on paren-matching definitions and active characters
+   \ifEZparens                                  % only if switched on
+    \def\@delimlist{}%                          % reset delim list to null
+    \let\left=\EZYleft                          % get \left([ correct
+    \let\right=\EZYright                        % similarly for \right's
+    \catcode`\(=\active \catcode`\)=\active     % make ( and )
+    \catcode`\[=\active \catcode`\]=\active     %  and [ and ] active
+   \fi}
+
+\def\offparens{% turn off automatic paren sizing
+   \EZparensfalse\@offParens                    % switch and active chars off
+   \everymath={}\everydisplay={}}               % clear \every...
+
+\def\@offParens{%
+   \let\left=\@left                             % restore \left and \right
+   \let\right=\@right                           %   to original definitions
+   \catcode`(=12 \catcode`)=12                  % make ( and ) 
+   \catcode`[=12 \catcode`]=12                  %  and [ and ] "other"
+   }
+\offparens                                      % default until \texsis
+
+%======================================================================*
+% \onparens (backward compatability, but to be removed soon)
+%
+% \onparens does automatic parenthesis sizing in both in-line
+% and displayed equations.  In-line equations are a bit difficult.
+% When TeX gets a $ it has to look ahead at the next character to
+% see if it is another $.  If it was not then it puts it back in
+% the input stream, but the character code is already set -- if it
+% was ( or [ then you can't make these \catcode=\active.  Thus in
+% math mode (but not displayed equations) we have to look ahead
+% at the token and take corrective action. 
+%
+% Unfortunately if the first token is complex (i.e. enclosed in { }'s)
+% then the lookahead ends up removing the { }'s, which can cause
+% errors.  Put \relax at the begining of such equations until I find
+% a fix.  Or use \autoparens instead.
+
+\def\onparens{% OLD version of \autoparens for both math and displayed eqns
+   \EZparenstrue                                % turn on the switch
+   \everymath={\@onMathParens}%                 % in math mode
+   \everydisplay={\@onParens}%                  % in displayed equations
+   }
+\def\easyparenson{\onparens}                    % OLD synonym
+
+\def\@onMathParens#1{% check lookahead for a missed ( or [
+   \@SetRemainder#1\endlist                     % to put back lookahead
+   \ifx#1\lparen\let\@remainder=\@lparen\fi     % lookahead for missed (
+   \ifx#1\lbrack\let\@remainder=\@lbrack\fi     % and get rid of [ found
+   \@onParens                                   % make ), (, ], [ active
+   \@remainder}                                 % now do what followed
+
+% \@SetRemainder looks at lookahead from \@onMathParens.  If there
+% is more than one token (#2 not empty) then the lookahead was a complex
+% token so it should be enclosed in { }'s
+
+\def\@SetRemainder#1#2\endlist{%
+   \ifx @#2@ \def\@remainder{#1}%
+   \else  \def\@remainder{{#1#2}}%
+   \fi}
+
+\def\easyparensoff{\offparens}                  % synonym for \offparens
+
+% -- Redefine some PLAIN macros so that they will work with \easyparenson
+
+\def\pmatrix#1{\@left\lparen\matrix{#1}\@right\rparen}
+
+\def\bordermatrix#1{\begingroup \m@th
+  \setbox\z@\vbox{\def\cr{\crcr\noalign{\kern2\p@\global\let\cr\endline}}%
+    \ialign{$##$\hfil\kern2\p@\kern\p@renwd&\thinspace\hfil$##$\hfil
+      &&\quad\hfil$##$\hfil\crcr
+      \omit\strut\hfil\crcr\noalign{\kern-\baselineskip}%
+      #1\crcr\omit\strut\cr}}%
+  \setbox\tw@\vbox{\unvcopy\z@\global\setbox\@ne\lastbox}%
+  \setbox\tw@\hbox{\unhbox\@ne\unskip\global\setbox\@ne\lastbox}%
+  \setbox\tw@\hbox{$\kern\wd\@ne\kern-\p@renwd\@left\lparen\kern-\wd\@ne
+    \global\setbox\@ne\vbox{\box\@ne\kern2\p@}%
+    \vcenter{\kern-\ht\@ne\unvbox\z@\kern-\baselineskip}\,\right\rparen$}%
+  \;\vbox{\kern\ht\@ne\box\tw@}\endgroup}
+
+% Partitioned matrix
+%  usage:
+%          \partitionmatrix{a&&b&&c\cr\tabelrule d&e&f\cr}
+% (leave off the last \cr or you'll get an extre line at the bottom)
+% (The \mathstrut tries to make two n-row partition matrices have the
+% same height and depth unless some row is unusually large.)
+
+\def\partitionmatrix#1{\,\vcenter{\offinterlineskip\m@th
+   \def\tablerule{\noalign{\hrule}}
+   \halign{\hfil\loosebox{$\mathstrut ##$}\hfil&&\quad\vrule##\quad&%
+      \hfil\loosebox{$##$}\hfil\crcr
+   #1\crcr}}\,}
+
+%>>> EOF TXSprns.tex <<<

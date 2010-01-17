@@ -1,0 +1,194 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% biblatex.4ht                          2008-02-28-20:51 %
+% Copyright (C) 2007--2008       Eitan M. Gurari         %
+%                                                        %
+% This work may be distributed and/or modified under the %
+% conditions of the LaTeX Project Public License, either %
+% version 1.3c of this license or (at your option) any   %
+% later version. The latest version of this license is   %
+% in                                                     %
+%   http://www.latex-project.org/lppl.txt                %
+% and version 1.3c or later is part of all distributions %
+% of LaTeX version 2005/12/01 or later.                  %
+%                                                        %
+% This work has the LPPL maintenance status "maintained".%
+%                                                        %
+% This Current Maintainer of this work                   %
+% is Eitan M. Gurari.                                    %
+%                                                        %
+% If you modify this program your changing its signature %
+% with a directive of the following form will be         %
+% appreciated.                                           %
+%            \message{signature}                         %
+%                                                        %
+%                             gurari@cse.ohio-state.edu  %
+%                 http://www.cse.ohio-state.edu/~gurari  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\immediate\write-1{version 2008-02-28-20:51}
+
+   \ifx \blx@startbib\:UnDef
+      \pend:def\blx@shorthands{%
+   \pend:def\blx@bibinit{%
+       \HAssign\shorthands:cnt=0
+       \Configure{printfield-shorthand}
+         {\gHAdvance\shorthands:cnt by 1\relax
+          \ifnum \shorthands:cnt=1 \a:printshorthands
+          \else                    \c:printshorthands \fi
+         }
+         {\d:printshorthands}%
+   \append:def\endtheshorthands{\b:printshorthands}%
+   \csname a:@shorthands\endcsname
+}}
+\NewConfigure{printshorthands}{4}
+\NewConfigure{@shorthands}[1]{\concat:config\a:@shorthands{#1}}
+\let\a:@shorthands\empty
+\long\def\blx@bibhyperref@i[#1]#2{#2}
+\protected\long\def\blx@bibhyperlink#1#2{#2}
+\protected\long\def\blx@bibhypertarget#1#2{#2}
+\def\blx@checksum{\ifx \blx@checksum@old \blx@checksum@new \else
+  \blx@warning@noline {Page references have changed.\MessageBreak
+    Rerun to get references right}\@tempswatrue \blx@reruntrue \fi
+  \@nameuse {blx@rerun}}
+\pend:def\blx@bibliography{%
+  \pend:def\blx@bibinit{\a:thebibliography}%
+  \pend:def\endthebibliography{%
+     \if@newlist \global\@newlistfalse \fi
+  }%
+  \append:def\endthebibliography{\b:thebibliography}%
+}
+\def\blx@bibitem#1{%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   \ifx \bibitem:key\:UnDef
+       \let\blx:anchor\blx@anchor
+       \def\blx@anchor{\let\blx@anchor\blx:anchor
+                       \Link{}{\bibitem:key}\EndLink}%
+   \fi
+   \def\bibitem:key{#1}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \ifcsundef{blx@dat@\the\c@refsection @#1}
+    {}
+    {\let\blx@noitem\@empty
+     \begingroup
+     \csuse{blx@dat@\the\c@refsection @#1}%
+     \ifcsundef{blx@bbx@\bib@field@entrytype}
+       {\blx@warning{%
+          No driver for entry type
+          `\bib@field@entrytype'.\MessageBreak
+          Skipping entry `\bib@field@entrykey'}}
+       {\blx@options
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\expandafter\ifx \csname blx@thelabelnumber\endcsname\relax
+   \csname c:thebibliography\endcsname
+   \csname d:thebibliography\endcsname
+\else
+   \Configure{printfield-labelnumber}
+      {\c:thebibliography}
+      {\d:thebibliography}%
+\fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        \blx@thelabelnumber
+        \addtocounter{instcount}\@ne
+        \thebibitem\relax
+        \blx@bibitem@extrasep
+        \csuse{blx@hook@bibitem}%
+        \blx@execute
+        \blx@initunit
+        \blx@anchor
+        \blx@begbabel
+        \bibsentence
+        \blx@pagetracker
+        \blx@driver{\bib@field@entrytype}%
+        \blx@endbabel}%
+     \endgroup}}
+\protected\def\blx@citeprint#1{%
+  \advance\c@citecount\@ne
+  \addtocounter{instcount}\@ne
+  \blx@citenext
+  \edef\blx@thecitekey{blx@dat@\the\c@refsection @#1}%
+  \begingroup
+  \csuse{\blx@thecitekey}%
+  \blx@options
+  \blx@backref
+  \blx@pagetracker
+  \csuse{blx@hook@citekey}%
+  \csuse{blx@hook@citekey@next}%
+  \blx@execute
+  \cIteLink{#1}{}\blx@loopcode \EndcIteLink
+  \blx@citetracker
+  \blx@ibidtracker
+  \blx@opcittracker
+  \blx@loccittracker
+  \endgroup}
+\def\:tempc[#1]#2{%
+   \expandafter\ifx \csname a:printfield-#2\endcsname\relax
+     \:warning{\string\Configure{printfield-#2}{...}{...}?}%
+     \expandafter\gdef \csname a:printfield-#2\endcsname{}%
+   \fi
+   \csname a:printfield-#2\endcsname
+   \csname o:\string\blx@printfield:\endcsname[#1]{#2}%
+   \csname b:printfield-#2\endcsname
+}
+\expandafter\HLet\csname\string\blx@printfield\endcsname\:tempc
+\NewConfigure{printfield-addendum}{2}   \Configure{printfield-addendum}{}{}
+\NewConfigure{printfield-chapter}{2}    \Configure{printfield-chapter}{}{}
+\NewConfigure{printfield-doi}{2}        \Configure{printfield-doi}{}{}
+\NewConfigure{printfield-edition}{2}    \Configure{printfield-edition}{}{}
+\NewConfigure{printfield-isbn}{2}       \Configure{printfield-isbn}{}{}
+\NewConfigure{printfield-labelnumber}{2} %\Configure{printfield-labelnumber}{}{}
+\NewConfigure{printfield-note}{2}       \Configure{printfield-note}{}{}
+\NewConfigure{printfield-number}{2}     \Configure{printfield-number}{}{}
+\NewConfigure{printfield-pages}{2}      \Configure{printfield-pages}{}{}
+\NewConfigure{printfield-pagetotal}{2}  \Configure{printfield-pagetotal}{}{}
+\NewConfigure{printfield-part}{2}       \Configure{printfield-part}{}{}
+\NewConfigure{printfield-series}{2}     \Configure{printfield-series}{}{}
+\NewConfigure{printfield-subtitle}{2}   \Configure{printfield-subtitle}{}{}
+\NewConfigure{printfield-titleaddon}{2} \Configure{printfield-titleaddon}{}{}
+\NewConfigure{printfield-title}{2}      \Configure{printfield-title}{}{}
+\NewConfigure{printfield-url}{2}        \Configure{printfield-url}{}{}
+\NewConfigure{printfield-volumes}{2}    \Configure{printfield-volumes}{}{}
+\NewConfigure{printfield-volume}{2}     \Configure{printfield-volume}{}{}
+\NewConfigure{printfield-year}{2}       \Configure{printfield-year}{}{}
+\NewConfigure{printfield-shorthand}{2}  \Configure{printfield-shorthand}{}{}
+\NewConfigure{printfield-annotation}{2} \Configure{printfield-annotation}{}{}
+\NewConfigure{printfield-booksubtitle}{2}   \Configure{printfield-booksubtitle}{}{}
+\NewConfigure{printfield-booktitleaddon}{2} \Configure{printfield-booktitleaddon}{}{}
+\NewConfigure{printfield-booktitle}{2}      \Configure{printfield-booktitle}{}{}
+\NewConfigure{printfield-mainsubtitle}{2}   \Configure{printfield-mainsubtitle}{}{}
+\NewConfigure{printfield-maintitleaddon}{2} \Configure{printfield-maintitleaddon}{}{}
+\NewConfigure{printfield-maintitle}{2}      \Configure{printfield-maintitle}{}{}
+\NewConfigure{printfield-eid}{2}            \Configure{printfield-eid}{}{}
+\NewConfigure{printfield-journalsubtitle}{2}\Configure{printfield-journalsubtitle}{}{}
+\NewConfigure{printfield-journaltitle}{2}   \Configure{printfield-journaltitle}{}{}
+\NewConfigure{printfield-library}{2}    \Configure{printfield-library}{}{}
+\NewConfigure{printfield-type}{2}       \Configure{printfield-type}{}{}
+\NewConfigure{printfield-version}{2}    \Configure{printfield-version}{}{}
+\NewConfigure{printfield-labeltitle}{2} \Configure{printfield-labeltitle}{}{}
+\NewConfigure{printfield-postnote}{2}   \Configure{printfield-postnote}{}{}
+\NewConfigure{printfield-prenote}{2}    \Configure{printfield-prenote}{}{}
+
+   \else
+      \pend:defI\blx@bibitem{%
+   \ifx \bibitem:key\:UnDef
+      \pend:def\blx@anchorbegin{\Link{}{\bibitem:key}\EndLink}%
+   \fi
+   \def\bibitem:key{##1}%
+}
+\pend:defI\blx@citeprint{%
+   \def\:tempc{\Link{##1}{}\o:blx@loopcode:\EndLink}%
+   \HLet\blx@loopcode\:tempc}
+\pend:def\blx@bibliography{%
+  \pend:def\thebibitem{\c:thebibliography}%
+  \append:def\thebibitem{\relax\d:thebibliography}%
+  \pend:def\blx@startbib{\a:thebibliography}%
+  \pend:def\endthebibliography{%
+     \if@newlist \global\@newlistfalse \fi
+  }%
+  \append:def\endthebibliography{\b:thebibliography}%
+}
+
+   \fi
+   \NewConfigure{thebibliography}{4}
+
+\Hinput{biblatex}
+\endinput
+

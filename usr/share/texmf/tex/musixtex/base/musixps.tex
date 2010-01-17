@@ -1,0 +1,961 @@
+%% PostScript slurs, ties and crescendos
+%   Coded by Stanislav Kneifl
+
+\ifx\undefined\liftcresc\else\endinput\fi
+
+\immediate\write10{MusiXPS PostScript slurs, ties and crescendos 0.92 (12.5.2002)}%
+
+\catcode`\@=11
+
+
+%%%% remove the next line if you include this file into a format (see endnotes!).
+
+\special{header=psslurs.pro}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\font\mxsk=mxsk
+
+% you can change these values if you want...
+% Offsets are in \internotes measured vertically from the center and
+%   horizontally from the left edge of the notehead.
+% see the doc at the end for (short) explanation
+
+\def\psslurraise{1.6}      % vertical offset of the slur beginnings/endings
+\def\psbslurraise{2}       % vert. offset for slurs on beams
+
+\def\psLslurskip{-0.2}     % horiz. offset of slurs shifted more to the left
+\def\pslslurskip{0.4}      % horiz. offset of slurs shifted to the left
+\def\psislurskip{1.4}      % horiz. offset of the slur beginnings
+\def\pstslurskip{1.2}      % horiz. offset of the slur endings
+\def\psrslurskip{2.8}      % horiz. offset of slurs shifted to the right
+
+\def\psfslurhgt{0.7}       % height coeficient of the 'f'lat slurs
+\def\psslurhgt{1}          % height coeficient of normal slurs
+\def\pshslurhgt{1.6}       % height coeficient of 'h'igh slurs
+\def\psHslurhgt{2.2}       % height coeficient of 'H'igh slurs
+\def\psHHslurhgt{2.8}      % height coeficient of 'HH'igh slurs
+\def\psslurmaxhgt{40}      % maximal height of the slur
+                           %  (before multiplication by \...slurhgt !!)
+
+\def\psslurangul{0.17}     % angularity of normal, flat and high slurs
+\def\psHslurangul{0.15}    % angularity of High slurs
+\def\psHHslurangul{0.13}   % angularity of HHigh slurs
+
+\def\pstieraise{1.3}       % vertical offset of the ties
+\def\psitieskip{2.6}       % horiz. offset of the tie beginnings
+\def\psttieskip{0.3}       % horiz. offset of the tie endings
+\def\psltieskip{-0.2}      % horiz. offset of ties shifted to the left
+\def\psrtieskip{3}         % horiz. offset of ties shifted to the right
+
+\def\pstiehgt{0.7}         % height coeficient of the ties
+\def\pstiemaxhgt{30}       % maximal height if the ties
+\def\pstieflathgt{20}      % maximal height if the ties between staff lines
+\def\pstieangul{0.14}      % angularity of the ties
+
+%%%%
+
+\def\d@nh{-5}              % default altitude of the crescendos in \internote
+\def\setcrescheight{\def@it\d@nh}
+
+\def\sl@space{-3pt}			% neg. space before continued slurs, ties and crescs.
+\def\h@tielim{15pt}			% limit for drawing half continued ties
+
+\def\nohalfties{\def\h@tielim{\z@}}
+\def\halfties{\def\h@tielim{15pt}}
+\newif\ifslopebrkslurs
+\slopebrkslursfalse
+
+\def\dotted{\def\d@sh{1}}  % the '1' is important!
+\def\solid{\def\d@sh{0}}
+\def\Dotted{\def\D@sh{1}}
+\def\Solid{\def\D@sh{0}}
+\Solid\solid
+
+\def\nosluradjust{\gdef\s@adj{0}}
+\def\sluradjust{\gdef\s@adj{1}}
+\def\Nosluradjust{\gdef\S@adj{0}\gdef\s@adj{0}}
+\def\Sluradjust{\gdef\S@adj{1}\gdef\s@adj{1}}
+\Sluradjust
+
+\def\notieadjust{\gdef\t@adj{0}}
+\def\tieadjust{\gdef\t@adj{1}}
+\def\Notieadjust{\gdef\T@adj{0}\gdef\t@adj{0}}
+\def\Tieadjust{\gdef\T@adj{1}\gdef\t@adj{1}}
+\Notieadjust
+
+\newif\ifdangermessages\dangermessagestrue
+
+\def\@clr#1{\let#1\empty}
+\def\def@it#1#2{\def#1{#2}}
+\def\slurtext{\def@it\s@tx}
+\let\s@tx\empty
+\def\lr@lap#1{\rlap{\hss#1}}
+
+% how many slurs will be stored into the TeX's registers?
+% => how many slurs can go across the page break?
+% determines also the needed amount of the following registers.
+\let\max@slurs\t@n
+
+\let\slur@alt=\s@xi     \let\slur@hgt=\s@Yv     \let\slur@lift=\s@yi
+\let\slur@alti=\s@xii   \let\slur@hgti=\s@Yvi   \let\slur@lifti=\s@yii
+\let\slur@altii=\s@xiii \newdimen\slur@hgtii    \let\slur@liftii=\s@yiii
+\let\slur@altiii=\s@xiv \newdimen\slur@hgtiii   \let\slur@liftiii=\s@yiv
+\let\slur@altiv=\s@xv   \newdimen\slur@hgtiv    \let\slur@liftiv=\s@yv
+\let\slur@altv=\s@Y     \newdimen\slur@hgtv     \let\slur@liftv=\s@yvi
+\let\slur@altvi=\s@Yi   \newdimen\slur@hgtvi    \let\slur@liftvi=\s@Ni
+\let\slur@altvii=\s@Yii \newdimen\slur@hgtvii   \let\slur@liftvii=\s@Nii
+\let\slur@altviii=\s@Yiii \newdimen\slur@hgtviii  \let\slur@liftviii=\s@Niii
+\let\slur@altix=\s@Yiv  \newdimen\slur@hgtix    \let\slur@liftix=\s@Niv
+
+% in the 'lift' register is coded the altitude of the ending point of the slur
+% at the end of a line (y1) and the relative alt. of the starting point at the
+% beginning of a line (y2): y1=(reg div 65536)-16384, y2=(reg mod 65536)-16384
+
+\newdimen\tie@alt       \newdimen\tie@hgt
+\newdimen\tie@alti      \newdimen\tie@hgti
+\newdimen\tie@altii     \newdimen\tie@hgtii
+\newdimen\tie@altiii    \newdimen\tie@hgtiii
+\newdimen\tie@altiv     \newdimen\tie@hgtiv
+\newdimen\tie@altv      \newdimen\tie@hgtv
+\newdimen\tie@altvi     \newdimen\tie@hgtvi
+\newdimen\tie@altvii    \newdimen\tie@hgtvii
+\newdimen\tie@altviii   \newdimen\tie@hgtviii
+\newdimen\tie@altix     \newdimen\tie@hgtix
+
+\newdimen\cresc@alt
+\newdimen\cresc@alti
+\newdimen\cresc@altii
+\newdimen\cresc@altiii
+\newdimen\cresc@altiv
+\newdimen\cresc@altv
+\newdimen\cresc@altvi
+\newdimen\cresc@altvii
+\newdimen\cresc@altviii
+\newdimen\cresc@altix
+
+\newcount\pss@rega \pss@rega=\z@   % PS slurs
+\newcount\pss@regb \pss@regb=\z@
+\newcount\pst@rega \pss@rega=\z@   % PS ties
+\newcount\pst@regb \pss@regb=\z@
+\newcount\psc@rega \pss@rega=\z@   % PS [de]crescendos
+\newcount\psc@regb \pss@regb=\z@
+
+\newif\if@up
+\newif\if@dash
+
+% information in these registers is binary coded:
+% a: lower bit is set ( 2^2i ): there is a pending slur number i
+%    upper bit is set ( 2^(2i+1) ): slur number i already went across line break
+% b: lower bit is set: slur/tie is dotted
+%    upper bit is set: slur/tie is lower / decrescendo
+
+% everything else is stored in PostScript variables. If you run out
+% of the PostScript dictionary used for slurs, you can increase its size
+% by changing the number 200 in the first line of psslurs.pro to anything
+% reasonable. (The number says how many tokens can be defined.)
+
+%%%%%%%
+
+% input is i for 2^i and register to extract the bits from
+% in reg. n@i will be only the bits 2^2i and 2^(2i+1)
+% in n@vi will be these bits shifted to 2^0 and 2^1,
+% n@ii will be set to 2^2i
+\def\get@bits#1#2{\n@i=#1\relax\n@ii\@ne
+	\loop\ifnum\n@i>\z@\multiply\n@ii\f@ur\advance\n@i\m@ne\repeat
+	\n@i=\n@ii\multiply\n@i\f@ur\n@iii #2\relax
+	\divide\n@iii\n@i\multiply\n@iii\n@i\n@i=#2\relax
+	\advance\n@i-\n@iii\divide\n@i\n@ii\n@vi\n@i\multiply\n@i\n@ii\relax}
+
+\def\s@l@slur#1{\xdef\th@salt{\csname slur@alt\romannumeral#1\endcsname}%
+  \xdef\th@shgt{\csname slur@hgt\romannumeral#1\endcsname}%
+  \xdef\th@slift{\csname slur@lift\romannumeral#1\endcsname}}
+
+\def\s@l@tie#1{\xdef\th@salt{\csname tie@alt\romannumeral#1\endcsname}%
+  \xdef\th@shgt{\csname tie@hgt\romannumeral#1\endcsname}}
+
+\def\s@l@cresc#1{\xdef\th@salt{\csname cresc@alt\romannumeral#1\endcsname}}
+
+\def\gt@pssb#1#2{\s@l@ctbeam#1\relax\getcurpos\advance\y@v#2\relax	% \y@v = hpos
+	\advance\y@v-\b@x
+	\y@ii\b@p\y@v \divide\y@ii\tw@nty \advance\y@ii\b@z
+	\advance\y@ii-\altportee\n@ii=\internote \divide\n@ii6553
+	\n@i=\y@ii\divide\n@i\n@ii\divide\n@i6554\relax}
+
+\def\t@bslur#1#2#3#4{\n@vii\n@i\ifnum#3<\fiv@t@@n\get@bits{#3}\pss@regb\n@i\n@vii
+		\ifnum\n@vi>\@ne\gt@pssb{#4}\z@\T@slur{#3}{\psbslurraise}{0}{#1}{#2}%
+		\else\gt@pssb{#4}{\tw@\qn@width}\T@slur{#3}{\psbslurraise}{2.4}{#1}{#2}\fi
+	\else\gt@pssb{#4}\z@\T@slur{#3}{1.7}{0}{#1}{#2}\fi}
+
+
+%%%%%%  slurs  %%%%%%%%%%%%%%%%%%%
+
+% ID, pitch, voffset, hoffset
+% all offsets are in \internote, the slur direction is determined
+%   by the sign of the vertical offset.
+
+\def\iSlur#1#2{\inhgetn@i#2\relax\I@slur{#1}}
+
+% ID, voffset, hoffset; \n@i = pitch
+\def\I@slur#1#2#3{\y@i=\n@i\internote
+	\ifdim#2\internote<\z@\@upfalse\else\@uptrue\fi
+	\advance\y@i#2\internote\raise\y@i\rlap{\hskip #3\internote
+		\special{ps: slur@Dict begin CP /S#1y1 ED /S#1x1 ED
+		/S#1hgt (\the\y@i) GD N /S#1brk S#1hgt (\the\internote) GD
+		\ifslopebrkslurs 3 \else 1 \fi\if@up 1 \else -1 \fi M M A N /S#1lift 0 N
+		/S#1alt (\the\altportee) GDAR N /S#1dir \if@up1\else-1\fi\space N
+		/S#1dash \d@sh\space N /S#1adj \s@adj\space N end}}%
+	\ifnum#1>\fourt@@n
+		\ifnum#1=99\relax\else
+			\ifdangermessages\message{Danger! Slur with ID >14.}\fi\fi
+	\else\n@iv\n@i\get@bits{#1}\pss@rega
+		\ifcase\n@i\else\message{Slur #1 was re-opened.}%
+			\advance\pss@rega-\n@i\fi  % clear the bits
+		\global\advance\pss@rega\n@ii % and set the lower bit
+		\get@bits{#1}\pss@regb\global\advance\pss@regb-\n@i  % clear the bits
+		\ifnum\d@sh=1\relax\global\advance\pss@regb\n@ii\fi
+		\if@up\else\multiply\n@ii\tw@\global\advance\pss@regb\n@ii\fi
+		\ifnum#1<\max@slurs\s@l@slur{#1}%
+			\global\th@salt\altportee\global\th@shgt\y@i\th@slift\n@iv
+			\if@up\advance\th@slift\fiv@\else\advance\th@slift-\fiv@\fi
+			\advance\th@slift 16384\relax\multiply\th@slift65536\relax
+			\global\advance\th@slift16384\relax
+		\fi\fi\gdef\d@sh{\D@sh}\gdef\s@adj{\S@adj}}
+
+% ID, height, voffset, hoffset, curvature, angularity
+\def\tSlur#1#2{\inhgetn@i#2\relax\T@slur{#1}}
+
+\def\T@slur#1#2#3#4#5{\n@vii\n@i\n@ii\@ne
+	\ifnum#1<\fiv@t@@n
+		\get@bits{#1}\pss@rega
+		\global\advance\pss@rega-\n@i
+		\ifcase\n@i\message{Not opened slur #1 was closed.}\n@ii\z@
+		\else
+			\ifnum\n@vi>\@ne             % the slur was breaked
+				\get@bits{#1}\pss@regb    % it's not necessary to clear this register
+				\ifnum\n@vi>\@ne\@upfalse\else\@uptrue\fi
+				\ifodd\n@vi\@dashtrue\else\@dashfalse\fi
+				\y@ii=\lin@pos\advance\y@ii\locx@skip\advance\y@ii#3\internote
+				\advance\y@ii\sl@space
+				\y@i=\n@vii\internote\advance\y@i\if@up\else-\fi#2\internote
+				\ifnum#1<\max@slurs
+					\s@l@slur{#1}\n@ii\th@slift\divide\n@ii65536\relax
+					\multiply\n@ii65536\relax\n@iii\th@slift\advance\n@iii-\n@ii
+					\advance\n@iii-16384\y@iii=\n@iii\internote\advance\y@iii\th@shgt
+					\raise\y@i\rlap{\hskip #3\internote\special{ps: slur@Dict begin
+						CP S (\the\y@ii) GDAR SB /S#1x1 ED
+						(\the\y@i) GD (\the\y@iii) GD SB 4 AR M A /S#1y1 ED
+						(\the\internote) GD (\the\th@shgt) GD (\the\y@i) GD
+						S#1x1 S#1y1 CP #4 \if@up\else neg \fi #5 30
+						\if@dash1\else0\fi\space \s@adj\space 90 DS end}}%
+				\else
+					\raise\y@i\rlap{\hskip #3\internote\special{ps: slur@Dict begin
+						CP S (\the\y@ii) GDAR SB /S#1x1 ED
+						S#1hgt S#1lift (\the\internote) GD M A 4 AR M
+						(\the\y@i) GDAR SB SB /S#1y1 ED
+						(\the\internote) GD S#1hgt (\the\y@i) GD
+						S#1x1 S#1y1 CP #4 \if@up\else neg \fi #5 30
+						S#1dash \s@adj\space 90 DS end}}%
+				\fi\n@ii\z@
+			\fi
+		\fi
+	\fi
+	\ifcase\n@ii\else\y@ii=#2\internote\setbox\z@=\hbox{\s@tx}%
+		\y@i=\n@vii\internote\raise\y@i\rlap{\hskip #3\internote
+		\special{ps: slur@Dict begin (\the\internote) GD S#1hgt (\the\y@i) GD
+			#2 (\the\internote) GD M S#1dir M A
+			S#1x1 S#1y1 CP (\the\y@ii) GDAR S#1dir M SB 
+			#4 S#1dir M #5 \psslurmaxhgt\space S#1dash S#1adj 90 DS
+			/ay1 ay1 (\the\ht\z@) GDAR -10 AR add dir mul add def}%
+		\lr@lap{\box\z@}\special{ps: end}}%
+	\fi\@clr\s@tx}
+
+\def\liftslur#1#2{\special{ps: slur@Dict begin /S#1lift #2 N end}%
+	\ifnum#1<\t@n\s@l@slur{#1}\divide\th@slift65536\relax
+		\multiply\th@slift65536 \advance\th@slift16384\relax
+		\advance\th@slift#2\relax\fi}
+
+\def\breakslur#1#2{\inhgetn@i#2\relax\y@i=\n@i\internote\special
+	{ps: slur@Dict begin /S#1brk (\the\y@i) GD N end}%
+	\ifnum#1<\t@n\s@l@slur{#1}\n@ii\th@slift\divide\n@ii65536\relax
+	\multiply\n@ii65536 \advance\th@slift-\n@ii\advance\n@i16384\relax
+	\multiply\n@i65536 \global\advance\th@slift\n@i\fi}
+
+%%%%%  [de]crescendos  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ID, height, hoffset
+
+\def\Icresc{\i@cresc0}
+\def\Idecresc{\i@cresc2}
+
+\def\i@cresc#1#2#3#4{\y@i=#3\internote\raise\y@i\rlap
+	{\hskip#4\internote\advance\y@i\altportee\special{ps: slur@Dict begin
+		CP /C#2y1 ED /C#2x1 ED /C#2alt (\the\y@i) GD N
+		/C#2dir #1 N end}}%
+	\ifnum#2>\fourt@@n
+		\ifdangermessages\message{Danger! [De]crescendo with ID >14.}\fi
+	\else\get@bits{#2}\psc@rega
+		\ifcase\n@i\else\message{[De]crescendo #2 was re-opened.}%
+			\advance\psc@rega-\n@i\fi
+		\global\advance\psc@rega\n@ii
+		\get@bits{#2}\psc@regb\advance\psc@regb-\n@i
+		\multiply\n@ii#1\relax
+		\global\advance\psc@regb\n@ii\relax
+		\ifnum#2<\max@slurs\s@l@cresc{#2}%
+			\advance\y@i\altportee\global\th@salt\y@i\fi\fi}
+
+\def\Tcresc#1#2#3{\n@ii\@ne\n@i=#1\relax
+	\ifnum\n@i<\fiv@t@@n
+		\get@bits{#1}\psc@rega\global\advance\psc@rega-\n@i
+		\ifcase\n@i\message{Not opened crescendo #1 was closed.}\n@ii\z@
+		\else
+			\ifnum\n@vi>\@ne                    % the crescendo was breaked
+				\get@bits{#1}\psc@regb    % it's not necessary to clear this register
+				\y@ii=\lin@pos\advance\y@ii\locx@skip\advance\y@ii#3\internote
+				\advance\y@ii\sl@space
+				\zchar{#2}{\hskip #3\internote\special{ps: slur@Dict begin
+					CP S (\the\y@ii) GDAR SB S CP 4 \the\n@vi\space R
+					\the\n@vi\space 0 eq { DHC } { DC } ifelse end}}%
+				\global\n@ii\z@\fi
+	\fi\fi
+	\ifcase\n@ii\else\zchar{#2}{\hskip#3\internote\special{ps: slur@Dict begin
+			C#1x1 C#1y1 CP 4 C#1dir R DC end}}\fi}
+
+\def\liftcresc#1#2{\y@i=#2\internote\ifnum#1<\max@slurs\s@l@cresc{#1}%
+	\global\advance\th@salt\y@i\else\special{ps: slur@Dict begin
+	/C#1alt (\the\y@i) GDAR C#1alt A N end}\fi}
+
+
+%%%%  ties  %%%%%%%%%%%%%%%%%%%%%%
+
+\def\iTieu{\i@tie{1}}
+\def\iTied{\i@tie{-1}}
+
+% 1/-1, ID, height, hoffset
+\def\i@tie#1#2#3#4{\inhgetn@i#3\relax\y@i=\pstieraise\internote
+	\multiply\y@i#1\relax\advance\y@i\n@i\internote\raise\y@i\rlap
+		{\hskip #4\internote\special{ps: slur@Dict begin
+		/S#1alt (\the\altportee) GDAR N
+		CP /T#2y1 ED	/T#2x1 ED /T#2hgt (\the\y@i) GD N
+		/T#2dir #1 N /T#2dash \d@sh\space N
+		/T#2adj \t@adj\space N end}}%
+	\ifnum #2>\fourt@@n
+		\ifnum#2=99\relax\else
+			\ifdangermessages\message{Danger! Tie with ID >14.}\fi\fi
+	\else\get@bits{#2}\pst@rega
+		\ifcase\n@i\else\message{Tie #2 was re-opened.}%
+			\global\advance\pst@rega-\n@i\fi
+		\global\advance\pst@rega\n@ii
+		\get@bits{#2}\pst@regb\global\advance\pst@regb-\n@i  % clear the bits
+		\ifnum\d@sh=1\relax\global\advance\pst@regb\n@ii\fi
+		\ifnum#1=1\relax\else\multiply\n@ii\tw@\global\advance\pst@regb\n@ii\fi
+		\ifnum#2<\max@slurs\s@l@tie{#2}%
+			\global\th@salt\altportee\global\th@shgt\y@i\fi
+	\fi\gdef\d@sh{\D@sh}\gdef\t@adj{\T@adj}}
+
+% ID, hoffset
+\def\tTie#1#2{\n@ii\@ne
+	\ifnum#1<\fiv@t@@n
+		\get@bits{#1}\pst@rega
+		\global\advance\pst@rega-\n@i
+		\ifcase\n@i\message{Not opened tie #1 was closed.}\n@ii\z@
+		\else
+			\ifnum\n@vi>\@ne             % the tie was breaked
+				\get@bits{#1}\pst@regb    % it's not necessary to clear this register
+				\ifnum\n@vi>\@ne\@upfalse\else\@uptrue\fi
+				\ifodd\n@vi\@dashtrue\else\@dashfalse\fi
+				\y@ii=\lin@pos\advance\y@ii\locx@skip\advance\y@ii#2\internote
+				\advance\y@ii\sl@space
+				\ifnum#1<\max@slurs\s@l@tie{#1}%
+					\ifdim\y@ii<\h@tielim
+						\raise\th@shgt\rlap{\hskip-0.3\internote
+							\ifdim\internote>.9\Internote\n@i=\z@\else
+							\ifdim\internote<.7\Internote \n@i=\@cxxviii
+							\else\n@i=64\fi\fi\if@up\else\advance\n@i\@ne\fi
+							\mxsk\char\n@i}%
+					\else
+						\rlap{\hskip #2\internote\special{ps: slur@Dict begin
+						(\the\internote) GD (\the\th@shgt) GD DP
+						CP S (\the\y@ii) GDAR SB S (\the\th@shgt)
+						GDAR SB DP CP P S \if@up \pstiehgt\space
+						\else -\pstiehgt\space \fi \pstieangul\space \pstiemaxhgt\space
+						\if@dash 1 \else 0 \fi \t@adj\space 40 DS end}}%
+					\fi
+				\else
+					\rlap{\hskip #2\internote\special{ps: slur@Dict begin
+					(\the\internote) GD T#1hgt GD DP
+					CP S (\the\y@ii) GDAR SB S T#1hgt GDAR SB DP CP P S
+					\if@up -\pstiehgt\space \else \pstiehgt\space \fi
+					\pstieangul\space \pstiemaxhgt\space \if@dash 1 \else 0 \fi
+					\t@adj\space 40 DS end}}%
+				\fi
+				\global\n@ii=\z@
+			\fi
+		\fi
+	\fi
+	\ifcase\n@ii\else
+		\rlap{\hskip#2\internote
+		\special{ps: slur@Dict begin (\the\internote) GD T#1hgt DP
+				T#1x1 T#1y1 CP P T#1y1
+				\pstiehgt\space T#1dir M \pstieangul\space \pstiemaxhgt\space T#1dash T#1adj 40 DS end}}%
+	\fi}
+
+
+%%%%%%%  simple slurs  %%%%%%%%%%%%%%%%%
+
+% #1 start pitch #2 final pitch #3 sense(u,d) #4 length[noteskip]
+
+% \s@Y = vert. offset, \y@ii = horiz. offset at the end, \y@iii add to length
+% \y@v = length
+
+\def\C@sl#1#2#3#4{\inhgetn@i#1\relax \n@ii\n@i\inhgetn@i#2\relax
+	\if d#3 \s@vy-\s@vy \ifx\@ne\nxt \y@ii\z@\fi \fi
+	\y@v#4\noteskip\advance\y@v\y@iii\advance\y@ii-\y@iii
+	\rlap{\hskip\y@ii\y@i=\n@ii\internote\advance\y@i\s@vy
+		\y@ii=\n@i\internote\advance\y@ii\s@vy\setbox\z@=\hbox{\s@tx}%
+		\ifx\s@tx\empty\def\tx@sp{1}\else\ifdim\y@v<\tw@nty\internote\def\tx@sp{1.5}%
+			\else\ifdim\y@v<\@l\internote\def\tx@sp{1.2}\else\def\tx@sp{1}\fi\fi\fi
+		\special{ps: slur@Dict begin (\the\internote) GD
+			(\the\y@i) GD (\the\y@ii) GD CP (\the\y@i) GDAR swub
+			CP exch (\the\y@v) GDAR add exch (\the\y@ii) GDAR sub
+			\if d#3 -1 \else 1 \fi \tx@sp\space mul \psslurangul\space
+			\psslurmaxhgt\space \d@sh\space \s@adj\space 90 DS
+			/ax1 ax1 (\the\y@v) GDAR add def /ay1 ay1 (\the\y@ii) GDAR sub
+			(\the\ht\z@) GDAR dir mul add def}\lr@lap{\unhbox\z@}\special{ps: end}}%
+	\@clr\s@tx\gdef\d@sh{\D@sh}\gdef\s@adj{\S@adj}}
+
+
+%%%%%%%  breaking the line  %%%%%%%%%%%%%%%%%
+
+\def\br@slur{\divide\n@v\tw@
+	\ifodd\n@v        % the slur was breaked again
+		\y@i=\lin@pos\advance\y@i\x@skip\advance\y@i-\tw@\p@
+		\advance\y@i\sl@space
+		\ifnum\n@iv<\max@slurs\s@l@slur\n@iv\n@i\th@slift\divide\n@i65536%
+			\n@ii\n@i\advance\n@ii-16384\y@iii=\n@ii\internote
+			\multiply\n@i65536 \n@ii\th@slift\advance\n@ii-\n@i
+			\advance\n@ii-16384\y@ii=\n@ii\internote\advance\y@ii\th@shgt
+			\ifnum\n@vi>\@ne\@upfalse\else\@uptrue\fi
+			\raise\th@salt\rlap{\hskip -2pt\special
+				{ps: slur@Dict begin /in (\the\internote) GD N
+				in (\the\y@ii) GD (\the\y@iii) GD	CP S (\the\y@i) GD
+				4 AR M SB S (\the\y@ii) GDAR SB
+				CP (\the\y@iii) GDAR SB \if@up1\else-1\fi\space
+				0.13 30 \ifodd\n@vi 1 \else 0 \fi \s@adj\space 90 DS end}}%
+		\else
+			\rlap{\hskip -2pt\special{ps: slur@Dict begin
+				/in (\the\internote) GD N in S\the\n@iv hgt
+				S\the\n@iv lift in M A S\the\n@iv brk
+				CP S (\the\y@i) GDAR SB in 10 AR M A S
+				S\the\n@iv hgt S\the\n@iv lift in M A 4 AR M SB
+				S\the\n@iv alt 4 AR M SB CP S\the\n@iv brk 
+				S\the\n@iv alt A 4 AR M SB S\the\n@iv dir
+				0.13 30 S\the\n@iv dash S\the\n@iv adj 90 DS end}}%
+		\fi
+	\else               % the slur was breaked the first time
+		\rlap{\hskip-2pt\special{ps: slur@Dict begin (\the\internote) GD
+			S\the\n@iv hgt S\the\n@iv brk S\the\n@iv x1 S\the\n@iv y1 CP P
+			S\the\n@iv y1 S\the\n@iv hgt S\the\n@iv brk SB 4 AR M A
+			S\the\n@iv dir 0.17 \psslurmaxhgt\space S\the\n@iv dash S\the\n@iv adj 90 DS end}}%
+		\get@bits\n@iv\pss@rega
+		\multiply\n@ii\tw@\global\advance\pss@rega\n@ii\fi}
+
+		
+\def\br@cresc{\divide\n@v\tw@
+	\ifodd\n@v        % the crescendo was breaked again
+		\y@i=\lin@pos\advance\y@i\x@skip\advance\y@i-\tw@\p@
+		\advance\y@i\sl@space
+		\ifnum\n@iv<\max@slurs\s@l@cresc\n@iv
+			\rlap{\hskip-2pt\divide\n@vi\tw@\special{ps: slur@Dict begin CP S
+				(\the\y@i) GDAR SB S (\the\th@salt) GDAR SB DP CP P S
+				4 \ifodd\n@vi 2 \else 0 \fi R DHC end}}%
+		\else
+			\rlap{\hskip-2pt\divide\n@vi\tw@\special{ps: slur@Dict begin CP S
+				(\the\y@i) GDAR SB (\the\internote) GD 10 AR M A S
+				C\the\n@iv alt GDAR SB DP CP P S
+				4 C\the\n@iv dir R DHC end}}\fi
+	\else             % the crescendo was breaked the first time
+		\rlap{\hskip-2pt\special{ps: slur@Dict begin
+			C\the\n@iv x1 C\the\n@iv y1 DP CP P S
+			4 C\the\n@iv dir R C\the\n@iv dir 0 eq
+			{ DC } { DHC } ifelse end}}%
+		\get@bits\n@iv\psc@rega
+		\multiply\n@ii\tw@\global\advance\psc@rega\n@ii\fi}
+
+
+\def\br@tie{\divide\n@v\tw@
+	\ifodd\n@v        % the tie was breaked again
+		\y@i=\lin@pos\advance\y@i\x@skip\advance\y@i-\tw@\p@
+		\advance\y@i\sl@space
+		\ifnum\n@iv<\max@slurs\s@l@tie\n@iv
+			\ifnum\n@vi>\@ne\@upfalse\else\@uptrue\fi
+			\y@ii\th@salt\advance\y@ii\th@shgt
+			\raise\y@ii\rlap{\hskip-2pt\special{ps: slur@Dict begin 
+				(\the\internote) GD (\the\th@shgt) GD DP CP S (\the\y@i) GDAR SB S
+				CP \if@up \pstiehgt\space \else -\pstiehgt\space \fi \pstieangul\space
+				\pstiemaxhgt\space \ifodd\n@vi 1 \else 0 \fi \t@adj\space 40 DS end}}%
+		\else
+			\rlap{\hskip-2pt\special{ps: slur@Dict begin 
+				(\the\internote) GD T\the\n@iv hgt DP CP S (\the\y@i)
+				GDAR SB (\the\internote) GD 10 AR M A S
+				T\the\n@iv alt T\the\n@iv hgt A 4 AR M SB DP
+				CP P S \pstiehgt\space T\the\n@iv dir M
+				\pstieangul\space \pstiemaxhgt\space T\the\n@iv dash T\the\n@iv adj 40 DS end}}\fi
+	\else        % the tie was breaked the first time
+		\rlap{\hskip-2pt\special{ps: slur@Dict begin
+			(\the\internote) GD T\the\n@iv hgt DP
+			T\the\n@iv x1 T\the\n@iv y1 DP CP P S
+			\pstiehgt\space T\the\n@iv dir M \pstieangul\space \pstiemaxhgt\space
+			T\the\n@iv dash 40 T\the\n@iv adj DS end}}%
+		\get@bits\n@iv\pst@rega
+		\multiply\n@ii\tw@\global\advance\pst@rega\n@ii\fi}
+
+\let\mxps@oldsuspend=\z@suspend
+
+\def\z@suspend{%
+% cut PostScript slurs
+	{\n@iv\z@\n@v\pss@rega\n@vi\pss@regb
+	\loop\ifnum\n@v>\z@
+		\ifodd\n@v{\br@slur}\fi\divide\n@v\f@ur
+		\advance\n@iv\@ne\divide\n@vi\f@ur
+	\repeat}%
+% cut PostScript [de]crescendos
+	{\n@iv=\z@\n@v=\psc@rega\n@vi\psc@regb
+	\loop\ifnum\n@v>\z@
+		\ifodd\n@v{\br@cresc}\fi\divide\n@v\f@ur
+		\advance\n@iv\@ne\divide\n@vi\f@ur
+	\repeat}%
+% cut PostScript ties
+	{\n@iv=\z@\n@v=\pst@rega\n@vi\pst@regb
+	\loop\ifnum\n@v>\z@
+		\ifodd\n@v{\br@tie}\fi\divide\n@v\f@ur
+		\advance\n@iv\@ne\divide\n@vi\f@ur
+	\repeat}%
+	\special{ps: slur@Dict begin /pss@rega \the\pss@rega\space N
+		/psc@rega \the\psc@rega\space N /pst@rega \the\pst@rega\space N end }%
+% do all other mxtex stuff
+	\mxps@oldsuspend}
+
+% checking for lost slurs
+
+\def\checkslurs{
+	\ifcase\pss@rega\else\message{Warning! Opened slur(s) at checkpoint!}\fi
+	\ifcase\psc@rega\else\message{Warning! Opened crescendo(s) at checkpoint!}\fi
+	\ifcase\pst@rega\else\message{Warning! Opened tie(s) at checkpoint!}\fi}
+
+
+%%%%%%  common abbreviations  %%%%%%%%%%%%%%%%%%%%
+
+\def\isluru#1#2{\iSlur{#1}{#2}{\psslurraise}{\psislurskip}}
+\def\islurd#1#2{\iSlur{#1}{#2}{-\psslurraise}{\psislurskip}}
+\def\irsluru#1#2{\iSlur{#1}{#2}{\psslurraise}{\psrslurskip}}
+\def\irslurd#1#2{\iSlur{#1}{#2}{-\psslurraise}{\psrslurskip}}
+\def\ilsluru#1#2{\iSlur{#1}{#2}{\psslurraise}{\pslslurskip}}
+\def\ilslurd#1#2{\iSlur{#1}{#2}{-\psslurraise}{\pslslurskip}}
+\def\iLsluru#1#2{\iSlur{#1}{#2}{\psslurraise}{\psLslurskip}}
+\def\iLslurd#1#2{\iSlur{#1}{#2}{-\psslurraise}{\psLslurskip}}
+
+\def\tfslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\pstslurskip}{\psfslurhgt}{\psslurangul}}
+\def\tslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\pstslurskip}{\psslurhgt}{\psslurangul}}
+\def\thslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\pstslurskip}{\pshslurhgt}{\psslurangul}}
+\def\tHslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\pstslurskip}{\psHslurhgt}{\psHslurangul}}
+\def\tHHslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\pstslurskip}{\psHHslurhgt}{\psHHslurangul}}
+
+\def\trfslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\psrslurskip}{\psfslurhgt}{\psslurangul}}
+\def\trslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\psrslurskip}{\psslurhgt}{\psslurangul}}
+\def\trhslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\psrslurskip}{\pshslurhgt}{\psslurangul}}
+\def\trHslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\psrslurskip}{\psHslurhgt}{\psHslurangul}}
+\def\trHHslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\psrslurskip}{\psHHslurhgt}{\psHHslurangul}}
+
+\def\tlfslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\pslslurskip}{\psfslurhgt}{\psslurangul}}
+\def\tlslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\pslslurskip}{\psslurhgt}{\psslurangul}}
+\def\tlhslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\pslslurskip}{\pshslurhgt}{\psslurangul}}
+\def\tlHslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\pslslurskip}{\psHslurhgt}{\psHslurangul}}
+\def\tlHHslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\pslslurskip}{\psHHslurhgt}{\psHHslurangul}}
+
+\def\tLfslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\psLslurskip}{\psfslurhgt}{\psslurangul}}
+\def\tLslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\psLslurskip}{\psslurhgt}{\psslurangul}}
+\def\tLhslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\psLslurskip}{\pshslurhgt}{\psslurangul}}
+\def\tLHslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\psLslurskip}{\psHslurhgt}{\psHslurangul}}
+\def\tLHHslur#1#2{\tSlur{#1}{#2}{\psslurraise}{\psLslurskip}{\psHHslurhgt}{\psHHslurangul}}
+
+% slur ID, beam ID
+\def\iBsluru#1#2{\gt@pssb{#2}{\tw@\qn@width}\I@slur{#1}{\psbslurraise}{2.4}}
+\def\iBslurd#1#2{\gt@pssb{#2}\z@\I@slur{#1}{-\psbslurraise}0}
+\def\tBfslur{\t@bslur\psfslurhgt\psslurangul}
+\def\tBslur{\t@bslur\psslurhgt\psslurangul}
+\def\tBhslur{\t@bslur\pshslurhgt\psslurangul}
+\def\tBHslur{\t@bslur\psHslurhgt\psHslurangul}
+\def\tBhHslur{\t@bslur\psHHslurhgt\psHHslurangul}
+
+
+\def\itieu#1#2{\iTieu{#1}{#2}{\psitieskip}}
+\def\itied#1#2{\iTied{#1}{#2}{\psitieskip}}
+\def\iltieu#1#2{\iTieu{#1}{#2}{\pslslurskip}}
+\def\iltied#1#2{\iTied{#1}{#2}{\pslslurskip}}
+\def\irtieu#1#2{\iTieu{#1}{#2}{\psrslurskip}}
+\def\irtied#1#2{\iTied{#1}{#2}{\psrslurskip}}
+\def\ttie#1{\tTie{#1}{\psttieskip}}
+\def\tltie#1{\tTie{#1}{\psltieskip}}
+\def\trtie#1{\tTie{#1}{\psrtieskip}}
+
+\def\icresc#1{\Icresc{#1}{\d@nh}{0}}
+\def\idecresc#1{\Idecresc{#1}{\d@nh}{0}}
+\def\tcresc#1{\Tcresc{#1}{\d@nh}{2}}
+\let\tdecresc\tcresc
+
+\def\ilcresc#1{\Icresc{#1}{\d@nh}{-4}}
+\def\ildecresc#1{\Idecresc{#1}{\d@nh}{-4}}
+\def\tlcresc#1{\Tcresc{#1}{\d@nh}{-2}}
+\let\tldecresc\tlcresc
+
+\def\ircresc#1{\Icresc{#1}{\d@nh}{4}}
+\def\irdecresc#1{\Idecresc{#1}{\d@nh}{4}}
+\def\trcresc#1{\Tcresc{#1}{\d@nh}{-6}}
+\let\trdecresc\trcresc
+
+% for compatibility with old MusiXTeX slurs ...
+\let\Tslur\tslur
+\let\Ttie\ttie
+\let\issluru\irsluru
+\let\isslurd\irslurd
+\let\tsslur\tLslur
+\def\ibsluru#1#2{\iSlur{#1}{#2}8{\psrslurskip}}
+\def\ibslurd#1#2{\iSlur{#1}{#2}{-8}{\psrslurskip}}
+\def\tubslur#1#2{\tSlur{#1}{#2}8{\psrslurskip}{\psslurhgt}{\psslurangul}}
+\def\tdbslur#1#2{\tSlur{#1}{#2}8{\pslslurskip}{\psslurhgt}{\psslurangul}}
+\let\tbsluru=\tubslur
+\let\tbslurd=\tdbslur
+\let\istieu\irtieu
+\let\istied\irtied
+\let\itenu\irtieu
+\let\itenl\irtied
+\let\tstie\tltie
+\let\tten\tltie
+\let\Itenu\istieu
+\let\Itenl\istied
+\let\Liftslur\liftslur
+% p1 p2 sense len
+\def\slur#1#2#3#4{\csname islur#3\endcsname{99}{#1}%
+	\rlap{\hskip#4\noteskip\tslur{99}{#2}}}
+\def\tie#1#2#3{\csname itie#2\endcsname{99}{#1}%
+	\rlap{\hskip#3\noteskip\ttie{99}}}
+
+\catcode`\@=\catcodeat
+
+\endinput
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+USAGE:
+~~~~~~
+Basic usage is:
+
+\isluru0g - starts upper slur with ID 0 above the note 'g'
+\tslur0i - terminates slur with ID 0. It will end above or below
+           the note 'i' with respect to the slur direction
+
+You can shift the starting or ending point slightly to the left
+or right using \ilsluru, \ilslurd, \irsluru, \irslurd, \trslur and \tlslur.
+
+And finally you can make the slur a bit more flat than default
+( \tfslur0f ), higher ( \thslur0f ), more higher ( \tHslur0f ) or
+even more higher ( \tHHslur0f ). All combinations with shifting are
+allowed (see the abbreviations above). These commands act like
+\midslur for standard slurs.
+
+If this is not sufficient, you can use the \iSlur and \tSlur and adjust the
+parameter as you want (see comments above their definitions) or even change
+the default parameters.
+
+NOTE 1: The identification parameter should be a number greater
+        or equal to 0 and lower than 10. You can use even higher
+        numbers, but slurs, ties and crescendos with ID >10
+        can not go over page break but can go across line break.
+        Slurs, ties and crescendos with ID >14 can't be breaked at all
+        (these slurs also can not be exactly positioned at a beam, so
+        don't use for example \tbslur{16}0; \ibslur{16}0 is safe).
+        If you know that a line break can not occur inside the slur
+        (probably inside a bar) you can happily use numbers
+        up to 2^31-1, which is also the maximal number of
+        simultaneously opened slurs :-). Such slurs will be also
+        a bit faster...
+
+NOTE 2: You can start a slur, tie and crescendo with the same ID,
+		  the ID's are independent. This is not true for crescendos
+        and decrescendos. That means you can say \isluru0f\icresc0,
+        but not \icresc0\idecresc0, in which case you'll get a warning
+        message and the first crescendo will be forgotten.
+
+There are also macros for slurs begining or ending at a beam:
+
+\iBsluru{slur ID}{beam ID}
+\iBslurd{slur ID}{beam ID}
+\tBslur{slur ID}{beam ID}
+
+They are NOT THE SAME as for the original slurs, but a bit smarter...
+
+for example:
+
+\Notes\ibu0i0\iBsluru00\qb0{eh}\tbu0\qb0i\ibu0j0\qb0{jl}\tbu0%
+  \setslurtext{6}\tBslur00\qb0e\en
+
+The \slurtext works for PostScript slurs exactly the same way as
+for the bitmapped ones. When you say '\slurtext3', a number '3' will
+be typeset in the middle of the next closed slur.
+The position of the reference point of the box with text will be
+exactly in the middle horizontally and adjusted according to the
+height of the box in case of upper slur.
+
+This works only for non-breaked slurs, if the slur is breaked,
+the text disappears.
+
+The placing of the slur text is done with a very dirty PostScript
+hack, so I am not really sure that everything you want to typeset
+will be placed at the correct position (if you are interested, see
+the end of psslurs.pro for details). If you find something that won't
+work, let me know.
+
+There is also an unpleasant side-effect: when you look at the
+DVI-file with some standard (non-PostScript) driver, the figure will
+be placed at the end of the slur instead of the middle. From obvious
+reasons this can't be fixed --- TeX can't know where the middle is,
+as the slur shape is defined by a PostScript program.
+
+
+General coding is very simple:
+
+\i[h.shift]slur[u|d]{slur ID}{note height}
+\t[h.shift][slur height]slur{slur ID}{note height}
+
+\iBslur[u|d]{slur ID}{beam ID}
+\tB[slur height]slur{slur ID}{beam ID}
+
+where h. shift can be 'l', 'r' or nothing
+and slur height can be 'f', nothing, 'h', 'H' or 'HH'
+
+Mnemonics: \tlfslur means 'terminate left flat slur'.
+
+
+There are also simple slurs with same invocation and parameters as the
+original ones.
+
+
+Similarly the ties:
+~~~~~~~~~~~~~~~~~~~
+\itieu0e
+\ttie0
+
+\i[h.shift]tie[u|d]{ID}{note height}
+\t[h.shift]tie{ID}
+
+
+And crescendos:
+~~~~~~~~~~~~~~~
+\icresc0
+\tcresc0   draws a crescendo at a default position (defined with
+           \setcrescheight)
+
+NOTE 1: \tcresc is the same as \tdecresc.
+
+NOTE 2: The coding of crescendos is incompatible with original crescendos.
+        The difference (as you notices) is in defining the type
+        (crescendo/decrescendo) at the beginning instead of the end.
+        This can't be fixed, because the TeX must know this at the end
+        of the line when the crescendo is breaked.
+
+
+You can shift the starting and ending point horizontally with
+
+\ilcresc    \ildecresc
+\ircresc    \irdecresc
+\tlcresc    \tldecresc
+\trcresc    \trdecresc
+
+to get some space for \mf, \ff etc.
+
+
+Furthermore, you can say:
+
+\Icresc0{-6}0
+\Tcresc0{-8}2
+
+and you will get crescendo with ending point lower than the begining
+one. (The '0' and '2' at the end is horizontal offset in \internote
+from the current point.) Due to some implemenational reasons, you must
+use numbered height when specifying the altitude of the crescendos.
+
+
+
+Dotted slurs and ties
+~~~~~~~~~~~~~~~~~~~~~
+The slurs and ties can be dotted, when you say \dotted anywhere before
+the begining of the slur or tie. The first slur or tie following this
+command will then be drawed with dotted line.
+
+[dangerous bend]  When you say \dotted, then ALL slurs and ties
+                  from this point will be dotted until you say
+\Solid. Furthermore, inside the \dotted...\Solid you can make some slur or
+tie solid saying \solid before its begining.
+
+NOTE: These macros are taken into account only at the begining
+      of the slur or tie.
+
+
+Collisions of slurs/ties and staff lines
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In PostScript it is possible to do some computations, which are very hard
+to implement in TeX. One of neat features of the PS slurs and ties is
+checking, if the curve passes close the staff line and if so, adjusting
+the altitude of the curve to avoid collision ("black triangles" or narrow
+white space). You can turn this feature on globally (\Sluradjust,
+\Tieadjust) or locally (\sluradjust, \tieadjust), or disable it either
+globally (\Nosluradjust, \Notieadjust) or locally (\nosluradjust,
+\notieadjust). Default is \Sluradjust and \Notieadjust. "Locally"
+means before the next opening command of the slur or tie.
+
+
+Line breaking:
+~~~~~~~~~~~~~~
+The slurs, ties and crescendos going across the line breaks are handled
+automatically. Of course they can go over more lines than two (this is
+true also for ties, though it would be somewhat strange).
+
+There is the classic \breakslur implemented, which sets the height of the
+ending point slur at the end of a line to given number of \internotes.
+
+There is also a switch, \ifslopebrkslurs, indicating whether the ending point
+of the first segment of the breaked slur (at the end of the line) should
+be automatically raised by 3 \internote. You can turn this feature on by
+the \slopebrkslurstrue and off by \slopebrkslursfalse commands, default
+is false.
+
+You can raise or lower the starting point of the slur at the begining of
+the next line with the command \liftslur with ID and the relative offset in
+\internotes measured from the slur beginning height. Its usage and behavior
+is the same as of the original \liftslur, only it is not necessary to code
+it in \atnextstaff{}, just anywhere inside the slur.
+
+Similar is \liftcresc, but it works only for the middle part of crescendos
+broken into three parts. The height of the last part of a broken crescendo
+is defined with the height parameter of \Tcresc.
+
+As said before, anything with ID <10 is breaked fully automatically, but
+you should be careful about the slurs, ties and crescendos with 10 <= ID < 15.
+These can not go acress PAGE break, otherwise you'll get a PostScript error
+like 's11hgt undefined'. Of course the LINE breaking works for them
+automatically too.
+
+When a tie is continuead after breaking at the very beginning of a line,
+only a half of the tie is drawn (the 'very beginning' means that the tie
+would be less than 15pt long). To forbid this feature, say \nohalfties
+(default is \halfties). A font called mxsk is necessary for \halfties.
+
+
+Backwards compatibility
+~~~~~~~~~~~~~~~~~~~~~~~
+
+There are several "aliases" which allow to use the old, bitmapped slur
+commands for PS slurs without any change. There are however a few differences:
+- the \invertslur is not implemented yet
+- the \curve and \midslur macros have no effect
+
+
+
+
+Memory requrements
+~~~~~~~~~~~~~~~~~~
+
+I have tried to make the macros as small and fast as possible. The problem
+about them is not in their size, but in their output. Each \i... and \t...
+produces a \special command, which must be stored into the TeX's main memory.
+Therefore, if too many slur occurs in one page, some memory troubles could
+occur. In that case either use BigTeX (but I suppose you already use it) or
+use the bitmapped slurs. I will try to reduce the memory requirements, but
+do not expect any miracles. There is a lot of things to be passed to the
+PostScript part...
+
+
+
+About the PS header:
+~~~~~~~~~~~~~~~~~~~~
+The slurs need the PS header file psslurs.pro to be included into the
+output PostScript file. You have to say this to dvips with command
+
+\special{header=psslurs.pro}
+
+placed anywhere inside the piece. As default, this is done when \inputting
+the MusiXpss, but if you include the MusiXpss.tex into a format, the first
+page of your document will be always empty. If you want the macros included
+in your format file, comment the line 13 of this file and don't forget
+to copy it into your source file.
+
+Warning to dvidvi users: If you select a set of pages from your document,
+don't forget to include the page in which the \special command was used
+(default is first page). Otherwise the dvips won't find this command and
+won't include the header file, putting the PostScript device into a serious
+problems. You can also use the "-h psslurs.pro" option to tell dvips to add
+the header file manually.
+
+
+About the slur shape:
+~~~~~~~~~~~~~~~~~~~~~
+The shape is defined via trapezium:
+
+       c
+    <---->               b
+    <----------------------------------------->
+     _ _ _________________________________ _ _
+    |    /^1 _____/  ^2  ^3  ^4\_____  5^\    | ^
+        / __/                        \___ \     |
+    |  /_/  \                            \_\  | |
+      //     this is the 'slur'            \\   | a
+    |/                                      \\| |
+    |_________________________________________| v
+    0                                         6
+
+Points 0 and 6 are the starting and ending points. When the slope is not
+zero, the trapezium is simply rotated, NOT slanted.
+
+'a' is computed as sqrt(b)*2, bounded with <3,\psslurmaxhgt> and multiplied
+by the given height coeficient (see \tSlur and \t..slur, defaults to 1)
+The units are not equal to anything common, the values were found
+after a lot of testing.
+
+'c' is computed as angularity*b. Default angularity is 0.17, reasonable
+values should lie in <0.1, 0.3>.
+
+Then the shape is corrected when the slur is so steep that its extreme
+in horizontal direction lies inside the slur and shifted up or down
+if it's top would be too close to nearest staff line (!!!!!!!!).
+
+The slur then consists of two bezier curves:
+from 0 to 3 with control points 1 and 2 and
+from 3 to 6 with control points 4 and 5.
+
+The shading is made according to its length and current \internote.
+
+
+
+If you are interested, see a slightly commented PS code in psslurs.pro.
+
+Bug reports and complainments are welcomed at:
+
+	Stanislav Kneifl,
+
+	standa@hiero.cz
+
+
+
+HISTORY
+~~~~~~~
+
+0.92 (12.5.2002)
+      added: \nosluradjust, \sluradjust, \notieadjust, \tieadjust
+      added: \slopebrkslurtrue, \slopebrkslurfalse
+      fixed: shaded slurs now do not break up to separate curves
+             at high resolutions
+
+0.91 (10.1.2002)
+     First public release, adopted from OpusTeX version.

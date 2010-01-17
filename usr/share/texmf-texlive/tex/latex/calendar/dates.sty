@@ -1,0 +1,780 @@
+%%
+%% This is file `dates.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% dates.dtx  (with options: `style')
+%% This file is part of the Calendar package,
+%% Copyright (C) 1996, 1997 Frank Bennett, Jr.
+%% All rights reserved.
+%% ------------------------------------------
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% You are not allowed to change this file.  You may however copy
+%% this file to a file with a different name and then change the
+%% copy if (a) you do not charge for the modified code, (b) you
+%% acknowledge the author of this file in the new file, if it
+%% is distributed to others, and (c) you attach these same
+%% conditions to the new file.
+%% 
+%% You are not allowed to distribute this file alone.  You are not
+%% allowed to take money for the distribution or use of this file
+%% (or a changed version) except for a nominal charge for copying
+%% etc.
+%% 
+%% You are allowed to distribute this file under the condition that
+%% it is distributed with all of its contents, intact.
+%% 
+%% For error reports, or offers to help make this a more powerful,
+%% friendlier, and altogether more thrilling package, please contact me on
+%% fb@soas.ac.uk.  Better yet, make a contribution to
+%% my pension.  Account details available on request.
+%% ------------------------------------------
+%% 
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{dates}
+  [1998/01/17 17:12:39 3.1 Dates parsing support (Frank Bennett)]
+\newcount\dates@one
+\newcount\dates@two
+\newcount\dates@langnum
+\newtoks\dates@reg@a
+\newtoks\dates@reg@b
+\newtoks\dates@reg@c
+\def\DeclareCalendarLanguage#1#2#3#4#5{
+  \advance\dates@two by1\relax%
+  \expandafter\edef\csname dates@#1@langnum\endcsname{\the\dates@two}%
+  \ifnum\dates@two=1\relax\def\dates@default@language{#1}\fi%
+  \DeclareOption{#1}{%
+    \expandafter\expandafter\expandafter%
+      \dates@langnum\csname dates@#1@langnum\endcsname\relax%
+    \dates@buildcase{1}{\theweekday}{\dates@weekd}#2{}%
+    \dates@buildcase{1}{\theshortweekday}{\dates@weekd}#3{}%
+    \dates@buildcase{0}{\themonth}{\dates@month}#4{}%
+    \dates@buildcase{0}{\theshortmonth}{\dates@month}#5{}}}
+\def\dates@buildcase#1#2#3{%
+  \dates@one=#1\relax%
+  \dates@reg@c={#3}%
+  \gdef\dates@temp@a{#2}%
+  \dates@reg@a={}%
+  \dates@reg@b={}%
+  \def\dates@temp@c{}%
+  \dates@@buildcase}
+\def\dates@@buildcase#1{%
+  \ifcat$#1$%
+    \let\next\dates@@@buildcase%
+  \else%
+    \let\next\dates@@buildcase%
+    \dates@reg@a={\or#1}%
+    \dates@reg@b=\expandafter{\dates@temp@c}%
+    \edef\dates@temp@c{\the\dates@reg@b\the\dates@reg@a}
+  \fi%
+  \next}
+\def\dates@@@buildcase{%
+  \ifnum\dates@one=0\relax%
+    \dates@reg@a=\expandafter{\dates@temp@c}%
+  \else%
+    \dates@reg@a=\expandafter\expandafter\expandafter%
+      {\expandafter\@gobble\dates@temp@c}%
+  \fi%
+  \expandafter\edef\dates@temp@a{%
+    \noexpand\ifcase\the\dates@reg@c%
+    \the\dates@reg@a%
+    \noexpand\fi}}
+\RequirePackage{overword}[1997/10/29]
+\InputIfFileExists{dates.cfg}{}{}
+\@ifundefined{theweekday}{%
+  \DeclareCalendarLanguage{english}
+   {{Sun}{Mon}{Tue}{Wed}{Thu}{Fri}{Sat}}
+   {{Sunday}{Monday}{Tuesday}{Wednesday}{Thursday}{Friday}{Saturday}}
+   {{Jan}{Feb}{Mar}{Apr}{May}{Jun}{Jul}{Aug}{Sep}{Oct}{Nov}{Dec}}
+   {{January}{February}{March}{April}{May}{June}{July}{August}{September}
+    {October}{November}{December}}}
+  {}
+\ExecuteOptions{\dates@default@language}
+\ProcessOptions
+\long\gdef\dateread#1{%
+  \gdef\dates@action{#1}%
+  \gdef\dates@subranges{}%
+  \dates@subrange@start=0%
+  \dates@subrange@end=0%
+  \dates@read@default}
+\long\gdef\dates@read@default{%
+  \global\dates@time@start=0%
+  \global\dates@time@end=0%
+  \setyear{1900}%
+  \global\dates@month=0%
+  \global\dates@day=0%
+  \global\dates@weekd@target=7%
+  \gdef\theshorttext{}%
+  \gdef\thelongtext{}%
+  \global\dates@suppressfalse%
+  \global\let\dates@init\relax%
+  \global\let\dates@increment\relax%
+  \global\let\dates@read=\dates@read@default%
+  \global\let\dates@@@read=\dates@@@read@default%
+  \global\let\dates@@@@read=\dates@@@@read@default%
+  \global\let\dates@read@exit=\dates@read@exit@default%
+  \bgroup%
+    \@ifnextnparchar\dates@serious@brace%
+     {\message{This should never happen}}%
+     {\dates@@read}%
+     {\egroup}}
+\long\def\dates@@read#1#{%
+    \let\end\relax%
+    \xdef\cal@temp{#1 }%
+  \egroup%
+  \expandafter\dates@@@read\cal@temp}
+\def\dates@@@read@default{%
+    \global\let\dates@@@read\dates@@@read@default%
+    \@ifoverword\dates@serious@brace%
+      {\expandafter\dates@analyze\@overword{}%
+       \dates@@@@read}%
+      {\expandafter\dates@analyze\@overword{}%
+       \dates@@@read}%
+      {\expandafter\dates@analyze\@overword{}%
+       \ifnum\dates@year>0\relax%
+         \let\dates@read\relax%
+         \dates@read@exit%
+       \fi}}
+\bgroup
+  \catcode`\[=1
+  \global\let\dates@funny@brace=[
+  \catcode`\<=1
+  \global\let\dates@bent@brace=<
+\egroup
+\gdef\dates@@@@read@default#1{%
+  \global\let\dates@@@@read\dates@@@@read@default%
+  \global\let\dates@@@read\dates@@@read@default%
+  \dates@textcount1%
+  \def\theshorttext{#1}%
+  \ifnum\dates@textcount=\dates@langnum\relax%
+    \gdef\thelongtext{}%
+  \fi%
+  \bgroup%
+    \catcode`\[=1\catcode`\]=2\relax%
+    \catcode`\<=1\catcode`\>=2\relax%
+       \@ifnextnparchar\dates@funny@brace%
+         {\dates@@@@@read}%
+         {\global\let\thelongtext\theshorttext%
+          \@ifnextnparchar\dates@bent@brace%
+            {\dates@@@@read@bent}%
+            {\egroup%
+             \dates@read@exit}%
+            {\message{This can't happen}}}%
+         {\egroup%
+          \dates@read@exit}}
+\def\dates@@@@@read#1{%
+  \egroup%
+  \ifnum\dates@textcount=1\relax
+    \gdef\thelongtext{#1}%
+  \else%
+    \ifnum\dates@textcount=\dates@langnum\relax%
+      \gdef\thelongtext{#1}%
+    \fi%
+  \fi%
+  \bgroup%
+    \catcode`\<=1\catcode`\>=2\relax%
+       \@ifnextnparchar\dates@bent@brace%
+         {\dates@@@@read@bent}%
+         {\egroup%
+          \dates@read@exit}%
+         {\egroup%
+          \dates@read@exit}}
+\def\dates@@@@read@bent#1{%
+  \egroup%
+  \advance\dates@textcount by1\relax%
+  \ifnum\dates@textcount=\dates@langnum\relax
+    \def\theshorttext{#1}%
+  \fi%
+  \bgroup%
+    \catcode`\[=1\catcode`\]=2\relax%
+    \catcode`\<=1\catcode`\>=2\relax%
+       \@ifnextnparchar\dates@funny@brace%
+         {\dates@@@@@read}%
+         {\ifnum\dates@textcount=\dates@langnum\relax%
+            \gdef\thelongtext{}%
+          \fi%
+          \@ifnextnparchar\dates@bent@brace%
+            {\dates@@@@read@bent}%
+            {\egroup%
+             \dates@read@exit}%
+            {\message{This can't happen}}}%
+         {\egroup%
+          \dates@read@exit}}
+\def\dates@read@exit@default{%
+  \dates@verify%
+  \dates@fix%
+  \dates@lastdate\dates@date%
+  \ifdates@suppress@global%
+  \else%
+    \ifdates@suppress%
+    \else%
+      \dates@action%
+    \fi%
+  \fi%
+  \dates@read}
+\def\dates@verify{%
+  \ifnum\dates@month=0%
+    \ifdates@requiremonth%
+      \PackageError{dates}{Missing month.}{}%
+    \else%
+      \global\dates@month=1%
+    \fi%
+  \fi%
+  \ifnum\dates@day=0%
+    \ifdates@requireday%
+      \PackageError{dates}{Missing day of the month.}{}%
+    \else%
+      \global\dates@day=1%
+    \fi%
+  \fi%
+  \ifnum\dates@year=0\relax%
+      \PackageError{dates}{Missing year in ordinary date.}{}%
+  \fi}
+\def\dates@read@exit@range{%
+  \dates@fix%
+  \dates@subrange@end\dates@date%
+  \dates@reg@a=\expandafter{\dates@subranges}%
+  \xdef\dates@subranges{%
+    \the\dates@reg@a%
+    \noexpand\delim{\the\dates@subrange@start}%
+      {\the\dates@date}}%
+  \global\let\dates@read@exit\dates@read@exit@default%
+  \dates@read@exit}
+\def\dates@read@exit@recurse{%
+  \expandafter\ifcat\expandafter$\dates@subranges$%
+    \PackageError{dates}{No range given}%
+      {You need to specify a range before %
+       recursive entries and formulae}%
+  \fi\relax%
+  \ifx\dates@init\relax%
+    \ifnum\dates@day>0\relax%
+      \dates@everymonth@day\dates@day%
+      \ifnum\dates@month>0\relax%
+         \dates@everyyear@month\dates@month%
+         \global\let\dates@init\dates@init@yearly@doy%
+        \global\let\dates@increment\dates@increment@yearly@doy%
+      \else%
+        \global\let\dates@init\dates@init@monthly@dom%
+        \global\let\dates@increment\dates@increment@monthly@dom%
+      \fi%
+    \else%
+      \PackageError{dates}{Incomplete recursive entry}%
+       {You need to specify a day of the week or a day of %
+        the month or something for entries beginning with %
+        the word Every.}
+    \fi%
+  \fi%
+  \global\let\delim\dates@read@exit@@recurse%
+  \dates@subranges%
+  \dates@read}
+\def\dates@read@exit@@recurse#1#2{%
+  \dates@subrange@start#1\relax%
+  \dates@subrange@end#2\relax%
+  \dates@init%
+  \caldate%
+  \ifdates@suppress@global%
+  \else%
+    \ifdates@suppress%
+    \else%
+        \dates@action%
+    \fi%
+  \fi%
+  \let\next\dates@read@exit@@@recurse%
+  \dates@read@exit@@@recurse}
+\def\dates@read@exit@@@recurse{%
+  \dates@increment\relax%
+  \ifnum\dates@date>\dates@subrange@end\relax%
+    \let\next\relax%
+  \else%
+    \caldate%
+    \ifdates@suppress@global%
+    \else%
+      \ifdates@suppress%
+      \else%
+        \dates@action%
+      \fi%
+    \fi%
+  \fi%
+  \next}
+\def\dates@increment@daily{%
+  \global\advance\dates@date by 1\relax}
+\def\dates@init@weekly{%
+  \global\dates@date\dates@subrange@start%
+  \mod7\dates@date\dates@weekd%
+  \dates@three=\dates@weekd@target\relax%
+  \advance\dates@three by -\dates@weekd\relax%
+  \ifnum\dates@three<0\relax%
+    \advance\dates@three by7%
+  \fi%
+  \global\advance\dates@date by\dates@three\relax}
+\def\dates@init@semiweekly{%
+  \dates@verify%
+  \dates@fix%
+  \ifnum\dates@subrange@start>\dates@date%
+    \dates@ct@z\dates@subrange@start%
+    \advance\dates@ct@z by-\dates@date%
+    \mod{14}\dates@ct@z\dates@catch%
+    \global\dates@date\dates@subrange@start%
+    \global\advance\dates@date by\dates@catch%
+  \fi}
+\def\dates@increment@weekly{%
+  \global\advance\dates@date by7\relax}
+\def\dates@increment@semiweekly{%
+  \global\advance\dates@date by14\relax}
+\def\dates@init@monthly@dow{%
+  \global\dates@date\dates@subrange@start%
+  \dates@init@monthly@@dow}
+\def\dates@init@monthly@@dow{%
+  \let\dates@init@monthly@dow@recurse\relax%
+  \caldate%
+  \nextday\dates@weekd@target%
+  \caldate%
+  \dates@one\dates@day%
+  \divide\dates@one by 7\relax%
+  \multiply\dates@one by 7\relax%
+  \ifnum\dates@modulo>\dates@one\relax%
+    \dates@two\dates@modulo%
+    \advance\dates@two by -\dates@one%
+    \global\advance\dates@date by \dates@two%
+  \else%
+    \ifnum\dates@modulo<\dates@one\relax%
+      \dates@next@month%
+      \let\dates@init@monthly@dow@recurse\dates@init@monthly@@dow%
+    \fi%
+  \fi%
+\dates@init@monthly@dow@recurse}
+\def\dates@init@monthly@dom{%
+  \global\dates@date\dates@subrange@start%
+  \dates@init@monthly@@dom}
+\def\dates@init@monthly@@dom{%
+  \let\dates@init@monthly@dom@recurse\relax%
+  \caldate%
+  \ifnum\dates@day>\dates@everymonth@day%
+    \dates@next@month%
+    \let\dates@init@monthly@dom@recurse\dates\init@monthly@@dom%
+  \else%
+    \global\dates@day\dates@everymonth@day%
+    \dates@fix%
+  \fi%
+  \dates@init@monthly@dom@recurse}
+\def\dates@init@yearly@doy{%
+  \global\dates@date\dates@subrange@start%
+  \dates@init@yearly@@doy}
+\def\dates@init@yearly@@doy{%
+  \let\dates@init@yearly@doy@recurse\relax%
+  \caldate%
+  \dates@ct@z\dates@day@offset%
+  \global\dates@day\dates@everymonth@day%
+  \global\dates@month\dates@everyyear@month%
+  \dates@fix%
+  \ifnum\dates@ct@z>\dates@day@offset%
+    \nextyear%
+    \dates@fix%
+    \let\dates@init@yearly@doy@recurse\dates@init@yearly@@doy%
+  \fi%
+  \dates@init@yearly@doy@recurse}
+\def\dates@increment@monthly@dow{%
+  \dates@next@month%
+  \dates@init@monthly@@dow}
+\def\dates@increment@monthly@dom{%
+  \dates@next@month%
+  \dates@init@monthly@@dom}
+\def\dates@increment@yearly@doy{%
+  \nextyear%
+  \global\dates@month=\dates@everyyear@month\relax%
+  \global\dates@day=\dates@everymonth@day\relax%
+  \dates@fix%
+  \dates@init@yearly@@doy}
+\long\def\dates@@@read@function #1 #2 {%
+  \xdef\dates@init{\csname#1\endcsname}%
+  \xdef\dates@increment{\csname#2\endcsname}%
+  \@ifnextnparchar\dates@serious@brace%
+   {\bgroup%
+      \makeatletter%
+      \expandafter\dates@@@read@@function}%
+   {\PackageError%
+      {dates}%
+      {Extra text after function names}%
+      {The third argument must be in curly braces.}}%
+   {\relax}}
+\long\def\dates@@@read@@function#1{%
+    \long\gdef\dates@temp{#1}%
+  \egroup%
+  \dates@temp%
+  \let\dates@temp\relax%
+  \dates@@@@read@default}
+\long\def\dates@analyze#1#2#{%
+  \ifcat\noexpand#11%
+    \def\dates@zero{0}%
+    \expandafter\dates@check@hyphen\@overword-{}%
+    \ifx\dates@arg@b\dates@zero%
+      \expandafter\dates@check@colon\@overword:{}%
+      \ifx\dates@arg@b\dates@zero%
+          \expandafter\ifnum\@overword>31%
+            \setyear{\dates@arg@a}%
+          \else%
+            \ifnum\dates@day>0%
+              \dates@dayerror%
+            \else%
+              \global\dates@day=\dates@arg@a%
+            \fi%
+          \fi%
+      \else%
+        \expandafter\dates@strip@colon\dates@arg@b%
+        \global\dates@time@start=\dates@arg@a%
+        \global\multiply\dates@time@start by 60%
+        \global\advance\dates@time@start by \dates@arg@b%
+        \global\dates@time@end=\dates@time@start%
+      \fi%
+    \else%
+      \expandafter\dates@strip@hyphen\dates@arg@b%
+      \let\dates@temp\dates@arg@b%
+      \expandafter\dates@check@colon\dates@arg@a:{}%
+      \ifx\dates@arg@b\dates@zero%
+      \else%
+        \expandafter\dates@strip@colon\dates@arg@b%
+      \fi%
+      \global\dates@time@start=\dates@arg@a\relax%
+      \global\multiply\dates@time@start by 60\relax%
+      \global\advance\dates@time@start by \dates@arg@b\relax%
+      \expandafter\dates@check@colon\dates@temp:{}%
+      \ifx\dates@arg@b\dates@zero%
+      \else%
+        \expandafter\dates@strip@colon\dates@arg@b%
+      \fi%
+      \global\dates@time@end=\dates@arg@a\relax%
+      \global\multiply\dates@time@end by 60\relax%
+      \global\advance\dates@time@end by \dates@arg@b%
+    \fi%
+  \else%
+      \dates@execute#1#2XXX{}%
+  \fi}
+\def\dates@execute#1#2#3#4#{%
+  \ifcat#1\relax%
+    \expandafter\csname%
+      \string#1#2#3mac\endcsname%
+  \else%
+    \global\dates@catch=`#1\relax
+    \global\advance\dates@catch by-65
+    \dates@reg@a=\expandafter{\ifcase\dates@catch
+      a\or b\or c\or d\or e\or f\or g\or h\or i\or j\or k\or l\or
+      m\or n\or o\or p\or q\or r\or s\or t\or u\or v\or w\or x\or
+      y\or z\else #1\fi}
+    \csname\the\dates@reg@a#2#3mac\endcsname%
+  \fi}%
+\def\evemac{%
+ \global\let\dates@read@exit=\dates@read@exit@recurse}
+\def\daymac{%
+  \global\let\dates@init=\dates@init@daily%
+  \global\let\dates@increment=\dates@increment@daily}
+\def\dates@init@daily{%
+  \global\dates@date=\dates@subrange@start}
+\def\othmac{%
+  \global\let\dates@init=\dates@init@semiweekly%
+  \global\let\dates@increment=\dates@increment@semiweekly}
+\def\firmac{%
+  \dates@modulo=0%
+  \global\let\dates@init=\dates@init@monthly@dow%
+  \global\let\dates@increment=\dates@increment@monthly@dow}%
+\def\secmac{%
+  \dates@modulo=7%
+  \global\let\dates@init=\dates@init@monthly@dow%
+  \global\let\dates@increment=\dates@increment@monthly@dow}%
+\def\thimac{%
+  \dates@modulo=14%
+  \global\let\dates@init=\dates@init@monthly@dow%
+  \global\let\dates@increment=\dates@increment@monthly@dow}%
+\def\toXmac{\relax%
+  \ifnum\dates@year=0%
+    \dates@subrange@start\dates@lastdate%
+  \else%
+    \dates@fix%
+    \dates@subrange@start\dates@date%
+    \global\dates@month=0%
+    \global\dates@day=0%
+    \setyear{1900}%
+  \fi%
+  \global\let\dates@read@exit\dates@read@exit@range}%
+\def\funmac{%
+  \global\let\dates@read@exit=\dates@read@exit@recurse%
+  \global\let\dates@@@read=\dates@@@read@function}
+\def\remmac{%
+  \global\dates@suppresstrue}
+\bgroup
+  \def\monthdata#1#2#3#4#5\end{%
+    \expandafter\gdef\csname#2#3#4mac\endcsname{%
+        \ifnum\dates@month>0%
+          \dates@montherror%
+        \else%
+          \global\dates@month=#1%
+        \fi}%
+    \ifcat$#5$\let\next\@gobble\else\let\next\monthdata\fi%
+    \next#5\end}%
+  \monthdata1jan2feb3mar4apr5may6jun%
+            7jul8aug9sep{10}oct{11}nov{12}dec\end
+\egroup
+\bgroup
+  \def\weekdata#1#2#3#4#5\end{%
+    \expandafter\gdef\csname #2#3#4mac\endcsname{%
+      \ifnum\dates@weekd@target<7\relax%
+        \dates@weekerror%
+      \else%
+        \global\dates@weekd@target=#1\relax%
+        \ifx\dates@init\relax%
+          \global\let\dates@init\dates@init@weekly%
+        \fi%
+        \ifx\dates@increment\relax%
+          \global\let\dates@increment\dates@increment@weekly%
+        \fi%
+      \fi}%
+    \ifcat$#5$\let\next\@gobble\else\let\next\weekdata\fi%
+    \next#5\end}
+  \weekdata0sun1mon2tue3wed4thu5fri6sat\end
+\egroup
+\def\dates@montherror{%
+  \PackageError{dates}{Month multiply defined}{%
+    You have set the month more than once here.}}
+\def\dates@dayerror{%
+  \PackageError{dates}{Day multiply defined}{%
+    You have set the day more than once here.}}
+\def\dates@weekerror{%
+  \PackageError{dates}{Week multiply defined}{%
+    You have set the day of the week more than once here.}}
+\def\dates@check@colon#1:#2#{%
+  \def\dates@arg@a{#1}%
+  \def\dates@arg@b{0#2}}
+\def\dates@strip@colon#1:{%
+  \def\dates@arg@b{#1}}
+\def\dates@check@hyphen#1-#2#{%
+  \def\dates@arg@a{#1}%
+  \def\dates@arg@b{0#2}}
+\def\dates@strip@hyphen#1-{%
+  \def\dates@arg@b{#1}}
+\expandafter\expandafter\expandafter\def%
+  \expandafter\csname%
+    \string\relaxXXmac\endcsname{%
+      \global\let\dates@@@@read\relax}
+\def\theyear{\the\dates@year@full}
+\def\themonthnumber{\the\dates@month}
+\def\theday{\the\dates@day}
+\def\thelongdate{\the\dates@date}
+\def\themonthdays{\the\dates@days}
+\def\setyear#1{\dates@year=#1%
+ \advance\dates@year by -1900\calculateyearbase}
+\def\nextyear{\advance\dates@year by1%
+ \calculateyearbase}
+\def\dates@next@month{%
+  \ifnum\dates@month=12%
+    \advance\dates@year by 1\calculateyearbase%
+    \global\dates@month=1%
+    \global\dates@day=1%
+  \else%
+    \global\advance\dates@month by 1%
+    \global\dates@day=1%
+  \fi%
+  \dates@fix}
+\def\settimezone#1{\dates@timezone=#1%
+ \multiply\dates@timezone by 1000%
+ \divide\dates@timezone by24}
+\def\calculateyearbase{%
+ \global\dates@yearbase=-1%
+ {\dates@ct@z=\dates@year\divide\dates@ct@z by4%
+ \multiply\dates@ct@z by4\relax%
+ \ifnum\dates@year=\dates@ct@z%
+   \global\dates@catch=0%
+ \else%
+   \global\dates@catch=1%
+ \fi}%
+ \ifcase\dates@catch \leapyeartrue\or%
+  \leapyearfalse\fi%
+ {\dates@ct@z=\dates@year\multiply\dates@ct@z%
+ by1461\advance\dates@ct@z by3%
+ \divide\dates@ct@z by4%
+ \global\dates@catch=\dates@ct@z}%
+ \global\advance\dates@yearbase by\dates@catch\relax%
+ \ifnum\dates@year=0\global\dates@yearbase=0\leapyearfalse\fi}
+\def\monthdays{%
+\global\dates@catch\ifcase\dates@month%
+  0\or31\or%
+  59\or90\or120\or151\or181\or212\or%
+  243\or273\or304\or334\or365\fi%
+ {\ifleapyear\ifnum\dates@month>1%
+  \global\advance\dates@catch by1\fi\fi}%
+ \global\dates@day@offset=\dates@catch}
+\def\dates@fix{%
+ \dates@year@get%
+ \dates@monthname@get%
+ \ifnum\dates@days<\dates@day%
+   \PackageError{dates}{Day of month out of range}{%
+     There are only \the\dates@days\space days in %
+     \themonth, but you have tried^^J%
+     to specify \the\dates@day.}%
+ \else%
+   \global\dates@date=\dates@day{\advance\dates@month by-1%
+    \monthdays%
+    \global\advance\dates@date by\dates@day@offset%
+    \global\advance\dates@date by\dates@yearbase}%
+ \fi%
+ \dates@dayname@get}
+\def\mod#1#2#3{\dates@three=#2\relax%
+ \dates@four=\dates@three%
+ \divide\dates@three by#1%
+ \multiply\dates@three by#1%
+\advance\dates@four by-\dates@three%
+ #3=\dates@four}
+
+\def\dates@year@get{%
+  \global\dates@year@full\dates@year%
+  \global\advance\dates@year@full by 1900\relax}
+\def\dates@dayname@get{\mod7\dates@date\dates@weekd}
+\def\caldate{\dates@year=\dates@date%
+ \multiply\dates@year by4\divide\dates@year by1461%
+ \calculateyearbase%
+ {\advance\dates@date by-\dates@yearbase\global\dates@month=0%
+ \loop\monthdays\ifnum\dates@day@offset<\dates@date%
+ \global\advance\dates@month by1\repeat%
+ {\advance\dates@month by-1\monthdays%
+ \advance\dates@date by-\dates@day@offset%
+ \global\dates@day=\dates@date}}%
+ \dates@year@get%
+ \dates@monthname@get%
+ \dates@dayname@get}
+\def\dates@monthname@get{%
+  \ifcase\dates@month%
+    \or%
+        \global\dates@days=31\relax%
+    \or%
+        \ifleapyear%
+          \global\dates@days=29\relax%
+        \else%
+          \global\dates@days=28\relax%
+        \fi%
+    \or%
+        \global\dates@days=31\relax%
+    \or%
+        \global\dates@days=30\relax%
+    \or%
+        \global\dates@days=31\relax%
+    \or%
+        \global\dates@days=30\relax%
+    \or%
+        \global\dates@days=31\relax%
+    \or%
+        \global\dates@days=31\relax%
+    \or%
+        \global\dates@days=30\relax%
+    \or%
+        \global\dates@days=31\relax%
+    \or%
+        \global\dates@days=30\relax%
+    \or%
+        \global\dates@days=31\relax%
+  \fi}
+\def\nextday#1{{\dates@ct@z=#1\mod7\dates@date\dates@weekd%
+ \advance\dates@ct@z by-\dates@weekd\relax%
+ \ifnum\dates@ct@z<0\advance\dates@ct@z by7\fi%
+ \global\advance\dates@date by\dates@ct@z}}
+\def\prevday#1{\snextday#1%
+ \global\advance\dates@date by-7}
+\def\snextday#1{\global\advance\dates@date by1%
+ \nextday#1}
+\def\sprevday#1{\global\advance\dates@date by-1%
+ \prevday#1}
+\def\jdttol{\advance\dates@date by500%
+ \advance\dates@date by\dates@timezone%
+ \global\divide\dates@date by1000}
+\def\sintable#1{\ifcase #1 0\or100\or199%
+ \or296\or389\or479\or565\or644\or717%
+ \or783\or841\or891\or932\or964\or985%
+ \or997\or1000\or992\or974\or946\or909%
+ \or863\or808\or746\or675\or598\or516%
+ \or427\or335\or239\or141\or42\or-58%
+ \or-158\fi}
+\def\twopimod{\count2 =\count1%
+ \divide\count2 by6284 \count3 =1853%
+ \count4 =6283\multiply\count3  by\count2%
+ \multiply\count4  by\count2%
+ \divide\count3  by10000%
+ \advance\count3  by\count4%
+ \advance\count1  by-\count3}%
+\def\sin{\relax%
+ \ifnum\count1<0 \signtrue%
+ \count1=-\count1\else \signfalse\fi%
+ \loop\ifnum\count1>6284\twopimod\repeat\relax%
+ \ifnum\count1>3142%
+ \advance\count1 by-3142%
+ \ifsign\signfalse\else\signtrue\fi\fi%
+ \multiply\count1  by10\count3=\count1%
+ \divide\count3  by1000\count2=\count3%
+ \multiply\count3  by1000%
+ \advance\count3  by-\count1  %
+ \count5 =\sintable{\count2 }%
+ \count4 =\count5\advance\count2  by1%
+ \advance\count4  by -\sintable{\count2}%
+ \multiply\count4  by\count3%
+ \divide\count4  by1000%
+ \advance\count4  by\count5%
+ \ifsign\count4 =-\count4\fi}%
+\def\cos{\advance\count1  by-1571%
+ \multiply\count1  by-1\sin}%
+\def\lin#1.#2.#3+#4.{\count1=#3%
+ \count2=#2\count3=#1%
+ \multiply\count1 by\dates@ct@z%
+ \multiply\count2 by\dates@ct@z\relax%
+ \multiply\count3 by\dates@ct@z%
+ \divide\count1 by1000%
+ \advance\count1 by\count2%
+ \divide\count1 by1000%
+ \advance\count1 by\count3%
+ \advance\count1 by #4\relax}
+\def\fac#1{\multiply\count4  by #1%
+ \advance\count6  by\count4}
+\def\id{\count4=\count1}  % Identity
+\newcount\dates@textcount
+\newcount\dates@ct@z
+\newcount\dates@range@limit
+\newcount\dates@year
+\newcount\dates@timezone
+\dates@timezone=0
+\newcount\dates@catch
+\newcount\dates@day
+\newcount\dates@day@offset
+\newcount\dates@everymonth@day
+\newcount\dates@everyyear@month
+\newcount\dates@month
+\newcount\dates@date
+\newcount\dates@date@current
+\newcount\dates@three
+\newcount\dates@four
+\newcount\dates@weekd
+\newcount\dates@time@start
+\newcount\dates@time@end
+\newcount\dates@subrange@start
+\newcount\dates@subrange@end
+\newcount\dates@days
+\newcount\dates@lastdate
+\newcount\dates@yearbase
+\newcount\dates@weekd@target
+\newcount\dates@modulo
+\newcount\dates@year@full
+\newcount\dates@extra@day
+\newtoks\dates@reg
+\newtoks\dates@dayname
+\newtoks\dates@shortweekday
+\newtoks\dates@monthname
+\newtoks\dates@shortmonthname
+\newif\ifdates@requiremonth
+\newif\ifdates@requireday
+\newif\ifdates@suppress
+\newif\ifdates@suppress@global
+\newif\ifleapyear
+\let\delim\relax
+\let\dates@serious@brace={
+\def\dates@empty{}
+
+\endinput
+%%
+%% End of file `dates.sty'.

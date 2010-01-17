@@ -1,0 +1,71 @@
+% =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+% Autor:                                | Author: 
+%                       Bogus\l{}aw Jackowski, 22 V 1990
+                          email: B.Jackowski@gust.org.pl
+% Sprawdzone i udost/epnione:           | Revised and released:
+%                                   18 II 1997
+% =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+% Makro \meashor umieszczone            | Macro \meashor, when used in
+% w akapicie nadaje warto/s/c           | a paragraph, assigns values to
+% dw/om zmiennym: \measnum i \measdim,  | two registers: \measnum and
+% oznaczaj/acym odpowiednio numer       | \measdim (number of the line
+% wiersza akapitu w kt/orym pojawi/lo   | of the paragraph from which the
+% si/e makro \meashor i odleg/lo/s/c    | macro was invoked and the distance
+% punktu pomiaru od lewego skraju       | of the measuring point from the
+% akapitu.                              | left edge of the paragraph, resp.).
+% Przyk/lad:                            | Example:
+%   Fragment programu                   |   The piece of code
+%     Ala\meashor\ ma kota              |     Alice\meashor\ has a cat
+%   spowoduje nadanie zmiennym          |   results in assigning the
+%   nast/epuj/acych warto/sci:          |   following values
+%   \measnum=1                          |   \measnum=1                    
+%   \measdim=35.27782pt (parindent      |   \measdim=41.94447pt (parindent
+%   plus d/lugo/s/c s/lowa Ala          |   plus the length of the word Alice
+%   dla fontu CMR10).                   |   for the font CMR10).
+% Autor b/edzie wdzi/eczny za           | The author will be grateful for
+% poinformowanie o zgrabnych            | informing him about neat
+% zastosowaniach makra \meashor.        | applications of the macro \meashor.
+% =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\newif\ifmeasdisp %      ,,kosmetyka''  |  cosmetic powder
+\measdispfalse %   ustawienie domy/slne |  default
+\newcount\measnum %              wynik  |  result
+\newdimen\measdim %              wynik  |  result
+\def\meashor{%
+  \ifhmode
+    \bgroup %  zmiany parametr/ow s/a lokalne | parameters settings are local
+      \leftskip0pt \rightskip0pt
+      \parfillskip=0pt plus 1fil
+      \predisplaypenalty=10000
+      \postdisplaypenalty=10000
+      \displaywidowpenalty=\widowpenalty
+      \abovedisplayskip=-\baselineskip
+      \belowdisplayskip=-\baselineskip
+      \abovedisplayshortskip=-\baselineskip
+      \belowdisplayshortskip=-\baselineskip
+      \null % pozostaw poprzedzaj/ac/a spacj/e | leave preceding space
+      $$\global\measdim=\predisplaysize$$%
+      \ifnum\prevgraf=0
+        \immediate\write16{!
+          perhaps restricted hmode:
+          MEASURING IGNORED}%
+      \else
+        \global\advance\measdim by -2em
+        \global\measnum=\prevgraf
+        \global\advance\measnum by -3
+        \ifmeasdisp
+          \immediate\write16{>>
+            \the\measnum: \the\measdim}%
+        \fi
+% \advance\prevgraf to operacja zabroniona | \advance\prevgraf is forbidden
+        \global\advance\measnum by -1
+        \global\prevgraf=\measnum
+        \global\advance\measnum by 1
+        \kern\measdim
+      \fi
+    \egroup
+  \else
+    \immediate\write16{! vmode:
+      MEASURING IGNORED}%
+  \fi
+}%
+\endinput

@@ -1,0 +1,94 @@
+%
+%   This file is part of MusiXTeX
+%
+%   MusiXTeX is free software; you can redistribute it and/or modify
+%   it under the terms of the GNU General Public License as published by
+%   the Free Software Foundation; either version 2, or (at your option)
+%   any later version.
+%
+%   MusiXTeX is distributed in the hope that it will be useful,
+%   but WITHOUT ANY WARRANTY; without even the implied warranty of
+%   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%   GNU General Public License for more details.
+%
+%   You should have received a copy of the GNU General Public License
+%   along with MusiXTeX; see the file COPYING.  If not, write to
+%   the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+%   Boston, MA 02111-1307, USA.
+%
+% WpH May, 19, 1997 modified to be dashed.
+%
+
+min_bow:= internote;
+max_bow:=3internote;
+slope:=17.5/100;
+gap:=thick;                  %Wph length of space between dashes.
+dash:=1.6thick;              %Wph Length of each rising or falling dash.
+pointendl:=dash;             %WpH length of first and last dash.
+centerdashl:=-dash;          %WpH length of center dash.
+if unknown makedotted: makedotted:=0; fi % WpH
+path outerpath, innerpath;   %Wph declaration of path variables.
+
+code=-1;
+
+for iht=1 upto 8:
+  for iwd=0 upto 15:
+    beginchar(incr code, 0, 0, 0);
+      mw#:=(minwidth+iwd*delwidth)*pt#;
+      define_pixels(mw);
+      x1 = y1= 0; x3= mw; y3= 2y2'= iht*internote; x2'= .5x3;
+      mheight:=y3;
+      z2-z2'= whatever*dir(angle(z3-z1)+90);
+      my_bow:=min(max_bow, slope*mw);
+      my_bow:=max(my_bow, min_bow);
+      z1'=(z1-(0,my_bow)) rotated angle(z3-z1);
+      (z1'-z2)=whatever*(z1-z2');
+      penpos1(.15thick,(angle(z3-z1)+90));
+      penpos2(thick,(angle(z3-z1)+90));
+      penpos3(.15thick,(angle(z3-z1)+90));
+      penstroke (flex(z1e,z2e,z3e));  
+%{{{
+      currentpen:= pencircle;
+      draw (flex(z1,z2,z3));% draw z1--z3; draw z2'--z2--z1'--z1;
+%}}}
+      %
+      % WpH start of added block to make gaps.
+    if makedotted<>1: 
+        % variable makedotted has not been given a value.
+        % Dotted lines will not be made.
+    else:
+          cullit;
+          outerpath:= flex(z1r,z2r,z3r);    
+          innerpath:= flex(z1l,z2l,z3l);    
+          cl:=abs(z2-z1); %apporximate curve length/2
+          tcount:=(cl-pointendl-0.5centerdashl)/(gap+dash); % number of gaps on rise or fall.
+          tcount:=floor(tcount + .5); %round to nearest int number
+          tinc:=((cl-pointendl-.5centerdashl)/tcount); 
+          pickup pencircle scaled gap;
+          for k=0 upto tcount-1:
+            tt:=((pointendl + .5gap) + k*tinc)/(cl);
+            undraw (point tt of outerpath)..(point tt of innerpath);
+            undraw (point (2-tt) of outerpath)..(point (2-tt) of innerpath);
+%
+%              I expected the undraw statements to be the following. If the 
+%              other code fails on your version of metafont, try this:
+%
+%               undraw (point .5tt of outerpath)..(point .5tt of innerpath);
+%               undraw (point (1-.5tt) of outerpath)..(point (1-.5tt) of innerpath);
+%   
+          endfor;
+          cullit;
+      fi
+      % Wph End of added block to make gaps.
+      %
+      currentpicture:=currentpicture t;
+      p:=currentpicture;
+    endchar;
+
+    beginchar(code+128, 0, 0, 0);
+      currentpicture:=p T;
+    endchar;
+
+  endfor
+endfor
+end

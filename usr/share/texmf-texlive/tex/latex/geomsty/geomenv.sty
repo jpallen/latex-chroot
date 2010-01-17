@@ -1,0 +1,189 @@
+% $Header: /usr/home/levy/texts/geomsty/RCS/geomenv.sty,v 1.15 95/12/13 20:32:50 levy Exp Locker: levy $
+
+\@ifundefined{@@newtheorem}{}{\endinput}
+
+%
+% \newtheorem is modified so as to accept a (first) optional argument.
+% If this is present, the new theorem type ``foo'' will spawn an inner
+% environment ``foo@''.  The optional argument contains two
+% brace-delimited token sequences, be inserted before and after the inner
+% environment starts.
+%
+\def\newtheorem{\@ifnextchar[{\@newtheorem}{\@newtheorem[{}{}]}}%]
+
+\long\def\@newtheorem[#1]{\@@newtheorem#1}
+
+\long\def\@@newtheorem#1#2#3{%
+  \newenvironment{#3}%
+    {\def\object@type{#3}#1\@ifnextchar[{\@enva{#3}{#2}}{\@envb{#3}{#2}}}%]
+    {\end{#3@}}%
+  \@ifnextchar[{\@othm{#3@}}{\@nnthm{#3}}%]
+}
+
+\def\@nnthm#1#2{%
+\@ifnextchar[{\@xnnthm{#1}{#2}}{\@ynnthm{#1}{#2}}}
+
+\def\unnumbered#1{\expandafter\let\csname the#1\endcsname\relax}
+ 
+\def\@xnnthm#1#2[#3]{\@definecounter{#1}\@addtoreset{#1}{#3}%
+\expandafter\xdef\csname the#1\endcsname{\expandafter\noexpand
+  \csname the#3\endcsname \@thmcountersep \@thmcounter{#1}}%
+\global\@namedef{#1@}{\@thm{#1}{#2}}\global\@namedef{end#1@}{\@endtheorem}}
+ 
+\def\@ynnthm#1#2{\@definecounter{#1}%
+\expandafter\xdef\csname the#1\endcsname{\@thmcounter{#1}}%
+\global\@namedef{#1@}{\@thm{#1}{#2}}\global\@namedef{end#1@}{\@endtheorem}}
+
+\def\@enva#1#2[#3]{\begin{#1@}[#3]#2}
+\def\@envb#1#2{\begin{#1@}#2}
+
+%
+% Avoid indentation after end of theorem-like environment.
+%
+
+\def\end#1{\csname end#1\endcsname\@checkend{#1}%
+  \expandafter\endgroup \if@endpe \@doendpe \@restorepar \fi
+  \if@ignore \global\@ignorefalse \ignorespaces\fi}
+
+%
+% \theoremintro allows the user to choose how the theorem take is
+% going to look like.
+%
+
+\def\theoremintro#1{\normalshape\bf#1. }
+%
+% cannot use \@ifempty for this test because #2 typically looks like
+% \csname thetheorem\csname, and \thetheorem has been \let to \relax.
+%
+\def\thrmintro#1#2{#1%
+     \def\@tempa{#1}\ifx\@tempa\@empty\else
+     \expandafter\let\expandafter\@tempa#2%  This gives \thetheorem
+     \ifx\@tempa\relax\else{ }\fi\fi#2}
+
+\def\@begintheorem#1#2{\trivlist\item[\hskip\labelsep
+        \theoremintro{\thrmintro{#1}{#2}}\hskip-\labelsep]}
+
+\def\@opargbegintheorem#1#2#3{\trivlist\item[\hskip \labelsep
+        \theoremintro{\thrmintro{#1}{#2} (#3)}\hskip-\labelsep]\ifautolabel\label*{#3}\fi}
+
+%
+%  \specialdigits causes digits and punctuation to become active
+%  and print in roman type.  \regulardigits cancels that.
+%
+
+\def\dowith#1{\let\@tempa#1%
+        \@tempa,\@tempa.\@tempa:\@tempa;\@tempa(\@tempa)\@tempa!\@tempa?%
+        \@tempa0\@tempa1\@tempa2\@tempa3\@tempa4%
+        \@tempa5\@tempa6\@tempa7\@tempa8\@tempa9}
+%
+\def\makeactive#1{\catcode`#1=13}
+\def\makeother#1{\catcode\expandafter`\noexpand#1=12}
+\def\makechoice#1{\edef#1{%
+  \noexpand\ifmmode\string#1%
+  \noexpand\else\noexpand\ifhmode\/\noexpand\fi%
+              {\noexpand\normalshape\string#1}\noexpand\fi}}
+%
+\def\regulardigits{\dowith\makeother}
+
+{\dowith\makeactive
+\gdef\specialdigits{%
+\dowith\makeactive
+\let\@tempa\makechoice
+        \@tempa,\@tempa.\@tempa:\@tempa;\@tempa(\@tempa)\@tempa!\@tempa?%
+        \@tempa0\@tempa1\@tempa2\@tempa3\@tempa4%
+        \@tempa5\@tempa6\@tempa7\@tempa8\@tempa9}%
+}
+
+% The proof environment takes an optional argument, which defaults
+% to \prooftag (which should be set by theorem-like environments).
+% This argument is stored in \provedbox (after being passed to
+% \provedboxcontents), to be printed in the ``proved box'' at 
+% the end of the proof.  It is also printed at the beginning of proof,
+% after being passed to \proofintro.
+
+% If the proof
+% ends with a displayed formula, it is recommented that the proved box
+% be placed next to the formula (as if it were a tag).  This is done
+% by inserting \proved before the closing $$.  In even more difficult
+% cases (e.g., if the formula already has a tag, or is part of a 
+% multi-line display), plop \box\provedbox where we want the box to be.
+
+\def\prooftag{}
+\def\setprooftag{\xdef\prooftag{\@currentlabel}}
+
+\def\proof{}
+\renewenvironment{proof}
+  {\trivlist\item[]\@ifnextchar[{\pro@f}{\pro@f[\prooftag]}}%]
+  {\ifvoid\provedbox\else\hproved\fi\endtrivlist}
+
+% the next few lines, parallel to the Theorem setup, don't work for
+% two reasons: \provedbox is set within a group and so disappears, and
+% the nextchar seen by processproof is always \hskip.
+%\newenvironment{proof}
+%  {\trivlist\item[\hskip\labelsep\process@proof\hskip-\labelsep]}
+%  {\ifvoid\provedbox\else\hproved\fi\endtrivlist}
+%\def\process@proof{\@ifnextchar[{\pro@f}{\pro@f[\prooftag]}}%]
+
+\def\pro@f[#1]{\setbox\provedbox\hbox{\provedboxcontents{#1}}\proofintro{#1}}
+
+\def\proofintro#1{\expandafter\def\expandafter\@tempa\expandafter{#1}%
+  {\it Proof\ifx\@tempa\empty\else\ of #1\fi. }\ignorespaces}
+
+\def\provedboxcontents#1{\expandafter\def\expandafter\@tempa\expandafter{#1}%
+  \ifx\@tempa\empty$\square$\else\fbox{\small#1}\fi}
+
+\newbox\provedbox
+
+\def\proved{\ifmmode\eqno{\box\provedbox}\else\hproved\fi}
+
+\def\hproved{\unskip\nobreak\hfil\penalty50\hskip.5em\hbox{}\nobreak\hfil
+  \box\provedbox{\parfillskip=0pt\finalhyphendemerits=0\par}}
+
+% $Log:	geomenv.sty,v $
+%Revision 1.15  95/12/13  20:32:50  levy
+%make {proof} a redefinition instead of a definition
+%
+%Revision 1.14  95/07/22  13:32:31  levy
+%put space after period in \theoremintro 
+%(while at the same time removing the \labelsep)
+%
+%Revision 1.13  93/08/18  08:35:24  levy
+%> eliminated space for \newtheorem{justnumber}{}
+%added definition of \unnumbered
+%
+%Revision 1.12  1993/03/16  23:55:14  levy
+%*** empty log message ***
+%
+%Revision 1.11  93/03/07  23:08:41  levy
+%removed a repeated invocation of \theoremintro in \opargbegintheorem
+%
+%Revision 1.10  1993/01/10  20:57:03  levy
+%comparison in \proofintro should have \edef, not \def
+%
+%Revision 1.9  1993/01/10  17:11:12  levy
+%*** empty log message ***
+%
+%Revision 1.8  92/10/01  15:31:59  levy
+%fixed space in "Theorem ."
+%
+%Revision 1.7  92/07/17  13:44:21  levy
+%*** empty log message ***
+%
+%Revision 1.6  92/07/13  21:54:27  levy
+%further cleaned up the environments
+%
+%Revision 1.5  92/07/13  11:12:10  levy
+%big change (abolished MakeStEnv)
+%
+%Revision 1.4  92/06/15  19:15:35  levy
+%fixed disappearing punctuation in fancy italics
+%
+%Revision 1.3  92/06/03  11:25:24  levy
+%active punctuation
+%
+%Revision 1.2  92/04/07  09:08:56  levy
+%*** empty log message ***
+%
+%Revision 1.1  1992/03/21  02:42:28  levy
+%Initial revision
+%

@@ -1,0 +1,422 @@
+%-------------------------------------------------------------
+% This is ETH_PUNC.MF   as of Dec, 1995 by Jochen Metzinger
+% originally distributed by Abass B. Alamnehe [February, 1993]
+%-------------------------------------------------------------
+
+iff known exclamation_mark:
+cmchar "Exclamation mark";
+beginchar(exclamation_mark,5u#+width_adj#,asc_height#,0);
+italcorr asc_height#*slant-2u#-.5width_adj#+.5dot_size#;
+adjust_fit(0,0);
+pickup tiny.nib; pos3(dot_size,0); pos4(dot_size,90);
+lft x3l=hround(.5w-.5dot_size); bot y4l=0; z3=z4; dot(3,4);  % dot
+numeric bot_width;
+bot_width=if hefty:max(hround .8dot_size,fine.breadth) else: hair fi;
+pickup fine.nib; pos1(dot_size,0); pos2(bot_width,0);
+x1=x2=x3; bot y2=.25[top y4r,x_height]+1;
+if square_dots: top y1=h;
+ filldraw stroke z1e--z2e;  % stem
+else: top z0=(x1,h+o); y1+.5dot_size=h+o;
+ filldraw z1r...z0...z1l---z2l--z2r---cycle; fi  % stem and bulb
+penlabels(0,1,2,3,4); endchar;
+
+
+iff known spanish_shriek: 
+cmchar "Spanish open exclamation point";
+beginchar(spanish_shriek,5u#+width_adj#,asc_height#-desc_depth#,desc_depth#);
+italcorr h#*slant-2u#-.5width_adj#+.5dot_size#;
+adjust_fit(0,0);
+pickup tiny.nib; pos3(dot_size,0); pos4(dot_size,90);
+lft x3l=hround(.5w-.5dot_size); top y4r=h; z3=z4; dot(3,4);  % dot
+numeric top_width;
+top_width=if hefty:max(hround .8dot_size,fine.breadth) else: hair fi;
+pickup fine.nib; pos1(dot_size,0); pos2(top_width,0);
+x1=x2=x3; top y2=.25[bot y4l,h-x_height]-1;
+if square_dots: bot y1=-d;
+ filldraw stroke z1e--z2e;  % stem
+else: bot z0=(x1,-d-o); y1-.5dot_size=-d-o;
+ filldraw z1l...z0...z1r---z2r--z2l---cycle; fi  % stem and bulb
+penlabels(0,1,2,3,4); endchar;
+
+
+iff known question_mark:
+cmchar "Question mark";
+beginchar(question_mark,8.5u#,asc_height#,0);
+italcorr .8asc_height#*slant;
+adjust_fit(0,0);
+pickup tiny.nib; pos7(dot_size,0); pos8(dot_size,90);
+lft x7l=hround(.5w-.25u-.5dot_size); bot y8l=0; z7=z8; dot(7,8);  % dot
+numeric bot_width;
+bot_width=if hefty:max(hround .8dot_size,fine.breadth) else: hair fi;
+pickup fine.nib; pos2(vair,90); pos3(curve,0);
+pos4(vair,-90); pos5(bot_width,0); pos6(bot_width,0);
+x2=x4=x5=x6=x7; rt x3r=hround(w-u); bot y6=1+.25[top y8r,x_height];
+top y2r=h+oo; y3=.75[y6,y2]; y4=.5[y6,y2]; y5=.1[y6,y2];
+{{interim superness:=more_super;
+filldraw stroke pulled_super_arc.e(2,3)(superpull)
+ & subpath (0,1) of super_arc.e(3,4) .. z5e---z6e\\}};  % arc and stem
+if serifs: pos1(hair,180); pos0(flare,180);
+ lft x1r=hround u; y1=y3; bulb(2,1,0);  % bulb
+else: pos1(Vround 5/7[vair,flare],110);
+ lft x1r=hround u; top y1r=vround .9[y6,top y2r];
+ filldraw stroke term.e(2,1,left,1,4); fi  % terminal
+penlabels(0,1,2,3,4,5,6,7,8); endchar;
+
+
+iff known spanish_query:
+cmchar "Spanish open question mark";
+beginchar(spanish_query,8.5u#,asc_height#-desc_depth#,desc_depth#);
+adjust_fit(0,0);
+pickup tiny.nib; pos7(dot_size,0); pos8(dot_size,90);
+lft x7l=hround(.5w-.25u-.5dot_size); top y8r=h; z7=z8; dot(7,8);  % dot
+numeric top_width;
+top_width=if hefty:max(hround .8dot_size,fine.breadth) else: hair fi;
+pickup fine.nib; pos2(vair,270); pos3(curve,180);
+pos4(vair,90); pos5(top_width,180); pos6(top_width,180);
+x2=x4=x5=x6=x7; lft x3r=hround u; top y6=.25[bot y8l,h-x_height]-1;
+bot y2r=-d-oo; y3=.75[y6,y2]; y4=.5[y6,y2]; y5=.1[y6,y2];
+{{interim superness:=more_super;
+filldraw stroke pulled_super_arc.e(2,3)(superpull)
+ & subpath (0,1) of super_arc.e(3,4) .. z5e---z6e\\}};  % arc and stem
+if serifs: pos1(hair,0); pos0(flare,0);
+ rt x1r=hround(w-u); y1=y3; bulb(2,1,0);  % bulb
+else: pos1(Vround 5/7[vair,flare],-70);
+ rt x1r=hround(w-u); bot y1r=vround .9[y6,bot y2r];
+ filldraw stroke term.e(2,1,right,1,4); fi  % terminal
+penlabels(0,1,2,3,4,5,6,7,8); endchar;
+
+
+iff known dollar:
+cmchar "Dollar sign";
+beginchar(dollar,9u#,body_height#,body_height#-asc_height#);
+italcorr fig_height#*slant-.5u#; % same as for digits
+adjust_fit(0,0);
+numeric theta; theta=90-angle(50u,asc_height); slope:=-asc_height/50u;
+pickup fine.nib; pos2(slab,-90);
+pos0(cap_stem,theta); pos7(slab,-90);
+x2=x0=x7=.5w; top y2l=asc_height+oo; bot y7r=-oo;
+y0=.52asc_height; lft x3l=hround u; rt x6r=hround(w-u);
+x3r-x3l=x6r-x6l=hround .35[slab,cap_stem]-fine;
+ellipse_set(2l,3l,4l,0l); ellipse_set(2r,3r,4r,0r); y3=y3r;
+ellipse_set(7l,6l,5l,0l); ellipse_set(7r,6r,5r,0r); y6=y6r;
+filldraw stroke super_arc.e(2,3) & z3e{down}
+ ..z4e---z5e..z6e{down} & super_arc.e(6,7);  % main stroke
+if serifs: pos1(hair,0); pos8(hair,180);
+ pos10(flare,0); pos9(flare,180);
+ rt x1r=hround(w-u); lft x8r=hround u; y1=.5[y0,y2]; y8=.5[y0,y7];
+ {{less_tense; pos2'(slab,90); z2'=z2; bulb(2',1,10);  % upper arc and bulb
+ bulb(7,8,9)}};  % lower arc and bulb
+else: pos1(.6[slab,flare],-100); pos8(flare,-100);
+ rt x1l=hround(w-1.3u); lft x8r=hround .8u;
+ top y1l=vround .92asc_height+oo; bot y8r=vround .1asc_height-oo;
+ filldraw stroke term.e(2,1,right,.9,4);  % upper arc and terminal
+ filldraw stroke term.e(7,8,left,1,4); fi  % lower arc and terminal
+pickup crisp.nib; pos12(bar,0); pos11(bar,0);
+lft x12l=lft x11l=hround(.5w-.5bar); top y12=h; bot y11=-d;
+filldraw stroke z12e--z11e;  % vertical crossbar
+penlabels(0,1,2,3,4,5,6,7,8,9,10,11,12); endchar;
+
+
+iff known slash:
+cmchar "Slash";
+beginchar(slash,9u#,body_height#,paren_depth#);
+italcorr body_height#*slant-.5u#;
+adjust_fit(0,0); pickup rule.nib;
+rt x1=hround(w-u)+eps; top y1=h+eps;
+lft x2=hround u-eps; bot y2=-d-eps;
+draw z1--z2;  % diagonal
+penlabels(1,2); endchar;
+
+
+iff known period:
+cmchar "Period";
+beginchar(period,5u#,dot_size#,0);
+adjust_fit(0,0); pickup fine.nib;
+pos1(dot_size,0); pos2(dot_size,90);
+lft x1l=hround(.5w-.5dot_size); bot y2l=0; z1=z2; dot(1,2);  % dot
+penlabels(1,2); endchar;
+
+
+iff known zero_hyph:
+cmchar "Invisible hyphen";
+beginchar(zero_hyph,0,0,0);
+endchar;
+
+
+iff known eth_white_space:
+cmchar "Ethiopic white space";
+beginchar(eth_white_space,4u#,0,0);
+endchar;
+
+
+iff known lt_parenthesis:
+cmchar "Left parenthesis";
+beginchar(lt_parenthesis,7u# if monospace: -u# fi,body_height#,paren_depth#);
+italcorr body_height#*slant-.5u#;
+adjust_fit(0,0); pickup fine.nib;
+pos1(vair,0); pos2(.75[hair,stem],0); pos3(vair,0);
+rt x1r=rt x3r=hround(w-u); lft x2l=hround(x1-4u if monospace: +4/3u fi);
+top y1=h; y2=.5[y1,y3]=math_axis;
+filldraw stroke z1e{3(x2e-x1e),y2-y1}...z2e
+ ...{3(x3e-x2e),y3-y2}z3e;  % arc
+penlabels(1,2,3); endchar;
+
+
+iff known rt_parenthesis:
+cmchar "Right parenthesis";
+beginchar(rt_parenthesis, 7u# if monospace: -u# fi,body_height#,paren_depth#);
+italcorr math_axis#*slant-.5u#;
+adjust_fit(0,0); pickup fine.nib;
+pos1(vair,0); pos2(.75[hair,stem],0); pos3(vair,0);
+lft x1l=lft x3l=hround u; rt x2r=hround(x1+4u if monospace: -4/3u fi);
+top y1=h; y2=.5[y1,y3]=math_axis;
+filldraw stroke z1e{3(x2e-x1e),y2-y1}...z2e
+ ...{3(x3e-x2e),y3-y2}z3e;  % arc
+penlabels(1,2,3); endchar;
+
+
+iff known lt_bracket:
+cmchar "Left bracket";
+numeric wd#; wd#=max(5u#,4.5u#+.5if hefty:stem# else:rule_thickness# fi);
+beginchar(lt_bracket,wd#,body_height#,paren_depth#);
+italcorr body_height#*slant;
+adjust_fit(0,0);
+numeric top_thickness,side_thickness;
+if hefty: top_thickness=vair;
+ side_thickness=max(crisp.breadth,stem-2stem_corr);
+else: top_thickness=side_thickness=rule_thickness; fi;
+pickup crisp.nib; pos1(side_thickness,0); pos2(side_thickness,0);
+top y1=h; bot y2=-d; lft x1l=lft x2l=hround(2.5u-.5side_thickness)-1-eps;
+filldraw stroke z1e--z2e;  % stem
+pos3(top_thickness,90); pos4(top_thickness,90);
+pos5(top_thickness,90); pos6(top_thickness,90);
+x3=x5=x1l; rt x4=rt x6=ceiling(w-.4u)+eps; y3r=y4r=y1; y5l=y6l=y2;
+filldraw stroke z3e--z4e;  % upper bar
+filldraw stroke z5e--z6e;  % lower bar
+penlabels(1,2,3,4,5,6); endchar;
+
+
+iff known rt_bracket:
+cmchar "Right bracket";
+numeric wd#; wd#=max(5u#,4.5u#+.5if hefty:stem# else:rule_thickness# fi);
+beginchar(rt_bracket,wd#,body_height#,paren_depth#);
+italcorr body_height#*slant-2u#+.5if hefty:stem# else:rule_thickness# fi;
+adjust_fit(0,0);
+numeric top_thickness,side_thickness;
+if hefty: top_thickness=vair;
+ side_thickness=max(crisp.breadth,stem-2stem_corr);
+else: top_thickness=side_thickness=rule_thickness; fi;
+pickup crisp.nib; pos1(side_thickness,0); pos2(side_thickness,0);
+top y1=h; bot y2=-d; rt x1r=rt x2r=hround(w-2.5u+.5side_thickness)+1+eps;
+filldraw stroke z1e--z2e;  % stem
+pos3(top_thickness,90); pos4(top_thickness,90);
+pos5(top_thickness,90); pos6(top_thickness,90);
+x3=x5=x1r; lft x4=lft x6=floor .4u-eps; y3r=y4r=y1; y5l=y6l=y2;
+filldraw stroke z3e--z4e;  % upper bar
+filldraw stroke z5e--z6e;  % lower bar
+penlabels(1,2,3,4,5,6); endchar;
+
+
+iff known lt_quote:
+cmchar "Opening quote";
+beginchar(lt_quote,5u#,asc_height#,0);
+italcorr asc_height#*slant+.5dot_size#-2u#;
+adjust_fit(0,0);
+x1-.5dot_size=hround(.5w-.5dot_size); y1+.5dot_size=h-comma_depth;
+if monospace: ammoc(1,a,dot_size,.28u,vround 1.5comma_depth);  % large ammoc
+else: ammoc(1,a,dot_size,.25u,comma_depth); fi  % normal ammoc
+penlabels(1); endchar;
+
+
+iff known rt_quote:
+cmchar "Closing quote";
+beginchar(rt_quote,5u#,asc_height#,0);
+italcorr asc_height#*slant+.5dot_size#-2u#;
+adjust_fit(0,0);
+x1-.5dot_size=hround(.5w-.5dot_size); y1+.5dot_size=h;
+if monospace: comma(1,a,dot_size,.28u,vround 1.5comma_depth);  % large comma
+else: comma(1,a,dot_size,.25u,comma_depth); fi  % comma with increased jut
+penlabels(1); endchar;
+
+
+iff known lt_quotes:
+cmchar "Opening quotes";
+beginchar(lt_quotes,7u#+max(2u#,dot_size#),asc_height#,0);
+italcorr asc_height#*slant-.1u#;
+adjust_fit(0,0);
+x2+.5dot_size=hround(w-.6u); y1+.5dot_size=h-comma_depth;
+x2-x1=hround(1.5u+max(2u,dot_size)); y2=y1;
+ammoc(1,a,dot_size,.25u,comma_depth); % left dot and tail
+ammoc(2,b,dot_size,.25u,comma_depth); % right dot and tail
+penlabels(1,2); endchar;
+
+
+iff known rt_quotes:
+cmchar "Closing quotes";
+beginchar(rt_quotes,7u#+max(2u#,dot_size#),asc_height#,0);
+italcorr asc_height#*slant+dot_size#-4.1u#;
+adjust_fit(0,0);
+x1-.5dot_size=hround .6u; y2+.5dot_size=h;
+x2-x1=hround(1.5u+max(2u,dot_size)); y2=y1;
+comma(1,a,dot_size,.25u,comma_depth); % left dot and tail
+comma(2,b,dot_size,.25u,comma_depth); % right dot and tail
+penlabels(1,2); endchar;
+
+
+iff known less:
+cmchar "French quotation left";
+beginchar(less,7u#,x_height#,0);
+adjust_fit(0,0);
+pickup fine.nib;
+penpos1(stem,10); penpos2(stem,0); penpos3(stem,-10); penpos4(stem,0);
+lft x2=hround(1u)-eps; x1=x3=w-x2; x4=x2+1u;
+bot y1=0; top y3=h; y2=.5[y1,y3]; y4=y2;
+filldraw stroke z1e..controls z4e..z2e..controls z4e..z3e;  % diagonals
+labels(1,2,3); endchar;
+
+
+iff known greater:
+cmchar "French quotation right";
+beginchar(greater,7u#,x_height#,0);
+adjust_fit(0,0);
+pickup fine.nib;
+penpos1(stem,-10); penpos2(stem,0); penpos3(stem,10); penpos4(stem,0);
+rt x2=hround(w-1u)+eps; x1=x3=w-x2; x4=x2-1u;
+bot y1=0; top y3=h; y2=.5[y1,y3]; y4=y2;
+filldraw stroke z1e..controls z4e..z2e..controls z4e..z3e;  % diagonals
+labels(1,2,3); endchar;
+
+
+iff known eth_full_stop:
+cmchar "Full stop";
+beginchar(eth_full_stop,8u#,fig_height#,0);
+adjust_fit(2u#,0);
+pickup fine.nib;
+x0=x1=w-1u;  x2=x3=w-3u; y0=.275h; y3=.25h; y1=.425h; y2=.4h;
+filldraw z0--z1--z2--z3--cycle;
+x4=x5=w-1u;  x6=x7=w-3u; y4=.625h; y7=.6h; y5=.775h; y6=.75h;
+filldraw z4--z5--z6--z7--cycle;
+penlabels(0,1,2,3,4,5,6,7);
+x0'=x1'=3u;  x2'=x3'=1u; y0'=.275h; y3'=.25h; y1'=.425h; y2'=.4h;
+filldraw z0'--z1'--z2'--z3'--cycle;
+x4'=x5'=3u;  x6'=x7'=1u; y4'=.625h; y7'=.6h; y5'=.775h; y6'=.75h;
+filldraw z4'--z5'--z6'--z7'--cycle;
+penlabels(0',1',2',3',4',5',6',7'); endchar;
+
+
+iff known eth_semicolon:
+cmchar"Semicolon (der-ebe-serez)";
+beginchar(eth_semicolon,5u#,fig_height#,0);
+adjust_fit(1u#,1u#);
+pickup fine.nib;
+x0=x1=w-1.5u;  x2=x3=w-3.5u; y0=.325h; y3=.3h; y1=.475h; y2=.45h;
+filldraw z0--z1--z2--z3--cycle;
+x4=x5=w-1.5u;  x6=x7=w-3.5u; y4=.625h; y7=.6h; y5=.775h; y6=.75h;
+filldraw z4--z5--z6--z7--cycle;
+pickup rule.nib;
+top lft z8=(0,.95h); top rt z9=(w,h); draw z8--z9;
+bot lft z8'=(0,.075h); bot rt z9'=(w,.125h); draw z8'--z9';
+penlabels(0,1,2,3,4,5,6,7); endchar;
+
+
+iff known eth_minus:
+cmchar"Bar";
+beginchar(eth_minus,5u#,fig_height#,0);
+adjust_fit(1u#,1u#);
+pickup rule.nib;
+lft z1=(0,.5h); rt z2=(w,.55h); draw z1--z2;
+penlabels(0,1,2,3,4,5,6,7); endchar;
+
+
+iff known eth_space:
+cmchar "Old style space (nettib)";
+beginchar(eth_space,4u#,fig_height#,0);
+adjust_fit(0,0);
+pickup fine.nib;
+x0=x1=w-1u;  x2=x3=w-3u; y0=.275h; y3=.25h; y1=.425h; y2=.4h;
+filldraw z0--z1--z2--z3--cycle;
+x4=x5=w-1u;  x6=x7=w-3u; y4=.625h; y7=.6h; y5=.775h; y6=.75h;
+filldraw z4--z5--z6--z7--cycle;
+penlabels(0,1,2,3,4,5,6,7); endchar;
+
+
+iff known eth_preface_colon:
+cmchar "Preface Colon";
+beginchar(eth_preface_colon,9u#,fig_height#,0);
+adjust_fit(0,0);
+pickup fine.nib;
+x0=x1=3u;  x2=x3=1u; y0=.275h; y3=.25h; y1=.425h; y2=.4h;
+filldraw z0--z1--z2--z3--cycle;
+x4=x5=3u;  x6=x7=1u; y4=.625h; y7=.6h; y5=.775h; y6=.75h;
+filldraw z4--z5--z6--z7--cycle;
+pickup rule.nib;
+lft z11=(w-6u,.5h); rt z12=(w-1u,.55h); draw z11--z12;
+penlabels(0,1,2,3,4,5,6,7,11,12); endchar;
+
+
+iff known eth_three_dot:
+cmchar "Three dot question mark";
+beginchar(eth_three_dot,4u#,fig_height#,0);
+adjust_fit(0,0);
+pickup fine.nib;
+x0=x1=w-1u;  x2=x3=w-3u; y0=.1h; y3=.075h; y1=.25h; y2=.225h;
+filldraw z0--z1--z2--z3--cycle;
+x4=x5=w-1u;  x6=x7=w-3u; y4=.45h; y7=.425h; y5=.6h; y6=.575h;
+filldraw z4--z5--z6--z7--cycle;
+x8=x9=w-1u;  x10=x11=w-3u; y8=.8h; y11=.775h; y9=.95h; y10=.925h;
+filldraw z8--z9--z10--z11--cycle;
+penlabels(0,1,2,3,4,5,6,7,8,9,10,11); endchar;
+
+
+iff known eth_seven_dot:
+cmchar "Seven dot paragraph terminator";
+beginchar(eth_seven_dot,12u#,fig_height#,0);
+adjust_fit(0,0);
+pickup fine.nib;
+x20=x21=3u;  x22=x23=1u; y20=.275h; y23=.25h; y21=.425h; y22=.4h;
+filldraw z20--z21--z22--z23--cycle;
+x24=x25=3u;  x26=x27=1u; y24=.625h; y27=.6h; y25=.775h; y26=.75h;
+filldraw z24--z25--z26--z27--cycle;
+
+x0=x1=7u;  x2=x3=5u; y0=.1h; y3=.075h; y1=.25h; y2=.225h;
+filldraw z0--z1--z2--z3--cycle;
+x4=x5=7u;  x6=x7=5u; y4=.45h; y7=.425h; y5=.6h; y6=.575h;
+filldraw z4--z5--z6--z7--cycle;
+x8=x9=7u;  x10=x11=5u; y8=.8h; y11=.775h; y9=.95h; y10=.925h;
+filldraw z8--z9--z10--z11--cycle;
+
+x30=x31=11u;  x32=x33=9u; y30=.275h; y33=.25h; y31=.425h; y32=.4h;
+filldraw z30--z31--z32--z33--cycle;
+x34=x35=11u;  x36=x37=9u; y34=.625h; y37=.6h; y35=.775h; y36=.75h;
+filldraw z34--z35--z36--z37--cycle;
+penlabels(0,1,2,3,4,5,6,7,8,9,10,11,20,21,22,23,24,25,26,27,
+  30,31,32,33,34,35,36,37); 
+endchar;
+
+
+iff known eth_colon:
+cmchar "Colon (ie-kete-lale)";
+beginchar(eth_colon,7u#,fig_height#,0);
+adjust_fit(1u#,1u#);
+pickup fine.nib;
+x0=x1=w-2.5u;  x2=x3=w-4.5u; y0=.2h; y3=.175h; y1=.35h; y2=.325h;
+filldraw z0--z1--z2--z3--cycle;
+x4=x5=w-2.5u;  x6=x7=w-4.5u; y4=.7h; y7=.675h; y5=.85h; y6=.825h;
+filldraw z4--z5--z6--z7--cycle;
+pickup rule.nib;
+lft z8=(0,.48h); rt z9=(w,.54h); draw z8--z9;
+penlabels(0,1,2,3,4,5,6,7); endchar;
+
+
+iff known eth_comma:
+cmchar"Comma (netela-serez)";
+beginchar(eth_comma,5u#,fig_height#,0);
+adjust_fit(1u#,1u#);
+pickup fine.nib;
+x0=x1=w-1.5u;  x2=x3=w-3.5u; y0=.175h; y3=.15h; y1=.325h; y2=.3h;
+filldraw z0--z1--z2--z3--cycle;
+x4=x5=w-1.5u;  x6=x7=w-3.5u; y4=.525h; y7=.5h; y5=.675h; y6=.65h;
+filldraw z4--z5--z6--z7--cycle;
+pickup rule.nib;
+top lft z8=(0,.85h); top rt z9=(w,.9h); draw z8--z9;
+penlabels(0,1,2,3,4,5,6,7); endchar;

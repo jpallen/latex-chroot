@@ -1,0 +1,77 @@
+%D \enableregime[utf]
+%D \module
+%D   [      file=t-french,
+%D        version=2006.09.12,
+%D          title=\CONTEXT\ User Module,
+%D       subtitle=For French documents,
+%D         author=Peter MÃ¼nster,
+%D           date=\currentdate,
+%D      copyright={Peter MÃ¼nster}]
+%C This module is copyrighted by Peter MÃ¼nster.
+%C Please send any comments to pmrb at free.fr.
+
+% This program is free software; you can redistribute it and/or
+% modify it under the terms of the GNU General Public License
+% as published by the Free Software Foundation; either version 2
+% of the License, or (at your option) any later version.
+
+% This program is distributed in the hope that it will be useful,
+% but without any warranty; without even the implied warranty of
+% merchantability or fitness for a particular purpose.  See the
+% GNU General Public License for more details.
+
+%D \enableregime[utf]
+%D This module tries to do similar things as the frenchb.ldf in LaTeX:
+%D \startitemize
+%D \item automatic space before Â» and after Â«, :, ?, ; and ! 
+%D \item changing symbol for itemize environment
+%D \stopitemize
+%D
+%D There are still some bugs:
+%D \startitemize
+%D \item automatic space before Â» and after Â« does not work with utf
+%D \item when loaded in a project file, the activation of the characters : and
+%D ; gets lost in the products
+%D \stopitemize
+%D
+%D In a next version, we will use the new pre-spacing-feature of pdfTeX:
+%D no more active characters!
+
+\writestatus{loading}{Typesetting French documents}
+
+\def\activateSomeCharacters{%
+  \defineactivecharacter « {\leftguillemot\,}%  does not seem to work
+  \defineactivecharacter » {\,\rightguillemot}% with utf-encoding... :(
+  \defineactivecharacter ! {\,\string!}%
+  \defineactivecharacter ? {\,\string?}%
+  \defineactivecharacter : {\,\string:}%
+  \defineactivecharacter ; {\,\string;}}
+
+\startlanguagespecifics[fr]
+  \activateSomeCharacters
+  \setupitemize[symbol=2]
+  \lccode`\'=`\'
+\stoplanguagespecifics
+
+\mainlanguage[fr]
+
+\appendtoks\activateSomeCharacters\to\everystarttext
+
+%% This is also an option:
+%\definehspace[fr][:][.166667em]
+%\definehspace[fr][;][.166667em]
+%\definehspace[fr][!][.166667em]
+%\definehspace[fr][?][.166667em]
+%\useencoding[ffr]
+
+\doifnotmode{demo}{\endinput}
+
+%D Usage example:
+\enableregime[il9]
+\usemodule[french]
+\starttext
+Voilà: Voilà? Voilà! Voilà; «voilà»
+
+\enableregime[utf]
+VoilÃ : VoilÃ ? VoilÃ ! VoilÃ ; {\en does not work with utf:} Â«voilÃ Â»
+\stoptext

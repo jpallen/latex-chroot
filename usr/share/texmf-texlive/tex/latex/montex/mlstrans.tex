@@ -1,0 +1,1231 @@
+% vim: ts=8 sw=8
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%        File: mlstrans.tex
+%      Author: Oliver Corff
+%        Date: Novemer 10th, 1999
+%     Version: \VersionRelease
+%   Copyright: Ulaanbaatar, Beijing, Berlin
+%
+% Description: The mls retransliteration engine
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Umlaut definitions
+%
+\let\a@mlaut=E%
+\let\o@mlaut=O%
+\let\u@mlaut=U%
+%
+% Top-level definition of `myfunction'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\long\def\my@galig#1{%
+     \t@kenbuffer={}%
+     \loopcount=0%
+     \previousisboundarytrue%
+     \thisisboundarytrue%
+     \do@galiglist#1\ \end@galiglist\the\t@kenbuffer}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \do@galiglist, \dodo@galiglist and the outer loop of \evaluate
+% are shamelessly stolen from or modelled after Knuth's token
+% scanners demonstrated in the TeXbook, exercise 11.5, chapter
+% 20 and, most notoriously,  appendix D.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\do@galiglist{\afterassignment\dodo@galiglist\let\next= }
+
+\def\dodo@galiglist{\ifx\next\end@galiglist \let\next\relax
+ \else \evaluate@galig\let\next\do@galiglist\fi
+ \next}
+
+\def\end@galiglist{\end@galiglist}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The following variables and counters are used in the retrans-
+% literation engine.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\let\previouschar\empty % general char var initialization
+\let\followingchar\empty % ditto
+\let\thischar\empty   % ditto
+%
+\newtoks\t@kenbuffer	% token buffer collects output
+\newif\iffvs    % if FVS then loop once
+\newcount\thisfvs   % the fvs value of this character
+\newcount\previousfvs  % the fvs value of the previous char
+\newcount\followingfvs  % the fvs value of the following char
+\newcount\loopcount   % loop count
+\newcount\syllablecount  % syllable count; needed
+       % for front vowels
+\newcount\raisel   % takes care of longer l
+%
+\newif\iffollowingisvowel % if following is vowel then ...
+\newif\ifthisisvowel  % if this is vowel then ...
+\newif\ifpreviousisvowel % if previous is vowel then ...
+%
+\newif\iffollowingisround % if following is round then ...
+\newif\ifthisisround  % if this is round then ...
+\newif\ifpreviousisround % if previous is round then ...
+%
+\newif\iffollowingforcesround % if following forces successor
+       % to be round then ...
+\newif\ifthisforcesround % if this forces successor to be round then ...
+\newif\ifpreviousforcesround% if previous forces successor to be round then ...
+%
+\newif\iffollowingisboundary % if following is boundary then ...
+\newif\ifthisisboundary  % if this is boundary then ...
+\newif\ifpreviousisboundary % if previous is boundary then ...
+%
+\newif\iffollowingispseudoboundary % needed for xoriy=a, Gar-aca
+\newif\ifthisispseudoboundary  % and friends
+\newif\ifpreviousispseudoboundary %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% The \evaluate construct appears in the TeXbook, disguised
+% as \\; see above for sources of inspiration.
+%
+\def\evaluate@galig{\expandafter\if\space \next % <- Watch space and `%'!
+  \let\followingchar\space %
+  \followingisboundarytrue %
+  \syllablecount=0 %
+  \the\t@kenbuffer%
+  \t@kenbuffer={}%
+ \else%
+  \let\followingchar\next %
+  \followingisboundaryfalse %
+ \fi% <- end of evaluate else branch
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Detect and treat FVSs
+%
+ \iffvs%(
+  \fvsfalse%
+  \let\thisfvs\followingfvs%
+ \else
+  \if\followingchar '%
+   \fvstrue\followingfvs=1 %
+  \else
+   \if\followingchar "%
+    \fvstrue\followingfvs=2 %
+   \else
+    \followingfvs=0 %
+   \fi
+  \fi
+ \fi%)
+ %
+ \iffvs%(<- vi jump tag for detected FVS
+ \else%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Analysis of incoming characters
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \followingispseudoboundaryfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \if\followingchar a%
+   \followingforcesroundtrue
+   \followingisroundfalse
+   \followingisvoweltrue
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar \a@mlaut%
+   \followingforcesroundtrue
+   \followingisroundfalse
+   \followingisvoweltrue
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar e%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvoweltrue
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar i%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvoweltrue
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar u%
+   \followingforcesroundtrue
+   \followingisroundfalse
+   \followingisvoweltrue
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar \u@mlaut%
+   \followingforcesroundtrue
+   \followingisroundfalse
+   \followingisvoweltrue
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar o%
+   \followingforcesroundtrue
+   \followingisroundfalse
+   \followingisvoweltrue
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar \o@mlaut%
+   \followingforcesroundtrue
+   \followingisroundfalse
+   \followingisvoweltrue
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar n%
+   \followingforcesroundtrue
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar l%
+   \followingforcesroundtrue
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar r%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar g%
+   \followingforcesroundfalse
+   \followingisroundtrue
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar -%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+   \followingispseudoboundarytrue
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar G%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar b%
+   \followingforcesroundfalse
+   \followingisroundtrue
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar d%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar t%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar s%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar y%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar z%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar k%
+   \followingforcesroundfalse
+   \followingisroundtrue
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar x%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar m%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar S%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar c%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar =%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+   \followingispseudoboundarytrue
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar v%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar h%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar p%
+   \followingforcesroundfalse
+   \followingisroundtrue
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar K%
+   \followingforcesroundfalse
+   \followingisroundtrue
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar f%
+   \followingforcesroundfalse
+   \followingisroundtrue
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar Q%
+   \followingforcesroundfalse
+   \followingisroundtrue
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar Z%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar C%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar j%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar |%
+   % evaluate | (niruGu)
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\followingchar *%
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else
+   \followingisboundarytrue
+   \followingforcesroundfalse
+   \followingisroundfalse
+   \followingisvowelfalse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                                            \fi % 37 * EnvMark
+                                           \fi  % 36 | (niruGu)
+                                          \fi   % 35 j
+                                         \fi    % 34 C
+                                        \fi     % 33 Z
+                                       \fi      % 32 Q
+                                      \fi       % 31 f
+                                     \fi        % 30 K
+                                    \fi         % 29 p
+                                   \fi          % 28 h
+                                  \fi           % 27 v
+                                 \fi            % 26 =
+                                \fi             % 25 c
+                               \fi              % 24 S (sh)
+                              \fi               % 23 m
+                             \fi                % 22 x
+                            \fi                 % 21 k
+                           \fi                  % 20 z
+                          \fi                   % 19 y
+                         \fi                    % 18 s
+                        \fi                     % 17 t
+                       \fi                      % 16 d
+                      \fi                       % 15 b
+                     \fi                        % 14 G
+                    \fi                         % 13 - (MSP)
+                   \fi                          % 12 g
+                  \fi                           % 11 r
+                 \fi                            % 10 l
+                \fi                             %  9 n
+               \fi                              %  8 o@mlaut
+              \fi                               %  7 o
+             \fi                                %  6 u@mlaut
+            \fi                                 %  5 u
+           \fi                                  %  4 i
+          \fi                                   %  3 e
+         \fi                                    %  2 a@mlaut
+        \fi                                     %  1 a
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Evaluate current character 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \ifnum\loopcount>0 %(<- vi jump tag for loopcount
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \if\thischar a%          % 01
+   \iffollowingisboundary%(
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @ae}%   
+    \else     % Final Form
+     \ifpreviousisround %
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer AE}%
+     \else    
+      \ifpreviousispseudoboundary %
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer E}%
+      \else
+       \ifcase\thisfvs
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer e}%
+       \or
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer E}%
+       \fi
+      \fi
+     \fi
+    \fi
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @aa}%
+    \else%     % Medial Form
+     \ifpreviousisround %
+      \iffollowingispseudoboundary %
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer AE}%
+      \else%
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer A}%
+      \fi
+     \else%
+      \ifpreviousispseudoboundary %
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer |a}%
+      \else%
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer a}%
+      \fi
+     \fi
+    \fi
+   \fi%)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar \a@mlaut%      % 02
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @aE}%   
+    \else     % Final Form
+     \ifpreviousisround
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer AE}%
+     \else%
+      \ifpreviousispseudoboundary
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer E}%
+      \else%
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer e}%
+      \fi
+     \fi
+    \fi
+   \else
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @a}%
+    \else%     % Medial Form
+     \ifpreviousisround
+      \iffollowingispseudoboundary
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer AE}%
+      \else
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer A}%
+      \fi
+     \else%
+      \ifpreviousispseudoboundary
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer |a}%
+      \else%
+       \iffollowingispseudoboundary
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer e}%
+       \else
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer a}%
+       \fi
+      \fi
+     \fi
+    \fi
+   \fi
+   \advance\syllablecount by 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar e%        % 03
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @av}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer vY}%
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @av}%
+    \else%     % Medial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer v}%
+    \fi
+   \fi
+   \advance\syllablecount by 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar i%        % 04
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @aI}%
+    \else%     % Final Form
+     \if\previouschar b%
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer iY}%
+     \else
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer I}%
+     \fi
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @ai}%
+    \else%     % Medial Form
+     \iffollowingispseudoboundary
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer I}%
+     \else
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer i}%
+     \fi
+    \fi
+   \fi
+   \advance\syllablecount by 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar u%        % 05
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @ao|}%
+    \else%     % Final Form
+     \ifpreviousisround
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer O}%
+     \else
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer b}%
+     \fi
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @ao}%
+    \else%     % Medial Form
+     \ifpreviousisround
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer O}%
+     \else
+      \iffollowingispseudoboundary
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer b}%
+      \else
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer o}%
+      \fi
+     \fi
+    \fi
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar\u@mlaut%       % 06
+   \iffollowingisboundary%(
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @ab}%
+    \else%     % Final Form
+     \ifpreviousisround
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer O}%
+     \else
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer b}%
+     \fi
+    \fi%
+   \else%
+    \ifpreviousisboundary%( % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @aoi}%
+    \else%     % Medial Form
+     \ifnum\syllablecount>0
+      \ifpreviousisround
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer O}%
+      \else
+       \iffollowingispseudoboundary
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer b}%
+       \else
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer o}%
+       \fi
+      \fi
+     \else
+      \ifpreviousisround
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer O}%
+      \else
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer o}%
+      \fi
+      \ifcase\thisfvs
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer i}%
+      \or
+       %\t@kenbuffer=\expandafter{\the\t@kenbuffer i}%
+      \fi
+     \fi
+    \fi%)
+   \fi%)
+   \advance\syllablecount by 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar o%        % 07
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @ao}%
+    \else%     % Final Form
+     \ifpreviousisround
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer O}%
+     \else
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer b}%
+     \fi
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @ao}%
+    \else%     % Medial Form
+     \ifpreviousisround
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer O}%
+     \else
+      \iffollowingispseudoboundary
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer b}%
+      \else
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer o}%
+      \fi
+     \fi
+    \fi
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar\o@mlaut%       % 08
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @aoY}%
+    \else%     % Final Form
+     \ifpreviousisround
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer O}%
+     \else
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer b}%
+     \fi
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @aoi}%
+    \else%     % Medial Form
+     \ifnum\syllablecount>0
+      \ifpreviousisround
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer O}%
+      \else
+       \iffollowingispseudoboundary
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer b}%
+       \else
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer o}%
+       \fi
+      \fi
+     \else
+      \ifpreviousisround
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer Oi}%
+      \else
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer oi}%
+      \fi
+     \fi
+    \fi
+   \fi
+  \advance\syllablecount by 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar n%        % 09
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @n}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer e}%
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \ifcase\thisfvs
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer @n}%
+     \or
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer @a}%
+     \fi
+    \else%     % Medial Form
+     \iffollowingisvowel
+      \ifcase\thisfvs
+       \ifpreviousisround
+	\t@kenbuffer=\expandafter{\the\t@kenbuffer V}%
+       \else
+	\t@kenbuffer=\expandafter{\the\t@kenbuffer n}%
+       \fi
+      \or
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer a}%
+      \fi
+     \else
+      \iffollowingispseudoboundary
+       \if\followingchar -%
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer e}%
+       \else
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer e-}%
+       \fi
+      \else
+      \ifcase\thisfvs
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer a}%
+      \or
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer n}%
+      \fi
+      \fi
+     \fi
+    \fi
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar l%        % 10
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @l}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer L}%
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @l}%
+    \else%     % Medial Form
+     \ifpreviousisround
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer Q}%
+     \else
+      \ifnum\raisel>0
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer \char152}%
+      \else
+       \iffollowingispseudoboundary
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer L}%
+       \else
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer l}%
+       \fi
+      \fi
+     \fi
+    \fi
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar r%        % 11
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer r}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer R}%
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer r}%
+    \else%     % Medial Form
+     \iffollowingispseudoboundary
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer R}%
+     \else
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer r}%
+     \fi
+    \fi
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar g%        % 12
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer ga}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer iE}%
+    \fi%
+   \else%
+    \iffollowingforcesround % Initial and Medial Forms
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer g}%
+    \else
+     \iffollowingispseudoboundary
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer iE}%
+     \else
+      \iffollowingisvowel
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer I}%
+      \else
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer N}%
+      \fi
+     \fi
+    \fi
+   \fi
+   \raisel=3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar -%        % 13
+   \iffollowingisboundary
+    \ifpreviousisboundary % Isolated Form
+     \char32 %
+    \else
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer \hskip0.33ex}%
+    \fi
+   \else
+    \t@kenbuffer=\expandafter{\the\t@kenbuffer \hskip0.33ex}%
+   \fi 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar G%		% 14
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer XY}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer aG}%
+    \fi%
+   \else%
+    \ifpreviousisboundary%			% Initial Form
+     \ifcase\thisfvs
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer X}%
+     \or
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer x}%
+     \or
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer g}%
+     \fi
+     \raisel=3 %
+    \else%					% Medial Form
+     \iffollowingispseudoboundary
+       \if\followingchar -%
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer aG}%
+       \else
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer aG=}%
+       \fi
+     \else
+      \iffollowingisvowel
+       \ifcase\thisfvs
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer nn}%
+       \or
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer aa}%
+       \or
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer g}%
+       \fi
+      \else
+       \ifcase\thisfvs
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer aa}%
+       \or
+        \t@kenbuffer=\expandafter{\the\t@kenbuffer nn}%
+       \fi
+      \fi
+     \fi
+    \fi
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar b%        % 15
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer b}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer oE}%
+    \fi%
+   \else%
+    \iffollowingforcesround % Medial Forms
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer B}%
+    \else%     
+     \iffollowingispseudoboundary
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer oE}%
+     \else
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer b}%
+     \fi
+    \fi%
+   \fi%
+   \raisel=3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar d%        % 16
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \ifcase\thisfvs
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer dY}%
+     \or
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer tY}%
+     \else \t@kenbuffer=\expandafter{\the\t@kenbuffer dY}%
+     \fi%
+    \else%		% Final Form
+     \ifcase\thisfvs
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer oe}%
+     \or
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer dY}%
+     \else \t@kenbuffer=\expandafter{\the\t@kenbuffer dY}%
+     \fi%
+    \fi
+   \else
+    \ifpreviousisboundary% % Initial Form
+     \ifcase\thisfvs
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer t}%
+     \or
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer d}%
+     \else \t@kenbuffer=\expandafter{\the\t@kenbuffer d}%
+     \fi%
+    \else%		% Medial Form
+     \iffollowingispseudoboundary
+	  \ifcase\thisfvs
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer oe}%
+      \or
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer dY}%
+      \else \t@kenbuffer=\expandafter{\the\t@kenbuffer dY}%
+      \fi%
+     \else
+      \iffollowingisvowel
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer d}%
+      \else
+       \t@kenbuffer=\expandafter{\the\t@kenbuffer oa}%
+      \fi
+     \fi
+    \fi
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar t%        % 17
+   \iffollowingisboundary%(
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer tY}%
+    \else%     % Final Form
+     \ifcase\thisfvs
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer dY}%
+     \or
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer tY}%
+     \fi%
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer t}%
+    \else%     % Medial Form
+     \ifcase\thisfvs 
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer d}%
+     \or
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer t}%
+     \fi%
+    \fi
+   \fi%)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar s%        % 18
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @s}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer S}%
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @s}%
+    \else%     % Medial Form
+     \iffollowingispseudoboundary
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer S}%
+     \else
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer s}%
+     \fi
+    \fi
+   \fi
+   \raisel=3 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar y%        % 19
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer y}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer yY}%
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer y}%
+    \else%     % Medial Form
+     \iffollowingispseudoboundary
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer I}%
+     \else
+      \if\followingchar i%
+       \ifcase\thisfvs
+	\t@kenbuffer=\expandafter{\the\t@kenbuffer i}%
+       \or
+	\t@kenbuffer=\expandafter{\the\t@kenbuffer y}%
+       \fi% 
+      \else
+       \if\previouschar i%
+        \ifcase\thisfvs
+         \t@kenbuffer=\expandafter{\the\t@kenbuffer i}%
+	\or
+         \t@kenbuffer=\expandafter{\the\t@kenbuffer y}%
+	\fi
+       \else
+        \ifcase\thisfvs
+         \t@kenbuffer=\expandafter{\the\t@kenbuffer y}%
+	\or 
+         \t@kenbuffer=\expandafter{\the\t@kenbuffer i}%
+	\fi
+       \fi
+      \fi
+     \fi
+    \fi
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar z%        % 20
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer i}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer zY}%
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer i}%
+    \else%     % Medial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer z}%
+    \fi
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar k%        % 21
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer ga}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer iE}%
+    \fi%
+   \else%
+    \iffollowingforcesround % Initial and Medial Forms
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer g}%
+    \else
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer I}%
+    \fi
+   \fi
+   \raisel=3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar x%        % 22
+   \iffollowingisboundary%(
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer xY}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer aG}%
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer x}%
+    \else%     % Medial Form
+     \iffollowingispseudoboundary
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer aG}%
+     \else
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer aa}%
+     \fi
+    \fi
+   \fi%)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar m%        % 23
+   \iffollowingisboundary%(
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @m}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer M}%
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @m}%
+    \else%     % Medial Form
+     \iffollowingispseudoboundary
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer M}%
+     \else
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer m}%
+     \fi
+    \fi
+   \fi%)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar S%        % 24
+   \iffollowingisboundary%(
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @q}%
+    \else%     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer T}%
+    \fi%
+   \else%
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @q}%
+    \else%     % Medial Form
+     \iffollowingispseudoboundary
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer T}%
+     \else
+      \t@kenbuffer=\expandafter{\the\t@kenbuffer q}%
+     \fi
+    \fi
+   \fi%)
+   \raisel=3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar c%        % 25
+   \iffollowingisboundary
+    \t@kenbuffer=\expandafter{\the\t@kenbuffer cY}%
+   \else
+    \t@kenbuffer=\expandafter{\the\t@kenbuffer c}%
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar =%        % 26
+   \iffollowingisboundary
+    \ifpreviousisboundary % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer =}%
+    \else
+     %\t@kenbuffer=\expandafter{\the\t@kenbuffer \hskip0.33ex}%
+     %\hskip0.33ex
+    \fi
+   \else
+    \t@kenbuffer=\expandafter{\the\t@kenbuffer \hskip0.33ex}%
+    %\hskip0.33ex
+   \fi 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar v%        % 27
+   \iffollowingisboundary
+    \t@kenbuffer=\expandafter{\the\t@kenbuffer vY}%
+   \else
+    \t@kenbuffer=\expandafter{\the\t@kenbuffer v}%
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar h%        % 28
+   \iffollowingisboundary%(
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @ahY}%
+    \else     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer hY}%
+    \fi%
+   \else
+    \ifpreviousisboundary% % Initial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer @ah}%
+    \else     % Medial Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer h}%
+    \fi
+   \fi%)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar p%        % 29
+   \iffollowingisboundary%(
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer p}%
+    \else     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer pE}%
+    \fi%
+   \else%
+    \iffollowingforcesround%% Medial Forms
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer P}%
+    \else
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer p}%
+    \fi
+   \fi%)
+   \raisel=3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar K%        % 30
+   \iffollowingisboundary%(
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer k}%
+    \else     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer kE}%
+    \fi%
+   \else%
+    \iffollowingforcesround%% Medial Forms
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer K}%
+    \else
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer k}%
+    \fi
+   \fi%)
+   \raisel=3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar f%        % 31
+   \iffollowingisboundary%(
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer f}%
+    \else     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer fE}%
+    \fi%
+   \else%
+    \iffollowingforcesround%% Medial Forms
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer F}%
+    \else
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer f}%
+    \fi
+   \fi%)
+   \raisel=3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar Q%        % 32
+   \iffollowingisboundary%
+    \ifpreviousisboundary% % Isolated Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer w}%
+    \else     % Final Form
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer wE}%
+    \fi%
+   \else%
+    \iffollowingforcesround%% Medial Forms
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer W}%
+    \else
+     \t@kenbuffer=\expandafter{\the\t@kenbuffer w}%
+    \fi
+   \fi
+   \raisel=3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar Z%        % 33
+   \iffollowingisboundary
+    \t@kenbuffer=\expandafter{\the\t@kenbuffer ZY}%
+   \else
+    \t@kenbuffer=\expandafter{\the\t@kenbuffer Z}%
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar C%        % 34
+   \iffollowingisboundary
+    \t@kenbuffer=\expandafter{\the\t@kenbuffer CY}%
+   \else
+    \t@kenbuffer=\expandafter{\the\t@kenbuffer C}%
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar j%        % 35
+   \iffollowingisboundary
+    \t@kenbuffer=\expandafter{\the\t@kenbuffer jY}%
+   \else
+    \t@kenbuffer=\expandafter{\the\t@kenbuffer j}%
+   \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar |%        % 36
+   \t@kenbuffer=\expandafter{\the\t@kenbuffer |}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else \if\thischar *%        % 37
+   \t@kenbuffer=\expandafter{\the\t@kenbuffer *}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \else%
+   \the\t@kenbuffer\thischar\t@kenbuffer={}%
+      % Output anything else which
+      % is not a mongolian character.
+      %
+  \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi%
+  \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi%
+  \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+   %\showtriple%
+  \fi%)<- vi jump tag for loopcount
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \advance\loopcount by 1
+  %
+  \ifnum\raisel>0\advance\raisel by -1 \fi
+  %
+  \let\previousfvs\thisfvs     % downcycle FVS
+  %
+  \let\previouschar\thischar     % downcycle
+  \let\thischar\followingchar     % character
+  %
+  \ifthisisround\previousisroundtrue   % downcycle
+   \else\previousisroundfalse\fi   % is round
+  \iffollowingisround\thisisroundtrue
+   \else\thisisroundfalse\fi%
+  %
+  \ifthisforcesround\previousforcesroundtrue % downcycle
+   \else\previousforcesroundfalse\fi  % forces round
+  \iffollowingforcesround\thisforcesroundtrue
+   \else\thisforcesroundfalse\fi%
+  %
+  \ifthisisboundary\previousisboundarytrue % downcycle
+   \else\previousisboundaryfalse\fi  % boundary
+  \iffollowingisboundary\thisisboundarytrue
+   \else\thisisboundaryfalse\fi%
+  %
+  \ifthisispseudoboundary\previousispseudoboundarytrue % downcycle
+   \else\previousispseudoboundaryfalse\fi    % pseudo-
+  \iffollowingispseudoboundary\thisispseudoboundarytrue% boundaries
+   \else\thisispseudoboundaryfalse\fi%
+  %
+ \fi%)<- vi jump tag for detected FVS
+ %
+ }% End of evaluate definition
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \showtriple is used for debugging purposes. It shows every
+% letter surrounded by predecessor and follower, with Form
+% Variant Selector number indicated if present.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\showtriple{%
+    % show predecessor
+    \if\thischar\space\let\thischar *\fi%
+    \ifpreviousisboundary [\else (\fi%
+    \number\loopcount:
+     $_{\previouschar}%
+     ^{\ifnum\previousfvs>0 \number\previousfvs\fi}$%
+    %
+    % show present char and FVS
+    \thischar%
+     $^{\ifnum\thisfvs>0 \number\thisfvs\fi}$%
+    %
+    % show successor
+    $_{\followingchar}%
+     ^{\ifnum\followingfvs>0 \number\followingfvs\fi}$%
+     %
+    \iffollowingisboundary ]\else )\fi%
+    \ifthisisboundary\par\else\space\fi%
+    }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% We're done!
+%
+\endinput
+\def\mlsloaded{\yeshere}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% The file mlstrans.tex ends here.
+%
+% O. Corff, (c) 1999, Ulaanbaatar, Beijing, Berlin
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
